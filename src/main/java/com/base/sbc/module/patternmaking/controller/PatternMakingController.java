@@ -7,6 +7,7 @@
 package com.base.sbc.module.patternmaking.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -45,9 +46,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 类描述：打版管理 Controller类
@@ -124,11 +127,19 @@ public class PatternMakingController {
     @PutMapping
     public PatternMaking update(@RequestBody PatternMakingDto dto) {
         PatternMaking patternMaking = BeanUtil.copyProperties(dto, PatternMaking.class);
+
+
 //        patternMakingService.checkPatternNoRepeat(dto.getId(), dto.getPatternNo());
         patternMakingService.checkPatSeqRepeat(dto.getStyleId(), dto.getId(), dto.getPatSeq());
         PatternMaking old = patternMakingService.getById(dto.getId());
+
         if (StrUtil.isAllNotBlank(dto.getNode(), dto.getStatus())) {
             patternMakingService.sort(old, true);
+        }
+        if (!ObjectUtil.equal(old.getRequirementNum(), dto.getRequirementNum())) {
+            BigDecimal sampleFinishNum = Optional.ofNullable(dto.getSampleFinishNum()).orElse(old.getSampleFinishNum());
+            patternMaking.setSampleFinishNum(Optional.ofNullable(sampleFinishNum).orElse(dto.getRequirementNum()));
+            patternMaking.setCutterFinishNum(Optional.ofNullable(old.getCutterFinishNum()).orElse(dto.getRequirementNum()));
         }
         patternMakingService.updateById(patternMaking);
         if (StrUtil.isAllNotBlank(dto.getNode(), dto.getStatus())) {

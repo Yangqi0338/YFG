@@ -31,7 +31,7 @@ public class UserUtils {
 	public static final String USER_ID = "userId:";
 	public static final String NAME = "name:";
 
-	public static final String USER_INFO ="USER_INFO_";
+	public static final String USER_INFO = "USER_INFO:";
 
 	/**
 	 * 获取当前登录用户所有础信息
@@ -44,23 +44,6 @@ public class UserUtils {
 	}
 
 
-	public String getUserIdBy(Principal user) {
-		String userName = user.getName();
-		String userId = (String)redisUtils.get(USER_ID+userName);
-		if(StringUtils.isBlank(userId)) {
-			String retomeResult = oauthService.getUserInfo();
-			JSONObject jsonx = JSON.parseObject(retomeResult);
-			String data =  jsonx.getJSONObject("data").toJSONString();
-			if(jsonx.getBoolean(Constants.SUCCESS)) {
-				GroupUser gu = (GroupUser)JsonUtils.jsonToBean(data, GroupUser.class);
-				if (gu != null) {
-					redisUtils.set(USER_ID+userName, gu.getId());
-					userId = gu.getId();
-				}
-			}
-		}
-		return userId;
-	}
 	public GroupUser getUserBy(Principal user) {
 		String userName = user.getName();
 		GroupUser users = (GroupUser) redisUtils.get(USER_ID+userName);
