@@ -298,6 +298,8 @@ public class SampleBoardVo extends Style {
      */
     @ApiModelProperty(value = "完成数量")
     private BigDecimal sampleFinishNum;
+    @ApiModelProperty(value = "分配车缝工备注")
+    private String stitcherRemark;
 
     public String getId() {
         return patternMakingId;

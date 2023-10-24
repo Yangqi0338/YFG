@@ -16,6 +16,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
 /**
  * 类描述：打版管理 实体类
  *
@@ -23,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email your email
- * @date 创建时间：2023-10-20 21:33:03
+ * @date 创建时间：2023-10-24 9:38:25
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -39,16 +40,22 @@ public class PatternMaking extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 打版编码 */
-    @ApiModelProperty(value = "打版编码"  )
+    @ApiModelProperty(value = "打版编码")
     private String code;
-    /** 样板号 */
-    @ApiModelProperty(value = "样板号"  )
+    /**
+     * 样板号
+     */
+    @ApiModelProperty(value = "样板号")
     private String patternNo;
-    /** 当前状态 */
-    @ApiModelProperty(value = "当前状态"  )
+    /**
+     * 当前状态
+     */
+    @ApiModelProperty(value = "当前状态")
     private String status;
-    /** 产品季节id */
-    @ApiModelProperty(value = "产品季节id"  )
+    /**
+     * 产品季节id
+     */
+    @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
     /**
      * 款式设计id
@@ -65,14 +72,20 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "版房")
     private String patternRoom;
-    /** 版房id */
-    @ApiModelProperty(value = "版房id"  )
+    /**
+     * 版房id
+     */
+    @ApiModelProperty(value = "版房id")
     private String patternRoomId;
-    /** 打版类型 */
-    @ApiModelProperty(value = "打版类型"  )
+    /**
+     * 打版类型
+     */
+    @ApiModelProperty(value = "打版类型")
     private String sampleType;
-    /** 打版类型名称 */
-    @ApiModelProperty(value = "打版类型名称"  )
+    /**
+     * 打版类型名称
+     */
+    @ApiModelProperty(value = "打版类型名称")
     private String sampleTypeName;
     /** 打版难度 */
     @ApiModelProperty(value = "打版难度"  )
@@ -174,18 +187,26 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "裁剪工"  )
     private String cutterName;
     /** 裁剪工id */
-    @ApiModelProperty(value = "裁剪工id"  )
+    @ApiModelProperty(value = "裁剪工id")
     private String cutterId;
-    /** 裁剪完成数量 */
-    @ApiModelProperty(value = "裁剪完成数量"  )
+    /**
+     * 裁剪完成数量
+     */
+    @ApiModelProperty(value = "裁剪完成数量")
     private BigDecimal cutterFinishNum;
-    /** 样衣工工作量评分 */
-    @ApiModelProperty(value = "样衣工工作量评分"  )
+    /**
+     * 样衣工工作量评分
+     */
+    @ApiModelProperty(value = "样衣工工作量评分")
     private BigDecimal sampleMakingScore;
-    /** 样衣工质量评分 */
-    @ApiModelProperty(value = "样衣工质量评分"  )
+    /**
+     * 样衣工质量评分
+     */
+    @ApiModelProperty(value = "样衣工质量评分")
     private BigDecimal sampleMakingQualityScore;
-    /** 版师工作量评分 */
+    /**
+     * 版师工作量评分
+     */
     @ApiModelProperty(value = "版师工作量评分")
     private BigDecimal patternMakingScore;
     /**
@@ -203,6 +224,11 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "车缝工id")
     private String stitcherId;
+    /**
+     * 分配车缝工备注
+     */
+    @ApiModelProperty(value = "分配车缝工备注")
+    private String stitcherRemark;
     /**
      * 二次加工
      */
@@ -223,10 +249,14 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "打样工艺员id")
     private String patternTechnicianId;
-    /** 打样工艺员 */
-    @ApiModelProperty(value = "打样工艺员"  )
+    /**
+     * 打样工艺员
+     */
+    @ApiModelProperty(value = "打样工艺员")
     private String patternTechnicianName;
-    /** 当前节点 */
+    /**
+     * 当前节点
+     */
     @ApiModelProperty(value = "当前节点"  )
     private String node;
     /** 排序 */
@@ -255,21 +285,31 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "外辅发出时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date extAuxiliaryDispatchDate;
-    /** 外辅接收时间 */
-    @ApiModelProperty(value = "外辅接收时间"  )
+    /**
+     * 外辅接收时间
+     */
+    @ApiModelProperty(value = "外辅接收时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date extAuxiliaryReceiveDate;
-    /** 样衣结束标识:(0:未结束,1结束) */
-    @ApiModelProperty(value = "样衣结束标识:(0:未结束,1结束)"  )
+    /**
+     * 样衣结束标识:(0:未结束,1结束)
+     */
+    @ApiModelProperty(value = "样衣结束标识:(0:未结束,1结束)")
     private String endFlg;
-    /** 样衣条码 */
-    @ApiModelProperty(value = "样衣条码"  )
+    /**
+     * 样衣条码
+     */
+    @ApiModelProperty(value = "样衣条码")
     private String sampleBarCode;
-    /** SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开 */
-    @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开"  )
+    /**
+     * SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开
+     */
+    @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3重新打开")
     private String scmSendFlag;
-    /** 样衣完成状态:(0未完成,1完成) */
-    @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)"  )
+    /**
+     * 样衣完成状态:(0未完成,1完成)
+     */
+    @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)")
     private String sampleCompleteFlag;
     /**
      * 打版状态:0待接收,1已接收,2进行中,3完成
@@ -318,10 +358,8 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "放码时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date gradingDate;
-    /**
-     * 完成数量
-     */
-    @ApiModelProperty(value = "完成数量")
+    /** 完成数量 */
+    @ApiModelProperty(value = "完成数量"  )
     private BigDecimal sampleFinishNum;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

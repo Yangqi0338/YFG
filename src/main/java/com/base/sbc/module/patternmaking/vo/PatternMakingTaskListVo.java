@@ -64,7 +64,11 @@ public class PatternMakingTaskListVo extends PatternMaking {
     @ApiModelProperty(value = "修改时间")
     @JsonFormat(pattern = "M月d日HH:mm", timezone = "GMT+8")
     private Date updateDate;
-
+    /**
+     * 样衣条码
+     */
+    @ApiModelProperty(value = "样衣条码")
+    private String sampleBarCode;
     /**
      * 中断样衣(0正常，1中断)
      */
@@ -128,7 +132,9 @@ public class PatternMakingTaskListVo extends PatternMaking {
     @ApiModelProperty(value = "放码师名称")
     private String gradingName;
 
-    /** 放码时间 */
+    /**
+     * 放码时间
+     */
     @ApiModelProperty(value = "放码时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date gradingDate;
@@ -137,6 +143,10 @@ public class PatternMakingTaskListVo extends PatternMaking {
      */
     @ApiModelProperty(value = "打版类型")
     private String sampleType;
+
+    @ApiModelProperty(value = "分配车缝工备注")
+    private String stitcherRemark;
+
     private List<NodeStatusVo> nodeStatusList;
 
     public Map<String, NodeStatusVo> getNodeStatus() {
