@@ -63,10 +63,8 @@
         ht.STATUS,
         tsp.control_confirm as planCostConfirm,
         tsp.product_hangtag_confirm as productTagPriceConfirm,
-        tsp.control_hangtag_confirm as planTagPriceConfirm,
-        tppst.grading_name as gradingName,
-        tppst.technologist_name as technologistName,
-        tppst.stitcher as sampleMakerName
+        tsp.control_hangtag_confirm as planTagPriceConfirm
+
         FROM
         <choose>
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
@@ -85,7 +83,6 @@
         </choose>
         LEFT JOIN t_basicsdatum_model_type tbmt ON tsd.size_range = tbmt.id
         left join t_style_pricing tsp on (tsp.pack_id = tpi.id and tsp.del_flag = '0')
-        LEFT JOIN t_pre_production_sample_task tppst on tpi.id = tppst.pack_info_id
         <where>
 
             <if test="dto.selectType == null or dto.selectType == ''">
@@ -198,7 +195,6 @@
         tsd.pattern_design_name as patternDesign,
         tsd.planning_season_id as planningSeasonId,
         tsd.devt_type_name as produceTypeName,
-
         <choose>
             <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
@@ -214,9 +210,6 @@
 
         tsd.style_pic,
         ht.*,
-        tppst.grading_name as gradingName,
-        tppst.technologist_name as technologistName,
-        tppst.stitcher as sampleMakerName,
         IFNULL(ht.template_part,tsd.pattern_parts) as templatePart
         FROM
         <choose>
@@ -224,7 +217,6 @@
                 t_pack_info tpi
                 LEFT JOIN t_style tsd ON ( tsd.id = tpi.foreign_id )
                 LEFT JOIN t_hang_tag ht ON tpi.design_no = ht.bulk_style_no
-
             </when>
             <otherwise>
                 t_style_color tssc
@@ -233,7 +225,7 @@
                 LEFT JOIN t_pack_info tpi ON tssc.style_no = tpi.style_no
             </otherwise>
         </choose>
-        LEFT JOIN t_pre_production_sample_task tppst on tpi.id = tppst.pack_info_id
+
         <where>
             <choose>
                 <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
