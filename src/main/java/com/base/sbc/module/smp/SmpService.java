@@ -45,6 +45,7 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
@@ -123,12 +124,14 @@ public class SmpService {
     private final UploadFileService uploadFileService;
     private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
 
-    private static final String SMP_URL = "http://10.98.250.31:7006/pdm";
-    //private static final String PDM_URL = "http://smp-i.eifini.com/service-manager/pdm";
+    @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
+    private String SMP_URL;
 
-    private static final String SCM_URL = "http://10.8.250.100:1980/escm-app/information/pdm";
+    @Value("${interface.scmUrl:http://10.8.250.100:1980/escm-app/information/pdm}")
+    private String SCM_URL;
 
-    private static final String OA_URL = "http://10.8.240.161:40002/mps-interfaces/sample";
+    @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
+    private String OA_URL;
 
 
     /**
@@ -366,7 +369,7 @@ public class SmpService {
                 SmpSize smpSize = new SmpSize();
                 smpSize.setSize(basicsdatumSize.getModel());
                 smpSize.setSizeNumber(basicsdatumSize.getCode());
-                smpSize.setCode(basicsdatumSize.getSort());
+                smpSize.setCode(basicsdatumSize.getCode());
                 smpSize.setProductSizeName(basicsdatumSize.getHangtags());
                 smpSize.setBaseSize(StringUtils.isNoneBlank(style.getDefaultSize()) && style.getDefaultSize().equals(basicsdatumSize.getHangtags()));
 
