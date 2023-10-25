@@ -154,7 +154,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
 
         /*分页*/
-        queryDto.setOrderBy("tsc.create_date desc");
         PageHelper.startPage(queryDto);
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
@@ -239,7 +238,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
         } else {
             queryWrapper.eq("ts.del_flag", "0");
-            queryWrapper.orderByDesc("ts.create_date");
+            queryWrapper.orderByDesc("tsc.create_date");
 //            查询款式配色
             sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
             List<String> stringList = IdGen.getIds(sampleStyleColorList.size());
