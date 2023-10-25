@@ -790,7 +790,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                                 PackBomSize packBomSize = new PackBomSize();
                                 packBomSize.setForeignId(dto.getTargetForeignId());
                                 packBomSize.setSizeId(sizeIds.get(i1));
-                                packBomSize.setSize(productSizes.get(i1));
+                                packBomSize.setSize(StringUtils.replaceBlank(productSizes.get(i1)));
                                 packBomSize.setWidth(bom.getTranslate());
                                 packBomSize.setWidthCode(bom.getTranslateCode());
                                 packBomSize.setBomId(newId);

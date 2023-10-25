@@ -638,4 +638,22 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		}
 		return imageUrl.substring(lastIndexOfSlash + 1, lastIndexOfDot);
 	}
+
+	/**
+	 * 去掉空格等
+	 * @param str
+	 * @return
+	 */
+	public static String replaceBlank(String str) {
+		String dest = "";
+		if (isNotBlank(str)) {
+			Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+			Matcher m = p.matcher(str);
+			dest = m.replaceAll("");
+		}
+		return dest;
+
+	}
+
+
 }
