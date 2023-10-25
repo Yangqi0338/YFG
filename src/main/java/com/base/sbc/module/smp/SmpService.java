@@ -361,8 +361,8 @@ public class SmpService {
             //smpGoodsDto.setSeriesName(null);
             //smpGoodsDto.setRegion(null);
             //smpGoodsDto.setSalesGroup(null);
-            String sizeIds = style.getSizeIds();
-            List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByIds(Arrays.asList(sizeIds.split(",")));
+            List<String> sizeCodes = StringUtils.convertList(style.getSizeCodes());
+            List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
             if (basicsdatumSizes.isEmpty()){
                 throw new OtherException("尺码不能为空");
             }
