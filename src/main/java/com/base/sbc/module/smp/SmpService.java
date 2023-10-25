@@ -831,6 +831,9 @@ public class SmpService {
 
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", fabricCompositionDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, fabricCompositionDto, "scm", "面料成分名称码表下发");
+            if (!httpResp.isSuccess()) {
+                throw new OtherException(httpResp.getMessage());
+            }
             if (aBoolean) {
                 i++;
                 basicsdatumIngredient.setScmSendFlag("1");
@@ -888,7 +891,11 @@ public class SmpService {
             checkMaterial.setCheckSkuList(checkSkuList);
         }
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/checkMaterialsStopAndStock", checkMaterial);
-        return pushRecordsService.pushRecordSave(httpResp, checkMaterial, "scm", "停用物料尺码和颜色的时候验证");
+        Boolean b = pushRecordsService.pushRecordSave(httpResp, checkMaterial, "scm", "停用物料尺码和颜色的时候验证");
+        if (!httpResp.isSuccess()) {
+            throw new OtherException(httpResp.getMessage());
+        }
+        return b;
 
     }
 

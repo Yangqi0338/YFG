@@ -35,17 +35,17 @@ public class ProcessDatabase extends BaseDataEntity<String> {
      * */
     @ApiModelProperty(value = "工艺类型名称")
     private String processTypeName;
-    /*
-     * 部件
-     * */
-    @ApiModelProperty(value = "部件")
-    private String component;
+        /*
+         * 部件
+         * */
+        @ApiModelProperty(value = "部件")
+        private String component;
 
-    /*
-    * 部件名称
-    * */
-    @ApiModelProperty(value = "部件名称")
-    private String componentName;
+        /*
+        * 部件名称
+        * */
+        @ApiModelProperty(value = "部件名称")
+        private String componentName;
 
     /**
      * 大类

@@ -164,7 +164,7 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
             basicsdatumMaterialIngredient.setSay(escmMaterialCompnentInspectContent.getRemark());
-            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectContent.getContentProportion())));
+            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectContent.getContentProportion().replace("%",""))));
             basicsdatumMaterialIngredient.setType("0");
             basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectContent.getInspectContent());
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
