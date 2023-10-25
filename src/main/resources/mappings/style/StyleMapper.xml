@@ -147,6 +147,10 @@
         select max(design_no)
         from t_style ${ ew.customSqlSegment}
     </select>
+    <select id="selectMaxOldDesignNo" resultType="java.lang.String">
+        select max(old_design_no)
+        from t_style ${ ew.customSqlSegment}
+    </select>
     <select id="getStyleUploadInfo" resultType="com.base.sbc.module.sample.vo.StyleUploadVo">
         SELECT old_design_no as design_no,
                brand,

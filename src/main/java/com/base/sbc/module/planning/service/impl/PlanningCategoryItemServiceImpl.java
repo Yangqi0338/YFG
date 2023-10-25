@@ -275,6 +275,42 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (StrUtil.isBlank(maxCode)) {
             return null;
         }
+        System.out.println("正则:" + textFormats + "最大值:" + maxCode);
+        // 替换,保留流水号
+        String formatStr = CollUtil.join(textFormats, "");
+        try {
+            String flowing = ReUtil.get(formatStr, maxCode, 1);
+            if (StrUtil.isNotBlank(flowing)) {
+                return flowing;
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public String getStyleMaxOldDesignNo(GetMaxCodeRedis data, String userCompany) {
+        List<String> regexps = new ArrayList<>(12);
+        List<String> textFormats = new ArrayList<>(12);
+        data.getValueMap().forEach((key, val) -> {
+            if (BaseConstant.FLOWING.equals(key)) {
+                textFormats.add("(" + val + ")");
+            } else {
+                textFormats.add(String.valueOf(val));
+            }
+            regexps.add(String.valueOf(val));
+        });
+        String regexp = "^" + CollUtil.join(regexps, "");
+        System.out.println("传过来的正则:" + regexp);
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq(COMPANY_CODE, userCompany);
+        qc.apply(" old_design_no REGEXP '" + regexp + "'");
+        qc.eq("del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+        String maxCode = styleService.selectMaxOldDesignNo(qc);
+        if (StrUtil.isBlank(maxCode)) {
+            return null;
+        }
         // 替换,保留流水号
         String formatStr = CollUtil.join(textFormats, "");
         try {
@@ -465,6 +501,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
             CommonUtils.removeQuery(planningCategoryItem, "stylePic");
+            UpdateWrapper updateWrapper = new UpdateWrapper();
             /*后续再优化*/
             if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
 //                新地址
@@ -477,11 +514,13 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 //                修改文件名称加上设计师代码
                 fileUrls.add(newUrl);
 //                修改坑位图片 后续优化
-                UpdateWrapper updateWrapper = new UpdateWrapper();
+
                 updateWrapper.set("style_pic", newUrl);
-                updateWrapper.eq("id", planningCategoryItem.getId());
-                baseMapper.update(null, updateWrapper);
+
             }
+            updateWrapper.set("old_design_no", planningCategoryItem.getDesignNo());
+            updateWrapper.eq("id", planningCategoryItem.getId());
+            update(updateWrapper);
         }
         //查询款式信息是已经存在
         QueryWrapper<Style> sqw = new QueryWrapper<>();
@@ -955,6 +994,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             categoryItem.setId(null);
             CommonUtils.resetCreateUpdate(categoryItem);
             categoryItem.setDesignNo(s);
+            categoryItem.setOldDesignNo(s);
             saveList.add(categoryItem);
         }
         return saveBatch(saveList);

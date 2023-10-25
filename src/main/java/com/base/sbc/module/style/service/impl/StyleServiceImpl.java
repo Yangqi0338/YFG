@@ -1706,5 +1706,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return true;
     }
 
+    @Override
+    public String selectMaxOldDesignNo(QueryWrapper qc) {
+        return baseMapper.selectMaxOldDesignNo(qc);
+    }
+
 }
 
