@@ -17,14 +17,15 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
+
 /**
  * 类描述：款式设计 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
  * @address com.base.sbc.module.style.entity.Style
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-8-23 9:47:03
+ * @email your email
+ * @date 创建时间：2023-10-25 19:08:30
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -63,20 +64,30 @@ public class Style extends BaseDataEntity<String> {
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 状态:0未开款，1已开款，2已下发打板(完成) */
-    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)"  )
+    /**
+     * 启用状态(0启用，1停用)
+     */
+    @ApiModelProperty(value = "启用状态(0启用，1停用)")
+    private String enableStatus;
+    /**
+     * 状态:0未开款，1已开款，2已下发打板(完成)
+     */
+    @ApiModelProperty(value = "状态:0未开款，1已开款，2已下发打板(完成)")
     private String status;
-    /** 启用状态(0启用，1停用) */
-    @ApiModelProperty(value = "启用状态(0启用，1停用)"  )
-    private String  enableStatus;
-    /** 产品季节id */
-    @ApiModelProperty(value = "产品季节id"  )
+    /**
+     * 产品季节id
+     */
+    @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
-    /** 坑位信息id */
-    @ApiModelProperty(value = "坑位信息id"  )
+    /**
+     * 坑位信息id
+     */
+    @ApiModelProperty(value = "坑位信息id")
     private String planningCategoryItemId;
-    /** 企划渠道id */
-    @ApiModelProperty(value = "企划渠道id"  )
+    /**
+     * 企划渠道id
+     */
+    @ApiModelProperty(value = "企划渠道id")
     private String planningChannelId;
     /** 大类code */
     @ApiModelProperty(value = "大类code"  )
@@ -127,10 +138,10 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式类型"  )
     private String styleType;
     /** 款式类型名称 */
-    @ApiModelProperty(value = "款式类型名称"  )
+    @ApiModelProperty(value = "款式类型名称")
     private String styleTypeName;
     /** 款式图id(主图) */
-    //@ApiModelProperty(value = "款式图id(主图)"  )
+    @ApiModelProperty(value = "款式图id(主图)"  )
     private String stylePic;
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
@@ -220,28 +231,42 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "研发材料"  )
     private String rdMat;
     /** 廓形 */
-    @ApiModelProperty(value = "廓形"  )
+    @ApiModelProperty(value = "廓形")
     private String silhouette;
-    /** 廓形名称 */
-    @ApiModelProperty(value = "廓形名称"  )
+    /**
+     * 廓形名称
+     */
+    @ApiModelProperty(value = "廓形名称")
     private String silhouetteName;
-    /** 打板难度 */
-    @ApiModelProperty(value = "打板难度"  )
+    /**
+     * 打板难度
+     */
+    @ApiModelProperty(value = "打板难度")
     private String patDiff;
-    /** 打版难度名称 */
-    @ApiModelProperty(value = "打版难度名称"  )
+    /**
+     * 打版难度名称
+     */
+    @ApiModelProperty(value = "打版难度名称")
     private String patDiffName;
-    /** 产品线等级 */
-    @ApiModelProperty(value = "产品线等级"  )
-    private String  productLineGrade;
-    /** 产品线等级 */
-    @ApiModelProperty(value = "产品线等级名称"  )
-    private String  productLineGradeName;
-    /** 尺码 */
-    @ApiModelProperty(value = "尺码"  )
+    /**
+     * 产品线等级
+     */
+    @ApiModelProperty(value = "产品线等级")
+    private String productLineGrade;
+    /**
+     * 产品线等级名称
+     */
+    @ApiModelProperty(value = "产品线等级名称")
+    private String productLineGradeName;
+    /**
+     * 尺码
+     */
+    @ApiModelProperty(value = "尺码")
     private String productSizes;
-    /** 尺码ids */
-    @ApiModelProperty(value = "尺码ids"  )
+    /**
+     * 尺码ids
+     */
+    @ApiModelProperty(value = "尺码ids")
     private String sizeIds;
     /** 尺码codes */
     @ApiModelProperty(value = "尺码codes"  )
@@ -288,19 +313,27 @@ public class Style extends BaseDataEntity<String> {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date endTime;
     /** 设计工艺员id */
-    @ApiModelProperty(value = "设计工艺员id"  )
+    @ApiModelProperty(value = "设计工艺员id")
     private String technicianId;
-    /** 设计工艺员名称 */
-    @ApiModelProperty(value = "设计工艺员名称"  )
+    /**
+     * 设计工艺员名称
+     */
+    @ApiModelProperty(value = "设计工艺员名称")
     private String technicianName;
-    /** 材料专员id */
-    @ApiModelProperty(value = "材料专员id"  )
+    /**
+     * 材料专员id
+     */
+    @ApiModelProperty(value = "材料专员id")
     private String fabDevelopeId;
-    /** 材料专员名称 */
-    @ApiModelProperty(value = "材料专员名称"  )
+    /**
+     * 材料专员名称
+     */
+    @ApiModelProperty(value = "材料专员名称")
     private String fabDevelopeName;
-    /** 实际出稿时间 */
-    @ApiModelProperty(value = "实际出稿时间"  )
+    /**
+     * 实际出稿时间
+     */
+    @ApiModelProperty(value = "实际出稿时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date actualPublicationDate;
     /**
@@ -338,10 +371,14 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "跟款设计师Id")
     private String merchDesignId;
-    /** 跟款设计师 */
-    @ApiModelProperty(value = "跟款设计师"  )
+    /**
+     * 跟款设计师
+     */
+    @ApiModelProperty(value = "跟款设计师")
     private String merchDesignName;
-    /** 审版设计师id */
+    /**
+     * 审版设计师id
+     */
     @ApiModelProperty(value = "审版设计师id"  )
     private String reviewedDesignId;
     /** 审版设计师 */
@@ -377,82 +414,130 @@ public class Style extends BaseDataEntity<String> {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date demandFinishDate;
     /** 特别需求:(1是,0否) */
-    @ApiModelProperty(value = "特别需求:(1是,0否)"  )
+    @ApiModelProperty(value = "特别需求:(1是,0否)")
     private String specialNeedsFlag;
-    /** 预计上市时间 */
-    @ApiModelProperty(value = "预计上市时间"  )
+    /**
+     * 预计上市时间
+     */
+    @ApiModelProperty(value = "预计上市时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date expectedLaunchDate;
-    /** 目标销价 */
-    @ApiModelProperty(value = "目标销价"  )
+    /**
+     * 目标销价
+     */
+    @ApiModelProperty(value = "目标销价")
     private BigDecimal targetSalePrice;
-    /** 企划目标倍率 */
-    @ApiModelProperty(value = "企划目标倍率"  )
+    /**
+     * 企划目标倍率
+     */
+    @ApiModelProperty(value = "企划目标倍率")
     private BigDecimal planningTargetRate;
-    /** 样衣到仓时间 */
-    @ApiModelProperty(value = "样衣到仓时间"  )
+    /**
+     * 样衣到仓时间
+     */
+    @ApiModelProperty(value = "样衣到仓时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sampleDeliveryDate;
-    /** 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1) */
-    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
+    /**
+     * 审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "审核状态：草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
     private String confirmStatus;
+    /**
+     * 品类标识 0品类 1中类
+     */
+    @ApiModelProperty(value = "品类标识 0品类 1中类")
+    private String categoryFlag;
     /** 状态:1启用,0未启用 */
     @ApiModelProperty(value = "状态:1启用,0未启用"  )
     private String enableFlag;
     /** 款式来源编码 */
-    @ApiModelProperty(value = "款式来源编码"  )
+    @ApiModelProperty(value = "款式来源编码")
     private String styleOrigin;
-    /** 款式来源名称 */
-    @ApiModelProperty(value = "款式来源名称"  )
-    private String styleOriginName;
-    /** 颜色codes */
-    @ApiModelProperty(value = "颜色codes"  )
-    private String colorCodes;
-    /** 颜色名称 */
-    @ApiModelProperty(value = "颜色名称"  )
-    private String productColors;
-    /** 卖点 */
-    @ApiModelProperty(value = "卖点"  )
-    private String sellingPoint;
-    /** 备注 */
-    @ApiModelProperty(value = "备注"  )
-    private String remarks;
-    /** 是否授权款(1是，0否) */
-    @ApiModelProperty(value = "是否授权款(1是，0否)"  )
-    private String isAccredit;
-    /** 针梭织id */
-    @ApiModelProperty(value = "针梭织id"  )
-    private String needleWeavingId;
-    /** 针梭织名 */
-    @ApiModelProperty(value = "针梭织名"  )
-    private String needleWeaving;
-    /** 系列id */
-    @ApiModelProperty(value = "系列id"  )
-    private String seriesId;
-    /** 系列名 */
-    @ApiModelProperty(value = "系列名"  )
-    private String series;
-    /** 设计渠道id */
-    @ApiModelProperty(value = "设计渠道id"  )
-    private String designChannelId;
-    /** 设计渠道名 */
-    @ApiModelProperty(value = "设计渠道名"  )
-    private String designChannel;
-    /** 是否已生成设计款号(1是，0否) */
-    @ApiModelProperty(value = "是否已生成设计款号(1是，0否)"  )
-    private String isGenDesignNo;
-    /** 品类标识 0品类 1中类 */
-    @ApiModelProperty(value = "品类标识 0品类 1中类"  )
-    private String categoryFlag;
-
     /**
-     * 提交审核时间
+     * 款式来源名称
      */
+    @ApiModelProperty(value = "款式来源名称")
+    private String styleOriginName;
+    /**
+     * 颜色codes
+     */
+    @ApiModelProperty(value = "颜色codes")
+    private String colorCodes;
+    /**
+     * 颜色名称
+     */
+    @ApiModelProperty(value = "颜色名称")
+    private String productColors;
+    /**
+     * 卖点
+     */
+    @ApiModelProperty(value = "卖点")
+    private String sellingPoint;
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "备注")
+    private String remarks;
+    /**
+     * 是否授权款(1是，0否)
+     */
+    @ApiModelProperty(value = "是否授权款(1是，0否)")
+    private String isAccredit;
+    /**
+     * 针梭织id
+     */
+    @ApiModelProperty(value = "针梭织id")
+    private String needleWeavingId;
+    /**
+     * 针梭织
+     */
+    @ApiModelProperty(value = "针梭织")
+    private String needleWeaving;
+    /**
+     * 系列id
+     */
+    @ApiModelProperty(value = "系列id")
+    private String seriesId;
+    /**
+     * 系列
+     */
+    @ApiModelProperty(value = "系列")
+    private String series;
+    /**
+     * 设计渠道
+     */
+    @ApiModelProperty(value = "设计渠道")
+    private String designChannelId;
+    /**
+     * 设计渠道
+     */
+    @ApiModelProperty(value = "设计渠道")
+    private String designChannel;
+    /**
+     * 是否已经生成设计款号(1是，0否)
+     */
+    @ApiModelProperty(value = "是否已经生成设计款号(1是，0否)")
+    private String isGenDesignNo;
+    /**
+     * 审核开始时间
+     */
+    @ApiModelProperty(value = "审核开始时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date checkStartTime;
     /**
-     * 审核通过时间
+     * 审核结束时间
      */
+    @ApiModelProperty(value = "审核结束时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date checkEndTime;
+    /** 是否是迁移历史数据 */
+    @ApiModelProperty(value = "是否是迁移历史数据"  )
+    private String historicalData;
+    /** 下发打版时间(取最新一条) */
+    @ApiModelProperty(value = "下发打版时间(取最新一条)"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendPatternMakingDate;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

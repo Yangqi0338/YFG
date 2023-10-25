@@ -514,7 +514,22 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //数据权限
         dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
-        qw.orderByDesc("create_date");
+        //排序
+        //未下发 按下发时间排序
+        if (StrUtil.equals(BasicNumber.ZERO.getNumber(), dto.getStatus())) {
+            dto.setOrderBy("planning_finish_date is null ,planning_finish_date asc , create_date asc ");
+        }
+        //已经开款 按审核时间(开款时间)
+        else if (StrUtil.equals(BasicNumber.ONE.getNumber(), dto.getStatus())) {
+            dto.setOrderBy("check_end_time desc  ");
+        }
+        //已下发打版  按下发打版时间
+        else if (StrUtil.equals(BasicNumber.TWO.getNumber(), dto.getStatus())) {
+            dto.setOrderBy("send_pattern_making_date desc  ");
+        } else {
+            qw.orderByDesc("create_date");
+        }
+
         Page<StylePageVo> objects = PageHelper.startPage(dto);
         getBaseMapper().selectByQw(qw);
         List<StylePageVo> result = objects.getResult();
@@ -576,6 +591,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     public boolean sendMaking(SendSampleMakingDto dto) {
         Style style = checkedStyleExists(dto.getId());
         style.setStatus("2");
+        style.setSendPatternMakingDate(new Date());
         style.setKitting(dto.getKitting());
         updateById(style);
         return true;

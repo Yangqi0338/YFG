@@ -260,6 +260,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         UpdateWrapper<Style> sdUw = new UpdateWrapper<>();
         sdUw.eq("id", patternMaking.getStyleId());
         sdUw.set("status", BasicNumber.TWO.getNumber());
+        sdUw.set("send_pattern_making_date", new Date());
         styleService.update(sdUw);
         update(uw);
         /*发送消息*/
@@ -356,6 +357,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         /*当为出版样时修改款的版师*/
         Style style = styleService.getById(byId.getStyleId());
         style.setStatus(BasicNumber.TWO.getNumber());
+        style.setSendPatternMakingDate(new Date());
         if (StrUtil.equals("初版样", byId.getSampleTypeName()) || StrUtil.isBlank(style.getPatternDesignName())) {
             style.setPatternDesignId(dto.getPatternDesignId());
             style.setPatternDesignName(dto.getPatternDesignName());
