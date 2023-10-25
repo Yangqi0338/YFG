@@ -74,5 +74,7 @@ public interface StyleMapper extends BaseMapper<Style> {
     Boolean reviseAllDesignNo(@Param("oldDesignNo") String oldDesignNo, @Param("newDesignNo") String newDesignNo);
 
     StyleUploadVo getStyleUploadInfo(@Param("styleId") String styleId);
+
+    Long changeDevtType(@Param("styleId") String styleId, @Param("devtType") String devtType, @Param("devtTypeName") String devtTypeName);
 }
 

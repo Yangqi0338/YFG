@@ -28,6 +28,13 @@
         set design_no = #{newDesignNo}
         where design_no = #{oldDesignNo};
     </update>
+    <update id="changeDevtType">
+        update t_pack_info
+        set devt_type     = #{devtType},
+            devt_type_name=#{devtTypeName}
+        where foreign_id = #{styleId}
+           or style_id = #{styleId}
+    </update>
     <!-- 分页查询 -->
     <select id="selectByQw" resultType="com.base.sbc.module.style.vo.StylePageVo">
         select *

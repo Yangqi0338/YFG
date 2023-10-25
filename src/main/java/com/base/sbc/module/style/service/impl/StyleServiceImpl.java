@@ -223,6 +223,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             this.updateById(style);
             reviseAllDesignNo(oldDesignNo, style.getDesignNo());
             planningCategoryItemService.updateBySampleDesignChange(style);
+            //修改生产类型
+            baseMapper.changeDevtType(style.getId(), style.getDevtType(), style.getDevtTypeName());
 
         }
         // 保存工艺信息
