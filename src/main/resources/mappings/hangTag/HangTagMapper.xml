@@ -141,7 +141,7 @@
                 and (${authSql})
             </if>
         </where>
-        group by tssc.style_no
+
     </select>
 
     <select id="hangTagPrinting" resultType="com.base.sbc.module.smp.entity.TagPrinting">
