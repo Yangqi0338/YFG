@@ -190,6 +190,7 @@ public class DeliveryNoticeServiceImpl extends BaseServiceImpl<DeliveryNoticeMap
             //校验采购单
             PurchaseOrderDetail detail = purchaseOrderDetailMap.get(notice.getPurchaseCode());
             if (detail != null){
+                notice.setPurchaserId(detail.getPurchaseOrderId());
                 notice.setPurchaseOrderDetailId(detail.getId());
             }else {
                 //没有对应采购单
