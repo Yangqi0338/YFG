@@ -208,6 +208,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     public Style saveStyle(StyleSaveDto dto) {
         Style style = null;
         CommonUtils.removeQuerySplit(dto, ",", "patternPartsPic");
+        CommonUtils.removeQuery(dto, "stylePic");
         if (CommonUtils.isInitId(dto.getId())) {
             style = saveNewStyle(dto);
         } else {

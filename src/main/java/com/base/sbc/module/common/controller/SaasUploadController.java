@@ -52,7 +52,8 @@ public class SaasUploadController extends BaseController {
     public Object uploadStylePic(Principal user, UploadStylePicDto uploadStylePicDto) {
         CommonUtils.isImage(uploadStylePicDto.getFile().getOriginalFilename(), true);
         if (!customStylePicUpload.isOpen()) {
-            return uploadPicFile(uploadStylePicDto.getFile(), null, null);
+            ApiResult apiResult = uploadPicFile(uploadStylePicDto.getFile(), null, null);
+            return apiResult.getAttributes();
         }
         try {
             //上传大货款图
