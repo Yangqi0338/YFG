@@ -64,12 +64,19 @@ public class PatternMakingTaskSearchDto extends Page {
     @ApiModelProperty(value = "流程完成状态:(0未完成,1已完成)")
     private String finishFlag;
 
+    @ApiModelProperty(value = "挂起(1挂起)")
+    private String suspend;
+
     @ApiModelProperty(value = "车缝工id")
     private String stitcherId;
 
     @ApiModelProperty(value = "裁剪工id")
     private String cutterId;
-
+    /**
+     * 样衣完成状态:(0未完成,1完成)
+     */
+    @ApiModelProperty(value = "样衣完成状态:(0未完成,1完成)")
+    private String sampleCompleteFlag;
 
     @ApiModelProperty(value = "中断打版(0正常，1中断)")
     private String breakOffPattern;
@@ -80,5 +87,7 @@ public class PatternMakingTaskSearchDto extends Page {
 
     @ApiModelProperty(value = "业务对象编码(用于数据权限,patternMakingTask打版任务,sampleTask样衣任务)")
     private String businessType;
+    @ApiModelProperty(value = "状态")
+    private String status;
 
 }
