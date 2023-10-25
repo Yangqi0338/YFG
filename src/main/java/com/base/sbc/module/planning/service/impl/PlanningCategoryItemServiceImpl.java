@@ -495,6 +495,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<String> seasonIds = new ArrayList<>(16);
         //图片信息
         List<String> fileUrls = new ArrayList<>(16);
+        List<String> stylePicList = new ArrayList<>();
+        List<String> newStylePicList = new ArrayList<>();
         for (PlanningCategoryItem planningCategoryItem : categoryItemList) {
             allocationDesignDtoList.add(BeanUtil.copyProperties(planningCategoryItem, AllocationDesignDto.class));
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
@@ -507,16 +509,12 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 //                新地址
                 String newUrl = planningCategoryItem.getStylePic().replaceAll(StringUtils.getImageNameWithoutExtension(planningCategoryItem.getStylePic()), planningCategoryItem.getDesignNo());
 //                改图片名称
-                boolean b = uploadFileService.updatePicName(planningCategoryItem.getStylePic(), newUrl);
-                if (!b) {
-                    throw new OtherException("修改图片名称错误");
-                }
+                stylePicList.add(planningCategoryItem.getStylePic());
+                newStylePicList.add(newUrl);
 //                修改文件名称加上设计师代码
                 fileUrls.add(newUrl);
 //                修改坑位图片 后续优化
-
                 updateWrapper.set("style_pic", newUrl);
-
             }
             updateWrapper.set("old_design_no", planningCategoryItem.getDesignNo());
             updateWrapper.eq("id", planningCategoryItem.getId());
@@ -561,6 +559,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
         List<Style> styleList = new ArrayList<>(16);
 
+        /**
+         * 任务下发新建款的数据
+         */
         for (PlanningCategoryItem item : categoryItemList) {
             if (dbItemMap.containsKey(item.getId())) {
                 continue;
@@ -569,14 +570,12 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             style.setSender(getUserId());
             style.setStartTime(sendDate);
             style.setEndTime(item.getPlanningFinishDate());
-            style.setStylePic(Optional.ofNullable(fileUrlId.get(style.getStylePic())).orElse(""));
-
+            //style.setStylePic(Optional.ofNullable(fileUrlId.get(style.getStylePic())).orElse(""));
+            style.setStylePic(null);
             if (genDesignNoAction) {
                 style.setDesignNo(null);
             }
             styleList.add(style);
-
-
         }
         // 保存款式设计
         if (CollUtil.isNotEmpty(styleList)) {
@@ -610,8 +609,15 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             if (CollUtil.isNotEmpty(attachments)) {
                 attachmentService.saveBatch(attachments);
             }
-
-
+        }
+      /*修改图片*/
+        if(CollUtil.isNotEmpty(stylePicList)){
+            for (int i = 0; i < stylePicList.size(); i++) {
+                boolean b = uploadFileService.updatePicName(stylePicList.get(i), newStylePicList.get(i));
+                if (!b) {
+                    throw new OtherException("修改图片名称错误");
+                }
+            }
         }
         /*产品季下发提醒*/
         messageUtils.seasonSendMessage(BeanUtil.copyToList(categoryItemList,PlanningCategoryItem.class),baseController.getUser());
