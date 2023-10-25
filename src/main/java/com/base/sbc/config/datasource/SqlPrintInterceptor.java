@@ -96,7 +96,6 @@ public class SqlPrintInterceptor implements Interceptor {
         if (logger.isInfoEnabled()) {
             logger.info("\n执行sql耗时:" + timing + " ms" + "  方法ID: " + statementId + "\nSQL语句:" + sql1);
         }
-
         //记录sql信息
         UserCompany userCompany = companyUserInfo.get();
         if (userCompany != null) {

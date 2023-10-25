@@ -21,7 +21,7 @@ public class ClientAspect {
 	 */
 	@AfterReturning(value = "execution(* com.base.sbc.client.*.service.*.*(..))", returning = "keys")
 	public void doAfterReturningAdvice1(JoinPoint joinPoint, Object keys) {
-		System.out.println("后置通知："+keys);
+		// System.out.println("后置通知："+keys);
 //		JSONObject jsonx = JSON.parseObject((String)keys);
 //		if(!jsonx.getBoolean("success")) {//如果失败
 //			String data =  "";

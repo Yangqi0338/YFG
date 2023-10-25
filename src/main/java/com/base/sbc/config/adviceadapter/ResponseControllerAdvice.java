@@ -141,7 +141,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
             httpLog.setIntervalNum(System.currentTimeMillis() - httpLog.getStartTime().getTime());
             httpLog.setExceptionFlag(0);
             try {
-                System.out.println(JSON.parseObject(jsonString));
+                // System.out.println(JSON.parseObject(jsonString));
                 if (!JSON.parseObject(jsonString).getBoolean("success")){
                     httpLog.setExceptionFlag(1);
                     httpLog.setStatusCode(JSON.parseObject(jsonString).getInteger("status"));
