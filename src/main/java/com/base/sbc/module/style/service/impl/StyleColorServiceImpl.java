@@ -329,6 +329,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Transactional(rollbackFor = {Exception.class})
     public Boolean batchAddSampleStyleColor(List<AddRevampStyleColorDto> list) {
         int index = 0;
+        list = CollUtil.distinct(list,AddRevampStyleColorDto::getColourLibraryId,true);
         /*查询颜色*/
         List<String> colourLibraryIds = list.stream().map(AddRevampStyleColorDto::getColourLibraryId).distinct().collect(Collectors.toList());
         List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryMapper.selectBatchIds(colourLibraryIds);
@@ -465,13 +466,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
              *款式流水号： 款式去掉设计师设计师标识 获取后三位字符串
              */
             String[] designers = designer.split(",");
-            if (designers == null || designers.length == 0) {
+            if (designers == null || designers.length <= 1) {
                 throw new OtherException("设计师未缺少编码");
             }
             String designNo1 = designNo.replace(designers[1], "");
             designNo = designNo1.substring(designNo1.length() - 3);
         } catch (Exception e) {
-            throw new OtherException("大货编码生成失败");
+            throw new OtherException(e.getMessage()+"大货编码生成失败");
         }
 //        获取款式下的配色
         String styleNo = brand + yearOn + bandName + category + designNo;
