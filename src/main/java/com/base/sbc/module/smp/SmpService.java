@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
@@ -12,6 +13,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
@@ -626,7 +628,7 @@ public class SmpService {
                 //根据尺码id查询尺码
                 BasicsdatumSize basicsdatumSize = basicsdatumSizeService.getById(packBomSize.getSizeId());
                 if (basicsdatumSize != null) {
-                    smpSizeQty.setPSizeCode(basicsdatumSize.getSort());
+                    smpSizeQty.setPSizeCode(basicsdatumSize.getCode());
                     smpSizeQty.setItemSize(basicsdatumSize.getInternalSize());
 
                     sizeQtyList.add(smpSizeQty);
@@ -705,6 +707,7 @@ public class SmpService {
             PackInfoStatus packInfoStatus = packInfoStatusService.get(smpProcessSheetDto.getForeignId(), smpProcessSheetDto.getPackType());
             smpProcessSheetDto.setCode(smpProcessSheetDto.getBulkNumber());
             smpProcessSheetDto.setSyncId(id);
+            CommonUtils.removeQuery(smpProcessSheetDto, "pdfUrl");
             smpProcessSheetDto.setId(id);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/processSheet", smpProcessSheetDto);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, smpProcessSheetDto, "smp", "工艺单下发");
@@ -722,7 +725,10 @@ public class SmpService {
     /**
      * 样衣下发,打板管理
      */
-    public Integer sample(String[] ids) {
+    public Integer sample(String[] ids, String env) {
+        if (ids.length == 0 ||  !StrUtil.equals(env, "yfg")) {
+            return 0;
+        }
         int i = 0;
         for (PatternMaking patternMaking : patternMakingService.listByIds(Arrays.asList(ids))) {
             Style style = styleService.getById(patternMaking.getStyleId());

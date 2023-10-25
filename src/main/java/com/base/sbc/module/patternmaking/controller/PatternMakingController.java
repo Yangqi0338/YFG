@@ -347,11 +347,11 @@ public class PatternMakingController {
     public boolean assignmentUser(Principal user, @RequestHeader(BaseConstant.ENV) String env, @Valid @RequestBody AssignmentUserDto dto) {
         GroupUser groupUser = userUtils.getUserBy(user);
         boolean b = patternMakingService.assignmentUser(groupUser, dto);
-        if (StrUtil.equals(env, "yfg")) {
+
             if (b && StrUtil.isNotBlank(dto.getSampleBarCode())) {
-                smpService.sample(new String[]{dto.getId()});
+                smpService.sample(new String[]{dto.getId()},env);
             }
-        }
+
         return b;
     }
 
@@ -428,9 +428,9 @@ public class PatternMakingController {
 
     @ApiOperation(value = "设置样衣条码", notes = "")
     @PostMapping("/setSampleBarCode")
-    public boolean setSampleBarCode(@Validated @RequestBody SetSampleBarCodeDto dto) {
+    public boolean setSampleBarCode(@Validated @RequestBody SetSampleBarCodeDto dto, @RequestHeader(BaseConstant.ENV) String env) {
         patternMakingService.setSampleBarCode(dto);
-        smpService.sample(new String[]{dto.getId()});
+        smpService.sample(new String[]{dto.getId()}, env);
         return true;
     }
 
