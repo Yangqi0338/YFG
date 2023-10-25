@@ -867,6 +867,8 @@ public class SmpService {
         List<CheckMaterial.CheckSku> checkSkuList = new ArrayList<>();
         checkMaterial.setMaterialCode(materialCode);
         checkMaterial.setCode(materialCode);
+        checkMaterial.setType(type);
+
         if ("1".equals(type)) {
             for (BasicsdatumMaterialColor basicsdatumMaterialColor : basicsdatumMaterialColorService.list(new QueryWrapper<BasicsdatumMaterialColor>().eq("material_code", materialCode))) {
                 CheckMaterial.CheckSku checkSku = new CheckMaterial.CheckSku();

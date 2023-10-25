@@ -354,15 +354,20 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Override
     public Boolean startStopBasicsdatumMaterial(StartStopDto dto) {
+        if (StringUtils.isEmpty(dto.getIds())) {
+            throw new OtherException("请选择要启用/停用的数据");
+        }
         UpdateWrapper<BasicsdatumMaterial> uw = new UpdateWrapper<>();
         uw.in("id", StringUtils.convertList(dto.getIds()));
         uw.set("status", dto.getStatus());
 
-        QueryWrapper<BasicsdatumMaterial> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("id", dto.getIds());
-        for (BasicsdatumMaterial basicsdatumMaterial : this.list(queryWrapper)) {
-            if ("1".equals(basicsdatumMaterial.getDistribute())) {
-                smpService.materials(basicsdatumMaterial.getId().split(","));
+        for (BasicsdatumMaterial basicsdatumMaterial : this.listByIds(Arrays.asList(dto.getIds().split(",")))) {
+            if ("1".equals(dto.getStatus())) {
+                // smpService.materials(basicsdatumMaterial.getId().split(","));
+               boolean b= smpService.checkSizeAndColor(basicsdatumMaterial.getMaterialCode(),"0",null);
+               if (!b){
+                   throw new OtherException("物料编码为"+basicsdatumMaterial.getMaterialCode()+"的物料下有未审核的规格或颜色，无法t停用");
+               }
             }
         }
 

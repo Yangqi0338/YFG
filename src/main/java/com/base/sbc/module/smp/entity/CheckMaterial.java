@@ -19,6 +19,7 @@ public class CheckMaterial {
     private String code;
 
     List<CheckSku> checkSkuList;
+    private String type;
 
     @Data
     public static class CheckSku {
