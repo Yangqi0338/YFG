@@ -744,9 +744,9 @@ public class SmpService {
             smpSampleDto.setProofingDesigner(style.getMerchDesignName() == null ? style.getDesigner() : style.getMerchDesignName());
             smpSampleDto.setPatDiff(style.getPatDiff());
             smpSampleDto.setSampleNumber(patternMaking.getCode());
-            smpSampleDto.setColorwayCode(style.getStyleNo());
+            // smpSampleDto.setColorwayCode(style.getStyleNo());
             smpSampleDto.setCode(patternMaking.getCode());
-            smpSampleDto.setColorwayPlmId(style.getStyleNo());
+            // smpSampleDto.setColorwayPlmId(style.getStyleNo());
             smpSampleDto.setSampleStatus(style.getStatus());
             smpSampleDto.setSampleStatusName("0".equals(style.getStatus()) ? "未开款" : "1".equals(style.getStatus()) ? "已开款" : "已下发打板(完成)");
             smpSampleDto.setBrandCode(style.getBrand());
@@ -758,7 +758,7 @@ public class SmpService {
             smpSampleDto.setYear(style.getYear());
             smpSampleDto.setDesigner(style.getDesigner());
             smpSampleDto.setTechnician(style.getTechnicianName());
-            smpSampleDto.setStyleUrl(style.getStylePic());
+            smpSampleDto.setStyleUrl(style.getId());
 
 
             smpSampleDto.setNodeName(style.getStyleName());
@@ -975,7 +975,7 @@ public class SmpService {
             // 中类名称
             smpSampleDto.setMiddleClassName(style.getProdCategory2ndName());
             // 款式URL
-            smpSampleDto.setStyleUrl(style.getStylePic());
+            smpSampleDto.setStyleUrl(style.getId());
             // 设计款号
             smpSampleDto.setStyleCode(style.getDesignNo());
             // 供应商：打样部门
@@ -997,7 +997,7 @@ public class SmpService {
             smpSampleDto.setModifiedPerson(preProductionSampleTask.getUpdateName()); // 修改人
             smpSampleDto.setModifiedTime(preProductionSampleTask.getUpdateDate()); // 修改时间
             String id = String.valueOf(idGen.nextId());
-            smpSampleDto.setPlmId(id); // PLMID
+            smpSampleDto.setPlmId(preProductionSampleTask.getId()); // PLMID
             smpSampleDto.setSyncId(id); // 同步ID
             smpSampleDto.setActive(true); // 是否启用
 
