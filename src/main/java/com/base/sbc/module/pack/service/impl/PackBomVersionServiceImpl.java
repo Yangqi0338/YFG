@@ -579,7 +579,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             validate.forEach(item -> {
                 errorMessage.add(item.getMessage());
             });
-            throw new OtherException("未填写:" + CollUtil.join(errorMessage, StrUtil.COMMA));
+            throw new OtherException(c.getMaterialCodeName()+"未填写:" + CollUtil.join(errorMessage, StrUtil.COMMA));
         }
 
     }
