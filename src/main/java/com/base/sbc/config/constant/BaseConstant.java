@@ -18,6 +18,7 @@ public class BaseConstant {
 	 * */
 	public static final String APPLY_COMPANY = "applyCompany";
 
+	public static final String ENV = "Env";
 	/**
 	 * 用户平台账号ID
 	 * 主要用于记录当前账号的id  对应平台用户表的ID  也对应  saas用户表的user_id

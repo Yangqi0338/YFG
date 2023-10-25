@@ -344,12 +344,13 @@ public class PatternMakingController {
     @ApiOperation(value = "分配人员(车缝工)", notes = "")
     @PostMapping("/assignmentUser")
     @Transactional(rollbackFor = Exception.class)
-    public boolean assignmentUser(Principal user, @Valid @RequestBody AssignmentUserDto dto) {
+    public boolean assignmentUser(Principal user, @RequestHeader(BaseConstant.ENV) String env, @Valid @RequestBody AssignmentUserDto dto) {
         GroupUser groupUser = userUtils.getUserBy(user);
         boolean b = patternMakingService.assignmentUser(groupUser, dto);
-
-        if (b && StrUtil.isNotBlank(dto.getSampleBarCode())){
-            smpService.sample(new String[]{dto.getId()});
+        if (StrUtil.equals(env, "yfg")) {
+            if (b && StrUtil.isNotBlank(dto.getSampleBarCode())) {
+                smpService.sample(new String[]{dto.getId()});
+            }
         }
         return b;
     }
