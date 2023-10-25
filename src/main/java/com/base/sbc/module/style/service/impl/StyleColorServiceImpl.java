@@ -1003,7 +1003,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         try {
             Boolean b = smpService.checkColorSize(pdmStyleCheckParam);
             if (!b) {
-                throw new OtherException("暂不支持修改");
+                throw new OtherException("SCM系统存在投产单或备料单,不允许修改颜色!");
             }
         } catch (Exception e) {
             throw new OtherException(e.getMessage());

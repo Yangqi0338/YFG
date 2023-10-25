@@ -1343,7 +1343,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
         if (!b) {
-            throw new OtherException("号型类型校验失败不支持修改");
+            throw new OtherException("SCM系统存在投产单或备料单,不允许修改尺码组!");
         }
         return true;
     }
