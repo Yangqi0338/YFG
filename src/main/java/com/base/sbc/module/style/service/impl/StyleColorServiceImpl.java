@@ -344,7 +344,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName())?addRevampStyleColorDto.getBandName():style.getBandName(), style.getProdCategory(), style.getDesignNo(), style.getDesigner(), ++index));
+            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), style.getProdCategory(), style.getDesignNo(), style.getDesigner(), ++index));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -406,11 +406,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     mainAccessoriesList.add(styleMainAccessories);
                 }
                 if (StringUtils.equals(styleColor.getIsTrim(), BaseGlobal.NO)) {
-                    styleColor.setAccessory(StrUtil.isEmpty(styleColor.getAccessory())?colorNames:styleColor.getAccessory()+","+colorNames);
-                    styleColor.setAccessoryNo(StrUtil.isEmpty(styleColor.getAccessoryNo())?styleNos:styleColor.getAccessoryNo()+","+styleNos);
+                    styleColor.setAccessory(StrUtil.isEmpty(styleColor.getAccessory()) ? colorNames : styleColor.getAccessory() + "," + colorNames);
+                    styleColor.setAccessoryNo(StrUtil.isEmpty(styleColor.getAccessoryNo()) ? styleNos : styleColor.getAccessoryNo() + "," + styleNos);
                 } else {
-                    styleColor.setPrincipalStyle(StrUtil.isEmpty(styleColor.getPrincipalStyle())?colorNames:styleColor.getPrincipalStyle()+","+colorNames);
-                    styleColor.setPrincipalStyleNo(StrUtil.isEmpty(styleColor.getPrincipalStyleNo())?styleNos:styleColor.getPrincipalStyleNo()+","+styleNos);
+                    styleColor.setPrincipalStyle(StrUtil.isEmpty(styleColor.getPrincipalStyle()) ? colorNames : styleColor.getPrincipalStyle() + "," + colorNames);
+                    styleColor.setPrincipalStyleNo(StrUtil.isEmpty(styleColor.getPrincipalStyleNo()) ? styleNos : styleColor.getPrincipalStyleNo() + "," + styleNos);
                 }
             }
             /*新增*/
@@ -609,9 +609,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
             /*判断是否修改波段
-            * 当配色未下发时可以修改会影响大货款号
-            * 当配色下发后可以修改波段不会影响大货款号*/
-            if (! StringUtils.equals(addRevampStyleColorDto.getBandCode(),styleColor.getBandCode())  &&  !StringUtils.equals(styleColor.getScmSendFlag(),BaseGlobal.IN_READY)  ) {
+             * 当配色未下发时可以修改会影响大货款号
+             * 当配色下发后可以修改波段不会影响大货款号*/
+            if (!StringUtils.equals(addRevampStyleColorDto.getBandCode(), styleColor.getBandCode()) && !StringUtils.equals(styleColor.getScmSendFlag(), BaseGlobal.IN_READY)) {
                 /*新大货款号 ：换标波段生成的字符*/
                 /**
                  * 先生成波段之前的字符串替换为空，在拼接
@@ -661,7 +661,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             List<StyleMainAccessoriesSaveDto> saveDtoList = addRevampStyleColorDto.getSaveDtoList();
             if (CollUtil.isNotEmpty(saveDtoList)) {
                 /*查询该配色是否存在主款配饰*/
-                List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(addRevampStyleColorDto.getId(),addRevampStyleColorDto.getIsTrim());
+                List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(addRevampStyleColorDto.getId(), addRevampStyleColorDto.getIsTrim());
                 List<StyleMainAccessories> accessoriesList = BeanUtil.copyToList(saveDtoList, StyleMainAccessories.class);
                 for (StyleMainAccessories styleMainAccessories : accessoriesList) {
                     styleMainAccessories.setStyleColorId(styleColor.getId());
@@ -685,17 +685,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 /*需要反向绑定的配色*/
                 if (CollUtil.isNotEmpty(colorList)) {
                     for (StyleColor color : colorList) {
-                        List<StyleMainAccessories> mainAccessoriesList1 = styleMainAccessoriesService.styleMainAccessoriesList(color.getId(),color.getIsTrim());
+                        List<StyleMainAccessories> mainAccessoriesList1 = styleMainAccessoriesService.styleMainAccessoriesList(color.getId(), color.getIsTrim());
                         String styleNos = mainAccessoriesList1.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
                         String colorNames = mainAccessoriesList1.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));
                         if (StringUtils.equals(color.getIsTrim(), BaseGlobal.NO)) {
-                            color.setAccessory( StringUtils.isNotBlank(colorNames) ?colorNames:styleColor.getColorName());
-                            color.setAccessoryNo(StringUtils.isNotBlank(styleNos) ?styleNos:styleColor.getStyleNo());
+                            color.setAccessory(StringUtils.isNotBlank(colorNames) ? colorNames : styleColor.getColorName());
+                            color.setAccessoryNo(StringUtils.isNotBlank(styleNos) ? styleNos : styleColor.getStyleNo());
                         } else {
-                            color.setPrincipalStyle(  StringUtils.isNotBlank(colorNames) ?colorNames:styleColor.getColorName());
-                            color.setPrincipalStyleNo(StringUtils.isNotBlank(styleNos) ?styleNos:styleColor.getStyleNo());
+                            color.setPrincipalStyle(StringUtils.isNotBlank(colorNames) ? colorNames : styleColor.getColorName());
+                            color.setPrincipalStyleNo(StringUtils.isNotBlank(styleNos) ? styleNos : styleColor.getStyleNo());
                         }
-                        StyleMainAccessories styleMainAccessories =new StyleMainAccessories();
+                        StyleMainAccessories styleMainAccessories = new StyleMainAccessories();
                         styleMainAccessories.setIsTrim(styleColor.getIsTrim());
                         styleMainAccessories.setStyleColorId(color.getId());
                         styleMainAccessories.setColorCode(styleColor.getColorCode());
@@ -705,9 +705,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     }
                     saveOrUpdateBatch(colorList);
                 }
-            }else {
+            } else {
                 /*清楚主款配饰*/
-                styleMainAccessoriesService.delMainAccessories(addRevampStyleColorDto.getId(),addRevampStyleColorDto.getIsTrim());
+                styleMainAccessoriesService.delMainAccessories(addRevampStyleColorDto.getId(), addRevampStyleColorDto.getIsTrim());
             }
             addRevampStyleColorDto.setStyleColorPic(styleColor.getStyleColorPic());
             BeanUtils.copyProperties(addRevampStyleColorDto, styleColor);
@@ -840,7 +840,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getId).collect(Collectors.toList());
         /*禁止下发未关联bom数据*/
-        if (CollectionUtils.isEmpty(stringList) || styleColorList.size() != stringList.size() ) {
+        if (CollectionUtils.isEmpty(stringList) || styleColorList.size() != stringList.size()) {
             throw new OtherException("无关联BOM，或主款配饰未关联BOM");
         }
         /*查询BOM*/
@@ -1062,7 +1062,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (ObjectUtils.isEmpty(styleColor) || StringUtils.isBlank(styleColor.getBom())) {
             throw new OtherException("id错误无数据或该配色无bom");
         }
-        if( StringUtils.isNotEmpty(styleColor.getDefectiveName())){
+        if (StringUtils.isNotEmpty(styleColor.getDefectiveName())) {
             throw new OtherException("报次款不能生成报次款");
         }
         /*查询次品的大货款号是否重复*/
@@ -1126,7 +1126,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyPackInfo.setStyleNo(copyStyleColor.getStyleNo());
         copyPackInfo.setStyleColorId(copyStyleColor.getId());
         copyPackInfo.setCode(styleColor.getDesignNo() + StrUtil.DASHED + (count + 1));
-        copyPackInfo.setName(styleColor.getStyleNo()+publicStyleColorDto.getDefectiveNo());
+        copyPackInfo.setName(styleColor.getStyleNo() + publicStyleColorDto.getDefectiveNo());
         copyPackInfo.setColor(basicsdatumColourLibrary.getColourName());
         copyPackInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
         packInfoService.save(copyPackInfo);
@@ -1139,11 +1139,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         packInfoStatusService.copy(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES);
         /*查询BOM状态，BOM阶段修改未为样品 BOM里面物料也修改为样品*/
         /*复制出来的BOM*/
-        PackInfoStatus copyPackInfoStatus =   packInfoStatusService.get(copyPackInfo.getId(),packInfoStatus.getPackType());
+        PackInfoStatus copyPackInfoStatus = packInfoStatusService.get(copyPackInfo.getId(), packInfoStatus.getPackType());
         copyPackInfoStatus.setBomStatus(BaseGlobal.STATUS_NORMAL);
         packInfoStatusService.updateById(copyPackInfoStatus);
 
-/*        *//*查询物料清单*//*
+        /*        *//*查询物料清单*//*
         List<PackBomVo> packBomVoList = packBomVersionService.getEnableVersionBomList(copyPackInfo.getId(), packInfoStatus.getPackType());
         packBomVoList.forEach(p -> p.setStageFlag(PackUtils.PACK_TYPE_DESIGN));
         *//*修改阶段*//*
@@ -1171,9 +1171,37 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (StringUtils.isBlank(publicStyleColorDto.getOrderFlag())) {
             throw new OtherException("下单标记为空");
         }
+        List<String> ids = StringUtils.convertList(publicStyleColorDto.getId());
+        /*下单时需要校验维度信息必填*/
+        if (StringUtils.equals(publicStyleColorDto.getOrderFlag(), BaseGlobal.STATUS_CLOSE)) {
+            /*获取款式数据*/
+            List<StyleColor> styleColorList = baseMapper.selectBatchIds(ids);
+            Map<String, StyleColor> styleColorMap = styleColorList.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
+            /*获取款式id*/
+            List<String> styleIdList = styleColorList.stream().map(StyleColor::getStyleId).collect(Collectors.toList());
+            /*款式列表可能下单不同款下面的配色*/
+            List<Style> styleList = styleService.listByIds(styleIdList);
+            Map<String, Style> styleMap = styleList.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
+            /*获取维度必填的维度信息*/
+            for (String id : ids) {
+                StyleColor styleColor = styleColorMap.get(id);
+                DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
+                BeanUtil.copyProperties(styleMap.get(styleColor.getStyleId()), dto);
+                dto.setId(styleColor.getStyleId());
+                dto.setForeignId(id);
+                dto.setDataGroup(FieldValDataGroupConstant.STYLE_COLOR);
+                List<FieldManagementVo> managementVoList = styleService.queryDimensionLabels(dto);
+                /*过滤必填字段*/
+                managementVoList = managementVoList.stream().filter(f -> StringUtils.equals(f.getIsMustFill(), BaseGlobal.STATUS_CLOSE) && StringUtils.isBlank(f.getVal())).collect(Collectors.toList());
+                if (CollUtil.isNotEmpty(managementVoList)) {
+                    String fieldName = managementVoList.stream().map(FieldManagementVo::getFieldName).collect(Collectors.joining(","));
+                    throw new OtherException("大货款号：" + styleColor.getStyleNo() + "中的" + fieldName + "未填写");
+                }
+            }
+        }
         UpdateWrapper updateWrapper = new UpdateWrapper();
         updateWrapper.set("order_flag", publicStyleColorDto.getOrderFlag());
-        updateWrapper.in("id", StringUtils.convertList(publicStyleColorDto.getId()));
+        updateWrapper.in("id", ids);
         baseMapper.update(null, updateWrapper);
         return true;
     }
@@ -1284,7 +1312,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (StringUtils.isEmpty(dto.getId()) || StringUtils.isEmpty(dto.getIsTrim())) {
             throw new OtherException("配色id不能为空");
         }
-        List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(dto.getId(),dto.getIsTrim());
+        List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(dto.getId(), dto.getIsTrim());
         List<StyleColorVo> styleColorVoList = new ArrayList<>();
         if (CollUtil.isNotEmpty(mainAccessoriesList)) {
             List<String> styleNoList = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.toList());
