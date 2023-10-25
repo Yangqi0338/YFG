@@ -61,11 +61,14 @@ public interface AmcService {
     @GetMapping("/amc/api/token/companyDept/deptUserById")
     public String queryUserInfoByDeptId(@RequestParam("userCompany") String userCompany, @RequestParam("deptId") String deptId);
 
+    @GetMapping("/amc/api/token/user/getUserDeptInfoById")
+    public String getUserDeptInfoById(@RequestParam("userId") String userId, @RequestParam("userType") String userType);
+
     /**
      * 批量根据用户id获取用户部门
      */
     @GetMapping("/amc/api/token/companyDept/getDeptList")
-    public String getDeptList(@RequestHeader("Authorization") String token,@RequestParam("userIds") String[] userIds);
+    public String getDeptList(@RequestHeader("Authorization") String token, @RequestParam("userIds") String[] userIds);
 
     @GetMapping("/amc/api/token/companyUser/getCompanyUserInfoByUserIds")
     public String getCompanyUserInfoByUserIds(@RequestParam("userIds") String userIds, @RequestParam("dpj") String dpj);

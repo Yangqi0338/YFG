@@ -546,6 +546,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PageInfo<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
         BaseQueryWrapper qw = new BaseQueryWrapper();
 //        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        qw.eq("p.historical_data", "0");
         qw.andLike(dto.getSearch(), "s.design_no", "p.code");
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
@@ -553,9 +554,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
-        qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
-        qw.eq(StrUtil.isNotBlank(dto.getCutterId()), "p.cutter_id", dto.getCutterId());
-        qw.eq(StrUtil.isNotBlank(dto.getStitcherId()), "p.stitcher_id", dto.getStitcherId());
+        //手机端
+        if (StrUtil.equals(dto.getIsApp(), BasicNumber.ONE.getNumber())) {
+            //判断是否是样衣组长
+            List<String> deptId = amcFeignService.getUserDepByUserIdUserType(getUserId(), BasicNumber.TWO.getNumber());
+            if (CollUtil.isNotEmpty(deptId)) {
+                qw.in("p.pattern_room_id", deptId);
+            } else {
+                userAuthQw(dto, qw);
+            }
+        } else {
+            userAuthQw(dto, qw);
+        }
+
+
         qw.in(StrUtil.isNotBlank(dto.getPatternStatus()), "p.pattern_status", StrUtil.split(dto.getPatternStatus(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getCuttingStatus()), "p.cutting_status", StrUtil.split(dto.getCuttingStatus(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getSewingStatus()), "p.sewing_status", StrUtil.split(dto.getSewingStatus(), CharUtil.COMMA));
@@ -590,6 +602,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 设置节点状态
         nodeStatusService.setNodeStatus(list);
         return objects.toPageInfo();
+    }
+
+    private static void userAuthQw(PatternMakingTaskSearchDto dto, BaseQueryWrapper qw) {
+        qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
+        qw.eq(StrUtil.isNotBlank(dto.getCutterId()), "p.cutter_id", dto.getCutterId());
+        qw.eq(StrUtil.isNotBlank(dto.getStitcherId()), "p.stitcher_id", dto.getStitcherId());
     }
 
     @Override

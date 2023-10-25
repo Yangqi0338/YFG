@@ -89,5 +89,7 @@ public class PatternMakingTaskSearchDto extends Page {
     private String businessType;
     @ApiModelProperty(value = "状态")
     private String status;
+    @ApiModelProperty(value = "是否手机端")
+    private String isApp;
 
 }
