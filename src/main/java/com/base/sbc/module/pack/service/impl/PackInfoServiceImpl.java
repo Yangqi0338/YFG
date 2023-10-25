@@ -646,7 +646,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         }
         GenTechSpecPdfFile vo = new GenTechSpecPdfFile();
         /*/PDM/DataPackage/品牌/年份/大货款号.pdf*/
-        String objectFileName =  "dataPackage/" +style.getBrandName() + "/" +style.getYearName()+ "/";
+        String objectFileName = "DataPackage/" + style.getBrandName() + "/" + style.getYearName() + "/";
         vo.setObjectFileName(objectFileName);
         //二维码url
         String fileWebUrl = techSpecView + "/?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
