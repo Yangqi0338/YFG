@@ -96,7 +96,7 @@ public class MinioUtils {
             return true;
         }
         try {
-            url = CommonUtils.removeQuery(url);
+            url = CommonUtils.removeQuery(url)  ;
             newUrl = CommonUtils.removeQuery(newUrl);
             String objectName = url.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");
             String objectName2 = newUrl.replace(minioConfig.getEndpoint() + "/" + minioConfig.getBucketName(), "");

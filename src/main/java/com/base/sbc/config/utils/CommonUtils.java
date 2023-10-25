@@ -3,10 +3,8 @@ package com.base.sbc.config.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.*;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -261,7 +259,7 @@ public class CommonUtils {
         if (i == -1) {
             return url;
         }
-        return url.substring(0, url.indexOf("?"));
+        return URLUtil.decode(url.substring(0, url.indexOf("?")));
     }
 
     public static void removeQueryList(List list, String... p) {
