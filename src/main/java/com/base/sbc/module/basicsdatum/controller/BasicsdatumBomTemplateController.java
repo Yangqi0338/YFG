@@ -131,4 +131,12 @@ public class BasicsdatumBomTemplateController{
 		return basicsdatumBomTemplateMaterialServicel.getTemplateMateria(bomTemplateId);
 	}
 
+
+	@ApiOperation(value = "批量启用/停用", notes = "ids:, status:0启用1停用")
+	@PostMapping("/startStopTemplate")
+	public Boolean startStopTemplate(@Valid @RequestBody StartStopDto startStopDto) {
+		return basicsdatumBomTemplateService.startStopTemplate(startStopDto);
+	}
+
+
 }

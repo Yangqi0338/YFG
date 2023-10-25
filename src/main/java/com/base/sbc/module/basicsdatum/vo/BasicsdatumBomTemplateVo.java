@@ -22,6 +22,9 @@ public class BasicsdatumBomTemplateVo extends BasicsdatumBomTemplate {
     /** 唛类信息 */
     @ApiModelProperty(value = "唛类信息"  )
     private String apparelLabels;
+    /** 状态(0正常,1停用) */
+    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    private String status;
     /** 备注信息 */
     @ApiModelProperty(value = "备注信息"  )
     private String remarks;

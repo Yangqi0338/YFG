@@ -53,6 +53,10 @@ public class BasicsdatumBomTemplate extends BaseDataEntity<String> {
     @ApiModelProperty(value = "备注信息"  )
     private String remarks;
 
+    /** 状态(0正常,1停用) */
+    @ApiModelProperty(value = "状态(0正常,1停用)"  )
+    private String status;
+
     /**
      * BOM类型,0:样品,1:大货,
      */

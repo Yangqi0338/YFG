@@ -7,11 +7,13 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplate;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMapper;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
@@ -63,6 +65,7 @@ public class BasicsdatumBomTemplateServiceImpl extends BaseServiceImpl<Basicsdat
         queryWrapper.like(StringUtils.isNotBlank(queryBomTemplateDto.getBrand()),"brand",queryBomTemplateDto.getBrand());
         queryWrapper.like(StringUtils.isNotBlank(queryBomTemplateDto.getBrandName()),"brand_name",queryBomTemplateDto.getBrandName());
         queryWrapper.like(StringUtils.isNotBlank(queryBomTemplateDto.getBomStatus()),"bom_status",queryBomTemplateDto.getBomStatus());
+        queryWrapper.eq(StringUtils.isNotBlank(queryBomTemplateDto.getStatus()),"status",queryBomTemplateDto.getStatus());
         /*查询基础资料-号型类型数据*/
         Page<BasicsdatumBomTemplateVo> objects = PageHelper.startPage(queryBomTemplateDto);
         baseMapper.selectList(queryWrapper);
@@ -118,6 +121,21 @@ public class BasicsdatumBomTemplateServiceImpl extends BaseServiceImpl<Basicsdat
         basicsdatumBomTemplateMaterialMapper.delete(queryWrapper);
         baseMapper.deleteBatchIds(stringList);
         return true;
+    }
+
+    /**
+     * 批量启用/停用
+     *
+     * @param startStopDto
+     * @return
+     */
+    @Override
+    public Boolean startStopTemplate(StartStopDto startStopDto) {
+        UpdateWrapper<BasicsdatumBomTemplate> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id", StringUtils.convertList(startStopDto.getIds()));
+        updateWrapper.set("status", startStopDto.getStatus());
+        /*修改状态*/
+        return baseMapper.update(null, updateWrapper) > 0;
     }
 
 // 自定义方法区 不替换的区域【other_end】

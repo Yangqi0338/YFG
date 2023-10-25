@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplate;
 import com.github.pagehelper.PageInfo;
@@ -45,6 +46,14 @@ public interface BasicsdatumBomTemplateService extends BaseService<BasicsdatumBo
      * @return
      */
     Boolean delBomTemplate(String id);
+
+
+    /**
+     * 批量启用/停用
+     * @param startStopDto
+     * @return
+     */
+    Boolean startStopTemplate(StartStopDto startStopDto);
 
 // 自定义方法区 不替换的区域【other_end】
 
