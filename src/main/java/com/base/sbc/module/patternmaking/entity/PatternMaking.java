@@ -24,7 +24,7 @@ import java.util.Date;
  * @version 1.0
  * @address com.base.sbc.module.patternmaking.entity.PatternMaking
  * @email your email
- * @date 创建时间：2023-10-24 9:38:25
+ * @date 创建时间：2023-10-25 21:10:48
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,14 +32,16 @@ import java.util.Date;
 @ApiModel("打版管理 PatternMaking")
 public class PatternMaking extends BaseDataEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    private static final long serialVersionUID = 1L;
+    /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 
     /**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 打版编码 */
+    /**
+     * 打版编码
+     */
     @ApiModelProperty(value = "打版编码")
     private String code;
     /**
@@ -87,14 +89,20 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "打版类型名称")
     private String sampleTypeName;
-    /** 打版难度 */
-    @ApiModelProperty(value = "打版难度"  )
+    /**
+     * 打版难度
+     */
+    @ApiModelProperty(value = "打版难度")
     private String patDiff;
-    /** 打版难度名称 */
-    @ApiModelProperty(value = "打版难度名称"  )
+    /**
+     * 打版难度名称
+     */
+    @ApiModelProperty(value = "打版难度名称")
     private String patDiffName;
-    /** 打样顺序 */
-    @ApiModelProperty(value = "打样顺序"  )
+    /**
+     * 打样顺序
+     */
+    @ApiModelProperty(value = "打样顺序")
     private String patSeq;
     /** 打样顺序名称 */
     @ApiModelProperty(value = "打样顺序名称"  )
@@ -177,16 +185,24 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "设计下发时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designSendDate;
-    /** 设计下发状态:(0未下发，1已下发) */
-    @ApiModelProperty(value = "设计下发状态:(0未下发，1已下发)"  )
+    /**
+     * 设计下发状态:(0未下发，1已下发)
+     */
+    @ApiModelProperty(value = "设计下发状态:(0未下发，1已下发)")
     private String designSendStatus;
-    /** 纸样完成数量 */
-    @ApiModelProperty(value = "纸样完成数量"  )
+    /**
+     * 纸样完成数量
+     */
+    @ApiModelProperty(value = "纸样完成数量")
     private BigDecimal patternFinishNum;
-    /** 裁剪工 */
-    @ApiModelProperty(value = "裁剪工"  )
+    /**
+     * 裁剪工
+     */
+    @ApiModelProperty(value = "裁剪工")
     private String cutterName;
-    /** 裁剪工id */
+    /**
+     * 裁剪工id
+     */
     @ApiModelProperty(value = "裁剪工id")
     private String cutterId;
     /**
@@ -257,7 +273,7 @@ public class PatternMaking extends BaseDataEntity<String> {
     /**
      * 当前节点
      */
-    @ApiModelProperty(value = "当前节点"  )
+    @ApiModelProperty(value = "当前节点")
     private String node;
     /** 排序 */
     @ApiModelProperty(value = "排序"  )
@@ -266,23 +282,33 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "挂起(1挂起)"  )
     private String suspend;
     /** 挂起状态(“打胚样”“打净样”“做纸样”) */
-    @ApiModelProperty(value = "挂起状态(“打胚样”“打净样”“做纸样”)"  )
+    @ApiModelProperty(value = "挂起状态(“打胚样”“打净样”“做纸样”)")
     private String suspendStatus;
-    /** 挂起备注 */
-    @ApiModelProperty(value = "挂起备注"  )
+    /**
+     * 挂起备注
+     */
+    @ApiModelProperty(value = "挂起备注")
     private String suspendRemarks;
-    /** 确认收到样衣时间 */
-    @ApiModelProperty(value = "确认收到样衣时间"  )
+    /**
+     * 确认收到样衣时间
+     */
+    @ApiModelProperty(value = "确认收到样衣时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date receiveSampleDate;
-    /** 确认收到样衣(0否,1是) */
-    @ApiModelProperty(value = "确认收到样衣(0否,1是)"  )
+    /**
+     * 确认收到样衣(0否,1是)
+     */
+    @ApiModelProperty(value = "确认收到样衣(0否,1是)")
     private String receiveSample;
-    /** 是否需要外辅(0否,1是) */
-    @ApiModelProperty(value = "是否需要外辅(0否,1是)"  )
+    /**
+     * 是否需要外辅(0否,1是)
+     */
+    @ApiModelProperty(value = "是否需要外辅(0否,1是)")
     private String extAuxiliary;
-    /** 外辅发出时间 */
-    @ApiModelProperty(value = "外辅发出时间"  )
+    /**
+     * 外辅发出时间
+     */
+    @ApiModelProperty(value = "外辅发出时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date extAuxiliaryDispatchDate;
     /**
@@ -361,6 +387,9 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 完成数量 */
     @ApiModelProperty(value = "完成数量"  )
     private BigDecimal sampleFinishNum;
+    /** 是否是迁移历史数据 */
+    @ApiModelProperty(value = "是否是迁移历史数据"  )
+    private String historicalData;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

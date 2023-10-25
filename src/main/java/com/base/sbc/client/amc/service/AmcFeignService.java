@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.TeamVo;
 import com.base.sbc.client.amc.entity.Team;
+import com.base.sbc.client.amc.entity.UserDept;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -24,6 +25,7 @@ import org.springframework.util.ObjectUtils;
 import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类描述： 用户信息
@@ -369,15 +371,38 @@ public class AmcFeignService {
     public UserCompany getUserByUserId(String userId) {
         UserCompany userList = null;
         try {
-            String result = amcService.getUserByUserId( userId);
+            String result = amcService.getUserByUserId(userId);
             JSONObject jsonObject = JSON.parseObject(result);
             JSONObject data = jsonObject.getJSONObject(BaseConstant.DATA);
-            userList =  data.toJavaObject(UserCompany.class);
+            userList = data.toJavaObject(UserCompany.class);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return userList;
     }
 
+    /**
+     * 获取当官的 如样衣组长2 部门主管 1
+     *
+     * @param userId
+     * @param userType
+     * @return
+     */
+    public List<String> getUserDepByUserIdUserType(String userId, String userType) {
+
+        try {
+            String result = amcService.getUserDeptInfoById(userId, userType);
+            JSONObject jsonObject = JSON.parseObject(result);
+            JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
+            List<UserDept> userList = data.toJavaList(UserDept.class);
+            if (CollUtil.isNotEmpty(userList)) {
+                return userList.stream().filter(item -> StrUtil.equals(userType, item.getUserType()))
+                        .map(item -> item.getDeptId()).collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }
