@@ -41,6 +41,8 @@ public class PatternMakingTaskListVo extends PatternMaking {
     private String designNo;
     @ApiModelProperty(value = "紧急程度")
     private String urgency;
+    @ApiModelProperty(value = "紧急程度")
+    private String urgencyName;
     @ApiModelProperty(value = "版师名称")
     private String patternDesignName;
     @ApiModelProperty(value = "版师id")
