@@ -937,7 +937,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         if (StringUtils.isNotEmpty(itemImportDto.getStylePic())) {
                             File file1 = new File(itemImportDto.getStylePic());
                             String extName = FileUtil.extName(file1.getName());
-                            String objectName = "planning/" + categoryItem.getBrandName() + "/" + categoryItem.getYearName() + "/" + categoryItem.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
+                            String objectName = "Planning/" + categoryItem.getBrandName() + "/" + categoryItem.getYearName() + "/" + categoryItem.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
                             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), objectName);
                             categoryItem.setStylePic(CommonUtils.removeQuery(attachmentVo.getUrl()));
                         }

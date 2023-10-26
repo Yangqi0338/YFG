@@ -76,7 +76,8 @@ public class SampleBoardVo extends Style {
     private String brand;
     @ApiModelProperty(value = "品牌")
     private String brandName;
-
+    @ApiModelProperty(value = "模板部件")
+    private String patternParts;
 
     @ApiModelProperty(value = "年份")
     private String year;
@@ -140,6 +141,10 @@ public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "样衣组长确认齐套时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sglKittingDate;
+
+    @ApiModelProperty(value = "创建指令时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date pmCreateDate;
 
     /**
      * 版师名称

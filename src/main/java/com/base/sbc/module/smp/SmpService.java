@@ -49,11 +49,13 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -103,7 +105,9 @@ public class SmpService {
     private final BasicsdatumSizeService basicsdatumSizeService;
 
     private final StyleService styleService;
-    private final StyleColorService styleColorService;
+    @Resource
+    @Lazy
+    private StyleColorService styleColorService;
 
     private final CcmFeignService ccmFeignService;
 
