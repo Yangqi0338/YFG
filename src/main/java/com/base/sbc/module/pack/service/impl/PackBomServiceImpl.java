@@ -19,6 +19,7 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
@@ -657,5 +658,46 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return packBomVos;
     }
 
+    public ApiResult packBomMaterialColor(String companyCode, String id, String colorCode){
+        //查询资料包-物料清单-物料版本 启用状态的数据
+        QueryWrapper<PackBomVersion> versionQw = new QueryWrapper<>();
+        versionQw.eq("foreign_id", id);
+        versionQw.eq("pack_type", "packDesign");
+        versionQw.eq("status", BaseGlobal.YES);
+        versionQw.eq("del_flag", BaseGlobal.NO);
+        versionQw.orderByDesc("update_date");
+        List<PackBomVersion> packBomVersionList = packBomVersionService.list(versionQw);
 
+        if (CollectionUtil.isNotEmpty(packBomVersionList)) {
+            //再根据版本，查找物料清单
+            PackBomVersion packBomVersion = packBomVersionList.get(0);
+
+            QueryWrapper<PackBom> packBomQw = new QueryWrapper<>();
+            PackUtils.commonQw(packBomQw, id, "packDesign", "0");
+            packBomQw.eq("bom_version_id", packBomVersion.getId());
+            packBomQw.eq("main_flag", "1");
+            List<PackBom> packBomList = this.list(packBomQw);
+            if(CollectionUtil.isEmpty(packBomList)){
+                //没有物料
+                return ApiResult.error("找不到物料！", 500);
+            }
+
+            Map<String, String> materialColorMap = new HashMap<>();
+            QueryWrapper<PackBomColor> bomColorQw;
+            for (PackBom bom : packBomList) {
+                //查询物料清单 - 配色
+                bomColorQw = new QueryWrapper<>();
+                PackUtils.commonQw(bomColorQw, id, "packDesign", null);
+                bomColorQw.eq("bom_id", bom.getId());
+                List<PackBomColor> packBomColorList = packBomColorService.list(bomColorQw);
+
+                Map<String, PackBomColor> colorMap = packBomColorList.stream().collect(Collectors.toMap(PackBomColor::getColorCode, item -> item));
+
+                String collocationColor = colorMap.get(colorCode) != null ? colorMap.get(colorCode).getMaterialColorName() : "";
+                materialColorMap.put(bom.getMaterialCode(), collocationColor);
+            }
+            return ApiResult.success("查询成功！", materialColorMap);
+        }
+        return ApiResult.error("找不到数据！", 500);
+    }
 }

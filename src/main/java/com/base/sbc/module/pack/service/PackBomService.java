@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -153,4 +154,6 @@ public interface PackBomService extends PackBaseService<PackBom> {
     List<PackBomVo> getPackBomVoList(PackCommonPageSearchDto dto);
 
     BigDecimal sumBomCost(PackBomPageSearchDto dto);
+
+    ApiResult packBomMaterialColor(String companyCode, String id, String colorCode);
 }
