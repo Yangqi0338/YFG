@@ -316,7 +316,7 @@
                 </tr>
                 <tr>
                     <td class="bold">面料详情</td>
-                    <td class="">${fabricDetails}</td>
+                    <td class="" ><pre>${fabricDetails}</pre></td>
                 </tr>
                 <tr>
                     <td class="gb bold">描述</td>
