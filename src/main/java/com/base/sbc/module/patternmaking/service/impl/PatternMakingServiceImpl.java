@@ -219,8 +219,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
         PatternMaking patternMaking = getById(dto.getId());
-        patternMaking.setSampleFinishNum(patternMaking.getRequirementNum());
-        patternMaking.setCutterFinishNum(patternMaking.getRequirementNum());
+        uw.lambda().set(PatternMaking::getSampleFinishNum, patternMaking.getRequirementNum())
+                .set(PatternMaking::getCutterFinishNum, patternMaking.getRequirementNum());
+        update(uw);
         /**
          * 1.当第一个下发版是初版样时先下发到技术中心，技术中心下发对版师时同时同步到款式信息 之后的版都自动下发给初版样技术中心指定的版师，
          * 2。当第一个下发版是改版样时 款式信息中存在版师时自动下发到指定版师 款式中无数据时到技术中心看板手动下发版师同时同步到款式 之后的款都自动下发到该版师
@@ -249,9 +250,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     // 自动下发打板
                     prmSend(setPatternDesignDto);
                 } else {
+                    UpdateWrapper<PatternMaking> uw2 = new UpdateWrapper<>();
                     /*初版版师离职后需要手动下发*/
-                    uw.set("first_pattern_design_id", patternMaking.getPatternDesignId());
-                    uw.set("first_pattern_design_name", patternMaking.getPatternDesignName());
+                    uw2.set("first_pattern_design_id", patternMaking.getPatternDesignId());
+                    uw2.set("first_pattern_design_name", patternMaking.getPatternDesignName());
+                    uw2.eq("id", dto.getId());
+                    update(uw2);
                 }
             }
         }
@@ -262,7 +266,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdUw.set("status", BasicNumber.TWO.getNumber());
         sdUw.set("send_pattern_making_date", new Date());
         styleService.update(sdUw);
-        update(uw);
+
         /*发送消息*/
         messageUtils.sampleDesignSendMessage(patternMaking.getPatternRoomId(), patternMaking.getPatternNo(), baseController.getUser());
 
@@ -1100,6 +1104,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class})
     public boolean assignmentUser(GroupUser groupUser, AssignmentUserDto dto) {
         PatternMaking byId = getById(dto.getId());
+        if (byId == null) {
+            throw new OtherException("任务不存在");
+        }
+        if (!StrUtil.equals(byId.getNode(), EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT.getNode()) ||
+                !StrUtil.equals(byId.getStatus(), EnumNodeStatus.GARMENT_WAITING_ASSIGNMENT.getStatus())
+        ) {
+            throw new OtherException("节点不匹配");
+        }
         sort(byId, true);
         byId.setStitcher(dto.getStitcher());
         byId.setStitcherId(dto.getStitcherId());
