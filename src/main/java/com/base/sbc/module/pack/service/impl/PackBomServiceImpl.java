@@ -675,7 +675,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             QueryWrapper<PackBom> packBomQw = new QueryWrapper<>();
             PackUtils.commonQw(packBomQw, id, "packDesign", "0");
             packBomQw.eq("bom_version_id", packBomVersion.getId());
-            packBomQw.eq("main_flag", "1");
             List<PackBom> packBomList = this.list(packBomQw);
             if(CollectionUtil.isEmpty(packBomList)){
                 //没有物料
