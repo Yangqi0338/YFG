@@ -1264,6 +1264,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (StrUtil.equals(pm.getNode(), "样衣任务") && StrUtil.equals(pm.getBreakOffSample(), BaseGlobal.YES)) {
             throw new OtherException("样衣任务已中断");
         }
+        if (StrUtil.equals(pm.getSuspend(), BaseGlobal.YES)) {
+            throw new OtherException("任务已经挂起");
+        }
     }
 
 
