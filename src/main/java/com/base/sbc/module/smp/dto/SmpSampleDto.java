@@ -108,8 +108,11 @@ public class SmpSampleDto extends SmpBaseDto {
 
     public SampleBean toSampleBean(){
         SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+        if ("拍照样".equals(sampleType)){
+            this.setSampleType("模特样");
+        }
         SampleBean sampleBean =new SampleBean();
-        sampleBean.setNodeName(styleCode+"/"+nodeName);
+        sampleBean.setNodeName(styleCode+"/"+sampleType);
         sampleBean.setCode(getCode());
         sampleBean.setSampleType(sampleType);
         sampleBean.setSampleTypeName(sampleTypeName);
@@ -138,20 +141,17 @@ public class SmpSampleDto extends SmpBaseDto {
         sampleBean.setC8_Sample_Barcode(barcode);
         sampleBean.setC8_Sample_PLMID(pmlId);
 
-        sampleBean.setC8_Sample_IfFinished(String.valueOf(finished));
+        sampleBean.setC8_Sample_IfFinished("true");
 
         sampleBean.setC8_ProductSample_ProofingDesigner(proofingDesigner);
         sampleBean.setC8_ProductSample_ProofingDesignerID(proofingDesignerId);
         sampleBean.setSupplier(supplier);
-        sampleBean.setSupplierNumber(supplierNumber);
-        sampleBean.setSampleStatus(sampleStatus);
-        sampleBean.setSampleStatusName(sampleStatusName);
+        sampleBean.setSupplierNumber( "99CY0017");
+        //先写死
+        sampleBean.setSampleStatus("Reviewed-Pass");
+        sampleBean.setSampleStatusName("Reviewed-Pass");
 
-        SampleBean.Colorway colorway =new SampleBean.Colorway();
-        colorway.setC8_Colorway_PLMID(null);
-        colorway.setC8_Colorway_Code(colorwayCode);
 
-        sampleBean.setColorway(colorway);
 
         SampleBean.Style style =new SampleBean.Style();
         style.setStyleCode(styleCode);
@@ -170,6 +170,10 @@ public class SmpSampleDto extends SmpBaseDto {
         style.setC8_StyleAttr_DesignerID(designerId);
         if (StringUtils.isNotBlank(designer)){
             style.setC8_StyleAttr_Designer(designer.split(",")[0]);
+            if(designer.split(",").length>1){
+                style.setC8_StyleAttr_DesignerID(designer.split(",")[1]);
+            }
+
         }
         style.setC8_StyleAttr_PatternMaker(patternMaker);
         style.setC8_StyleAttr_PatternMakerID(patternMakerId);

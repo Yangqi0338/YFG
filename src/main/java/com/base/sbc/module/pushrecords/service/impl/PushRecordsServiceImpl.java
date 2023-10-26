@@ -41,18 +41,17 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
      * @return 推送的结果
      */
     @Override
-    public Boolean pushRecordSave(HttpResp httpResp, Object data, String moduleName, String functionName) {
+    public Boolean pushRecordSave(HttpResp httpResp, String data, String moduleName, String functionName) {
         PushRecords pushRecords = new PushRecords();
 
-        String jsonString = JsonStringUtils.toJSONString(data);
-        JSONObject json = JSON.parseObject(jsonString);
+        JSONObject json = JSON.parseObject(data);
 
         pushRecords.setModuleName(moduleName);
         pushRecords.setFunctionName(functionName);
         pushRecords.setRelatedId(json.getString("code"));
         pushRecords.setRelatedName(json.getString("name"));
         pushRecords.setPushAddress(httpResp.getUrl());
-        pushRecords.setPushContent(jsonString);
+        pushRecords.setPushContent(data);
         pushRecords.setPushCount("1");
         pushRecords.setPushStatus(httpResp.isSuccess() ? "成功" : "失败");
         pushRecords.setResponseMessage(httpResp.getMessage());

@@ -2,6 +2,7 @@ package com.base.sbc.config;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.base.sbc.module.smp.dto.SampleBean;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -18,6 +19,7 @@ public class JsonStringUtils {
 
     /**
      * 将对象转为json字符串,空字段转为默认值或者空字符串
+     *
      * @param o 对象
      * @return json字符串
      */
@@ -27,17 +29,25 @@ public class JsonStringUtils {
             Class<?> type = field.getType();
             String name = type.getName();
             field.setAccessible(true);
-            if ("java.math.BigDecimal".equals(name) ){
-                try {
-                    if ( field.get(o) ==null){
-                        field.set(o,new BigDecimal(0));
+            System.out.println(name);
+            try {
+                if ("java.math.BigDecimal".equals(name)) {
+                    if (field.get(o) == null) {
+                        field.set(o, new BigDecimal(0));
                     }
-                }catch (Exception e){
-                    e.printStackTrace();
                 }
+                // if ("com.base.sbc.module.smp.dto.SampleBean$Colorway".equals(name)) {
+                //     if (field.get(o) == null) {
+                //         field.set(o, new SampleBean.Colorway());
+                //     }
+                // }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+
         }
-        return JSON.toJSONString(o, SerializerFeature.WriteNullStringAsEmpty,SerializerFeature.WriteNullNumberAsZero,SerializerFeature.WriteNullBooleanAsFalse);
+        return JSON.toJSONString(o, SerializerFeature.WriteNullStringAsEmpty, SerializerFeature.WriteNullNumberAsZero, SerializerFeature.WriteNullBooleanAsFalse);
     }
 
 

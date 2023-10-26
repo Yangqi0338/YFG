@@ -27,16 +27,15 @@ public class RestTemplateService {
      * smp系统对接post请求
      *
      * @param url 请求地址
-     * @param o   请求对象
+     * @param jsonStr   请求对象
      * @return 返回的结果
      */
-    public HttpResp spmPost(String url, Object o) {
+    public HttpResp spmPost(String url, String jsonStr) {
         HttpHeaders requestHeaders = new HttpHeaders();
         HttpResp httpResp = new HttpResp();
         try {
             requestHeaders.add("Content-Type", "application/json");
-            // 2.请求头 & 请求体
-            String jsonStr = JsonStringUtils.toJSONString(o);
+
             HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
             ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
 

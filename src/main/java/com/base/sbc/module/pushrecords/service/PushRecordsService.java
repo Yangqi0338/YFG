@@ -32,7 +32,7 @@ public interface PushRecordsService extends BaseService<PushRecords> {
      * @param functionName 功能方法名称
      * @return 推送的结果
      */
-    Boolean pushRecordSave(HttpResp httpResp, Object data, String moduleName, String functionName);
+    Boolean pushRecordSave(HttpResp httpResp, String data, String moduleName, String functionName);
 
 // 自定义方法区 不替换的区域【other_end】
 
