@@ -207,7 +207,7 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean references(PackSizeConfigReferencesDto dto) {
-        packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
+        packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.YES);
         this.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
         return true;
     }
