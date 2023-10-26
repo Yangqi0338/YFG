@@ -76,7 +76,8 @@ public class SampleBoardVo extends Style {
     private String brand;
     @ApiModelProperty(value = "品牌")
     private String brandName;
-
+    @ApiModelProperty(value = "模板部件")
+    private String patternParts;
 
     @ApiModelProperty(value = "年份")
     private String year;
