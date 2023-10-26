@@ -259,6 +259,7 @@ public class BasicsdatumMaterialController extends BaseController {
     }
 
     @ApiOperation(value = "物料规格:停用/启用规格")
+    @DuplicationCheck
     @PostMapping("/startStopBasicsdatumMaterialWidth")
     public Boolean startStopBasicsdatumMaterialWidth(@Valid @RequestBody StartStopDto dto) {
         return basicsdatumMaterialService.startStopBasicsdatumMaterialWidth(dto);
