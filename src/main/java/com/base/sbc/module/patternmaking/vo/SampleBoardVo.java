@@ -142,6 +142,10 @@ public class SampleBoardVo extends Style {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sglKittingDate;
 
+    @ApiModelProperty(value = "创建指令时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date pmCreateDate;
+
     /**
      * 版师名称
      */
