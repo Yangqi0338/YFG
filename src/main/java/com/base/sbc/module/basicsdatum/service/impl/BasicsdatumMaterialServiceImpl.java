@@ -476,6 +476,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 i.setId(IdUtil.randomUUID());
             });
         }
+        minioUtils.setObjectUrlToList(page.getResult(), "imageUrl");
 		return page.toPageInfo();
 	}
 

@@ -109,6 +109,7 @@
         p.prm_send_date,
         p.prm_send_status,
         p.urgency,
+        p.urgency_name,
         p.node,
         p.status,
         p.sgl_kitting,
