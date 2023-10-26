@@ -315,6 +315,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getBrandCode()), "brand_id", pageDto.getBrandCode());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getComponent()), "component", pageDto.getComponent());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryCode()), "category_id", pageDto.getCategoryCode());
+        queryWrapper.notLike( "category_id", pageDto.getCategoryId());
         queryWrapper.between("create_date", pageDto.getCreateDate());
         queryWrapper.orderByDesc("create_date");
         //if (pageDto.getTime() != null && pageDto.getTime().length > 0) {

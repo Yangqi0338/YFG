@@ -35,4 +35,7 @@ public class ProcessDatabasePageDto extends BaseDto {
     @ApiModelProperty(value = "品类编码")
     private String   categoryCode;
 
+
+    private String categoryId;
+
 }
