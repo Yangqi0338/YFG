@@ -235,7 +235,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
         } else {
             queryWrapper.eq("ts.del_flag", "0");
-            queryWrapper.orderByDesc("ts.id");
+            queryWrapper.orderByAsc("tsc.style_no");
 //            查询款式配色
             sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
             List<String> stringList = IdGen.getIds(sampleStyleColorList.size());

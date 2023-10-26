@@ -36,11 +36,11 @@ public class JsonStringUtils {
                         field.set(o, new BigDecimal(0));
                     }
                 }
-                // if ("com.base.sbc.module.smp.dto.SampleBean$Colorway".equals(name)) {
-                //     if (field.get(o) == null) {
-                //         field.set(o, new SampleBean.Colorway());
-                //     }
-                // }
+                if ("com.base.sbc.module.smp.dto.SampleBean$Colorway".equals(name)) {
+                    if (field.get(o) == null) {
+                        field.set(o, new SampleBean.Colorway());
+                    }
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

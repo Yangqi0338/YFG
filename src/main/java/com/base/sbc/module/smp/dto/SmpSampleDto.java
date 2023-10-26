@@ -108,9 +108,9 @@ public class SmpSampleDto extends SmpBaseDto {
 
     public SampleBean toSampleBean(){
         SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-        if ("拍照样".equals(sampleType)){
-            this.setSampleType("模特样");
-        }
+        // if ("拍照样".equals(sampleType)){
+        //     this.setSampleType("模特样");
+        // }
         SampleBean sampleBean =new SampleBean();
         sampleBean.setNodeName(styleCode+"/"+sampleType);
         sampleBean.setCode(getCode());
@@ -143,7 +143,10 @@ public class SmpSampleDto extends SmpBaseDto {
 
         sampleBean.setC8_Sample_IfFinished("true");
 
-        sampleBean.setC8_ProductSample_ProofingDesigner(proofingDesigner);
+        if (!StringUtils.isEmpty(proofingDesigner)){
+            sampleBean.setC8_ProductSample_ProofingDesigner(proofingDesigner.split(",")[0]);
+        }
+
         sampleBean.setC8_ProductSample_ProofingDesignerID(proofingDesignerId);
         sampleBean.setSupplier(supplier);
         sampleBean.setSupplierNumber( "99CY0017");

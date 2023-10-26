@@ -811,8 +811,9 @@ public class SmpService {
             smpSampleDto.setBExtAuxiliary("1".equals(patternMaking.getExtAuxiliary()));
             smpSampleDto.setSampleNumberName(patternMaking.getCode());
             smpSampleDto.setBarcode(patternMaking.getSampleBarCode());
-
-            String jsonString = JsonStringUtils.toJSONString(smpSampleDto.toSampleBean());
+            SampleBean sampleBean = smpSampleDto.toSampleBean();
+            sampleBean.setColorway(new SampleBean.Colorway());
+            String jsonString = JsonStringUtils.toJSONString(sampleBean);
             HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/setSampleTask", jsonString);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "样衣下发");
             if (aBoolean) {
