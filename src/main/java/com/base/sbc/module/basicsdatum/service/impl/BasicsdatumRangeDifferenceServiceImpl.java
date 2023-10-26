@@ -22,8 +22,14 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
-import com.base.sbc.module.basicsdatum.entity.*;
-import com.base.sbc.module.basicsdatum.mapper.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMeasurement;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumRangeDifference;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumCategoryMeasureMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMeasurementMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumModelTypeMapper;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumRangeDifferenceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumRangeDifferenceService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumRangeDifferenceVo;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -167,8 +173,8 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             if (!StringUtils.isEmpty(basicsdatumRangeDifferenceExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumRangeDifferenceExcelDto.getPicture());
                 /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
-                basicsdatumRangeDifferenceExcelDto.setPicture(attachmentVo.getUrl());
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/System/Config/RangeDifference/" + basicsdatumRangeDifferenceExcelDto.getCode() + ".jpg");
+                basicsdatumRangeDifferenceExcelDto.setPicture(CommonUtils.removeQuery(attachmentVo.getUrl()));
             }
             /*获取品牌编码*/
             if(StringUtils.isNotBlank(basicsdatumRangeDifferenceExcelDto.getBrandName())){

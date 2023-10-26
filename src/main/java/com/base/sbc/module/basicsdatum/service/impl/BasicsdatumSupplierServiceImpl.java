@@ -19,6 +19,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumSupplierDto;
@@ -144,15 +145,15 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
             if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumSupplierExcelDto.getPicture());
                 /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
-                basicsdatumSupplierExcelDto.setPicture(attachmentVo.getUrl());
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/System/Config/Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + ".jpg");
+                basicsdatumSupplierExcelDto.setPicture(CommonUtils.removeQuery(attachmentVo.getUrl()));
             }
 
             if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getAgentImages())) {
                 File file1 = new File(basicsdatumSupplierExcelDto.getAgentImages());
                 /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1));
-                basicsdatumSupplierExcelDto.setAgentImages(attachmentVo.getUrl());
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/System/Config/Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + "-Agent.jpg");
+                basicsdatumSupplierExcelDto.setAgentImages(CommonUtils.removeQuery(attachmentVo.getUrl()));
             }
             /*结算方式*/
             if (StringUtils.isNotBlank(basicsdatumSupplierExcelDto.getClearingForm())) {
