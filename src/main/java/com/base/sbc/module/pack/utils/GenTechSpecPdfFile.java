@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
@@ -50,10 +49,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -336,9 +333,9 @@ public class GenTechSpecPdfFile {
         dataModel.put("wfgyShow", isFob() && ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")));
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
-        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "htmltoPdf.html");
+//        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html");
         String html = writer.toString();
-        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
+//        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
         return html;
     }
 
