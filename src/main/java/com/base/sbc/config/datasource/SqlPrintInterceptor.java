@@ -91,6 +91,8 @@ public class SqlPrintInterceptor implements Interceptor {
 
         parameterObject = boundSql.getParameterObject();
         String sql1 = getSql(boundSql, parameterObject, configuration);
+        Object proceed = invocation.proceed();
+
         long end = System.currentTimeMillis();
         long timing = end - start;
         if (logger.isInfoEnabled()) {
@@ -116,7 +118,7 @@ public class SqlPrintInterceptor implements Interceptor {
         }
 
 
-        return invocation.proceed();
+        return proceed;
     }
     private void getAuthoritySql(BoundSql boundSql, String statementId, MappedStatement mappedStatement, String sql,String sqlCommandType){
         try {
