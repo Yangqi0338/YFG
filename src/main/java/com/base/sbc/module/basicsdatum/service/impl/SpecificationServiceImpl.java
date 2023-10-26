@@ -1,8 +1,13 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
-import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.entity.ImportParams;
-import cn.hutool.core.bean.BeanUtil;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -12,13 +17,10 @@ import com.base.sbc.module.basicsdatum.entity.Specification;
 import com.base.sbc.module.basicsdatum.mapper.SpecificationMapper;
 import com.base.sbc.module.basicsdatum.service.SpecificationService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.hutool.core.bean.BeanUtil;
 
 /**
  * @author 卞康
@@ -68,12 +70,6 @@ public class SpecificationServiceImpl extends BaseServiceImpl<SpecificationMappe
             if (one != null && !one.getId().equals(specification.getId())) {
                 throw new OtherException("编码存在重复");
             }
-            BaseQueryWrapper<Specification> queryWrapper1 = new BaseQueryWrapper<>();
-            queryWrapper1.eq("name", specification.getName());
-            Specification one1 = this.getOne(queryWrapper1);
-            if (one1 != null && !one1.getId().equals(specification.getId())) {
-                throw new OtherException("名称存在重复");
-            }
             return this.updateById(specification);
         } else {
             BaseQueryWrapper<Specification> queryWrapper = new BaseQueryWrapper<>();
@@ -81,12 +77,6 @@ public class SpecificationServiceImpl extends BaseServiceImpl<SpecificationMappe
             Specification one = this.getOne(queryWrapper);
             if (one != null) {
                 throw new OtherException("编码存在重复");
-            }
-            BaseQueryWrapper<Specification> queryWrapper1 = new BaseQueryWrapper<>();
-            queryWrapper1.eq("name", specification.getName());
-            Specification one1 = this.getOne(queryWrapper1);
-            if (one1 != null) {
-                throw new OtherException("名称存在重复");
             }
             return this.save(specification);
         }
