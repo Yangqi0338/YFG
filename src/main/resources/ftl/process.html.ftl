@@ -77,6 +77,25 @@
         width: 80%;
     }
 
+    .img_box {
+        margin: 0 auto;
+        width: 56mm;
+        height: 60mm;
+        text-align: center;
+        margin-bottom: 5mm;
+        background-color: #eee;
+    }
+
+    .text_color {
+        font-weight: bold;
+        margin: 2mm 0;
+    }
+
+    .img {
+        max-width: 100%;
+        max-height: 88%;
+    }
+
 
     .sizeItemWidth {
         width: 36px;
@@ -619,7 +638,17 @@
                     <td rowspan="${xbjRowsPan}" style="width: 30%">
                         <div class="one_imgs">
                             <#list xbjImgList as item>
-                                <img class="one_imgs_item" src="${item.url}"/>
+                                <div class="img_box">
+                                    <div class="text_color">
+                                        <#if item_index==0>
+                                            正面
+                                        </#if>
+                                        <#if item_index==1>
+                                            反面
+                                        </#if>
+                                    </div>
+                                    <img class="one_imgs_item img" src="${item.url}"/>
+                                </div>
                             </#list>
                         </div>
                     </td>
