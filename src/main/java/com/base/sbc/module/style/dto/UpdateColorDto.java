@@ -14,5 +14,5 @@ public class UpdateColorDto {
 
     @ApiModelProperty(value = "颜色库id")
     @NotBlank(message = "颜色库不能为空")
-    private String colourLibraryId;
+    private String colorCode;
 }

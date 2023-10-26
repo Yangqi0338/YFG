@@ -29,6 +29,14 @@ public interface BaseService<T> extends IService<T> {
 
 
     /**
+     * 跟据字段名称和字段查询一条数据
+     * @param fieldName
+     * @param id
+     * @return
+     */
+    T getByOne(String fieldName, String id);
+
+    /**
      * 根据传入的对象，查询符合条件的数据
      */
     List<T> listByObject(Object object, BaseQueryWrapper<T> baseQueryWrapper, String ...exFields);
