@@ -35,6 +35,7 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
@@ -113,6 +114,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     private AttachmentService attachmentService;
     @Resource
     private UploadFileService uploadFileService;
+    @Resource
+    private MinioUtils minioUtils;
     @Resource
     private OperaLogService operaLogService;
     @Resource
@@ -893,7 +896,12 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 .set(PackInfoStatus::getTechSpecVideoFileId, Opt.ofBlankAble(fileId).orElse(""));
         packInfoStatusService.update(uw);
         if (StrUtil.isBlank(fileId)) {
-            return null;
+            UploadFile uploadFile = uploadFileService.getById(fileId);
+            if (uploadFile != null) {
+                uploadFileService.removeById(fileId);
+                minioUtils.delFile(uploadFile.getUrl());
+            }
+            return new AttachmentVo();
         }
         return attachmentService.getAttachmentByFileId(fileId);
     }

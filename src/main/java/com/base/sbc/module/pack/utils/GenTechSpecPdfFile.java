@@ -333,9 +333,10 @@ public class GenTechSpecPdfFile {
         dataModel.put("wfgyShow", isFob() && ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")));
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
-        //        System.out.println("temp目录路径:"+ FileUtil.getTmpDirPath()+"htmltoPdf.html");
-//        FileUtil.writeString(output, new File(FileUtil.getTmpDirPath()+"/htmltoPdf.html"), Charset.defaultCharset());
-        return writer.toString();
+//        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html");
+        String html = writer.toString();
+//        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
+        return html;
     }
 
     public ByteArrayOutputStream gen() {

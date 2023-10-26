@@ -13,6 +13,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
@@ -195,7 +196,15 @@ public class PackBomController extends BaseController{
         return packBomService.unlock(dto);
     }
 
+    @GetMapping("/packBomMaterialColor")
+    @ApiOperation(value = "根据设计BomId获取物料清单的指定颜色的配色")
+    public ApiResult packBomMaterialColor(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String id, String colorCode){
+        if(StringUtils.isBlank(id) || StringUtils.isBlank(colorCode)){
+            return selectAttributeNotRequirements("id, color");
+        }
 
+        return packBomService.packBomMaterialColor(userCompany, id, colorCode);
+    }
 }
 
 

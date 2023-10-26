@@ -28,9 +28,8 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.dto.RemoveDto;
-import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
@@ -41,7 +40,10 @@ import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
@@ -94,11 +96,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     private final BaseController baseController;
 
-    private final BasicsdatumColourLibraryMapper basicsdatumColourLibraryMapper;
+    private final BasicsdatumColourLibraryService basicsdatumColourLibraryServicel;
 
     private final UserUtils userUtils;
-
-    private final AttachmentService attachmentService;
 
     private final DataUpdateScmService dataUpdateScmService;
 
@@ -129,9 +129,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private PackBomService packBomService;
-
-    @Autowired
-    private PackBomVersionService packBomVersionService;
 
     @Autowired
     private StyleMainAccessoriesService styleMainAccessoriesService;
@@ -331,16 +328,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         int index = 0;
         list = CollUtil.distinct(list,AddRevampStyleColorDto::getColourLibraryId,true);
         /*查询颜色*/
-        List<String> colourLibraryIds = list.stream().map(AddRevampStyleColorDto::getColourLibraryId).distinct().collect(Collectors.toList());
-        List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryMapper.selectBatchIds(colourLibraryIds);
+        List<String> colorCodeList = list.stream().map(AddRevampStyleColorDto::getColorCode).distinct().collect(Collectors.toList());
+        List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryServicel.listByField("colour_code",colorCodeList);
         /*颜色数据*/
-        Map<String, BasicsdatumColourLibrary> map = libraryList.stream().collect(Collectors.toMap(BasicsdatumColourLibrary::getId, c -> c));
+        Map<String, BasicsdatumColourLibrary> map = libraryList.stream().collect(Collectors.toMap(BasicsdatumColourLibrary::getColourCode, c -> c));
         /*查询款式主数据*/
         Style style = styleService.getById(list.get(0).getStyleId());
         /*款式主数据数据*/
         for (AddRevampStyleColorDto addRevampStyleColorDto : list) {
-            BasicsdatumColourLibrary basicsdatumColourLibrary = map.get(addRevampStyleColorDto.getColourLibraryId());
+            BasicsdatumColourLibrary basicsdatumColourLibrary = map.get(addRevampStyleColorDto.getColorCode());
             addRevampStyleColorDto.setStyleId(style.getId());
+            addRevampStyleColorDto.setColourLibraryId(basicsdatumColourLibrary.getId());
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
@@ -598,10 +596,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             this.save(styleColor, "款式配色");
         } else {
             /*修改*/
-            if (StringUtils.isBlank(addRevampStyleColorDto.getColourLibraryId())) {
+            if (StringUtils.isBlank(addRevampStyleColorDto.getColorCode())) {
                 throw new OtherException("颜色不能为空");
             }
-            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(addRevampStyleColorDto.getColourLibraryId());
+            BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryServicel.getByOne("colour_code",addRevampStyleColorDto.getColorCode());
             if (ObjectUtils.isEmpty(basicsdatumColourLibrary)) {
                 throw new OtherException("无颜色");
             }
@@ -799,7 +797,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateColor(UpdateColorDto updateColorDto) {
 
         StyleColor styleColor = baseMapper.selectById(updateColorDto.getId());
-        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(updateColorDto.getColourLibraryId());
+        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryServicel.getByOne("colour_code",updateColorDto.getColorCode());
         if (ObjectUtils.isEmpty(basicsdatumColourLibrary)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
@@ -891,7 +889,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (CollectionUtils.isEmpty(styleColorList)) {
             return new ArrayList<>();
         }
-        return styleColorList.stream().map(StyleColor::getColourLibraryId).collect(Collectors.toList());
+        return styleColorList.stream().map(StyleColor::getColorCode).collect(Collectors.toList());
     }
 
     /**
@@ -1098,7 +1096,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         long count = packInfoMapper.countByQw(codeQw);
         /*复制配色*/
 
-        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryMapper.selectById(publicStyleColorDto.getColourLibraryId());
+        BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryServicel.getById(publicStyleColorDto.getColourLibraryId());
         copyStyleColor.setColorName(basicsdatumColourLibrary.getColourName());
         copyStyleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
         copyStyleColor.setColorCode(basicsdatumColourLibrary.getColourCode());

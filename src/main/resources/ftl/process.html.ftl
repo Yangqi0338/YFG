@@ -77,37 +77,24 @@
         width: 80%;
     }
 
-
-    .sizeItemWidth {
-        width: 36px;
+    .img_box {
         text-align: center;
+        margin-bottom: 5mm;
+        background-color: rgba(243, 244, 246, 0.5);
+        width: 76mm;
+        height: 56mm;
     }
 
-    .sizeWidth {
-        width: 100px;
-        text-align: center;
+    .text_color {
+        font-weight: bold;
+        margin: 2mm 0;
     }
 
-    .item_td {
-        width: 20%;
-    }
-
-    .content_tr {
-        width: 80%;
-    }
-
-
-
-    .img_item {
-        margin: 5px;
-        width: 45%;
-    }
-    .page_start {
-        background-color: #e7e6e6;
-    }
-    .gc {
-        width: 44px;
-        text-align: center !important;
+    .img {
+        width: 100%;
+        height: 100%;
+        max-height: 56mm;
+        max-width: 76mm;
     }
 
     .size_table {
@@ -619,7 +606,17 @@
                     <td rowspan="${xbjRowsPan}" style="width: 30%">
                         <div class="one_imgs">
                             <#list xbjImgList as item>
-                                <img class="one_imgs_item" src="${item.url}"/>
+                                <div class="text_color">
+                                    <#if item_index==0>
+                                        <p>正面</p>
+                                    </#if>
+                                    <#if item_index==1>
+                                        <p>反面</p>
+                                    </#if>
+                                </div>
+                                <div class="img_box">
+                                    <img class="one_imgs_item img" style="margin: 0 30px" src="${item.url}"/>
+                                </div>
                             </#list>
                         </div>
                     </td>

@@ -939,7 +939,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                             String extName = FileUtil.extName(file1.getName());
                             String objectName = "planning/" + categoryItem.getBrandName() + "/" + categoryItem.getYearName() + "/" + categoryItem.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
                             AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), objectName);
-                            categoryItem.setStylePic(attachmentVo.getUrl());
+                            categoryItem.setStylePic(CommonUtils.removeQuery(attachmentVo.getUrl()));
                         }
                         addList.add(categoryItem);
                     }else{
