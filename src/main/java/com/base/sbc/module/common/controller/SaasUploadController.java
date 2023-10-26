@@ -91,7 +91,10 @@ public class SaasUploadController extends BaseController {
 
     @ApiOperation(value = "上传文件", notes = "上传文件")
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-    public AttachmentVo uploadFile(@RequestPart(value = "file", required = true) MultipartFile file, String type, String code) throws Throwable {
+    public AttachmentVo uploadFile(@RequestPart(value = "file", required = false) MultipartFile file, String type, String code) throws Throwable {
+        if (file == null || file.getSize() == 0) {
+            throw new OtherException("上传文件为空");
+        }
         return uploadFileService.uploadToMinio(file, type, code);
     }
 }
