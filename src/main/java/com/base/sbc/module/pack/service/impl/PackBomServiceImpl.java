@@ -692,7 +692,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
                 Map<String, PackBomColor> colorMap = packBomColorList.stream().collect(Collectors.toMap(PackBomColor::getColorCode, item -> item));
 
-                String collocationColor = colorMap.get(colorCode) != null ? colorMap.get(colorCode).getMaterialColorName() : "";
+                String collocationColor = "";
+                PackBomColor packBomColor = colorMap.get(colorCode);
+                if(packBomColor != null){
+                    collocationColor = packBomColor.getMaterialColorCode() + ";;" + packBomColor.getMaterialColorName()
+                }
                 materialColorMap.put(bom.getMaterialCode(), collocationColor);
             }
             return ApiResult.success("查询成功！", materialColorMap);
