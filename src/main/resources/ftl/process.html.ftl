@@ -77,7 +77,7 @@
 
     .one_imgs_xbj img {
         max-height: 55mm;
-        max-width: 58mm;
+        max-width: 85mm;
     }
 
     .jcgy_img_box {
@@ -85,11 +85,12 @@
         vertical-align: middle;
         text-align: center;
         padding-top: 0.5px;
+        max-width: 55mm;
     }
 
     .jcgy_img_box img {
         height: ${jcgyImgHeight}mm;
-        max-width: 58mm;
+        max-width: 55mm;
     }
 
 
@@ -223,7 +224,7 @@
                 <tr>
                     <td>
                         <div class="bold" style="font-size: 16px;"> 扫码查看工艺单/视频</div>
-                        <img style="width: 100%" src="${qrCodeUrl}">
+                        <img style="width: 40mm;" src="${qrCodeUrl}">
                     </td>
                 </tr>
             </table>
