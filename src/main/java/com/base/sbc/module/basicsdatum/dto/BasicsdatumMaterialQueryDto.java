@@ -71,4 +71,9 @@ public class BasicsdatumMaterialQueryDto extends Page {
 	 */
 	@ApiModelProperty(value = "产品季id")
 	private String planningSeasonId;
+	/**
+	 * 是否查询库存数量 0或者为空不查询 1查询
+	 */
+	@ApiModelProperty(value = "是否查询库存数量")
+	private String isStock;
 }
