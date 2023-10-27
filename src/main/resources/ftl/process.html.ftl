@@ -212,7 +212,7 @@
 
 <table class="table_no_border info_table">
     <tr>
-        <td style="width: 20%;vertical-align: top;text-align: center;" rowspan="5">
+        <td style="width: 15%;vertical-align: top;text-align: center;" rowspan="5">
             <table style="height: 156mm;">
                 <tr>
                     <td style="height: 80mm;">
@@ -223,8 +223,10 @@
                 </tr>
                 <tr>
                     <td>
-                        <div class="bold" style="font-size: 16px;"> 扫码查看工艺单/视频</div>
-                        <img style="width: 40mm;" src="${qrCodeUrl}">
+                        <div style="display: table-cell;text-align: center;vertical-align: middle;">
+                            <div class="bold" style="font-size: 16px;"> 扫码查看工艺单/视频</div>
+                            <img style="width: 45mm;" src="${qrCodeUrl}">
+                        </div>
                     </td>
                 </tr>
             </table>
@@ -410,8 +412,31 @@
         </td>
     </tr>
 </table>
-
-<!--测量点 2 -->
+<#--注意事项 2-->
+<#if zysxShow>
+    <table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
+        <thead>
+        <tr>
+            <th class="th_title">
+                <p>注意事项</p>
+                <hr>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <div class="one_page_img">
+                    <#if  zysxImgList??>
+                        <img src="${zysxImgList[0].url}"/>
+                    </#if>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</#if>
+<!--测量点 3 -->
 
 <table class="table_border mt size_table" style="page-break-before: always; ">
     <thead>
@@ -478,30 +503,7 @@
     </tfoot>
 </table>
 
-<#--注意事项 3-->
-<#if zysxShow>
-    <table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
-        <thead>
-        <tr>
-            <th class="th_title">
-                <p>注意事项</p>
-                <hr>
-            </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>
-                <div class="one_page_img">
-                    <#if  zysxImgList??>
-                        <img src="${zysxImgList[0].url}"/>
-                    </#if>
-                </div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</#if>
+
 
 <!-- 朴条位置(不需要) 归拔位置 4 2 -->
 <#if false>
@@ -677,7 +679,7 @@
 </#if>
 <!--    整烫包装 6-->
 <#if ztbzShow>
-    <table class="table_border mt">
+    <table class="table_border mt" style="page-break-before: always;">
         <thead>
         <tr>
             <th colspan="2" class="th_title">
@@ -714,7 +716,7 @@
 
 <!--    外辅工艺 7-->
 <#if wfgyShow>
-    <table class="table_border mt">
+    <table class="table_border mt" style="page-break-before: always;">
         <thead>
         <tr>
             <th colspan="2" class="th_title">
