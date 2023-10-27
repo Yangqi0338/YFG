@@ -104,13 +104,8 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
-                /*反审后清掉状态*/
-                packInfoStatus.setBulkProdTechConfirm(BaseGlobal.NO);
-                packInfoStatus.setDesignTechConfirm(BaseGlobal.NO);
-                packInfoStatus.setBulkOrderClerkConfirm(BaseGlobal.NO);
-                packInfoStatus.setPostTechConfirm(BaseGlobal.NO);
-                packInfoStatus.setDesignTechConfirmDate(null);
-//                packInfoStatus.setBulkProdTechConfirmDate(new Date());
+                packInfoStatus.setBulkProdTechConfirm(BaseGlobal.YES);
+                packInfoStatus.setBulkProdTechConfirmDate(new Date());
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
