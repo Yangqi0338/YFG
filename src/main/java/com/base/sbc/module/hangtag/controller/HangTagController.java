@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
@@ -86,6 +87,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "保存")
     @PostMapping("/save")
+    @DuplicationCheck
     public ApiResult save(@Valid @RequestBody HangTagDTO hangTagDTO) {
         String id = hangTagService.save(hangTagDTO, super.getUserCompany());
         return ApiResult.success("保存成功", id);

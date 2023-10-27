@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
@@ -57,6 +58,7 @@ public class StyleColorController {
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getSampleStyleColorList")
+	@DuplicationCheck
 	public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
 		return  styleColorService.getSampleStyleColorList(user,querySampleStyleColorDto);
 	}

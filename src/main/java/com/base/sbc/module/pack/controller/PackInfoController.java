@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.controller;
 
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
@@ -60,6 +61,7 @@ public class PackInfoController {
 
     @ApiOperation(value = "设计BOM资料包-分页查询")
     @GetMapping("/packList")
+	@DuplicationCheck
     public PageInfo<PackInfoListVo> pageInfo(@Valid PackInfoSearchPageDto pageDto) {
 		return packInfoService.pageInfo(pageDto);
 	}

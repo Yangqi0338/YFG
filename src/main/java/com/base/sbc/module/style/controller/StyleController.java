@@ -9,6 +9,7 @@ package com.base.sbc.module.style.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
@@ -94,6 +95,7 @@ public class StyleController extends BaseController {
 
     @ApiOperation(value = "保存")
     @PostMapping
+    @DuplicationCheck
     public StyleVo save(@RequestBody StyleSaveDto dto) {
         Style style = styleService.saveStyle(dto);
         return styleService.getDetail(style.getId());
