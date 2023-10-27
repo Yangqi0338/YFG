@@ -72,6 +72,10 @@
         margin: 5px;
     }
 
+    .one_imgs_xbj {
+        text-align: center;
+    }
+
     .one_imgs_item {
         margin: 0 auto;
         width: 80%;
@@ -80,9 +84,20 @@
     .img_box {
         text-align: center;
         margin-bottom: 5mm;
-        background-color: rgba(243, 244, 246, 0.5);
-        width: 76mm;
+        width: 86mm;
         height: 56mm;
+    }
+
+    .img_box_0 {
+        padding-bottom: 2mm;
+        border-bottom: 1px black solid;
+    }
+
+    .img {
+        width: 100%;
+        height: 100%;
+        max-width: 86mm;
+        max-height: 56mm;
     }
 
     .text_color {
@@ -90,11 +105,18 @@
         margin: 2mm 0;
     }
 
-    .img {
-        width: 100%;
-        height: 100%;
+    .jcgy_img_box {
+        text-align: center;
+        width: 80mm;
+    }
+
+    .jcgy_img_box img {
+        height: 30mm;
+        max-width: 55mm;
         max-height: 56mm;
-        max-width: 76mm;
+        display: block;
+        object-fit: contain;
+        -o-object-fit: contain;
     }
 
     .size_table {
@@ -178,11 +200,24 @@
     }
 
     .zysx_img {
-        height: 160mm;
+        height: 140mm;
         padding: 10mm;
+        text-align: center;
     }
 
+
     .zysx_img img {
+        max-height: 150mm;
+        max-width: 260mm;
+    }
+
+    .ptwz_img {
+        height: 140mm;
+        padding: 10mm;
+        text-align: center;
+    }
+
+    .ptwz_img img {
         max-height: 150mm;
         max-width: 260mm;
     }
@@ -492,6 +527,31 @@
     </table>
 </#if>
 
+<!-- 朴条位置 归拔位置 4 2 -->
+<#if cjgyImgShow>
+    <table class="table_border mt ptwz" style="page-break-inside: avoid;">
+        <thead>
+        <tr>
+            <th class="th_title">
+                <p>朴条位置 归拔位置</p>
+                <hr>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <div class="ptwz_img">
+                    <#list cjgyImgList as item>
+                        <img class="img_item" src="${item.url}"/>
+                    </#list>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</#if>
+
 <!--    裁剪工艺 4 1-->
 <#if cjgyShow>
     <table class="table_border mt" style="page-break-before: always;">
@@ -526,31 +586,10 @@
         </tfoot>
     </table>
 </#if>
-<!-- 朴条位置 归拔位置 4 2 -->
-<#if cjgyImgShow>
-    <table class="table_border mt" style="page-break-inside: avoid;">
-        <thead>
-        <tr>
-            <th class="th_title">
-                <p>朴条位置 归拔位置</p>
-                <hr>
-            </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>
-                <#list cjgyImgList as item>
-                    <img class="img_item" src="${item.url}"/>
-                </#list>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</#if>
+
 <!--    基础工艺 4 3-->
 <#if jcgyShow>
-    <table class="table_border mt" style="page-break-before: always">
+    <table class="table_border mt">
         <thead>
         <tr>
             <th colspan="3" class="th_title">
@@ -573,12 +612,13 @@
                     ${item.content}
                 </td>
                 <#if  item_index==0 >
-                    <td rowspan="${jcgyRowsPan}" style="width: 30%">
-                        <div class="one_imgs">
-                            <#list jcgyImgList as item>
-                                <img class="one_imgs_item" src="${item.url}"/>
-                            </#list>
-                        </div>
+                    <td rowspan="${jcgyRowsPan}" class="jcgy_img_box">
+
+                        <#list jcgyImgList as item>
+                            <img src="${item.url}"/> <br>
+                        </#list>
+
+
                     </td>
                 </#if>
             </tr>
@@ -615,8 +655,8 @@
         <#list xbjDataList as item>
             <tr>
                 <#if item_index==0>
-                    <td rowspan="${xbjRowsPan}" style="width: 30%">
-                        <div class="one_imgs">
+                    <td rowspan="${xbjRowsPan}" style="width: 30%;padding: 0;">
+                        <div class="one_imgs_xbj">
                             <#list xbjImgList as item>
                                 <div class="text_color">
                                     <#if item_index==0>
@@ -626,8 +666,8 @@
                                         <p>反面</p>
                                     </#if>
                                 </div>
-                                <div class="img_box">
-                                    <img class="one_imgs_item img" style="margin: 0 30px" src="${item.url}"/>
+                                <div class="img_box img_box_${item_index}">
+                                    <img class="img" style="margin: 0 30px" src="${item.url}"/>
                                 </div>
                             </#list>
                         </div>
