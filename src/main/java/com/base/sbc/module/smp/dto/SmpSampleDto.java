@@ -177,7 +177,7 @@ public class SmpSampleDto extends SmpBaseDto {
         style.setC8_StyleAttr_PatternMaker(patternMaker);
         style.setC8_StyleAttr_PatternMakerID(patternMakerId);
         style.setC8_Style_PLMID(styleUrl);
-        style.setStyle_Active(String.valueOf(getActive()));
+        style.setStyle_Active("true");
         sampleBean.setStyle(style);
 
         List<Map<String,String>> images=new ArrayList<>();
