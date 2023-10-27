@@ -88,7 +88,7 @@
     }
 
     .jcgy_img_box img {
-        max-height: 55mm;
+        height: ${jcgyImgHeight}mm;
         max-width: 58mm;
     }
 
@@ -212,17 +212,17 @@
 <table class="table_no_border info_table">
     <tr>
         <td style="width: 20%;vertical-align: top;text-align: center;" rowspan="5">
-            <table>
+            <table style="height: 156mm;">
                 <tr>
-                    <td style="height: 100mm;">
+                    <td style="height: 80mm;">
                         <div style="display: table-cell;text-align: center;vertical-align: middle;">
-                            <img style="max-width: 58mm;max-height: 100mm;" src="${stylePic}">
+                            <img style="max-width: 58mm;max-height: 80mm;" src="${stylePic}">
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <div class="bold"> 扫码查看工艺单/视频</div>
+                        <div class="bold" style="font-size: 16px;"> 扫码查看工艺单/视频</div>
                         <img style="width: 100%" src="${qrCodeUrl}">
                     </td>
                 </tr>
@@ -648,7 +648,7 @@
                                                 <p>正面</p>
                                             </#if>
                                             <#if item_index==1>
-                                                <hr/>
+
                                                 <p>反面</p>
                                             </#if>
                                         </div>
