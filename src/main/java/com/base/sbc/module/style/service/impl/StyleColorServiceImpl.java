@@ -326,7 +326,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Transactional(rollbackFor = {Exception.class})
     public Boolean batchAddSampleStyleColor(List<AddRevampStyleColorDto> list) {
         int index = 0;
-        list = CollUtil.distinct(list,AddRevampStyleColorDto::getColourLibraryId,true);
+        list = CollUtil.distinct(list, AddRevampStyleColorDto::getColorCode, true);
         /*查询颜色*/
         List<String> colorCodeList = list.stream().map(AddRevampStyleColorDto::getColorCode).distinct().collect(Collectors.toList());
         List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryServicel.listByField("colour_code",colorCodeList);
