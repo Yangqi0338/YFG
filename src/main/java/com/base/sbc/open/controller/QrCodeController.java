@@ -35,7 +35,7 @@ public class QrCodeController {
             try {
                 String qrCodeContent = Opt.ofBlankAble(content).orElse("无内容");
                 QrConfig qrConfig = new QrConfig(128, 128);
-                qrConfig.setMargin(5);
+                qrConfig.setMargin(0);
                 BufferedImage image = QrCodeUtil.generate(qrCodeContent, qrConfig);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 ImageIO.write(image, "png", baos);
