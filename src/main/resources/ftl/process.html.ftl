@@ -516,7 +516,7 @@
         <tbody>
         <tr>
             <td>
-                <#if zysxImgList??>
+                <#if  zysxImgList??>
                     <div class="zysx_img">
                         <img class="img_item" src="${zysxImgList[0].url}"/>
                     </div>
