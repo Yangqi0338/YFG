@@ -67,57 +67,38 @@
         margin-bottom: 5px;
     }
 
-    .one_imgs {
-        text-align: center;
-        margin: 5px;
-    }
 
     .one_imgs_xbj {
+        display: table-cell;
+        vertical-align: middle;
         text-align: center;
+
     }
 
-    .one_imgs_item {
-        margin: 0 auto;
-        width: 80%;
+    .one_imgs_xbj img {
+        max-height: 55mm;
+        max-width: 58mm;
     }
 
-    .img_box {
+    .jcgy_img_box {
+        display: table-cell;
+        vertical-align: middle;
         text-align: center;
-        margin-bottom: 5mm;
-        width: 86mm;
-        height: 56mm;
+        padding-top: 0.5px;
     }
 
-    .img_box_0 {
-        padding-bottom: 2mm;
-        border-bottom: 1px black solid;
+    .jcgy_img_box img {
+        max-height: 55mm;
+        max-width: 58mm;
     }
 
-    .img {
-        width: 100%;
-        height: 100%;
-        max-width: 86mm;
-        max-height: 56mm;
-    }
 
     .text_color {
         font-weight: bold;
         margin: 2mm 0;
     }
 
-    .jcgy_img_box {
-        text-align: center;
-        width: 80mm;
-    }
 
-    .jcgy_img_box img {
-        height: 30mm;
-        max-width: 55mm;
-        max-height: 56mm;
-        display: block;
-        object-fit: contain;
-        -o-object-fit: contain;
-    }
 
     .size_table {
         width: auto;
@@ -199,27 +180,19 @@
         word-break: break-all;
     }
 
-    .zysx_img {
-        height: 140mm;
-        padding: 10mm;
+    .one_page_img {
+        height: 166mm;
+        width: 280mm;
+        padding: 0mm;
+        vertical-align: middle;
         text-align: center;
+        display: table-cell;
+
     }
 
-
-    .zysx_img img {
-        max-height: 150mm;
-        max-width: 260mm;
-    }
-
-    .ptwz_img {
-        height: 140mm;
-        padding: 10mm;
-        text-align: center;
-    }
-
-    .ptwz_img img {
-        max-height: 150mm;
-        max-width: 260mm;
+    .one_page_img img {
+        max-height: 166mm;
+        max-width: 284mm;
     }
 </style>
 <body>
@@ -241,17 +214,15 @@
         <td style="width: 20%;vertical-align: top;text-align: center;" rowspan="5">
             <table>
                 <tr>
-                    <td style="height: 250px;">
-                        <img style="width: 100%" src="${stylePic}">
+                    <td style="height: 100mm;">
+                        <div style="display: table-cell;text-align: center;vertical-align: middle;">
+                            <img style="max-width: 58mm;max-height: 100mm;" src="${stylePic}">
+                        </div>
                     </td>
                 </tr>
                 <tr>
-                    <td class="bold" style="text-align: center;height: 60px">
-                        扫码查看工艺单
-                    </td>
-                </tr>
-                <tr>
-                    <td style="height: 180px;">
+                    <td>
+                        <div class="bold"> 扫码查看工艺单/视频</div>
                         <img style="width: 100%" src="${qrCodeUrl}">
                     </td>
                 </tr>
@@ -517,8 +488,8 @@
         <tr>
             <td>
                 <#if  zysxImgList??>
-                    <div class="zysx_img">
-                        <img class="img_item" src="${zysxImgList[0].url}"/>
+                    <div class="one_page_img">
+                        <img src="${zysxImgList[0].url}"/>
                     </div>
                 </#if>
             </td>
@@ -527,8 +498,8 @@
     </table>
 </#if>
 
-<!-- 朴条位置 归拔位置 4 2 -->
-<#if cjgyImgShow>
+<!-- 朴条位置(不需要) 归拔位置 4 2 -->
+<#if false>
     <table class="table_border mt ptwz" style="page-break-inside: avoid;">
         <thead>
         <tr>
@@ -541,9 +512,9 @@
         <tbody>
         <tr>
             <td>
-                <div class="ptwz_img">
+                <div class="one_page_img">
                     <#list cjgyImgList as item>
-                        <img class="img_item" src="${item.url}"/>
+                        <img src="${item.url}"/>
                     </#list>
                 </div>
             </td>
@@ -612,12 +583,12 @@
                     ${item.content}
                 </td>
                 <#if  item_index==0 >
-                    <td rowspan="${jcgyRowsPan}" class="jcgy_img_box">
-
-                        <#list jcgyImgList as item>
-                            <img src="${item.url}"/> <br>
-                        </#list>
-
+                    <td rowspan="${jcgyRowsPan}">
+                        <div class="jcgy_img_box">
+                            <#list jcgyImgList as item>
+                                <img src="${item.url}"/> <br>
+                            </#list>
+                        </div>
 
                     </td>
                 </#if>
@@ -663,12 +634,11 @@
                                         <p>正面</p>
                                     </#if>
                                     <#if item_index==1>
+                                        <hr/>
                                         <p>反面</p>
                                     </#if>
                                 </div>
-                                <div class="img_box img_box_${item_index}">
-                                    <img class="img" style="margin: 0 30px" src="${item.url}"/>
-                                </div>
+                                <img src="${item.url}"/>
                             </#list>
                         </div>
                     </td>

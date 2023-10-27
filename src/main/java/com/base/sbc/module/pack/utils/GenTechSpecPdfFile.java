@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.CharUtil;
@@ -49,8 +50,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -307,7 +310,7 @@ public class GenTechSpecPdfFile {
         dataModel.put("cjgyImgList", Optional.ofNullable(picMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
         List<PackTechSpecVo> xbjDataList = Optional.ofNullable(gyMap.get("小部件")).orElse(CollUtil.newArrayList());
         dataModel.put("xbjDataList", xbjDataList);
-        dataModel.put("xbjImgList", Optional.ofNullable(picMap.get("小部件")).orElse(CollUtil.newArrayList()));
+        dataModel.put("xbjImgList", Optional.ofNullable(picMap.get("小部件")).orElse(null));
         dataModel.put("xbjRowsPan", xbjDataList.size());
 
         List<PackTechSpecVo> jcgyDataList = Optional.ofNullable(gyMap.get("基础工艺")).orElse(CollUtil.newArrayList());
@@ -315,7 +318,7 @@ public class GenTechSpecPdfFile {
         dataModel.put("jcgyImgList", Optional.ofNullable(picMap.get("基础工艺")).orElse(CollUtil.newArrayList()));
         dataModel.put("jcgyRowsPan", jcgyDataList.size());
 
-        dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(CollUtil.newArrayList()));
+        dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(null));
 
         // 裁剪工艺是否显示
         dataModel.put("cjgyShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("cjgyDataList")));
@@ -333,9 +336,10 @@ public class GenTechSpecPdfFile {
         dataModel.put("wfgyShow", isFob() && ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")));
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
-//        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html");
         String html = writer.toString();
-//        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
+
+        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html");
+        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
         return html;
     }
 
