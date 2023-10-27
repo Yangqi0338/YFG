@@ -1086,13 +1086,28 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 styleColor.setBomStatus(BasicNumber.ZERO.getNumber());
                 styleColorMapper.updateById(styleColor);
                 /*         PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
-               *//*反审后物料清单的状态改为可编辑*//*
+                 *//*反审后物料清单的状态改为可编辑*//*
                 UpdateWrapper updateWrapper = new UpdateWrapper();
                 updateWrapper.set("scm_send_flag",BaseGlobal.IN_READY);
                 updateWrapper.eq("foreign_id",packInfo.getId());
                 updateWrapper.eq("pack_type", PackUtils.PACK_TYPE_DESIGN);
                 updateWrapper.eq("bom_version_id",enableVersion.getId());
                 packBomService.update(updateWrapper);*/
+
+                /*反审后清掉状态*/
+                bigGoodsPs.setBulkProdTechConfirm(BaseGlobal.NO);
+                bigGoodsPs.setDesignTechConfirm(BaseGlobal.NO);
+                bigGoodsPs.setBulkOrderClerkConfirm(BaseGlobal.NO);
+                bigGoodsPs.setPostTechConfirm(BaseGlobal.NO);
+                bigGoodsPs.setDesignTechConfirmDate(null);
+
+
+                designPs.setBulkProdTechConfirm(BaseGlobal.NO);
+                designPs.setDesignTechConfirm(BaseGlobal.NO);
+                designPs.setBulkOrderClerkConfirm(BaseGlobal.NO);
+                designPs.setPostTechConfirm(BaseGlobal.NO);
+                designPs.setDesignTechConfirmDate(null);
+
 
             }
             //驳回

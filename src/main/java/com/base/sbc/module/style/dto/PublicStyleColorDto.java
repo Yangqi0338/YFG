@@ -23,8 +23,8 @@ public class PublicStyleColorDto {
     @ApiModelProperty(value = "次品名称")
     private String defectiveName;
 
-    @ApiModelProperty(value = "颜色库id")
-    private String colourLibraryId;
+    @ApiModelProperty(value = "颜色库code")
+    private String colorCode;
 
     @ApiModelProperty(value = "下单标记（0否 1是）")
     private String  orderFlag;

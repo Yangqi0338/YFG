@@ -19,6 +19,10 @@
       set  style_no = #{nweStyleNo}
       where style_no = #{styleNo} ;
 
+      update t_style_main_accessories
+      set style_no = #{nweStyleNo}
+      where style_no = #{styleNo} ;
+
     </update>
     <!--
         样衣-款式配色
