@@ -176,6 +176,16 @@
         max-width: 200px;
         word-break: break-all;
     }
+
+    .zysx_img {
+        height: 160mm;
+        padding: 10mm;
+    }
+
+    .zysx_img img {
+        max-height: 150mm;
+        max-width: 260mm;
+    }
 </style>
 <body>
 <!-- 页眉 -->
@@ -471,9 +481,11 @@
         <tbody>
         <tr>
             <td>
-                <#list zysxImgList as item>
-                    <img class="img_item" src="${item.url}"/>
-                </#list>
+                <#if zysxImgList??>
+                    <div class="zysx_img">
+                        <img class="img_item" src="${zysxImgList[0].url}"/>
+                    </div>
+                </#if>
             </td>
         </tr>
         </tbody>
