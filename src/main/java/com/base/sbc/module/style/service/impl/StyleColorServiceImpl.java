@@ -845,9 +845,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException("存在已下发数据");
         }
         List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getId).collect(Collectors.toList());
+
         /*禁止下发未关联bom数据*/
         if (CollectionUtils.isEmpty(stringList) || styleColorList.size() != stringList.size()) {
-            throw new OtherException("无关联BOM，或主款配饰未关联BOM");
+           String styleNo =  styleColorList.stream().filter(s -> StringUtils.isBlank(s.getBom())).map(StyleColor::getStyleNo).collect(Collectors.joining(","));
+            throw new OtherException(styleNo+"无关联BOM，或主款配饰未关联BOM");
         }
         /*查询BOM*/
         queryWrapper.clear();
