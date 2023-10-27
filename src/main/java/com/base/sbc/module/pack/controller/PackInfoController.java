@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -13,11 +14,22 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.common.entity.Attachment;
+import com.base.sbc.module.common.entity.UploadFile;
+import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,6 +42,8 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 类描述：资料包 Controller类
@@ -52,6 +66,15 @@ public class PackInfoController {
     private PackInfoStatusService packInfoStatusService;
     @Autowired
     private UserUtils userUtils;
+
+	@Autowired
+	private StyleColorService styleColorService;
+
+	@Autowired
+	private StyleService styleService;
+
+	@Autowired
+	private UploadFileService uploadFileService;
 
     @ApiOperation(value = "设计BOM管理列表-分页查询")
     @GetMapping
@@ -234,5 +257,50 @@ public class PackInfoController {
 		return packInfoService.updatePackInfoStatusField(dto);
 	}*/
 
+	/**
+	 * 工艺单数据写入
+	 */
+	@PostMapping("/saveTechSpec")
+	@ApiOperation(value = "工艺单数据写入")
+	public boolean saveTechSpec() {
+
+		//获取所有没有图片的工艺单
+		QueryWrapper<PackInfoStatus> queryWrapper = new QueryWrapper<>();
+		queryWrapper.isNull("tech_spec_file_id");
+		queryWrapper.eq("historical_data","1");
+		List<PackInfoStatus> list = packInfoStatusService.list(queryWrapper);
+		for (PackInfoStatus packInfoStatus : list) {
+
+
+			PackInfo packInfo = packInfoService.getById(packInfoStatus.getForeignId());
+			if (packInfo == null) {
+				continue;
+			}
+			StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
+			if (styleColor == null) {
+				continue;
+			}
+			Style style = styleService.getById(styleColor.getStyleId());
+
+			if (style == null) {
+				continue;
+			}
+
+			String brandName = style.getBrandName();
+			String styleNo = styleColor.getStyleNo();
+			UploadFile uploadFile = new UploadFile();
+
+
+			String url ="http://test-mall.eifini.com:9000/pdm/DataPackage/"+brandName+"/"+style.getYearName()+"/"+styleNo+".pdf";
+
+			uploadFile.setUrl(url);
+			uploadFile.setName(styleNo+".pdf");
+			uploadFileService.save(uploadFile);
+			packInfoStatus.setTechSpecFileId(uploadFile.getId());
+			packInfoStatusService.updateById(packInfoStatus);
+		}
+
+		return true;
+	}
 
 }
