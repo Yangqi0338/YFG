@@ -61,7 +61,6 @@ public class PackInfoController {
 
     @ApiOperation(value = "设计BOM资料包-分页查询")
     @GetMapping("/packList")
-	@DuplicationCheck
     public PageInfo<PackInfoListVo> pageInfo(@Valid PackInfoSearchPageDto pageDto) {
 		return packInfoService.pageInfo(pageDto);
 	}

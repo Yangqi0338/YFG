@@ -58,7 +58,6 @@ public class StyleColorController {
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getSampleStyleColorList")
-	@DuplicationCheck
 	public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto querySampleStyleColorDto) {
 		return  styleColorService.getSampleStyleColorList(user,querySampleStyleColorDto);
 	}
