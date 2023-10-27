@@ -31,7 +31,7 @@ public class HttpLogJob {
     // 每分钟执行
     //@Scheduled(cron = "0 * * * * ?")
     public void deleteLogs() {
-        LocalDateTime limit = LocalDateTime.now().plusMonths(MONTH);
+        LocalDateTime limit = LocalDateTime.now().plusWeeks(MONTH);
         String format = limit.format(DateTimeFormatter.ofPattern(DATE_FORMATTER));
         httpLogService.remove(new QueryWrapper<HttpLog>().lt("create_date",format));
     }
