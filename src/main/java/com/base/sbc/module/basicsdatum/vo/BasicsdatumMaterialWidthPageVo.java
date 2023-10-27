@@ -35,6 +35,9 @@ public class BasicsdatumMaterialWidthPageVo extends BaseDataEntity<String> {
 	private String name;
 	/**是否在报价引用*/
 	private String quote;
+
+	/**排序码*/
+	private String code;
 	/**
 	 * 下发状态:0未下发,1已下发
 	 */
