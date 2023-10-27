@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -38,4 +39,10 @@ public class PackBomVo extends PackBom {
      */
     @ApiModelProperty(value = "供应商简称")
     private String supplierAbbreviation;
+
+    /**
+     * 库存数量
+     */
+    @ApiModelProperty(value = "库存数量")
+    private BigDecimal stockQuantity;
 }

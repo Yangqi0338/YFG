@@ -427,11 +427,6 @@ public class PackBom extends BaseDataEntity<String> {
     @ApiModelProperty(value = "样衣耗用")
     private BigDecimal sampleConsume;
     /**
-     * 库存数量
-     */
-    @ApiModelProperty(value = "库存数量")
-    private BigDecimal stockQuantity;
-    /**
      * 数据来源:(1物料档案,2调样管理)
      */
     @ApiModelProperty(value = "数据来源:(1物料档案,2调样管理)")

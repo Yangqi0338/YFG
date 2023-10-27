@@ -32,6 +32,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
@@ -74,6 +75,8 @@ import com.base.sbc.module.planning.vo.DimensionTotalVo;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
+import com.base.sbc.module.purchase.entity.MaterialStock;
+import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
@@ -197,6 +200,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Autowired
     private CustomStylePicUpload customStylePicUpload;
+
+    @Autowired
+    private MaterialStockService materialStockService;
 
     @Autowired
     private UserUtils userUtils;
@@ -1138,7 +1144,36 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         PackBomPageSearchDto bomDto = BeanUtil.copyProperties(dto, PackBomPageSearchDto.class);
         bomDto.setForeignId(dto.getStyleId());
         bomDto.setPackType(PackUtils.PACK_TYPE_STYLE);
-        return packBomService.pageInfo(bomDto);
+        PageInfo<PackBomVo> pageInfo = packBomService.pageInfo(bomDto);
+        if(CollUtil.isNotEmpty(pageInfo.getList())){
+            /* 获取库存 */
+            if("1".equals(dto.getIsStock())){
+                List<PackBomVo> list = pageInfo.getList();
+                List<String> materialCodeList = list.stream().map(PackBomVo::getMaterialCode).collect(Collectors.toList());
+                Map<String, MaterialStock> materialStockMap = new HashMap<>();
+
+                BaseQueryWrapper msQw= new BaseQueryWrapper();
+                msQw.in("material_code", materialCodeList);
+                List<MaterialStock> materialStockList = materialStockService.list(msQw);
+                for(MaterialStock materialStock : materialStockList){
+                    MaterialStock oldMaterialStock = materialStockMap.get(materialStock.getMaterialCode());
+                    if(oldMaterialStock == null){
+                        materialStockMap.put(materialStock.getMaterialCode(), materialStock);
+                    }else{
+                        oldMaterialStock.setStockQuantity(BigDecimalUtil.add(oldMaterialStock.getStockQuantity(), materialStock.getStockQuantity()));
+                        materialStockMap.put(materialStock.getMaterialCode(), oldMaterialStock);
+                    }
+                }
+
+                for(PackBomVo packBomVo : list){
+                    MaterialStock materialStock = materialStockMap.get(packBomVo.getMaterialCode());
+                    if(materialStock != null){
+                        packBomVo.setStockQuantity(materialStock.getStockQuantity());
+                    }
+                }
+            }
+        }
+        return pageInfo;
     }
 
     @Override
