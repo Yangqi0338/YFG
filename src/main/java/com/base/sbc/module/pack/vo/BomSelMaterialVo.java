@@ -193,4 +193,9 @@ public class BomSelMaterialVo {
      * 附件
      */
     private String attachment;
+
+    /**
+     * 库存数量
+     * */
+    private BigDecimal stockQuantity;
 }

@@ -45,6 +45,8 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.base.sbc.module.purchase.entity.MaterialStock;
+import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
@@ -96,6 +98,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     private final FlowableService flowableService;
 
+
     @Autowired
     private BasicFabricLibraryService basicFabricLibraryService;
 
@@ -121,6 +124,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Resource
     private BasicsdatumMaterialMapper basicsdatumMaterialMapper;
+
+    @Resource
+    private MaterialStockService materialStockService;
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -459,6 +465,23 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             Map<String, BomSelMaterialVo> priceMap = Opt.ofEmptyAble(priceList)
                     .map(item -> item.stream().collect(Collectors.toMap(BomSelMaterialVo::getMaterialCode, v -> v, (a, b) -> a)))
                     .orElse(MapUtil.empty());
+
+            /* 获取库存 */
+            Map<String, MaterialStock> materialStockMap = new HashMap<>();
+            if(StringUtils.equals("1", dto.getIsStock())) {
+                BaseQueryWrapper msQw= new BaseQueryWrapper();
+                msQw.in("material_code",materialCodeList);
+                List<MaterialStock> materialStockList = materialStockService.list(msQw);
+                for(MaterialStock materialStock : materialStockList){
+                    MaterialStock oldMaterialStock = materialStockMap.get(materialStock.getMaterialCode());
+                    if(oldMaterialStock == null){
+                        materialStockMap.put(materialStock.getMaterialCode(), materialStock);
+                    }else{
+                        oldMaterialStock.setStockQuantity(BigDecimalUtil.add(oldMaterialStock.getStockQuantity(), materialStock.getStockQuantity()));
+                        materialStockMap.put(materialStock.getMaterialCode(), oldMaterialStock);
+                    }
+                }
+            }
             list.forEach(i -> {
                 BomSelMaterialVo priceInfo = priceMap.get(i.getMaterialCode());
                 BeanUtil.copyProperties(priceInfo, i, CopyOptions.create().ignoreNullValue());
@@ -472,6 +495,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     i.setColor(colorList.get(0).getColorName());
                     i.setColorCode(colorList.get(0).getColorCode());
                     i.setColorHex(colorList.get(0).getColorHex());
+                }
+                MaterialStock materialStock = materialStockMap.get(i.getMaterialCode());
+                if(materialStock != null){
+                    i.setStockQuantity(materialStock.getStockQuantity());
                 }
                 i.setId(IdUtil.randomUUID());
             });
