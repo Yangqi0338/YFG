@@ -14,4 +14,8 @@ public class SpecificationDto extends BaseDto {
 
     @ApiModelProperty(value = "类型")
     private String type;
+
+    @ApiModelProperty(value = "吊牌显示")
+    private String hangtags;
+
 }

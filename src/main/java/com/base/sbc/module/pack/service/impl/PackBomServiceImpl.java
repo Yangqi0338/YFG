@@ -382,10 +382,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         Boolean styleManyColorSwitch = ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode());
         String[] productSizess = productSizes.split(",");
         String[] sizeIds = style.getSizeIds().split(",");
-        String[] colorCodes = style.getColorCodes().split(",");
-        String[] colors = style.getProductColors().split(",");
+        String[] colorCodes = null;
+        String[] colors = null;
+        if (StringUtils.isNotBlank(style.getColorCodes())) {
+            colorCodes = style.getColorCodes().split(",");
+            colors = style.getProductColors().split(",");
+        }
         List<PackBomDto> bomDtoList = BeanUtil.copyToList(templateMaterialList, PackBomDto.class);
-        bomDtoList.forEach(b -> {
+        for (PackBomDto b : bomDtoList) {
             b.setId(null);
             b.setBomTemplateId(bomTemplateSaveDto.getBomTemplateId());
             b.setDesignUnitUse(b.getUnitUse());
@@ -401,16 +405,18 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             }
             b.setPackBomSizeList(sizeDtoList);
             if (styleManyColorSwitch) {
-                List<PackBomColorDto> colorDtos = new ArrayList<>();
-                for (int i = 0; i < colorCodes.length; i++) {
-                    PackBomColorDto colorDto = new PackBomColorDto();
-                    colorDto.setColorCode(colorCodes[i]);
-                    colorDto.setColorName(colors[i]);
-                    colorDtos.add(colorDto);
+                if (colorCodes != null && colorCodes.length != 0) {
+                    List<PackBomColorDto> colorDtos = new ArrayList<>();
+                    for (int i = 0; i < colorCodes.length; i++) {
+                        PackBomColorDto colorDto = new PackBomColorDto();
+                        colorDto.setColorCode(colorCodes[i]);
+                        colorDto.setColorName(colors[i]);
+                        colorDtos.add(colorDto);
+                    }
+                    b.setPackBomColorDtoList(colorDtos);
                 }
-                b.setPackBomColorDtoList(colorDtos);
             }
-        });
+        }
         saveBatchByDto(bomTemplateSaveDto.getBomVersionId(), null, bomDtoList);
         return true;
     }
