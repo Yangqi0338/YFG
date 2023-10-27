@@ -315,7 +315,15 @@ public class GenTechSpecPdfFile {
 
         List<PackTechSpecVo> jcgyDataList = Optional.ofNullable(gyMap.get("基础工艺")).orElse(CollUtil.newArrayList());
         dataModel.put("jcgyDataList", jcgyDataList);
-        dataModel.put("jcgyImgList", Optional.ofNullable(picMap.get("基础工艺")).orElse(CollUtil.newArrayList()));
+        List<PackTechAttachmentVo> jcgyImgList = Optional.ofNullable(picMap.get("基础工艺")).map(img -> {
+            if (img.size() > 2) {
+                return CollUtil.sub(img, 0, 2);
+            }
+            return img;
+        }).orElse(CollUtil.newArrayList());
+
+        dataModel.put("jcgyImgList", jcgyImgList);
+        dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 72 / jcgyImgList.size() : 72);
         dataModel.put("jcgyRowsPan", jcgyDataList.size());
 
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(null));

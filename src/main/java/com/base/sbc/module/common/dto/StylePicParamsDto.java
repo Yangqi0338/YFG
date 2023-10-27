@@ -32,7 +32,7 @@ public class StylePicParamsDto {
     private String md5;
 
     public void setPicTypeByFileName(String fileName) {
-        if (fileName.toLowerCase(Locale.ROOT).endsWith(".jpg")) {
+        if (fileName.toLowerCase(Locale.ROOT).endsWith(".jpg") || fileName.toLowerCase(Locale.ROOT).endsWith(".jpeg")) {
             pictype = "0";
         } else if (fileName.toLowerCase(Locale.ROOT).endsWith(".png")) {
             pictype = "1";
