@@ -173,10 +173,6 @@ public class SmpSampleDto extends SmpBaseDto {
         style.setC8_StyleAttr_DesignerID(designerId);
         if (StringUtils.isNotBlank(designer)){
             style.setC8_StyleAttr_Designer(designer.split(",")[0]);
-            if(designer.split(",").length>1){
-                style.setC8_StyleAttr_DesignerID(designer.split(",")[1]);
-            }
-
         }
         style.setC8_StyleAttr_PatternMaker(patternMaker);
         style.setC8_StyleAttr_PatternMakerID(patternMakerId);
