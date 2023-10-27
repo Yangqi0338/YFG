@@ -25,7 +25,7 @@ public class HttpLogJob {
     private static final int MONTH = -1;
 
     /**
-     * 每日凌晨12点执行，清理日志时间超过一个月的
+     * 每日凌晨12点执行，清理日志时间超过一个礼拜的日志
      */
     @Scheduled(cron = "0 0 0 * * ?")
     // 每分钟执行
