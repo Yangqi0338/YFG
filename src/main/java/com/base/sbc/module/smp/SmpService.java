@@ -588,6 +588,23 @@ public class SmpService {
 
         int i = 0;
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
+
+        for (PackBom packBom : list) {
+            //验证如果是大货类型则判断大货用量是否为空或者0
+            if (PackUtils.PACK_TYPE_BIG_GOODS.equals(packBom.getPackType())) {
+                if (packBom.getBulkUnitUse() == null || packBom.getBulkUnitUse().compareTo(BigDecimal.ZERO) == 0) {
+                    throw new OtherException(packBom.getMaterialName() + "大货用量不能为空或者0");
+                }
+            }else {
+                //验证如果是设计类型则判断设计用量是否为空或者0
+                if (packBom.getDesignUnitUse() == null || packBom.getDesignUnitUse().compareTo(BigDecimal.ZERO) == 0) {
+                    throw new OtherException(packBom.getMaterialName() + "设计用量不能为空或者0");
+                }
+            }
+
+        }
+
+
         for (PackBom packBom : list) {
             /*判断物料是否是代用材料的编码
             * 代用材料编码：0000*/
