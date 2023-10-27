@@ -423,11 +423,13 @@
     <tr class="size_tr gb">
         <th rowspan="2" style="text-align: center;" class="partNameClass">部位</th>
         <th rowspan="2" style="text-align: center;">描述</th>
-        <#list sizeList as size>
-            <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
-                ${size}
-            </th>
-        </#list>
+        <#if sizeList??>
+            <#list sizeList as size>
+                <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
+                    ${size}
+                </th>
+            </#list>
+        </#if>
         <th rowspan="2" class="gc">公差(-)</th>
         <th rowspan="2" class="gc">公差(+)</th>
     </tr>
@@ -451,19 +453,21 @@
     </tr>
     </thead>
     <tbody>
-    <#list sizeDataList as item>
-        <tr class="size_tr">
-            <#if item.rowType=="1">
-                <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
-            <#else>
-                <#list item.rowData as c>
-                    <td class="${c.className} ${sizeClass[c_index]}">
-                        <div style="word-break: break-all;">${c.text}</div>
-                    </td>
-                </#list>
-            </#if>
-        </tr>
-    </#list>
+    <#if sizeDataList??>
+        <#list sizeDataList as item>
+            <tr class="size_tr">
+                <#if item.rowType=="1">
+                    <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
+                <#else>
+                    <#list item.rowData as c>
+                        <td class="${c.className} ${sizeClass[c_index]}">
+                            <div style="word-break: break-all;">${c.text}</div>
+                        </td>
+                    </#list>
+                </#if>
+            </tr>
+        </#list>
+    </#if>
     </tbody>
     <tfoot>
     <tr>
@@ -487,11 +491,11 @@
         <tbody>
         <tr>
             <td>
-                <#if  zysxImgList??>
-                    <div class="one_page_img">
+                <div class="one_page_img">
+                    <#if  zysxImgList??>
                         <img src="${zysxImgList[0].url}"/>
-                    </div>
-                </#if>
+                    </#if>
+                </div>
             </td>
         </tr>
         </tbody>
@@ -513,9 +517,11 @@
         <tr>
             <td>
                 <div class="one_page_img">
-                    <#list cjgyImgList as item>
-                        <img src="${item.url}"/>
-                    </#list>
+                    <#if cjgyImgList??>
+                        <#list cjgyImgList as item>
+                            <img src="${item.url}"/>
+                        </#list>
+                    </#if>
                 </div>
             </td>
         </tr>
@@ -541,14 +547,16 @@
         </tr>
         </thead>
         <tbody>
-        <#list cjgyDataList as item>
-            <tr>
-                <td>${item.item}</td>
-                <td>
-                    ${item.content}
-                </td>
-            </tr>
-        </#list>
+        <#if cjgyDataList??>
+            <#list cjgyDataList as item>
+                <tr>
+                    <td>${item.item}</td>
+                    <td>
+                        ${item.content}
+                    </td>
+                </tr>
+            </#list>
+        </#if>
         </tbody>
         <tfoot>
         <tr>
@@ -576,24 +584,28 @@
         </tr>
         </thead>
         <tbody>
-        <#list jcgyDataList as item>
-            <tr>
-                <td>${item.item}</td>
-                <td>
-                    ${item.content}
-                </td>
-                <#if  item_index==0 >
-                    <td rowspan="${jcgyRowsPan}">
-                        <div class="jcgy_img_box">
-                            <#list jcgyImgList as item>
-                                <img src="${item.url}"/> <br>
-                            </#list>
-                        </div>
-
+        <#if jcgyDataList??>
+            <#list jcgyDataList as item>
+                <tr>
+                    <td>${item.item}</td>
+                    <td>
+                        ${item.content}
                     </td>
-                </#if>
-            </tr>
-        </#list>
+                    <#if  item_index==0 >
+                        <td rowspan="${jcgyRowsPan}">
+                            <div class="jcgy_img_box">
+                                <#if jcgyImgList??>
+                                    <#list jcgyImgList as item>
+                                        <img src="${item.url}"/> <br>
+                                    </#list>
+                                </#if>
+                            </div>
+
+                        </td>
+                    </#if>
+                </tr>
+            </#list>
+        </#if>
         </tbody>
 
         <tfoot>
@@ -623,33 +635,37 @@
         </tr>
         </thead>
         <tbody>
-        <#list xbjDataList as item>
-            <tr>
-                <#if item_index==0>
-                    <td rowspan="${xbjRowsPan}" style="width: 30%;padding: 0;">
-                        <div class="one_imgs_xbj">
-                            <#list xbjImgList as item>
-                                <div class="text_color">
-                                    <#if item_index==0>
-                                        <p>正面</p>
-                                    </#if>
-                                    <#if item_index==1>
-                                        <hr/>
-                                        <p>反面</p>
-                                    </#if>
-                                </div>
-                                <img src="${item.url}"/>
-                            </#list>
-                        </div>
+        <#if xbjDataList??>
+            <#list xbjDataList as item>
+                <tr>
+                    <#if item_index==0>
+                        <td rowspan="${xbjRowsPan}" style="width: 30%;padding: 0;">
+                            <div class="one_imgs_xbj">
+                                <#if xbjImgList??>
+                                    <#list xbjImgList as item>
+                                        <div class="text_color">
+                                            <#if item_index==0>
+                                                <p>正面</p>
+                                            </#if>
+                                            <#if item_index==1>
+                                                <hr/>
+                                                <p>反面</p>
+                                            </#if>
+                                        </div>
+                                        <img src="${item.url}"/>
+                                    </#list>
+                                </#if>
+                            </div>
+                        </td>
+                    </#if>
+                    <td>${item.itemCode}</td>
+                    <td>${item.item}</td>
+                    <td>
+                        ${item.content}
                     </td>
-                </#if>
-                <td>${item.itemCode}</td>
-                <td>${item.item}</td>
-                <td>
-                    ${item.content}
-                </td>
-            </tr>
-        </#list>
+                </tr>
+            </#list>
+        </#if>
         </tbody>
         <tfoot>
         <tr>
@@ -676,14 +692,16 @@
         </tr>
         </thead>
         <tbody>
-        <#list ztbzDataList as item>
-            <tr>
-                <td>${item.item}</td>
-                <td>
-                    ${item.content}
-                </td>
-            </tr>
-        </#list>
+        <#if ztbzDataList??>
+            <#list ztbzDataList as item>
+                <tr>
+                    <td>${item.item}</td>
+                    <td>
+                        ${item.content}
+                    </td>
+                </tr>
+            </#list>
+        </#if>
         </tbody>
         <tfoot>
         <tr>
@@ -711,14 +729,16 @@
         </tr>
         </thead>
         <tbody>
-        <#list wfgyDataList as item>
-            <tr>
-                <td>${item.item}</td>
-                <td>
-                    ${item.content}
-                </td>
-            </tr>
-        </#list>
+        <#if wfgyDataList??>
+            <#list wfgyDataList as item>
+                <tr>
+                    <td>${item.item}</td>
+                    <td>
+                        ${item.content}
+                    </td>
+                </tr>
+            </#list>
+        </#if>
         </tbody>
         <tfoot>
         <tr>
