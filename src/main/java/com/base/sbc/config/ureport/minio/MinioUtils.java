@@ -159,6 +159,7 @@ public class MinioUtils {
                 return presignedObjectUrl;
             }).collect(Collectors.joining(StrUtil.COMMA));
         } catch (Exception e) {
+            e.printStackTrace();
             return url;
         }
     }
