@@ -106,6 +106,7 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
                 packInfoStatus.setTechSpecConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
                 packInfoStatus.setBulkProdTechConfirm(BaseGlobal.YES);
                 packInfoStatus.setBulkProdTechConfirmDate(new Date());
+                packInfoStatus.setTechSpecLockFlag(BaseGlobal.YES);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {

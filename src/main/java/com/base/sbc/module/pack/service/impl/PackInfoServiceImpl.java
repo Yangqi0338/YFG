@@ -768,8 +768,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 List<String> productSizes = null;
                 /*获取款里面选中的尺码*/
                 if (StringUtils.isNotBlank(style.getSizeIds())) {
-                    sizeIds = StringUtils.convertList(style.getSizeIds());
-                    productSizes = StringUtils.convertList(style.getProductSizes());
+                    sizeIds = StringUtils.convertList(style.getSizeIds()).stream().filter(s -> StringUtils.isNotBlank(s)).collect(Collectors.toList());
+                    productSizes = StringUtils.convertList(style.getProductSizes()).stream().filter(s -> StringUtils.isNotBlank(s)).collect(Collectors.toList());
                 }
                 /*新增的尺码*/
                 List<PackBomSize> bomSizeList = new ArrayList<>();
