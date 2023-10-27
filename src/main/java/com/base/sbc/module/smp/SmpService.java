@@ -671,7 +671,7 @@ public class SmpService {
             } else {
                 packBom.setScmSendFlag("2");
             }
-            packBomService.updateById(packBom);
+
             //PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBom.getPackType()));
             //long count = packBomService.count(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("scm_send_flag", "1"));
             //
@@ -685,7 +685,7 @@ public class SmpService {
             //}
             //packInfoStatusService.updateById(packInfoStatus);
         }
-
+        packBomService.updateBatchById(list);
         return i;
     }
 
