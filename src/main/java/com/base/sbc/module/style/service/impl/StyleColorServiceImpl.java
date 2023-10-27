@@ -197,7 +197,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate2()), "tsc.send_batching_date2", queryDto.getSendBatchingDate2());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate3()), "tsc.send_batching_date3", queryDto.getSendBatchingDate3());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendSingleDate()), "tsc.send_single_date", queryDto.getSendSingleDate());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignDetailDate()), "tsc.design_detail_date", queryDto.getDesignDetailDate());
+        if (StringUtils.isNotBlank(queryDto.getDesignDetailDate())) {
+
+            queryWrapper.between("tsc.design_detail_date", queryDto.getDesignDetailDate().split(","));
+        }
+
+
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignCorrectDate()), "tsc.design_correct_date", queryDto.getDesignCorrectDate());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductSubdivideName()), "tsc.product_subdivide_name", queryDto.getProductSubdivideName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyle()), "tsc.principal_style", queryDto.getPrincipalStyle());
@@ -230,12 +235,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
         if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
             queryWrapper.eq("tsc.del_flag", "0");
-            queryWrapper.orderByDesc("tsc.create_date");
+            queryWrapper.orderByAsc("tsc.style_no");
 //            查询配色列表
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
         } else {
             queryWrapper.eq("ts.del_flag", "0");
-            queryWrapper.orderByAsc("tsc.style_no");
+            queryWrapper.orderByDesc("ts.id");
 //            查询款式配色
             sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
             List<String> stringList = IdGen.getIds(sampleStyleColorList.size());

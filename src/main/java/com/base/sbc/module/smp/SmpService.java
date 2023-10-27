@@ -298,7 +298,7 @@ public class SmpService {
 
             smpGoodsDto.setProductTypeId(style.getStyleType());
             smpGoodsDto.setProductType(style.getStyleTypeName());
-
+            smpGoodsDto.setProductName(styleColor.getProductName());
             smpGoodsDto.setSaleTime(styleColor.getNewDate());
             smpGoodsDto.setProdSeg(styleColor.getSubdivide());
             smpGoodsDto.setSizeGroupId(style.getSizeRange());
@@ -311,10 +311,10 @@ public class SmpService {
 
 
             smpGoodsDto.setUnit(style.getStyleUnitCode());
-            PackInfoListVo packInfo=packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", PackUtils.PACK_TYPE_DESIGN));
+            PackInfoListVo packInfo=packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBom())?PackUtils.PACK_TYPE_DESIGN:PackUtils.PACK_TYPE_BIG_GOODS));
             String downContent = "";
             if (packInfo!=null) {
-                PackPricing packPricing = packPricingService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
+                PackPricing packPricing = packPricingService.get(packInfo.getId(),"0".equals(styleColor.getBom())?PackUtils.PACK_TYPE_DESIGN:PackUtils.PACK_TYPE_BIG_GOODS);
                 // 核价
                 if (packPricing != null) {
                     JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
