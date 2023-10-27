@@ -187,8 +187,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
 
             stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
-            stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
-
+            // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
+            //目前逻辑修改为取计控实际成本取总成本
+            stylePricingVO.setPlanCost(stylePricingVO.getTotalCost());
             //计控实际倍率 = 吊牌价/计控实际成本
             stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
             //实际倍率 = 吊牌价/总成本
