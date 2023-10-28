@@ -773,6 +773,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 }
                 /*新增的尺码*/
                 List<PackBomSize> bomSizeList = new ArrayList<>();
+                Long versionBomCount = packBomService.countByVersion(packBomVersion1.getId());
                 /*新增到物料清单里*/
                 if (CollUtil.isNotEmpty(goodsPackBomVoList)) {
                     List<PackBom> bomList = BeanUtil.copyToList(goodsPackBomVoList, PackBom.class);
@@ -782,7 +783,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         // 设置nom的数据
                         String newId = snowflake.nextIdStr();
                         bom.setPackType(dto.getTargetPackType());
-                        bom.setCode(packBomVersion1.getVersion() + StrUtil.DASHED + (i + 1));
+                        bom.setCode(String.valueOf(++versionBomCount));
                         bom.setForeignId(dto.getTargetForeignId());
                         bom.setId(newId);
                         bom.setBomVersionId(packBomVersion1.getId());

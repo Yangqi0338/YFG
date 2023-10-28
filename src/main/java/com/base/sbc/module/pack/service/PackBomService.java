@@ -156,4 +156,6 @@ public interface PackBomService extends PackBaseService<PackBom> {
     BigDecimal sumBomCost(PackBomPageSearchDto dto);
 
     ApiResult packBomMaterialColor(String companyCode, String id, String colorCode);
+
+    Long countByVersion(String id);
 }

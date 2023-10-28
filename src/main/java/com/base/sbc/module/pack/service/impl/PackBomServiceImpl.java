@@ -271,7 +271,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 if (versionBomCount == null) {
                     versionBomCount = getBaseMapper().countByVersion(version.getId());
                 }
-                packBom.setCode(version.getVersion() + StrUtil.DASHED + (++versionBomCount));
+                packBom.setCode(String.valueOf(++versionBomCount));
                 packBom.setSort(Math.toIntExact(versionBomCount));
             }
             packBom.calculateCost();
@@ -702,7 +702,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
                 String collocationColor = "";
                 PackBomColor packBomColor = colorMap.get(colorCode);
-                if(packBomColor != null){
+                if (packBomColor != null) {
                     collocationColor = packBomColor.getMaterialColorCode() + ";;" + packBomColor.getMaterialColorName();
                 }
                 materialColorMap.put(bom.getMaterialCode(), collocationColor);
@@ -710,5 +710,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             return ApiResult.success("查询成功！", materialColorMap);
         }
         return ApiResult.error("找不到数据！", 500);
+    }
+
+    @Override
+    public Long countByVersion(String id) {
+        return baseMapper.countByVersion(id);
     }
 }

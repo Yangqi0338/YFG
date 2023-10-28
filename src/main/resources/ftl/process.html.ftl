@@ -310,7 +310,7 @@
                 </tr>
                 <tr>
                     <td class="gb bold">洗唛材质备注</td>
-                    <td class="gb">${washingMaterialRemarks}</td>
+                    <td class="gb">${washingMaterialRemarksName}</td>
                 </tr>
                 <tr>
                     <td class="bold">充绒量</td>

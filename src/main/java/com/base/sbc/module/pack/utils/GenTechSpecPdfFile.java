@@ -110,7 +110,7 @@ public class GenTechSpecPdfFile {
     @ApiModelProperty(value = "安全标题")
     private String saftyTitle;
     @ApiModelProperty(value = "洗唛材质备注")
-    private String washingMaterialRemarks;
+    private String washingMaterialRemarksName;
     @ApiModelProperty(value = "安全类别")
     private String saftyType;
     @ApiModelProperty(value = "充绒量")

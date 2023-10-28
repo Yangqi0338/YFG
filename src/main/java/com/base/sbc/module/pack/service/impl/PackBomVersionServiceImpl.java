@@ -452,7 +452,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                 bomColorQueryWrapper.eq("bom_id", bom.getId());
                 String newId = snowflake.nextIdStr();
                 bom.setPackType(targetPackType);
-                bom.setCode(newVersion.getVersion() + StrUtil.DASHED + (i + 1));
+                //bom.setCode(newVersion.getVersion() + StrUtil.DASHED + (i + 1));
                 bom.setForeignId(targetForeignId);
                 newIdMaps.put(bom.getId(), newId);
                 bom.setId(newId);
@@ -598,6 +598,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             throw new OtherException("未填写:" + CollUtil.join(errorMessage, StrUtil.COMMA));
         }
     }
+
 
     @Override
     String getModeName() {

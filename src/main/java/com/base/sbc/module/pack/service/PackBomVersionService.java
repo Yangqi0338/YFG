@@ -144,6 +144,7 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
     void checkBomDataEmptyThrowException(PackBom bom);
 
     void checkBomSizeDataEmptyThrowException(PackBomSize bomSize);
+
 // 自定义方法区 不替换的区域【other_end】
 
 
