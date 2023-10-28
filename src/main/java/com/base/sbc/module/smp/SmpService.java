@@ -46,7 +46,9 @@ import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -131,6 +133,7 @@ public class SmpService {
     private final PreProductionSampleTaskService preProductionSampleTaskService;
     private final UploadFileService uploadFileService;
     private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
+    private final StyleMainAccessoriesService styleMainAccessoriesService;
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -152,6 +155,19 @@ public class SmpService {
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
 
         for (StyleColor styleColor : styleColors) {
+
+            List<StyleMainAccessories> mainAccessoriesList =  styleMainAccessoriesService.styleMainAccessoriesList(styleColor.getId(),styleColor.getIsTrim());
+            if(CollUtil.isNotEmpty(mainAccessoriesList)){
+                String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
+                String colorName = mainAccessoriesList.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));
+                if (StringUtils.equals(styleColor.getIsTrim(), BaseGlobal.NO)) {
+                    styleColor.setAccessory(colorName);
+                    styleColor.setAccessoryNo(styleNos);
+                } else {
+                    styleColor.setPrincipalStyle(colorName);
+                    styleColor.setPrincipalStyleNo(styleNos);
+                }
+            }
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
             //吊牌价为空或者等于0
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
