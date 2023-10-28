@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -587,7 +588,11 @@ public class SmpService {
 
         int i = 0;
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
-
+        /*过滤已下发的数据*/
+        list = list.stream().filter(p -> !StringUtils.equals(p.getScmSendFlag(),BaseGlobal.STATUS_CLOSE)).collect(Collectors.toList());
+        if(CollUtil.isEmpty(list)){
+            throw new OtherException("已下发数据不在重复下发");
+        }
         for (PackBom packBom : list) {
             //验证如果是大货类型则判断大货用量是否为空或者0
             if (PackUtils.PACK_TYPE_BIG_GOODS.equals(packBom.getPackType())) {
