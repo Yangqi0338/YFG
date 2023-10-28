@@ -13,6 +13,9 @@ public class QueryFabricIngredientsInfoDto extends Page {
     @ApiModelProperty(value = "品类")
     private String categoryId;
 
+    @ApiModelProperty(value = "品类")
+    private String categoryName;
+
     /** 开发类型名称 */
     @ApiModelProperty(value = "开发类型名称"  )
     private String devTypeName;
