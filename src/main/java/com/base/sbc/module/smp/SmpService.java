@@ -369,13 +369,25 @@ public class SmpService {
                     smpGoodsDto.setSeriesName(stylePricingVO.getSeriesName());
                     smpGoodsDto.setComposition(stylePricingVO.getIngredient());
                 }
-                List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
-
+                String packType = "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
+                PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
+                //所有物料是否下发
+                boolean b =true;
+                List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));
                 if (packBoms != null && !packBoms.isEmpty()) {
-                    PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packBoms.get(0).getPackType()));
-                    smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()));
+                    for (PackBom packBom : packBoms) {
+                        if ( !"1".equals(packBom.getScmSendFlag())) {
+                            b=false;
+                            break;
+                        }
+                    }
+
+                }else {
+                    b=false;
                 }
-                smpGoodsDto.setIntegritySample(StringUtils.isNoneEmpty(packInfo.getStyleColorId()));
+                PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packType));
+                smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()) && b);
+                smpGoodsDto.setIntegritySample(b);
             }
             //废弃
             //smpGoodsDto.setSeriesId(null);
