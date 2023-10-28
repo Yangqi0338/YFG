@@ -33,6 +33,8 @@ public class HangTagVO {
 
     private List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList;
 
+    private String prodCategory1stName;
+
     /**
      * 款式id
      */
