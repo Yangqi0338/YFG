@@ -83,6 +83,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
@@ -948,6 +949,23 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packInfoStatus.setScmSendFlag(BasicNumber.ZERO.getNumber());
         packInfoStatusService.updateById(packInfoStatus);
         return byStyle;
+    }
+
+    /**
+     * 修改BOM名称
+     *
+     * @param infoCode
+     * @param styleNo
+     * @return
+     */
+    @Override
+    public Boolean updateBomName(String infoCode, String styleNo) {
+        PackInfo packInfo = getByOne("code", infoCode);
+        if(!ObjectUtils.isEmpty(packInfo)){
+            packInfo.setName(styleNo);
+            updateById(packInfo);
+        }
+        return  true;
     }
 
     @Override

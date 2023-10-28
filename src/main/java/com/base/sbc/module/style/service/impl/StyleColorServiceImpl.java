@@ -654,11 +654,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), addRevampStyleColorDto.getStyleNo());
                 /*修改关联的BOM名称*/
                 if (StringUtils.isNotBlank(styleColor.getBom())) {
-                    PackInfo packInfo = packInfoService.getByOne("code", styleColor.getBom());
-                    if(ObjectUtils.isEmpty(packInfo)){
-                        packInfo.setName(addRevampStyleColorDto.getStyleNo());
-                        packInfoService.updateById(packInfo);
-                    }
+                    packInfoService.updateBomName(styleColor.getBom(),addRevampStyleColorDto.getStyleNo());
                 }
             }
             /*判断波段及细分是否改动 改动则需要同步大货款号*/
@@ -975,6 +971,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
              * 修改下放大货款号
              */
             baseMapper.reviseAllStyleNo(sampleStyleColor.getStyleNo(), updateStyleNoBandDto.getStyleNo());
+
+            /*修改关联的BOM名称*/
+            if (StringUtils.isNotBlank(sampleStyleColor.getBom())) {
+                packInfoService.updateBomName(sampleStyleColor.getBom(),updateStyleNoBandDto.getStyleNo());
+            }
             /*只会记录最开始的大货款号*/
             if (StringUtils.isBlank(sampleStyleColor.getHisStyleNo())) {
                 sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
