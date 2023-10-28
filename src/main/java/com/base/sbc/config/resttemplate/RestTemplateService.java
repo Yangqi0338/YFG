@@ -1,6 +1,8 @@
 package com.base.sbc.config.resttemplate;
 
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.JsonStringUtils;
 import com.base.sbc.module.smp.dto.HttpResp;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.SEND_FLAG;
 
 /**
  * @author 卞康
@@ -22,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateService {
 
     private final RestTemplate restTemplate;
+    private final CcmFeignService ccmFeignService;
 
     /**
      * smp系统对接post请求
@@ -34,6 +40,11 @@ public class RestTemplateService {
         HttpHeaders requestHeaders = new HttpHeaders();
         HttpResp httpResp = new HttpResp();
         try {
+            Boolean b = ccmFeignService.getSwitchByCode(SEND_FLAG.getKeyCode());
+            if (!b){
+                httpResp.setSuccess(true);
+                return httpResp;
+            }
             requestHeaders.add("Content-Type", "application/json");
 
             HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
