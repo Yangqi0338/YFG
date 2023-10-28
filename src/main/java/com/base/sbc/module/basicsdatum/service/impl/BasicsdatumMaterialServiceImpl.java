@@ -7,11 +7,14 @@
 package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
@@ -30,6 +33,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
+import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.constant.MaterialConstant;
@@ -63,6 +67,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -106,6 +111,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private RedisUtils redisUtils;
     @Autowired
     private MinioUtils minioUtils;
+    @Autowired
+    private MinioConfig minioConfig;
     /**
      * 解决循环依赖报错的问题
      */
@@ -738,6 +745,66 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 .select(BasicsdatumMaterial::getMaterialCode);
         BasicsdatumMaterial basicsdatumMaterial = super.getBaseMapper().selectOne(qw);
         return Objects.isNull(basicsdatumMaterial) ? null : basicsdatumMaterial.getMaterialCode();
+    }
+
+    @Override
+    public boolean resetImgUrl(MultipartFile file) {
+        try {
+            ImportParams params = new ImportParams();
+            params.setNeedSave(false);
+            String s = IoUtil.readUtf8(file.getInputStream());
+            List<String> split = StrUtil.split(s, "\r\n");
+            Map<String, String> hz = new HashMap<>();
+
+            for (String materialCode : split) {
+                if (StrUtil.isNotBlank(materialCode)) {
+                    List<String> split1 = StrUtil.split(materialCode, CharUtil.DOT);
+                    hz.put(CollUtil.get(split1, 0), CollUtil.get(split1, 1));
+                }
+            }
+            //Material/2023/秋/FBB00106.jpg
+            updateImgUrl(1, 100, hz);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new OtherException("重置失败");
+        }
+
+        return true;
+    }
+
+    public void updateImgUrl(int pageNum, int pageSize, Map<String, String> hz) {
+        QueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<>();
+        qw.select("year_name,season_name,material_code,id");
+        Page<Object> page = PageHelper.startPage(pageNum, pageSize);
+        List<Map<String, Object>> maps = listMaps(qw);
+        String url = "";
+        String materialCode = null;
+        String id = null;
+        if (CollUtil.isNotEmpty(maps)) {
+            PageInfo<Object> pageInfo = page.toPageInfo();
+            List<BasicsdatumMaterial> ulist = new ArrayList<>();
+            for (Map<String, Object> map : maps) {
+                materialCode = MapUtil.getStr(map, "material_code");
+                id = MapUtil.getStr(map, "id");
+                if (!hz.containsKey(materialCode)) {
+                    continue;
+                }
+                url = StrUtil.format("{}/{}/Material/{}/{}/{}.{}", minioConfig.getEndpoint(), minioConfig.getBucketName(),
+                        MapUtil.getStr(map, "year_name"), MapUtil.getStr(map, "season_name"), materialCode, hz.get(materialCode));
+                BasicsdatumMaterial bm = new BasicsdatumMaterial();
+                bm.setId(id);
+                bm.setImageUrl(url);
+                ulist.add(bm);
+            }
+            if (CollUtil.isNotEmpty(ulist)) {
+                updateBatchById(ulist);
+                System.out.println(pageNum + "/" + pageInfo.getPages() + "匹配:" + ulist.size());
+            }
+
+            if (pageInfo.isHasNextPage()) {
+                updateImgUrl(pageNum + 1, pageSize, hz);
+            }
+        }
     }
 
     @Override

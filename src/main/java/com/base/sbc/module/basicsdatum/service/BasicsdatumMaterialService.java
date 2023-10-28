@@ -15,6 +15,7 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -142,12 +143,14 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Boolean updateMaterialPic(BasicsdatumMaterialSaveDto dto);
 
 
-
 	/**
 	 * 获取物料编码
+	 *
 	 * @param id
 	 * @return
 	 */
 	String getMaterialCodeById(String id);
+
+	boolean resetImgUrl(MultipartFile file);
 }
 

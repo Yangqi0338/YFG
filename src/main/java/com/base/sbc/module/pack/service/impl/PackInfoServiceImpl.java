@@ -816,8 +816,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             }
         }
         if (StrUtil.contains(dto.getItem(), "尺寸表")) {
-            packSizeService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
             packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.YES);
+            packSizeService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
         }
 
         if (StrUtil.contains(dto.getItem(), "工艺说明")) {
@@ -1100,7 +1100,6 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 bigGoodsPs.setBulkOrderClerkConfirm(BaseGlobal.NO);
                 bigGoodsPs.setPostTechConfirm(BaseGlobal.NO);
                 bigGoodsPs.setDesignTechConfirmDate(null);
-
 
                 designPs.setBulkProdTechConfirm(BaseGlobal.NO);
                 designPs.setDesignTechConfirm(BaseGlobal.NO);
