@@ -814,7 +814,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     }
                     /*新增的物料*/
                     packBomService.saveBatch(bomList);
-                    vo.setBomCount(CollUtil.size(bomSizeList));
+                    vo.setBomCount(CollUtil.size(bomList));
                     if (CollUtil.isNotEmpty(bomSizeList)) {
                         packBomSizeService.saveBatch(bomSizeList);
                     }
