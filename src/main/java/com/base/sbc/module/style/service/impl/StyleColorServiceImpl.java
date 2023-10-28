@@ -185,7 +185,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.notEmptyLike("ts.prod_category1st_name", queryDto.getProdCategory1stName());
         queryWrapper.notEmptyLike("ts.season_name", queryDto.getSeasonName());
         queryWrapper.notEmptyLike("ts.year_name", queryDto.getYearName());
-        queryWrapper.notEmptyLike("tht.technologist_name", queryDto.getTechnologistName());
+        queryWrapper.notEmptyLike("tppst.technologist_name", queryDto.getTechnologistName());
 
         queryWrapper.between("tsc.create_date", queryDto.getCreateDate());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getCreateName()), "tsc.create_name", queryDto.getCreateName());
