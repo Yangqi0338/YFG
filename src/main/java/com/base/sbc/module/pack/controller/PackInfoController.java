@@ -228,7 +228,7 @@ public class PackInfoController {
 
 	@ApiOperation(value = "资料包数据复制")
 	@GetMapping("/copyItems")
-	public CopyItemsVo copyItems(Principal principal, PackCopyDto dto) {
+	public CopyItemsVo copyItems(Principal principal, @Valid PackCopyDto dto) {
 		GroupUser user = userUtils.getUserBy(principal);
 		return packInfoService.copyItems(user, dto);
 	}

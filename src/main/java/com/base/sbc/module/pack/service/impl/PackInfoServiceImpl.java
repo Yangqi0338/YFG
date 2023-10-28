@@ -733,6 +733,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
         /*查询目标复制资料*/
         PackInfo packInfo = baseMapper.selectById(dto.getSourceForeignId());
+        if (packInfo == null) {
+            throw new OtherException("无数据");
+        }
         /*目标原版本*/
         PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
         PackInfoStatus targetStatus = packInfoStatusService.get(dto.getTargetForeignId(), dto.getTargetPackType());
