@@ -325,7 +325,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     public List<StyleColorVo> getByStyleNo(QueryStyleColorDto querySampleStyleColorDto) {
-        if (StringUtils.isNotBlank(querySampleStyleColorDto.getStyleNo())) {
+        if (StringUtils.isBlank(querySampleStyleColorDto.getStyleNo())) {
             throw new OtherException(BaseErrorEnum.ERR_MISSING_SERVLET_REQUEST_PARAMETER_EXCEPTION);
         }
         QueryWrapper queryWrapper = new QueryWrapper();
