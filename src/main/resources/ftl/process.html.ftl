@@ -177,7 +177,7 @@
     }
 
     .methodClass div {
-        max-width: 200px;
+        max-width: 110px;
         word-break: break-all;
     }
 

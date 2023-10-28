@@ -176,11 +176,16 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
             delQw.eq("spec_type", dto.getSpecType());
             remove(delQw);
         }
+        QueryWrapper<PackTechSpec> countQw = new QueryWrapper<>();
+        PackUtils.commonQw(countQw, dto);
+        countQw.eq(StrUtil.isNotBlank(dto.getSpecType()), "spec_type", dto.getSpecType());
+        long count = count(countQw);
         List<PackTechSpec> packTechSpecs = BeanUtil.copyToList(list, PackTechSpec.class);
         for (PackTechSpec packTechSpec : packTechSpecs) {
             packTechSpec.setForeignId(dto.getForeignId());
             packTechSpec.setPackType(dto.getPackType());
             packTechSpec.setSpecType(dto.getSpecType());
+            packTechSpec.setSort(new BigDecimal(++count));
             packTechSpec.setId(null);
         }
         saveBatch(packTechSpecs);
