@@ -1339,7 +1339,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             PageHelper.startPage(dto);
             styleColorVoList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), StyleColorVo.class);
             /*查询款式配色图*/
-            GroupUser userBy = userUtils.getUserBy(user);
             stylePicUtils.setStyleColorPic2(styleColorVoList, "styleColorPic");
         }
         PageInfo<StyleColorVo> pageInfo = new PageInfo<>(styleColorVoList);
