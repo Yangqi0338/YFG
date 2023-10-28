@@ -848,7 +848,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*禁止下发未关联bom数据*/
         if (CollectionUtils.isEmpty(stringList) || styleColorList.size() != stringList.size()) {
            String styleNo =  styleColorList.stream().filter(s -> StringUtils.isBlank(s.getBom())).map(StyleColor::getStyleNo).collect(Collectors.joining(","));
-            throw new OtherException(styleNo+"无关联BOM，或主款配饰未关联BOM");
+            throw new OtherException(styleNo+"无关联BOM，主款或配饰未关联BOM");
         }
         /*查询BOM*/
         queryWrapper.clear();
