@@ -57,7 +57,7 @@ public class PackBom extends BaseDataEntity<String> {
         smpBomDto.setMainMaterial("1".equals(mainFlag));
         smpBomDto.setMaterialCode(materialCode);
         smpBomDto.setMaterialName(materialName);
-        smpBomDto.setMaterialUnit(unitCode);
+        smpBomDto.setMaterialUnit(stockUnitCode);
         smpBomDto.setPlaceOfUse(partName);
         smpBomDto.setLossRate(lossRate);
         smpBomDto.setSupplierMaterialCode(supplierMaterialCode);
