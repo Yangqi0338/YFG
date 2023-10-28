@@ -209,7 +209,7 @@ public class PackInfoController {
 	@ApiOperation(value = "查询设计款号下的bom")
 	@GetMapping("/getInfoListByDesignNo")
 	public PageInfo<PackInfoListVo> pageBySampleDesign(@Valid PricingSelectSearchDTO pricingSelectSearchDTO) {
-		return packInfoService.getInfoListByDesignNo(pricingSelectSearchDTO.getDesignNo());
+		return packInfoService.getInfoListByDesignNo(pricingSelectSearchDTO.getStyleId());
 	}
 
 	@ApiOperation(value = "关联配色")

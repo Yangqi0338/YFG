@@ -478,6 +478,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             /**
              *款式流水号： 款式去掉设计师设计师标识 获取后三位字符串
              */
+            if(StringUtils.isBlank(designer)){
+                throw new OtherException("没有设计师");
+            }
             String[] designers = designer.split(",");
             if (designers == null || designers.length <= 1) {
                 throw new OtherException("设计师未缺少编码");

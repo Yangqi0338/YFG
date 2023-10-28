@@ -1,6 +1,7 @@
 package com.base.sbc.module.pack.dto;
 
 import com.base.sbc.config.common.base.Page;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -17,4 +18,10 @@ public class PricingSelectSearchDTO extends Page {
      * 大货款号
      */
     private String styleNo;
+
+    /**
+     * 款式设计id:款式设计id(t_style)
+     */
+    @ApiModelProperty(value = "款式设计id:款式设计id(t_style)")
+    private String styleId;
 }
