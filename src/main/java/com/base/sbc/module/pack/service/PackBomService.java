@@ -157,5 +157,11 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     ApiResult packBomMaterialColor(String companyCode, String id, String colorCode);
 
+    /**
+     * 统计数量，删除的也统计
+     *
+     * @param id 版本id
+     * @return
+     */
     Long countByVersion(String id);
 }

@@ -247,4 +247,12 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
         operaLogService.save(operaLogEntity);
         return true;
     }
+
+    @Override
+    public long count(String foreignId, String packType) {
+        QueryWrapper<T> query = new QueryWrapper<>();
+        query.eq("foreign_id", foreignId);
+        query.eq("pack_type", packType);
+        return count(query);
+    }
 }

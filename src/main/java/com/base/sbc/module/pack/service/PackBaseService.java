@@ -97,4 +97,6 @@ public interface PackBaseService<T> extends BaseService<T> {
     boolean sort(String ids, String column);
 
     boolean log(String id, String type);
+
+    long count(String foreignId, String packType);
 }

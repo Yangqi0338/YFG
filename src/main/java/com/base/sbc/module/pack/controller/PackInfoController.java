@@ -9,16 +9,12 @@ package com.base.sbc.module.pack.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
-import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;
-import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -42,7 +38,6 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -231,10 +226,11 @@ public class PackInfoController {
         return packInfoService.setPatternNo(dto);
     }
 
-    @ApiOperation(value = "资料包数据复制")
-    @GetMapping("/copyItems")
-    public boolean copyItems(PackCopyDto dto) {
-		return packInfoService.copyItems(dto);
+	@ApiOperation(value = "资料包数据复制")
+	@GetMapping("/copyItems")
+	public CopyItemsVo copyItems(Principal principal, PackCopyDto dto) {
+		GroupUser user = userUtils.getUserBy(principal);
+		return packInfoService.copyItems(user, dto);
 	}
 
 

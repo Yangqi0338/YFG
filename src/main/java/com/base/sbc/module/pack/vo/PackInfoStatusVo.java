@@ -159,4 +159,55 @@ public class PackInfoStatusVo {
 
     @ApiModelProperty(value = "工艺说明视频文件id")
     private String techSpecVideoFileId;
+
+    @ApiModelProperty(value = "是否是迁移历史数据")
+    private String historicalData;
+    /**
+     * bom是否引用历史记录(0否，1是)
+     */
+    @ApiModelProperty(value = "bom是否引用历史记录(0否，1是)")
+    private String bomRhdFlag;
+    /**
+     * bom引用时间
+     */
+    @ApiModelProperty(value = "bom引用时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date bomRhdDate;
+    /**
+     * bom引用人
+     */
+    @ApiModelProperty(value = "bom引用人")
+    private String bomRhdUser;
+    /**
+     * size是否引用历史记录(0否，1是)
+     */
+    @ApiModelProperty(value = "size是否引用历史记录(0否，1是)")
+    private String sizeRhdFlag;
+    /**
+     * size引用时间
+     */
+    @ApiModelProperty(value = "size引用时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sizeRhdDate;
+    /**
+     * 尺码引用人
+     */
+    @ApiModelProperty(value = "尺码引用人")
+    private String sizeRhdUser;
+    /**
+     * 工艺是否引用历史记录(0否，1是)
+     */
+    @ApiModelProperty(value = "工艺是否引用历史记录(0否，1是)")
+    private String techRhdFlag;
+    /**
+     * 工艺引用时间
+     */
+    @ApiModelProperty(value = "工艺引用时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date techRhdDate;
+    /**
+     * 工艺引用人
+     */
+    @ApiModelProperty(value = "工艺引用人")
+    private String techRhdUser;
 }

@@ -728,22 +728,27 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean copyItems(PackCopyDto dto) {
+    public CopyItemsVo copyItems(GroupUser user, PackCopyDto dto) {
+        CopyItemsVo vo = new CopyItemsVo();
+
+        /*查询目标复制资料*/
+        PackInfo packInfo = baseMapper.selectById(dto.getSourceForeignId());
+        /*目标原版本*/
+        PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
+        PackInfoStatus targetStatus = packInfoStatusService.get(dto.getTargetForeignId(), dto.getTargetPackType());
+        /*区分是不是迁移数据*/
+        boolean isRhd = StringUtils.equals(packInfo.getHistoricalData(), BaseGlobal.YES);
         if (StrUtil.contains(dto.getItem(), "物料清单")) {
             /**
              * 物料清单引用历史款
              * 当选中的是pam新增新增的款时物料清单不区分添加的阶段 全都加入阶段修改未样品
              * 当选中的是原系统迁移的数据时先查询大货阶段添加的 如果没有再查询样品阶段的数据
              */
-            /*查询目标复制资料*/
-            PackInfo packInfo = baseMapper.selectById(dto.getSourceForeignId());
-            /*区分是不是迁移数据*/
-            if (StringUtils.equals(packInfo.getHistoricalData(), BaseGlobal.STATUS_CLOSE)) {
+            if (isRhd) {
                 Snowflake snowflake = IdUtil.getSnowflake();
                 /*查询引用的版本*/
                 PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(dto.getSourceForeignId(), dto.getSourcePackType());
-                /*目标原版本*/
-                PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
+
                 /*迁移数据时在那个阶段就复制那个阶段的数据*/
                 if (StringUtils.equals(dto.getOverlayFlag(), BaseGlobal.YES)) {
                     /*覆盖先删除再新增*/
@@ -809,24 +814,44 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     }
                     /*新增的物料*/
                     packBomService.saveBatch(bomList);
+                    vo.setBomCount(CollUtil.size(bomSizeList));
                     if (CollUtil.isNotEmpty(bomSizeList)) {
                         packBomSizeService.saveBatch(bomSizeList);
                     }
                 }
+                targetStatus.setBomRhdFlag(BaseGlobal.YES);
+                targetStatus.setBomRhdDate(new Date());
+                targetStatus.setBomRhdUser(user.getName());
             } else {
                 packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag(), "0");
+                vo.setBomCount(packBomService.count(dto.getSourceForeignId(), dto.getSourcePackType()));
             }
         }
         if (StrUtil.contains(dto.getItem(), "尺寸表")) {
             packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.YES);
             packSizeService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            vo.setSizeCount(packSizeService.count(dto.getSourceForeignId(), dto.getSourcePackType()));
+            if (isRhd) {
+                targetStatus.setSizeRhdFlag(BaseGlobal.YES);
+                targetStatus.setSizeRhdDate(new Date());
+                targetStatus.setSizeRhdUser(user.getName());
+            }
+
         }
 
         if (StrUtil.contains(dto.getItem(), "工艺说明")) {
             attachmentService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
             packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            vo.setTechCount(packTechSpecService.count(dto.getSourceForeignId(), dto.getSourcePackType()));
+            if (isRhd) {
+                targetStatus.setTechRhdFlag(BaseGlobal.YES);
+                targetStatus.setTechRhdDate(new Date());
+                targetStatus.setTechRhdUser(user.getName());
+            }
         }
-        return true;
+        packInfoStatusService.updateById(targetStatus);
+        BeanUtil.copyProperties(targetStatus, vo);
+        return vo;
     }
 
     @Override
