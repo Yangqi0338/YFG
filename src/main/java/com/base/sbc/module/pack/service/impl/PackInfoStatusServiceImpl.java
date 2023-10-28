@@ -10,20 +10,27 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoStatusMapper;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -45,6 +52,15 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
     private FlowableService flowableService;
     @Resource
     private PackInfoService packInfoService;
+
+    @Resource
+    private SmpService smpService;
+
+    @Resource
+    private UploadFileService uploadFileService;
+
+    @Resource
+    private BaseController baseController;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -71,6 +87,7 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
     public boolean unlockTechSpec(String foreignId, String packType) {
         PackInfoStatus packInfoStatus = get(foreignId, packType);
         packInfoStatus.setTechSpecLockFlag(BaseGlobal.NO);
+        packInfoStatus.setBulkProdTechConfirm(BaseGlobal.NO);
         updateById(packInfoStatus);
         return true;
     }
@@ -107,6 +124,19 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
                 packInfoStatus.setBulkProdTechConfirm(BaseGlobal.YES);
                 packInfoStatus.setBulkProdTechConfirmDate(new Date());
                 packInfoStatus.setTechSpecLockFlag(BaseGlobal.YES);
+                /*下发scm*/
+                List<SmpProcessSheetDto> processSheetDtoList = new ArrayList<>();
+                SmpProcessSheetDto smpProcessSheetDto = new SmpProcessSheetDto();
+                PackInfo packInfo = packInfoService.getById(packInfoStatus.getForeignId());
+                String urlById = uploadFileService.getUrlById(packInfoStatus.getTechSpecFileId());
+                smpProcessSheetDto.setBulkNumber(packInfo.getStyleNo());
+                smpProcessSheetDto.setPdfUrl(urlById);
+                smpProcessSheetDto.setModifiedPerson(baseController.getUser().getName());
+                smpProcessSheetDto.setModifiedTime(new Date());
+                smpProcessSheetDto.setForeignId(packInfo.getId());
+                smpProcessSheetDto.setPackType(packInfoStatus.getPackType());
+                processSheetDtoList.add(smpProcessSheetDto);
+                smpService.processSheet( processSheetDtoList);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {

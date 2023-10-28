@@ -386,7 +386,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             List<String> bomIds = Opt.ofNullable(bomList).map(bl -> bl.stream().map(PackBomVo::getId).collect(Collectors.toList())).orElse(CollUtil.newArrayList());
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
             for (PackBomVo packBomVo : bomList) {
-                packBomVo.setLossRate(null);
+//                packBomVo.setPlanningLoossRate(0);
                 //转大货 大货单件用量=设计单件用量
                 packBomVo.setBulkUnitUse(packBomVo.getDesignUnitUse());
                 /*转大货修改变成可编辑*/
