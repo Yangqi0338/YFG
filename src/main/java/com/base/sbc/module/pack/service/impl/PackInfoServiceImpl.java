@@ -753,8 +753,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 }
 
                 /*如果是迁移数据先查询大货的物料清单，如何大货物料不存在再查样品*/
-                List<PackBomVo> packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS, packBomVersion.getId());
-             List<PackBomVo>  goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_BIG_GOODS)).collect(Collectors.toList());
+                List<PackBomVo> packBomVoList = packBomService.list(packInfo.getId(), dto.getSourcePackType(), packBomVersion.getId());
+                List<PackBomVo>  goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_BIG_GOODS)).collect(Collectors.toList());
                 if (CollUtil.isEmpty(goodsPackBomVoList)) {
                     /*查样品*/
 //                    packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN, packBomVersion.getId());

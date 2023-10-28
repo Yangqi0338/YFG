@@ -679,35 +679,38 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
             /*主款配饰*/
             List<StyleMainAccessoriesSaveDto> saveDtoList = addRevampStyleColorDto.getSaveDtoList();
-            if (CollUtil.isNotEmpty(saveDtoList) && StrUtil.equals(addRevampStyleColorDto.getSaveDtoFlag(),BaseGlobal.STATUS_CLOSE)) {
+            if (StrUtil.equals(addRevampStyleColorDto.getSaveDtoFlag(), BaseGlobal.STATUS_CLOSE)) {
                 //删除
-                QueryWrapper<StyleMainAccessories> styleColorIdQw=new QueryWrapper<StyleMainAccessories>();
-                styleColorIdQw.eq("style_color_id",styleColor.getId()).or().eq("style_no",styleColor.getStyleNo());
+                QueryWrapper<StyleMainAccessories> styleColorIdQw = new QueryWrapper<StyleMainAccessories>();
+                styleColorIdQw.eq("style_color_id", styleColor.getId()).or().eq("style_no", styleColor.getStyleNo());
                 styleMainAccessoriesService.remove(styleColorIdQw);
-               /*查询需要保存的数据*/
-                List<StyleMainAccessories> accessoriesList = BeanUtil.copyToList(saveDtoList, StyleMainAccessories.class);
-                for (StyleMainAccessories styleMainAccessories : accessoriesList) {
-                    styleMainAccessories.setStyleColorId(styleColor.getId());
-                    styleMainAccessories.setIsTrim(styleMainAccessories.getIsTrim());
-                }
-                /*修改主款配饰*/
-                List<String> styleNoList = accessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.toList());
-                List<StyleColor> colorList = listByField("style_no", styleNoList);
-                /*需要反向绑定的配色*/
-
-                /*新增主款配饰*/
-                if (CollUtil.isNotEmpty(colorList)) {
-                    for (StyleColor color : colorList) {
-                        StyleMainAccessories styleMainAccessories = new StyleMainAccessories();
-                        styleMainAccessories.setIsTrim(color.getIsTrim());
-                        styleMainAccessories.setStyleColorId(color.getId());
-                        styleMainAccessories.setColorCode(styleColor.getColorCode());
-                        styleMainAccessories.setColorName(styleColor.getColorName());
-                        styleMainAccessories.setStyleNo(styleColor.getStyleNo());
-                        accessoriesList.add(styleMainAccessories);
+                if (CollUtil.isNotEmpty(saveDtoList)) {
+                    /*查询需要保存的数据*/
+                    List<StyleMainAccessories> accessoriesList = BeanUtil.copyToList(saveDtoList, StyleMainAccessories.class);
+                    for (StyleMainAccessories styleMainAccessories : accessoriesList) {
+                        styleMainAccessories.setStyleColorId(styleColor.getId());
+                        styleMainAccessories.setIsTrim(styleMainAccessories.getIsTrim());
                     }
+                    /*修改主款配饰*/
+                    List<String> styleNoList = accessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.toList());
+                    List<StyleColor> colorList = listByField("style_no", styleNoList);
+                    /*需要反向绑定的配色*/
+
+                    /*新增主款配饰*/
+                    if (CollUtil.isNotEmpty(colorList)) {
+                        for (StyleColor color : colorList) {
+                            StyleMainAccessories styleMainAccessories = new StyleMainAccessories();
+                            styleMainAccessories.setIsTrim(color.getIsTrim());
+                            styleMainAccessories.setStyleColorId(color.getId());
+                            styleMainAccessories.setColorCode(styleColor.getColorCode());
+                            styleMainAccessories.setColorName(styleColor.getColorName());
+                            styleMainAccessories.setStyleNo(styleColor.getStyleNo());
+                            accessoriesList.add(styleMainAccessories);
+                        }
+                    }
+                    styleMainAccessoriesService.saveBatch(accessoriesList);
                 }
-                styleMainAccessoriesService.saveBatch(accessoriesList);
+
             }
             addRevampStyleColorDto.setStyleColorPic(styleColor.getStyleColorPic());
             BeanUtils.copyProperties(addRevampStyleColorDto, styleColor);
