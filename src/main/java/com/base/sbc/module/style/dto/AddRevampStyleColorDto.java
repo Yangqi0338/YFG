@@ -214,6 +214,10 @@ public class AddRevampStyleColorDto extends StyleColor {
     @ApiModelProperty(value = "备注"  )
     private String remarks;
 
+    /** 修改款式主款配饰标记 */
+    @ApiModelProperty(value = "修改款式主款配饰标记"  )
+    private String saveDtoFlag;
+
     /** 款式主款配饰 */
     @ApiModelProperty(value = "款式主款配饰"  )
     List<StyleMainAccessoriesSaveDto> saveDtoList;

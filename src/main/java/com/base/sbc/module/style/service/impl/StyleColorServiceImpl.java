@@ -677,16 +677,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
-
             /*主款配饰*/
             List<StyleMainAccessoriesSaveDto> saveDtoList = addRevampStyleColorDto.getSaveDtoList();
-            //删除
-            QueryWrapper<StyleMainAccessories> styleColorIdQw=new QueryWrapper<StyleMainAccessories>();
-            styleColorIdQw.eq("style_color_id",styleColor.getId()).or().eq("style_no",styleColor.getStyleNo());
-            styleMainAccessoriesService.remove(styleColorIdQw);
-
-
-            if (CollUtil.isNotEmpty(saveDtoList)) {
+            if (CollUtil.isNotEmpty(saveDtoList) && StrUtil.equals(addRevampStyleColorDto.getSaveDtoFlag(),BaseGlobal.STATUS_CLOSE)) {
+                //删除
+                QueryWrapper<StyleMainAccessories> styleColorIdQw=new QueryWrapper<StyleMainAccessories>();
+                styleColorIdQw.eq("style_color_id",styleColor.getId()).or().eq("style_no",styleColor.getStyleNo());
+                styleMainAccessoriesService.remove(styleColorIdQw);
                /*查询需要保存的数据*/
                 List<StyleMainAccessories> accessoriesList = BeanUtil.copyToList(saveDtoList, StyleMainAccessories.class);
                 for (StyleMainAccessories styleMainAccessories : accessoriesList) {
