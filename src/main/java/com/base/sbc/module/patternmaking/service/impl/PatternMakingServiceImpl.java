@@ -826,7 +826,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
-        QueryWrapper<SampleBoardVo> qw = new QueryWrapper<>();
+        BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
@@ -836,8 +836,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
+        if (StrUtil.isNotBlank(dto.getDesignerIds())) {
+            String[] split = dto.getDesignerIds().split(",");
+            qw.in("s.designer_id", Arrays.asList(split));
+        }
 
-        if (StrUtil.isNotBlank(dto.getSampleType()) && dto.getSampleType().split(",").length > 1) {
+        if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
             qw.gt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[0]);
             qw.lt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[1]);
         }
