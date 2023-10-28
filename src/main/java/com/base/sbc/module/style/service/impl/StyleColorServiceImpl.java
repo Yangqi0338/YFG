@@ -848,7 +848,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*禁止下发未关联bom数据*/
         if (CollectionUtils.isEmpty(stringList) || styleColorList.size() != stringList.size()) {
            String styleNo =  styleColorList.stream().filter(s -> StringUtils.isBlank(s.getBom())).map(StyleColor::getStyleNo).collect(Collectors.joining(","));
-            throw new OtherException(styleNo+"无关联BOM，或主款配饰未关联BOM");
+            throw new OtherException(styleNo+"无关联BOM，主款或配饰未关联BOM");
         }
         /*查询BOM*/
         queryWrapper.clear();
@@ -1339,7 +1339,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             PageHelper.startPage(dto);
             styleColorVoList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), StyleColorVo.class);
             /*查询款式配色图*/
-            GroupUser userBy = userUtils.getUserBy(user);
             stylePicUtils.setStyleColorPic2(styleColorVoList, "styleColorPic");
         }
         PageInfo<StyleColorVo> pageInfo = new PageInfo<>(styleColorVoList);
