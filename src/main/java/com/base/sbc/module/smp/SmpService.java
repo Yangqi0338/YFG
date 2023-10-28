@@ -375,7 +375,7 @@ public class SmpService {
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
                 SmpSize smpSize = new SmpSize();
                 smpSize.setSize(basicsdatumSize.getModel());
-                smpSize.setSizeNumber(basicsdatumSize.getCode());
+                smpSize.setSizeNumber(basicsdatumSize.getSort());
                 smpSize.setCode(basicsdatumSize.getCode());
                 smpSize.setProductSizeName(basicsdatumSize.getHangtags());
                 smpSize.setBaseSize(StringUtils.isNoneBlank(style.getDefaultSize()) && style.getDefaultSize().equals(basicsdatumSize.getHangtags()));
