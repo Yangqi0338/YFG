@@ -286,8 +286,7 @@ public class SmpService {
             //生产类型
             smpGoodsDto.setProductionType(styleColor.getDevtTypeName());
             smpGoodsDto.setBandName(style.getBandName());
-
-            smpGoodsDto.setAccessories(StringUtils.isNotEmpty(styleColor.getAccessoryNo()));
+            smpGoodsDto.setAccessories("配饰".equals( style.getProdCategory1stName()));
 
             // 资料包
             PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
