@@ -840,6 +840,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         vo.setApparelLabels(detail.getApparelLabels());
         vo.setSpecNotice(detail.getSpecNotice());
         vo.setSpecialSpecComments(detail.getSpecialSpecComments());
+
         //获取款式信息
         Style style = styleService.getById(detail.getForeignId());
         if (style == null) {
@@ -869,7 +870,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             vo.setBandName(styleColor.getBandName());
         }
         vo.setDefaultSize(style.getDefaultSize());
-        vo.setBrandName(style.getBrandName());
+        vo.setBrandName(Opt.ofBlankAble(vo.getBrandName()).orElse(style.getBrandName()));
+        vo.setBandName(Opt.ofBlankAble(vo.getBandName()).orElse(style.getBandName()));
         vo.setStyleNo(detail.getStyleNo());
         vo.setDesigner(CollUtil.getFirst(StrUtil.split(style.getDesigner(), CharUtil.COMMA)));
         vo.setDesignNo(style.getDesignNo());

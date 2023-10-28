@@ -121,7 +121,7 @@ public class BomPrintVo {
                             "件"
                     );
                     return CollUtil.join(CollUtil.removeBlank(strings), "/");
-                }).collect(Collectors.joining(" "));
+                }).collect(Collectors.joining("\r\n"));
         return collect;
     }
 
