@@ -967,18 +967,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     /**
      * 样衣id查询bom
      *
-     * @param designNo
+     * @param styleId
      * @return
      */
     @Override
-    public PageInfo<PackInfoListVo> getInfoListByDesignNo(String designNo) {
-        if (StringUtils.isBlank(designNo)) {
-            throw new OtherException("缺少设计款号");
+    public PageInfo<PackInfoListVo> getInfoListByDesignNo(String styleId) {
+        if (StringUtils.isBlank(styleId)) {
+            throw new OtherException("缺少设计id");
         }
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("design_no", designNo);
-        List<PackInfoListVo> basicsdatumModelTypeList = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), PackInfoListVo.class);
-        List<Style> style = styleService.list(queryWrapper);
+        List<PackInfoListVo> basicsdatumModelTypeList = BeanUtil.copyToList(listByField("foreign_id",StringUtils.convertList(styleId)), PackInfoListVo.class);
+        List<Style> style = styleService.listByIds(StringUtils.convertList(styleId));
         if (!CollectionUtils.isEmpty(basicsdatumModelTypeList) && !CollectionUtils.isEmpty(style)) {
             basicsdatumModelTypeList.forEach(b -> {
                 b.setStylePic(uploadFileService.getUrlById(style.get(0).getStylePic()));
@@ -1052,7 +1050,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packInfo.setColorCode("");
         packInfo.setStyleNo("");
         packInfo.setStyleColorId("");
-        packInfo.setName(packInfo.getDesignNo() + packInfo.getStyleName() + " BOM");
+        packInfo.setName(packInfo.getDesignNo() + ( StringUtils.isNotBlank(packInfo.getStyleName())?packInfo.getStyleName():"")  + " BOM");
         updateById(packInfo);
 
         Map<String, String> map = new HashMap<>();

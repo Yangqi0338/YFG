@@ -163,10 +163,10 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
     /**
      * 样衣id查询bom
      *
-     * @param designNo
+     * @param styleId
      * @return
      */
-    PageInfo<PackInfoListVo> getInfoListByDesignNo(String designNo);
+    PageInfo<PackInfoListVo> getInfoListByDesignNo(String styleId);
 
     boolean association(PackInfoAssociationDto dto);
 
