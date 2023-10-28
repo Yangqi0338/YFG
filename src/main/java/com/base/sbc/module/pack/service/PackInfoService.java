@@ -229,6 +229,17 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      * @return
      */
     PackInfoListVo copyBom(CopyBomDto dto);
+
+
+    /**
+     * 修改BOM名称
+     * @param infoCode
+     * @param styleNo
+     * @return
+     */
+    Boolean updateBomName(String infoCode, String styleNo);
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 
