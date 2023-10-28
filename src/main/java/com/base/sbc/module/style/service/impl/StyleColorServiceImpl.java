@@ -1216,11 +1216,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Override
     public void updateTagPrice(String id, BigDecimal tagPrice) {
-        StyleColor styleColor = new StyleColor();
-        styleColor.setId(id);
-        styleColor.setTagPrice(tagPrice);
-        styleColor.updateInit();
-        super.updateById(styleColor);
+        if(StringUtils.isNotBlank(id)){
+            StyleColor styleColor = new StyleColor();
+            styleColor.setId(id);
+            styleColor.setTagPrice(tagPrice);
+            styleColor.updateInit();
+            super.updateById(styleColor);
+            /*重新下发配色*/
+            dataUpdateScmService.updateStyleColorSendById(id);
+        }
     }
 
     @Override
