@@ -85,10 +85,17 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
      */
     List<PackBomCalculateBaseVo> getPackBomCalculateBaseVo(@Param("foreignIds") List<String> foreignIds);
 
+    /**
+     * 统计数量 删除的也统计
+     *
+     * @param bomVersionId
+     * @return
+     */
     Long countByVersion(@Param("bomVersionId") String bomVersionId);
 
     /**
-     *  物料清单查询分页
+     * 物料清单查询分页
+     *
      * @param packCommonPageSearchDto 资料包-公共筛选条件
      * @return 物料清单
      */

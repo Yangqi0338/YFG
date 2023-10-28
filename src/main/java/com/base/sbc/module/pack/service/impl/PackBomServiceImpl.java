@@ -716,4 +716,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public Long countByVersion(String id) {
         return baseMapper.countByVersion(id);
     }
+
+    @Override
+    public long count(String foreignId, String packType) {
+        PackBomVersion enableVersion = packBomVersionService.getEnableVersion(foreignId, packType);
+        if (enableVersion == null) {
+            return 0;
+        }
+        return count(new QueryWrapper<PackBom>().lambda().eq(PackBom::getBomVersionId, enableVersion.getId()));
+
+    }
 }

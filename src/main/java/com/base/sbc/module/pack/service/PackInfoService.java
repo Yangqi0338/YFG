@@ -199,7 +199,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
 
     GenTechSpecPdfFile queryGenTechSpecPdfFile(GroupUser groupUser, PackCommonSearchDto dto);
 
-    boolean copyItems(PackCopyDto dto);
+    CopyItemsVo copyItems(GroupUser user, PackCopyDto dto);
 
     BomPrintVo getBomPrint(GroupUser user, PackCommonSearchDto dto);
 

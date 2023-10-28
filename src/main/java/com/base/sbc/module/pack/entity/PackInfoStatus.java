@@ -5,16 +5,16 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
-import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Date;
 /**
  * 类描述：资料包-状态 实体类
  *
@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackInfoStatus
  * @email your email
- * @date 创建时间：2023-9-15 13:59:24
+ * @date 创建时间：2023-10-28 21:14:41
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -193,6 +193,59 @@ public class PackInfoStatus extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "特殊工艺备注")
     private String specialSpecComments;
+    /**
+     * 是否是迁移历史数据
+     */
+    @ApiModelProperty(value = "是否是迁移历史数据")
+    private String historicalData;
+    /**
+     * bom是否引用历史记录(0否，1是)
+     */
+    @ApiModelProperty(value = "bom是否引用历史记录(0否，1是)")
+    private String bomRhdFlag;
+    /**
+     * bom引用时间
+     */
+    @ApiModelProperty(value = "bom引用时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date bomRhdDate;
+    /**
+     * bom引用人
+     */
+    @ApiModelProperty(value = "bom引用人")
+    private String bomRhdUser;
+    /**
+     * size是否引用历史记录(0否，1是)
+     */
+    @ApiModelProperty(value = "size是否引用历史记录(0否，1是)")
+    private String sizeRhdFlag;
+    /**
+     * size引用时间
+     */
+    @ApiModelProperty(value = "size引用时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sizeRhdDate;
+    /**
+     * 尺码引用人
+     */
+    @ApiModelProperty(value = "尺码引用人")
+    private String sizeRhdUser;
+    /**
+     * 工艺是否引用历史记录(0否，1是)
+     */
+    @ApiModelProperty(value = "工艺是否引用历史记录(0否，1是)")
+    private String techRhdFlag;
+    /**
+     * 工艺引用时间
+     */
+    @ApiModelProperty(value = "工艺引用时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date techRhdDate;
+    /**
+     * 工艺引用人
+     */
+    @ApiModelProperty(value = "工艺引用人")
+    private String techRhdUser;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
