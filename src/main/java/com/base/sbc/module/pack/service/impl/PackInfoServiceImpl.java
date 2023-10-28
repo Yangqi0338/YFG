@@ -754,11 +754,11 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
                 /*如果是迁移数据先查询大货的物料清单，如何大货物料不存在再查样品*/
                 List<PackBomVo> packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS, packBomVersion.getId());
-                packBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_BIG_GOODS)).collect(Collectors.toList());
-                if (CollUtil.isEmpty(packBomVoList)) {
+             List<PackBomVo>  goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_BIG_GOODS)).collect(Collectors.toList());
+                if (CollUtil.isEmpty(goodsPackBomVoList)) {
                     /*查样品*/
-                    packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN, packBomVersion.getId());
-                    packBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
+//                    packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN, packBomVersion.getId());
+                    goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
                 }
                 /*查询原资料报*/
                 PackInfo packInfo1 = baseMapper.selectById(dto.getTargetForeignId());
@@ -774,8 +774,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 /*新增的尺码*/
                 List<PackBomSize> bomSizeList = new ArrayList<>();
                 /*新增到物料清单里*/
-                if (CollUtil.isNotEmpty(packBomVoList)) {
-                    List<PackBom> bomList = BeanUtil.copyToList(packBomVoList, PackBom.class);
+                if (CollUtil.isNotEmpty(goodsPackBomVoList)) {
+                    List<PackBom> bomList = BeanUtil.copyToList(goodsPackBomVoList, PackBom.class);
                     //保存物料清单
                     for (int i = 0; i < bomList.size(); i++) {
                         PackBom bom = bomList.get(i);
