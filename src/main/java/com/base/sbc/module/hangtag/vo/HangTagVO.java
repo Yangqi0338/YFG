@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,7 +26,7 @@ import java.util.List;
  * @date 创建时间：2023-6-26 17:15:52
  */
 @Data
-public class HangTagVO {
+public class HangTagVO extends HangTag {
 
     private static final long serialVersionUID = 1L;
 

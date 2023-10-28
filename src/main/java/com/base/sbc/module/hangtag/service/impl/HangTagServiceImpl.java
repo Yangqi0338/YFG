@@ -477,7 +477,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 // 安全标题
                 tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
                 // 洗唛材质备注
-                tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarks());
+                tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarksName());
                 // 贮藏要求
                 tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemand());
                 // 产地

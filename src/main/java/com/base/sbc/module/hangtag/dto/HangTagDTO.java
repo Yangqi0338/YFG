@@ -172,6 +172,9 @@ public class HangTagDTO {
      */
     @ApiModelProperty(value = "洗唛材质备注")
     private String washingMaterialRemarks;
+
+    @ApiModelProperty(value = "洗唛材质备注名称"  )
+    private String washingMaterialRemarksName;
     /**
      * 面料详情
      */
