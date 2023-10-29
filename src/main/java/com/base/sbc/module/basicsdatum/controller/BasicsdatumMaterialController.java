@@ -51,6 +51,8 @@ import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -416,9 +418,41 @@ public class BasicsdatumMaterialController extends BaseController {
         return basicsdatumMaterialService.updateMaterialPic(dto);
     }
 
+    /**
+     * 重置物料图片
+     * 文件为txt
+     * eg
+     * FKR02458.jpg
+     * FKR02870.JPG
+     *
+     * @param file
+     * @return
+     */
     @ApiOperation(value = "重置图片")
     @PostMapping("/resetImgUrl")
     public boolean resetImgUrl(@RequestParam("file") MultipartFile file) {
         return basicsdatumMaterialService.resetImgUrl(file);
+    }
+
+    /**
+     * 匹配物料图片
+     *
+     * @return
+     */
+    @GetMapping("/matchPic")
+    public boolean matchPic() {
+        long count = basicsdatumMaterialService.count();
+        long pages = count / 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+
+        for (int i = 1; i < pages + 2; i++) {
+            int finalI = i;
+            executorService.submit(() -> {
+                basicsdatumMaterialService.matchPic(finalI, 100);
+            });
+
+        }
+
+        return true;
     }
 }

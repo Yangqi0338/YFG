@@ -231,4 +231,21 @@ public class MinioUtils {
         }
         return true;
     }
+
+    /**
+     * 判断文件是否存在
+     *
+     * @param objectName
+     * @return
+     */
+    public boolean hasObject(String objectName) {
+        boolean exist = true;
+        try {
+            minioClient
+                    .statObject(StatObjectArgs.builder().bucket(minioConfig.getBucketName()).object(objectName).build());
+        } catch (Exception e) {
+            exist = false;
+        }
+        return exist;
+    }
 }

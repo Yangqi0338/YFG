@@ -399,7 +399,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
         setCommonParameter(uploadDto, userBy.getUsername(), styleUploadVo);
         uploadDto.setPicname(styleUploadVo.getStyleNo());
-        uploadDto.setFolderName(customStylePicUpload.getDesignFolder());
+        uploadDto.setFolderName(customStylePicUpload.getBigGoodsFolder());
         uploadDto.setQuarter(styleUploadVo.getSeason());
         uploadDto.setImg(file);
         String res = "";

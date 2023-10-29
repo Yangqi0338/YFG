@@ -152,5 +152,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	String getMaterialCodeById(String id);
 
 	boolean resetImgUrl(MultipartFile file);
+
+	PageInfo matchPic(int pageNum, int pageSize);
 }
 

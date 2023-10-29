@@ -772,6 +772,46 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return true;
     }
 
+    @Override
+    public PageInfo matchPic(int pageNum, int pageSize) {
+        QueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<>();
+        qw.select("year_name,season_name,material_code,id");
+        Page<Object> page = PageHelper.startPage(pageNum, pageSize);
+        List<Map<String, Object>> maps = listMaps(qw);
+        String[] pics = {".jpg", ".jpg", ".jpeg", ".JPEG", ".png", ".PNG"};
+        if (CollUtil.isNotEmpty(maps)) {
+            String materialCode = null;
+            String id = null;
+
+            List<BasicsdatumMaterial> ulist = new ArrayList<>();
+            for (Map<String, Object> map : maps) {
+                materialCode = MapUtil.getStr(map, "material_code");
+                id = MapUtil.getStr(map, "id");
+                String object = null;
+                for (String pic : pics) {
+                    object = StrUtil.format("Material/{}/{}/{}{}", MapUtil.getStr(map, "year_name"), MapUtil.getStr(map, "season_name"), materialCode
+                            , pic);
+                    boolean b = minioUtils.hasObject(object);
+                    if (b) {
+                        break;
+                    } else {
+                        object = null;
+                    }
+                }
+                if (object != null) {
+                    BasicsdatumMaterial bm = new BasicsdatumMaterial();
+                    bm.setId(id);
+                    bm.setImageUrl(StrUtil.format("{}/{}/{}", minioConfig.getEndpoint(), minioConfig.getBucketName(), object));
+                    ulist.add(bm);
+                }
+
+            }
+            System.out.println(pageNum + "/" + page.toPageInfo().getPages() + "匹配:" + ulist.size());
+            updateBatchById(ulist);
+        }
+        return page.toPageInfo();
+    }
+
     public void updateImgUrl(int pageNum, int pageSize, Map<String, String> hz) {
         QueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<>();
         qw.select("year_name,season_name,material_code,id");
