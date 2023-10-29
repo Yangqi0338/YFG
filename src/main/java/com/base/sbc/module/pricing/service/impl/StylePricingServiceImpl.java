@@ -48,6 +48,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -171,6 +172,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
                     stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(),
                     stylePricingVO.getCoordinationProcessingFee(), stylePricingVO.getSecondaryProcessingFee(), stylePricingVO.getProcessingFee()));
+            stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().setScale(3, RoundingMode.HALF_UP));
             BigDecimal taxRate = BigDecimal.ONE;
             if ("CMT".equals(stylePricingVO.getProductionType())){
 
@@ -181,7 +183,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                 }
                 if (stylePricingVO.getTotalCost()!=null && taxRate!=null){
-                    stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate));
+                    stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate).setScale(3, RoundingMode.HALF_UP));
                 }
             }
 
@@ -295,7 +297,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (Objects.isNull(planningRatio)) {
             return totalCost;
         }
-        return BigDecimalUtil.mul(4, planningRatio, totalCost);
+        return BigDecimalUtil.mul(3, planningRatio, totalCost);
     }
 
     /**

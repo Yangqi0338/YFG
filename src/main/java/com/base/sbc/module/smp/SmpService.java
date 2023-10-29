@@ -345,7 +345,7 @@ public class SmpService {
                 if (stylePricingVO != null) {
                     smpGoodsDto.setBomPhase("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
                     smpGoodsDto.setPriceConfirm("1".equals(stylePricingVO.getProductTagPriceConfirm()));
-
+                    smpGoodsDto.setCost(stylePricingVO.getTotalCost());
                     //计控实际成本
                     if ("1".equals(stylePricingVO.getPlanCostConfirm())) {
                         smpGoodsDto.setPlanCost(stylePricingVO.getPlanCost());
