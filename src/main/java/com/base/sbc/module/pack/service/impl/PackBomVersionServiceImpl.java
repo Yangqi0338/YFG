@@ -35,12 +35,14 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.service.StyleInfoColorService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,6 +91,9 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
     private PackBomColorService packBomColorService;
     @Resource
     private BasicsdatumSupplierService basicsdatumSupplierService;
+    @Resource
+    @Lazy
+    private SmpService smpService;
 
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
@@ -257,6 +262,9 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         if (flg) {
             bomVersion.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
             updateById(bomVersion);
+            //下发配色
+            smpService.goods(new String[]{packInfo.getStyleColorId()});
+
         }
         return true;
 

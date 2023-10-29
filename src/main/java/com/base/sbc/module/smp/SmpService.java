@@ -153,7 +153,9 @@ public class SmpService {
 
 
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
-
+        if (CollUtil.isEmpty(styleColors)) {
+            return i;
+        }
         for (StyleColor styleColor : styleColors) {
             //判断是否是旧系统数据
             if ("1".equals(styleColor.getHistoricalData())) {
@@ -631,6 +633,7 @@ public class SmpService {
 
         int i = 0;
         List<PackBom> list = packBomService.listByIds(Arrays.asList(ids));
+        StyleColor styleColor = null;
         /*过滤已下发的数据*/
         list = list.stream().filter(p -> !StringUtils.equals(p.getScmSendFlag(),BaseGlobal.STATUS_CLOSE)).collect(Collectors.toList());
         if(CollUtil.isEmpty(list)){
@@ -679,7 +682,7 @@ public class SmpService {
             //"0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production"
             smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
-            StyleColor styleColor = styleColorService.getById(packInfo.getStyleColorId());
+             styleColor = styleColorService.getById(packInfo.getStyleColorId());
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
             }
@@ -741,6 +744,11 @@ public class SmpService {
             //packInfoStatusService.updateById(packInfoStatus);
         }
         packBomService.updateBatchById(list);
+
+        if (styleColor != null) {
+            this.goods(new String[]{styleColor.getId()});
+        }
+
         return i;
     }
 
