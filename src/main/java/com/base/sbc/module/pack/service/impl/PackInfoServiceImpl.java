@@ -762,9 +762,19 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         /*目标原版本*/
         PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
         PackInfoStatus targetStatus = packInfoStatusService.get(dto.getTargetForeignId(), dto.getTargetPackType());
+        PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), dto.getSourcePackType());
         /*区分是不是迁移数据*/
         boolean isRhd = StringUtils.equals(packInfo.getHistoricalData(), BaseGlobal.YES);
         if (StrUtil.contains(dto.getItem(), "物料清单")) {
+            // 拷贝 唛类信息 特别注意 特殊工艺备注
+            packInfoStatusService.update(new UpdateWrapper<PackInfoStatus>()
+                    .lambda()
+                    .set(PackInfoStatus::getApparelLabels, sourceStatus.getApparelLabels())
+                    .set(PackInfoStatus::getSpecNotice, sourceStatus.getSpecNotice())
+                    .set(PackInfoStatus::getSpecialSpecComments, sourceStatus.getSpecialSpecComments())
+                    .eq(PackInfoStatus::getId, targetStatus.getId())
+            );
+
             /**
              * 物料清单引用历史款
              * 当选中的是pam新增新增的款时物料清单不区分添加的阶段 全都加入阶段修改未样品
