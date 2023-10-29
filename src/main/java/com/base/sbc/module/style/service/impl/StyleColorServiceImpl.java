@@ -240,7 +240,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
 //            查询主款配饰
             sampleStyleColorList.forEach(s ->{
-             List<StyleMainAccessories> mainAccessoriesList =  styleMainAccessoriesService.styleMainAccessoriesList(s.getId(),s.getIsTrim());
+             List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(s.getId(), null);
              if(CollUtil.isNotEmpty(mainAccessoriesList)){
                  String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
                  String colorName = mainAccessoriesList.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));
@@ -1328,7 +1328,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (StringUtils.isEmpty(dto.getId()) || StringUtils.isEmpty(dto.getIsTrim())) {
             throw new OtherException("配色id不能为空");
         }
-        List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(dto.getId(), dto.getIsTrim());
+        List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(dto.getId(), null);
         List<StyleColorVo> styleColorVoList = new ArrayList<>();
         if (CollUtil.isNotEmpty(mainAccessoriesList)) {
             List<String> styleNoList = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.toList());

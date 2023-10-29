@@ -164,7 +164,7 @@ public class SmpService {
 
         for (StyleColor styleColor : styleColors) {
 
-            List<StyleMainAccessories> mainAccessoriesList =  styleMainAccessoriesService.styleMainAccessoriesList(styleColor.getId(),styleColor.getIsTrim());
+            List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(styleColor.getId(), null);
             if(CollUtil.isNotEmpty(mainAccessoriesList)){
                 String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
                 String colorName = mainAccessoriesList.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));

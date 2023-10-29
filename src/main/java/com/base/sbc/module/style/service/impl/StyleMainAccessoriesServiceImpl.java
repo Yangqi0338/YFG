@@ -6,10 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.style.mapper.StyleMainAccessoriesMapper;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
+import com.base.sbc.module.style.mapper.StyleMainAccessoriesMapper;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class StyleMainAccessoriesServiceImpl extends BaseServiceImpl<StyleMainAc
     public List<StyleMainAccessories> styleMainAccessoriesList(String styleColorId, String isTrim) {
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_color_id", styleColorId);
-        queryWrapper.eq("is_trim", isTrim);
+        queryWrapper.eq(StrUtil.isNotBlank(isTrim), "is_trim", isTrim);
         return baseMapper.selectList(queryWrapper);
     }
 
