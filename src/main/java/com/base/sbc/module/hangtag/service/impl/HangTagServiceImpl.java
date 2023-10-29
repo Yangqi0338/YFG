@@ -497,9 +497,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                     for (BasicsdatumSize basicsdatumSize : basicsdatumSizeService.listByIds(Arrays.asList(sizeIds.split(",")))) {
                         TagPrinting.Size size1 = new TagPrinting.Size();
                         size1.setSIZECODE(basicsdatumSize.getInternalSize());
-                        size1.setSORTCODE(basicsdatumSize.getCode());
+                        size1.setSORTCODE(basicsdatumSize.getSort());
                         size1.setSIZENAME(basicsdatumSize.getModel());
-                        size1.setSizeID(basicsdatumSize.getSort());
+                        size1.setSizeID(basicsdatumSize.getCode());
                         size1.setEXTSIZECODE("");
                         size1.setShowIntSize("0".equals(basicsdatumSize.getShowSizeStatus()));
                         size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
