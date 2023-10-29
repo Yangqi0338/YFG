@@ -34,6 +34,8 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
@@ -48,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
@@ -90,6 +93,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
     private final PackPricingCraftCostsService packPricingCraftCostsService;
     private final PackPricingProcessCostsService packPricingProcessCostsService;
+
+    // @Resource
+    // @Lazy
+    // private final SmpService smpService;
 
     @Override
     public PageInfo<StylePricingVO> getStylePricingList(Principal user, StylePricingSearchDTO dto) {
@@ -244,6 +251,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
         StylePricing pricing = super.getById(stylePricing.getId());
         PackInfo packInfo = packInfoService.getById(stylePricingSaveDTO.getPackId());
+
         if (packInfo != null && StrUtil.isNotBlank(packInfo.getStyleColorId())) {
             styleColorService.updateProductStyle(packInfo.getStyleColorId(), stylePricing.getProductStyle(), stylePricing.getProductStyleName());
 
@@ -253,8 +261,12 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             if (Objects.isNull(packInfo)) {
                 return;
             }
+
             styleService.updateProductCost(packInfo.getForeignId(), stylePricingSaveDTO.getTargetCost());
-            styleColorService.updateTagPrice(packInfo.getStyleColorId(), stylePricingSaveDTO.getTagPrice());
+            StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", packInfo.getStyleNo()));
+            styleColor.setTagPrice(stylePricingSaveDTO.getTagPrice());
+            styleColorService.updateById(styleColor);
+            // smpService.goods(new String[]{styleColor.getId()});
         }
     }
 
