@@ -105,7 +105,10 @@ public class PackUtils {
             qw.eq("foreign_id", foreignId);
         }
         if (StrUtil.isNotBlank(packType)) {
-            qw.eq("pack_type", packType);
+            if (!"ALL".equals(packType)) {
+                qw.eq("pack_type", packType);
+            }
+
         }
         if (StrUtil.isNotBlank(status)) {
             qw.eq("status", status);
