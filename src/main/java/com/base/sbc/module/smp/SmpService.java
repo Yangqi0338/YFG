@@ -183,7 +183,7 @@ public class SmpService {
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
                 throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
             }
-            PackInfoListVo packInfo=packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBom())?PackUtils.PACK_TYPE_DESIGN:PackUtils.PACK_TYPE_BIG_GOODS));
+            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
             if (packInfo!=null){
                 style = styleService.getById(packInfo.getStyleId());
