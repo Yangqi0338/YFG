@@ -437,7 +437,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 // 销售类型
                 tagPrinting.setC8_Colorway_SaleType(styleColor.getSalesType());
                 // 品牌_描述
-                tagPrinting.setC8_Season_Brand(style.getYear() + style.getSeason() + style.getBrandName());
+                tagPrinting.setC8_Season_Brand(style.getBrandName());
                 // 品类id
                 tagPrinting.setC8_Collection_ProdCategory(style.getProdCategory());
                 // 主题
