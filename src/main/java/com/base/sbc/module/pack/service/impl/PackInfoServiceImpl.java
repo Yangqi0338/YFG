@@ -379,7 +379,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 bom.setPackType(PackUtils.PACK_TYPE_DESIGN);
                 bom.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
                 bom.setMainFlag(mainFlag);
-                bom.setCode(String.valueOf(++versionBomCount));
+                bom.setCode(null);
                 bom.updateInit();
             }
             packBomService.saveBatch(bomList);
@@ -836,7 +836,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         // 设置nom的数据
                         String newId = snowflake.nextIdStr();
                         bom.setPackType(dto.getTargetPackType());
-                        bom.setCode(String.valueOf(++versionBomCount));
+                        bom.setCode(null);
                         bom.setForeignId(dto.getTargetForeignId());
                         bom.setId(newId);
                         bom.setBomVersionId(packBomVersion1.getId());

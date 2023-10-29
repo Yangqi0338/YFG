@@ -267,12 +267,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             PackUtils.setBomVersionInfo(version, packBom);
             packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             if (!CommonUtils.isInitId(packBom.getId())) {
-                if (StrUtil.isBlank(packBom.getCode())) {
-                    packBom.setCode(String.valueOf(++versionBomCount));
-                }
                 pageBomIds.add(packBom.getId());
             } else {
-                packBom.setCode(String.valueOf(++versionBomCount));
+                packBom.setCode(null);
                 packBom.setSort(Math.toIntExact(versionBomCount));
             }
             packBom.calculateCost();
