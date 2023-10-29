@@ -7,8 +7,8 @@
 package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.hangtag.entity.HangTag;
-import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -32,7 +32,7 @@ public class HangTagVO extends HangTag {
 
     private String id;
 
-    private List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList;
+    private List<BasicsdatumMaterial> basicsdatumMaterials;
 
     private String prodCategory1stName;
 

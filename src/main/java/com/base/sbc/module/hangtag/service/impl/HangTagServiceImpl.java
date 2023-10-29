@@ -23,7 +23,9 @@ import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -120,6 +122,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     private final StylePricingService stylePricingService;
     private final StyleService styleService;
     private final BasicsdatumSizeService basicsdatumSizeService;
+
+    private final BasicsdatumMaterialService basicsdatumMaterialService;
     private final PackBomService packBomService;
     @Autowired
     @Lazy
@@ -248,8 +252,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
             if (!packBomList.isEmpty()) {
                 List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
                 if (!codes.isEmpty()) {
-                    List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
-                    hangTagVO.setInspectCompanyDtoList(inspectCompanyDtoList);
+                    List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new QueryWrapper<BasicsdatumMaterial>().in("materials_no", codes));
+                    hangTagVO.setBasicsdatumMaterials(list);
                 }
             }
         }
