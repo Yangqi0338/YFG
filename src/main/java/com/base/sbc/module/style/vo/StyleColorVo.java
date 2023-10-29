@@ -6,9 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
-import cn.afterturn.easypoi.excel.annotation.Excel;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -426,10 +423,16 @@ public class StyleColorVo {
     private String rfidFlag;
 
     @ApiModelProperty(value = "资料包名称")
-    private String  infoName;
+    private String infoName;
 
     /**
      * 工艺师
      */
     private String technologistName;
+
+
+    /**
+     * 是否是迁移历史数据 0否 1是
+     */
+    private String historicalData;
 }

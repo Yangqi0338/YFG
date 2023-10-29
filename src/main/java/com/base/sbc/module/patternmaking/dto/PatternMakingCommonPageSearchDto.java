@@ -60,4 +60,6 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String yywcsj;
 
     private String sampleBarCode;
+    //模板部件
+    private String patternParts;
 }
