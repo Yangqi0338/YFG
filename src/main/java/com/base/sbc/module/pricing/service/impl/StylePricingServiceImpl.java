@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -221,7 +222,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
         StylePricing stylePricing = new StylePricing();
         if (StringUtils.isEmpty(stylePricingSaveDTO.getId())) {
-            stylePricing.insertInit();
+
             if ("1".equals(stylePricingSaveDTO.getControlConfirm())){
                 stylePricing.setControlConfirmTime(new Date());
             }
@@ -234,10 +235,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 stylePricing.setControlConfirmTime(new Date());
             }
 
-            stylePricing.updateInit();
         }
+
         stylePricing.setCompanyCode(companyCode);
-        BeanUtils.copyProperties(stylePricingSaveDTO, stylePricing);
+
+        BeanUtil.copyProperties(stylePricingSaveDTO, stylePricing);
         super.saveOrUpdate(stylePricing);
 
         StylePricing pricing = super.getById(stylePricing.getId());

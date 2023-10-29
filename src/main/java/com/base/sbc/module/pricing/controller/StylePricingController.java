@@ -10,6 +10,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -101,6 +102,7 @@ public class StylePricingController extends BaseController {
 
     @ApiOperation(value = "保存")
     @PostMapping("/insertOrUpdate")
+    @DuplicationCheck
     public ApiResult insertOrUpdate(@Valid @RequestBody StylePricingSaveDTO stylePricingSaveDTO) {
         stylePricingService.insertOrUpdate(stylePricingSaveDTO, super.getUserCompany());
         return updateSuccess("修改成功");
