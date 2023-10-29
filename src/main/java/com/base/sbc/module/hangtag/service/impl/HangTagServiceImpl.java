@@ -232,23 +232,24 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
     @Override
     public HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany, String selectType) {
         HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, userCompany, selectType);
+        if (hangTagVO == null) {
+            throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
+        }
         hangTagVO.setStylePic(stylePicUtils.getStyleUrl(hangTagVO.getStylePic()));
         hangTagVO.setStyleColorPic(stylePicUtils.getStyleColorUrl2(hangTagVO.getStyleColorPic()));
         minioUtils.setObjectUrlToObject(hangTagVO, "washingLabel");
-        if (hangTagVO != null && StringUtils.isEmpty(hangTagVO.getStatus())) {
+        if (StringUtils.isEmpty(hangTagVO.getStatus())) {
             hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
         }
-        //查关联成分表
-        if (hangTagVO != null) {
-            PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
-            if (packInfo != null) {
-                List<PackBom> packBomList = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
-                if (!packBomList.isEmpty()) {
-                    List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
-                    if (!codes.isEmpty()) {
-                        List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
-                        hangTagVO.setInspectCompanyDtoList(inspectCompanyDtoList);
-                    }
+        //查询检测报告
+        PackInfo packInfo = packInfoService.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
+        if (packInfo != null) {
+            List<PackBom> packBomList = packBomService.list(new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
+            if (!packBomList.isEmpty()) {
+                List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
+                if (!codes.isEmpty()) {
+                    List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = escmMaterialCompnentInspectCompanyService.list(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
+                    hangTagVO.setInspectCompanyDtoList(inspectCompanyDtoList);
                 }
             }
         }
