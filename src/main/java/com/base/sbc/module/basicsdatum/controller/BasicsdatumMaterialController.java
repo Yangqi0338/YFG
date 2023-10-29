@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -32,6 +33,8 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
+import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -55,6 +58,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：基础资料-物料档案
@@ -82,6 +86,8 @@ public class BasicsdatumMaterialController extends BaseController {
     private final PackInfoService packInfoService;
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
+
+    private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
     Pattern pattern = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
     Pattern pattern2 = Pattern.compile("(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
@@ -454,5 +460,31 @@ public class BasicsdatumMaterialController extends BaseController {
         }
 
         return true;
+    }
+
+
+    /**
+     * 初始化物料检测报告图片
+     */
+    @PostMapping("/initMaterialTestReport")
+    public ApiResult initMaterialTestReport() {
+        //获取所有的物料编号
+        QueryWrapper<BasicsdatumMaterial> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.select("material_code","material_name").last("limit 0,200");
+        escmMaterialCompnentInspectCompanyService.physicalDeleteQWrap(new BaseQueryWrapper<EscmMaterialCompnentInspectCompanyDto>().gt("create_date", "2023-10-29"));
+        List<BasicsdatumMaterial> basicsdatumMaterialList = basicsdatumMaterialService.list(queryWrapper);
+        List<EscmMaterialCompnentInspectCompanyDto> escmMaterialCompnentInspectCompanyDtoList = new ArrayList<>();
+        basicsdatumMaterialList.forEach(materialCode -> {
+            EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = new EscmMaterialCompnentInspectCompanyDto();
+            escmMaterialCompnentInspectCompanyDto.setMaterialsNo(materialCode.getMaterialCode());
+            escmMaterialCompnentInspectCompanyDto.setMaterialsName(materialCode.getMaterialName());
+
+
+            // TODO 2023/10/29 20:46:39 生成文件地址
+            escmMaterialCompnentInspectCompanyDto.setFileUrl("http://www.baidu.com");
+            escmMaterialCompnentInspectCompanyDtoList.add(escmMaterialCompnentInspectCompanyDto);
+        });
+        escmMaterialCompnentInspectCompanyService.saveBatch(escmMaterialCompnentInspectCompanyDtoList,100);
+        return null;
     }
 }
