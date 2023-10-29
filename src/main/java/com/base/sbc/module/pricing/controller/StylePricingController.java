@@ -23,6 +23,7 @@ import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.smp.SmpService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -68,6 +69,9 @@ public class StylePricingController extends BaseController {
 
     @Autowired
     private PackInfoService packInfoService;
+
+    @Autowired
+    private SmpService smpService;
 
 
     @ApiOperation(value = "获取款式定价列表")
@@ -172,6 +176,7 @@ public class StylePricingController extends BaseController {
                 messageUtils.stylePricingSendMessage("M商品企划",packInfo.getDesignNo(),packInfo.getPlanningSeasonId(),"1",baseController.getUser());
             }
         }
+        smpService.goods( list.toArray(new String[0]));
         return updateSuccess("提交成功");
     }
 
