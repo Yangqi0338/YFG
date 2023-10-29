@@ -376,7 +376,7 @@ public class SmpService {
                 List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));
                 if (packBoms != null && !packBoms.isEmpty()) {
                     for (PackBom packBom : packBoms) {
-                        if ( !"1".equals(packBom.getScmSendFlag())) {
+                        if ( !"1".equals(packBom.getScmSendFlag()) && !"3".equals(packBom.getScmSendFlag())) {
                             b=false;
                             break;
                         }

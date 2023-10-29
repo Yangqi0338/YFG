@@ -81,6 +81,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
@@ -194,6 +197,11 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     private StyleInfoColorService styleInfoColorService;
     @Autowired
     private DataPermissionsService dataPermissionsService;
+    @Autowired
+    private PlatformTransactionManager platformTransactionManager;
+
+    @Autowired
+    private TransactionDefinition transactionDefinition;
 
 
     @Override
@@ -404,76 +412,89 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
-    @Transactional(rollbackFor = {Exception.class})
     public boolean toBigGoods(PackCommonSearchDto dto) {
+
+        TransactionStatus transactionStatus = platformTransactionManager.getTransaction(transactionDefinition);
+
         //查看资料包信息是否存在
         PackInfo packInfo = this.getById(dto.getForeignId());
-        if (packInfo == null) {
-            throw new OtherException("资料包信息不存在");
-        }
-        //查看是否在设计阶段
-        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
-        if (!StrUtil.equals(packDesignStatus.getBomStatus(), BasicNumber.ZERO.getNumber())) {
-            throw new OtherException("只有在设计阶段才能转大货");
-        }
-        //查看版本是否锁定
-        PackBomVersion version = packBomVersionService.getEnableVersion(dto);
-        if (version == null) {
-            throw new OtherException("无物料清单版本");
-        }
-        if (!StrUtil.equals(version.getLockFlag(), BaseGlobal.YES)) {
-            throw new OtherException("物料清单版本未锁定");
-        }
-        //无配色信息
-        if (ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode()) && ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode()) && StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
-            throw new OtherException("没有配色信息");
-        }
-        /*判断物料是否全部下发*/
-        Boolean issuedToExternalSmpSystemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
-        if (issuedToExternalSmpSystemSwitch) {
-            /*查询物料*/
-            List<PackBomVo> packBomVoList = packBomService.list(version.getForeignId(), PackUtils.PACK_TYPE_DESIGN, version.getId());
-            StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
-            /*判断是否使用rfid*/
-            if (StrUtil.equals(styleColor.getRfidFlag(), BaseGlobal.STATUS_CLOSE)) {
-                /*查询有没有RFID*/
-                List<PackBomVo> packBomVoList2 = packBomVoList.stream().filter(p -> p.getMaterialName().contains("RFID")).collect(Collectors.toList());
-                if (CollUtil.isEmpty(packBomVoList2)) {
-                    throw new OtherException("物料清单不存在RFID有关物料");
+        try {
+
+            if (packInfo == null) {
+                throw new OtherException("资料包信息不存在");
+            }
+            //查看是否在设计阶段
+            PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+            if (!StrUtil.equals(packDesignStatus.getBomStatus(), BasicNumber.ZERO.getNumber())) {
+                throw new OtherException("只有在设计阶段才能转大货");
+            }
+            //查看版本是否锁定
+            PackBomVersion version = packBomVersionService.getEnableVersion(dto);
+            if (version == null) {
+                throw new OtherException("无物料清单版本");
+            }
+            if (!StrUtil.equals(version.getLockFlag(), BaseGlobal.YES)) {
+                throw new OtherException("物料清单版本未锁定");
+            }
+            //无配色信息
+            if (ccmFeignService.getSwitchByCode(STYLE_MANY_COLOR.getKeyCode()) && ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH.getKeyCode()) && StringUtils.isAnyBlank(packInfo.getStyleNo(), packInfo.getColor(), packInfo.getStyleColorId())) {
+                throw new OtherException("没有配色信息");
+            }
+            /*判断物料是否全部下发*/
+            Boolean issuedToExternalSmpSystemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
+            if (issuedToExternalSmpSystemSwitch) {
+                /*查询物料*/
+                List<PackBomVo> packBomVoList = packBomService.list(version.getForeignId(), PackUtils.PACK_TYPE_DESIGN, version.getId());
+                StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+                /*判断是否使用rfid*/
+                if (StrUtil.equals(styleColor.getRfidFlag(), BaseGlobal.STATUS_CLOSE)) {
+                    /*查询有没有RFID*/
+                    List<PackBomVo> packBomVoList2 = packBomVoList.stream().filter(p -> p.getMaterialName().contains("RFID")).collect(Collectors.toList());
+                    if (CollUtil.isEmpty(packBomVoList2)) {
+                        throw new OtherException("物料清单不存在RFID有关物料");
+                    }
+                }
+                List<String> scmSendFlagList = StringUtils.convertList("0,2,3");
+                List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag()) && StringUtils.equals(p.getStageFlag(),PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
+                if (CollUtil.isNotEmpty(packBomVoList1)) {
+                    throw new OtherException("物料清单存在未下发数据");
                 }
             }
-            List<String> scmSendFlagList = StringUtils.convertList("0,2,3");
-            List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag()) && StringUtils.equals(p.getStageFlag(),PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
-            if (CollUtil.isNotEmpty(packBomVoList1)) {
-                throw new OtherException("物料清单存在未下发数据");
+
+
+            if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH.getKeyCode()) && YesOrNoEnum.YES.getValueStr().equals(packDesignStatus.getBomStatus())) {
+                throw new OtherException("已转大货，不可重复转入");
             }
+            Date nowDate = new Date();
+            copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber());
+            //设置为已转大货
+            packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
+            packDesignStatus.setToBigGoodsDate(nowDate);
+            packInfoStatusService.updateById(packDesignStatus);
+
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
+            //设置为已转大货
+            packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
+            packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
+            packInfoStatus.setToBigGoodsDate(nowDate);
+            packInfoStatusService.updateById(packInfoStatus);
+            //updateById(packInfo);
+            //设置bom 状态
+            changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
+
+            //手动提交事务,防止下发配色的时候获取的数据不是修改后的数据
+            platformTransactionManager.commit(transactionStatus);
+            /*配色下发*/
+            dataUpdateScmService.updateStyleColorSend(packInfo.getStyleNo());
+            messageUtils.toBigGoodsSendMessage(packInfo.getPlanningSeasonId(), packInfo.getDesignNo(), baseController.getUser());
+            /*xiao消息*/
+            return true;
+        } catch (Exception e) {
+            platformTransactionManager.rollback(transactionStatus);
+            throw e;
         }
-
-
-        if (ccmFeignService.getSwitchByCode(DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH.getKeyCode()) && YesOrNoEnum.YES.getValueStr().equals(packDesignStatus.getBomStatus())) {
-            throw new OtherException("已转大货，不可重复转入");
-        }
-        Date nowDate = new Date();
-        copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber());
-        //设置为已转大货
-        packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
-        packDesignStatus.setToBigGoodsDate(nowDate);
-        packInfoStatusService.updateById(packDesignStatus);
-
-        PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
-        //设置为已转大货
-        packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
-        packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
-        packInfoStatus.setToBigGoodsDate(nowDate);
-        packInfoStatusService.updateById(packInfoStatus);
-        //updateById(packInfo);
-        //设置bom 状态
-        changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
         /*配色下发*/
-        dataUpdateScmService.updateStyleColorSend(packInfo.getStyleNo());
-        /*xiao消息*/
-        messageUtils.toBigGoodsSendMessage(packInfo.getPlanningSeasonId(), packInfo.getDesignNo(), baseController.getUser());
-        return true;
+
     }
 
     @Override
