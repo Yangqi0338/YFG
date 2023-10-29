@@ -316,6 +316,12 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "排序")
     private BigDecimal sort;
+
+    /**
+     * 是否为旧数据
+     */
+    @ApiModelProperty(value = "是否为旧数据")
+    private String historicalData;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

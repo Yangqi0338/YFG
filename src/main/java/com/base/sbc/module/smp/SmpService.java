@@ -155,6 +155,14 @@ public class SmpService {
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
 
         for (StyleColor styleColor : styleColors) {
+            //判断是否是旧系统数据
+            if ("1".equals(styleColor.getHistoricalData())) {
+                throw new OtherException("旧系统数据不允许下发");
+            }
+        }
+
+
+        for (StyleColor styleColor : styleColors) {
 
             List<StyleMainAccessories> mainAccessoriesList =  styleMainAccessoriesService.styleMainAccessoriesList(styleColor.getId(),styleColor.getIsTrim());
             if(CollUtil.isNotEmpty(mainAccessoriesList)){
@@ -637,7 +645,10 @@ public class SmpService {
             if (StringUtils.isEmpty(packBom.getCode())) {
                 throw new OtherException(packBom.getMaterialName() +":"+packBom.getMaterialCode()+ "行Id不能为空,请联系运维人员");
             }
-
+            //旧数据不允许下发
+            if ("1".equals(packBom.getHistoricalData())) {
+                throw new OtherException(packBom.getMaterialName() + "为旧数据,不允许下发");
+            }
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
 
@@ -794,6 +805,10 @@ public class SmpService {
         }
         int i = 0;
         for (PatternMaking patternMaking : patternMakingService.listByIds(Arrays.asList(ids))) {
+            if ("1".equals(patternMaking.getHistoricalData())){
+                return 0;
+            }
+
             Style style = styleService.getById(patternMaking.getStyleId());
             SmpSampleDto smpSampleDto = style.toSmpSampleDto();
             //QueryWrapper<Sample> queryWrapper = new QueryWrapper<Sample>().eq("pattern_making_id", patternMaking.getId());
@@ -993,6 +1008,10 @@ public class SmpService {
         int i = 0;
         IdGen idGen = new IdGen();
         for (PreProductionSampleTask preProductionSampleTask : preProductionSampleTaskService.listByIds(Arrays.asList(ids))) {
+            if ("1".equals(preProductionSampleTask.getHistoricalData())) {
+                return 0;
+            }
+
             Style style = styleService.getById(preProductionSampleTask.getStyleId());
             SmpSampleDto smpSampleDto = new SmpSampleDto();
             // 跟款设计师
