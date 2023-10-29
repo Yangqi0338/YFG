@@ -99,7 +99,10 @@
             <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
                 ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
             </if>
+            and p.style_no is not null
+            and p.style_no !=''
         </where>
+
         group by p.id
     </select>
 

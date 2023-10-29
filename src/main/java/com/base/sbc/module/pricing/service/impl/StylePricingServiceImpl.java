@@ -263,6 +263,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             }
 
             styleService.updateProductCost(packInfo.getForeignId(), stylePricingSaveDTO.getTargetCost());
+
             StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", packInfo.getStyleNo()));
             styleColor.setTagPrice(stylePricingSaveDTO.getTagPrice());
             styleColorService.updateById(styleColor);
