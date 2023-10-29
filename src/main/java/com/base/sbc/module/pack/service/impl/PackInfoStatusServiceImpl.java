@@ -26,7 +26,6 @@ import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -126,19 +125,22 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
                 packInfoStatus.setBulkProdTechConfirm(BaseGlobal.YES);
                 packInfoStatus.setBulkProdTechConfirmDate(new Date());
                 packInfoStatus.setTechSpecLockFlag(BaseGlobal.YES);
-                /*下发scm*/
-                List<SmpProcessSheetDto> processSheetDtoList = new ArrayList<>();
-                SmpProcessSheetDto smpProcessSheetDto = new SmpProcessSheetDto();
-                PackInfo packInfo = packInfoService.getById(packInfoStatus.getForeignId());
-                String urlById = uploadFileService.getUrlById(packInfoStatus.getTechSpecFileId());
-                smpProcessSheetDto.setBulkNumber(packInfo.getStyleNo());
-                smpProcessSheetDto.setPdfUrl(urlById);
-                smpProcessSheetDto.setModifiedPerson(baseController.getUser().getName());
-                smpProcessSheetDto.setModifiedTime(new Date());
-                smpProcessSheetDto.setForeignId(packInfo.getId());
-                smpProcessSheetDto.setPackType(packInfoStatus.getPackType());
-                processSheetDtoList.add(smpProcessSheetDto);
-                smpService.processSheet( processSheetDtoList);
+                if (StrUtil.isNotBlank(packInfoStatus.getTechSpecFileId())) {
+                    /*下发scm*/
+                    List<SmpProcessSheetDto> processSheetDtoList = new ArrayList<>();
+                    SmpProcessSheetDto smpProcessSheetDto = new SmpProcessSheetDto();
+                    PackInfo packInfo = packInfoService.getById(packInfoStatus.getForeignId());
+                    String urlById = uploadFileService.getUrlById(packInfoStatus.getTechSpecFileId());
+                    smpProcessSheetDto.setBulkNumber(packInfo.getStyleNo());
+                    smpProcessSheetDto.setPdfUrl(urlById);
+                    smpProcessSheetDto.setModifiedPerson(baseController.getUser().getName());
+                    smpProcessSheetDto.setModifiedTime(new Date());
+                    smpProcessSheetDto.setForeignId(packInfo.getId());
+                    smpProcessSheetDto.setPackType(packInfoStatus.getPackType());
+                    processSheetDtoList.add(smpProcessSheetDto);
+                    smpService.processSheet(processSheetDtoList);
+                }
+
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
