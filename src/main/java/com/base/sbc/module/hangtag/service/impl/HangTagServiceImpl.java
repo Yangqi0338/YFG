@@ -252,7 +252,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
             if (!packBomList.isEmpty()) {
                 List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
                 if (!codes.isEmpty()) {
-                    List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new QueryWrapper<BasicsdatumMaterial>().in("materials_no", codes));
+                    List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new QueryWrapper<BasicsdatumMaterial>().in("material_code", codes));
                     hangTagVO.setBasicsdatumMaterials(list);
                 }
             }
