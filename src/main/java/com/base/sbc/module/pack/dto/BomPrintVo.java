@@ -5,12 +5,14 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -113,11 +115,12 @@ public class BomPrintVo {
                         || StrUtil.equals("羽绒", item.getCollocationName())
                 )
                 .map(item -> {
+                    BigDecimal unitUse = StrUtil.equals(PackUtils.PACK_TYPE_DESIGN, item.getPackType()) ? item.getDesignUnitUse() : item.getBulkUnitUse();
                     ArrayList<String> strings = CollUtil.newArrayList(
                             item.getMaterialCode(),
                             item.getMaterialName(),
                             item.getColor() + item.getColorCode(),
-                            Opt.ofNullable(item.getUnitUse()).map(NumberUtil::toStr).orElse("") + item.getStockUnitName(),
+                            Opt.ofNullable(unitUse).map(NumberUtil::toStr).orElse("") + item.getStockUnitName(),
                             "件"
                     );
                     return CollUtil.join(CollUtil.removeBlank(strings), "/");
