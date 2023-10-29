@@ -200,6 +200,7 @@ public class TechnologyCenterTaskVo {
         }).orElse(new HashMap<>(4));
     }
 
+
     public String getPlanningSeason() {
         return StrUtil.join(" ", yearName, seasonName, brandName);
     }
