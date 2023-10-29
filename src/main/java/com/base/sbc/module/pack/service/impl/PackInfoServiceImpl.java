@@ -562,9 +562,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             throw new OtherException("资料包数据不存在,请先保存");
         }
         PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
-        if (StrUtil.equals(packInfoStatus.getReverseConfirmStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
-            throw new OtherException("不能重复反审");
-        }
+//        if (StrUtil.equals(packInfoStatus.getReverseConfirmStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
+//            throw new OtherException("不能重复反审");
+//        }
         if (!StrUtil.equals(packInfoStatus.getBomStatus(), BasicNumber.ONE.getNumber())) {
             throw new OtherException("只有在大货阶段才能反审");
         }
