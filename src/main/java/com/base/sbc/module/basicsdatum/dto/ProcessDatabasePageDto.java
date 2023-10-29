@@ -1,6 +1,5 @@
 package com.base.sbc.module.basicsdatum.dto;
 
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.module.common.dto.BaseDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -30,10 +29,12 @@ public class ProcessDatabasePageDto extends BaseDto {
     private String brandCode;
 
     @ApiModelProperty(value = "部件编码")
-    private String  component;
+    private String component;
 
     @ApiModelProperty(value = "品类编码")
-    private String   categoryCode;
+    private String categoryCode;
+
+    private String search;
 
 
     private String categoryId;
