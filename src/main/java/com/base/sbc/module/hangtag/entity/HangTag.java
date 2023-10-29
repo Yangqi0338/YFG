@@ -196,6 +196,8 @@ public class HangTag extends BaseDataEntity<String> {
     @ApiModelProperty(value = "生产日期")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date produceDate;
+
+    private String historicalData;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
