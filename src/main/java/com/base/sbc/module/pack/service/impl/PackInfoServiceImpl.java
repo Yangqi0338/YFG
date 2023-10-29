@@ -784,7 +784,12 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 Snowflake snowflake = IdUtil.getSnowflake();
                 /*查询引用的版本*/
                 PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(dto.getSourceForeignId(), dto.getSourcePackType());
-
+                if (packBomVersion == null) {
+                    packBomVersion = packBomVersionService.getEnableVersion(dto.getSourceForeignId(), PackUtils.PACK_TYPE_DESIGN);
+                }
+                if (packBomVersion == null) {
+                    throw new OtherException("无物料数据");
+                }
                 /*迁移数据时在那个阶段就复制那个阶段的数据*/
                 if (StringUtils.equals(dto.getOverlayFlag(), BaseGlobal.YES)) {
                     /*覆盖先删除再新增*/
@@ -794,13 +799,19 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     packBomSizeService.remove(delQw);
                 }
 
-                /*如果是迁移数据先查询大货的物料清单，如何大货物料不存在再查样品*/
-                List<PackBomVo> packBomVoList = packBomService.list(packInfo.getId(), dto.getSourcePackType(), packBomVersion.getId());
-                List<PackBomVo>  goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_BIG_GOODS)).collect(Collectors.toList());
+                /*如果是迁移数据先查询大货的物料清单，如何大货物料不存在再过滤样品*/
+                List<PackBomVo> packBomVoList = packBomService.list(null, null, packBomVersion.getId());
+                if (CollUtil.isEmpty(packBomVoList)) {
+                    throw new OtherException("无物料清单");
+                }
+                List<PackBomVo> goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_BIG_GOODS)).collect(Collectors.toList());
                 if (CollUtil.isEmpty(goodsPackBomVoList)) {
                     /*查样品*/
 //                    packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN, packBomVersion.getId());
                     goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
+                }
+                if (CollUtil.isEmpty(goodsPackBomVoList)) {
+                    throw new OtherException("无物料清单");
                 }
                 /*查询原资料报*/
                 PackInfo packInfo1 = baseMapper.selectById(dto.getTargetForeignId());
@@ -1003,7 +1014,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         // 1 先新建一个资料包
         PackInfoListVo byStyle = createByStyle(dto);
         // 2 拷贝资料包数据
-        copyPack(dto.getSourceForeignId(), dto.getSourcePackType(), byStyle.getId(), byStyle.getPackType(), BasicNumber.ZERO.getNumber(), BaseGlobal.YES);
+        copyPack(dto.getSourceForeignId(), dto.getSourcePackType(), byStyle.getId(), byStyle.getPackType(), BasicNumber.ZERO.getNumber(), BaseGlobal.NO);
         PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), dto.getSourcePackType());
         // 3 将状态表还原
         PackInfoStatus packInfoStatus = packInfoStatusService.get(byStyle.getId(), byStyle.getPackType());
