@@ -1003,11 +1003,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         PackInfoListVo byStyle = createByStyle(dto);
         // 2 拷贝资料包数据
         copyPack(dto.getSourceForeignId(), dto.getSourcePackType(), byStyle.getId(), byStyle.getPackType(), BasicNumber.ZERO.getNumber(), BaseGlobal.YES);
-
+        PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), dto.getSourcePackType());
         // 3 将状态表还原
         PackInfoStatus packInfoStatus = packInfoStatusService.get(byStyle.getId(), byStyle.getPackType());
         packInfoStatus.setBomStatus(BasicNumber.ZERO.getNumber());
         packInfoStatus.setScmSendFlag(BasicNumber.ZERO.getNumber());
+
+        // 将其他信息拷贝过来 (唛类信息,特别注意,特殊工艺备注)
+        packInfoStatus.setApparelLabels(sourceStatus.getApparelLabels());
+        packInfoStatus.setSpecNotice(sourceStatus.getSpecNotice());
+        packInfoStatus.setSpecialSpecComments(sourceStatus.getSpecialSpecComments());
         packInfoStatusService.updateById(packInfoStatus);
         return byStyle;
     }
