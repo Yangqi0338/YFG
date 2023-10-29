@@ -14,8 +14,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.util.List;
-
 /**
  * 类描述：资料包-尺寸表 实体类
  *
@@ -23,7 +21,7 @@ import java.util.List;
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackSize
  * @email your email
- * @date 创建时间：2023-8-31 19:31:18
+ * @date 创建时间：2023-10-30 2:32:23
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -33,7 +31,9 @@ public class PackSize extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-    /** 尺寸明细 */
+    /**
+     * 尺寸明细
+     */
     @TableField(exist = false)
     private List<PackSizeDetail> packSizeDetailList;
 
@@ -145,6 +145,16 @@ public class PackSize extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "备注")
     private String remark;
+    /**
+     * 收缩
+     */
+    @ApiModelProperty(value = "收缩")
+    private String shrink;
+    /**
+     * 是否是迁移历史数据
+     */
+    @ApiModelProperty(value = "是否是迁移历史数据")
+    private String historicalData;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

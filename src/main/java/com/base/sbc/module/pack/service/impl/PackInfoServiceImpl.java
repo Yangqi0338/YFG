@@ -826,7 +826,6 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 }
                 /*新增的尺码*/
                 List<PackBomSize> bomSizeList = new ArrayList<>();
-                Long versionBomCount = packBomService.countByVersion(packBomVersion1.getId());
                 /*新增到物料清单里*/
                 if (CollUtil.isNotEmpty(goodsPackBomVoList)) {
                     List<PackBom> bomList = BeanUtil.copyToList(goodsPackBomVoList, PackBom.class);
@@ -841,6 +840,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         bom.setId(newId);
                         bom.setBomVersionId(packBomVersion1.getId());
                         bom.setScmSendFlag(BaseGlobal.NO);
+                        bom.setHistoricalData(BaseGlobal.NO);
                         /*获取尺码的数据*/
                         if (CollUtil.isNotEmpty(sizeIds)) {
                             for (int i1 = 0; i1 < sizeIds.size(); i1++) {

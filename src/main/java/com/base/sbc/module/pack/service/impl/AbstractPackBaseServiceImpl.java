@@ -195,6 +195,11 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
                 t.setId(null);
                 BeanUtil.setProperty(t, "foreignId", targetForeignId);
                 BeanUtil.setProperty(t, "packType", targetPackType);
+                try {
+                    BeanUtil.setProperty(t, "historicalData", BaseGlobal.NO);
+                } catch (Exception e) {
+
+                }
             }
             return saveBatch(list);
         }
