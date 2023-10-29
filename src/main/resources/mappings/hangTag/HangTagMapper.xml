@@ -61,6 +61,7 @@
         ht.place_order_staff_name,
         ht.place_order_date,
         ht.STATUS,
+        ht.historical_data,
         tsp.control_confirm as planCostConfirm,
         tsp.product_hangtag_confirm as productTagPriceConfirm,
         tsp.control_hangtag_confirm as planTagPriceConfirm
