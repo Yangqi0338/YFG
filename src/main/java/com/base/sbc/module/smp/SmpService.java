@@ -638,6 +638,7 @@ public class SmpService {
                 throw new OtherException(packBom.getMaterialName() +":"+packBom.getMaterialCode()+ "行Id不能为空,请联系运维人员");
             }
 
+            packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
 
 
@@ -647,7 +648,7 @@ public class SmpService {
             if("0000".equals(packBom.getMaterialCode())){
                 throw new OtherException(packBom.getMaterialName() + "选择的是代用材料,请联系设计工艺员!代用材料不允许下发");
             }
-            packBomVersionService.checkBomDataEmptyThrowException(packBom);
+
             SmpBomDto smpBomDto = packBom.toSmpBomDto();
 
             //bom主表

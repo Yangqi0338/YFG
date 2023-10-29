@@ -59,7 +59,11 @@ public class PackBom extends BaseDataEntity<String> {
         smpBomDto.setMaterialName(materialName);
         smpBomDto.setMaterialUnit(stockUnitCode);
         smpBomDto.setPlaceOfUse(partName);
-        smpBomDto.setLossRate(lossRate);
+        if (lossRate!=null){
+            BigDecimal divide = lossRate.divide(new BigDecimal(100));
+            smpBomDto.setLossRate(divide);
+        }
+
         smpBomDto.setSupplierMaterialCode(supplierMaterialCode);
         smpBomDto.setQuotationSupplierCode(supplierId);
         smpBomDto.setCollocation(collocationName);
@@ -436,6 +440,12 @@ public class PackBom extends BaseDataEntity<String> {
      * 门幅 -迪沙
      */
     private String translateDs;
+
+
+    /**
+     * 是否是迁移历史数据 0否 1是
+     */
+    private String historicalData;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

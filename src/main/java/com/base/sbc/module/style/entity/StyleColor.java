@@ -293,6 +293,11 @@ public class StyleColor extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "产品风格")
     private String productStyleName;
+
+    /**
+     * 是否是迁移历史数据 0否 1是
+     */
+    private String historicalData;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
