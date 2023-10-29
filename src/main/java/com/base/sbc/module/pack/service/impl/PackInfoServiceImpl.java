@@ -930,6 +930,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             }
             vo.setIsMainly(styleColor.getIsMainly());
             vo.setBandName(styleColor.getBandName());
+            vo.setPlaceOrderDate(styleColor.getDesignDetailDate());
         }
         vo.setDefaultSize(style.getDefaultSize());
         vo.setBrandName(Opt.ofBlankAble(vo.getBrandName()).orElse(style.getBrandName()));

@@ -75,6 +75,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -727,8 +728,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             this.saveOperaLog("修改", "款式配色", styleColor.getColorName(), styleColor.getStyleNo(), styleColor1, old);
 
-            /*重新下发配色*/
-            dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
+            if (StrUtil.isNotBlank(styleColor1.getBom())) {
+                /*重新下发配色*/
+                dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
+            }
         }
         return true;
     }
@@ -1183,9 +1186,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (StringUtils.isBlank(publicStyleColorDto.getOrderFlag())) {
             throw new OtherException("下单标记为空");
         }
+        UpdateWrapper updateWrapper = new UpdateWrapper();
         List<String> ids = StringUtils.convertList(publicStyleColorDto.getId());
         /*下单时需要校验维度信息必填*/
         if (StringUtils.equals(publicStyleColorDto.getOrderFlag(), BaseGlobal.STATUS_CLOSE)) {
+            updateWrapper.set("order_date", new Date());
             /*获取款式数据*/
             List<StyleColor> styleColorList = baseMapper.selectBatchIds(ids);
             Map<String, StyleColor> styleColorMap = styleColorList.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
@@ -1210,8 +1215,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     throw new OtherException("大货款号：" + styleColor.getStyleNo() + "中的" + fieldName + "未填写");
                 }
             }
+        } else {
+            updateWrapper.set("order_date", null);
         }
-        UpdateWrapper updateWrapper = new UpdateWrapper();
+
         updateWrapper.set("order_flag", publicStyleColorDto.getOrderFlag());
         updateWrapper.in("id", ids);
         baseMapper.update(null, updateWrapper);
