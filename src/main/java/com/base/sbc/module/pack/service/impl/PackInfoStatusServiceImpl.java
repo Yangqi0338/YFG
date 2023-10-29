@@ -23,6 +23,7 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -54,6 +55,7 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
     private PackInfoService packInfoService;
 
     @Resource
+    @Lazy
     private SmpService smpService;
 
     @Resource
