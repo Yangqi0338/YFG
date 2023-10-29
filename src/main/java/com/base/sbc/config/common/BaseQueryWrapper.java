@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author 卞康
@@ -63,6 +64,31 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
 
     public QueryWrapper<T> isNull(String column) {
         this.and(qw -> qw.isNull(column).or(qw2 -> qw2.eq(column, "")));
+        return this;
+    }
+
+    /**
+     * findInSet
+     * 转为
+     * and ( FIND_IN_SET('1',column) or FIND_IN_SET('2',column) )
+     *
+     * @param column 字典
+     * @param value  1,2
+     * @return
+     */
+    public QueryWrapper<T> findInSet(String column, String value) {
+        if (StrUtil.isBlank(value)) {
+            return this;
+        }
+        List<String> split = StrUtil.split(value, CharUtil.COMMA);
+        this.and(wrapper -> {
+
+            wrapper.and(i -> {
+                for (int k = 0; k < split.size(); k++) {
+                    i.apply("FIND_IN_SET({0}," + column + ")", split.get(k)).or(k < split.size() - 1);
+                }
+            });
+        });
         return this;
     }
 }

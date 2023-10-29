@@ -56,6 +56,12 @@ public class StylePackInfoListVo {
     @ApiModelProperty(value = "款式图")
     private String stylePic;
 
+
+    /**
+     * 是否是迁移历史数据
+     */
+    @ApiModelProperty(value = "是否是迁移历史数据")
+    private String historicalData;
     @ApiModelProperty(value = "BOM信息")
     private List<PackInfoListVo> packInfoList;
 
