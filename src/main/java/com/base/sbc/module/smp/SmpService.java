@@ -633,6 +633,10 @@ public class SmpService {
                     throw new OtherException(packBom.getMaterialName() + "设计用量不能为空或者0");
                 }
             }
+            //判断行Id是否为空
+            if (StringUtils.isEmpty(packBom.getCode())) {
+                throw new OtherException(packBom.getMaterialName() +":"+packBom.getMaterialCode()+ "行Id不能为空,请联系运维人员");
+            }
 
         }
 
