@@ -348,6 +348,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
             // 物料清单转仓库配置项， 开：默认勾选主面料逻辑
             String mainFlag = ccmFeignService.getSwitchByCode(MATERIAL_CREATE_PURCHASEDEMAND.getKeyCode()) ? "1" : "0";
+            Long versionBomCount = packBomService.countByVersion(packBomVersionVo.getId());
             for (PackBom bom : bomList) {
                 String bomId = IdUtil.getSnowflake().nextIdStr();
                 List<PackBomSize> bomSizes = bomSizeMap.get(bom.getId());
@@ -378,6 +379,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 bom.setPackType(PackUtils.PACK_TYPE_DESIGN);
                 bom.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
                 bom.setMainFlag(mainFlag);
+                bom.setCode(String.valueOf(++versionBomCount));
                 bom.updateInit();
             }
             packBomService.saveBatch(bomList);
@@ -1043,13 +1045,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             throw new OtherException("缺少设计id");
         }
         List<PackInfoListVo> basicsdatumModelTypeList = BeanUtil.copyToList(listByField("foreign_id",StringUtils.convertList(styleId)), PackInfoListVo.class);
-        List<Style> style = styleService.listByIds(StringUtils.convertList(styleId));
-        if (!CollectionUtils.isEmpty(basicsdatumModelTypeList) && !CollectionUtils.isEmpty(style)) {
-            basicsdatumModelTypeList.forEach(b -> {
-                b.setStylePic(uploadFileService.getUrlById(style.get(0).getStylePic()));
-            });
-        }
         PageInfo<PackInfoListVo> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
+        stylePicUtils.setStyleColorPic2(pageInfo.getList(), "stylePic");
         return pageInfo;
     }
 
