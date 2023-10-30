@@ -1099,9 +1099,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qc.eq("m.company_code", this.getCompanyCode());
         qc.eq("m.status", "0");
         qc.notEmptyLike("m.supplier_id", dto.getSupplierId());
-        qc.notEmptyEq("c.color_name", dto.getMaterialColor());
+        qc.notEmptyLike("c.color_name", dto.getMaterialColor());
         if (StringUtils.isNotEmpty(dto.getSearch())) {
-            qc.and(Wrapper -> Wrapper.eq("m.material_code", dto.getSearch()).or().eq("m.material_name ",
+            qc.and(Wrapper -> Wrapper.like("m.material_code", dto.getSearch()).or().like("m.material_name ",
                     dto.getSearch()));
         }
         qc.eq("m.biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
