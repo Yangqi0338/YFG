@@ -174,7 +174,7 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
             if (StringUtils.isNotEmpty(basicsdatumColourLibraryExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumColourLibraryExcelDto.getPicture());
                 /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/MaterialOther/ColourLibrary/" + basicsdatumColourLibraryExcelDto.getColourCode() + ".jpg");
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "MaterialOther/ColourLibrary/" + basicsdatumColourLibraryExcelDto.getColourCode() + ".jpg");
                 basicsdatumColourLibraryExcelDto.setPicture(CommonUtils.removeQuery(attachmentVo.getUrl()));
             }
             if (StringUtils.isNotBlank(basicsdatumColourLibraryExcelDto.getColorRgb()) && !basicsdatumColourLibraryExcelDto.getColorRgb().contains("rgb")) {

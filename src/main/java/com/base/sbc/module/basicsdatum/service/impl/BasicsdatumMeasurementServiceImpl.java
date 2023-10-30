@@ -120,7 +120,7 @@ public class BasicsdatumMeasurementServiceImpl extends BaseServiceImpl<Basicsdat
             if (StringUtils.isNotEmpty(basicsdatumMeasurementExcelDto.getImage())) {
                 File file1 = new File(basicsdatumMeasurementExcelDto.getImage());
                 /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/MaterialOther/Measurement/" + basicsdatumMeasurementExcelDto.getCode() + ".jpg");
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "MaterialOther/Measurement/" + basicsdatumMeasurementExcelDto.getCode() + ".jpg");
                 basicsdatumMeasurementExcelDto.setImage(CommonUtils.removeQuery(attachmentVo.getUrl()));
             }
             if (StringUtils.isBlank(basicsdatumMeasurementExcelDto.getDescription())) {

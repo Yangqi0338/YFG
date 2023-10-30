@@ -173,7 +173,7 @@ public class BasicsdatumRangeDifferenceServiceImpl extends BaseServiceImpl<Basic
             if (!StringUtils.isEmpty(basicsdatumRangeDifferenceExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumRangeDifferenceExcelDto.getPicture());
                 /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/MaterialOther/RangeDifference/" + basicsdatumRangeDifferenceExcelDto.getCode() + ".jpg");
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "MaterialOther/RangeDifference/" + basicsdatumRangeDifferenceExcelDto.getCode() + ".jpg");
                 basicsdatumRangeDifferenceExcelDto.setPicture(CommonUtils.removeQuery(attachmentVo.getUrl()));
             }
             /*获取品牌编码*/

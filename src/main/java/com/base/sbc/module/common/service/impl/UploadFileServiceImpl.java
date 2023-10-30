@@ -231,7 +231,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     }
 
     @Override
-    public AttachmentVo uploadToMinio(MultipartFile file, String path) {
+    public AttachmentVo uploadToMinio(MultipartFile file, String objectName) {
         try {
             String md5Hex = DigestUtils.md5DigestAsHex(file.getInputStream());
 //            UploadFile byMd5 = findByMd5(md5Hex);
@@ -240,8 +240,8 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
 //                log.info("文件已经存在:"+md5Hex);
 //                return byMd5;
 //            }
-            String objectName = path;
-            if (path == null) {
+
+            if (objectName == null) {
                 String extName = FileUtil.extName(file.getOriginalFilename());
                 if (StrUtil.isBlank(extName)) {
                     throw new OtherException("文件无后缀名");

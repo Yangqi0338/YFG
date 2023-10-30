@@ -114,7 +114,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                 if (StringUtils.isNotEmpty(processDatabaseExcelDto.getPicture())) {
                     File file1 = new File(processDatabaseExcelDto.getPicture());
                     /*上传图*/
-                    AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/MaterialOther/ProcessDatabase/" + processDatabaseExcelDto.getCode() + ".jpg");
+                    AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "MaterialOther/ProcessDatabase/" + processDatabaseExcelDto.getCode() + ".jpg");
                     processDatabaseExcelDto.setPicture(CommonUtils.removeQuery(attachmentVo.getUrl()));
                 }
             }

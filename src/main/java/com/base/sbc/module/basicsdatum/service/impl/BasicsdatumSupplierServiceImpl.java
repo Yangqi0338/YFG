@@ -145,14 +145,14 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
             if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getPicture())) {
                 File file1 = new File(basicsdatumSupplierExcelDto.getPicture());
                 /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + ".jpg");
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + ".jpg");
                 basicsdatumSupplierExcelDto.setPicture(CommonUtils.removeQuery(attachmentVo.getUrl()));
             }
 
             if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getAgentImages())) {
                 File file1 = new File(basicsdatumSupplierExcelDto.getAgentImages());
                 /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "/Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + "-Agent.jpg");
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + "-Agent.jpg");
                 basicsdatumSupplierExcelDto.setAgentImages(CommonUtils.removeQuery(attachmentVo.getUrl()));
             }
             /*结算方式*/
