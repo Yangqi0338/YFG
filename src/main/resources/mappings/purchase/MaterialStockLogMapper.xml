@@ -15,7 +15,8 @@
             l.*,
             s.material_name,
             s.material_color,
-            s.material_color_code
+            s.material_color_code,
+            s.material_specifications
         FROM
             `t_material_stock_log` AS l
             LEFT JOIN t_material_stock AS s ON l.material_warehouse_id = s.id

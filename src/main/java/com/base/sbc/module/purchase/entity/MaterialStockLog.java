@@ -42,6 +42,9 @@ public class MaterialStockLog extends BaseDataEntity<String> {
     /** 物料颜色编码 */
     @TableField(exist = false)
     private String materialColorCode;
+    /** 物料规格 */
+    @TableField(exist = false)
+    private String materialSpecifications;
 
     public MaterialStockLog(){
 

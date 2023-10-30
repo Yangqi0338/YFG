@@ -113,6 +113,7 @@ public class MaterialStockController extends BaseController{
 		qc.eq("l.company_code", userCompany);
 		qc.eq(StringUtils.isNotBlank(page.getMaterialWarehouseId()),"l.material_warehouse_id", page.getMaterialWarehouseId());
 		qc.eq(StringUtils.isNotBlank(page.getType()), "l.type", page.getType());
+		qc.eq(StringUtils.isNotBlank(page.getWarehouseId()), "l.warehouse_id", page.getWarehouseId());
 		if(StringUtils.isNotBlank(page.getSearch())){
 			qc.and(wrapper -> wrapper.like("l.relation_code", page.getSearch())
 					.or()
