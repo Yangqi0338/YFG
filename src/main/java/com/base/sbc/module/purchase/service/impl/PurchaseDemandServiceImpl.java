@@ -246,7 +246,7 @@ public class PurchaseDemandServiceImpl extends BaseServiceImpl<PurchaseDemandMap
 
                 for(String color : colorList) {
                     PackBomColor packBomColor = colorMap.get(color);
-                    if(packBomColor != null) {
+                    if(packBomColor != null && StringUtils.isNotBlank(packBomColor.getMaterialColorName())) {
                         BaseQueryWrapper<PurchaseDemand> pdQw = new BaseQueryWrapper<>();
                         pdQw.eq("company_code", companyCode);
                         pdQw.eq("pack_bom_id", bom.getId());
