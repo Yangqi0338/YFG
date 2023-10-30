@@ -16,4 +16,6 @@ public class MaterialStockDTO extends Page {
     private String materialWarehouseId;
     @ApiModelProperty(value = "供应商id")
     private String defaultSupplierId;
+    @ApiModelProperty(value = "颜色")
+    private String materialColor;
 }

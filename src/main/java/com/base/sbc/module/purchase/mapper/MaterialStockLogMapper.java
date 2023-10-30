@@ -7,9 +7,16 @@
 package com.base.sbc.module.purchase.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.purchase.entity.MaterialStockLog;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：物料库存-明细 dao类
  * @address com.base.sbc.module.purchase.dao.MaterialStockLogDao
  * @author tzy  
@@ -20,7 +27,7 @@ import com.base.sbc.module.purchase.entity.MaterialStockLog;
 @Mapper
 public interface MaterialStockLogMapper extends BaseMapper<MaterialStockLog> {
 // 自定义方法区 不替换的区域【other_start】
-
+    List<MaterialStockLog> selectRelationStock(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
 
 // 自定义方法区 不替换的区域【other_end】

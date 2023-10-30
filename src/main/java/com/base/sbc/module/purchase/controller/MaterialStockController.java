@@ -8,6 +8,7 @@ package com.base.sbc.module.purchase.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;
@@ -17,6 +18,7 @@ import com.base.sbc.module.purchase.dto.WarehouseingPageDTO;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.entity.MaterialStockLog;
 import com.base.sbc.module.purchase.entity.WarehousingOrder;
+import com.base.sbc.module.purchase.mapper.MaterialStockLogMapper;
 import com.base.sbc.module.purchase.service.MaterialStockLogService;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.github.pagehelper.PageHelper;
@@ -50,6 +52,9 @@ public class MaterialStockController extends BaseController{
 	@Autowired
 	private MaterialStockLogService materialStockLogService;
 
+	@Autowired
+	private MaterialStockLogMapper materialStockLogMapper;
+
 	@ApiOperation(value = "物料库存分页查询")
 	@GetMapping
 	public ApiResult page(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, MaterialStockDTO page) {
@@ -57,6 +62,11 @@ public class MaterialStockController extends BaseController{
 		qc.eq("company_code", userCompany);
 		qc.eq(StringUtils.isNotBlank(page.getWarehouseId()), "warehouse_id", page.getWarehouseId());
 		qc.eq(StringUtils.isNotBlank(page.getDefaultSupplierId()), "default_supplier_id", page.getDefaultSupplierId());
+		if(StringUtils.isNotBlank(page.getMaterialColor())) {
+			qc.and(wrapper -> wrapper.like("material_color", page.getMaterialColor())
+					.or().
+					like("material_color_code", page.getMaterialColor()));
+		}
 		if(StringUtils.isNotBlank(page.getSearch())){
 			qc.and(wrapper -> wrapper.like("material_code", page.getSearch())
 					.or()
@@ -99,12 +109,21 @@ public class MaterialStockController extends BaseController{
 	@ApiOperation(value = "物料库存日志分页查询")
 	@GetMapping("/materialStockLogPage")
 	public ApiResult materialStockLogPage(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, MaterialStockDTO page) {
-		QueryWrapper<MaterialStockLog> qc = new QueryWrapper<>();
-		qc.eq("company_code", userCompany);
-		qc.eq("material_warehouse_id", page.getMaterialWarehouseId());
-		qc.eq(StringUtils.isNotBlank(page.getType()), "type", page.getType());
+		BaseQueryWrapper<MaterialStockLog> qc = new BaseQueryWrapper<>();
+		qc.eq("l.company_code", userCompany);
+		qc.eq(StringUtils.isNotBlank(page.getMaterialWarehouseId()),"l.material_warehouse_id", page.getMaterialWarehouseId());
+		qc.eq(StringUtils.isNotBlank(page.getType()), "l.type", page.getType());
 		if(StringUtils.isNotBlank(page.getSearch())){
-			qc.and(wrapper -> wrapper.like("relation_code", page.getSearch()));
+			qc.and(wrapper -> wrapper.like("l.relation_code", page.getSearch())
+					.or()
+					.like("l.material_code", page.getSearch())
+					.or()
+					.like("s.material_name", page.getSearch()));
+		}
+		if(StringUtils.isNotBlank(page.getMaterialColor())) {
+			qc.and(wrapper -> wrapper.like("s.material_color", page.getMaterialColor())
+					.or().
+					like("s.material_color_code", page.getMaterialColor()));
 		}
 		if (!StringUtils.isEmpty(page.getOrderBy())){
 			qc.orderByAsc(page.getOrderBy());
@@ -113,7 +132,7 @@ public class MaterialStockController extends BaseController{
 		}
 		if (page.getPageNum() != 0 && page.getPageSize() != 0) {
 			com.github.pagehelper.Page<MaterialStockLog> materialStockPage = PageHelper.startPage(page.getPageNum(), page.getPageSize());
-			materialStockLogService.list(qc);
+			materialStockLogMapper.selectRelationStock(qc);
 			PageInfo<MaterialStockLog> pages = materialStockPage.toPageInfo();
 			return ApiResult.success("success", pages);
 		}

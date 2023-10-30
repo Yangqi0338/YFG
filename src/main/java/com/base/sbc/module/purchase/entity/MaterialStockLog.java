@@ -8,6 +8,7 @@ package com.base.sbc.module.purchase.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -32,6 +33,16 @@ public class MaterialStockLog extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
+    /** 物料名称 */
+    @TableField(exist = false)
+    private String materialName;
+    /** 物料颜色 */
+    @TableField(exist = false)
+    private String materialColor;
+    /** 物料颜色编码 */
+    @TableField(exist = false)
+    private String materialColorCode;
+
     public MaterialStockLog(){
 
     }
