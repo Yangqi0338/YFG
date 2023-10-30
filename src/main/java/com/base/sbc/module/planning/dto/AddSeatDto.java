@@ -51,6 +51,6 @@ public class AddSeatDto {
     @ApiModelProperty(value = "小类code"  )
     private String prodCategory3rd;
     @ApiModelProperty(value = "坑位数量")
-    @Range(min = 1, max = 500)
+    @Range(min = 1, max = 50)
     private Integer count;
 }

@@ -250,6 +250,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         BaseQueryWrapper<PackInfo> qw = new BaseQueryWrapper<>();
         qw.notEmptyEq("foreign_id", pageDto.getStyleId());
         qw.notEmptyEq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+        qw.andLike(pageDto.getSearch(), "style_no", "code", "name", "color");
         qw.orderByDesc("id");
         Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
         List<PackInfoListVo> list = getBaseMapper().queryByQw(qw);
