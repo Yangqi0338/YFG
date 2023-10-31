@@ -972,8 +972,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*修改大货款号*/
         if (StringUtils.isNotBlank(sampleStyleColor.getStyleNo()) && StringUtils.isNotBlank(updateStyleNoBandDto.getStyleNo()) && !sampleStyleColor.getStyleNo().equals(updateStyleNoBandDto.getStyleNo())) {
 
-            if (!updateStyleNoBandDto.getStyleNo().substring(0, 4).equals(sampleStyleColor.getStyleNo().substring(0, 4))) {
-                throw new OtherException("无法修改大货款号前四位");
+            if (!updateStyleNoBandDto.getStyleNo().substring(0, 1).equals(sampleStyleColor.getStyleNo().substring(0, 1))) {
+                throw new OtherException("无法修改大货款号前1位");
             }
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("style_no", updateStyleNoBandDto.getStyleNo());
