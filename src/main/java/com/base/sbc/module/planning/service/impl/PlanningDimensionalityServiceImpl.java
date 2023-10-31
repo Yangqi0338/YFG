@@ -8,6 +8,7 @@ package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -58,16 +59,17 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Override
     public DimensionalityListVo getDimensionalityList(DimensionLabelsSearchDto dto) {
         DimensionalityListVo dimensionalityListVo =new DimensionalityListVo();
-        //先按中类查，中类没有再查品类
+        //先按中类查，中类没有再查品类（配置页面除外）
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
         dto.setCategoryFlag("1");
         PlanningUtils.dimensionCommonQw(qw, dto);
         qw.orderByAsc("sort");
         List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(qw);
-        if (CollUtil.isEmpty(planningDimensionalityList)) {
+        if (CollUtil.isEmpty(planningDimensionalityList) && StrUtil.isBlank(dto.getConfigPageFlag())) {
             qw = new BaseQueryWrapper<>();
             dto.setCategoryFlag("0");
             PlanningUtils.dimensionCommonQw(qw, dto);
+            qw.orderByAsc("sort");
             planningDimensionalityList = baseMapper.selectList(qw);
         }
         dimensionalityListVo.setPlanningDimensionalities(planningDimensionalityList);
