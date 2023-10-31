@@ -1,14 +1,17 @@
 package com.base.sbc.module.pack.utils;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
@@ -40,6 +43,16 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import freemarker.cache.ClassTemplateLoader;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -47,12 +60,6 @@ import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 类描述：
@@ -158,8 +165,12 @@ public class GenTechSpecPdfFile {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date produceDate;
     private String produceDateStr;
+
     @ApiModelProperty(value = "洗标")
     private String washingLabel;
+
+	@ApiModelProperty(value = "洗标编码")
+	private String washingCode;
     /**
      * 下单时间
      */

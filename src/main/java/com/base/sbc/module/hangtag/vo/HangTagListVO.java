@@ -6,13 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
-import com.base.sbc.module.hangtag.entity.HangTag;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Data;
-
 import java.math.BigDecimal;
 import java.util.Date;
+
+import com.base.sbc.module.hangtag.entity.HangTag;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 /**
  * 类描述：吊牌表 实体类
@@ -197,6 +198,9 @@ public class HangTagListVO extends HangTag {
      */
     @ApiModelProperty(value = "洗标")
     private String washingLabel;
+
+	@ApiModelProperty(value = "洗标编码")
+	private String washingCode;
     /**
      * 贮藏要求
      */
