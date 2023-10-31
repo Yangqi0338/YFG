@@ -504,7 +504,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 成分
 				tagPrinting.setComposition(hangTag.getIngredient());
 				// 洗标
-				tagPrinting.setCareSymbols(hangTag.getWashingLabelName());
+//				tagPrinting.setCareSymbols(hangTag.getWashingLabelName());
+				tagPrinting.setCareSymbols(hangTag.getWashingLabel());
 				// 质量等级
 				tagPrinting.setQualityClass(hangTag.getQualityGrade());
 				// 品名
