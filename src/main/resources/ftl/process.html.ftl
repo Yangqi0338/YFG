@@ -38,6 +38,30 @@
         padding-right: 4px;
     }
 
+    .flex_td {
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    .flex_td_box {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        height: 100%;
+
+    }
+
+    .flex_td_box>div{
+        border-bottom:1px solid #000;
+        box-sizing: border-box;
+        display: flex;
+    }
+    .flex_td_box>div>div{
+        padding: 4px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+    }
+
     .table_border {
         width: 100%;
         border-collapse: collapse;
@@ -224,7 +248,7 @@
                 <tr>
                     <td>
                         <div style="display: table-cell;text-align: center;vertical-align: middle;">
-                            <div class="bold" style="font-size: 16px;"> 扫码查看工艺单/视频</div>
+                            <div class="bold" style="font-size: 16px; margin-bottom: 20px"> 扫码查看工艺单/视频</div>
                             <img style="width: 45mm;" src="${qrCodeUrl}">
                         </div>
                     </td>
@@ -437,73 +461,139 @@
     </table>
 </#if>
 <!--测量点 3 -->
-
-<table class="table_border mt size_table" style="page-break-before: always; ">
-    <thead>
-    <tr>
-        <th colspan="${sizeTitleColspan}" class="th_title">
-            <p>测量点</p>
-            <hr>
-        </th>
-    </tr>
-    <tr class="size_tr gb">
-        <th rowspan="2" style="text-align: center;" class="partNameClass">部位</th>
-        <th rowspan="2" style="text-align: center;">描述</th>
-        <#if sizeList??>
-            <#list sizeList as size>
-                <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
-                    ${size}
+<#if sizeDataList??>
+    <#if sizeDataList?size gt 5>
+        <table class="table_border mt " style="page-break-before: always; ">
+            <thead>
+            <tr>
+                <th colspan="${sizeTitleColspan}" class="th_title">
+                    <p>测量点</p>
+                    <hr>
                 </th>
-            </#list>
-        </#if>
-        <th rowspan="2" class="gc">公差(-)</th>
-        <th rowspan="2" class="gc">公差(+)</th>
-    </tr>
-
-    <tr>
-        <#list sizeList as size>
-            <#if isFob>
-                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">成衣<br>尺寸</td>
-                <#if washSkippingFlag>
-                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">洗后<br>尺寸</td>
-                </#if>
-            <#else>
-                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">样板<br>尺寸</td>
-                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">成衣<br>尺寸</td>
-                <#if washSkippingFlag>
-                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}">洗后<br>尺寸</td>
-                </#if>
-            </#if>
-
-        </#list>
-    </tr>
-    </thead>
-    <tbody>
-    <#if sizeDataList??>
-        <#list sizeDataList as item>
-            <tr class="size_tr">
-                <#if item.rowType=="1">
-                    <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
-                <#else>
-                    <#list item.rowData as c>
-                        <td class="${c.className} ${sizeClass[c_index]}">
-                            <div style="word-break: break-all;">${c.text}</div>
-                        </td>
+            </tr>
+            <tr class="size_tr gb">
+                <th rowspan="2" style="text-align: center;" class="partNameClass">部位</th>
+                <th rowspan="2" style="text-align: center;">描述</th>
+                <#if sizeList??>
+                    <#list sizeList as size>
+                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
+                            ${size}
+                        </th>
                     </#list>
                 </#if>
+                <th rowspan="2" class="gc">公差(-)</th>
+                <th rowspan="2" class="gc">公差(+)</th>
             </tr>
-        </#list>
+
+            <tr>
+                <#list sizeList as size>
+                    <#if isFob>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">成衣<br>尺寸</td>
+                        <#if washSkippingFlag>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">洗后<br>尺寸</td>
+                        </#if>
+                    <#else>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">样板<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">成衣<br>尺寸</td>
+                        <#if washSkippingFlag>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}">洗后<br>尺寸</td>
+                        </#if>
+                    </#if>
+
+                </#list>
+            </tr>
+            </thead>
+            <tbody>
+            <#if sizeDataList??>
+                <#list sizeDataList as item>
+                    <tr class="size_tr">
+                        <#if item.rowType=="1">
+                            <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
+                        <#else>
+                            <#list item.rowData as c>
+                                <td class="${c.className} ${sizeClass[c_index]}">
+                                    <div style="word-break: break-all;">${c.text}</div>
+                                </td>
+                            </#list>
+                        </#if>
+                    </tr>
+                </#list>
+            </#if>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>
+                <td colspan="2" style="height: 32px;">单位:CM</td>
+            </tr>
+            </tfoot>
+        </table>
+    <#else>
+        <table class="table_border mt size_table" style="page-break-before: always; ">
+            <thead>
+            <tr>
+                <th colspan="${sizeTitleColspan}" class="th_title">
+                    <p>测量点</p>
+                    <hr>
+                </th>
+            </tr>
+            <tr class="size_tr gb">
+                <th rowspan="2" style="text-align: center;" class="partNameClass">部位</th>
+                <th rowspan="2" style="text-align: center;">描述</th>
+                <#if sizeList??>
+                    <#list sizeList as size>
+                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
+                            ${size}
+                        </th>
+                    </#list>
+                </#if>
+                <th rowspan="2" class="gc">公差(-)</th>
+                <th rowspan="2" class="gc">公差(+)</th>
+            </tr>
+
+            <tr>
+                <#list sizeList as size>
+                    <#if isFob>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">成衣<br>尺寸</td>
+                        <#if washSkippingFlag>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">洗后<br>尺寸</td>
+                        </#if>
+                    <#else>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">样板<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">成衣<br>尺寸</td>
+                        <#if washSkippingFlag>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}">洗后<br>尺寸</td>
+                        </#if>
+                    </#if>
+
+                </#list>
+            </tr>
+            </thead>
+            <tbody>
+            <#if sizeDataList??>
+                <#list sizeDataList as item>
+                    <tr class="size_tr">
+                        <#if item.rowType=="1">
+                            <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
+                        <#else>
+                            <#list item.rowData as c>
+                                <td class="${c.className} ${sizeClass[c_index]}">
+                                    <div style="word-break: break-all;">${c.text}</div>
+                                </td>
+                            </#list>
+                        </#if>
+                    </tr>
+                </#list>
+            </#if>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>
+                <td colspan="2" style="height: 32px;">单位:CM</td>
+            </tr>
+            </tfoot>
+        </table>
     </#if>
-    </tbody>
-    <tfoot>
-    <tr>
-        <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>
-        <td colspan="2" style="height: 32px;">单位:CM</td>
-    </tr>
-    </tfoot>
-</table>
-
-
+</#if>
 
 <!-- 朴条位置(不需要) 归拔位置 4 2 -->
 <#if false>
@@ -588,26 +678,42 @@
         </thead>
         <tbody>
         <#if jcgyDataList??>
-            <#list jcgyDataList as item>
                 <tr>
-                    <td>${item.item}</td>
-                    <td>
-                        ${item.content}
+                    <td class="flex_td" colspan="2">
+                        <div class="flex_td_box">
+                            <#list jcgyDataList as item>
+                                <div>
+                                    <div style="width: 16.6%">
+                                        <p>${item.item}</p>
+                                    </div>
+                                    <div style="width: 83.3%;border-left:1px solid #000;">
+                                        <p>${item.content}</p>
+                                    </div>
+                                </div>
+                            </#list>
+                        </div>
                     </td>
-                    <#if  item_index==0 >
-                        <td rowspan="${jcgyRowsPan}">
-                            <div class="jcgy_img_box">
-                                <#if jcgyImgList??>
-                                    <#list jcgyImgList as item>
-                                        <img src="${item.url}"/> <br>
-                                    </#list>
-                                </#if>
-                            </div>
-
-                        </td>
-                    </#if>
+<#--                    <td class="flex_td">-->
+<#--                        <div class="flex_td_box">-->
+<#--                            <#list jcgyDataList as item>-->
+<#--                                <p>${item.content}</p>-->
+<#--                            </#list>-->
+<#--                        </div>-->
+<#--                    </td>-->
+                    <#list jcgyDataList as item>
+                        <#if  item_index==0 >
+                            <td rowspan="${jcgyRowsPan}">
+                                <div class="jcgy_img_box">
+                                    <#if jcgyImgList??>
+                                        <#list jcgyImgList as item>
+                                            <img src="${item.url}"/> <br>
+                                        </#list>
+                                    </#if>
+                                </div>
+                            </td>
+                        </#if>
+                    </#list>
                 </tr>
-            </#list>
         </#if>
         </tbody>
 
@@ -632,42 +738,52 @@
         <tr>
 
             <th class="gb" style="width: 10%">图片</th>
-            <th class="gb" style="width: 10%">编码</th>
-            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 20%">工艺项目</th>
             <th class="gb" style="width: 50%">工艺描述</th>
         </tr>
         </thead>
         <tbody>
         <#if xbjDataList??>
-            <#list xbjDataList as item>
+<#--            <#list xbjDataList as item>-->
                 <tr>
-                    <#if item_index==0>
-                        <td rowspan="${xbjRowsPan}" style="width: 30%;padding: 0;">
-                            <div class="one_imgs_xbj">
-                                <#if xbjImgList??>
-                                    <#list xbjImgList as item>
-                                        <div class="text_color">
-                                            <#if item_index==0>
-                                                <p>正面</p>
-                                            </#if>
-                                            <#if item_index==1>
+                    <#list xbjDataList as item>
+                        <#if item_index==0>
+                            <td rowspan="${xbjRowsPan}" style="width: 30%;padding: 0;">
+                                <div class="one_imgs_xbj">
+                                    <#if xbjImgList??>
+                                        <#list xbjImgList as item>
+                                            <div class="text_color">
+                                                <#if item_index==0>
+                                                    <p>正面</p>
+                                                </#if>
+                                                <#if item_index==1>
 
-                                                <p>反面</p>
-                                            </#if>
+                                                    <p>反面</p>
+                                                </#if>
+                                            </div>
+                                            <img src="${item.url}"/>
+                                        </#list>
+                                    </#if>
+                                </div>
+                            </td>
+                        </#if>
+                    </#list>
+
+                    <td class="flex_td" colspan="2">
+                        <div class="flex_td_box">
+                            <#list xbjDataList as item>
+                                <div>
+                                    <div style="width: 28.5%; text-align: center;">${item.item}</div>
+                                    <div style="width: 71.4%;border-left:1px solid #000;">
+                                        <div>
+                                            ${item.content}
                                         </div>
-                                        <img src="${item.url}"/>
-                                    </#list>
-                                </#if>
-                            </div>
-                        </td>
-                    </#if>
-                    <td>${item.itemCode}</td>
-                    <td>${item.item}</td>
-                    <td>
-                        ${item.content}
+                                    </div>
+                                </div>
+                            </#list>
+                        </div>
                     </td>
                 </tr>
-            </#list>
         </#if>
         </tbody>
         <tfoot>
