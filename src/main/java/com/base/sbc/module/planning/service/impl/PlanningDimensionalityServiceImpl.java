@@ -63,7 +63,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         DimensionalityListVo dimensionalityListVo = new DimensionalityListVo();
         List<PlanningDimensionality> planningDimensionalityList = null;
         //（配置页面查询）
-        if (StrUtil.isBlank(dto.getConfigPageFlag())) {
+        if (StrUtil.isNotBlank(dto.getConfigPageFlag())) {
             dto.setCategoryFlag(StrUtil.isNotBlank(dto.getProdCategory2nd()) ? BaseGlobal.YES : BaseGlobal.NO);
             PlanningUtils.dimensionCommonQw(qw, dto);
             qw.orderByAsc("sort");
