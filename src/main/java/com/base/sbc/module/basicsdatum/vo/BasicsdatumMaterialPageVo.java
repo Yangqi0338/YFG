@@ -259,8 +259,7 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	private Date checkDate;
 	/** 有效期 */
 	@ApiModelProperty(value = "有效期")
-	//@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-	private String checkValidDate;
+	private Integer checkValidDate;
 	/** 质检项目 */
 	@ApiModelProperty(value = "质检项目")
 	private String checkItems;
