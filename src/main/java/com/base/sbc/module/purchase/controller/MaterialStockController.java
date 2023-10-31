@@ -12,12 +12,17 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.purchase.dto.MaterialStockDTO;
 import com.base.sbc.module.purchase.dto.WarehouseingPageDTO;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.entity.MaterialStockLog;
+import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import com.base.sbc.module.purchase.entity.WarehousingOrder;
+import com.base.sbc.module.purchase.excel.MaterialStockExcel;
+import com.base.sbc.module.purchase.excel.MaterialStockLogExcel;
+import com.base.sbc.module.purchase.excel.PurchaseOrderExcel;
 import com.base.sbc.module.purchase.mapper.MaterialStockLogMapper;
 import com.base.sbc.module.purchase.service.MaterialStockLogService;
 import com.base.sbc.module.purchase.service.MaterialStockService;
@@ -25,11 +30,18 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -140,6 +152,59 @@ public class MaterialStockController extends BaseController{
 		return selectNotFound();
 	}
 
+	@ApiOperation(value = "导出库存日志")
+	@GetMapping(value = "exportMaterialStockLogExcel")
+	public void exportMaterialStockLogExcel(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,
+										 HttpServletRequest request, HttpServletResponse response, String ids) throws Exception {
+		BaseQueryWrapper<MaterialStockLog> qw = new BaseQueryWrapper<>();
+		qw.in("l.id", StringUtils.convertList(ids));
+		List<MaterialStockLog> materialStockLogList = materialStockLogMapper.selectRelationStock(qw);
+
+		// 生成文件名称
+		String time = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");// 格式化当前系统日期
+		String strFileName = "库存日志_" + time + ".xlsx";
+		try (OutputStream objStream = response.getOutputStream()) {
+			response.reset();
+			// 设置文件类型
+			response.setContentType("application/x-msdownload");// 下载
+			request.setCharacterEncoding("UTF-8");
+			response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
+
+			MaterialStockLogExcel excel = new MaterialStockLogExcel();
+			XSSFWorkbook objWb = excel.createWorkBook(materialStockLogList);
+			objWb.write(objStream);
+			objStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@ApiOperation(value = "导出库存明细")
+	@GetMapping(value = "exportMaterialStockExcel")
+	public void exportMaterialStockExcel(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,
+											HttpServletRequest request, HttpServletResponse response, String ids) throws Exception {
+		BaseQueryWrapper<MaterialStock> qw = new BaseQueryWrapper<>();
+		qw.in("id", StringUtils.convertList(ids));
+		List<MaterialStock> materialStockList = materialStockService.list(qw);
+
+		// 生成文件名称
+		String time = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");// 格式化当前系统日期
+		String strFileName = "库存明细_" + time + ".xlsx";
+		try (OutputStream objStream = response.getOutputStream()) {
+			response.reset();
+			// 设置文件类型
+			response.setContentType("application/x-msdownload");// 下载
+			request.setCharacterEncoding("UTF-8");
+			response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
+
+			MaterialStockExcel excel = new MaterialStockExcel();
+			XSSFWorkbook objWb = excel.createWorkBook(materialStockList);
+			objWb.write(objStream);
+			objStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 }
 
 
