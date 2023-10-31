@@ -60,6 +60,7 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleColorVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -152,7 +153,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
 
         /*分页*/
-        PageHelper.startPage(queryDto);
+        Page<Object> objects = PageHelper.startPage(queryDto);
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
@@ -236,16 +237,26 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
         if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
             queryWrapper.eq("tsc.del_flag", "0");
-            queryWrapper.orderByAsc("tsc.style_no");
+            // bug 3325
+            objects.setOrderBy("CASE tsc.scm_send_flag " +
+                    " WHEN 0 THEN 0 " +
+                    " WHEN 3 THEN 1 " +
+                    " WHEN 2 THEN 2 " +
+                    " WHEN 1 THEN 3 " +
+                    " ELSE 99 " +
+                    "END " +
+                    ",tsc.create_date asc");
+            //queryWrapper.orderByAsc("tsc.scm_send_flag asc ");
+
 //            查询配色列表
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
 //            查询主款配饰
-            sampleStyleColorList.forEach(s ->{
-             List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(s.getId(), null);
-             if(CollUtil.isNotEmpty(mainAccessoriesList)){
-                 String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
-                 String colorName = mainAccessoriesList.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));
-                 if (StringUtils.equals(s.getIsTrim(), BaseGlobal.NO)) {
+            sampleStyleColorList.forEach(s -> {
+                List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(s.getId(), null);
+                if (CollUtil.isNotEmpty(mainAccessoriesList)) {
+                    String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
+                    String colorName = mainAccessoriesList.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));
+                    if (StringUtils.equals(s.getIsTrim(), BaseGlobal.NO)) {
                      s.setAccessory(colorName);
                      s.setAccessoryNo(styleNos);
                  } else {
