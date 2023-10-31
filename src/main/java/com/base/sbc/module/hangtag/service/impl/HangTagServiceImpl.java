@@ -449,7 +449,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				tagPrinting.setStyleCode(hangTag.getBulkStyleNo());
 
 				PackInfo packInfo = packInfoService.getOne(
-						new QueryWrapper<PackInfo>().eq("code", styleColor != null ? styleColor.getBom() : " "));
+						new QueryWrapper<PackInfo>().eq("style_no",
+								styleColor != null ? styleColor.getStyleNo() : " "));
 				if (packInfo != null) {
 					// 款式定价
 					StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(),
