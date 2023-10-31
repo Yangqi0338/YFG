@@ -185,8 +185,7 @@ public class BasicsdatumMaterialExcelVo {
 	private Date checkDate;
 	@Excel(name = "有效期")
 	@ApiModelProperty(value = "有效期")
-	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-	private Date checkValidDate;
+	private Integer checkValidDate;
 	/** 质检项目 */
 	@Excel(name = "质检项目")
 	private String checkItems;

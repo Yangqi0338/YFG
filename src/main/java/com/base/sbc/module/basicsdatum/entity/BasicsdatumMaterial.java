@@ -6,19 +6,20 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
 
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpMaterialDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
 
 /**
  * 类描述：基础资料-物料档案 实体类
@@ -322,8 +323,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	private Date checkDate;
 	/** 有效期 */
 	@ApiModelProperty(value = "有效期")
-	@JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-	private Date checkValidDate;
+	private Integer checkValidDate;
 	/** 质检项目 */
 	@ApiModelProperty(value = "质检项目")
 	private String checkItems;
