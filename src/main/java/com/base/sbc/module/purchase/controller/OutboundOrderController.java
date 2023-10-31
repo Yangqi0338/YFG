@@ -15,13 +15,13 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserCompanyUtils;
 import com.base.sbc.module.purchase.dto.WarehouseingPageDTO;
-import com.base.sbc.module.purchase.entity.OutboundOrder;
-import com.base.sbc.module.purchase.entity.OutboundOrderDetail;
-import com.base.sbc.module.purchase.entity.WarehousingOrder;
-import com.base.sbc.module.purchase.entity.WarehousingOrderDetail;
+import com.base.sbc.module.purchase.entity.*;
+import com.base.sbc.module.purchase.excel.MaterialStockExcel;
+import com.base.sbc.module.purchase.excel.OutboundOrderExcel;
 import com.base.sbc.module.purchase.mapper.OutboundOrderDetailMapper;
 import com.base.sbc.module.purchase.mapper.OutboundOrderMapper;
 import com.base.sbc.module.purchase.service.OutboundOrderDetailService;
@@ -31,12 +31,19 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,6 +62,9 @@ public class OutboundOrderController extends BaseController{
 
 	@Autowired
 	private OutboundOrderService outboundOrderService;
+
+	@Autowired
+	private OutboundOrderMapper outboundOrderMapper;
 
 	@Autowired
 	private OutboundOrderDetailService outboundOrderDetailService;
@@ -177,6 +187,33 @@ public class OutboundOrderController extends BaseController{
 			outboundOrderService.examineNoPass(userInfo, dto);
 		}else{
 			outboundOrderService.cancelExamine(userInfo, dto);
+		}
+	}
+
+	@ApiOperation(value = "导出出库单")
+	@GetMapping(value = "exportOutboundOrderExcel")
+	public void exportOutboundOrderExcel(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,
+										 HttpServletRequest request, HttpServletResponse response, String ids) throws Exception {
+		BaseQueryWrapper<OutboundOrder> qw = new BaseQueryWrapper<>();
+		qw.in("id", StringUtils.convertList(ids));
+		List<OutboundOrder> outboundOrderList = outboundOrderMapper.outBoundOrderRelationDetail(qw);
+
+		// 生成文件名称
+		String time = DateUtils.formatDate(new Date(), "yyyyMMddHHmmss");// 格式化当前系统日期
+		String strFileName = "出库单_" + time + ".xlsx";
+		try (OutputStream objStream = response.getOutputStream()) {
+			response.reset();
+			// 设置文件类型
+			response.setContentType("application/x-msdownload");// 下载
+			request.setCharacterEncoding("UTF-8");
+			response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
+
+			OutboundOrderExcel excel = new OutboundOrderExcel();
+			XSSFWorkbook objWb = excel.createWorkBook(outboundOrderList);
+			objWb.write(objStream);
+			objStream.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

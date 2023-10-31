@@ -15,6 +15,17 @@
         where company_code = #{companyCode}
     </select>
 
+    <select id="outBoundOrderRelationDetail" resultMap="relationMap">
+        SELECT * FROM t_outbound_order
+        ${ ew.customSqlSegment}
+    </select>
+
+    <resultMap id="relationMap" type="com.base.sbc.module.purchase.entity.OutboundOrder" >
+        <id column="id" property="id"/>
+        <collection property="orderDetailList" ofType="com.base.sbc.module.purchase.entity.OutboundOrderDetail"
+                    select="com.base.sbc.module.purchase.mapper.OutboundOrderDetailMapper.selectByOutboundId" column="id" fetchType="eager"/>
+    </resultMap>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
 
