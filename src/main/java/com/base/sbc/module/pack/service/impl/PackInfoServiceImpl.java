@@ -1094,6 +1094,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
      */
     @Override
     public Boolean updateBomName(String infoCode, String styleNo) {
+		// code = infoCode重复 查询出2条 ，修改为 style_no查询
 		PackInfo packInfo = getByOne("style_no", styleNo);
         if(!ObjectUtils.isEmpty(packInfo)){
             packInfo.setName(styleNo);

@@ -6,15 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
-import cn.hutool.core.util.StrUtil;
+import java.util.Date;
+import java.util.List;
+
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
+import cn.hutool.core.util.StrUtil;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * 类描述：吊牌表 实体类
@@ -289,6 +290,10 @@ public class HangTagVO extends HangTag {
      */
     @ApiModelProperty(value = "洗标")
     private String washingLabel;
+
+	@ApiModelProperty(value = "洗标编码")
+	private String washingCode;
+
     /**
      * 贮藏要求
      */
