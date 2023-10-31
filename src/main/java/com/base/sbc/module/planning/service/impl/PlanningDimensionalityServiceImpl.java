@@ -58,19 +58,29 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
 
     @Override
     public DimensionalityListVo getDimensionalityList(DimensionLabelsSearchDto dto) {
-        DimensionalityListVo dimensionalityListVo =new DimensionalityListVo();
-        //先按中类查，中类没有再查品类（配置页面除外）
+
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
-        dto.setCategoryFlag("1");
-        PlanningUtils.dimensionCommonQw(qw, dto);
-        qw.orderByAsc("sort");
-        List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(qw);
-        if (CollUtil.isEmpty(planningDimensionalityList) && StrUtil.isBlank(dto.getConfigPageFlag())) {
-            qw = new BaseQueryWrapper<>();
-            dto.setCategoryFlag("0");
+        DimensionalityListVo dimensionalityListVo = new DimensionalityListVo();
+        List<PlanningDimensionality> planningDimensionalityList = null;
+        //（配置页面查询）
+        if (StrUtil.isBlank(dto.getConfigPageFlag())) {
+            dto.setCategoryFlag(StrUtil.isNotBlank(dto.getProdCategory2nd()) ? BaseGlobal.YES : BaseGlobal.NO);
             PlanningUtils.dimensionCommonQw(qw, dto);
             qw.orderByAsc("sort");
             planningDimensionalityList = baseMapper.selectList(qw);
+        } else {
+            //坑位、款式页面先按中类查，中类没有再查品类
+            dto.setCategoryFlag("1");
+            PlanningUtils.dimensionCommonQw(qw, dto);
+            qw.orderByAsc("sort");
+            planningDimensionalityList = baseMapper.selectList(qw);
+            if (CollUtil.isEmpty(planningDimensionalityList) && StrUtil.isBlank(dto.getConfigPageFlag())) {
+                qw = new BaseQueryWrapper<>();
+                dto.setCategoryFlag("0");
+                PlanningUtils.dimensionCommonQw(qw, dto);
+                qw.orderByAsc("sort");
+                planningDimensionalityList = baseMapper.selectList(qw);
+            }
         }
         dimensionalityListVo.setPlanningDimensionalities(planningDimensionalityList);
         dimensionalityListVo.setCategoryFlag(dto.getCategoryFlag());
