@@ -422,7 +422,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			baseQueryWrapper.notEmptyLike("bulk_style_no", styleNo);
 		}
 		// 吊牌只查询非历史迁移数据
-		baseQueryWrapper.eq("historical_data", "1");
+		baseQueryWrapper.eq("historical_data", "0");
 
 		List<HangTag> list = this.list(baseQueryWrapper);
 		if (!list.isEmpty()) {
