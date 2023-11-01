@@ -701,6 +701,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 if (packBomColor != null) {
                     bom.setColor(packBomColor.getMaterialColorName());
                     bom.setColorCode(packBomColor.getMaterialColorCode());
+                }else{
+                    bom.setColor(null);
+                    bom.setColorCode(null);
                 }
             }
             return ApiResult.success("查询成功！", packBomList);
