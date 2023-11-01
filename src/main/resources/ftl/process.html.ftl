@@ -36,30 +36,47 @@
     td {
         padding-left: 4px;
         padding-right: 4px;
+
     }
 
     .flex_td {
-        padding-left: 0px;
-        padding-right: 0px;
+        padding-left: 0;
+        padding-right: 0;
+        display: table-row;
+        height: 100%;
+        vertical-align: top;
     }
     .flex_td_box {
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
         height: 100%;
-
+        display: table-cell;
+        border-right: 0.5px solid #000;
     }
 
     .flex_td_box>div{
-        border-bottom:1px solid #000;
+        border-bottom:0.5px solid #000;
         box-sizing: border-box;
-        display: flex;
+        font-size: 0;
+        vertical-align: middle;
+        width: 100%;
+        display: table;
+        /*background: black;*/
     }
-    .flex_td_box>div>div{
+    .flex_td_box>div>div {
+        width: 100%;
+        vertical-align: top;
+        display: table-row;
+    }
+
+    .flex_td_box>div>div>div{
         padding: 4px;
         box-sizing: border-box;
-        display: flex;
         align-items: center;
+        display: table-cell;
+        /*vertical-align: middle;*/
+        margin: 0;
+    }
+    .flex_td_box>div>div>div:nth-child(2) {
+        border-left:0.5px solid #000;
     }
 
     .table_border {
@@ -643,7 +660,7 @@
         <#if cjgyDataList??>
             <#list cjgyDataList as item>
                 <tr>
-                    <td>${item.item}</td>
+                    <td style="text-align: center">${item.item}</td>
                     <td>
                         ${item.content}
                     </td>
@@ -661,7 +678,7 @@
 
 <!--    基础工艺 4 3-->
 <#if jcgyShow>
-    <table class="table_border mt">
+    <table class="table_border mt"  style="page-break-before: always; ">
         <thead>
         <tr>
             <th colspan="3" class="th_title">
@@ -671,9 +688,8 @@
         </tr>
         <tr>
             <th class="gb" style="width: 10%">工艺项目</th>
-            <th class="gb" style="width: 50%">描述</th>
-            <th class="gb" style="width: 50%">图片</th>
-
+            <th class="gb" style="width: 40%">工艺描述</th>
+            <th class="gb" style="width: 10%">图片</th>
         </tr>
         </thead>
         <tbody>
@@ -683,26 +699,25 @@
                         <div class="flex_td_box">
                             <#list jcgyDataList as item>
                                 <div>
-                                    <div style="width: 16.6%">
-                                        <p>${item.item}</p>
-                                    </div>
-                                    <div style="width: 83.3%;border-left:1px solid #000;">
-                                        <p>${item.content}</p>
+                                    <div>
+                                        <div style="width: 20%;text-align: center;vertical-align: middle;">
+                                            <div style="height: 100%">
+                                                ${item.item}
+                                            </div>
+                                        </div>
+                                        <div style="width: 80%;">
+                                            <div>
+                                                ${item.content}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </#list>
                         </div>
                     </td>
-<#--                    <td class="flex_td">-->
-<#--                        <div class="flex_td_box">-->
-<#--                            <#list jcgyDataList as item>-->
-<#--                                <p>${item.content}</p>-->
-<#--                            </#list>-->
-<#--                        </div>-->
-<#--                    </td>-->
                     <#list jcgyDataList as item>
                         <#if  item_index==0 >
-                            <td rowspan="${jcgyRowsPan}">
+                            <td rowspan="${jcgyRowsPan}" style="width: 30%;padding: 0;">
                                 <div class="jcgy_img_box">
                                     <#if jcgyImgList??>
                                         <#list jcgyImgList as item>
@@ -736,54 +751,59 @@
             </th>
         </tr>
         <tr>
-
             <th class="gb" style="width: 10%">图片</th>
-            <th class="gb" style="width: 20%">工艺项目</th>
-            <th class="gb" style="width: 50%">工艺描述</th>
+            <th class="gb" style="width: 14%">工艺项目</th>
+            <th class="gb" style="width: 60%">工艺描述</th>
         </tr>
         </thead>
         <tbody>
         <#if xbjDataList??>
-<#--            <#list xbjDataList as item>-->
-                <tr>
-                    <#list xbjDataList as item>
-                        <#if item_index==0>
-                            <td rowspan="${xbjRowsPan}" style="width: 30%;padding: 0;">
-                                <div class="one_imgs_xbj">
-                                    <#if xbjImgList??>
-                                        <#list xbjImgList as item>
-                                            <div class="text_color">
-                                                <#if item_index==0>
-                                                    <p>正面</p>
-                                                </#if>
-                                                <#if item_index==1>
+        <#--            <#list xbjDataList as item>-->
+            <tr>
+                <#list xbjDataList as item>
+                    <#if item_index==0>
+                        <td rowspan="1" style="width: 30%;padding: 0;">
+                            <div class="one_imgs_xbj">
+                                <#if xbjImgList??>
+                                    <#list xbjImgList as item>
+                                        <div class="text_color">
+                                            <#if item_index==0>
+                                                <p>正面</p>
+                                            </#if>
+                                            <#if item_index==1>
 
-                                                    <p>反面</p>
-                                                </#if>
-                                            </div>
-                                            <img src="${item.url}"/>
-                                        </#list>
-                                    </#if>
-                                </div>
-                            </td>
-                        </#if>
-                    </#list>
-
-                    <td class="flex_td" colspan="2">
-                        <div class="flex_td_box">
-                            <#list xbjDataList as item>
+                                                <p>反面</p>
+                                            </#if>
+                                        </div>
+                                        <img src="${item.url}"/>
+                                    </#list>
+                                </#if>
+                            </div>
+                        </td>
+                    </#if>
+                </#list>
+                <td class="flex_td" colspan="2" >
+                    <div class="flex_td_box">
+                        <#list xbjDataList as item>
+                            <div>
                                 <div>
-                                    <div style="width: 28.5%; text-align: center;">${item.item}</div>
-                                    <div style="width: 71.4%;border-left:1px solid #000;">
+                                    <div style="width: 20%; text-align: center;vertical-align: middle; ">
+                                        <div style="height: 100%">
+                                            ${item.item}
+                                        </div>
+                                    </div>
+                                    <div style="width: 80%;">
                                         <div>
                                             ${item.content}
                                         </div>
                                     </div>
                                 </div>
-                            </#list>
-                        </div>
-                    </td>
-                </tr>
+                            </div>
+                        </#list>
+                    </div>
+                </td>
+
+            </tr>
         </#if>
         </tbody>
         <tfoot>
