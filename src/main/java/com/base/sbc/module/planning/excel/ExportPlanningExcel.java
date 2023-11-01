@@ -75,12 +75,13 @@ public class ExportPlanningExcel {
      * @return
      * @throws Exception
      */
-    public XSSFWorkbook createWorkBook(List<Band> bandList, List<BasicBaseDict> monthList) throws Exception {
+    public XSSFWorkbook createWorkBook(List<Band> bandList, List<BasicBaseDict> monthList, List<BasicBaseDict> seriesList) throws Exception {
         // 初始化字体和格式
         init();
 
         XSSFSheet monthSheet = this.objWb.getSheetAt(3);//月份 sheet
         XSSFSheet bandSheet = this.objWb.getSheetAt(4);//波段 sheet
+        XSSFSheet seriesSheet = this.objWb.getSheetAt(5);//系列 sheet
 
         int k = 0;
         for(BasicBaseDict month : monthList) {
@@ -89,6 +90,10 @@ public class ExportPlanningExcel {
         }
         for(Band band : bandList) {
             bandSheet.createRow(k).createCell(0).setCellValue(band.getBandName());
+            k++;
+        }
+        for(BasicBaseDict series : seriesList) {
+            seriesSheet.createRow(k).createCell(0).setCellValue(series.getName());
             k++;
         }
 

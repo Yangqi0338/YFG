@@ -50,7 +50,7 @@ public class PackBom extends BaseDataEntity<String> {
                 );
     }
 
-    public SmpBomDto toSmpBomDto() {
+    public SmpBomDto toSmpBomDto(String bomStage) {
         SmpBomDto smpBomDto = new SmpBomDto();
         smpBomDto.setColorName(color);
         smpBomDto.setColorCode(colorCode);
@@ -59,8 +59,13 @@ public class PackBom extends BaseDataEntity<String> {
         smpBomDto.setMaterialName(materialName);
         smpBomDto.setMaterialUnit(stockUnitCode);
         smpBomDto.setPlaceOfUse(partName);
-        if (lossRate!=null){
+        smpBomDto.setBomStage(bomStage);
+
+        if ("0".equals(bomStage) && lossRate!=null){
             BigDecimal divide = lossRate.divide(new BigDecimal(100));
+            smpBomDto.setLossRate(divide);
+        }else if("1".equals(bomStage) && planningLoossRate!=null){
+            BigDecimal divide = planningLoossRate.divide(new BigDecimal(100));
             smpBomDto.setLossRate(divide);
         }
 

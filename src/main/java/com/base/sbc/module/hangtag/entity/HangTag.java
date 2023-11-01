@@ -6,15 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.entity;
 
+import java.util.Date;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.Date;
 /**
  * 类描述：吊牌表 实体类
  * @address com.base.sbc.module.hangTag.entity.HangTag
@@ -171,6 +172,9 @@ public class HangTag extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "洗标")
     private String washingLabel;
+
+	@ApiModelProperty(value = "洗标编码")
+	private String washingCode;
     /**
      * 洗标名称
      */
@@ -198,6 +202,8 @@ public class HangTag extends BaseDataEntity<String> {
     private Date produceDate;
 
     private String historicalData;
+
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

@@ -76,5 +76,11 @@ public interface StyleMapper extends BaseMapper<Style> {
     StyleUploadVo getStyleUploadInfo(@Param("styleId") String styleId);
 
     Long changeDevtType(@Param("styleId") String styleId, @Param("devtType") String devtType, @Param("devtTypeName") String devtTypeName);
+
+    String selectMaxDesignNoYfg(@Param("brand") String brand,
+                                @Param("year") String year,
+                                @Param("category") String category,
+                                @Param("pxLength") int pxLength,
+                                @Param("length") int length);
 }
 

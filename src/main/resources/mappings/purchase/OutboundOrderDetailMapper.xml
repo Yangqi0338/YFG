@@ -17,6 +17,12 @@
         ${ ew.customSqlSegment}
     </select>
 
+    <select id="selectByOutboundId" resultType="com.base.sbc.module.purchase.entity.OutboundOrderDetail" parameterType="java.util.Map">
+        SELECT d.*, p.ready_num  FROM t_outbound_order_detail AS d
+        LEFT JOIN t_purchase_demand as p ON d.source_id = p.id
+        where d.outbound_id = #{id}
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
 

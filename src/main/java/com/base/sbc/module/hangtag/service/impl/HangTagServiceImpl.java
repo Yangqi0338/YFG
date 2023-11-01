@@ -421,6 +421,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		} else {
 			baseQueryWrapper.notEmptyLike("bulk_style_no", styleNo);
 		}
+		// 吊牌只查询非历史迁移数据
+		baseQueryWrapper.eq("historical_data", "0");
 
 		List<HangTag> list = this.list(baseQueryWrapper);
 		if (!list.isEmpty()) {
@@ -449,7 +451,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				tagPrinting.setStyleCode(hangTag.getBulkStyleNo());
 
 				PackInfo packInfo = packInfoService.getOne(
-						new QueryWrapper<PackInfo>().eq("code", styleColor != null ? styleColor.getBom() : " "));
+						new QueryWrapper<PackInfo>().eq("style_no",
+								styleColor != null ? styleColor.getStyleNo() : " "));
 				if (packInfo != null) {
 					// 款式定价
 					StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(),
@@ -504,7 +507,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 成分
 				tagPrinting.setComposition(hangTag.getIngredient());
 				// 洗标
-				tagPrinting.setCareSymbols(hangTag.getWashingLabelName());
+//				tagPrinting.setCareSymbols(hangTag.getWashingLabelName());
+				tagPrinting.setCareSymbols(hangTag.getWashingCode());
 				// 质量等级
 				tagPrinting.setQualityClass(hangTag.getQualityGrade());
 				// 品名

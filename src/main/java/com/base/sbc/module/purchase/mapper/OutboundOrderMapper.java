@@ -7,9 +7,14 @@
 package com.base.sbc.module.purchase.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.module.purchase.entity.PurchaseOrder;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.purchase.entity.OutboundOrder;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：出库单 dao类
@@ -22,4 +27,6 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface OutboundOrderMapper extends BaseMapper<OutboundOrder> {
     String selectMaxCodeByCompany(@Param("companyCode") String companyCode);
+
+    List<OutboundOrder> outBoundOrderRelationDetail(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }

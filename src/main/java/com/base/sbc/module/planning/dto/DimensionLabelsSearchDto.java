@@ -69,7 +69,7 @@ public class DimensionLabelsSearchDto {
 
 
     @ApiModelProperty(value = "季节")
-    private String  season;
+    private String season;
 
     @ApiModelProperty(value = "季节")
     private String dataGroup;
@@ -77,4 +77,10 @@ public class DimensionLabelsSearchDto {
 
     @ApiModelProperty(value = "品类标识 0品类 1中类")
     private String categoryFlag;
+
+    /**
+     * 配置页面值
+     */
+    @ApiModelProperty(value = "配置页面")
+    private String configPageFlag;
 }

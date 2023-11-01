@@ -7,9 +7,13 @@
 package com.base.sbc.module.purchase.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.purchase.entity.WarehousingOrder;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 类描述：入库单 dao类
@@ -23,4 +27,5 @@ import org.apache.ibatis.annotations.Param;
 public interface WarehousingOrderMapper extends BaseMapper<WarehousingOrder> {
     String selectMaxCodeByCompany(@Param("companyCode") String companyCode);
 
+    List<WarehousingOrder> warehousingOrderRelationDetail(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }

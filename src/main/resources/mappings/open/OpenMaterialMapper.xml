@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.open.mapper.OpenMaterialMapper">
 
-    <select id="getMaterialList" resultType="com.base.sbc.open.dto.OpenMaterialDto">
+    <select id="getMaterialListOld1" resultType="com.base.sbc.open.dto.OpenMaterialDto">
         SELECT
         	bm.material_code AS mtCode,
         	bm.supplier_id AS spCode,
@@ -43,5 +43,44 @@
         GROUP BY bm.material_code
 --         and bm.material_code in ('FF042330003','SS022410020','WW022410003')
 --         	AND bm.update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()
+    </select>
+    <select id="getMaterialList" resultType="com.base.sbc.open.dto.OpenMaterialDto">
+        SELECT
+        	bm.material_code AS mtCode,
+        	bm.supplier_id AS spCode,
+        	bm.material_category AS mtType,
+        	bm.category2_code AS mtBigCtg,
+        	bm.category3_code AS mtCtg,
+        	bm.material_name AS mtName,
+        	bm.purchase_unit_code AS unit,
+        	bm.loss_rate AS loss,
+        	bm.year AS `Year`,
+        	bm.season AS Season,
+        	bm.translate AS width,
+        	bm.gram_weight AS weight,
+        	bm.material_source_name AS mtSource,
+        	bm.ingredient AS mtComponent,
+        	bm.longitude_shrink AS lngShrink,
+        	bm.latitude_shrink AS latShrink,
+        	bm.`status` AS status,
+        	bm.remarks AS remark,
+        	bm.image_url AS ImgPath,
+        	bm.supplier_quotation_price AS price,
+        	bm.update_name AS operator,
+        	bm.fabric_property_type_name AS Att02,
+        	bm.check_bill_code AS Att04,
+        	bm.material_code AS mtSubCode,
+        	bm.`supplier_color_no` AS spColorName,
+        	bm.create_date,
+        	bm.image_url AS ImgPath,
+        	bm.is_strategic AS isPrepareStr
+        FROM
+        	t_basicsdatum_material AS bm
+        WHERE
+        	bm.company_code = #{companyCode}
+        	AND bm.update_date BETWEEN NOW() - INTERVAL 15 MINUTE AND NOW()
+        	and bm.del_flag = '0'
+        	and bm.biz_type = 'material'
+        GROUP BY bm.material_code
     </select>
 </mapper>

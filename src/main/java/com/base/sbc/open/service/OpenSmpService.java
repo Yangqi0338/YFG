@@ -1,6 +1,18 @@
 package com.base.sbc.open.service;
 
-import cn.hutool.core.bean.BeanUtil;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -8,18 +20,26 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.entity.*;
-import com.base.sbc.module.basicsdatum.service.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPriceDetail;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialWidth;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.entity.Specification;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialWidthService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.service.SpecificationService;
 import com.base.sbc.open.dto.SmpOpenMaterialDto;
+import com.base.sbc.open.dto.SmpOpenMaterialDto.QuotItem;
+
+import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.base.sbc.open.dto.SmpOpenMaterialDto.QuotItem;
 
 /**
  * @author 卞康
@@ -30,6 +50,9 @@ import static com.base.sbc.open.dto.SmpOpenMaterialDto.QuotItem;
 @RequiredArgsConstructor
 @Slf4j
 public class OpenSmpService {
+
+	private final SpecificationService SpecificationService;
+
     private final BasicsdatumMaterialService basicsdatumMaterialService;
 
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
@@ -204,20 +227,35 @@ public class OpenSmpService {
         }
 
         if (!smpOpenMaterialDto.getMODELITEMS().isEmpty()) {
+			// 查询 规格信息 清理逻辑： name 原S修改为 165/80(S) 这种格式，按规格门幅配置通过
+			// width_code（类似：C541077）获取，如果取到则覆盖
+			List<Specification> list = SpecificationService
+					.list(new QueryWrapper<Specification>().select("code,name,hangtags").eq("del_flag", "1")
+							.eq("company_code", BaseConstant.DEF_COMPANY_CODE));
+			Map<String, String> map = list != null ? list.stream().filter(e -> StringUtils.isNotBlank(e.getCode()))
+					.collect(Collectors.toMap(e -> e.getCode(), e -> e.getHangtags(), (e1, e2) -> e1)) : null;
+
             List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = new ArrayList<>();
             List<String> codes = new ArrayList<>();
             smpOpenMaterialDto.getMODELITEMS().forEach(modelItem -> {
                 BasicsdatumMaterialWidth basicsdatumMaterialWidth = new BasicsdatumMaterialWidth();
-                basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
+				basicsdatumMaterialWidth.setSortCode(modelItem.getSORTCODE());
+				basicsdatumMaterialWidth.setSizeName(modelItem.getSIZENAME());
+				basicsdatumMaterialWidth.setCode(modelItem.getCODE());
                 basicsdatumMaterialWidth.setWidthCode(modelItem.getSizeURL());
                 basicsdatumMaterialWidth.setName(modelItem.getSIZECODE().replaceAll(",", "<->"));
-                basicsdatumMaterialWidth.setCode(modelItem.getCODE());
-                basicsdatumMaterialWidth.setSizeName(modelItem.getSIZENAME());
-                basicsdatumMaterialWidth.setSortCode(modelItem.getSORTCODE());
+				basicsdatumMaterialWidth.setStatus(modelItem.isActive() ? "0" : "1");
                 basicsdatumMaterialWidth.setMaterialCode(basicsdatumMaterial.getMaterialCode());
                 basicsdatumMaterialWidth.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
                 basicsdatumMaterialWidth.setScmStatus("1");
                 basicsdatumMaterialWidth.setUpdateName("外部系统推送");
+
+				// 清理逻辑： name 原S修改为 165/80(S) 这种格式，按规格门幅配置通过 width_code（类似：C541077）获取，如果取到则覆盖
+				if (map != null && map.containsKey(basicsdatumMaterialWidth.getWidthCode())) {
+					String name = map.get(basicsdatumMaterialWidth.getWidthCode());
+					basicsdatumMaterialWidth.setName(name);
+				}
+
                 basicsdatumMaterialWidths.add(basicsdatumMaterialWidth);
                 codes.add(basicsdatumMaterialWidth.getWidthCode());
             });

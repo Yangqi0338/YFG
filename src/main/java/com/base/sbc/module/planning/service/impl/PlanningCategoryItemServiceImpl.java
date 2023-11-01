@@ -14,6 +14,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -36,6 +37,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -69,6 +71,7 @@ import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.mapper.StyleMapper;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.ChartBarVo;
 import com.github.pagehelper.Page;
@@ -79,6 +82,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -130,29 +134,108 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
 
     @Autowired
     FieldOptionConfigService fieldOptionConfigService;
-
+    @Autowired
+    RedisUtils redisUtils;
     private IdGen idGen = new IdGen();
 
     @Autowired
     private DataPermissionsService dataPermissionsService;
     @Autowired
     private MinioUtils minioUtils;
+    @Autowired
+    private HttpServletRequest request;
+    @Autowired
+    private StyleMapper styleMapper;
+    /**
+     * 款式设计流水号前缀
+     */
+    public static final String DESIGN_FLOW_NO = "DESIGN_FLOW_NO:";
 
 
     @Override
     public String getNextCode(Object obj) {
-        Map<String, String> params = genNexcCodeParams(obj);
-        GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
-        String planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", params);
-        return planningDesignNo;
+        List<String> nextCode = getNextCode(obj, 1);
+
+        return nextCode.get(0);
     }
 
     @Override
     public List<String> getNextCode(Object obj, int count) {
-        Map<String, String> params = genNexcCodeParams(obj);
-        GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
-        List<String> planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", count, params);
-        return planningDesignNo;
+        String env = request.getHeader("Env");
+        if (StrUtil.equals(env, "yfg")) {
+            return getNextCodeYfg(obj, count);
+        } else {
+            Map<String, String> params = genNexcCodeParams(obj);
+            GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
+            List<String> planningDesignNo = getMaxCode.genCode("PLANNING_DESIGN_NO", count, params);
+            if (CollUtil.isEmpty(planningDesignNo)) {
+                throw new OtherException("流水号生成失败");
+            }
+            return planningDesignNo;
+        }
+    }
+
+    private List<String> getNextCodeYfg(Object obj, int count) {
+        String brand = BeanUtil.getProperty(obj, "brand");
+        String year = BeanUtil.getProperty(obj, "year");
+        String season = BeanUtil.getProperty(obj, "season");
+        String category = BeanUtil.getProperty(obj, "prodCategory");
+        //ED 取E
+        if (StrUtil.equals(brand, "6")) {
+            brand = "1";
+        }
+        int length = 3;
+        // 获取最大流水
+        //从redis 获取
+        String redisKey = DESIGN_FLOW_NO + brand + year + category;
+        Object maxNoObj = null;
+        //先不用缓存
+        //maxNoObj=redisUtils.get(redisKey);
+        String maxNoStr = String.valueOf(maxNoObj);
+        Integer maxNo = null;
+        if (maxNoObj == null || "null".equals(maxNoStr) || NumberUtil.isNumber(maxNoStr)) {
+            //获取最大流水号
+            String maxNoSeatStr = getSeatMaxCodeYfg(brand, year, season, category, length, 0);
+            String maxNoStyleStr = getSeatMaxCodeYfg(brand, year, season, category, length, 1);
+            if (!StrUtil.isNumeric(maxNoSeatStr) && !StrUtil.isNumeric(maxNoSeatStr)) {
+                throw new OtherException("款号规则生成失败，请联系管理员处理");
+            }
+            if (StrUtil.isNumeric(maxNoSeatStr) && StrUtil.isNumeric(maxNoStyleStr)) {
+                maxNo = NumberUtil.max(Integer.parseInt(maxNoSeatStr), Integer.parseInt(maxNoStyleStr));
+            } else if (StrUtil.isNumeric(maxNoSeatStr) && !StrUtil.isNumeric(maxNoStyleStr)) {
+                maxNo = Integer.parseInt(maxNoSeatStr);
+            } else if (!StrUtil.isNumeric(maxNoSeatStr) && StrUtil.isNumeric(maxNoStyleStr)) {
+                maxNo = Integer.parseInt(maxNoStyleStr);
+            }
+            length = NumberUtil.max(String.valueOf(maxNo).length(), length);
+        } else {
+            maxNo = NumberUtil.parseInt(maxNoStr);
+        }
+        List<String> result = new ArrayList<>();
+        String qx = brand + year.substring(year.length() - 2) + season + category;
+        for (int i = 0; i < count; i++) {
+            result.add(qx + String.format("%0" + length + "d", ++maxNo));
+        }
+        redisUtils.set(redisKey, maxNo);
+        return result;
+    }
+
+    private String getSeatMaxCodeYfg(String brand, String year, String season, String category, int length, int flag) {
+        String qx = brand + year.substring(year.length() - 2) + season + category;
+        int pxLength = qx.length() + 1;
+        String maxNo = null;
+        if (flag == 0) {
+            maxNo = getBaseMapper().selectMaxDesignNoYfg(brand, year, category, pxLength, length);
+        } else {
+            maxNo = styleMapper.selectMaxDesignNoYfg(brand, year, category, pxLength, length);
+        }
+
+        if (StrUtil.equals(maxNo, StrUtil.repeat("9", length))) {
+            return getSeatMaxCodeYfg(brand, year, season, category, length + 1, flag);
+        }
+
+
+        return Optional.ofNullable(maxNo).orElse("0");
     }
 
     private Map<String, String> genNexcCodeParams(Object obj) {
@@ -165,12 +248,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         String channel = BeanUtil.getProperty(obj, "channel");
 
         Map<String, String> params = new HashMap<>(12);
-        // ED 品牌取E品牌的编码 （暂时这么做，后续优化）
-        if (StrUtil.equals(brand, "ED")) {
-            params.put("brand", "1");
-        } else {
-            params.put("brand", brand);
+        //ED 取E
+        if (StrUtil.equals(brand, "6")) {
+            brand = "1";
         }
+        params.put("brand", brand);
         params.put("year", year);
         params.put("season", season);
         params.put("category", category);
@@ -925,6 +1007,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         categoryItem.setMonthName(itemImportDto.getMonth());
                         categoryItem.setBandCode(itemImportDto.getBand());
                         categoryItem.setBandName(itemImportDto.getBand());
+                        categoryItem.setSeries(itemImportDto.getSeries());
 
                         categoryItem.setRemarks(itemImportDto.getRemarks());
                         categoryItem.setStyleType(itemImportDto.getStyleType());

@@ -293,7 +293,8 @@ public class PlanningController extends BaseController {
     public void exportPlanningExcel(HttpServletResponse response, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String season) {
         //查询字典月份
         List<BasicBaseDict> baseDictList = ccmFeignService.basicDictDependsByTypes(null, "C8_Month", "C8_Quarter", season);
-        List<String> monthList = baseDictList.stream().map(BasicBaseDict::getName).collect(Collectors.toList());
+        //查询字典系列
+        List<BasicBaseDict> seriesList = ccmFeignService.getDictInfoToList("Series");
 
         QueryWrapper<Band> qc = new QueryWrapper<>();
         qc.eq("company_code", getUserCompany());
@@ -312,7 +313,7 @@ public class PlanningController extends BaseController {
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(strFileName, "UTF-8"));
             // 文档对象
             ExportPlanningExcel excel = new ExportPlanningExcel();
-            XSSFWorkbook objWb = excel.createWorkBook(bandList, baseDictList);
+            XSSFWorkbook objWb = excel.createWorkBook(bandList, baseDictList, seriesList);
             objWb.write(objStream);
             objStream.flush();
             objStream.close();
