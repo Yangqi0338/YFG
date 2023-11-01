@@ -670,7 +670,6 @@ public class SmpService {
                 throw new OtherException(packBom.getMaterialName() + "选择的是代用材料,请联系设计工艺员!代用材料不允许下发");
             }
 
-            SmpBomDto smpBomDto = packBom.toSmpBomDto();
 
             //bom主表
             PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
@@ -679,8 +678,9 @@ public class SmpService {
             }
             Style style = styleService.getOne(new QueryWrapper<Style>().eq("id", packInfo.getForeignId()));
             StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
+
+            SmpBomDto smpBomDto = packBom.toSmpBomDto(stylePricingVO.getBomStage());
             //"0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production"
-            smpBomDto.setBomStage(stylePricingVO.getBomStage());
             //样衣-款式配色
              styleColor = styleColorService.getById(packInfo.getStyleColorId());
             if (styleColor == null) {
