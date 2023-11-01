@@ -687,7 +687,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 return ApiResult.error("找不到物料！", 500);
             }
 
-            Map<String, String> materialColorMap = new HashMap<>();
             QueryWrapper<PackBomColor> bomColorQw;
             for (PackBom bom : packBomList) {
                 //查询物料清单 - 配色
@@ -698,14 +697,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
                 Map<String, PackBomColor> colorMap = packBomColorList.stream().collect(Collectors.toMap(PackBomColor::getColorCode, item -> item));
 
-                String collocationColor = "";
                 PackBomColor packBomColor = colorMap.get(colorCode);
                 if (packBomColor != null) {
-                    collocationColor = packBomColor.getMaterialColorCode() + ";;" + packBomColor.getMaterialColorName();
+                    bom.setColor(packBomColor.getMaterialColorName());
+                    bom.setColorCode(packBomColor.getMaterialColorCode());
                 }
-                materialColorMap.put(bom.getMaterialCode(), collocationColor);
             }
-            return ApiResult.success("查询成功！", materialColorMap);
+            return ApiResult.success("查询成功！", packBomList);
         }
         return ApiResult.error("找不到数据！", 500);
     }
