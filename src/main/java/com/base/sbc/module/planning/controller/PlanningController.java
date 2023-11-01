@@ -58,7 +58,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 类描述：商品企划 相关接口
@@ -95,7 +95,7 @@ public class PlanningController extends BaseController {
     @Autowired
     private MinioUtils minioUtils;
     private IdGen idGen = new IdGen();
-
+    private final ReentrantLock lock = new ReentrantLock();
     @ApiOperation(value = "保存产品季", notes = "")
     @PostMapping
     public PlanningSeasonVo save(@Valid @RequestBody PlanningSeasonSaveDto dto) {
@@ -167,7 +167,13 @@ public class PlanningController extends BaseController {
     @ApiOperation(value = "新建坑位(新)")
     @PostMapping("/addSeat")
     public boolean addSeat(@Validated @RequestBody AddSeatDto dto) {
-        return planningCategoryItemService.addSeat(dto);
+        lock.lock();
+        try {
+            return planningCategoryItemService.addSeat(dto);
+        } finally {
+            lock.unlock();
+        }
+
     }
 
     @ApiOperation(value = "撤回(新)")

@@ -150,6 +150,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
      * 款式设计流水号前缀
      */
     public static final String DESIGN_FLOW_NO = "DESIGN_FLOW_NO:";
+    public static final String DESIGN_FLOW_NO_LOCK = "DESIGN_FLOW_NO_LOCK:";
 
 
     @Override
@@ -163,7 +164,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     public List<String> getNextCode(Object obj, int count) {
         String env = request.getHeader("Env");
         if (StrUtil.equals(env, "yfg")) {
-            return getNextCodeYfg(obj, count);
+
+            List<String> nextCodeYfg = getNextCodeYfg(obj, count);
+            return nextCodeYfg;
         } else {
             Map<String, String> params = genNexcCodeParams(obj);
             GetMaxCodeRedis getMaxCode = new GetMaxCodeRedis(ccmService);
@@ -180,6 +183,15 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         String year = BeanUtil.getProperty(obj, "year");
         String season = BeanUtil.getProperty(obj, "season");
         String category = BeanUtil.getProperty(obj, "prodCategory");
+        //加锁
+        String lockKey = DESIGN_FLOW_NO_LOCK + brand + year + category;
+
+        Object lockObj = redisUtils.get(lockKey);
+        if (lockObj != null) {
+            throw new OtherException("其他用户再操作，请稍后重试");
+        } else {
+            redisUtils.set(lockKey, 1, 30);
+        }
         //ED 取E
         if (StrUtil.equals(brand, "6")) {
             brand = "1";
@@ -217,6 +229,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             result.add(qx + String.format("%0" + length + "d", ++maxNo));
         }
         redisUtils.set(redisKey, maxNo);
+        //删除锁
+//        redisUtils.del(lockKey);
         return result;
     }
 
@@ -1063,7 +1077,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     }
 
     @Override
-    @Transactional(rollbackFor = {Exception.class})
     public boolean addSeat(AddSeatDto dto) {
         //查询渠道信息
         PlanningChannel channel = planningChannelService.getById(dto.getPlanningChannelId());
