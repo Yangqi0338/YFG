@@ -60,4 +60,9 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
     String getStylePicUrlById(@Param("id") String id);
 
 
+    String selectMaxDesignNoYfg(@Param("brand") String brand,
+                                @Param("year") String year,
+                                @Param("category") String category,
+                                @Param("pxLength") int pxLength,
+                                @Param("length") int length);
 }

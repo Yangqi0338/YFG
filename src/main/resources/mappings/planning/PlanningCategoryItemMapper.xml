@@ -164,6 +164,18 @@
         from t_planning_category_item
         where id = #{id} limit 1
     </select>
+    <select id="selectMaxDesignNoYfg" resultType="java.lang.String">
+
+
+        select max(CONVERT(SUBSTR(old_design_no, ${pxLength}, ${length}), DECIMAL (11)))
+        from t_planning_category_item
+
+        where brand = #{brand}
+                  and prod_category = #{category}
+                  and year = #{year}
+
+
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
