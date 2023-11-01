@@ -22,6 +22,9 @@ public class PlanningCategoryItemImportDto {
     /** 波段 */
     @Excel(name = "波段")
     private String band;
+    /** 系列 */
+    @Excel(name = "系列",type = 2)
+    private String series;
 
     /** 旧款号 */
     @Excel(name = "旧款号")

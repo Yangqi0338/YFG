@@ -925,6 +925,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                         categoryItem.setMonthName(itemImportDto.getMonth());
                         categoryItem.setBandCode(itemImportDto.getBand());
                         categoryItem.setBandName(itemImportDto.getBand());
+                        categoryItem.setSeries(itemImportDto.getSeries());
 
                         categoryItem.setRemarks(itemImportDto.getRemarks());
                         categoryItem.setStyleType(itemImportDto.getStyleType());

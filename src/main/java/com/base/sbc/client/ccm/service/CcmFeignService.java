@@ -288,4 +288,20 @@ public class CcmFeignService {
         }
         return null;
     }
+
+    /**
+     * ccm 查询字典
+     *
+     * @param types
+     * @return
+     */
+    public List<BasicBaseDict> getDictInfoToList(String types) {
+        List<BasicBaseDict> list = new ArrayList<>();
+        String dictInfo = ccmService.getDictInfo(types);
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            list = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+        }
+        return list;
+    }
 }
