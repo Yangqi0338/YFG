@@ -1222,6 +1222,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     packBomSize.setSize(CollUtil.get(productSizes, i));
                     packBomSize.setSizeId(CollUtil.get(sizeIds, i));
                     packBomSize.setBomId(packBom.getId());
+                    packBomSize.setForeignId(dto.getStyleId());
                     packBomSize.setWidthCode(packBom.getTranslateCode());
                     packBomSize.setWidth(packBom.getTranslate());
                     packBomSizeList.add(packBomSize);
