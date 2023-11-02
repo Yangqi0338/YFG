@@ -505,15 +505,15 @@
             <tr>
                 <#list sizeList as size>
                     <#if isFob>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">成衣<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}"  style="text-align: center">成衣<br>尺寸</td>
                         <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">洗后<br>尺寸</td>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center">洗后<br>尺寸</td>
                         </#if>
                     <#else>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">样板<br>尺寸</td>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">成衣<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center">样板<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}"  style="text-align: center">成衣<br>尺寸</td>
                         <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}">洗后<br>尺寸</td>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center">洗后<br>尺寸</td>
                         </#if>
                     </#if>
 
