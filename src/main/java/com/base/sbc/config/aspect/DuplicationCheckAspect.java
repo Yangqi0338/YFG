@@ -39,7 +39,7 @@ public class DuplicationCheckAspect {
 
         DuplicationCheck duplicationCheck = getDuplicationCheck(joinPoint);
         if (duplicationCheck.value()) {
-            String key = generateKey(joinPoint);
+            String key = generateKey(joinPoint,duplicationCheck);
             if (redisUtils.hasKey(key)) {
                 throw new OtherException(duplicationCheck.message());
             }
@@ -51,24 +51,31 @@ public class DuplicationCheckAspect {
 
     /**
      * 生成key
-     * @param joinPoint 切点
+     *
+     * @param joinPoint        切点
+     * @param duplicationCheck 重复提交校验注解
      * @return key
      */
-    private String generateKey(ProceedingJoinPoint joinPoint) {
+    private String generateKey(ProceedingJoinPoint joinPoint, DuplicationCheck duplicationCheck) {
         StringBuilder sb = new StringBuilder();
         sb.append(joinPoint.getTarget().getClass().getName());
         sb.append(joinPoint.getSignature().getName());
-        Object[] args = joinPoint.getArgs();
-        for (Object arg : args) {
-            sb.append(arg.toString());
+
+        //是否只校验请求地址
+        if (duplicationCheck.type()==2 || duplicationCheck.type()==4) {
+            Object[] args = joinPoint.getArgs();
+            for (Object arg : args) {
+                sb.append(arg.toString());
+            }
         }
+
         return sb.toString();
     }
 
     /**
      * 获取方法上的注解
-     * @param joinPoint
-     * @return
+     * @param joinPoint  切点
+     * @return 重复提交校验注解
      */
     private DuplicationCheck getDuplicationCheck(ProceedingJoinPoint joinPoint) {
 Signature signature = joinPoint.getSignature();

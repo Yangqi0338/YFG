@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdDto;
@@ -228,6 +229,7 @@ public class PackInfoController {
 
 	@ApiOperation(value = "资料包数据复制")
 	@GetMapping("/copyItems")
+	@DuplicationCheck
 	public CopyItemsVo copyItems(Principal principal, @Valid PackCopyDto dto) {
 		GroupUser user = userUtils.getUserBy(principal);
 		return packInfoService.copyItems(user, dto);

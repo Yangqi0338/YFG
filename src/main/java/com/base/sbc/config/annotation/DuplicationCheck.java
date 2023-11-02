@@ -29,4 +29,14 @@ public @interface DuplicationCheck {
      */
     String message() default "请勿重复提交";
 
+
+    /**
+     * 校验类型,
+     * 1:校验请求地址,
+     * 2:校验请求地址 + RequestBody 请求参数,
+     * 3:校验请求地址 + RequestParam 请求参数,
+     * 4:校验请求地址 + RequestBody+ RequestParam 请求参数
+     */
+    int type() default 2;
+
 }

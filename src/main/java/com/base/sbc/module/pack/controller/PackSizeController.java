@@ -11,6 +11,7 @@ import cn.hutool.json.JSONObject;
 import com.base.sbc.client.ccm.entity.BasicUnitConfig;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
@@ -221,6 +222,7 @@ public class PackSizeController extends BaseController{
 
     @ApiOperation(value = "批量导入尺寸信息", notes = "")
     @PostMapping("/importPackBomSizeExcel")
+    @DuplicationCheck(type = 1,time = 5,message = "数据正在导入中，请勿重复提交！")
     public ApiResult importPackBomSizeExcel(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode, @RequestParam("file") MultipartFile file,
                                          @RequestParam("foreignId") String foreignId, @RequestParam("packType") String packType,
                                          @RequestParam("ifWashing") String ifWashing) throws Exception {
