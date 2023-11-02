@@ -536,9 +536,9 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             String s = HttpUtil.get(delUrl);
             System.out.println("删除返回:" + s);
             JSONObject jsonObject = JSONObject.parseObject(s);
-            if (!jsonObject.getBoolean("Sucess")) {
-                throw new OtherException(jsonObject.getString("Msg"));
-            }
+//            if (!jsonObject.getBoolean("Sucess")) {
+//                throw new OtherException(jsonObject.getString("Msg"));
+//            }
             stylePicService.removeById(dto.getStylePicId());
             if (StrUtil.equals(style.getStylePic(), one.getFileName())) {
                 //重新设置款式图

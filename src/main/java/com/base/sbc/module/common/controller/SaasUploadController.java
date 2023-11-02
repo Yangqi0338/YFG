@@ -77,11 +77,11 @@ public class SaasUploadController extends BaseController {
         if (!customStylePicUpload.isOpen()) {
             return true;
         }
-        //上传大货款图
+        //删除大货款图
         if (StrUtil.isNotBlank(dto.getStyleColorId())) {
             return uploadFileService.delStyleImage(dto, user);
         }
-        //上传设计款图
+        //删除设计款图
         if (StrUtil.isNotBlank(dto.getStyleId())) {
             return uploadFileService.delDesignImage(dto, user);
         }
