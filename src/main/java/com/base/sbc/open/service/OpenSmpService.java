@@ -230,7 +230,7 @@ public class OpenSmpService {
 			// 查询 规格信息 清理逻辑： name 原S修改为 165/80(S) 这种格式，按规格门幅配置通过
 			// width_code（类似：C541077）获取，如果取到则覆盖
 			List<Specification> list = SpecificationService
-					.list(new QueryWrapper<Specification>().select("code,name,hangtags").eq("del_flag", "1")
+					.list(new QueryWrapper<Specification>().select("code,name,hangtags")
 							.eq("company_code", BaseConstant.DEF_COMPANY_CODE));
 			Map<String, String> map = list != null ? list.stream().filter(e -> StringUtils.isNotBlank(e.getCode()))
 					.collect(Collectors.toMap(e -> e.getCode(), e -> e.getHangtags(), (e1, e2) -> e1)) : null;
