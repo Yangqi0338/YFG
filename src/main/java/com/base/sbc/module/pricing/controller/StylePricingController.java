@@ -110,12 +110,14 @@ public class StylePricingController extends BaseController {
 
     @ApiOperation(value = "批量保存")
     @PostMapping("/insertOrUpdateBatch")
+    @DuplicationCheck
     public ApiResult insertOrUpdateBatch(@Valid @RequestBody List<StylePricingSaveDTO> stylePricingSaveDTO) {
         stylePricingService.insertOrUpdateBatch(stylePricingSaveDTO, super.getUserCompany());
         return updateSuccess("修改成功");
     }
     @ApiOperation(value = "提交审核")
     @PostMapping("/updateStatus")
+    @DuplicationCheck
     public ApiResult updateStatus( @RequestBody StylePricingStatusDTO dto) {
         String[] split = dto.getIds().split(",");
         List<String> list = new ArrayList<>();

@@ -25,6 +25,7 @@ import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -99,6 +100,32 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
             return attachmentVo;
         }
         return null;
+    }
+
+    /**
+     * 保存附件
+     *
+     * @param id
+     * @param files
+     * @param type
+     */
+    @Override
+    public void saveFiles(String id, List<SampleAttachmentDto> files, String type) {
+        QueryWrapper<Attachment> aqw = new QueryWrapper<>();
+        aqw.eq("foreign_id", id);
+        aqw.eq("type", type);
+        remove(aqw);
+        List<Attachment> attachments = new ArrayList<>(12);
+        if (CollUtil.isNotEmpty(files)) {
+            attachments = BeanUtil.copyToList(files, Attachment.class);
+            for (Attachment attachment : attachments) {
+                attachment.setId(null);
+                attachment.setForeignId(id);
+                attachment.setType(type);
+                attachment.setStatus(BaseGlobal.STATUS_NORMAL);
+            }
+            saveBatch(attachments);
+        }
     }
 
     @Override

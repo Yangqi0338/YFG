@@ -64,6 +64,9 @@ public class AttachmentVo {
     @ApiModelProperty(value = "附件类型")
     private String attachmentType;
 
+    @ApiModelProperty(value = "外键id")
+    private String  foreignId;
+
 
     public String getUrl() {
         MinioUtils minioUtils = SpringContextHolder.getBean("minioUtils");

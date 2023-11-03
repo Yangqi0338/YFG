@@ -12,12 +12,12 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricDetailedInformationDto;
 import com.base.sbc.module.sample.entity.FabricDetailedInformation;
-import com.base.sbc.module.sample.mapper.FabricBasicInformationMapper;
 import com.base.sbc.module.sample.mapper.FabricDetailedInformationMapper;
 import com.base.sbc.module.sample.service.FabricDetailedInformationService;
 import org.springframework.beans.BeanUtils;
@@ -31,11 +31,12 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * 类描述：面料详细信息 service类
- * @address com.base.sbc.module.sample.service.FabricDetailedInformationService
+ *
  * @author lxl
+ * @version 1.0
+ * @address com.base.sbc.module.sample.service.FabricDetailedInformationService
  * @email lxl.fml@gmail.com
  * @date 创建时间：2023-4-19 18:23:28
- * @version 1.0  
  */
 @Service
 public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<FabricDetailedInformationMapper, FabricDetailedInformation> implements FabricDetailedInformationService {
@@ -53,15 +54,16 @@ public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<Fabric
     @Transactional(readOnly = false)
     public ApiResult saveUpdateFabricDetailed(SaveUpdateFabricDetailedInformationDto saveUpdateFabricBasicDto) {
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("basic_information_id",saveUpdateFabricBasicDto.getBasicInformationId());
+        queryWrapper.eq("basic_information_id", saveUpdateFabricBasicDto.getBasicInformationId());
         FabricDetailedInformation fabricDetailedInformation = baseMapper.selectOne(queryWrapper);
         if (ObjectUtils.isEmpty(fabricDetailedInformation)) {
             fabricDetailedInformation = new FabricDetailedInformation();
         }
         BeanUtils.copyProperties(saveUpdateFabricBasicDto, fabricDetailedInformation);
         fabricDetailedInformation.setCompanyCode(baseController.getUserCompany());
+        CommonUtils.removeQuery(fabricDetailedInformation, "imageUrl");
         saveOrUpdate(fabricDetailedInformation);
-        messageUtils.atactiformSendMessage("fabric","0",baseController.getUser());
+        messageUtils.atactiformSendMessage("fabric", "0", baseController.getUser());
         return ApiResult.success("操作成功");
     }
 
@@ -71,12 +73,9 @@ public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<Fabric
             throw new OtherException("id为空");
         }
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("basic_information_id",id);
+        queryWrapper.eq("basic_information_id", id);
         queryWrapper.eq("is_draft", BaseGlobal.STATUS_NORMAL);
         FabricDetailedInformation fabricDetailedInformation = baseMapper.selectOne(queryWrapper);
-        if(fabricDetailedInformation==null){
-            throw new OtherException("辅料专员暂未提交面料详情");
-        }
         Object o = filesUtils.uploadBigData(file, FilesUtils.PRODUCT, request).getData();
         String s = o.toString();
         fabricDetailedInformation.setReportName(file.getOriginalFilename());
@@ -89,7 +88,6 @@ public class FabricDetailedInformationServiceImpl extends BaseServiceImpl<Fabric
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 
-
 /** 自定义方法区 不替换的区域【other_end】 **/
-	
+
 }

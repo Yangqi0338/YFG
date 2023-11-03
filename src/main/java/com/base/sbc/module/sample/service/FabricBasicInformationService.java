@@ -14,6 +14,11 @@ import com.base.sbc.module.sample.dto.SaveUpdateFabricBasicInformationDto;
 import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.sample.vo.FabricInformationVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * 类描述：面料基本信息 service类
@@ -45,6 +50,24 @@ public interface FabricBasicInformationService extends BaseService<FabricBasicIn
    ApiResult  delFabric(RemoveDto removeDto);
 
    ApiResult getById(QueryDetailFabricDto queryDetailFabricDto);
+
+   /**
+    * 导出面料调样单
+    * @param response
+    * @param queryFabricInformationDto
+    */
+   void fabricInformationDeriveExcel(HttpServletResponse response, QueryFabricInformationDto queryFabricInformationDto) throws IOException;
+
+
+   /**
+    * 上传理化报告
+    * @param id
+    * @param file
+    * @param request
+    * @return
+    * @throws Throwable
+    */
+   Boolean uploadingReport (String id, MultipartFile file, HttpServletRequest request) throws Throwable;
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
