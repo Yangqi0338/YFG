@@ -95,7 +95,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         Map<String, BigDecimal> result = new HashMap<>(16);
         for (Map.Entry<String, BigDecimal> a : temp.entrySet()) {
             if (a.getValue() != null) {
-                result.put(a.getKey(), a.getValue().setScale(2, RoundingMode.HALF_UP));
+                result.put(a.getKey(), a.getValue().setScale(3, RoundingMode.HALF_UP));
             }
         }
         return result;
