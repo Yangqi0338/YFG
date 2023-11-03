@@ -26,6 +26,6 @@ public class ScoreDto {
     @NotBlank(message = "id不能为空")
     private String id;
     @ApiModelProperty(value = "score", required = true, example = "1")
-    @Range(min = 0, max = 10, message = "评分0-10")
+    @Range(min = 0, max = 100, message = "评分0-100")
     private BigDecimal score;
 }
