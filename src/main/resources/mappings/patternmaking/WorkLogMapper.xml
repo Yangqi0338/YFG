@@ -11,6 +11,13 @@
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
+    <select id="getMaxCode" resultType="java.lang.Long">
+        select max(CONVERT(SUBSTR(code, 3), DECIMAL (11)))
+        from t_work_log
+        where company_code = #{companyCode}
+
+
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

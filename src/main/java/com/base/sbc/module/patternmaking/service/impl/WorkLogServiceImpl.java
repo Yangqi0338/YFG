@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.redis.RedisUtils;
@@ -72,11 +73,12 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
     @Override
     public WorkLogVo saveByDto(WorkLogSaveDto workLog) {
         WorkLog bean = BeanUtil.copyProperties(workLog, WorkLog.class);
-        String redisKey = REDIS_KEY + getCompanyCode();
-        long incr = redisUtils.incr(redisKey, 1);
-        String code = StrUtil.padPre(String.valueOf(incr), 8, "0");
+        long dbMaxNo = getBaseMapper().getMaxCode(getCompanyCode());
+        long defMaxNo = 100000;
+        long maxNo = NumberUtil.max(dbMaxNo, defMaxNo);
+        String code = String.format("LS%010d", ++maxNo);
         bean.setCode(code);
-        this.save(bean,"工作小账");
+        this.save(bean, "工作小账");
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
     }
 
