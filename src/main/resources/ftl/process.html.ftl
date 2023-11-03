@@ -45,11 +45,16 @@
         display: table-row;
         height: 100%;
         vertical-align: top;
+        border: 0.5px solid #000;
+    }
+    .flex_td>div {
+        display: table-cell;
+        height: 100%;
     }
     .flex_td_box {
         height: 100%;
         display: table-cell;
-        border-right: 0.5px solid #000;
+        border: 0.5px solid #000;
     }
 
     .flex_td_box>div{
@@ -144,6 +149,7 @@
 
     .size_table {
         width: auto;
+
     }
 
     .size_tr {
@@ -207,6 +213,9 @@
 
     .ql-size-large {
         font-size: 1.5em;
+    }
+    table {
+        /*table-layout: fixed;*/
     }
 
     .table_border, .info_table {
@@ -479,8 +488,8 @@
 </#if>
 <!--测量点 3 -->
 <#if sizeDataList??>
-    <#if sizeDataList?size gt 5>
-        <table class="table_border mt " style="page-break-before: always; ">
+    <#if sizeList?size gt 5>
+        <table class="table_border mt" style="page-break-before: always; ">
             <thead>
             <tr>
                 <th colspan="${sizeTitleColspan}" class="th_title">
@@ -694,8 +703,9 @@
         </thead>
         <tbody>
         <#if jcgyDataList??>
-                <tr>
-                    <td class="flex_td" colspan="2">
+            <tr style="border-right: 0.5px solid #000">
+                <td class="flex_td" colspan="2" rowspan="${jcgyRowsPan}">
+                    <div>
                         <div class="flex_td_box">
                             <#list jcgyDataList as item>
                                 <div>
@@ -714,21 +724,23 @@
                                 </div>
                             </#list>
                         </div>
-                    </td>
-                    <#list jcgyDataList as item>
-                        <#if  item_index==0 >
-                            <td rowspan="${jcgyRowsPan}" style="width: 30%;padding: 0;">
-                                <div class="jcgy_img_box">
-                                    <#if jcgyImgList??>
-                                        <#list jcgyImgList as item>
-                                            <img src="${item.url}"/> <br>
-                                        </#list>
-                                    </#if>
-                                </div>
-                            </td>
-                        </#if>
-                    </#list>
-                </tr>
+
+                    </div>
+                </td>
+                <#list jcgyDataList as item>
+                    <#if  item_index==0 >
+                        <td rowspan="${jcgyRowsPan}" style="width: 30%;padding: 0;">
+                            <div class="jcgy_img_box">
+                                <#if jcgyImgList??>
+                                    <#list jcgyImgList as item>
+                                        <img src="${item.url}"/> <br>
+                                    </#list>
+                                </#if>
+                            </div>
+                        </td>
+                    </#if>
+                </#list>
+            </tr>
         </#if>
         </tbody>
 
@@ -762,7 +774,7 @@
             <tr>
                 <#list xbjDataList as item>
                     <#if item_index==0>
-                        <td rowspan="1" style="width: 30%;padding: 0;">
+                        <td rowspan="1" style="width: 30%;;padding: 0;">
                             <div class="one_imgs_xbj">
                                 <#if xbjImgList??>
                                     <#list xbjImgList as item>
@@ -792,7 +804,7 @@
                                             ${item.item}
                                         </div>
                                     </div>
-                                    <div style="width: 80%;">
+                                    <div style="width: 80%">
                                         <div>
                                             ${item.content}
                                         </div>
@@ -802,7 +814,6 @@
                         </#list>
                     </div>
                 </td>
-
             </tr>
         </#if>
         </tbody>
@@ -849,6 +860,43 @@
         </tfoot>
     </table>
 </#if>
+
+
+<#if isFob>
+<#--    注意事项-->
+    <table class="table_border mt" style="page-break-before: always;">
+        <thead>
+        <tr>
+            <th colspan="2" class="th_title">
+                <p>注意事项</p>
+                <hr>
+            </th>
+        </tr>
+        <tr>
+            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 50%">描述</th>
+        </tr>
+        </thead>
+        <tbody>
+        <#if zysxDataList??>
+            <#list zysxDataList as item>
+                <tr>
+                    <td>${item.item}</td>
+                    <td>
+                        ${item.content}
+                    </td>
+                </tr>
+            </#list>
+        </#if>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="3" style="height: 32px;">注意事项-${zysxDataList?size}</td>
+        </tr>
+        </tfoot>
+    </table>
+</#if>
+
 
 <!--    外辅工艺 7-->
 <#if wfgyShow>
