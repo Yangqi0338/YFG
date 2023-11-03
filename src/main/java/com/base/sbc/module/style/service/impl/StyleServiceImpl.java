@@ -479,6 +479,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), "prod_category1st", dto.getProdCategory1st());
         qw.like(StrUtil.isNotBlank(dto.getDesignNo()), "design_no", dto.getDesignNo());
         qw.in(StrUtil.isNotBlank(dto.getBandCode()), "band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
+        qw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignerIds()));
         qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", dto.getPlanningSeasonId());
         qw.eq("del_flag", BaseGlobal.NO);
