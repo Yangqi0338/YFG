@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.patternmaking.entity.WorkLog;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 类描述：工作小账 dao类
@@ -23,6 +24,7 @@ import org.apache.ibatis.annotations.Mapper;
 public interface WorkLogMapper extends BaseMapper<WorkLog> {
 // 自定义方法区 不替换的区域【other_start】
 
+    long getMaxCode(@Param("companyCode") String companyCode);
 
 // 自定义方法区 不替换的区域【other_end】
 }

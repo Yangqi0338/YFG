@@ -190,7 +190,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (lockObj != null) {
             throw new OtherException("其他用户再操作，请稍后重试");
         } else {
-            redisUtils.set(lockKey, 1, 30);
+            redisUtils.set(lockKey, 1, 10);
         }
         //ED 取E
         if (StrUtil.equals(brand, "6")) {
@@ -239,9 +239,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         int pxLength = qx.length() + 1;
         String maxNo = null;
         if (flag == 0) {
-            maxNo = getBaseMapper().selectMaxDesignNoYfg(brand, year, category, pxLength, length);
+            maxNo = getBaseMapper().selectMaxDesignNoYfg(getCompanyCode(), brand, year, category, pxLength, length);
         } else {
-            maxNo = styleMapper.selectMaxDesignNoYfg(brand, year, category, pxLength, length);
+            maxNo = styleMapper.selectMaxDesignNoYfg(getCompanyCode(), brand, year, category, pxLength, length);
         }
 
         if (StrUtil.equals(maxNo, StrUtil.repeat("9", length))) {
