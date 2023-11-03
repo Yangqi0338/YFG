@@ -173,7 +173,7 @@
         where brand = #{brand}
                   and prod_category = #{category}
                   and year = #{year}
-
+          and company_code = #{companyCode}
 
     </select>
 

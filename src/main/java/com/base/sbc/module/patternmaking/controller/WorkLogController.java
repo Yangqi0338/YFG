@@ -7,11 +7,7 @@
 package com.base.sbc.module.patternmaking.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.enums.OperationType;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
@@ -26,7 +22,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 类描述：工作小账 Controller类
@@ -45,7 +41,7 @@ public class WorkLogController {
 
     @Autowired
     private WorkLogService workLogService;
-
+    private final ReentrantLock lock = new ReentrantLock();
     @ApiOperation(value = "分页查询")
     @GetMapping
     public PageInfo<WorkLogVo> page(WorkLogSearchDto dto) {
@@ -69,7 +65,15 @@ public class WorkLogController {
     @PostMapping
     //@OperaLog(value = "工作小账", operationType = OperationType.INSERT_UPDATE, service = WorkLogService.class)
     public WorkLogVo save(@RequestBody WorkLogSaveDto workLog) {
-        return workLogService.saveByDto(workLog);
+        WorkLogVo vo = null;
+        lock.lock();
+        try {
+            vo = workLogService.saveByDto(workLog);
+        } finally {
+            lock.unlock();
+            return vo;
+        }
+
 
     }
 

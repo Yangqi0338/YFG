@@ -192,7 +192,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         } else {
             redisUtils.set(lockKey, 1, 10);
         }
-
         int length = 3;
         // 获取最大流水
         //从redis 获取
@@ -240,9 +239,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         int pxLength = qx.length() + 1;
         String maxNo = null;
         if (flag == 0) {
-            maxNo = getBaseMapper().selectMaxDesignNoYfg(brand, year, category, pxLength, length);
+            maxNo = getBaseMapper().selectMaxDesignNoYfg(getCompanyCode(), brand, year, category, pxLength, length);
         } else {
-            maxNo = styleMapper.selectMaxDesignNoYfg(brand, year, category, pxLength, length);
+            maxNo = styleMapper.selectMaxDesignNoYfg(getCompanyCode(), brand, year, category, pxLength, length);
         }
 
         if (StrUtil.equals(maxNo, StrUtil.repeat("9", length))) {
