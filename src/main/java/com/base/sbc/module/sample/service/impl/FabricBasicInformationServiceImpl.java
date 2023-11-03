@@ -7,6 +7,7 @@
 package com.base.sbc.module.sample.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -183,7 +184,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         BeanUtils.copyProperties(fabricBasicInformation,fabricInformationVo );
         List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(fabricBasicInformation.getId(), AttachmentTypeConstant.TRANSFER_MANAGE_IMAGE);
         if(CollUtil.isNotEmpty(attachmentVoList)){
-            fabricInformationVo.setImageUrlList(attachmentVoList.stream().map(AttachmentVo::getUrl).collect(Collectors.toList()));
+            fabricInformationVo.setAttachmentVoList(attachmentVoList);
         }
         return ApiResult.success("查询成功",fabricInformationVo);
     }
@@ -199,8 +200,12 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         PageInfo<FabricInformationVo> pageInfo =    getFabricInformationList(queryFabricInformationDto);
         List<FabricInformationVo>  informationVoList = pageInfo.getList();
         List<FabricInformationExcelDto> fabricInformationExcelDtoList = BeanUtil.copyToList(informationVoList, FabricInformationExcelDto.class);
-        minioUtils.setObjectUrlToList(fabricInformationExcelDtoList,"imageUrl");
-        ExcelUtils.exportExcel(fabricInformationExcelDtoList,  FabricInformationExcelDto.class, "面样调样单.xlsx",new ExportParams() ,response);
+        fabricInformationExcelDtoList.forEach(f ->{
+            for (int i = 0; i < f.getImageUrlList().size(); i++) {
+                BeanUtil.setProperty(f,"imageUrl"+(i+1),f.getImageUrlList().get(i));
+            }
+        });
+        ExcelUtils.exportExcel(fabricInformationExcelDtoList,  FabricInformationExcelDto.class, "面样调样单.xlsx",new ExportParams("面样调样单", "面样调样单", ExcelType.HSSF) ,response);
     }
 
     /**

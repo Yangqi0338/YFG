@@ -6,17 +6,33 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.Date;
+import java.util.List;
 
 @Data
 /*查询面料信息导出*/
 public class FabricInformationExcelDto {
 
 
-    @Excel(name = "图片",type = 2)
-    /** 图片地址 */
-    @ApiModelProperty(value = "图片"  )
-    private String imageUrl;
+    @ApiModelProperty(value = "图片地址"  )
+//    @Excel(name = "图片1",type = 2)
+    private List<String> imageUrlList;
+
+    @Excel(name = "图片1",type = 2)
+    private String imageUrl1;
+
+    @Excel(name = "图片2",type = 2)
+    private String imageUrl2;
+
+    @Excel(name = "图片3",type = 2)
+    private String imageUrl3;
+
+    @Excel(name = "图片4",type = 2)
+    private String imageUrl4;
+
+    @Excel(name = "图片5",type = 2)
+    private String imageUrl5;
 
     @ApiModelProperty(value = "登记时间"  )
     @Excel(name = "登记时间",exportFormat = "yyyy-MM-dd HH:mm:ss")

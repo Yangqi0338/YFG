@@ -1,5 +1,6 @@
 package com.base.sbc.module.sample.vo;
 
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,5 +17,8 @@ public class FabricInformationVo extends FabricBasicInformation {
 
     @ApiModelProperty(value = "图片地址"  )
     private List<String> imageUrlList;
+
+    @ApiModelProperty(value = "图片地址"  )
+    private List<AttachmentVo>  attachmentVoList;
 
 }
