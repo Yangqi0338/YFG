@@ -190,12 +190,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (lockObj != null) {
             throw new OtherException("其他用户再操作，请稍后重试");
         } else {
-            redisUtils.set(lockKey, 1, 30);
+            redisUtils.set(lockKey, 1, 10);
         }
-        //ED 取E
-        if (StrUtil.equals(brand, "6")) {
-            brand = "1";
-        }
+
         int length = 3;
         // 获取最大流水
         //从redis 获取
@@ -224,6 +221,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             maxNo = NumberUtil.parseInt(maxNoStr);
         }
         List<String> result = new ArrayList<>();
+        //ED 取E
+        if (StrUtil.equals(brand, "6")) {
+            brand = "1";
+        }
         String qx = brand + year.substring(year.length() - 2) + season + category;
         for (int i = 0; i < count; i++) {
             result.add(qx + String.format("%0" + length + "d", ++maxNo));
@@ -262,10 +263,6 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         String channel = BeanUtil.getProperty(obj, "channel");
 
         Map<String, String> params = new HashMap<>(12);
-        //ED 取E
-        if (StrUtil.equals(brand, "6")) {
-            brand = "1";
-        }
         params.put("brand", brand);
         params.put("year", year);
         params.put("season", season);
