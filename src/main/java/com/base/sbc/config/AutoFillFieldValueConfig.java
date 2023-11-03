@@ -35,12 +35,15 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        UserCompany userCompany = userInfo();
-        // this.setFieldValByName("updateDate", new Date(),metaObject);
-        this.strictUpdateFill(metaObject, "updateDate", Date.class,new Date());
-
-        this.strictUpdateFill(metaObject, "updateName", String.class, userCompany.getAliasUserName());
-        this.strictUpdateFill(metaObject, "updateId", String.class, userCompany.getUserId());
+        {
+            UserCompany userCompany = userInfo();
+            this.setFieldValByName("updateDate", new Date(),metaObject);
+            this.setFieldValByName("updateName",  userCompany.getAliasUserName(),metaObject);
+            this.setFieldValByName("updateId", userCompany.getUserId(),metaObject);
+//        this.strictUpdateFill(metaObject, "updateDate", Date.class,new Date());
+//        this.strictUpdateFill(metaObject, "updateName", String.class, userCompany.getAliasUserName());
+//        this.strictUpdateFill(metaObject, "updateId", String.class, userCompany.getUserId());
+        }
     }
 
     private UserCompany userInfo() {
