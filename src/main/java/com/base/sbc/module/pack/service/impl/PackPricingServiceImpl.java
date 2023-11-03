@@ -85,6 +85,13 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         temp.put("加工费", packPricingProcessCostsService.calculateCosts(dto));
         //统计二次加工费用
         temp.put("二次加工费", packPricingCraftCostsService.calculateCosts(dto));
+
+        BigDecimal otherCosts = new BigDecimal(0);
+        for (String s : otherStatistics.keySet()) {
+            otherCosts = otherCosts.add(otherStatistics.get(s));
+        }
+        temp.put("其他费",otherCosts);
+
         Map<String, BigDecimal> result = new HashMap<>(16);
         for (Map.Entry<String, BigDecimal> a : temp.entrySet()) {
             if (a.getValue() != null) {
