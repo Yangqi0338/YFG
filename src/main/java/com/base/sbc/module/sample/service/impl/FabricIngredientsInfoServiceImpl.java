@@ -17,9 +17,11 @@ import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.AddRevampFabricIngredientsInfoDto;
@@ -29,7 +31,9 @@ import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
 import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
 import com.base.sbc.module.sample.mapper.FabricIngredientsInfoMapper;
 import com.base.sbc.module.sample.service.FabricIngredientsInfoService;
+import com.base.sbc.module.sample.vo.FabricInformationVo;
 import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -70,34 +74,23 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
      * @return
      */
     @Override
-    public PageInfo<FabricIngredientsInfoVo> getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
+    public PageInfo getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
 
         /*分页*/
-        PageHelper.startPage(queryFabricIngredientsInfoDto);
         QueryWrapper<FabricIngredientsInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryId()),"category_id",queryFabricIngredientsInfoDto.getCategoryId());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryName()),"category_name",queryFabricIngredientsInfoDto.getCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevTypeName()),"dev_type_name",queryFabricIngredientsInfoDto.getDevTypeName());
-
-     /*       if(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getOriginate())){
-                if("0".equals(queryFabricIngredientsInfoDto.getOriginate())){
-                    queryWrapper.eq("create_id", baseController.getUserId());
-                }
-            }*/
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"category_id"},true);
         /*查询调样-辅料信息数据*/
-        List<FabricIngredientsInfo> fabricIngredientsInfoList = baseMapper.selectList(queryWrapper);
-        PageInfo<FabricIngredientsInfo> pageInfo = new PageInfo<>(fabricIngredientsInfoList);
+        Page<FabricIngredientsInfoVo> objects = PageHelper.startPage(queryFabricIngredientsInfoDto);
+        baseMapper.selectList(queryWrapper);
+        PageInfo<FabricIngredientsInfoVo> copy = CopyUtil.copy(objects.toPageInfo(), FabricIngredientsInfoVo.class);
+        List<FabricIngredientsInfoVo> list = copy.getList();
         /*转换vo*/
-        List<FabricIngredientsInfoVo> list = BeanUtil.copyToList(fabricIngredientsInfoList, FabricIngredientsInfoVo.class);
         minioUtils.setObjectUrlToList(list,"imageUrl");
-        PageInfo<FabricIngredientsInfoVo> pageInfo1 = new PageInfo<>();
-        pageInfo1.setList(list);
-        pageInfo1.setTotal(pageInfo.getTotal());
-        pageInfo1.setPageNum(pageInfo.getPageNum());
-        pageInfo1.setPageSize(pageInfo.getPageSize());
-        return pageInfo1;
+        return copy;
     }
 
 

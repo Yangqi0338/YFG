@@ -51,7 +51,7 @@ public class FabricIngredientsInfoController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getFabricIngredientsInfoList")
-	public PageInfo<FabricIngredientsInfoVo> getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
+	public PageInfo getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
 		return  fabricIngredientsInfoService.getFabricIngredientsInfoList(queryFabricIngredientsInfoDto);
 	}
 

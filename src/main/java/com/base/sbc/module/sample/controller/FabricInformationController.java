@@ -50,7 +50,7 @@ public class FabricInformationController {
 
 	@ApiOperation(value = "分页查询面料信息 ")
 	@GetMapping("/getFabricInformationList")
-	public PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
+	public PageInfo getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
 		return fabricBasicInformationService.getFabricInformationList(queryFabricInformationDto);
 	}
 

@@ -19,9 +19,11 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -32,6 +34,7 @@ import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.sample.mapper.FabricBasicInformationMapper;
 import com.base.sbc.module.sample.service.FabricBasicInformationService;
 import com.base.sbc.module.sample.vo.FabricInformationVo;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -80,10 +83,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
 
 
     @Override
-    public PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
-        if (queryFabricInformationDto.getPageNum() != 0 && queryFabricInformationDto.getPageSize() != 0) {
-            PageHelper.startPage(queryFabricInformationDto);
-        }
+    public PageInfo getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
         QueryWrapper queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq("del_flag", BaseGlobal.NO);
@@ -101,7 +101,10 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         }
         queryWrapper.orderByAsc("create_date");
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"brand:brand"},true);
-        List<FabricInformationVo> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), FabricInformationVo.class);
+        Page<FabricBasicInformation>  objects = PageHelper.startPage(queryFabricInformationDto);
+        baseMapper.selectList(queryWrapper);
+        PageInfo<FabricInformationVo> copy = CopyUtil.copy(objects.toPageInfo(), FabricInformationVo.class);
+        List<FabricInformationVo> list = copy.getList();
         if(CollUtil.isNotEmpty(list)) {
             List<String> ids = list.stream().map(FabricInformationVo::getId).collect(Collectors.toList());
             queryWrapper.clear();
@@ -117,7 +120,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
                 }
             }
         }
-        return new PageInfo<>(list);
+        return copy;
     }
 
     @Override
@@ -191,8 +194,10 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         List<FabricInformationVo>  informationVoList = pageInfo.getList();
         List<FabricInformationExcelDto> fabricInformationExcelDtoList = BeanUtil.copyToList(informationVoList, FabricInformationExcelDto.class);
         fabricInformationExcelDtoList.forEach(f ->{
-            for (int i = 0; i < f.getImageUrlList().size(); i++) {
-                BeanUtil.setProperty(f,"imageUrl"+(i+1),f.getImageUrlList().get(i));
+            if(CollUtil.isNotEmpty( f.getImageUrlList())){
+                for (int i = 0; i < f.getImageUrlList().size(); i++) {
+                    BeanUtil.setProperty(f,"imageUrl"+(i+1),f.getImageUrlList().get(i));
+                }
             }
         });
         ExcelUtils.exportExcel(fabricInformationExcelDtoList,  FabricInformationExcelDto.class, "面样调样单.xlsx",new ExportParams("面样调样单", "面样调样单", ExcelType.HSSF) ,response);

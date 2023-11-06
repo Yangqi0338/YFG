@@ -37,7 +37,7 @@ public interface FabricIngredientsInfoService extends BaseService<FabricIngredie
         * @param queryFabricIngredientsInfoDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<FabricIngredientsInfoVo> getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto);
+        PageInfo getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto);
 
 
 

@@ -35,7 +35,7 @@ public interface FabricBasicInformationService extends BaseService<FabricBasicIn
     * @param queryFabricInformationDto
     * @return
     */
-   PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto);
+   PageInfo getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto);
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
