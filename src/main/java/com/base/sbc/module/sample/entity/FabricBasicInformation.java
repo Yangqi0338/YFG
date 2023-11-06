@@ -70,6 +70,14 @@ public class FabricBasicInformation extends BaseDataEntity<String> {
     /** 供应商名称 */
     @ApiModelProperty(value = "供应商名称"  )
     private String supplierName;
+
+    /** 供应商编码 */
+    @ApiModelProperty(value = "供应商编码"  )
+    private String supplierCode;
+
+    /** 供应商简称 */
+    @ApiModelProperty(value = "供应商简称"  )
+    private String supplierAbbreviation;
     /** 供应商料号 */
     @ApiModelProperty(value = "供应商料号"  )
     private String supplierMaterialCode;
@@ -82,6 +90,10 @@ public class FabricBasicInformation extends BaseDataEntity<String> {
     /** 数量（米） */
     @ApiModelProperty(value = "数量（米）"  )
     private Integer quantity;
+
+    /** 是否环保（1是 0否） */
+    @ApiModelProperty(value = "是否环保（1是 0否）"  )
+    private String isProtection;
 
     /** 调样设计师 */
     @ApiModelProperty(value = "调样设计师"  )
