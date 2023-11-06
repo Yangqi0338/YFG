@@ -790,6 +790,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         String devtType = vo.getDevtType();
         Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
         boolean fob = dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType);
+        vo.setFob(fob);
         vo.setDevtType(fob ? "FOB" : devtType);
         ByteArrayOutputStream gen = vo.gen();
         String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
