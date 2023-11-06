@@ -75,7 +75,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
      */
     @Override
     public PageInfo getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
-
+        queryFabricIngredientsInfoDto.setOrderBy("create_date desc");
         /*分页*/
         QueryWrapper<FabricIngredientsInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());

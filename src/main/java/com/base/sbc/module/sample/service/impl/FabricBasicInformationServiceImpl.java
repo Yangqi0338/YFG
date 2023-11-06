@@ -84,6 +84,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
 
     @Override
     public PageInfo getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
+        queryFabricInformationDto.setOrderBy("create_date desc");
         QueryWrapper queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq("del_flag", BaseGlobal.NO);
@@ -99,7 +100,6 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
             queryWrapper.apply("( supplier_material_code like concat('%','" + queryFabricInformationDto.getSearch() + "','%') " +
                     " or  supplier_name like concat('%','" + queryFabricInformationDto.getSearch() + "','%')");
         }
-        queryWrapper.orderByAsc("create_date");
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"brand:brand"},true);
         Page<FabricBasicInformation>  objects = PageHelper.startPage(queryFabricInformationDto);
         baseMapper.selectList(queryWrapper);
