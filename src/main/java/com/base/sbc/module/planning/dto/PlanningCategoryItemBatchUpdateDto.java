@@ -30,6 +30,8 @@ public class PlanningCategoryItemBatchUpdateDto {
     private String designerId;
     @ApiModelProperty(value = "任务等级", required = false)
     private String taskLevel;
+    @ApiModelProperty(value = "任务等级名称", required = false)
+    private String taskLevelName;
     @ApiModelProperty(value = "计划完成时间", required = false)
     private String planningFinishDate;
     @ApiModelProperty(value = "样衣需求完成时间")
