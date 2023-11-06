@@ -574,8 +574,8 @@
                         </th>
                     </#list>
                 </#if>
-                <th rowspan="2" class="gc">公差(-)</th>
-                <th rowspan="2" class="gc">公差(+)</th>
+                <th rowspan="2" class="gc">公差<br/>(-)</th>
+                <th rowspan="2" class="gc">公差<br/>(+)</th>
             </tr>
 
             <tr>
