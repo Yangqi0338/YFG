@@ -45,7 +45,7 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     private String imageUrl;
     /** 厂家寄出时间 */
     @ApiModelProperty(value = "厂家寄出时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date sendDate;
     /** 开发厂家 */
     @ApiModelProperty(value = "开发厂家"  )
@@ -55,11 +55,11 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     private String devCondition;
     /** 预估到样时间 */
     @ApiModelProperty(value = "预估到样时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date estimateAtactiformDate;
     /** 实际到样时间 */
     @ApiModelProperty(value = "实际到样时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date practicalAtactiformDate;
     /** 看样1 */
     @ApiModelProperty(value = "看样1"  )
@@ -90,7 +90,7 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     private String specificationCode;
     /** 设计到样时间 */
     @ApiModelProperty(value = "设计到样时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date designAtactiformDate;
     /** 调样设计师 */
     @ApiModelProperty(value = "调样设计师"  )
@@ -106,7 +106,7 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     private String sampleUserId;
     /** 到样检测时间 */
     @ApiModelProperty(value = "到样检测时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date testingDate;
     /** 检查结果 0不可用 1可用 */
     @ApiModelProperty(value = "检查结果 0不可用 1可用"  )
