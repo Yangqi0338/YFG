@@ -739,7 +739,7 @@
         </tbody>
         <tfoot>
         <tr>
-            <td colspan="3" style="height: 32px;">注意事项-${zysxDataList?size}</td>
+            <td colspan="3" style="height: 30px;">注意事项-${zysxDataList?size}</td>
         </tr>
         </tfoot>
     </table>
