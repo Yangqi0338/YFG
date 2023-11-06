@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -73,6 +74,9 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     /** 厂家 */
     @ApiModelProperty(value = "厂家"  )
     private String manufacturer;
+    /** 大货含税价 */
+    @ApiModelProperty(value = "大货含税价"  )
+    private BigDecimal containPrice;
     /** 厂家编号 */
     @ApiModelProperty(value = "厂家编号"  )
     private String manufacturerNumber;

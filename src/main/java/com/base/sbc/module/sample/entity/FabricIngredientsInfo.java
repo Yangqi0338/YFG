@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
+import java.math.BigDecimal;
 import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -83,6 +84,9 @@ public class FabricIngredientsInfo extends BaseDataEntity<String> {
     /** 看样3 */
     @ApiModelProperty(value = "看样3"  )
     private String result3;
+    /** 大货含税价 */
+    @ApiModelProperty(value = "大货含税价"  )
+    private BigDecimal containPrice;
     /** 厂家 */
     @ApiModelProperty(value = "厂家"  )
     private String manufacturer;
