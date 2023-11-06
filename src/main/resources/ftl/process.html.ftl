@@ -113,30 +113,31 @@
         margin-bottom: 5px;
     }
 
-
     .one_imgs_xbj {
         display: table-cell;
-        vertical-align: middle;
+        vertical-align: center;
         text-align: center;
-
-    }
-
-    .one_imgs_xbj img {
-        max-height: 55mm;
+        padding: 10px;
         max-width: 85mm;
+    }
+    .one_imgs_xbj img {
+        max-height: 65mm;
+        min-height: 65mm;
+        /*max-width: 75mm;*/
     }
 
     .jcgy_img_box {
         display: table-cell;
         vertical-align: middle;
         text-align: center;
-        padding-top: 0.5px;
-        max-width: 55mm;
+        padding: 10px;
+        max-width: 85mm;
     }
 
     .jcgy_img_box img {
         height: ${jcgyImgHeight}mm;
-        max-width: 55mm;
+        max-width: 85mm;
+
     }
 
 
@@ -245,6 +246,7 @@
         max-height: 166mm;
         max-width: 284mm;
     }
+
 </style>
 <body>
 <!-- 页眉 -->
@@ -502,13 +504,13 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
+                        <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth">
                             ${size}
                         </th>
                     </#list>
                 </#if>
-                <th rowspan="2" class="gc">公差(-)</th>
-                <th rowspan="2" class="gc">公差(+)</th>
+                <th rowspan="2" class="gc" style="text-align: center">公差<br/>(-)</th>
+                <th rowspan="2" class="gc" style="text-align: center">公差<br/>(+)</th>
             </tr>
 
             <tr>
@@ -567,7 +569,7 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
+                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass">
                             ${size}
                         </th>
                     </#list>
@@ -584,10 +586,10 @@
                             <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center">洗后<br>尺寸</td>
                         </#if>
                     <#else>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center">样板<br>尺寸</td>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center">成衣<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; padding: 0 10px">样板<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px">成衣<br>尺寸</td>
                         <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center">洗后<br>尺寸</td>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center; padding: 0 10px">洗后<br>尺寸</td>
                         </#if>
                     </#if>
 
@@ -729,7 +731,7 @@
                 </td>
                 <#list jcgyDataList as item>
                     <#if  item_index==0 >
-                        <td rowspan="${jcgyRowsPan}" style="width: 30%;padding: 0;">
+                        <td rowspan="${jcgyRowsPan}" style="padding: 0;">
                             <div class="jcgy_img_box">
                                 <#if jcgyImgList??>
                                     <#list jcgyImgList as item>
@@ -755,7 +757,7 @@
 <!--    小部件 5-->
 <#if xbjShow>
     <#-- 曲总说小部件和基础工艺是一页的 style="page-break-before: always;"-->
-    <table class="table_border mt" <#if jcgyShow && jcgyDataList?size gt 0><#else>style="page-break-before: always; "</#if> >
+    <table class="table_border mt" style="page-break-before: always; ">
         <thead>
         <tr>
             <th colspan="4" class="th_title">
@@ -775,7 +777,7 @@
             <tr>
                 <#list xbjDataList as item>
                     <#if item_index==0>
-                        <td rowspan="1" style="width: 30%;;padding: 0;">
+                        <td rowspan="1" style="width: 30%;padding: 0;">
                             <div class="one_imgs_xbj">
                                 <#if xbjImgList??>
                                     <#list xbjImgList as item>
