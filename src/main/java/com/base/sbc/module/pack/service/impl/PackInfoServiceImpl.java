@@ -328,10 +328,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packInfo.setPatternMakingId(dto.getPatternMakingId());
         UpdateWrapper<PackInfo> uw = new UpdateWrapper<>();
         uw.lambda().eq(PackInfo::getId, dto.getPackId());
-        PackInfo pack =new PackInfo();
+        PackInfo pack = new PackInfo();
         pack.setPatternNo(dto.getPatternNo());
         packInfo.setPatternNo(dto.getPatternNo());
-        this.saveOperaLog("关联样板号", dto.getName(),null, dto.getCode(),pack,new PackInfo());
+        this.saveOperaLog("关联样板号", dto.getName(), null, dto.getCode(), pack, new PackInfo());
         return update(packInfo, uw);
     }
 
@@ -389,14 +389,14 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         List<PackBom> bomList = packBomService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
         if (CollectionUtil.isNotEmpty(bomList)) {
             /*过滤停用的*/
-            bomList =   bomList.stream().filter(b -> StringUtils.equals(b.getUnusableFlag(),BaseGlobal.NO)).collect(Collectors.toList());
-            if(CollUtil.isEmpty(bomList)){
+            bomList = bomList.stream().filter(b -> StringUtils.equals(b.getUnusableFlag(), BaseGlobal.NO)).collect(Collectors.toList());
+            if (CollUtil.isEmpty(bomList)) {
                 return packInfoListVo;
             }
             //保存bom尺码跟颜色
             List<String> bomIdList = bomList.stream().map(PackBom::getId).collect(Collectors.toList());
-            QueryWrapper queryWrapper =  new QueryWrapper<>();
-            queryWrapper.in("bom_id",bomIdList);
+            QueryWrapper queryWrapper = new QueryWrapper<>();
+            queryWrapper.in("bom_id", bomIdList);
             List<PackBomSize> bomSizeList = packBomSizeService.list(queryWrapper);
             Map<String, List<PackBomSize>> bomSizeMap = bomSizeList.stream().collect(Collectors.groupingBy(PackBomSize::getBomId));
             List<PackBomColor> bomColorList = packBomColorService.list(style.getId(), PackUtils.PACK_TYPE_STYLE);
@@ -513,7 +513,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     }
                 }
                 List<String> scmSendFlagList = StringUtils.convertList("0,2,3");
-                List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag()) && StringUtils.equals(p.getStageFlag(),PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
+                List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag()) && StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
                 if (CollUtil.isNotEmpty(packBomVoList1)) {
                     throw new OtherException("物料清单存在未下发数据");
                 }
@@ -789,12 +789,13 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
         String devtType = vo.getDevtType();
         Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
-        vo.setFob(dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType));
+        boolean fob = dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType);
+        vo.setDevtType(fob ? "FOB" : devtType);
         ByteArrayOutputStream gen = vo.gen();
         String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
         try {
             MockMultipartFile mockMultipartFile = new MockMultipartFile(fileName, fileName, FileUtil.getMimeType(fileName), new ByteArrayInputStream(gen.toByteArray()));
-            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName()+fileName);
+            AttachmentVo attachmentVo = uploadFileService.uploadToMinio(mockMultipartFile, vo.getObjectFileName() + fileName);
             // 将文件id保存到状态表
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
             packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
@@ -1043,10 +1044,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
 
-
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean removeByIds(RemoveDto removeDto){
+    public boolean removeByIds(RemoveDto removeDto) {
         List<String> stringList = StrUtil.split(removeDto.getIds(), ',');
         List<PackInfo> packInfoList = baseMapper.selectBatchIds(stringList);
         List<PackInfo> packInfoList1 = packInfoList.stream().filter(p -> StrUtil.isNotBlank(p.getStyleNo())).collect(Collectors.toList());
@@ -1097,13 +1097,13 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
      */
     @Override
     public Boolean updateBomName(String infoCode, String styleNo) {
-		// code = infoCode重复 查询出2条 ，修改为 style_no查询
-		PackInfo packInfo = getByOne("style_no", styleNo);
-        if(!ObjectUtils.isEmpty(packInfo)){
+        // code = infoCode重复 查询出2条 ，修改为 style_no查询
+        PackInfo packInfo = getByOne("style_no", styleNo);
+        if (!ObjectUtils.isEmpty(packInfo)) {
             packInfo.setName(styleNo);
             updateById(packInfo);
         }
-        return  true;
+        return true;
     }
 
     @Override
@@ -1131,7 +1131,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (StringUtils.isBlank(styleId)) {
             throw new OtherException("缺少设计id");
         }
-        List<PackInfoListVo> basicsdatumModelTypeList = BeanUtil.copyToList(listByField("foreign_id",StringUtils.convertList(styleId)), PackInfoListVo.class);
+        List<PackInfoListVo> basicsdatumModelTypeList = BeanUtil.copyToList(listByField("foreign_id", StringUtils.convertList(styleId)), PackInfoListVo.class);
         PageInfo<PackInfoListVo> pageInfo = new PageInfo<>(basicsdatumModelTypeList);
         stylePicUtils.setStyleColorPic2(pageInfo.getList(), "stylePic");
         return pageInfo;
@@ -1154,9 +1154,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packInfo.setStyleNo(color.getStyleNo());
         packInfo.setStyleColorId(dto.getStyleColorId());
         updateById(packInfo);
-        Map<String,String> map = new HashMap<>();
-        map.put("大货款号", "->"+packInfo.getStyleNo());
-        this.saveOperaLog("关联大货款号",dto.getName(),packInfo.getName() ,packInfo.getCode(),map);
+        Map<String, String> map = new HashMap<>();
+        map.put("大货款号", "->" + packInfo.getStyleNo());
+        this.saveOperaLog("关联大货款号", dto.getName(), packInfo.getName(), packInfo.getCode(), map);
         color.setBom(packInfo.getCode());
         styleColorMapper.updateById(color);
         return true;
@@ -1201,12 +1201,12 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packInfo.setColorCode("");
         packInfo.setStyleNo("");
         packInfo.setStyleColorId("");
-        packInfo.setName(packInfo.getDesignNo() + ( StringUtils.isNotBlank(packInfo.getStyleName())?packInfo.getStyleName():"")  + " BOM");
+        packInfo.setName(packInfo.getDesignNo() + (StringUtils.isNotBlank(packInfo.getStyleName()) ? packInfo.getStyleName() : "") + " BOM");
         updateById(packInfo);
 
         Map<String, String> map = new HashMap<>();
         //map.put("大货款号", "->"+packInfo.getStyleNo());
-        this.saveOperaLog("取消关联大货款号",dto.getName(),packInfo.getName() ,packInfo.getCode(),map);
+        this.saveOperaLog("取消关联大货款号", dto.getName(), packInfo.getName(), packInfo.getCode(), map);
         return true;
     }
 
@@ -1345,14 +1345,14 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     public List<OpenStyleDto> getStyleListForLinkMore(String companyCode) {
         //资料包主表
         QueryWrapper<PackInfo> qwPack = new QueryWrapper<>();
-        qwPack.eq("company_code",companyCode);
+        qwPack.eq("company_code", companyCode);
 //        qwPack.eq("id","1703672791017074688");
         //查询前一个小时的数据
 //        qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 1 HOUR AND NOW()");
         //查询前15分钟的数据
         qwPack.last(" AND update_date BETWEEN NOW() - INTERVAL 15 MINUTE AND NOW()");
         List<PackInfo> packList = this.list(qwPack);
-        if (packList.size() == 0){
+        if (packList.size() == 0) {
             return null;
         }
         List<String> packIds = new ArrayList<>();
@@ -1361,7 +1361,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         for (PackInfo packInfo : packList) {
             packIds.add(packInfo.getForeignId());
             pIds.add(packInfo.getId());
-            packInfoMap.put(packInfo.getForeignId(),packInfo);
+            packInfoMap.put(packInfo.getForeignId(), packInfo);
         }
 
         //款式主表
@@ -1372,11 +1372,11 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         Map<String, String> fileMap = new HashMap<>();
         for (Style s : styleList) {
             List<String> picList = StringUtils.convertList(s.getStylePic());
-            if (picList != null && picList.size() > 0){
+            if (picList != null && picList.size() > 0) {
                 stylePicIds.add(picList.get(0));
             }
         }
-        if (stylePicIds.size() > 0){
+        if (stylePicIds.size() > 0) {
             List<UploadFile> fileList = uploadFileService.listByIds(stylePicIds);
             fileMap = fileList.stream().collect(Collectors.toMap(f -> f.getId(), f -> f.getUrl(), (f1, f2) -> f2));
 
@@ -1395,13 +1395,13 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             styleDtoList.add(dto);
             dto.setId(packInfoMap.get(style.getId()).getId());
             styleDtoMap.put(dto.getId(), dto);
-            allProductSizeList.add(style.getProductSizes()+",");
+            allProductSizeList.add(style.getProductSizes() + ",");
 
             //尺码编码数据
             QueryWrapper<BasicsdatumSize> qwSizeCode = new QueryWrapper<>();
-            qwSizeCode.eq("company_code",companyCode);
-            qwSizeCode.like("model_type",style.getSizeRangeName());
-            qwSizeCode.in("hangtags",StringUtils.convertList(style.getProductSizes()));
+            qwSizeCode.eq("company_code", companyCode);
+            qwSizeCode.like("model_type", style.getSizeRangeName());
+            qwSizeCode.in("hangtags", StringUtils.convertList(style.getProductSizes()));
             Map<String, String> sizeMap = basicsdatumSizeService.list(qwSizeCode)
                     .stream().collect(Collectors.toMap(s -> s.getHangtags(), s -> s.getCode(), (s1, s2) -> s2));
             dto.setSizeMap(sizeMap);
@@ -1410,40 +1410,40 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
         //sku数据
         QueryWrapper<StyleInfoSku> qwSku = new QueryWrapper<>();
-        qwSku.eq("company_code",companyCode);
-        qwSku.eq("pack_type","packBigGoods");
-        qwSku.in("foreign_id",pIds);
+        qwSku.eq("company_code", companyCode);
+        qwSku.eq("pack_type", "packBigGoods");
+        qwSku.in("foreign_id", pIds);
         Map<String, List<StyleInfoSku>> skuMap = styleInfoSkuService.list(qwSku)
                 .stream().collect(Collectors.groupingBy(s -> s.getForeignId()));
-        skuMap.forEach((k,v)->{
-            if (!CollectionUtils.isEmpty(v)){
-                if (styleDtoMap.get(k) != null){
-                    styleDtoMap.get(k).initSku(v,styleDtoMap.get(k).getCode());
+        skuMap.forEach((k, v) -> {
+            if (!CollectionUtils.isEmpty(v)) {
+                if (styleDtoMap.get(k) != null) {
+                    styleDtoMap.get(k).initSku(v, styleDtoMap.get(k).getCode());
                 }
             }
         });
 
         //skc
         QueryWrapper<StyleInfoColor> qwSkc = new QueryWrapper<>();
-        qwSkc.eq("company_code",companyCode);
-        qwSkc.eq("pack_type","packBigGoods");
-        qwSkc.in("foreign_id",pIds);
+        qwSkc.eq("company_code", companyCode);
+        qwSkc.eq("pack_type", "packBigGoods");
+        qwSkc.in("foreign_id", pIds);
         Map<String, List<StyleInfoColor>> skcMap = styleInfoColorService.list(qwSkc)
                 .stream().collect(Collectors.groupingBy(s -> s.getForeignId()));
-        skcMap.forEach((k,v)->{
-            if (!CollectionUtils.isEmpty(v) && styleDtoMap.get(k) != null){
+        skcMap.forEach((k, v) -> {
+            if (!CollectionUtils.isEmpty(v) && styleDtoMap.get(k) != null) {
                 styleDtoMap.get(k).initSkc(v);
             }
         });
 
         //吊牌列表
         QueryWrapper<HangTag> qwTag = new QueryWrapper<>();
-        qwTag.in("bulk_style_no",codeList);
+        qwTag.in("bulk_style_no", codeList);
         Map<String, HangTag> tagMap = hangTagService.list(qwTag)
                 .stream().collect(Collectors.toMap(t -> t.getBulkStyleNo(), t -> t, (t1, t2) -> t2));
-        if(tagMap.size() > 0){
+        if (tagMap.size() > 0) {
             for (OpenStyleDto styleDto : styleDtoList) {
-                if (tagMap.get(styleDto.getCode()) != null){
+                if (tagMap.get(styleDto.getCode()) != null) {
                     styleDto.setHangTag(tagMap.get(styleDto.getCode()));
                 }
             }
