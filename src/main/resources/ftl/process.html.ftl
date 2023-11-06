@@ -579,15 +579,15 @@
             <tr>
                 <#list sizeList as size>
                     <#if isFob>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">成衣<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center">成衣<br>尺寸</td>
                         <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">洗后<br>尺寸</td>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center">洗后<br>尺寸</td>
                         </#if>
                     <#else>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}">样板<br>尺寸</td>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}">成衣<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center">样板<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center">成衣<br>尺寸</td>
                         <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}">洗后<br>尺寸</td>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center">洗后<br>尺寸</td>
                         </#if>
                     </#if>
 
@@ -754,7 +754,8 @@
 
 <!--    小部件 5-->
 <#if xbjShow>
-    <table class="table_border mt" style="page-break-before: always;">
+    <#-- 曲总说小部件和基础工艺是一页的 style="page-break-before: always;"-->
+    <table class="table_border mt">
         <thead>
         <tr>
             <th colspan="4" class="th_title">
@@ -861,43 +862,6 @@
     </table>
 </#if>
 
-
-<#if isFob>
-<#--    注意事项-->
-    <table class="table_border mt" style="page-break-before: always;">
-        <thead>
-        <tr>
-            <th colspan="2" class="th_title">
-                <p>注意事项</p>
-                <hr>
-            </th>
-        </tr>
-        <tr>
-            <th class="gb" style="width: 10%">工艺项目</th>
-            <th class="gb" style="width: 50%">描述</th>
-        </tr>
-        </thead>
-        <tbody>
-        <#if zysxDataList??>
-            <#list zysxDataList as item>
-                <tr>
-                    <td>${item.item}</td>
-                    <td>
-                        ${item.content}
-                    </td>
-                </tr>
-            </#list>
-        </#if>
-        </tbody>
-        <tfoot>
-        <tr>
-            <td colspan="3" style="height: 32px;">注意事项-${zysxDataList?size}</td>
-        </tr>
-        </tfoot>
-    </table>
-</#if>
-
-
 <!--    外辅工艺 7-->
 <#if wfgyShow>
     <table class="table_border mt" style="page-break-before: always;">
@@ -934,6 +898,41 @@
         </tfoot>
     </table>
 </#if>
+<#if isFob>
+<#--    注意事项-->
+    <table class="table_border mt" style="page-break-before: always;">
+        <thead>
+        <tr>
+            <th colspan="2" class="th_title">
+                <p>注意事项</p>
+                <hr>
+            </th>
+        </tr>
+        <tr>
+            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 50%">描述</th>
+        </tr>
+        </thead>
+        <tbody>
+        <#if zysxDataList??>
+            <#list zysxDataList as item>
+                <tr>
+                    <td>${item.item}</td>
+                    <td>
+                        ${item.content}
+                    </td>
+                </tr>
+            </#list>
+        </#if>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="3" style="height: 32px;">注意事项-${zysxDataList?size}</td>
+        </tr>
+        </tfoot>
+    </table>
+</#if>
+
 
 </body>
 </html>

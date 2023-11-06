@@ -313,16 +313,31 @@ public class GenTechSpecPdfFile {
         for (String key : gyMap.keySet()) {
             List<PackTechSpecVo> packTechSpecVos = Optional.ofNullable(gyMap.get(key)).orElse(CollUtil.newArrayList());
             // 匹配整数 小数
-            Pattern pattern = Pattern.compile("(\\d+\\.\\d+)|(\\d+\\.?\\d*)");
+            String pattern = "(\\d+(\\.\\d+)?)";
             for (int i = 0; i < packTechSpecVos.size(); i++) {
                 PackTechSpecVo vo = packTechSpecVos.get(i);
                 String content = vo.getContent();
-                Matcher matcher = pattern.matcher(content);
-                while(matcher.find()) {
-                    String number = matcher.group();
-                    content = content.replace(number, "<strong>" + number + "</strong>");
+                Pattern r = Pattern.compile(pattern);
+                Matcher matcher = r.matcher(content);
+                StringBuilder result = new StringBuilder();
+                int lastIndex = 0;
+
+                // 遍历匹配并加粗数字
+                while (matcher.find()) {
+                    int start = matcher.start();
+                    int end = matcher.end();
+                    String matchedNumber = matcher.group(0);
+
+                    // 将数字用 <strong> 标签包裹
+                    result.append(content, lastIndex, start);
+                    result.append("<strong style=\"font-size:1.2rem\">").append(matchedNumber).append("</strong>");
+
+                    lastIndex = end;
                 }
-                vo.setContent(content);
+                // 添加未匹配部分
+                result.append(content.substring(lastIndex));
+                vo.setContent(result.toString());
+
             }
         }
         dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
