@@ -3,13 +3,9 @@ package com.base.sbc.module.pack.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.alibaba.fastjson2.JSON;
@@ -169,8 +165,8 @@ public class GenTechSpecPdfFile {
     @ApiModelProperty(value = "洗标")
     private String washingLabel;
 
-	@ApiModelProperty(value = "洗标编码")
-	private String washingCode;
+    @ApiModelProperty(value = "洗标编码")
+    private String washingCode;
     /**
      * 下单时间
      */
@@ -313,11 +309,44 @@ public class GenTechSpecPdfFile {
         dataModel.put("isFob", isFob());
         dataModel.put("sizeDataList", dataList);
         dataModel.put("sizeClass", sizeClass.values());
+
+        for (String key : gyMap.keySet()) {
+            List<PackTechSpecVo> packTechSpecVos = Optional.ofNullable(gyMap.get(key)).orElse(CollUtil.newArrayList());
+            // 匹配整数 小数
+            String pattern = "(\\d+(\\.\\d+)?)";
+            for (int i = 0; i < packTechSpecVos.size(); i++) {
+                PackTechSpecVo vo = packTechSpecVos.get(i);
+                String content = vo.getContent();
+                Pattern r = Pattern.compile(pattern);
+                Matcher matcher = r.matcher(content);
+                StringBuilder result = new StringBuilder();
+                int lastIndex = 0;
+
+                // 遍历匹配并加粗数字
+                while (matcher.find()) {
+                    int start = matcher.start();
+                    int end = matcher.end();
+                    String matchedNumber = matcher.group(0);
+
+                    // 将数字用 <strong> 标签包裹
+                    result.append(content, lastIndex, start);
+                    result.append("<strong style=\"font-size:1.2rem\">").append(matchedNumber).append("</strong>");
+
+                    lastIndex = end;
+                }
+                // 添加未匹配部分
+                result.append(content.substring(lastIndex));
+                vo.setContent(result.toString());
+
+            }
+        }
         dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
         dataModel.put("cjgyDataList", Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
         dataModel.put("cjgyImgList", Optional.ofNullable(picMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
         List<PackTechSpecVo> xbjDataList = Optional.ofNullable(gyMap.get("小部件")).orElse(CollUtil.newArrayList());
+        List<PackTechSpecVo> zysxDataList = Optional.ofNullable(gyMap.get("注意事项")).orElse(CollUtil.newArrayList());
         dataModel.put("xbjDataList", xbjDataList);
+        dataModel.put("zysxDataList", zysxDataList);
         dataModel.put("xbjImgList", Optional.ofNullable(picMap.get("小部件")).orElse(null));
         dataModel.put("xbjRowsPan", xbjDataList.size());
 
@@ -353,7 +382,6 @@ public class GenTechSpecPdfFile {
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
         String html = writer.toString();
-
 //        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html");
 //        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
         return html;
@@ -375,7 +403,6 @@ public class GenTechSpecPdfFile {
             IElement pageStart = CollUtil.getFirst(elements);
             PdfDocument pdfDocument = new PdfDocument(writer1);
             Document document = new Document(pdfDocument, PageSize.A4.rotate(), false);
-
             StartPdfPageEventHandler event = new StartPdfPageEventHandler(pdfDocument, document, pageStart);
             EndPdfPageEventHandler endPdfPageEventHandler = new EndPdfPageEventHandler(pdfDocument, document, pageStart);
             pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE, event);
@@ -393,6 +420,7 @@ public class GenTechSpecPdfFile {
                     document.add(blockElement);
                 }
             }
+
 
             // 设置页眉中的总页数
             int numberOfPages = pdfDocument.getNumberOfPages();
