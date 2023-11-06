@@ -686,7 +686,7 @@
 </#if>
 
 <!--    基础工艺 4 3-->
-<#if jcgyShow>
+<#if jcgyShow && jcgyDataList?size gt 0>
     <table class="table_border mt"  style="page-break-before: always; ">
         <thead>
         <tr>
@@ -755,7 +755,7 @@
 <!--    小部件 5-->
 <#if xbjShow>
     <#-- 曲总说小部件和基础工艺是一页的 style="page-break-before: always;"-->
-    <table class="table_border mt">
+    <table class="table_border mt" <#if jcgyShow && jcgyDataList?size gt 0><#else>style="page-break-before: always; "</#if> >
         <thead>
         <tr>
             <th colspan="4" class="th_title">
@@ -898,41 +898,5 @@
         </tfoot>
     </table>
 </#if>
-<#if isFob>
-<#--    注意事项-->
-    <table class="table_border mt" style="page-break-before: always;">
-        <thead>
-        <tr>
-            <th colspan="2" class="th_title">
-                <p>注意事项</p>
-                <hr>
-            </th>
-        </tr>
-        <tr>
-            <th class="gb" style="width: 10%">工艺项目</th>
-            <th class="gb" style="width: 50%">描述</th>
-        </tr>
-        </thead>
-        <tbody>
-        <#if zysxDataList??>
-            <#list zysxDataList as item>
-                <tr>
-                    <td>${item.item}</td>
-                    <td>
-                        ${item.content}
-                    </td>
-                </tr>
-            </#list>
-        </#if>
-        </tbody>
-        <tfoot>
-        <tr>
-            <td colspan="3" style="height: 32px;">注意事项-${zysxDataList?size}</td>
-        </tr>
-        </tfoot>
-    </table>
-</#if>
-
-
 </body>
 </html>

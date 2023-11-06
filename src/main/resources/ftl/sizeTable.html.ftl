@@ -14,7 +14,7 @@
     }
 
     .sizeItemWidth {
-        min-width: 65px;
+        min-width: 70px;
     }
 
     .sizeWidth {

@@ -787,6 +787,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Override
     public AttachmentVo genTechSpecFile2(GroupUser groupUser, PackCommonSearchDto dto) {
         GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
+        String devtType = vo.getDevtType();
+        Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
+        vo.setFob(dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType));
         ByteArrayOutputStream gen = vo.gen();
         String fileName = Opt.ofBlankAble(vo.getStyleNo()).orElse(vo.getPackCode()) + ".pdf";
         try {
