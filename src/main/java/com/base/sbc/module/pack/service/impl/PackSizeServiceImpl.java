@@ -238,7 +238,7 @@ public class PackSizeServiceImpl extends AbstractPackBaseServiceImpl<PackSizeMap
                 packSize.setForeignId(targetForeignId);
                 packSize.setPackType(targetPackType);
                 packSize.setHistoricalData(BaseGlobal.NO);
-
+                packSize.insertInit();
             }
             saveBatch(sizeList);
             //复制尺寸表明细

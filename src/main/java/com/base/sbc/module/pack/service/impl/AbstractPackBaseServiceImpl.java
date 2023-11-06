@@ -192,9 +192,10 @@ public abstract class AbstractPackBaseServiceImpl<M extends BaseMapper<T>, T ext
         List<T> list = list(query);
         if (CollUtil.isNotEmpty(list)) {
             for (T t : list) {
-                t.setId(null);
                 BeanUtil.setProperty(t, "foreignId", targetForeignId);
                 BeanUtil.setProperty(t, "packType", targetPackType);
+                t.preInsert();
+                t.setId(null);
                 try {
                     BeanUtil.setProperty(t, "historicalData", BaseGlobal.NO);
                 } catch (Exception e) {
