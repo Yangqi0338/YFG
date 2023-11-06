@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBomTemplateMaterialDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBomTemplateDto;
@@ -109,6 +110,7 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
         for (int i = 0; i < templateMaterialList.size(); i++) {
             templateMaterialList.get(i).setSort(sort==null?0:sort + i + 1);
         }
+        CommonUtils.removeQueryList(templateMaterialList,"imageUrl");
         saveOrUpdateBatch(templateMaterialList);
         return true;
     }

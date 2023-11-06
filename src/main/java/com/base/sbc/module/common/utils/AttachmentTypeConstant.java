@@ -29,4 +29,9 @@ public interface AttachmentTypeConstant {
      * 打版管理-纸样文件
      */
     String PATTERN_MAKING_PATTERN = "PATTERN_MAKING_PATTERN";
+
+    /**
+     * 调样管理图片
+     */
+    String TRANSFER_MANAGE_IMAGE ="TRANSFER_MANAGE_IMAGE";
 }

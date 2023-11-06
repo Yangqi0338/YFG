@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 /**
@@ -49,8 +50,15 @@ public class FabricInformationController {
 
 	@ApiOperation(value = "分页查询面料信息 ")
 	@GetMapping("/getFabricInformationList")
-	public PageInfo<FabricInformationVo> getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
+	public PageInfo getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
 		return fabricBasicInformationService.getFabricInformationList(queryFabricInformationDto);
+	}
+
+
+	@ApiOperation(value = "/导出")
+	@GetMapping("/fabricInformationDeriveExcel")
+	public void fabricInformationDeriveExcel(HttpServletResponse response, QueryFabricInformationDto queryFabricInformationDto) throws Exception {
+		fabricBasicInformationService.fabricInformationDeriveExcel(response,queryFabricInformationDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
@@ -84,8 +92,8 @@ public class FabricInformationController {
 	/*上传理化报告*/
 	@ApiOperation(value = "上传理化报告")
 	@RequestMapping("/uploadingReport")
-	public ApiResult uploadingReport(@RequestParam(value = "id", required = true) String id, @RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) throws Throwable {
-		return	fabricDetailedInformationService.uploadingReport(id,file,request);
+	public Boolean uploadingReport(@RequestParam(value = "id", required = true) String id, @RequestParam(value = "file", required = true) MultipartFile file, HttpServletRequest request) throws Throwable {
+		return	fabricBasicInformationService.uploadingReport(id,file,request);
 	}
 
 }

@@ -11,6 +11,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
 import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
 import com.base.sbc.module.sample.service.FabricIngredientsInfoService;
@@ -50,10 +51,16 @@ public class FabricIngredientsInfoController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getFabricIngredientsInfoList")
-	public PageInfo<FabricIngredientsInfoVo> getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
+	public PageInfo getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
 		return  fabricIngredientsInfoService.getFabricIngredientsInfoList(queryFabricIngredientsInfoDto);
 	}
 
+
+	@ApiOperation(value = "/导出")
+	@GetMapping("/fabricIngredientsInfoDeriveExcel")
+	public void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws Exception {
+		fabricIngredientsInfoService.fabricIngredientsInfoDeriveExcel(response,queryFabricIngredientsInfoDto);
+	}
 
 
 	@ApiOperation(value = "批量启用/停用", notes = "ids:, status:0启用1停用")

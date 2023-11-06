@@ -13,6 +13,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackPatternAttachmentSaveDto;
 import com.base.sbc.module.pack.dto.PackTechSpecSavePicDto;
+import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -132,6 +133,13 @@ public interface AttachmentService extends BaseService<Attachment> {
 
     AttachmentVo getAttachmentByFileId(String fileId);
 
+    /**
+     * 保存附件
+     * @param id
+     * @param files
+     * @param type
+     */
+    void saveFiles(String id, List<SampleAttachmentDto> files, String type);
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

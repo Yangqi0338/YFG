@@ -42,7 +42,8 @@
                f.size,
                a.create_name,
                a.remarks,
-               a.create_date
+               a.create_date,
+               a.foreign_id
         from t_upload_file f
                  left join t_attachment a on (a.file_id = f.id)
             ${ ew.customSqlSegment}

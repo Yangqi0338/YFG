@@ -39,7 +39,8 @@ public class QueryFabricInformationDto extends Page {
     @ApiModelProperty(value = "搜索")
     private String search;
 
-    /** 是否新面料（0是 1否 */
+    /** 是否新面料*/
+    @ApiModelProperty(value = "是否新面料")
     private String isNewFabric;
 
     /** 数量（米） */
@@ -78,5 +79,9 @@ public class QueryFabricInformationDto extends Page {
 
     /*岗位id*/
     private List<String> jobIdList;
+
+    @ApiModelProperty(value = "调样设计师")
+    private  String   atactiformStylist;
+
 
 }

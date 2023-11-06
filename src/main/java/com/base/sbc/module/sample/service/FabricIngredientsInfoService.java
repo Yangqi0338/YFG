@@ -16,6 +16,9 @@ import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
 import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 /**
  * 类描述：调样-辅料信息 service类
  * @address com.base.sbc.module.sample.service.FabricIngredientsInfoService
@@ -34,7 +37,7 @@ public interface FabricIngredientsInfoService extends BaseService<FabricIngredie
         * @param queryFabricIngredientsInfoDto 查询条件
         * @return PageInfo<BasicsdatumComponentVo>
          */
-        PageInfo<FabricIngredientsInfoVo> getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto);
+        PageInfo getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto);
 
 
 
@@ -67,6 +70,13 @@ public interface FabricIngredientsInfoService extends BaseService<FabricIngredie
         */
         Boolean startStopFabricIngredientsInfo( StartStopDto startStopDto);
 
+
+        /**
+         * 辅料导出
+         * @param response
+         * @param queryFabricIngredientsInfoDto
+         */
+        void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws IOException;
 
 // 自定义方法区 不替换的区域【other_end】
 
