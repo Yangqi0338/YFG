@@ -467,6 +467,7 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 	 * 附件名称
 	 */
 	private String attachmentName;
+
 	/*****************************
 	 * 数据库字段区 不包含父类公共字段(属性) 【end】
 	 ***********************************/

@@ -365,4 +365,15 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	 * 附件名称
 	 */
 	private String attachmentName;
+
+
+
+	private String supplierColorCode;
+
+
+	private String colorName;
+
+	private String quotationPrice;
+
+	private String orderDay;
 }
