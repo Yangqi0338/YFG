@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.generator.utils.UtilFreemarker;
@@ -33,9 +35,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.IBlockElement;
-import com.itextpdf.layout.element.IElement;
-import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.font.FontProvider;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.VerticalAlignment;
@@ -183,6 +183,8 @@ public class GenTechSpecPdfFile {
     @ApiModelProperty(value = "生产类型")
     private String devtType;
 
+    private boolean fob;
+
     public boolean isFob() {
         return StrUtil.equals(devtType, "FOB");
 //        return true;
@@ -216,8 +218,12 @@ public class GenTechSpecPdfFile {
         config.setDefaultEncoding("UTF-8");
         config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-
-        Template template = config.getTemplate("ftl/process.html.ftl");
+        Template template;
+        if(this.fob) {
+            template = config.getTemplate("ftl/process.html.fob.ftl");
+        } else {
+            template = config.getTemplate("ftl/process.html.ftl");
+        }
 
         String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
         JSONObject dataModel = JSON.parseObject(str);
@@ -387,6 +393,8 @@ public class GenTechSpecPdfFile {
         return html;
     }
 
+
+
     public ByteArrayOutputStream gen() {
         try {
             String output = toHtml();
@@ -395,10 +403,8 @@ public class GenTechSpecPdfFile {
             ConverterProperties props = new ConverterProperties();
             props.setCharset("UFT-8");
             FontProvider provider = new DefaultFontProvider(true, true, true);
-
             props.setFontProvider(provider);
             List<IElement> elements = HtmlConverter.convertToElements(output, props);
-
             PdfWriter writer1 = new PdfWriter(pdfOutputStream);
             IElement pageStart = CollUtil.getFirst(elements);
             PdfDocument pdfDocument = new PdfDocument(writer1);
@@ -417,11 +423,18 @@ public class GenTechSpecPdfFile {
                     //普通块级元素
                 } else {
                     IBlockElement blockElement = (IBlockElement) element;
+                    if (element instanceof Table) {
+                        Table table = ((Table) element).getFooter();
+//                        int numberOfColumns = table.getNumberOfColumns();
+//                        Cell cell = new Cell(1, numberOfColumns);
+//                        cell.add(new Paragraph("111111111111111111111111111"));
+                        if (ObjectUtil.isNotNull(table)) {
+                            System.out.println("table footer" + table.getNumberOfRows());
+                        }
+                    }
                     document.add(blockElement);
                 }
             }
-
-
             // 设置页眉中的总页数
             int numberOfPages = pdfDocument.getNumberOfPages();
             for (int i = 1; i <= numberOfPages; i++) {
@@ -432,7 +445,6 @@ public class GenTechSpecPdfFile {
                 float y = 25;
                 document.showTextAligned(pageNumber, x, y, i, TextAlignment.CENTER, VerticalAlignment.TOP, 0);
             }
-
             document.close();
             return pdfOutputStream;
         } catch (Exception e) {

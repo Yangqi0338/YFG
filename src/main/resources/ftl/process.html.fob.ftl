@@ -462,30 +462,6 @@
         </td>
     </tr>
 </table>
-<#--注意事项 2-->
-<#if zysxShow>
-    <table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
-        <thead>
-        <tr>
-            <th class="th_title">
-                <p>注意事项</p>
-                <hr>
-            </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>
-                <div class="one_page_img">
-                    <#if  zysxImgList??>
-                        <img src="${zysxImgList[0].url}"/>
-                    </#if>
-                </div>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</#if>
 <!--测量点 3 -->
 <#if sizeDataList??>
     <#if sizeList?size gt 5>
@@ -648,45 +624,8 @@
     </table>
 </#if>
 
-<!--    裁剪工艺 4 1-->
-<#if cjgyShow>
-    <table class="table_border mt" style="page-break-before: always;">
-        <thead>
-        <tr>
-            <th class="th_title" colspan="2">
-                <p>裁剪工艺</p>
-                <hr>
-            </th>
-        </tr>
-        <tr>
-            <th class="item_td gb">工艺项目</th>
-            <th class="content_tr gb">
-                描述
-            </th>
-        </tr>
-        </thead>
-        <tbody>
-        <#if cjgyDataList??>
-            <#list cjgyDataList as item>
-                <tr>
-                    <td style="text-align: center">${item.item}</td>
-                    <td>
-                        ${item.content}
-                    </td>
-                </tr>
-            </#list>
-        </#if>
-        </tbody>
-        <tfoot>
-        <tr>
-            <td colspan="2">裁剪工艺-${cjgyDataList?size} </td>
-        </tr>
-        </tfoot>
-    </table>
-</#if>
-
 <!--    基础工艺 4 3-->
-<#if jcgyShow && jcgyDataList?size gt 0>
+<#if jcgyDataList?size gt 0>
     <table class="table_border mt"  style="page-break-before: always; ">
         <thead>
         <tr>
@@ -698,7 +637,6 @@
         <tr>
             <th class="gb" style="width: 10%">工艺项目</th>
             <th class="gb" style="width: 40%">工艺描述</th>
-            <th class="gb" style="width: 10%">图片</th>
         </tr>
         </thead>
         <tbody>
@@ -727,19 +665,6 @@
 
                     </div>
                 </td>
-                <#list jcgyDataList as item>
-                    <#if  item_index==0 >
-                        <td rowspan="${jcgyRowsPan}" style="width: 30%;padding: 0;">
-                            <div class="jcgy_img_box">
-                                <#if jcgyImgList??>
-                                    <#list jcgyImgList as item>
-                                        <img src="${item.url}"/> <br>
-                                    </#list>
-                                </#if>
-                            </div>
-                        </td>
-                    </#if>
-                </#list>
             </tr>
         </#if>
         </tbody>
@@ -752,82 +677,9 @@
     </table>
 </#if>
 
-<!--    小部件 5-->
-<#if xbjShow>
-    <#-- 曲总说小部件和基础工艺是一页的 style="page-break-before: always;"-->
-    <table class="table_border mt" <#if jcgyShow && jcgyDataList?size gt 0><#else>style="page-break-before: always; "</#if> >
-        <thead>
-        <tr>
-            <th colspan="4" class="th_title">
-                <p>小部件</p>
-                <hr>
-            </th>
-        </tr>
-        <tr>
-            <th class="gb" style="width: 10%">图片</th>
-            <th class="gb" style="width: 14%">工艺项目</th>
-            <th class="gb" style="width: 60%">工艺描述</th>
-        </tr>
-        </thead>
-        <tbody>
-        <#if xbjDataList??>
-        <#--            <#list xbjDataList as item>-->
-            <tr>
-                <#list xbjDataList as item>
-                    <#if item_index==0>
-                        <td rowspan="1" style="width: 30%;;padding: 0;">
-                            <div class="one_imgs_xbj">
-                                <#if xbjImgList??>
-                                    <#list xbjImgList as item>
-                                        <div class="text_color">
-                                            <#if item_index==0>
-                                                <p>正面</p>
-                                            </#if>
-                                            <#if item_index==1>
-
-                                                <p>反面</p>
-                                            </#if>
-                                        </div>
-                                        <img src="${item.url}"/>
-                                    </#list>
-                                </#if>
-                            </div>
-                        </td>
-                    </#if>
-                </#list>
-                <td class="flex_td" colspan="2" >
-                    <div class="flex_td_box">
-                        <#list xbjDataList as item>
-                            <div>
-                                <div>
-                                    <div style="width: 20%; text-align: center;vertical-align: middle; ">
-                                        <div style="height: 100%">
-                                            ${item.item}
-                                        </div>
-                                    </div>
-                                    <div style="width: 80%">
-                                        <div>
-                                            ${item.content}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </#list>
-                    </div>
-                </td>
-            </tr>
-        </#if>
-        </tbody>
-        <tfoot>
-        <tr>
-            <td colspan="4" style="height: 32px;">小部件-${xbjDataList?size}</td>
-        </tr>
-        </tfoot>
-    </table>
-</#if>
 <!--    整烫包装 6-->
-<#if ztbzShow>
-    <table class="table_border mt" style="page-break-before: always;">
+<#if ztbzDataList?size gt 0>
+    <table class="table_border mt" <#if jcgyDataList?size gt 0><#else>style="page-break-before: always;"</#if>  >
         <thead>
         <tr>
             <th colspan="2" class="th_title">
@@ -836,10 +688,8 @@
             </th>
         </tr>
         <tr>
-
             <th class="gb" style="width: 10%">工艺项目</th>
             <th class="gb" style="width: 50%">描述</th>
-
         </tr>
         </thead>
         <tbody>
@@ -861,27 +711,23 @@
         </tfoot>
     </table>
 </#if>
-
-<!--    外辅工艺 7-->
-<#if wfgyShow>
-    <table class="table_border mt" style="page-break-before: always;">
+<#if zysxDataList?size gt 0>
+    <table class="table_border mt" <#if ztbzDataList?size gt 0><#else>style="page-break-before: always;"</#if>>
         <thead>
         <tr>
             <th colspan="2" class="th_title">
-                <p>外辅工艺</p>
+                <p>注意事项</p>
                 <hr>
             </th>
         </tr>
         <tr>
-
             <th class="gb" style="width: 10%">工艺项目</th>
             <th class="gb" style="width: 50%">描述</th>
-
         </tr>
         </thead>
         <tbody>
-        <#if wfgyDataList??>
-            <#list wfgyDataList as item>
+        <#if zysxDataList??>
+            <#list zysxDataList as item>
                 <tr>
                     <td>${item.item}</td>
                     <td>
@@ -893,7 +739,7 @@
         </tbody>
         <tfoot>
         <tr>
-            <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>
+            <td colspan="3" style="height: 30px;">注意事项-${zysxDataList?size}</td>
         </tr>
         </tfoot>
     </table>
