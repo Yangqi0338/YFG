@@ -231,6 +231,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qc.andLike(dto.getSearch(), "material_code", "material_name");
         qc.notEmptyEq("status", dto.getStatus());
         qc.notEmptyLike("material_code_name", dto.getMaterialCodeName());
+        qc.notEmptyLike("supplier_fabric_code", dto.getSupplierFabricCode());
         qc.notEmptyLike("supplier_name", dto.getSupplierName());
         qc.notEmptyLike("material_code", dto.getMaterialCode());
         qc.notEmptyLike("material_name", dto.getMaterialName());

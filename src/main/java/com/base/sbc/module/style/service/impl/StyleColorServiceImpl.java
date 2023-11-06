@@ -379,7 +379,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() , style.getDesigner(), ++index));
+            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,  ++index));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -457,7 +457,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * @return
      */
 
-    public String getNextCode(String brand, String year, String bandName, String category, String designNo, String designer, int index) {
+    public String getNextCode(String brand, String year,String season,String bandName, String category, String designNo, int index) {
         if (ccmFeignService.getSwitchByCode("STYLE_EQUAL_DESIGN_NO")) {
             return designNo;
         }
@@ -467,9 +467,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (StringUtils.isBlank(bandName)) {
             throw new OtherException("款式波段为空");
         }
-     /*   if (StringUtils.isBlank(month)) {
-            throw new OtherException("款式月份为空");
-        }*/
         if (StringUtils.isBlank(brand)) {
             throw new OtherException("款式品牌为空");
         }
@@ -481,24 +478,20 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         try {
 //        获取年份
             yearOn = getYearOn(year);
-//            月份
-//            month = getMonth(bandName);
 //            波段
             bandName = getBandName(bandName);
-
-            /*获取款式流水号*/
+            /*获取款号流水号*/
             /**
-             *款式流水号： 款式去掉设计师设计师标识 获取后三位字符串
+             * 款号流水号：拼接品牌 年份 季节 品类 成为设计款号前几位 去掉设计编码
              */
-            if(StringUtils.isBlank(designer)){
-                throw new OtherException("没有设计师");
-            }
-            String[] designers = designer.split(",");
-            if (designers == null || designers.length <= 1) {
-                throw new OtherException("设计师未缺少编码");
-            }
-            String designNo1 = designNo.replace(designers[1], "");
-            designNo = designNo1.substring(designNo1.length() - 3);
+            String years = year.substring(year.length() - 2);
+            /*拼接的设计款号（用于获取流水号）*/
+            String joint = brand + years + season + category;
+            designNo = designNo.replaceAll(joint, "");
+            String regEx = "[^0-9]";
+            Pattern p = Pattern.compile(regEx);
+            Matcher m = p.matcher(designNo);
+            designNo = m.replaceAll("").trim();
         } catch (Exception e) {
             throw new OtherException(e.getMessage()+"大货编码生成失败");
         }

@@ -87,4 +87,6 @@ public class StylePageDto extends Page {
     private String bandCode;
     @ApiModelProperty(value = "业务对象编码(用于数据权限)")
     private String businessType;
+    @ApiModelProperty(value = "设计师编码")
+    private String  designerIds;
 }

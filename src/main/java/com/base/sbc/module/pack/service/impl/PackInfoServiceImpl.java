@@ -347,7 +347,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         String newId = IdUtil.getSnowflake().nextIdStr();
         packInfo.setId(newId);
         packInfo.setForeignId(dto.getId());
-
+        packInfo.setHistoricalData(BaseGlobal.NO);
+        packInfo.insertInit();
         //设置编码
         QueryWrapper codeQw = new QueryWrapper();
         codeQw.eq("foreign_id", dto.getId());

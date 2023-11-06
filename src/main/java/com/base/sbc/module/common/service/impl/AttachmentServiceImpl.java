@@ -244,6 +244,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
                 o.setForeignId(targetForeignId);
                 List<String> split = StrUtil.split(o.getType(), CharUtil.DASHED);
                 o.setType(targetPackType + StrUtil.DASHED + CollUtil.get(split, 1));
+                o.insertInit();
             }
             return saveBatch(list);
         }

@@ -465,6 +465,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                 newIdMaps.put(bom.getId(), newId);
                 bom.setId(newId);
                 bom.setBomVersionId(newVersion.getId());
+                bom.setHistoricalData(BaseGlobal.NO);
+                bom.insertInit();
             }
             packBomService.saveBatch(BeanUtil.copyToList(bomList, PackBom.class));
 

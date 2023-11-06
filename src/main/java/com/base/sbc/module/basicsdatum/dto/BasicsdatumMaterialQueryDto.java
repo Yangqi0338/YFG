@@ -76,4 +76,7 @@ public class BasicsdatumMaterialQueryDto extends Page {
 	 */
 	@ApiModelProperty(value = "是否查询库存数量")
 	private String isStock;
+
+	@ApiModelProperty(value = "供应商物料编号")
+	private String	supplierFabricCode;
 }
