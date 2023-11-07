@@ -908,61 +908,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      */
     @Override
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException {
-        QueryWrapper qw = new QueryWrapper();
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
-        qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
-        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
-        qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
-        qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
-        qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
-        qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getPatternDesignId());
-        if (StrUtil.isNotBlank(dto.getSampleType()) && dto.getSampleType().split(",").length > 1) {
-            qw.gt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[0]);
-            qw.lt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[1]);
-        }
-        if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getBfzgxfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and start_date >={0} and {1} >= end_date"
-                    , dto.getBfzgxfsj().split(",")[0], dto.getBfzgxfsj().split(",")[1]);
-        }
-        // bsjssj
-        if (StrUtil.isNotBlank(dto.getBsjssj()) && dto.getBsjssj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getBsjssj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='已接收' and start_date >={0} and {1} >= end_date"
-                    , dto.getBsjssj().split(",")[0], dto.getBsjssj().split(",")[1]);
-        }
-        //zysj
-        if (StrUtil.isNotBlank(dto.getZysj()) && dto.getZysj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getZysj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='打版完成' and start_date >={0} and {1} >= end_date"
-                    , dto.getZysj().split(",")[0], dto.getZysj().split(",")[1]);
-        }
-        //cjsj
-        if (StrUtil.isNotBlank(dto.getCjsj()) && dto.getCjsj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and start_date >={0}"
-                    , dto.getCjsj().split(",")[0]);
-            qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= start_date "
-                    , dto.getCjsj().split(",")[1]);
-        }
-        //cfsj
-        if (StrUtil.isNotBlank(dto.getCfsj()) && dto.getCfsj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝开始' and start_date >={0}"
-                    , dto.getCfsj().split(",")[0]);
-            qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= start_date "
-                    , dto.getCfsj().split(",")[1]);
-        }
-        // yywcsj
-        if (StrUtil.isNotBlank(dto.getYywcsj()) && dto.getYywcsj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getYywcsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and start_date >={0} and {1} >= end_date"
-                    , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
-        }
-        List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-        stylePicUtils.setStylePic(list, "stylePic");
+        PageInfo<SampleBoardVo> sampleBoardVoPageInfo = sampleBoardList(dto);
+        List<SampleBoardVo> list = sampleBoardVoPageInfo.getList();
+//        stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         List<SampleBoardExcel> excelList = BeanUtil.copyToList(list, SampleBoardExcel.class);
