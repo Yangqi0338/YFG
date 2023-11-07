@@ -893,7 +893,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-        stylePicUtils.setStylePic(list, "stylePic");
+        if(StringUtils.isBlank(dto.getDeriveflag())){
+            stylePicUtils.setStylePic(list, "stylePic");
+        }
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
@@ -908,13 +910,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      */
     @Override
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException {
+        dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardVo> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardVo> list = sampleBoardVoPageInfo.getList();
-//        stylePicUtils.setStylePic(list, "stylePic");
-        // 设置节点状态数据
-        nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         List<SampleBoardExcel> excelList = BeanUtil.copyToList(list, SampleBoardExcel.class);
-        ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("title", "sheetName", ExcelType.HSSF), response);
+        ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
     }
 
     @Override
