@@ -47,6 +47,8 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String deriveflag;
 
 
+    private String patternNo;
+
     private String sampleType;
 
     private String technicianKittingDate;

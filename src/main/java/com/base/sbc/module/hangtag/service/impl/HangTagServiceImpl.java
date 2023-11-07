@@ -529,7 +529,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 洗唛材质备注
 				tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarksName());
 				// 贮藏要求
-				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemand());
+				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemandName());
 				// 产地
 				tagPrinting.setC8_APPBOM_MadeIn(hangTag.getProducer());
 				// 入库时间

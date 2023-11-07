@@ -744,8 +744,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
+
         // 查询样衣信息
         QueryWrapper<Style> sdQw = new QueryWrapper<>();
+
+        //临时逻辑,如果请求参数有打版指令的,就先查打版指令,再根据打版指令查的样衣id查询
+        if (StrUtil.isNotBlank(dto.getPatternNo())) {
+            QueryWrapper<PatternMaking> pmQw = new QueryWrapper<>();
+            pmQw.like("pattern_no", dto.getPatternNo());
+            pmQw.select("style_id");
+            List<PatternMaking> list = this.list(pmQw);
+            if (CollUtil.isEmpty(list)) {
+                return new PageInfo();
+            }
+            List<String> ids = list.stream().map(PatternMaking::getStyleId).collect(Collectors.toList());
+            sdQw.in("id", ids);
+        }
+
+
         sdQw.like(StrUtil.isNotBlank(dto.getSearch()), "design_no", dto.getSearch());
         sdQw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         sdQw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
