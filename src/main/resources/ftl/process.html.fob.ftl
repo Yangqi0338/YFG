@@ -676,7 +676,39 @@
         </tfoot>
     </table>
 </#if>
-
+<#if zysxDataList?size gt 0>
+    <table class="table_border mt" <#if ztbzDataList?size gt 0><#else>style="page-break-before: always;"</#if>>
+        <thead>
+        <tr>
+            <th colspan="2" class="th_title">
+                <p>注意事项</p>
+                <hr>
+            </th>
+        </tr>
+        <tr>
+            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 50%">描述</th>
+        </tr>
+        </thead>
+        <tbody>
+        <#if zysxDataList??>
+            <#list zysxDataList as item>
+                <tr>
+                    <td>${item.item}</td>
+                    <td>
+                        ${item.content}
+                    </td>
+                </tr>
+            </#list>
+        </#if>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="3" style="height: 30px;">注意事项-${zysxDataList?size}</td>
+        </tr>
+        </tfoot>
+    </table>
+</#if>
 <!--    整烫包装 6-->
 <#if ztbzDataList?size gt 0>
     <table class="table_border mt" <#if jcgyDataList?size gt 0><#else>style="page-break-before: always;"</#if>  >
@@ -711,38 +743,6 @@
         </tfoot>
     </table>
 </#if>
-<#if zysxDataList?size gt 0>
-    <table class="table_border mt" <#if ztbzDataList?size gt 0><#else>style="page-break-before: always;"</#if>>
-        <thead>
-        <tr>
-            <th colspan="2" class="th_title">
-                <p>注意事项</p>
-                <hr>
-            </th>
-        </tr>
-        <tr>
-            <th class="gb" style="width: 10%">工艺项目</th>
-            <th class="gb" style="width: 50%">描述</th>
-        </tr>
-        </thead>
-        <tbody>
-        <#if zysxDataList??>
-            <#list zysxDataList as item>
-                <tr>
-                    <td>${item.item}</td>
-                    <td>
-                        ${item.content}
-                    </td>
-                </tr>
-            </#list>
-        </#if>
-        </tbody>
-        <tfoot>
-        <tr>
-            <td colspan="3" style="height: 30px;">注意事项-${zysxDataList?size}</td>
-        </tr>
-        </tfoot>
-    </table>
-</#if>
+
 </body>
 </html>

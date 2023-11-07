@@ -63,6 +63,8 @@ public class StyleStepVo {
         @ApiModelProperty(value = "版师名称")
         private String patternDesignName;
 
+        private String patternNo;
+
         @ApiModelProperty(value = "打版类型")
         private String sampleType;
 
