@@ -133,9 +133,6 @@ public class StylePricingController extends BaseController {
             }
             list.add(s);
         }
-
-
-
         List<StylePricing> stylePricings = stylePricingService.listByIds(list);
         for (StylePricing stylePricing : stylePricings) {
 
@@ -175,12 +172,18 @@ public class StylePricingController extends BaseController {
         /*获取款式下的关联的款*/
         List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*计控确认成本消息通知*/
-        if(StrUtil.equals(dto.getControlConfirm(), BaseGlobal.STATUS_CLOSE)){
+        if(StrUtil.equals(dto.getControlConfirm(), BaseGlobal.STATUS_CLOSE)) {
             for (PackInfo packInfo : packInfoList) {
-                messageUtils.stylePricingSendMessage("M商品企划",packInfo.getDesignNo(),packInfo.getPlanningSeasonId(),"1",baseController.getUser());
+                messageUtils.stylePricingSendMessage("M商品企划", packInfo.getDesignNo(), packInfo.getPlanningSeasonId(), "1", baseController.getUser());
             }
         }
-        smpService.goods( list.toArray(new String[0]));
+        /*吊牌确认下发*/
+        if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE)){
+            String collect = packInfoList.stream().filter(f -> StrUtil.isNotBlank(f.getStyleColorId())).map(PackInfo::getStyleColorId).collect(Collectors.joining(","));
+            if (StrUtil.isNotBlank(collect)) {
+                smpService.goods(collect.split(","));
+            }
+        }
         return updateSuccess("提交成功");
     }
 
