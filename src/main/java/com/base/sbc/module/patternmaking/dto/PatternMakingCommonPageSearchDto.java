@@ -43,6 +43,10 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @ApiModelProperty(value = "产品季id", example = "1223333122223333333")
     private String planningSeasonId;
 
+    @ApiModelProperty(value = "导出标记")
+    private String deriveflag;
+
+
     private String sampleType;
 
     private String technicianKittingDate;
@@ -62,4 +66,5 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String sampleBarCode;
     //模板部件
     private String patternParts;
+
 }

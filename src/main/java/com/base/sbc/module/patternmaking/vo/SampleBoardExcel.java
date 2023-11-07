@@ -49,12 +49,12 @@ public class SampleBoardExcel {
      * 改版意见
      */
     @ApiModelProperty(value = "改版意见")
-    @Excel(name = "改版意见")
+    @Excel(name = "改版意见",width = 20)
     private String revisionComments;
 
-    @ApiModelProperty(value = "款图")
+/*    @ApiModelProperty(value = "款图")
     @Excel(name = "款图", type = 2, imageType = 1)
-    private String stylePic;
+    private String stylePic;*/
 
     @ApiModelProperty(value = "设计款号")
     @Excel(name = "款式")

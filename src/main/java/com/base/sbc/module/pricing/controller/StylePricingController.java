@@ -8,7 +8,9 @@ package com.base.sbc.module.pricing.controller;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -31,6 +33,7 @@ import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -118,6 +121,7 @@ public class StylePricingController extends BaseController {
     @ApiOperation(value = "提交审核")
     @PostMapping("/updateStatus")
     @DuplicationCheck
+    @Transactional(rollbackFor = {Exception.class})
     public ApiResult updateStatus( @RequestBody StylePricingStatusDTO dto) {
         String[] split = dto.getIds().split(",");
         List<String> list = new ArrayList<>();
@@ -133,9 +137,6 @@ public class StylePricingController extends BaseController {
             }
             list.add(s);
         }
-
-
-
         List<StylePricing> stylePricings = stylePricingService.listByIds(list);
         for (StylePricing stylePricing : stylePricings) {
 
@@ -170,17 +171,33 @@ public class StylePricingController extends BaseController {
                 stylePricing.setControlConfirmTime(new Date());
             }
         }
+        /*迁移数据不能操作*/
+      List<String> packIds = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.in("id",packIds);
+        queryWrapper.eq("historical_data",BaseGlobal.YES);
+        List packInfoList1 = packInfoService.list(queryWrapper);
+        if(CollUtil.isNotEmpty(packInfoList1)){
+            throw new OtherException("历史数据不能操作");
+        }
+
         stylePricingService.updateBatchById(stylePricings);
         List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
         /*获取款式下的关联的款*/
         List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*计控确认成本消息通知*/
-        if(StrUtil.equals(dto.getControlConfirm(), BaseGlobal.STATUS_CLOSE)){
+        if(StrUtil.equals(dto.getControlConfirm(), BaseGlobal.STATUS_CLOSE)) {
             for (PackInfo packInfo : packInfoList) {
-                messageUtils.stylePricingSendMessage("M商品企划",packInfo.getDesignNo(),packInfo.getPlanningSeasonId(),"1",baseController.getUser());
+                messageUtils.stylePricingSendMessage("M商品企划", packInfo.getDesignNo(), packInfo.getPlanningSeasonId(), "1", baseController.getUser());
             }
         }
-        smpService.goods( list.toArray(new String[0]));
+        /*吊牌确认下发*/
+        if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE)){
+            String collect = packInfoList.stream().filter(f -> StrUtil.isNotBlank(f.getStyleColorId())).map(PackInfo::getStyleColorId).collect(Collectors.joining(","));
+            if (StrUtil.isNotBlank(collect)) {
+                smpService.goods(collect.split(","));
+            }
+        }
         return updateSuccess("提交成功");
     }
 

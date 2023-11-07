@@ -16,6 +16,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -85,9 +86,8 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
     @Override
     public PageInfo getFabricInformationList(QueryFabricInformationDto queryFabricInformationDto) {
         queryFabricInformationDto.setOrderBy("create_date desc");
-        QueryWrapper queryWrapper = new QueryWrapper<>();
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.eq("del_flag", BaseGlobal.NO);
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getYearName()), "year_name", queryFabricInformationDto.getYearName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getSeasonName()), "season", queryFabricInformationDto.getSeasonName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getBrandName()), "brand", queryFabricInformationDto.getBrandName());
@@ -97,8 +97,9 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierColor()), "supplier_color", queryFabricInformationDto.getSupplierColor());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getAtactiformStylist()), "atactiform_stylist", queryFabricInformationDto.getAtactiformStylist());
         if (StringUtils.isNotBlank(queryFabricInformationDto.getSearch())) {
-            queryWrapper.apply("( supplier_material_code like concat('%','" + queryFabricInformationDto.getSearch() + "','%') " +
-                    " or  supplier_name like concat('%','" + queryFabricInformationDto.getSearch() + "','%')");
+            queryWrapper.andLike(queryFabricInformationDto.getSearch(), "supplier_material_code", "supplier_name");
+          /*  queryWrapper.apply("and ( supplier_material_code like concat('%','" + queryFabricInformationDto.getSearch() + "','%') " +
+                    " or  supplier_name like concat('%','" + queryFabricInformationDto.getSearch() + "','%')");*/
         }
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"brand:brand"},true);
         Page<FabricBasicInformation>  objects = PageHelper.startPage(queryFabricInformationDto);
