@@ -192,7 +192,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         CommonUtils.removeQuery(dto, "imageUrl");
         dto.calculateCost();
         PackBom packBom = BeanUtil.copyProperties(dto, PackBom.class);
-        PackBomVersion version = packBomVersionService.checkVersion(dto.getBomVersionId());
+        /*是否是核价信息修改计控损耗*/
+       Boolean b =  StrUtil.equals(dto.getPricingSendFlag(), BaseGlobal.STATUS_CLOSE);
+        PackBomVersion version = null;
+        if(b){
+            version = packBomVersionService.getById(dto.getBomVersionId());
+        }else {
+            version = packBomVersionService.checkVersion(dto.getBomVersionId());
+        }
 
         // 新增
         if (CommonUtils.isInitId(packBom.getId())) {
@@ -214,7 +221,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             packBom = db;
             /*核价信息编辑物料清单的可编辑状态直接下发*/
             List<String> stringList = com.base.sbc.config.utils.StringUtils.convertList("1,3");
-            if (stringList.contains(db.getScmSendFlag()) && StrUtil.equals(dto.getPricingSendFlag(), BaseGlobal.STATUS_CLOSE)) {
+            if (stringList.contains(db.getScmSendFlag()) && b) {
+                /*解锁下发*/
+                IdDto idDto = new IdDto();
+                idDto.setId(db.getId());
+                unlock(idDto);
                 /*下发*/
                 smpService.bom(db.getId().split(","));
             }
@@ -245,6 +256,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         packBomVo.setPackBomColorVoList(BeanUtil.copyToList(packBomColorList, PackBomColorVo.class));
         return packBomVo;
     }
+
+
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
