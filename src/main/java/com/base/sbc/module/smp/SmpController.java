@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp;
 
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
@@ -30,6 +31,7 @@ public class SmpController extends BaseController {
      * 商品主数据下发（款式配色）
      */
     @PutMapping("/goods")
+    @DuplicationCheck
     public ApiResult goods(String[] ids){
         Integer i = smpService.goods(ids);
         if (ids.length== i) {
@@ -43,6 +45,7 @@ public class SmpController extends BaseController {
      * 物料主数据下发(物料档案)
      */
     @PutMapping("/material")
+    @DuplicationCheck
     public ApiResult material(String[] ids) {
         Integer i = smpService.materials(ids);
         if (ids.length== i) {
@@ -56,6 +59,7 @@ public class SmpController extends BaseController {
      * 颜色主数据下发  已验证
      */
     @PutMapping("/color")
+    @DuplicationCheck
     public ApiResult color(String[] ids) {
         Integer i = smpService.color(ids);
         if (ids.length== i) {
@@ -69,6 +73,7 @@ public class SmpController extends BaseController {
      * bom下发
      */
     @PutMapping("/bom")
+    @DuplicationCheck
     public ApiResult bom(String[] ids) {
         Integer i = smpService.bom(ids);
         if (ids.length== i) {
@@ -100,6 +105,7 @@ public class SmpController extends BaseController {
      * processSheet 下发
      */
     @PutMapping("/processSheet")
+    @DuplicationCheck
     public ApiResult processSheet(@RequestBody List<SmpProcessSheetDto> sheetDtoList) {
         Integer i = smpService.processSheet(sheetDtoList);
         if (sheetDtoList.size()== i) {
@@ -114,6 +120,7 @@ public class SmpController extends BaseController {
      * 面料成分名称码表下发
      */
     @PutMapping("/fabricComposition")
+    @DuplicationCheck
     public ApiResult fabricComposition(String[] ids) {
         Integer i = smpService.fabricComposition(ids);
         if (ids.length== i) {

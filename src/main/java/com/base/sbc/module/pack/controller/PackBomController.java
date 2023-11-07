@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.controller;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.NumberUtil;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -127,6 +128,7 @@ public class PackBomController extends BaseController{
 
     @PostMapping("/save")
     @ApiOperation(value = "保存单个物料清单")
+    @DuplicationCheck(type = 1)
     public PackBomVo save(@Valid @RequestBody PackBomDto dto) {
         return packBomService.saveByDto(dto);
     }
