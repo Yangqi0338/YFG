@@ -165,7 +165,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMaking.setBreakOffSample(BaseGlobal.NO);
         patternMaking.setPrmSendStatus(BaseGlobal.NO);
         patternMaking.setDesignSendStatus(BaseGlobal.NO);
-        patternMaking.setSecondProcessing(BaseGlobal.NO);
+        // patternMaking.setSecondProcessing(BaseGlobal.NO);
         patternMaking.setSuspend(BaseGlobal.NO);
         patternMaking.setReceiveSample(BaseGlobal.NO);
         patternMaking.setExtAuxiliary(BaseGlobal.NO);
