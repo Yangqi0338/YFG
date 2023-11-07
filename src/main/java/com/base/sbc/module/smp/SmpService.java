@@ -378,7 +378,7 @@ public class SmpService {
                     }
                     downContent = stylePricingVO.getDownContent();
                     smpGoodsDto.setPlanActualRate(stylePricingVO.getPlanActualMagnification());
-                    smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getCoordinationProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
+                    smpGoodsDto.setProcessCost(stylePricingVO.getCoordinationProcessingFee().add(stylePricingVO.getWoolenYarnProcessingFee()).add(stylePricingVO.getSewingProcessingFee()));
                     smpGoodsDto.setProductName(stylePricingVO.getProductName());
                     //吊牌
                     smpGoodsDto.setSeries(stylePricingVO.getSeries());
