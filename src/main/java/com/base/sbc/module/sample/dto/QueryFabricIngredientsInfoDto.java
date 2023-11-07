@@ -19,4 +19,16 @@ public class QueryFabricIngredientsInfoDto extends Page {
     /** 开发类型名称 */
     @ApiModelProperty(value = "开发类型名称"  )
     private String devTypeName;
+
+    @ApiModelProperty(value = "开发情况"  )
+    private String  devCondition;
+
+    @ApiModelProperty(value = "厂家编码"  )
+    private String  manufacturerNumber;
+
+    @ApiModelProperty(value = "厂家"  )
+    private String   manufacturer;
+
+    @ApiModelProperty(value = "调样设计师"  )
+    private String   atactiformStylist;
 }

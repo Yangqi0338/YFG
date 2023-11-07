@@ -82,6 +82,9 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryId()),"category_id",queryFabricIngredientsInfoDto.getCategoryId());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryName()),"category_name",queryFabricIngredientsInfoDto.getCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevTypeName()),"dev_type_name",queryFabricIngredientsInfoDto.getDevTypeName());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturerNumber()),"manufacturer",queryFabricIngredientsInfoDto.getManufacturerNumber());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"manufacturer_number",queryFabricIngredientsInfoDto.getManufacturer());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getAtactiformStylist()),"atactiform_stylist",queryFabricIngredientsInfoDto.getAtactiformStylist());
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"category_id"},true);
         /*查询调样-辅料信息数据*/
         Page<FabricIngredientsInfoVo> objects = PageHelper.startPage(queryFabricIngredientsInfoDto);
@@ -110,8 +113,8 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
             QueryWrapper<FabricIngredientsInfo> queryWrapper=new QueryWrapper<>();
             /*新增*/
             BeanUtils.copyProperties(addRevampFabricIngredientsInfoDto, fabricIngredientsInfo);
-            fabricIngredientsInfo.setAtactiformStylistUserId(baseController.getUserId());
-            fabricIngredientsInfo.setAtactiformStylist(baseController.getUser().getName());
+      /*      fabricIngredientsInfo.setAtactiformStylistUserId(baseController.getUserId());
+            fabricIngredientsInfo.setAtactiformStylist(baseController.getUser().getName());*/
             fabricIngredientsInfo.setCompanyCode(baseController.getUserCompany());
             fabricIngredientsInfo.insertInit();
             CommonUtils.removeQuery(fabricIngredientsInfo,"imageUrl");
