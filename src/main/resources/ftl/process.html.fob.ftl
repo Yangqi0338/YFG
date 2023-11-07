@@ -113,30 +113,31 @@
         margin-bottom: 5px;
     }
 
-
     .one_imgs_xbj {
         display: table-cell;
-        vertical-align: middle;
+        vertical-align: center;
         text-align: center;
-
-    }
-
-    .one_imgs_xbj img {
-        max-height: 55mm;
+        padding: 10px;
         max-width: 85mm;
+    }
+    .one_imgs_xbj img {
+        max-height: 65mm;
+        min-height: 65mm;
+        /*max-width: 75mm;*/
     }
 
     .jcgy_img_box {
         display: table-cell;
         vertical-align: middle;
         text-align: center;
-        padding-top: 0.5px;
-        max-width: 55mm;
+        padding: 10px;
+        max-width: 85mm;
     }
 
     .jcgy_img_box img {
         height: ${jcgyImgHeight}mm;
-        max-width: 55mm;
+        max-width: 85mm;
+
     }
 
 
@@ -245,6 +246,7 @@
         max-height: 166mm;
         max-width: 284mm;
     }
+
 </style>
 <body>
 <!-- 页眉 -->
@@ -462,7 +464,6 @@
         </td>
     </tr>
 </table>
-<!--测量点 3 -->
 <#if sizeDataList??>
     <#if sizeList?size gt 5>
         <table class="table_border mt" style="page-break-before: always; ">
@@ -478,13 +479,13 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]}">
+                        <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth">
                             ${size}
                         </th>
                     </#list>
                 </#if>
-                <th rowspan="2" class="gc" style="text-align: center">公差<br/>(-)</th>
-                <th rowspan="2" class="gc" style="text-align: center">公差<br/>(+)</th>
+                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(-)</th>
+                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(+)</th>
             </tr>
 
             <tr>
@@ -548,22 +549,22 @@
                         </th>
                     </#list>
                 </#if>
-                <th rowspan="2" class="gc" style="text-align: center">公差<br/>(-)</th>
-                <th rowspan="2" class="gc" style="text-align: center">公差<br/>(+)</th>
+                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(-)</th>
+                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(+)</th>
             </tr>
 
             <tr>
                 <#list sizeList as size>
                     <#if isFob>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center;padding: 0 10px">成衣<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; <#if washSkippingFlag>padding: 0 10px;<#else>padding: 0 30px;</#if>">成衣尺寸</td>
                         <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center;padding: 0 10px">洗后<br>尺寸</td>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px">洗后尺寸</td>
                         </#if>
                     <#else>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center;padding: 0 10px">样板<br>尺寸</td>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center;padding: 0 10px">成衣<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; padding: 0 10px">样板<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px">成衣<br>尺寸</td>
                         <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center;padding: 0 10px">洗后<br>尺寸</td>
+                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center; padding: 0 10px">洗后<br>尺寸</td>
                         </#if>
                     </#if>
 
