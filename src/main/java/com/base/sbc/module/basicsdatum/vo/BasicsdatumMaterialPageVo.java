@@ -217,6 +217,9 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	/** 克重 */
 	@ApiModelProperty(value = "克重")
 	private String gramWeight;
+	/**持续环保（1是 0否 空白） */
+	@ApiModelProperty(value = "持续环保（1是 0否 空白）")
+	private String isProtection;
 	/** 织造类型 */
 	@ApiModelProperty(value = "织造类型")
 	private String weaveType;

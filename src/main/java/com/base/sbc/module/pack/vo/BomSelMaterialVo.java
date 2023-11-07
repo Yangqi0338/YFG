@@ -118,6 +118,9 @@ public class BomSelMaterialVo {
     private BigDecimal lossRate;
     @ApiModelProperty(value = "克重")
     private String gramWeight;
+    /**持续环保（1是 0否 空白） */
+    @ApiModelProperty(value = "持续环保（1是 0否 空白）")
+    private String isProtection;
     /**
      * 成本
      */
