@@ -190,7 +190,11 @@ public class PackBomController extends BaseController{
         return packBomService.move(dto.getId(), "sort", PackBaseService.MOVE_DOWN);
     }
 
-
+    @PostMapping("/dragSort")
+    @ApiOperation(value = "拖拽")
+    public Boolean dragSort(@RequestBody IdDto dto) {
+        return packBomService.sort(dto.getId(),"sort");
+    }
 
     @PostMapping("/unlock")
     @ApiOperation(value = "物料解锁")
