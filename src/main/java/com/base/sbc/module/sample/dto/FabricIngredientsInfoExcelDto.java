@@ -90,7 +90,10 @@ public class FabricIngredientsInfoExcelDto {
     @ApiModelProperty(value = "规格"  )
     @Excel(name = "规格")
     private String specification;
-
+    /** 数量 */
+    @ApiModelProperty(value = "数量"  )
+    @Excel(name = "数量")
+    private Integer quantity;
     /** 设计到样时间 */
     @ApiModelProperty(value = "设计到样时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
