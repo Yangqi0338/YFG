@@ -65,6 +65,12 @@ public class FabricInformationExcelDto {
     @ApiModelProperty(value = "是否新面料（1是 0否"  )
     @Excel(name = "是否新面料", replace = {"false_0", "true_1"} )
     private String isNewFabric;
+
+    /** 持续环保（0是 1否 */
+    @ApiModelProperty(value = "持续环保（1是 0否"  )
+    @Excel(name = "持续环保", replace = {"否_0", "是_1", "_null"} )
+    private String isProtection;
+
     /** 数量（米） */
     @ApiModelProperty(value = "数量（米）"  )
     @Excel(name = "数量(米)")
