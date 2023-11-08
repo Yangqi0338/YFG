@@ -1091,11 +1091,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         Long aLong = baseMapper.selectCount(queryWrapper);
         /*超过2024最大坑未500*/
         if (channel.getYearName().compareTo("2023") > 0) {
-            if (aLong > 500) {
+            if (aLong >= 500) {
                 throw new OtherException("已超出最大500坑位，请联系IT运维");
             }
         } else {
-            if (aLong > 800) {
+            if (aLong >= 800) {
                 throw new OtherException("已超出最大800坑位，请联系IT运维");
             }
         }
