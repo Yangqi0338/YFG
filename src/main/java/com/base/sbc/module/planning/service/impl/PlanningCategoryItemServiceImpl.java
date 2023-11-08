@@ -1088,7 +1088,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         queryWrapper.eq("prod_category", dto.getProdCategory());
         queryWrapper.eq("historical_data",BaseGlobal.STATUS_NORMAL);
         /*查询是一个品牌下一年的坑位*/
-        Long aLong = baseMapper.selectCount(queryWrapper);
+        Long aLong = baseMapper.selectCount(queryWrapper) + dto.getCount();
         /*超过2024最大坑未500*/
         if (channel.getYearName().compareTo("2023") > 0) {
             if (aLong >= 500) {
