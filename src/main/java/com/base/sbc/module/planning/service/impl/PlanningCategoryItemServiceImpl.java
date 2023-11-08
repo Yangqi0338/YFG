@@ -1079,6 +1079,29 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         if (channel == null) {
             throw new OtherException("渠道信息为空");
         }
+        /**
+         * 每次新建坑位最多建50个。每次新建坑位最多建50个，历史800个坑位 新产品季超出500个坑位。2024年以后属于新产品季 增加提示：已超出最大坑位，请联系IT运维
+         */
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("year_name", channel.getYearName());
+        queryWrapper.eq("brand", channel.getBrand());
+        List<PlanningSeason> planningSeasonList = planningSeasonService.list(queryWrapper);
+        queryWrapper.clear();
+        List<String> idList = planningSeasonList.stream().map(PlanningSeason::getId).collect(Collectors.toList());
+        queryWrapper.in("planning_season_id", idList);
+        /*查询是一个品牌下一年的坑位*/
+        Long aLong = baseMapper.selectCount(queryWrapper);
+        /*超过2024最大坑未500*/
+        if (channel.getYearName().compareTo("2023") > 0) {
+            if (aLong > 500) {
+                throw new OtherException("已超出最大500坑位，请联系IT运维");
+            }
+        } else {
+            if (aLong > 800) {
+                throw new OtherException("已超出最大800坑位，请联系IT运维");
+            }
+        }
+
         PlanningCategoryItem base = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
         BeanUtil.copyProperties(channel, base);
         //获取设计编号
@@ -1097,6 +1120,11 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         }
         return saveBatch(saveList);
     }
+
+
+
+
+
 
     @Override
     public List<BasicStructureTreeVo> categoryTree(String planningChannelId) {
