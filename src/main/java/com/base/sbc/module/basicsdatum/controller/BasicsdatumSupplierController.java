@@ -12,6 +12,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.constant.BaseConstant;
@@ -94,6 +95,7 @@ public class BasicsdatumSupplierController{
 
 	@ApiOperation(value = "/导入")
 	@PostMapping("/basicsdatumSupplierImportExcel")
+	@DuplicationCheck(type = 1,time = 300,message = "文件正在导入中，请稍后再试...")
 	public Boolean basicsdatumSupplierImportExcel(@RequestParam("file") MultipartFile file) throws Exception {
 	return basicsdatumSupplierService.basicsdatumSupplierImportExcel(file);
 	}

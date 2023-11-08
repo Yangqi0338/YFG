@@ -26,6 +26,10 @@ public class RequestBodyAdvice extends RequestBodyAdviceAdapter {
     public Object afterBodyRead(Object body, HttpInputMessage inputMessage, MethodParameter parameter,
                                 Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
         HttpLog httpLog = companyUserInfo.get().getHttpLog();
+        //如果是文件上传则不写入请求体
+        if (inputMessage.getHeaders().getContentType().toString().contains("multipart/form-data")) {
+            return body;
+        }
         httpLog.setReqBody(JSON.toJSONString(body));
         return body;
     }
