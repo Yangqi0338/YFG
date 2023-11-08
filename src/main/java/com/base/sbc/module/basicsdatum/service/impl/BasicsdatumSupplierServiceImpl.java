@@ -18,6 +18,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -39,14 +40,17 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,6 +77,12 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
     private MinioUtils minioUtils;
     @Autowired
     private CcmFeignService ccmFeignService;
+
+    @Resource
+    private RedisUtils redisUtils;
+
+    @Resource
+    private BasicsdatumSupplierServiceAsync basicsdatumSupplierServiceAsync;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -129,65 +139,60 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
      * @return
      */
     @Override
-    @Transactional(readOnly = false)
     public Boolean basicsdatumSupplierImportExcel(MultipartFile file) throws Exception {
-        ImportParams params = new ImportParams();
-        params.setNeedSave(false);
-        List<BasicsdatumSupplierExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumSupplierExcelDto.class, params);
-        /*获取字典值*/
-        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("TradeTerm,C8_Sync_DataStatus");
-        /*结算方式*/
-        Map<String, String> mapTradeTerm = dictInfoToMap.get("TradeTerm");
-        /*供应商类型*/
-        Map<String, String> mapSync = dictInfoToMap.get("C8_Sync_DataStatus");
-        list = list.stream().filter(s -> StringUtils.isNotBlank(s.getSupplierCode())).collect(Collectors.toList());
-        for (BasicsdatumSupplierExcelDto basicsdatumSupplierExcelDto : list) {
-            if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getPicture())) {
-                File file1 = new File(basicsdatumSupplierExcelDto.getPicture());
-                /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + ".jpg");
-                basicsdatumSupplierExcelDto.setPicture(CommonUtils.removeQuery(attachmentVo.getUrl()));
-            }
-
-            if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getAgentImages())) {
-                File file1 = new File(basicsdatumSupplierExcelDto.getAgentImages());
-                /*上传图*/
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + "-Agent.jpg");
-                basicsdatumSupplierExcelDto.setAgentImages(CommonUtils.removeQuery(attachmentVo.getUrl()));
-            }
+            ImportParams params = new ImportParams();
+            params.setNeedSave(false);
+            List<BasicsdatumSupplierExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumSupplierExcelDto.class, params);
+            /*获取字典值*/
+            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("TradeTerm,C8_Sync_DataStatus");
             /*结算方式*/
-            if (StringUtils.isNotBlank(basicsdatumSupplierExcelDto.getClearingForm())) {
-                for (Map.Entry<String, String> entry : mapTradeTerm.entrySet()) {
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-                    if (value.equals(basicsdatumSupplierExcelDto.getClearingForm())) {
-                        basicsdatumSupplierExcelDto.setClearingForm(key);
-                        break;
-                    }
-                }
-            }
+            Map<String, String> mapTradeTerm = dictInfoToMap.get("TradeTerm");
             /*供应商类型*/
-            if (StringUtils.isNotBlank(basicsdatumSupplierExcelDto.getSupplierType())) {
-                for (Map.Entry<String, String> entry : mapSync.entrySet()) {
-                    String key = entry.getKey();
-                    String value = entry.getValue();
-                    if (value.equals(basicsdatumSupplierExcelDto.getSupplierType())) {
-                        basicsdatumSupplierExcelDto.setSupplierType(key);
-                        break;
+            Map<String, String> mapSync = dictInfoToMap.get("C8_Sync_DataStatus");
+            list = list.stream().filter(s -> StringUtils.isNotBlank(s.getSupplierCode())).collect(Collectors.toList());
+            for (BasicsdatumSupplierExcelDto basicsdatumSupplierExcelDto : list) {
+                if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getPicture())) {
+                    File file1 = new File(basicsdatumSupplierExcelDto.getPicture());
+                    /*上传图*/
+                    AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + ".jpg");
+                    basicsdatumSupplierExcelDto.setPicture(CommonUtils.removeQuery(attachmentVo.getUrl()));
+                }
+
+                if (StringUtils.isNotEmpty(basicsdatumSupplierExcelDto.getAgentImages())) {
+                    File file1 = new File(basicsdatumSupplierExcelDto.getAgentImages());
+                    /*上传图*/
+                    AttachmentVo attachmentVo = uploadFileService.uploadToMinio(minioUtils.convertFileToMultipartFile(file1), "Supplier/" + basicsdatumSupplierExcelDto.getSupplierCode() + "-Agent.jpg");
+                    basicsdatumSupplierExcelDto.setAgentImages(CommonUtils.removeQuery(attachmentVo.getUrl()));
+                }
+                /*结算方式*/
+                if (StringUtils.isNotBlank(basicsdatumSupplierExcelDto.getClearingForm())) {
+                    for (Map.Entry<String, String> entry : mapTradeTerm.entrySet()) {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        if (value.equals(basicsdatumSupplierExcelDto.getClearingForm())) {
+                            basicsdatumSupplierExcelDto.setClearingForm(key);
+                            break;
+                        }
                     }
                 }
-            }
+                /*供应商类型*/
+                if (StringUtils.isNotBlank(basicsdatumSupplierExcelDto.getSupplierType())) {
+                    for (Map.Entry<String, String> entry : mapSync.entrySet()) {
+                        String key = entry.getKey();
+                        String value = entry.getValue();
+                        if (value.equals(basicsdatumSupplierExcelDto.getSupplierType())) {
+                            basicsdatumSupplierExcelDto.setSupplierType(key);
+                            break;
+                        }
+                    }
+                }
 
-        }
+            }
         List<BasicsdatumSupplier> basicsdatumSupplierList = BeanUtil.copyToList(list, BasicsdatumSupplier.class);
-        for (BasicsdatumSupplier basicsdatumSupplier : basicsdatumSupplierList) {
-            QueryWrapper<BasicsdatumSupplier> queryWrapper =new BaseQueryWrapper<>();
-            queryWrapper.eq("supplier_code",basicsdatumSupplier.getSupplierCode());
-            this.saveOrUpdate(basicsdatumSupplier,queryWrapper);
-        }
-//        saveOrUpdateBatch(basicsdatumSupplierList);
+        basicsdatumSupplierServiceAsync.asyncSaveOrUpdate(basicsdatumSupplierList);
         return true;
     }
+
 
     /**
      * 基础资料-供应商导出
