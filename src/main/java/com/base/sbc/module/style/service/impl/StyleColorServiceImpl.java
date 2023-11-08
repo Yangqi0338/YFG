@@ -361,6 +361,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         int index = 0;
         list = CollUtil.distinct(list, AddRevampStyleColorDto::getColorCode, true);
         /*查询颜色*/
+        if(CollUtil.isEmpty(list)){
+            throw new OtherException("未选中数据");
+        }
         List<String> colorCodeList = list.stream().map(AddRevampStyleColorDto::getColorCode).distinct().collect(Collectors.toList());
         List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryServicel.listByField("colour_code",colorCodeList);
         /*颜色数据*/
