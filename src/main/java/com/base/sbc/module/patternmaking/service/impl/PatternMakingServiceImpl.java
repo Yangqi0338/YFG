@@ -854,6 +854,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
+        if(StrUtil.isNotBlank(dto.getPmCreateDate())){
+            String[] s = dto.getPmCreateDate().split(",");
+            s[0] = s[0] + " 00:00:00";
+            s[1] = s[1] + " 23:59:59";
+            qw.between("p.create_date",s);
+        }
         qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
             String[] split = dto.getDesignerIds().split(",");

@@ -69,4 +69,6 @@ public class PatternMakingCommonPageSearchDto extends Page {
     //模板部件
     private String patternParts;
 
+    @ApiModelProperty(value = "创建指令时间")
+    private String pmCreateDate;
 }
