@@ -1085,10 +1085,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("year_name", channel.getYearName());
         queryWrapper.eq("brand", channel.getBrand());
-        List<PlanningSeason> planningSeasonList = planningSeasonService.list(queryWrapper);
-        queryWrapper.clear();
-        List<String> idList = planningSeasonList.stream().map(PlanningSeason::getId).collect(Collectors.toList());
-        queryWrapper.in("planning_season_id", idList);
+        queryWrapper.eq("prod_category", dto.getProdCategory());
+        queryWrapper.eq("historical_data",BaseGlobal.STATUS_NORMAL);
         /*查询是一个品牌下一年的坑位*/
         Long aLong = baseMapper.selectCount(queryWrapper);
         /*超过2024最大坑未500*/
