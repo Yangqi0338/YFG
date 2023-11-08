@@ -475,7 +475,7 @@
                 </th>
             </tr>
             <tr class="size_tr gb">
-                <th rowspan="2" style="text-align: center;" class="partNameClass">部位</th>
+                <th rowspan="2" style="text-align: center;width: 120px;" class="partNameClass">部位</th>
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
@@ -540,7 +540,7 @@
                 </th>
             </tr>
             <tr class="size_tr gb">
-                <th rowspan="2" style="text-align: center;" class="partNameClass">部位</th>
+                <th rowspan="2" style="text-align: center; width: 120px;" class="partNameClass">部位</th>
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
