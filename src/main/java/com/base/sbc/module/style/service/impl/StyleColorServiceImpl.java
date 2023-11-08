@@ -257,13 +257,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
                     String colorName = mainAccessoriesList.stream().map(StyleMainAccessories::getColorName).collect(Collectors.joining(","));
                     if (StringUtils.equals(s.getIsTrim(), BaseGlobal.NO)) {
-                     s.setAccessory(colorName);
-                     s.setAccessoryNo(styleNos);
-                 } else {
-                     s.setPrincipalStyle(colorName);
-                     s.setPrincipalStyleNo(styleNos);
-                 }
-             }
+                        s.setAccessory(colorName);
+                        s.setAccessoryNo(styleNos);
+                    } else {
+                        s.setPrincipalStyle(colorName);
+                        s.setPrincipalStyleNo(styleNos);
+                    }
+                }
             });
 
         } else {
@@ -361,6 +361,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         int index = 0;
         list = CollUtil.distinct(list, AddRevampStyleColorDto::getColorCode, true);
         /*查询颜色*/
+        if(CollUtil.isEmpty(list)){
+            throw new OtherException("未选中数据");
+        }
         List<String> colorCodeList = list.stream().map(AddRevampStyleColorDto::getColorCode).distinct().collect(Collectors.toList());
         List<BasicsdatumColourLibrary> libraryList = basicsdatumColourLibraryServicel.listByField("colour_code",colorCodeList);
         /*颜色数据*/
@@ -379,7 +382,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,  ++index));
+            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,style.getId(),  ++index));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -457,7 +460,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * @return
      */
 
-    public String getNextCode(String brand, String year,String season,String bandName, String category, String designNo, int index) {
+    public String getNextCode(String brand, String year,String season,String bandName, String category, String designNo,String styleId, int index) {
         if (ccmFeignService.getSwitchByCode("STYLE_EQUAL_DESIGN_NO")) {
             return designNo;
         }
@@ -496,19 +499,30 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException(e.getMessage()+"大货编码生成失败");
         }
 //        获取款式下的配色
-        String styleNo = brand + yearOn + bandName + category + designNo;
-        String number = baseMapper.getStyleColorNumber(styleNo, styleNo.length() + 1);
-        String maxMark = "0";
-        if (StringUtils.isNotBlank(number)) {
-            /*获取最大流水号*/
-            maxMark = number;
-        }
-        /*拼接流水号*/
-        styleNo = styleNo + (Long.parseLong(maxMark) + index);
-        /*查询编码是否重复*/
+        String styleNoFront = brand + yearOn + bandName + category + designNo;
+        String styleNo = "";
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("style_id",styleId);
+        Long aLong = baseMapper.selectCount(queryWrapper);
+        /*先使用款式下的流水号 如果重复
+         * 不加流水号查询大货款号的最大流水号
+         * */
+        styleNo =   styleNoFront + (aLong+ index);
         int i = baseMapper.isStyleNoExist(styleNo);
         if (i != 0) {
-            throw new OtherException("编码重复");
+            String maxMark = "0";
+            String number = baseMapper.getStyleColorNumber(styleNoFront, styleNoFront.length() + 1);
+            if (StringUtils.isNotBlank(number)) {
+                /*获取最大流水号*/
+                maxMark = number;
+            }
+            /*拼接流水号*/
+            styleNo = styleNoFront + (Long.parseLong(maxMark) + index);
+            /*查询编码是否重复*/
+            i = baseMapper.isStyleNoExist(styleNo);
+            if (i != 0) {
+                throw new OtherException("编码重复");
+            }
         }
         return styleNo;
     }
@@ -854,7 +868,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         /*禁止下发未关联bom数据*/
         if (CollectionUtils.isEmpty(stringList) || styleColorList.size() != stringList.size()) {
-           String styleNo =  styleColorList.stream().filter(s -> StringUtils.isBlank(s.getBom())).map(StyleColor::getStyleNo).collect(Collectors.joining(","));
+            String styleNo =  styleColorList.stream().filter(s -> StringUtils.isBlank(s.getBom())).map(StyleColor::getStyleNo).collect(Collectors.joining(","));
             throw new OtherException(styleNo+"无关联BOM，主款或配饰未关联BOM");
         }
         /*查询BOM*/
