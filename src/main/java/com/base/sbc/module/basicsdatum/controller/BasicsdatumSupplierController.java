@@ -95,9 +95,9 @@ public class BasicsdatumSupplierController{
 
 	@ApiOperation(value = "/导入")
 	@PostMapping("/basicsdatumSupplierImportExcel")
-	@DuplicationCheck(type = 1,time = 300,message = "文件正在导入中，请稍后再试...")
+	@DuplicationCheck(type = 1,time = 3600,message = "文件正在导入中，请稍后再试...")
 	public Boolean basicsdatumSupplierImportExcel(@RequestParam("file") MultipartFile file) throws Exception {
-	return basicsdatumSupplierService.basicsdatumSupplierImportExcel(file);
+		return basicsdatumSupplierService.basicsdatumSupplierImportExcel(file);
 	}
 
 	@ApiOperation(value = "/导出")

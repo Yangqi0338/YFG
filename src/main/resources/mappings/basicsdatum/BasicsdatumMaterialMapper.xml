@@ -128,7 +128,7 @@
 			   bm.ingredient,
 			   bm.gram_weight,
 			   bm.loss_rate,
-			   bm.supplier_factory_ingredient,
+			   bm.factory_composition as supplierFactoryIngredient,
 			   bm.auxiliary_material,
 			   bm.remarks,
 			   bm.delivery_code,
