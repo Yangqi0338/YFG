@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.dto;
 import java.util.Date;
 import java.util.List;
 
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -27,7 +28,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel(value = "吊牌")
-public class HangTagDTO {
+public class HangTagDTO extends HangTag {
 
     private static final long serialVersionUID = 1L;
 
