@@ -105,7 +105,11 @@ public class GenTechSpecPdfFile {
     private String executeStandard;
     @ApiModelProperty(value = "外辅工艺")
     private String extAuxiliaryTechnics;
-
+    /**
+     * 外发工厂
+     */
+    @ApiModelProperty(value = "外发工厂")
+    private String outFactory;
     @ApiModelProperty(value = "质量等级")
     private String qualityGrade;
     @ApiModelProperty(value = "注意事项")
