@@ -636,7 +636,7 @@
             </th>
         </tr>
         <tr>
-            <th class="gb" style="width: 10%">工艺项目</th>
+            <th class="gb" style="width: 10%">工艺类型</th>
             <th class="gb" style="width: 40%">工艺描述</th>
         </tr>
         </thead>
@@ -651,7 +651,7 @@
                                     <div>
                                         <div style="width: 20%;text-align: center;vertical-align: middle;">
                                             <div style="height: 100%">
-                                                ${item.item}
+                                                ${item.processTypeName}
                                             </div>
                                         </div>
                                         <div style="width: 80%;">
