@@ -1338,9 +1338,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         detail.setPatternPartsPic(hisStyle.getPatternPartsPic());
 
        /*任务信息*/
-        detail.setDesigner(hisStyle.getDesigner());
-        detail.setDesignerId(hisStyle.getDesignerId());
-        detail.setTechnicianId(hisStyle.getTechnicianId());
+/*        detail.setDesigner(hisStyle.getDesigner());
+        detail.setDesignerId(hisStyle.getDesignerId());*/
+/*        detail.setTechnicianId(hisStyle.getTechnicianId());
         detail.setTechnicianName(hisStyle.getTechnicianName());
         detail.setFabDevelopeId(hisStyle.getFabDevelopeId());
         detail.setFabDevelopeName(hisStyle.getFabDevelopeName());
@@ -1353,7 +1353,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         detail.setTaskLevel(hisStyle.getTaskLevel());
         detail.setTaskLevelName(hisStyle.getTaskLevelName());
         detail.setPatternDesignName(hisStyle.getPatternDesignName());
-        detail.setPatternDesignId(hisStyle.getPatternDesignId());
+        detail.setPatternDesignId(hisStyle.getPatternDesignId());*/
         /*物料信息*/
         StyleBomSearchDto styleBomSearchDto = new StyleBomSearchDto();
         styleBomSearchDto.setStyleId(hisStyle.getId());
