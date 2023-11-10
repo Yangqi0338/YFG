@@ -231,7 +231,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()), "tsp.control_hangtag_confirm", queryDto.getControlHangtagConfirm());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()), "ts.pattern_design_name", queryDto.getPatternDesignName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()), "tsc.order_flag", queryDto.getOrderFlag());
-        // 数据权限
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.styleColor.getK(), "ts.");
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
@@ -247,7 +246,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     "END " +
                     ",tsc.create_date asc");
             //queryWrapper.orderByAsc("tsc.scm_send_flag asc ");
-
 //            查询配色列表
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
 //            查询主款配饰

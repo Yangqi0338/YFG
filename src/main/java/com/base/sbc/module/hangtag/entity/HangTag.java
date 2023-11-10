@@ -204,6 +204,12 @@ public class HangTag extends BaseDataEntity<String> {
     private String historicalData;
 
 
+    /**
+     * 外发工厂
+     */
+    private String outFactory;
+
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
