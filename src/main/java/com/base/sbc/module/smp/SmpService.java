@@ -659,6 +659,15 @@ public class SmpService {
             if ("1".equals(packBom.getHistoricalData())) {
                 throw new OtherException(packBom.getMaterialName() + "为旧数据,不允许下发");
             }
+            /*判断供应商报价是否停用*/
+            QueryWrapper queryWrapper = new QueryWrapper();
+            queryWrapper.eq("material_code",packBom.getMaterialCode());
+            queryWrapper.eq("status",BaseGlobal.YES);
+            queryWrapper.eq("supplier_id",packBom.getSupplierId());
+            List<BasicsdatumMaterialPrice> basicsdatumMaterialPriceList = basicsdatumMaterialPriceService.list(queryWrapper);
+            if (CollUtil.isNotEmpty(basicsdatumMaterialPriceList)) {
+                throw new OtherException("供应商报价有停用无法下发");
+            }
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
 
