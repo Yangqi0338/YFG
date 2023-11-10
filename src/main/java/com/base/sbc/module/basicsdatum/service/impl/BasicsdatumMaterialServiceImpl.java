@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.base.sbc.config.common.IdGen;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -250,8 +251,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
         List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
         // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
-
+        List<String> stringList = IdGen.getIds(list.size());
+        int index = 0;
         for (BasicsdatumMaterialPageVo basicsdatumMaterialPageVo : list) {
+            basicsdatumMaterialPageVo.setIds(stringList.get(index));
+            index++;
             String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
             EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getOne(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
             if (escmMaterialCompnentInspectCompanyDto != null) {

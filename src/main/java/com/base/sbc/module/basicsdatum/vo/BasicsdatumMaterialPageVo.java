@@ -24,7 +24,8 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 
-
+	@ApiModelProperty(value = "ids")
+	private String ids;
 
 	/** 物料id */
 	@ApiModelProperty(value = "物料id")
