@@ -13,13 +13,17 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
@@ -33,22 +37,19 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapp
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.common.dto.IdDto;
+import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackBomColor;
-import com.base.sbc.module.pack.entity.PackBomSize;
-import com.base.sbc.module.pack.entity.PackBomVersion;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
-import com.base.sbc.module.pack.service.PackBomColorService;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
-import com.base.sbc.module.pack.vo.PackBomColorVo;
-import com.base.sbc.module.pack.vo.PackBomSizeVo;
-import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pricing.entity.StylePricing;
+import com.base.sbc.module.pricing.service.PricingTemplateService;
+import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
+import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
@@ -59,6 +60,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -117,6 +119,25 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Resource
     @Lazy
     private SmpService smpService;
+
+    @Resource
+    private HangTagService hangTagService;
+
+    @Resource
+    private PackInfoService packInfoService;
+
+    @Autowired
+    private MessageUtils messageUtils;
+
+    @Autowired
+    private BaseController baseController;
+
+    @Autowired
+    private StylePricingService stylePricingService;
+
+    @Autowired
+    private PackPricingService packPricingService;
+
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -217,8 +238,33 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             BeanUtil.copyProperties(dto, db);
             PackUtils.setBomVersionInfo(version, db);
             db.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
+            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId());
             updateById(db);
             packBom = db;
+
+            /*替换物料时 当变更物料后（对应类型参照嘉威的业务配置字典），对用户进行提示
+            *
+            * 要判断吊牌里面的状态是否都通过
+            * */
+            if (StrUtil.equals(dto.getReplaceMaterialFlag(), BaseGlobal.YES)) {
+                PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+                if(StrUtil.isNotBlank(packInfo.getStyleNo())) {
+                    Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("matchRemind");
+                    Map<String, String> map = dictInfoToMap.get("matchRemind");
+                    if(CollUtil.isNotEmpty(map)){
+                        List<String> valuesList = new ArrayList<>(map.values());
+                        /*查询字典中的配置*/
+                        if(valuesList.contains(dto.getReplaceCollocationName())){
+                            /*判断款式定价的状态全部都通过*/
+                            HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
+                            if (StrUtil.equals(hangTag.getStatus(), BaseGlobal.FIVE_STRING)) {
+                                //发送消息
+                                messageUtils.sendMessage("",hangTag.getCreateId(),packInfo.getStyleNo()+"大货款号，物料已替换请注意查收","/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods","",baseController.getUser());
+                            }
+                        }
+                    }
+                }
+            }
             /*核价信息编辑物料清单的可编辑状态直接下发*/
             List<String> stringList = com.base.sbc.config.utils.StringUtils.convertList("1,3");
             if (stringList.contains(db.getScmSendFlag()) && b) {
@@ -229,6 +275,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 /*下发*/
                 smpService.bom(db.getId().split(","));
             }
+
+            costUpdate(packBom.getForeignId(),totalCost);
         }
         //保存尺寸表
         List<PackBomSizeDto> packBomSizeDtoList = Optional.ofNullable(dto.getPackBomSizeList()).orElse(new ArrayList<>(2));
@@ -257,6 +305,42 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return packBomVo;
     }
 
+
+
+
+    /**
+     * 用于物料修改替换删除时计算成本是否改变
+     * 如果改变判断款式定价的状态都通过，发送消息，修改款式定价的状态未为未通过
+     *
+     * @param packInfoId
+     * @param cost
+     */
+    public void costUpdate(String packInfoId, BigDecimal cost) {
+        /*查询款式定价是否通过*/
+        /*比较成本价是否有改动*/
+        /*核价信息总成本*/
+        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId);
+        /*判断价格是否相等*/
+        if(totalCost.compareTo(cost) != 0){
+            PackInfo packInfo = packInfoService.getById(packInfoId);
+            StylePricing stylePricing = stylePricingService.getByOne("pack_id", packInfoId);
+            if (!ObjectUtils.isEmpty(stylePricing)) {
+                /*判断款式定价是否都通过*/
+                if (StrUtil.equals(stylePricing.getControlConfirm(), BaseGlobal.YES) &&
+                        StrUtil.equals(stylePricing.getProductHangtagConfirm(), BaseGlobal.YES) &&
+                        StrUtil.equals(stylePricing.getControlHangtagConfirm(), BaseGlobal.YES)
+                ) {
+                    //发送消息
+                    messageUtils.sendMessage("M计控,商企", "", packInfo.getStyleNo() + "大货款号，总成本加改动请注意", "/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods", packInfo.getPlanningSeasonId(), baseController.getUser());
+                    stylePricing.setControlConfirm(BaseGlobal.NO);
+                    stylePricing.setProductHangtagConfirm(BaseGlobal.NO);
+                    stylePricing.setControlHangtagConfirm(BaseGlobal.NO);
+                    /*重置状态*/
+                    stylePricingService.updateById(stylePricing);
+                }
+            }
+        }
+    }
 
 
     @Override
@@ -642,7 +726,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 throw new OtherException("物料中存在已下发数据");
             }
         }
+        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId());
         baseMapper.deleteBatchIds(StrUtil.split(id, ','));
+        costUpdate(packBomList.get(0).getForeignId(),totalCost);
         return true;
     }
 

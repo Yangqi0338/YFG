@@ -65,6 +65,13 @@ public class BaseGlobal {
      */
     public static final int NINE = 9;
 
+    /**
+     * 字符串5
+     */
+    public static final String FIVE_STRING = "5";
+
+
+
     /**横杠 */
     public static final String H = "-";
     /**

@@ -35,4 +35,10 @@ public class PackBomDto extends PackBom {
     @ApiModelProperty(value = "核价信息是否下发标识")
     private String pricingSendFlag;
 
+    @ApiModelProperty(value = "替换物料标记")
+    private String replaceMaterialFlag;
+
+    @ApiModelProperty(value = "替换之前的搭配")
+    private String replaceCollocationName;
+
 }

@@ -8,13 +8,20 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.json.JSONUtil;
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingVo;
+import com.base.sbc.module.pricing.service.PricingTemplateService;
+import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
+import org.apache.commons.lang3.StringUtils;
 import org.nfunk.jep.JEP;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,8 +29,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-核价信息 service类
@@ -48,6 +58,11 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     PackPricingProcessCostsService packPricingProcessCostsService;
     @Resource
     PackPricingCraftCostsService packPricingCraftCostsService;
+    @Resource
+    PricingTemplateService pricingTemplateService;
+    @Resource
+    BaseController baseController;
+
 
     @Override
     public PackPricingVo getDetail(PackCommonSearchDto dto) {
@@ -71,6 +86,36 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             updateById(one);
         }
         return BeanUtil.copyProperties(one, PackPricingVo.class);
+    }
+
+    /**
+     * 计算总价格
+     *
+     * @param packInfoId
+     * @return
+     */
+    @Override
+    public BigDecimal countTotalPrice(String packInfoId) {
+
+        PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
+        packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+        packCommonSearchDto.setForeignId(packInfoId);
+        /*获取全部成本*/
+        Map<String, BigDecimal> otherStatistics = calculateCosts(packCommonSearchDto);
+        PackPricingVo detail = getDetail(packCommonSearchDto);
+        List<PricingTemplateItemVO> pricingTemplateItems = pricingTemplateService.getDetailsById(detail.getPricingTemplateId(), baseController.getUserCompany()).getPricingTemplateItems();
+
+        List<PricingTemplateItemVO> collect = pricingTemplateItems.stream()
+                .filter(i -> i.getSort() != null && StringUtils.equals(i.getShowFlag(), BaseGlobal.STATUS_CLOSE))
+                .sorted(Comparator.comparing(PricingTemplateItemVO::getSort)).collect(Collectors.toList());
+
+        String jsonMap = JSONUtil.toJsonStr(detail.getCalcItemVal());
+        Map<String, Object>  hashMap = JSONUtil.parseObj(jsonMap).toBean(HashMap.class);
+        for(String key:otherStatistics.keySet()){
+            hashMap.put(key,otherStatistics.get(key));
+        }
+        BigDecimal formula = formula(collect.get(0).getExpressionShow().replaceAll(",",""), hashMap);
+        return  formula;
     }
 
     @Override

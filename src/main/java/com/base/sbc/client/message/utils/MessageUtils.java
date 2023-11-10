@@ -392,7 +392,7 @@ public class MessageUtils {
      * @param stage
      * @param groupUser
      */
-//    @Async
+    @Async
     public void stylePricingSendMessage(String role,String designNo,String seasonId,String stage, GroupUser groupUser) {
         if (StringUtils.isNotBlank(role)) {
             String userId = amcFeignService.getUserGroupUserId(seasonId, "", role);
@@ -413,6 +413,36 @@ public class MessageUtils {
                 modelMessage.setParams(map);
                 String s = messagesService.sendNoticeByModel(modelMessage);
             }
+        }
+    }
+
+    /**
+     *发送消息
+     * @param role
+     * @param title
+     * @param address
+     * @param seasonId
+     * @param groupUser
+     */
+    @Async
+    public void sendMessage(String role,String userId,String title,String address,String seasonId, GroupUser groupUser) {
+        /*获取产品季下的用户组的人员*/
+        if (StringUtils.isNotBlank(role)) {
+            userId = amcFeignService.getUserGroupUserId(seasonId, "", role);
+        }
+        if (StringUtils.isNotBlank(userId)) {
+            log.info("————————————————————————发送消息消息提醒发送提醒消息用户" + userId);
+            Map<String, String> map = new HashMap<>();
+            map.put("title", title);
+            map.put("userId", groupUser.getId());
+            map.put("userName", groupUser.getName());
+            map.put("avatar", groupUser.getAvatar());
+            map.put("address", address);
+            ModelMessage modelMessage = new ModelMessage();
+            modelMessage.setUserIds(userId);
+            modelMessage.setModelCode("YFG010");
+            modelMessage.setParams(map);
+            String s = messagesService.sendNoticeByModel(modelMessage);
         }
     }
 }
