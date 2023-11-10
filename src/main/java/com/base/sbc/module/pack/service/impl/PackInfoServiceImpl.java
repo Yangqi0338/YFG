@@ -6,36 +6,18 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.MATERIAL_CREATE_PURCHASEDEMAND;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Snowflake;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -72,56 +54,13 @@ import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.BomPrintVo;
-import com.base.sbc.module.pack.dto.CopyBomDto;
-import com.base.sbc.module.pack.dto.CreatePackInfoByStyleDto;
-import com.base.sbc.module.pack.dto.PackBomVersionDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.dto.PackCopyDto;
-import com.base.sbc.module.pack.dto.PackInfoAssociationDto;
-import com.base.sbc.module.pack.dto.PackInfoDto;
-import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
-import com.base.sbc.module.pack.dto.PackInfoSetPatternNoDto;
-import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
-import com.base.sbc.module.pack.dto.PricingSelectSearchDTO;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackBomColor;
-import com.base.sbc.module.pack.entity.PackBomSize;
-import com.base.sbc.module.pack.entity.PackBomVersion;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
-import com.base.sbc.module.pack.entity.PackSize;
+import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.PackBomColorService;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackBusinessOpinionService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
-import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
-import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
-import com.base.sbc.module.pack.service.PackPricingService;
-import com.base.sbc.module.pack.service.PackProcessPriceService;
-import com.base.sbc.module.pack.service.PackSampleReviewService;
-import com.base.sbc.module.pack.service.PackSizeConfigService;
-import com.base.sbc.module.pack.service.PackSizeService;
-import com.base.sbc.module.pack.service.PackTechPackagingService;
-import com.base.sbc.module.pack.service.PackTechSpecService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
-import com.base.sbc.module.pack.vo.CopyItemsVo;
-import com.base.sbc.module.pack.vo.PackBomVersionVo;
-import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
-import com.base.sbc.module.pack.vo.PackInfoStatusVo;
-import com.base.sbc.module.pack.vo.PackSizeConfigVo;
-import com.base.sbc.module.pack.vo.PackSizeVo;
-import com.base.sbc.module.pack.vo.PricingSelectListVO;
-import com.base.sbc.module.pack.vo.StylePackInfoListVo;
+import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.style.entity.Style;
@@ -137,19 +76,25 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.lang.Snowflake;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
+import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
 
 /**
  * 类描述：资料包 service类
@@ -886,6 +831,15 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     sizeIds = StringUtils.convertList(style.getSizeIds()).stream().filter(s -> StringUtils.isNotBlank(s)).collect(Collectors.toList());
                     productSizes = StringUtils.convertList(style.getProductSizes()).stream().filter(s -> StringUtils.isNotBlank(s)).collect(Collectors.toList());
                 }
+                Style style1 = styleService.getById(packInfo.getForeignId());
+                /*每个物料下的尺码*/
+                Map<String,List<PackBomSizeVo>> sizeMap = new HashMap<>();
+                /*判断两个资料包的号型类型是否相同*/
+                if(StrUtil.equals(style.getSizeRange(),style1.getSizeRange())){
+                    //配码
+                    List<String> bomIds = goodsPackBomVoList.stream().map(PackBomVo::getId).collect(Collectors.toList());
+                    sizeMap = packBomSizeService.getByBomIdsToMap(bomIds);
+                }
                 /*新增的尺码*/
                 List<PackBomSize> bomSizeList = new ArrayList<>();
                 /*新增到物料清单里*/
@@ -899,26 +853,39 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         bom.setPackType(dto.getTargetPackType());
                         bom.setCode(null);
                         bom.setForeignId(dto.getTargetForeignId());
-                        bom.setId(newId);
                         bom.setBomVersionId(packBomVersion1.getId());
                         bom.setScmSendFlag(BaseGlobal.NO);
                         bom.setHistoricalData(BaseGlobal.NO);
                         /*获取尺码的数据*/
-                        if (CollUtil.isNotEmpty(sizeIds)) {
-                            for (int i1 = 0; i1 < sizeIds.size(); i1++) {
-                                PackBomSize packBomSize = new PackBomSize();
-                                packBomSize.setForeignId(dto.getTargetForeignId());
-                                packBomSize.setSizeId(sizeIds.get(i1));
-                                packBomSize.setSize(StringUtils.replaceBlank(productSizes.get(i1)));
-                                packBomSize.setWidth(bom.getTranslate());
-                                packBomSize.setWidthCode(bom.getTranslateCode());
-                                packBomSize.setBomId(newId);
-                                packBomSize.setBomVersionId(packBomVersion1.getId());
-                                packBomSize.setQuantity(StrUtil.equals(bom.getStageFlag(), PackUtils.PACK_TYPE_DESIGN) ? bom.getUnitUse() : bom.getBulkUnitUse());
-                                packBomSize.setPackType(dto.getTargetPackType());
-                                bomSizeList.add(packBomSize);
+                        if(CollUtil.isNotEmpty(sizeMap)) {
+                            List<PackBomSizeVo> packBomSizeList = sizeMap.get(bom.getId());
+                            if (CollUtil.isNotEmpty(packBomSizeList)) {
+                                packBomSizeList.forEach(p -> {
+                                    p.setForeignId(dto.getTargetForeignId());
+                                    p.setBomId(newId);
+                                    p.setPackType(dto.getTargetPackType());
+                                    p.setId(null);
+                                });
+                                bomSizeList.addAll(BeanUtil.copyToList(packBomSizeList, PackBomSize.class));
+                            }
+                        }else {
+                            if (CollUtil.isNotEmpty(sizeIds)) {
+                                for (int i1 = 0; i1 < sizeIds.size(); i1++) {
+                                    PackBomSize packBomSize = new PackBomSize();
+                                    packBomSize.setForeignId(dto.getTargetForeignId());
+                                    packBomSize.setSizeId(sizeIds.get(i1));
+                                    packBomSize.setSize(StringUtils.replaceBlank(productSizes.get(i1)));
+                                    packBomSize.setWidth(bom.getTranslate());
+                                    packBomSize.setWidthCode(bom.getTranslateCode());
+                                    packBomSize.setBomId(newId);
+                                    packBomSize.setBomVersionId(packBomVersion1.getId());
+                                    packBomSize.setQuantity(StrUtil.equals(bom.getStageFlag(), PackUtils.PACK_TYPE_DESIGN) ? bom.getDesignUnitUse() : bom.getBulkUnitUse());
+                                    packBomSize.setPackType(dto.getTargetPackType());
+                                    bomSizeList.add(packBomSize);
+                                }
                             }
                         }
+                        bom.setId(newId);
                         bom.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
                     }
                     /*新增的物料*/
