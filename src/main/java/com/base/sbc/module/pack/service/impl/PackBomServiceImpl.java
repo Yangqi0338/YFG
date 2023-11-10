@@ -238,7 +238,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             BeanUtil.copyProperties(dto, db);
             PackUtils.setBomVersionInfo(version, db);
             db.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
-            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId());
+            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),null);
             updateById(db);
             packBom = db;
 
@@ -319,7 +319,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         /*查询款式定价是否通过*/
         /*比较成本价是否有改动*/
         /*核价信息总成本*/
-        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId);
+        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId,null);
         /*判断价格是否相等*/
         if(totalCost.compareTo(cost) != 0){
             PackInfo packInfo = packInfoService.getById(packInfoId);
@@ -726,7 +726,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 throw new OtherException("物料中存在已下发数据");
             }
         }
-        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId());
+        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId(),null);
         baseMapper.deleteBatchIds(StrUtil.split(id, ','));
         costUpdate(packBomList.get(0).getForeignId(),totalCost);
         return true;

@@ -38,10 +38,12 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
     /**
      * 计算总价格
+     * 默认查大货 flag=1 资料包什么阶段就查什么阶段
      * @param packInfoId
+     * @param flag
      * @return
      */
-    BigDecimal countTotalPrice(String packInfoId);
+    BigDecimal countTotalPrice(String packInfoId,String flag);
 
 
 

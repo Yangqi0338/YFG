@@ -878,22 +878,27 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
          * 先查询物料的总成本 没有则去查询核价里面的总成本*/
         for (StyleColor styleColor : styleColorList) {
             PackInfo packInfo = listMap.get(styleColor.getBom()).get(0);
-            PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
+            BigDecimal bigDecimal = packPricingService.countTotalPrice(packInfo.getId(), "1");
+            if (bigDecimal.compareTo(BigDecimal.ZERO) == 0) {
+                throw new OtherException(styleColor.getStyleNo() + "的开发成本为0,请联系设计工艺员添加材料到BOM");
+            }
+
+          /*  PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
             packCommonSearchDto.setForeignId(packInfo.getId());
             packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_DESIGN);
-            /*核价成本*/
+            *//*核价成本*//*
             BigDecimal packBomCost = packBomService.calculateCosts(packCommonSearchDto);
-            /*物料成本为0时查询核价信息的总成本*/
+            *//*物料成本为0时查询核价信息的总成本*//*
             if (packBomCost.compareTo(BigDecimal.ZERO) == 0) {
-                /*核价信息总成本*/
+                *//*核价信息总成本*//*
                 Map<String, BigDecimal> otherStatistics = packPricingService.calculateCosts(packCommonSearchDto);
-                /*将value中的值转成LIst汇总成本*/
+                *//*将value中的值转成LIst汇总成本*//*
                 List<BigDecimal> valuesList = new ArrayList<>(otherStatistics.values());
                 BigDecimal totalCost = valuesList.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
                 if (totalCost.compareTo(BigDecimal.ZERO) == 0) {
                     throw new OtherException(styleColor.getStyleNo() + "的开发成本为0,请联系设计工艺员添加材料到BOM");
                 }
-            }
+            }*/
         }
         int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
         if (stringList.size() == i) {

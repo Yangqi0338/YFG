@@ -8,12 +8,16 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
+import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
@@ -62,6 +66,10 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     PricingTemplateService pricingTemplateService;
     @Resource
     BaseController baseController;
+    @Resource
+    PackInfoStatusService packInfoStatusService;
+    @Resource
+    PackInfoService packInfoService;
 
 
     @Override
@@ -90,19 +98,29 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
     /**
      * 计算总价格
-     *
+     * 默认查大货 flag=1 资料包什么阶段就查什么阶段
      * @param packInfoId
+     * @param flag
      * @return
      */
     @Override
-    public BigDecimal countTotalPrice(String packInfoId) {
-
+    public BigDecimal countTotalPrice(String packInfoId,String flag) {
+/*默认查大货 */
+        String packType = PackUtils.PACK_TYPE_BIG_GOODS;
+        if(StrUtil.equals(flag,BaseGlobal.YES)){
+ /*           PackInfoStatus packInfoStatus = packInfoStatusService.getByOne("foreign_id", packInfoId);
+            packType =StrUtil.equals(packInfoStatus.getBomStatus(),BaseGlobal.NO)? PackUtils.PACK_TYPE_DESIGN:PackUtils.PACK_TYPE_BIG_GOODS;*/
+             packType =   PackUtils.PACK_TYPE_DESIGN;
+        }
         PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
-        packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+        packCommonSearchDto.setPackType(packType);
         packCommonSearchDto.setForeignId(packInfoId);
         /*获取全部成本*/
         Map<String, BigDecimal> otherStatistics = calculateCosts(packCommonSearchDto);
         PackPricingVo detail = getDetail(packCommonSearchDto);
+        if(ObjectUtil.isEmpty(detail)){
+            return BigDecimal.ZERO;
+        }
         List<PricingTemplateItemVO> pricingTemplateItems = pricingTemplateService.getDetailsById(detail.getPricingTemplateId(), baseController.getUserCompany()).getPricingTemplateItems();
 
         List<PricingTemplateItemVO> collect = pricingTemplateItems.stream()
