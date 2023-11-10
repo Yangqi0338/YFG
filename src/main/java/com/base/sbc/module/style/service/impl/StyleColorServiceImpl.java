@@ -380,7 +380,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,style.getId(),  ++index));
+            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,style.getId(),addRevampStyleColorDto.getIsLuxury(),  ++index));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -458,7 +458,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * @return
      */
 
-    public String getNextCode(String brand, String year,String season,String bandName, String category, String designNo,String styleId, int index) {
+    public String getNextCode(String brand, String year,String season,String bandName, String category, String designNo,String styleId,String isLuxury, int index) {
         if (ccmFeignService.getSwitchByCode("STYLE_EQUAL_DESIGN_NO")) {
             return designNo;
         }
@@ -502,10 +502,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_id",styleId);
         Long aLong = baseMapper.selectCount(queryWrapper);
+
+        /*轻奢款选是，大货款号最后一位自带Q*/
+        isLuxury = StrUtil.equals(isLuxury,BaseGlobal.YES)?"Q":"";
         /*先使用款式下的流水号 如果重复
          * 不加流水号查询大货款号的最大流水号
          * */
-        styleNo =   styleNoFront + (aLong+ index);
+        styleNo =   styleNoFront + (aLong+ index)+isLuxury;
         int i = baseMapper.isStyleNoExist(styleNo);
         if (i != 0) {
             String maxMark = "0";
@@ -515,7 +518,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 maxMark = number;
             }
             /*拼接流水号*/
-            styleNo = styleNoFront + (Long.parseLong(maxMark) + index);
+            styleNo = styleNoFront + (Long.parseLong(maxMark) + index) +isLuxury;
             /*查询编码是否重复*/
             i = baseMapper.isStyleNoExist(styleNo);
             if (i != 0) {
@@ -641,10 +644,26 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
+            /*判断轻奢款是否修改*/
+            if( !StrUtil.equals( styleColor.getIsLuxury(),addRevampStyleColorDto.getIsLuxury())&& StrUtil.isBlank(styleColor.getHisStyleNo())) {
+                /*修改了*/
+                if (StrUtil.equals(addRevampStyleColorDto.getIsLuxury(), BaseGlobal.NO)) {
+                    /*判断最后以为是不是Q*/
+                    String s = addRevampStyleColorDto.getStyleNo().substring(addRevampStyleColorDto.getStyleNo().length() - 1);
+                    if (StrUtil.equals(s, "Q")) {
+                        /*去掉Q*/
+                        addRevampStyleColorDto.setStyleNo(addRevampStyleColorDto.getStyleNo().substring(0,addRevampStyleColorDto.getStyleNo().length()-1));
+                    }
+                } else {
+                    addRevampStyleColorDto.setStyleNo(addRevampStyleColorDto.getStyleNo() + "Q");
+                }
+            }
             /*判断是否修改波段
              * 当配色未下发时可以修改会影响大货款号
-             * 当配色下发后可以修改波段不会影响大货款号*/
-            if (!StringUtils.equals(addRevampStyleColorDto.getBandCode(), styleColor.getBandCode()) && !StringUtils.equals(styleColor.getScmSendFlag(), BaseGlobal.IN_READY)) {
+             * 当配色下发后可以修改波段不会影响大货款号
+             * 如果手动修改过大货款号 再去修改波段则不会变化
+             */
+            if (!StringUtils.equals(addRevampStyleColorDto.getBandCode(), styleColor.getBandCode()) && !StringUtils.equals(styleColor.getScmSendFlag(), BaseGlobal.IN_READY)&&StrUtil.isBlank(styleColor.getHisStyleNo()) ) {
                 /*新大货款号 ：换标波段生成的字符*/
                 /**
                  * 先生成波段之前的字符串替换为空，在拼接
