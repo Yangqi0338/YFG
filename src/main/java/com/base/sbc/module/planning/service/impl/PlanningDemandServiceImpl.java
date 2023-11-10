@@ -276,6 +276,9 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             List<String> demandNameList = list.stream().map(PlanningDemand::getDemandName).collect(Collectors.toList());
             addList = saveDelDemandDto.stream().filter(item -> !StringUtils.isEmpty(item.getDemandName())&&!demandNameList.contains(item.getDemandName())   ).collect(Collectors.toList());
         }
+        if(CollectionUtils.isEmpty(addList)){
+            throw new OtherException("请选中一条数据");
+        }
         if (!CollectionUtils.isEmpty(delList)) {
             QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();
             queryWrapper1.in("id", delList.stream().map(PlanningDemand::getId).collect(Collectors.toList()));
@@ -295,7 +298,6 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             }
         }
         /*新增新增加的*/
-
         List<PlanningDemand> planningDemandList = BeanUtil.copyToList(addList, PlanningDemand.class);
         saveBatch(planningDemandList);
 
