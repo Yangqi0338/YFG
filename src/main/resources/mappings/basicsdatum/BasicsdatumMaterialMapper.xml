@@ -180,7 +180,7 @@
     <select id="listSku" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
 		SELECT
 			tbm.*,
-			tbmc.supplier_color_code,
+			tbmc.color_code,
 			tbmc.color_name,
 			tbmp.quotation_price,
 			tbmp.order_day

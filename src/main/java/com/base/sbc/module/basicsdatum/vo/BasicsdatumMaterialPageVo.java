@@ -368,7 +368,7 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 
 
 
-	private String supplierColorCode;
+	private String colorCode;
 
 
 	private String colorName;
