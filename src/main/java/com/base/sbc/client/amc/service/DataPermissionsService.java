@@ -14,6 +14,7 @@ import com.base.sbc.client.amc.vo.FieldDataPermissionVO;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisAmcUtils;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,6 +36,8 @@ public class DataPermissionsService {
     private AmcService amcService;
     @Resource
     private RedisUtils redisUtils;
+    @Resource
+    private RedisAmcUtils redisAmcUtils;
 
     /**
      * 获取数据权限
@@ -137,11 +140,9 @@ public class DataPermissionsService {
     public <T> Map getDataPermissionsForQw(String companyCode, String uerId, String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields) {
         String dataPermissionsKey = "USERISOLATION:" + companyCode + ":";
         //删除amc的数据权限状态
-        RedisUtils redisUtils1=new RedisUtils();
-        redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplateAmc"));
         Map<String,String> redisType=new HashMap<>();
-        if(redisUtils1.hasKey(dataPermissionsKey+"businessTypeAll:POWERSTATE")){
-            String businessTypeAllByUerId= (String) redisUtils1.get(dataPermissionsKey+"businessTypeAll:POWERSTATE");
+        if(redisAmcUtils.hasKey(dataPermissionsKey+"businessTypeAll:POWERSTATE")){
+            String businessTypeAllByUerId= (String) redisAmcUtils.get(dataPermissionsKey+"businessTypeAll:POWERSTATE");
             if(businessTypeAllByUerId.indexOf(uerId) !=-1){
                 redisType.put("0",uerId);
                 if(!businessTypeAllByUerId.equals(uerId)){
@@ -154,18 +155,17 @@ public class DataPermissionsService {
                     businessTypeAllByUerId="";
                 }
                 if(StringUtils.isNotBlank(businessTypeAllByUerId)){
-                    redisUtils1.set(dataPermissionsKey+"businessTypeAll:POWERSTATE",businessTypeAllByUerId);
+                    redisAmcUtils.set(dataPermissionsKey+"businessTypeAll:POWERSTATE",businessTypeAllByUerId);
                 }
             }
             if(StringUtils.isBlank(businessTypeAllByUerId)){
-                redisUtils1.del(dataPermissionsKey+"businessTypeAll:POWERSTATE");
+                redisAmcUtils.del(dataPermissionsKey+"businessTypeAll:POWERSTATE");
             }
         }
-        if(redisUtils1.hasKey(dataPermissionsKey + businessType + ":"+"POWERSTATE")){
+        if(redisAmcUtils.hasKey(dataPermissionsKey + businessType + ":"+"POWERSTATE")){
             redisType.put("1","");
-            redisUtils1.del(dataPermissionsKey + businessType + ":"+"POWERSTATE");
+            redisAmcUtils.del(dataPermissionsKey + businessType + ":"+"POWERSTATE");
         }
-        redisUtils1.setRedisTemplate(SpringContextHolder.getBean("redisTemplate"));
         if (redisType.containsKey("0")){
             redisUtils.removePatternAndIndexOf(dataPermissionsKey, redisType.get("0"));
         }
