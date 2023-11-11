@@ -902,6 +902,16 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag(), "0");
                 vo.setBomCount(packBomService.count(dto.getSourceForeignId(), dto.getSourcePackType()));
             }
+            /*核价信息*/
+            // 基础
+            packPricingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            // 二次加工费
+            packPricingCraftCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            //加工费
+            packPricingProcessCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            // 其他费用
+            packPricingOtherCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+
         }
         if (StrUtil.contains(dto.getItem(), "尺寸表")) {
             packSizeConfigService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.YES);
