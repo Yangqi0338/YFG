@@ -135,6 +135,8 @@ public class SmpService {
     private final BasicsdatumMaterialPriceService basicsdatumMaterialPriceService;
     private final StyleMainAccessoriesService styleMainAccessoriesService;
 
+    private final  BasicsdatumSupplierService basicsdatumSupplierService;
+
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
 
@@ -661,11 +663,11 @@ public class SmpService {
             }
             /*判断供应商报价是否停用*/
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("material_code",packBom.getMaterialCode());
-            queryWrapper.eq("status",BaseGlobal.YES);
-            queryWrapper.eq("supplier_id",packBom.getSupplierId());
-            List<BasicsdatumMaterialPrice> basicsdatumMaterialPriceList = basicsdatumMaterialPriceService.list(queryWrapper);
-            if (CollUtil.isNotEmpty(basicsdatumMaterialPriceList)) {
+            queryWrapper.eq("is_supplier",BaseGlobal.YES);
+            queryWrapper.eq("supplier_code",packBom.getSupplierId());
+            List<BasicsdatumSupplier> basicsdatumSupplierList = basicsdatumSupplierService.list(queryWrapper);
+
+            if (CollUtil.isNotEmpty(basicsdatumSupplierList)) {
                 throw new OtherException("供应商报价有停用无法下发");
             }
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
