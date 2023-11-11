@@ -893,22 +893,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and start_date >={0}"
                     , dto.getCjsj().split(",")[0]);
             qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= start_date "
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= start_date"
                     , dto.getCjsj().split(",")[1]);
         }
         //cfsj
         if (StrUtil.isNotBlank(dto.getCfsj()) && dto.getCfsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝开始' and start_date >={0}"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and start_date >={0}"
                     , dto.getCfsj().split(",")[0]);
             qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= start_date "
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= start_date"
                     , dto.getCfsj().split(",")[1]);
         }
         // yywcsj
         if (StrUtil.isNotBlank(dto.getYywcsj()) && dto.getYywcsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getYywcsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and start_date >={0} and {1} >= end_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and start_date >={0} and {1} >= end_date order by start_date desc"
                     , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
         }
 
