@@ -658,6 +658,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 } else {
                     addRevampStyleColorDto.setStyleNo(addRevampStyleColorDto.getStyleNo() + "Q");
                 }
+                /**
+                 * 修改所有引用的大货款号
+                 */
+                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), addRevampStyleColorDto.getStyleNo());
+                /*修改关联的BOM名称*/
+                if (StringUtils.isNotBlank(styleColor.getBom())) {
+                    packInfoService.updateBomName(styleColor.getBom(),addRevampStyleColorDto.getStyleNo());
+                }
             }
             /*判断是否修改波段
              * 当配色未下发时可以修改会影响大货款号
