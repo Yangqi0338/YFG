@@ -274,7 +274,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
      */
     @Override
     public boolean saveOrUpdate(T entity, String name) {
-        if (entity.getId() != null) {
+        if (!StringUtils.isEmpty(entity.getId())) {
             return this.updateById(entity, name);
         } else {
             return this.save(entity, name);
