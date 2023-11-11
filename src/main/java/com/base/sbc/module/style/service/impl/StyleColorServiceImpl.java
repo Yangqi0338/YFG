@@ -1384,7 +1384,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleColor.setBom(null);
 //        查询款式
         Style style = styleService.getById(styleColor.getStyleId());
-        styleColor.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), StringUtils.isNotEmpty(styleColor.getBandName()) ? styleColor.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,style.getId(),  1));
+        styleColor.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,style.getId(),  1));
         styleColor.setHisStyleNo(null);
         styleColor.setWareCode(null);
         styleColor.setHistoricalData(BaseGlobal.NO);
