@@ -8,6 +8,7 @@ package com.base.sbc.module.style.service;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formtype.entity.FieldVal;
@@ -205,6 +206,13 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @return
          */
         PageInfo<StyleColorVo> getStyleMainAccessoriesList(Principal user,QueryStyleColorDto dto);
+
+        /**
+         * 复制配色
+         * @param idDto
+         * @return
+         */
+        Boolean copyStyleColor(IdDto idDto);
 
 // 自定义方法区 不替换的区域【other_end】
 
