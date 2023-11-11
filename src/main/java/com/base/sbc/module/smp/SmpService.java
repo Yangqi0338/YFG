@@ -669,7 +669,7 @@ public class SmpService {
 
             if (CollUtil.isNotEmpty(basicsdatumSupplierList)) {
                 String collect = basicsdatumSupplierList.stream().map(BasicsdatumSupplier::getSupplier).collect(Collectors.joining(","));
-                throw new OtherException(packBom.getMaterialName()+"物料的供应商"+collect+"有停用无法下发");
+                throw new OtherException(packBom.getMaterialCode()+"_"+packBom.getMaterialName()+" "+collect+"供应商已停用");
             }
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
