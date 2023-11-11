@@ -29,6 +29,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
@@ -447,17 +448,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     /**
      * 大货款号生成规则 品牌 + 年份  + 波段 +品类 +设计款号流水号+颜色流水号
-     *
-     * @param
      * @param brand
      * @param year
-     * @param
+     * @param season
      * @param bandName
      * @param category
      * @param designNo
+     * @param styleId
+     * @param index
      * @return
      */
-
     public String getNextCode(String brand, String year,String season,String bandName, String category, String designNo,String styleId, int index) {
         if (ccmFeignService.getSwitchByCode("STYLE_EQUAL_DESIGN_NO")) {
             return designNo;
@@ -1366,6 +1366,30 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         PageInfo<StyleColorVo> pageInfo = new PageInfo<>(styleColorVoList);
         return pageInfo;
+    }
+
+    /**
+     * 复制配色
+     *
+     * @param idDto
+     * @return
+     */
+    @Override
+    public Boolean copyStyleColor(IdDto idDto) {
+
+        StyleColor styleColor = baseMapper.selectById(idDto.getId());
+        styleColor.insertInit();
+        styleColor.setId(null);
+        styleColor.setScmSendFlag(null);
+        styleColor.setBom(null);
+//        查询款式
+        Style style = styleService.getById(styleColor.getStyleId());
+        styleColor.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,style.getId(),  1));
+        styleColor.setHisStyleNo(null);
+        styleColor.setWareCode(null);
+        styleColor.setHistoricalData(BaseGlobal.NO);
+        baseMapper.insert(styleColor);
+        return true;
     }
     /** 自定义方法区 不替换的区域【other_end】 **/
 

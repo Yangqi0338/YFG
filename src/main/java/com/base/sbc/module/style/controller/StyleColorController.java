@@ -13,6 +13,7 @@ import javax.validation.Valid;
 
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
@@ -196,6 +197,13 @@ public class StyleColorController {
 	public PageInfo<StyleColorVo> getStyleMainAccessoriesList(Principal user,QueryStyleColorDto dto) {
 		return styleColorService.getStyleMainAccessoriesList(user,dto);
 	}
+
+	@ApiOperation(value = "配色增加复制功能")
+	@PostMapping("/copyStyleColor")
+	public Boolean copyStyleColor(@Valid @RequestBody IdDto idDto) {
+		return styleColorService.copyStyleColor(idDto);
+	}
+
 
 
 
