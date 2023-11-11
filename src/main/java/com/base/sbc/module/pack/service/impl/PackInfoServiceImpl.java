@@ -904,13 +904,13 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             }
             /*核价信息*/
             // 基础
-            packPricingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            packPricingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), "1");
             // 二次加工费
-            packPricingCraftCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            packPricingCraftCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), "1");
             //加工费
-            packPricingProcessCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            packPricingProcessCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), "1");
             // 其他费用
-            packPricingOtherCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            packPricingOtherCostsService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), "1");
 
         }
         if (StrUtil.contains(dto.getItem(), "尺寸表")) {
