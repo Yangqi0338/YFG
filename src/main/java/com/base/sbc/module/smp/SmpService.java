@@ -668,7 +668,8 @@ public class SmpService {
             List<BasicsdatumSupplier> basicsdatumSupplierList = basicsdatumSupplierService.list(queryWrapper);
 
             if (CollUtil.isNotEmpty(basicsdatumSupplierList)) {
-                throw new OtherException("供应商报价有停用无法下发");
+                String collect = basicsdatumSupplierList.stream().map(BasicsdatumSupplier::getSupplier).collect(Collectors.joining(","));
+                throw new OtherException(packBom.getMaterialName()+"物料的供应商"+collect+"有停用无法下发");
             }
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
