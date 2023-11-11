@@ -645,8 +645,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
+
+            /*修改*/
+           boolean b = !StringUtils.equals(styleColor.getScmSendFlag(), BaseGlobal.IN_READY)&&StrUtil.isBlank(styleColor.getHisStyleNo());
+
             /*判断轻奢款是否修改*/
-            if( !StrUtil.equals( styleColor.getIsLuxury(),addRevampStyleColorDto.getIsLuxury())&& StrUtil.isBlank(styleColor.getHisStyleNo())) {
+            if( !StrUtil.equals( styleColor.getIsLuxury(),addRevampStyleColorDto.getIsLuxury())&& b) {
                 /*修改了*/
                 if (StrUtil.equals(addRevampStyleColorDto.getIsLuxury(), BaseGlobal.NO)) {
                     /*判断最后以为是不是Q*/
@@ -661,18 +665,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 /**
                  * 修改所有引用的大货款号
                  */
-                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), addRevampStyleColorDto.getStyleNo());
-                /*修改关联的BOM名称*/
-                if (StringUtils.isNotBlank(styleColor.getBom())) {
-                    packInfoService.updateBomName(styleColor.getBom(),addRevampStyleColorDto.getStyleNo());
-                }
+                updateStyleColor(styleColor.getBom(),styleColor.getStyleNo(), addRevampStyleColorDto.getStyleNo());
             }
             /*判断是否修改波段
              * 当配色未下发时可以修改会影响大货款号
              * 当配色下发后可以修改波段不会影响大货款号
              * 如果手动修改过大货款号 再去修改波段则不会变化
              */
-            if (!StringUtils.equals(addRevampStyleColorDto.getBandCode(), styleColor.getBandCode()) && !StringUtils.equals(styleColor.getScmSendFlag(), BaseGlobal.IN_READY)&&StrUtil.isBlank(styleColor.getHisStyleNo()) ) {
+            if (!StringUtils.equals(addRevampStyleColorDto.getBandCode(), styleColor.getBandCode()) && b ) {
                 /*新大货款号 ：换标波段生成的字符*/
                 /**
                  * 先生成波段之前的字符串替换为空，在拼接
@@ -696,14 +696,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 /**
                  * 修改所有引用的大货款号
                  */
-                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), addRevampStyleColorDto.getStyleNo());
-                /*修改关联的BOM名称*/
-                if (StringUtils.isNotBlank(styleColor.getBom())) {
-                    packInfoService.updateBomName(styleColor.getBom(),addRevampStyleColorDto.getStyleNo());
-                }
+                updateStyleColor(styleColor.getBom(),styleColor.getStyleNo(), addRevampStyleColorDto.getStyleNo());
             }
             /*判断波段及细分是否改动 改动则需要同步大货款号*/
-            if (StringUtils.isNotBlank(addRevampStyleColorDto.getSubdivide())) {
+            if (StringUtils.isNotBlank(addRevampStyleColorDto.getSubdivide())&& b) {
                 /**
                  * 修改所有引用的大货款号
                  * 查看之前有没有细分
@@ -714,9 +710,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 } else {
                     styleNo = addRevampStyleColorDto.getStyleNo();
                 }
-                baseMapper.reviseAllStyleNo(styleColor.getStyleNo(), styleNo + addRevampStyleColorDto.getSubdivide());
                 /*新大货款号=大货款号+细分*/
                 addRevampStyleColorDto.setStyleNo(styleNo + addRevampStyleColorDto.getSubdivide());
+                updateStyleColor(styleColor.getBom(),styleColor.getStyleNo(), addRevampStyleColorDto.getStyleNo());
             }
             if (ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
@@ -780,6 +776,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return true;
     }
 
+    /**
+     * 同步大货
+     * @param styleNo
+     * @param newStyleNo
+     * @return
+     */
+    public void updateStyleColor(String bom,String styleNo, String newStyleNo) {
+        baseMapper.reviseAllStyleNo(styleNo, newStyleNo);
+        if (StringUtils.isNotBlank(bom)) {
+            packInfoService.updateBomName(bom,newStyleNo);
+        }
+    }
 
     /**
      * 方法描述：删除样衣-款式配色
