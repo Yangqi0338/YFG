@@ -205,12 +205,5 @@ public class StyleColorController {
 	}
 
 
-
-	@ApiOperation(value = "配色增加复制功能")
-	@PostMapping("/copyStyleColor")
-	public Boolean copyStyleColor(@Valid @RequestBody IdDto idDto) {
-		return styleColorService.copyStyleColor(idDto);
-	}
-
 }
 
