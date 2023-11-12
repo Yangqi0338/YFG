@@ -60,11 +60,9 @@
     .flex_td_box>div{
         border-bottom:0.5px solid #000;
         box-sizing: border-box;
-        font-size: 0;
         vertical-align: middle;
         width: 100%;
         display: table;
-        /*background: black;*/
     }
     .flex_td_box>div>div {
         width: 100%;
@@ -73,15 +71,23 @@
     }
 
     .flex_td_box>div>div>div{
-        padding: 4px;
-        box-sizing: border-box;
         align-items: center;
         display: table-cell;
-        /*vertical-align: middle;*/
-        margin: 0;
+        vertical-align: middle;
     }
     .flex_td_box>div>div>div:nth-child(2) {
-        border-left:0.5px solid #000;
+        border-left:0.8px solid #000;
+        margin-left: 1px;
+        padding: 0 4px;
+    }
+
+    .item_th {
+        width: 8em;
+    }
+
+    .item_td {
+        text-align: left;width: 8em;box-sizing: border-box;
+        padding-left: 0.5em;
     }
 
     .table_border {
@@ -250,7 +256,7 @@
 </style>
 <body>
 <!-- 页眉 -->
-<table class="table_no_border page_start bold">
+<table class="table_no_border page_start bold gb">
     <tr>
         <td style="width: 20%;">Eifini</td>
         <td style="width: 20%;">${designNo}</td>
@@ -267,7 +273,7 @@
         <td style="width: 15%;vertical-align: top;text-align: center;" rowspan="5">
             <table style="height: 156mm;">
                 <tr>
-                    <td style="height: 80mm;">
+                    <td style="height: 80mm; vertical-align: top;">
                         <div style="display: table-cell;text-align: center;vertical-align: middle;">
                             <img style="max-width: 58mm;max-height: 80mm;" src="${stylePic}">
                         </div>
@@ -636,8 +642,8 @@
             </th>
         </tr>
         <tr>
-            <th class="gb" style="width: 10%">工艺类型</th>
-            <th class="gb" style="width: 40%">工艺描述</th>
+            <th class="gb item_th">工艺类型</th>
+            <th class="gb">工艺描述</th>
         </tr>
         </thead>
         <tbody>
@@ -649,12 +655,12 @@
                             <#list jcgyDataList as item>
                                 <div>
                                     <div>
-                                        <div style="width: 20%;text-align: center;vertical-align: middle;">
+                                        <div class="item_td">
                                             <div style="height: 100%">
                                                 ${item.processTypeName}
                                             </div>
                                         </div>
-                                        <div style="width: 80%;">
+                                        <div>
                                             <div>
                                                 ${item.content}
                                             </div>
@@ -687,15 +693,15 @@
             </th>
         </tr>
         <tr>
-            <th class="gb" style="width: 10%">工艺项目</th>
-            <th class="gb" style="width: 50%">描述</th>
+            <th class="gb item_th" >工艺项目</th>
+            <th class="gb" >描述</th>
         </tr>
         </thead>
         <tbody>
         <#if zysxDataList??>
             <#list zysxDataList as item>
                 <tr>
-                    <td>${item.item}</td>
+                    <td class="item_td">${item.item}</td>
                     <td>
                         ${item.content}
                     </td>
@@ -721,15 +727,15 @@
             </th>
         </tr>
         <tr>
-            <th class="gb" style="width: 10%">工艺项目</th>
-            <th class="gb" style="width: 50%">描述</th>
+            <th class="gb item_th" >工艺项目</th>
+            <th class="gb" >描述</th>
         </tr>
         </thead>
         <tbody>
         <#if ztbzDataList??>
             <#list ztbzDataList as item>
                 <tr>
-                    <td>${item.item}</td>
+                    <td class="item_td">${item.item}</td>
                     <td>
                         ${item.content}
                     </td>
