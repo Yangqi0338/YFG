@@ -569,12 +569,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         //查询附件
-        List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
-        String url = "";
-        if (CollUtil.isNotEmpty(attachmentVoList1)) {
-            url = attachmentVoList1.get(0).getId();
-        }
-        return flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]"+"--"+url, FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
+        // List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
+        // String url = "";
+        // if (CollUtil.isNotEmpty(attachmentVoList1)) {
+        //     url = attachmentVoList1.get(0).getId();
+        // }
+        return flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]", FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
     }
 
     @Override
