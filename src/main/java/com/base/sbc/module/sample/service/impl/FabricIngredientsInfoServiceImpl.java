@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
@@ -77,7 +78,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
     public PageInfo getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
         queryFabricIngredientsInfoDto.setOrderBy("create_date desc");
         /*分页*/
-        QueryWrapper<FabricIngredientsInfo> queryWrapper = new QueryWrapper<>();
+        BaseQueryWrapper<FabricIngredientsInfo> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryId()),"category_id",queryFabricIngredientsInfoDto.getCategoryId());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryName()),"category_name",queryFabricIngredientsInfoDto.getCategoryName());
@@ -85,6 +86,10 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturerNumber()),"manufacturer",queryFabricIngredientsInfoDto.getManufacturerNumber());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"manufacturer_number",queryFabricIngredientsInfoDto.getManufacturer());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getAtactiformStylist()),"atactiform_stylist",queryFabricIngredientsInfoDto.getAtactiformStylist());
+        if (!StringUtils.isEmpty(queryFabricIngredientsInfoDto.getPracticalAtactiformDate())){
+            queryWrapper.between("practical_atactiform_date",queryFabricIngredientsInfoDto.getPracticalAtactiformDate().split(","));
+        }
+
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"category_id"},true);
         /*查询调样-辅料信息数据*/
         Page<FabricIngredientsInfoVo> objects = PageHelper.startPage(queryFabricIngredientsInfoDto);

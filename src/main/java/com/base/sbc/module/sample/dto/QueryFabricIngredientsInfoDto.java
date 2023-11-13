@@ -31,4 +31,6 @@ public class QueryFabricIngredientsInfoDto extends Page {
 
     @ApiModelProperty(value = "调样设计师"  )
     private String   atactiformStylist;
+
+    private String practicalAtactiformDate;
 }
