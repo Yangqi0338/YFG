@@ -51,7 +51,8 @@ public class BiStyleServiceImpl extends ServiceImpl<BiStyleMapper, BiStyle> impl
         PatternMakingCommonPageSearchDto pageSearchDto = new PatternMakingCommonPageSearchDto();
         pageSearchDto.setPageNum(1);
         pageSearchDto.setPageSize(9999);
-        for (SampleBoardVo sampleBoardVo : patternMakingService.sampleBoardList(pageSearchDto).getList()) {
+        List<SampleBoardVo> list1 =patternMakingService.sampleBoardList(pageSearchDto).getList();
+        for (SampleBoardVo sampleBoardVo :list1 ) {
             BiStyle biStyle = new BiStyle();
             PatternMaking patternMaking = patternMakingService.getById(sampleBoardVo.getId());
             Style style = styleService.getById(sampleBoardVo.getStyleId());
