@@ -238,6 +238,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
         // 附件信息
         saveFiles(style.getId(), dto.getAttachmentList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
+
+        // 保存审批同意图
+        saveFiles(style.getId(), dto.getAttachmentList1(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
         // 保存图片信息
         if (!customStylePicUpload.isOpen()) {
             saveFiles(style.getId(), dto.getStylePicList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
@@ -566,8 +569,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         style.setCheckStartTime(new Date());
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
-        boolean flg = flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]", FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
-        return flg;
+        //查询附件
+        // List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
+        // String url = "";
+        // if (CollUtil.isNotEmpty(attachmentVoList1)) {
+        //     url = attachmentVoList1.get(0).getId();
+        // }
+        return flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]", FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
     }
 
     @Override
@@ -631,7 +639,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         //查询附件
         List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
-
+        //查询附件
+        List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
+        sampleVo.setAttachmentList1(attachmentVoList1);
         // 关联的素材库
         QueryWrapper<PlanningCategoryItemMaterial> mqw = new QueryWrapper<>();
         mqw.eq("planning_category_item_id", style.getPlanningCategoryItemId());

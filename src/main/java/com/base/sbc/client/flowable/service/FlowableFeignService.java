@@ -1,5 +1,7 @@
 package com.base.sbc.client.flowable.service;
 
+import com.base.sbc.client.flowable.vo.FlowQueryVo;
+import com.base.sbc.config.common.ApiResult;
 import io.swagger.annotations.ApiParam;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,6 +51,10 @@ public interface FlowableFeignService {
      */
     @GetMapping(value = "/flowable/api/saas/task/getFlowRecordMapBybusinessKey")
     String getFlowRecordMapBybusinessKey(@RequestParam("businessKeys") String businessKeys);
+
+
+    @GetMapping(value = "/flowable/api/saas/task/todoList")
+    public ApiResult todoList(@RequestParam Map<String,Object> queryVo);
 
 
 }
