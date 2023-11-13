@@ -275,8 +275,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 /*下发*/
                 smpService.bom(db.getId().split(","));
             }
-
+        if(StrUtil.equals(packBom.getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(packBom.getScmSendFlag(),BaseGlobal.IN_READY)){
             costUpdate(packBom.getForeignId(),totalCost);
+        }
         }
         //保存尺寸表
         List<PackBomSizeDto> packBomSizeDtoList = Optional.ofNullable(dto.getPackBomSizeList()).orElse(new ArrayList<>(2));
@@ -526,6 +527,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public boolean unusableChange(String id, String unusableFlag) {
         List<String> split = StrUtil.split(id, CharUtil.COMMA);
         PackBom byId = getById(split.get(0));
+        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),null);
         // 校验版本
         packBomVersionService.checkVersion(byId.getBomVersionId());
         UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
@@ -533,7 +535,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         uw.set("unusable_flag", unusableFlag);
         setUpdateInfo(uw);
         log(id, StrUtil.equals(unusableFlag, BaseGlobal.YES) ? "停用" : "启用");
-        return update(uw);
+        update(uw);
+        if(StrUtil.equals(byId.getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(byId.getScmSendFlag(),BaseGlobal.IN_READY)){
+            costUpdate(byId.getForeignId(),totalCost);
+        }
+        return true;
     }
 
     @Override
@@ -728,7 +734,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId(),null);
         baseMapper.deleteBatchIds(StrUtil.split(id, ','));
-        costUpdate(packBomList.get(0).getForeignId(),totalCost);
+        if(StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.IN_READY)){
+            costUpdate(packBomList.get(0).getForeignId(),totalCost);
+        }
         return true;
     }
 
