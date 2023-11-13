@@ -33,6 +33,9 @@ public class StyleSaveDto extends Style {
     @ApiModelProperty(value = "附件信息")
     private List<SampleAttachmentDto> attachmentList;
 
+    @ApiModelProperty(value = "附件信息")
+    private List<SampleAttachmentDto> attachmentList1;
+
     @ApiModelProperty(value = "关联的素材库")
     private List<MaterialVo> materialList;
 
