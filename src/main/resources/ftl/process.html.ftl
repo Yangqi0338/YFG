@@ -76,8 +76,8 @@
         vertical-align: middle;
     }
     .flex_td_box>div>div>div:nth-child(2) {
-        border-left:0.8px solid #000;
-        margin-left: 1px;
+        border-left:1px solid #000;
+        margin-left: 10px;
         padding: 0 4px;
     }
 
@@ -86,7 +86,7 @@
     }
 
     .item_td {
-        text-align: left;width: 8em;box-sizing: border-box;
+        text-align: left;width: 8.1em;box-sizing: border-box;
         padding-left: 0.5em;
     }
 
@@ -126,33 +126,34 @@
         vertical-align: center;
         text-align: center;
         padding:0 10px;
-        max-width: 24em;
-        /*background: red;*/
+        max-width: 20em;
+        box-sizing: border-box;
     }
     .one_imgs_xbj>div {
-        width: 24em;
+        width: 20em;
         display: table-cell;
+        box-sizing: border-box;
     }
     .one_imgs_xbj>div>div {
         /*background: aquamarine;*/
         display: table-row;
         vertical-align: middle;
+        box-sizing: border-box;
         padding: 4px;
     }
     .one_imgs_xbj>div>div>div {
         margin-right: 10px;
         box-sizing: border-box;
         width: 2em;
-        padding: 0.5em;
+        padding: 4px;
         vertical-align: middle;
         display: table-cell;
     }
     .one_imgs_xbj>div>div>img {
-        margin-top: 5px;
-        max-height: 65mm;
-        min-height: 65mm;
+        width: 18em;
         display: table-cell;
-        /*max-width: 75mm;*/
+        /*max-height: 65mm;*/
+        /*min-height: 65mm;*/
     }
 
     .jcgy_img_box {
@@ -192,10 +193,14 @@
 
     .gb {
         background-color: #b8b7b7;
+        /*border-left: 3px solid #000000;*/
+        /*border-right: 3px solid #000000;*/
     }
 
     .dgb {
         background-color: #b8b7b7;
+        /*border-left: 3px solid #000000;*/
+        /*border-right: 3px solid #000000;*/
     }
 
     .table_border .gb {
@@ -703,7 +708,7 @@
                 </th>
             </tr>
             <tr>
-                <th class="gb item_th">工艺项目</th>
+                <th class="gb item_th">工艺类型</th>
                 <th class="gb">工艺描述</th>
                 <th class="gb" style="width: 24em">图片</th>
             </tr>
@@ -719,7 +724,7 @@
                                         <div>
                                             <div class="item_td">
                                                 <div style="height: 100%; ">
-                                                    ${item.item}
+                                                    ${item.specType}
                                                 </div>
                                             </div>
                                             <div>
@@ -772,7 +777,7 @@
             </th>
         </tr>
         <tr>
-            <th class="gb" style="width: 24em">图片</th>
+            <th class="gb" style="width: 21em">图片</th>
             <th class="gb item_th">工艺项目</th>
             <th class="gb">工艺描述</th>
         </tr>
@@ -783,7 +788,7 @@
             <tr>
                 <#list xbjDataList as item>
                     <#if item_index==0>
-                        <td rowspan="1" style="padding: 0; width: 24em; box-sizing: border-box" >
+                        <td rowspan="1" style="width: 21em; box-sizing: border-box; padding-right:0.5em;" >
                             <div class="one_imgs_xbj">
                                 <#if xbjImgList??>
                                     <div>
