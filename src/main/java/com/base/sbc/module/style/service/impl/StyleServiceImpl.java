@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -573,6 +574,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean approval(AnswerDto dto) {
         Style style = getById(dto.getBusinessKey());
+        logger.info("————————————————款式设计回调方法————————————————", JSON.toJSONString(style));
+        logger.info("————————————————回调类型————————————————", dto.getApprovalType());
         if (style != null) {
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
