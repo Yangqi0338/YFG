@@ -482,6 +482,9 @@
         <if test="null != colorCode and '' != colorCode">
             AND pbc.color_code = #{colorCode} AND  pbc.material_color_code is not null AND pbc.material_color_code != ''
         </if>
+        <if test="null != unusableFlag and '' != unusableFlag">
+            AND pb.unusable_flag = #{unusableFlag}
+        </if>
         GROUP BY pb.id
         ORDER BY sort ASC
     </select>
