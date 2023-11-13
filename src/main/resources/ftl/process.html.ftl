@@ -124,22 +124,24 @@
         display: table-row;
         vertical-align: top;
         text-align: center;
-        padding:0 10px;
-        max-width: 20em;
-        height: 50em;
-        box-sizing: border-box;
+        max-width: 21em;
+        /*table-row是不能调节高度的*/
+        /*padding:7.44em 1em 7.44em 0;*/
+
     }
     .one_imgs_xbj>div {
-        width: 20em;
+        width: 21em;
+        height: 50em;
         display: table-cell;
         box-sizing: border-box;
+        /*padding: 6.6em 0;*/
+        padding-top: 3.33em;
     }
     .one_imgs_xbj>div>div {
         /*background: aquamarine;*/
         display: table-row;
         vertical-align: middle;
         box-sizing: border-box;
-        padding: 4px;
     }
     .one_imgs_xbj>div>div>div {
         box-sizing: border-box;
@@ -192,15 +194,25 @@
 
     .gb {
         background-color: #b8b7b7;
-        /*border-left: 3px solid #000000;*/
-        /*border-right: 3px solid #000000;*/
+    }
+    .size_gb {
+        background-color: #b8b7b7;
     }
 
     .dgb {
         background-color: #b8b7b7;
-        /*border-left: 3px solid #000000;*/
-        /*border-right: 3px solid #000000;*/
     }
+    .size_dgb {
+        background-color: #b8b7b7;
+    }
+
+
+    .size_wb {
+        background-color: white;
+        border-left: 3px solid #000000;
+        border-right: 3px solid #000000;
+    }
+
 
     .table_border .gb {
         background-color: #e8e8e8;
@@ -536,7 +548,7 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth">
+                        <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth" style="border-left: 3px solid #000000; border-right: 3px solid #000000">
                             ${size}
                         </th>
                     </#list>
@@ -547,19 +559,11 @@
 
             <tr>
                 <#list sizeList as size>
-                    <#if isFob>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}"  style="text-align: center">成衣<br>尺寸</td>
-                        <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center">洗后<br>尺寸</td>
-                        </#if>
-                    <#else>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center">样板<br>尺寸</td>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}"  style="text-align: center">成衣<br>尺寸</td>
-                        <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center">洗后<br>尺寸</td>
-                        </#if>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; border-left: 3px solid #000000">样板<br>尺寸</td>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}"  style="text-align: center;<#if washSkippingFlag><#else>border-right: 3px solid #000000</#if>">成衣<br>尺寸</td>
+                    <#if washSkippingFlag>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center;border-right: 3px solid #000000">洗后<br>尺寸</td>
                     </#if>
-
                 </#list>
             </tr>
             </thead>
@@ -568,11 +572,27 @@
                 <#list sizeDataList as item>
                     <tr class="size_tr">
                         <#if item.rowType=="1">
-                            <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
+                            <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}1</td>
                         <#else>
                             <#list item.rowData as c>
-                                <td class="${c.className} ${sizeClass[c_index]}">
-                                    <div style="word-break: break-all;">${c.text}</div>
+                                <td class="${c.className} ${sizeClass[c_index]} "
+                                    style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
+                                            border-right: 3px solid #000000;
+                                        </#if>
+                                    <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
+                                        border-left: 3px solid #000000;
+                                    </#if>
+                                    <#if c_index == item.rowData?size-3>
+                                            border-right: 3px solid #000000;
+                                    </#if>">
+                                    <div style="">
+                                        <#if c_index gt 1>
+                                            <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
+                                        <#else>
+                                            ${c.text}
+                                        </#if>
+
+                                    </div>
                                 </td>
                             </#list>
                         </#if>
@@ -601,7 +621,7 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass">
+                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass" style="border-left: 3px solid #000000; border-right: 3px solid #000000">
                             ${size}
                         </th>
                     </#list>
@@ -612,19 +632,11 @@
 
             <tr>
                 <#list sizeList as size>
-                    <#if isFob>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center">成衣<br>尺寸</td>
-                        <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center">洗后<br>尺寸</td>
-                        </#if>
-                    <#else>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; padding: 0 10px">样板<br>尺寸</td>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px">成衣<br>尺寸</td>
-                        <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center; padding: 0 10px">洗后<br>尺寸</td>
-                        </#if>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; padding: 0 10px;border-left: 3px solid #000000">样板<br>尺寸</td>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px;<#if washSkippingFlag><#else>border-right: 3px solid #000000</#if>">成衣<br>尺寸</td>
+                    <#if washSkippingFlag>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center; padding: 0 10px;border-right: 3px solid #000000">洗后<br>尺寸</td>
                     </#if>
-
                 </#list>
             </tr>
             </thead>
@@ -636,8 +648,24 @@
                             <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
                         <#else>
                             <#list item.rowData as c>
-                                <td class="${c.className} ${sizeClass[c_index]}">
-                                    <div style="word-break: break-all;">${c.text}</div>
+                                <td class="${c.className} ${sizeClass[c_index]} "
+                                    style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
+                                            border-right: 3px solid #000000;
+                                    </#if>
+                                    <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
+                                            border-left: 3px solid #000000;
+                                    </#if>
+                                    <#if c_index == item.rowData?size-3>
+                                            border-right: 3px solid #000000;
+                                    </#if>">
+                                    <div style="">
+                                        <#if c_index gt 1>
+                                            <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
+                                        <#else>
+                                            ${c.text}
+                                        </#if>
+
+                                    </div>
                                 </td>
                             </#list>
                         </#if>
@@ -787,7 +815,7 @@
             <tr>
                 <#list xbjDataList as item>
                     <#if item_index==0>
-                        <td rowspan="1" style="width: 21em; height: 48em; vertical-align: top; box-sizing: border-box; padding:2em 1em 2em 0;" >
+                        <td rowspan="1" style="width: 21em; vertical-align: top; box-sizing: border-box;padding: 0;" >
                             <div class="one_imgs_xbj">
                                 <#if xbjImgList??>
                                     <div>
@@ -802,7 +830,9 @@
                                                         <p>反面</p>
                                                     </#if>
                                                 </div>
-                                                <img src="${item.url}" style="<#if item_index==0>margin-bottom: 2em;</#if>"/>
+                                                <img src="${item.url}" style="<#if item_index==0>
+                                                    margin-bottom:3.33em;
+                                                </#if>"/>
                                             </div>
                                         </#list>
                                     </div>
@@ -843,7 +873,7 @@
 </#if>
 <!--    整烫包装 6-->
 <#if ztbzShow>
-    <table class="table_border mt" style="page-break-before: always;">
+    <table class="table_border mt">
         <thead>
         <tr>
             <th colspan="2" class="th_title">
