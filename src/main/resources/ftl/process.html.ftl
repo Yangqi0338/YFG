@@ -86,7 +86,7 @@
     }
 
     .item_td {
-        text-align: left;width: 8.1em;box-sizing: border-box;
+        text-align: left;width: 8.05em;box-sizing: border-box;
         padding-left: 0.5em;
     }
 
