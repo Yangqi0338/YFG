@@ -6,7 +6,6 @@
     * {
         font-family: 'Source Han Serif SC';
         font-size: 12px;
-
     }
 
     html {
@@ -285,10 +284,10 @@
 <!-- 页眉 -->
 <table class="table_no_border page_start bold gb">
     <tr>
-        <td style="width: 20%;">Eifini</td>
-        <td style="width: 20%;">${designNo}</td>
-        <td style="width: 20%;">${styleNo} </td>
-        <td style="width: 40%;text-align: right;">${createDate}${createTime}</td>
+        <td style="width: 20%;"><p class="bold">Eifini</p></td>
+        <td style="width: 20%;"><p class="bold">${designNo}</p></td>
+        <td style="width: 20%;"><p class="bold">${styleNo}</p> </td>
+        <td style="width: 40%;text-align: right;"><p class="bold">${createDate}${createTime}</p></td>
     </tr>
 </table>
 
@@ -788,7 +787,7 @@
             <tr>
                 <#list xbjDataList as item>
                     <#if item_index==0>
-                        <td rowspan="1" style="width: 21em; box-sizing: border-box; padding-right:0.5em;" >
+                        <td rowspan="1" style="width: 21em; height: 48em; box-sizing: border-box; padding-right:0.5em;" >
                             <div class="one_imgs_xbj">
                                 <#if xbjImgList??>
                                     <div>
@@ -803,12 +802,11 @@
                                                         <p>反面</p>
                                                     </#if>
                                                 </div>
-                                                <img src="${item.url}"/>
+                                                <img src="${item.url}" <#if item_index==0>style="margin-bottom: 10px;"</#if>/>
                                             </div>
 
                                         </#list>
                                     </div>
-
                                 </#if>
                             </div>
                         </td>
