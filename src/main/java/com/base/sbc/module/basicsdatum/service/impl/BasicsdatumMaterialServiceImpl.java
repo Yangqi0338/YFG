@@ -249,6 +249,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             qc.eq("tbm.confirm_status", "2");
         }
         qc.orderByDesc("tbm.create_date");
+        qc.eq("tbm.del_flag","0");
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
         List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
         // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);

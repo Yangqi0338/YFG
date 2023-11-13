@@ -187,9 +187,9 @@
 			tbmp.order_day
 		FROM
 			t_basicsdatum_material tbm
-			LEFT JOIN t_basicsdatum_material_color tbmc on  tbmc.material_code = tbm.material_code
-			LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code and select_flag ='1'
-			${ ew.customSqlSegment}
+			LEFT JOIN t_basicsdatum_material_color tbmc on  tbmc.material_code = tbm.material_code and tbmc.del_flag='0'
+			LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code and select_flag ='1'   and tbmp.del_flag='0'
+			    ${ ew.customSqlSegment}
 
 	</select>
 
