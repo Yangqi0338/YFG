@@ -379,5 +379,11 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 
 	private String quotationPrice;
 
+	private String supplierColorCode;
+
+	private String supplierMaterialCode;
+
 	private String orderDay;
+
+	private String withName;
 }
