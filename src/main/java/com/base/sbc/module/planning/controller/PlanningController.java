@@ -202,7 +202,7 @@ public class PlanningController extends BaseController {
         if (dto == null) {
             dto = new ProductCategoryItemSearchDto();
         }
-        dto.setOrderBy("c.id desc ");
+        dto.setOrderBy("c.status asc,c.id desc");
         PageInfo<PlanningSeasonOverviewVo> productCategoryItem = planningCategoryItemService.findProductCategoryItem(dto);
         minioUtils.setObjectUrlToList(productCategoryItem.getList(), "stylePic");
         return productCategoryItem;
