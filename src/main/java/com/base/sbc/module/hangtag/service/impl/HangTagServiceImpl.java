@@ -281,7 +281,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				userCompany);
 		HangTag hangTag = new HangTag();
 		CommonUtils.removeQuery(hangTagDTO, "washingLabel");
-		BeanUtils.copyProperties(hangTagDTO, hangTag);
+
+		BeanUtil.copyProperties(hangTagDTO, hangTag);
 		super.saveOrUpdate(hangTag, "吊牌管理");
 		String id = hangTag.getId();
 

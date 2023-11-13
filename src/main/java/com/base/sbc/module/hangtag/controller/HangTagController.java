@@ -88,7 +88,7 @@ public class HangTagController extends BaseController {
     @ApiOperation(value = "保存")
     @PostMapping("/save")
     @DuplicationCheck
-    public ApiResult save(@Valid @RequestBody HangTagDTO hangTagDTO) {
+    public ApiResult save(@RequestBody HangTagDTO hangTagDTO) {
         String id = hangTagService.save(hangTagDTO, super.getUserCompany());
         return ApiResult.success("保存成功", id);
     }

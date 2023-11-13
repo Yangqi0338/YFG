@@ -71,32 +71,40 @@ select tsc.style_no                                                             
        ts.technician_name                                                                                  as 后技术工艺师,
        ts.designer                                                                                         as 后技术下单员,
        tht.place_order_date                                                                                as 下单时间,
-       if(tpts.id > '0', '是', '否')                                                                       as 含外辅工艺,
+       if(tpts.foreign_id > '0', '是', '否')                                                                       as 含外辅工艺,
        CONCAT(tsc.ware_code, tsc.color_code, ts.default_size)                                              as 默认条形码,
        if(tsc.del_flag = '0', '存在', '删除')                                                              as 删除标识
 from t_style_color as tsc
-         left outer join t_style as ts on ts.id = tsc.style_id
+         left join t_style as ts on ts.id = tsc.style_id
     and ts.del_flag = '0'
-         left outer join t_pack_info as tpi on tpi.style_color_id = tsc.id
+         left join t_pack_info as tpi on tpi.style_color_id = tsc.id
     and tpi.del_flag = '0'
-         left outer join t_pack_pricing as tpc on tpc.foreign_id = tpi.id
+         left join t_pack_pricing as tpc on tpc.foreign_id = tpi.id
     and tpc.pack_type = 'packBigGoods'
     and tpc.del_flag = '0'
-         left outer join t_style_pricing as tsp on tsp.pack_id = tpi.id
+         left join t_style_pricing as tsp on tsp.pack_id = tpi.id
     and tsp.del_flag = '0'
-         left outer join t_pack_bom as tpb on tpb.foreign_id = tpi.id
-    and tpb.del_flag = '0'
-         left outer join t_pack_bom_version as pbv on pbv.id = tpb.bom_version_id
+         left join t_pack_bom_version as pbv on pbv.status = '0'
+    and pbv.foreign_id = tpi.id
     and pbv.del_flag = '0'
-         left outer join t_hang_tag as tht on tht.bulk_style_no = tsc.style_no
+    and pbv.pack_type = 'packBigGoods'
+         left join t_pack_bom as tpb on tpb.foreign_id = tpi.id
+    and pbv.id = tpb.bom_version_id
+    and tpb.pack_type = 'packBigGoods'
+    and tpb.del_flag = '0'
+
+         left join t_hang_tag as tht on tht.bulk_style_no = tsc.style_no
     and tht.del_flag = '0'
-         left outer join t_upload_file as tuf on tuf.id = ts.style_pic
+         left join t_upload_file as tuf on tuf.id = ts.style_pic
     and tuf.del_flag = '0'
-         left outer join t_pack_tech_spec as tpts on tpts.foreign_id = tpi.id
-    and tpts.del_flag = '0'
-    and tpts.pack_type = 'packBigGoods'
-    and tpts.spec_type = '外辅工艺'
+    LEFT JOIN (
+    SELECT DISTINCT  tpts.foreign_id,tpts.update_date
+    FROM t_pack_tech_spec AS tpts
+    WHERE tpts.del_flag = '0'
+      AND tpts.spec_type = '外辅工艺'
+      AND tpts.pack_type = 'packBigGoods'
+) as tpts on tpts.foreign_id = tpi.id
 
-group by tsc.style_no
-
-
+where tsc.del_flag = '0'
+  and tsc.`status` = '0'
+group by tsc.id

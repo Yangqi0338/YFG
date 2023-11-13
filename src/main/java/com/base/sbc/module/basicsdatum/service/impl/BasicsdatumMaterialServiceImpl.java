@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
+import com.base.sbc.config.common.IdGen;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -227,32 +228,35 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             PageHelper.startPage(dto);
         }
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
-        qc.eq("company_code", this.getCompanyCode());
-        qc.andLike(dto.getSearch(), "material_code", "material_name");
-        qc.notEmptyEq("status", dto.getStatus());
-        qc.notEmptyLike("material_code_name", dto.getMaterialCodeName());
-        qc.notEmptyLike("supplier_fabric_code", dto.getSupplierFabricCode());
-        qc.notEmptyLike("supplier_name", dto.getSupplierName());
-        qc.notEmptyLike("material_code", dto.getMaterialCode());
-        qc.notEmptyLike("material_name", dto.getMaterialName());
+        qc.eq("tbm.company_code", this.getCompanyCode());
+        qc.andLike(dto.getSearch(), "tbm.material_code", "tbm.material_name");
+        qc.notEmptyEq("tbm.status", dto.getStatus());
+        qc.notEmptyLike("tbm.material_code_name", dto.getMaterialCodeName());
+        qc.notEmptyLike("tbm.supplier_fabric_code", dto.getSupplierFabricCode());
+        qc.notEmptyLike("tbm.supplier_name", dto.getSupplierName());
+        qc.notEmptyLike("tbm.material_code", dto.getMaterialCode());
+        qc.notEmptyLike("tbm.material_name", dto.getMaterialName());
         if (StringUtils.isNotEmpty(dto.getCategoryId())) {
-            qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or()
-                    .eq("category1_code ", dto.getCategoryId()).or().eq("category2_code", dto.getCategoryId()).or()
-                    .eq("category3_code", dto.getCategoryId()));
+            qc.and(Wrapper -> Wrapper.eq("tbm.category_id", dto.getCategoryId()).or()
+                    .eq("tbm.category1_code ", dto.getCategoryId()).or().eq("tbm.category2_code", dto.getCategoryId()).or()
+                    .eq("tbm.category3_code", dto.getCategoryId()));
         }
-        qc.eq("biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
+        qc.eq("tbm.biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
         if (StringUtils.isNotEmpty(dto.getConfirmStatus())) {
             List<String> confirmStatus = Arrays.stream(dto.getConfirmStatus().split(",")).collect(Collectors.toList());
-            qc.in("confirm_status", confirmStatus);
+            qc.in("tbm.confirm_status", confirmStatus);
         } else {
-            qc.eq("confirm_status", "2");
+            qc.eq("tbm.confirm_status", "2");
         }
-        qc.orderByDesc("create_date");
+        qc.orderByDesc("tbm.create_date");
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
-        List<BasicsdatumMaterial> list = this.list(qc);
-        PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
-
-        for (BasicsdatumMaterialPageVo basicsdatumMaterialPageVo : copy.getList()) {
+        List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
+        // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
+        List<String> stringList = IdGen.getIds(list.size());
+        int index = 0;
+        for (BasicsdatumMaterialPageVo basicsdatumMaterialPageVo : list) {
+            basicsdatumMaterialPageVo.setIds(stringList.get(index));
+            index++;
             String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
             EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getOne(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
             if (escmMaterialCompnentInspectCompanyDto != null) {
@@ -267,8 +271,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             }
 
         }
-        minioUtils.setObjectUrlToList(copy.getList(), "imageUrl");
-        return copy;
+        minioUtils.setObjectUrlToList(list, "imageUrl");
+        return new PageInfo<>(list);
     }
 
     @Override

@@ -28,7 +28,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel(value = "吊牌")
-public class HangTagDTO extends HangTag {
+public class HangTagDTO {
 
     private static final long serialVersionUID = 1L;
 
@@ -279,5 +279,12 @@ public class HangTagDTO extends HangTag {
      */
     private String attachment;
     private String repIngredient;
+    private String historicalData;
+
+    /**
+     * 外发工厂
+     */
+    private String outFactory;
+
 }
 

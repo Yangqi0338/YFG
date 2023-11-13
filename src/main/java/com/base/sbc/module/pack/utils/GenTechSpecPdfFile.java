@@ -427,15 +427,6 @@ public class GenTechSpecPdfFile {
                     //普通块级元素
                 } else {
                     IBlockElement blockElement = (IBlockElement) element;
-                    if (element instanceof Table) {
-                        Table table = ((Table) element).getFooter();
-//                        int numberOfColumns = table.getNumberOfColumns();
-//                        Cell cell = new Cell(1, numberOfColumns);
-//                        cell.add(new Paragraph("111111111111111111111111111"));
-                        if (ObjectUtil.isNotNull(table)) {
-                            System.out.println("table footer" + table.getNumberOfRows());
-                        }
-                    }
                     document.add(blockElement);
                 }
             }

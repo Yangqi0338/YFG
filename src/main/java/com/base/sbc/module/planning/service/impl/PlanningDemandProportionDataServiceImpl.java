@@ -7,6 +7,8 @@
 package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.CommonUtils;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：企划-需求维度数据表 service类
@@ -76,15 +79,49 @@ public class PlanningDemandProportionDataServiceImpl extends BaseServiceImpl<Pla
         saveOrUpdateBatch(dataList);
         //创建维度位置信息
         planningDemandProportionSeatService.createByDemand(dataList);
+        countProportion(dataList.get(0).getChannel(),dataList.get(0).getDemandId());
         return dataList;
     }
 
     @Override
     public ApiResult del(String id) {
         List<String> ids = StringUtils.convertList(id);
+
+        /*重新计算占比*/
+        List<PlanningDemandProportionData> dataList = baseMapper.selectBatchIds(ids);
         baseMapper.deleteBatchIds(ids);
+        if(CollUtil.isNotEmpty(dataList)){
+            countProportion(dataList.get(0).getChannel(),dataList.get(0).getDemandId());
+        }
         return ApiResult.success("操作成功");
     }
+
+    /**
+     * 计算占比
+     * @param channel
+     * @param demandId
+     */
+    public void  countProportion(String channel,String demandId){
+        /*查询全部需求占比*/
+        QueryWrapper queryWrapper = new QueryWrapper();
+        queryWrapper.eq("channel", channel);
+        queryWrapper.eq("demand_id", demandId);
+        List<PlanningDemandProportionData> list1 = baseMapper.selectList(queryWrapper);
+        /*重新算zhanb*/
+        List<Integer> collect = list1.stream().map(PlanningDemandProportionData::getNum).collect(Collectors.toList());
+        /*去掉%*/
+
+        /*总数*/
+        int sum = collect.stream().reduce(0, Integer::sum);
+        for (PlanningDemandProportionData planningDemandProportionData : list1) {
+            double v2 = (double) planningDemandProportionData.getNum() / sum * 100;
+            String str = String.format("%.2f", v2);
+            double four = Double.parseDouble(str);
+            planningDemandProportionData.setProportion(four + "%");
+        }
+        saveOrUpdateBatch(list1);
+    }
+
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
