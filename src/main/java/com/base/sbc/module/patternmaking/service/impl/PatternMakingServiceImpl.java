@@ -70,6 +70,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -843,7 +845,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
+    public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
@@ -914,10 +916,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
-        List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-        if(StringUtils.isBlank(dto.getDeriveflag())){
-            stylePicUtils.setStylePic(list, "stylePic");
+        if(!StringUtils.isBlank(dto.getDeriveflag())){
+            qw.groupBy("p.id");
+            baseMapper.deriveList(qw);
+            return objects.toPageInfo();
         }
+        List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
+
+        stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
@@ -933,12 +939,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException {
         dto.setDeriveflag(BaseGlobal.YES);
-        PageInfo<SampleBoardVo> sampleBoardVoPageInfo = sampleBoardList(dto);
-        List<SampleBoardVo> list = sampleBoardVoPageInfo.getList();
-        List<SampleBoardExcel> excelList = BeanUtil.copyToList(list, SampleBoardExcel.class);
+        PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
+        List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
+        stylePicUtils.setStylePic(excelList, "stylePic");
         ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
-    }
 
+    }
     @Override
     public boolean receiveSample(String id) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();

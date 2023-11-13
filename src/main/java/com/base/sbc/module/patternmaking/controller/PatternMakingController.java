@@ -272,7 +272,7 @@ public class PatternMakingController {
 
     @ApiOperation(value = "样衣看板列表", notes = "")
     @GetMapping("/sampleBoardList")
-    public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
+    public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         return patternMakingService.sampleBoardList(dto);
     }
 

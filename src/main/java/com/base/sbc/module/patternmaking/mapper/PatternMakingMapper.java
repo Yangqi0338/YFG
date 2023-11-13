@@ -42,6 +42,14 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
     List<PatternMakingTaskListVo> patternMakingTaskList(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<SampleBoardVo> sampleBoardList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
+    /**
+     * 导出
+     * @param qw
+     * @return
+     */
+    List<SampleBoardExcel> deriveList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
     List<Map<String, Object>> workPatternMakingSteps(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<SampleUserVo> getAllPatternDesignList(@Param("companyCode") String companyCode);
