@@ -18,9 +18,12 @@
     <select id="listSeat" resultType="com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo">
         SELECT
         c.*,
+        c.style_pic planningPic,
         s.name as name,
         sd.`status` AS sd_status,
         sd.confirm_status AS sd_confirm_status,
+        sd.style_pic stylePic,
+        sd.id styleId,
         pc.product_line_name,
         pc.sort
         FROM

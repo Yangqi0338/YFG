@@ -488,6 +488,23 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             String fileName = jsonObject.getString("FileName");
             if (StrUtil.isEmpty(style.getStylePic())) {
                 styleService.update(new UpdateWrapper<Style>().lambda().eq(Style::getId, style.getId()).set(Style::getStylePic, fileName));
+            }else {
+                /*替换之前的款式主图*/
+                if(StrUtil.equals(dto.getReplaceFlag(),BaseGlobal.YES)){
+                    DelStylePicDto delStylePicDto = new DelStylePicDto();
+                    QueryWrapper queryWrapper =new QueryWrapper();
+                    queryWrapper.eq("style_id",dto.getStyleId());
+                    queryWrapper.eq("file_name",style.getStylePic());
+                    StylePic one = stylePicService.getOne(queryWrapper);
+                    if(!ObjectUtils.isEmpty(one)){
+                        delStylePicDto.setStyleId(dto.getStyleId());
+                        delStylePicDto.setStylePicId(one.getId());
+                        /*删除图片*/
+                        delDesignImage(delStylePicDto,user);
+                        /*修改图片*/
+                        styleService.update(new UpdateWrapper<Style>().lambda().eq(Style::getId, style.getId()).set(Style::getStylePic, fileName));
+                    }
+                }
             }
             StylePic sp = BeanUtil.copyProperties(uploadDto, StylePic.class);
             sp.setDesignNo(style.getDesignNo());

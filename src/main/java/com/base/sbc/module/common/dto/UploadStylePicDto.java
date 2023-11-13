@@ -21,5 +21,7 @@ public class UploadStylePicDto {
     @ApiModelProperty(value = "款式id")
     private String styleId;
 
+    @ApiModelProperty(value = "替换主图")
+    private String replaceFlag;
 
 }
