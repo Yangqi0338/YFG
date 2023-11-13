@@ -122,10 +122,11 @@
 
     .one_imgs_xbj {
         display: table-row;
-        vertical-align: center;
+        vertical-align: top;
         text-align: center;
         padding:0 10px;
         max-width: 20em;
+        height: 50em;
         box-sizing: border-box;
     }
     .one_imgs_xbj>div {
@@ -141,15 +142,14 @@
         padding: 4px;
     }
     .one_imgs_xbj>div>div>div {
-        margin-right: 10px;
         box-sizing: border-box;
         width: 2em;
-        padding: 4px;
+        padding: 0 1em;
         vertical-align: middle;
         display: table-cell;
     }
     .one_imgs_xbj>div>div>img {
-        width: 18em;
+        width: 15em;
         display: table-cell;
         /*max-height: 65mm;*/
         /*min-height: 65mm;*/
@@ -171,7 +171,7 @@
 
     .text_color {
         font-weight: bold;
-        margin: 2mm 0;
+        margin: 2mm 2mm;
     }
 
 
@@ -787,7 +787,7 @@
             <tr>
                 <#list xbjDataList as item>
                     <#if item_index==0>
-                        <td rowspan="1" style="width: 21em; height: 48em; box-sizing: border-box; padding-right:0.5em;" >
+                        <td rowspan="1" style="width: 21em; height: 48em; vertical-align: top; box-sizing: border-box; padding:2em 1em 2em 0;" >
                             <div class="one_imgs_xbj">
                                 <#if xbjImgList??>
                                     <div>
@@ -802,9 +802,8 @@
                                                         <p>反面</p>
                                                     </#if>
                                                 </div>
-                                                <img src="${item.url}" <#if item_index==0>style="margin-bottom: 10px;"</#if>/>
+                                                <img src="${item.url}" style="<#if item_index==0>margin-bottom: 2em;</#if>"/>
                                             </div>
-
                                         </#list>
                                     </div>
                                 </#if>
