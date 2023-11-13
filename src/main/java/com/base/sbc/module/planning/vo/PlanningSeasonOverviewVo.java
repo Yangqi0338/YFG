@@ -41,6 +41,12 @@ public class PlanningSeasonOverviewVo extends PlanningCategoryItem {
     @ApiModelProperty(value = "样衣审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)")
     private String sdConfirmStatus;
 
+    @ApiModelProperty(value = "企划图")
+    private String planningPic;
+
+    @ApiModelProperty(value = "款式id")
+    private String  styleId;
+
     public String getRemainingTime() {
         if (getPlanningFinishDate() == null || getSendDate() == null) {
             return "";
