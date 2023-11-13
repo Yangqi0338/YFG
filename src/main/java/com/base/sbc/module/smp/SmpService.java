@@ -661,18 +661,18 @@ public class SmpService {
             if ("1".equals(packBom.getHistoricalData())) {
                 throw new OtherException(packBom.getMaterialName() + "为旧数据,不允许下发");
             }
-            //如果是主面料,则判断是否和配色颜色一致
-            if ("1".equals(packBom.getMainFlag())){
-                PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
-                //样衣-款式配色
-                styleColor = styleColorService.getById(packInfo.getStyleColorId());
-                if (styleColor == null) {
-                    throw new OtherException(packBom.getMaterialName()+":未关联配色,无法下发");
-                }
-                if(!styleColor.getColorCode().equals(packBom.getColorCode())){
-                    throw new OtherException(packBom.getMaterialName()+":主面料颜色和配色颜色不一致,无法下发");
-                }
-            }
+            //如果是主面料,则判断是否和配色颜色一致 ,已改为前端提示,不做必须校验
+            // if ("1".equals(packBom.getMainFlag())){
+            //     PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+            //     //样衣-款式配色
+            //     styleColor = styleColorService.getById(packInfo.getStyleColorId());
+            //     if (styleColor == null) {
+            //         throw new OtherException(packBom.getMaterialName()+":未关联配色,无法下发");
+            //     }
+            //     if(!styleColor.getColorCode().equals(packBom.getColorCode())){
+            //         throw new OtherException(packBom.getMaterialName()+":主面料颜色和配色颜色不一致,无法下发");
+            //     }
+            // }
             /*判断供应商报价是否停用*/
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("is_supplier",BaseGlobal.YES);
