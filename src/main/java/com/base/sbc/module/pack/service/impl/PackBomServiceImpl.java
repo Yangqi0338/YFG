@@ -464,6 +464,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         PackBomVersion enableVersion = packBomVersionService.getEnableVersion(dto.getForeignId(), dto.getPackType());
         dto.setBomVersionId(enableVersion.getId());
         PackCommonPageSearchDto packCommonPageSearchDto = BeanUtil.copyProperties(dto, PackCommonPageSearchDto.class);
+        packCommonPageSearchDto.setUnusableFlag(BaseGlobal.STATUS_NORMAL);
         List<PackBomVo> packBomPage = baseMapper.getPackBomPage(packCommonPageSearchDto);
         List<PackBom> bomList = BeanUtil.copyToList(packBomPage, PackBom.class);
         if (CollUtil.isEmpty(bomList)) {

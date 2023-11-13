@@ -33,4 +33,7 @@ public class PackCommonPageSearchDto extends Page {
     @ApiModelProperty(value = "版本id")
     private String bomVersionId;
 
+    @ApiModelProperty(value = "不能使用(0否,1是")
+    private String unusableFlag;
+
 }
