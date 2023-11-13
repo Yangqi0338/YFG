@@ -41,6 +41,7 @@ import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -146,6 +147,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     private HttpServletRequest request;
     @Autowired
     private StyleMapper styleMapper;
+
+    @Autowired
+    private StylePicUtils stylePicUtils;
     /**
      * 款式设计流水号前缀
      */
@@ -568,7 +572,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 }
             }
         }
-        minioUtils.setObjectUrlToList(pageInfo.getList(), "stylePic");
+        minioUtils.setObjectUrlToList(pageInfo.getList(), "planningPic");
+        stylePicUtils.setStyleColorPic2(pageInfo.getList(), "stylePic");
         return pageInfo;
     }
 
