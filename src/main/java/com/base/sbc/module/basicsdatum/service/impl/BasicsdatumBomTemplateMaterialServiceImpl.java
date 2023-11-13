@@ -154,6 +154,7 @@ public class BasicsdatumBomTemplateMaterialServiceImpl extends BaseServiceImpl<B
             addRevampBomTemplateMaterialDto.setCost(addRevampBomTemplateMaterialDto.getUnitUse().multiply(addRevampBomTemplateMaterialDto.getPrice()));
         }
         BeanUtils.copyProperties(addRevampBomTemplateMaterialDto, bomTemplateMaterial);
+        CommonUtils.removeQuery(bomTemplateMaterial,"imageUrl");
         baseMapper.updateById(bomTemplateMaterial);
         return true;
     }
