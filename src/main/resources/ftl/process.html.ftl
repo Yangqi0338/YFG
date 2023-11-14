@@ -132,7 +132,6 @@
     .one_imgs_xbj>div {
         width: 21em;
         height: 576px;
-        background: coral;
         display: table-cell;
         box-sizing: border-box;
         /*padding: 6.6em 0;*/
