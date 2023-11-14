@@ -36,4 +36,6 @@ public class PlanningCategoryItemSaveDto extends PlanningCategoryItem {
     private String dimensionFlag = "0";
     @ApiModelProperty(value = "维度值")
     List<FieldVal> fieldVals;
+    @ApiModelProperty(value = "企划tu")
+    private String  planningPic;
 }

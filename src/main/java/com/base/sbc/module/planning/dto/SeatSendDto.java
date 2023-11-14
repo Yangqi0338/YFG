@@ -22,4 +22,6 @@ public class SeatSendDto extends PlanningCategoryItem {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date sampleDeliveryDate;
 
+    @ApiModelProperty(value = "企划图")
+    private String planningPic;
 }

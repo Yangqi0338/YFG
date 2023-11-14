@@ -332,7 +332,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     public void updateCategoryItem(List<PlanningCategoryItemSaveDto> item) {
         boolean flg;
         for (PlanningCategoryItemSaveDto dto : item) {
-            CommonUtils.removeQuery(dto, "stylePic");
+            CommonUtils.removeQuery(dto, "planningPic");
+            dto.setStylePic(dto.getPlanningPic());
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
             flg = updateById(categoryItem);
@@ -347,6 +348,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             styleService.updateBySeatChange(categoryItem);
         }
 
+        minioUtils.setObjectUrlToList(item, "planningPic");
     }
 
     @Override
@@ -594,19 +596,19 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<String> fileUrls = new ArrayList<>(16);
         List<String> stylePicList = new ArrayList<>();
         List<String> newStylePicList = new ArrayList<>();
-        for (PlanningCategoryItem planningCategoryItem : categoryItemList) {
+        for (SeatSendDto planningCategoryItem : categoryItemList) {
             allocationDesignDtoList.add(BeanUtil.copyProperties(planningCategoryItem, AllocationDesignDto.class));
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
-            CommonUtils.removeQuery(planningCategoryItem, "stylePic");
+            CommonUtils.removeQuery(planningCategoryItem, "planningPic");
             UpdateWrapper updateWrapper = new UpdateWrapper();
             /*后续再优化*/
-            if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
+            if (StrUtil.isNotBlank(planningCategoryItem.getPlanningPic())) {
 //                新地址
-                String newUrl = planningCategoryItem.getStylePic().replaceAll(StringUtils.getImageNameWithoutExtension(planningCategoryItem.getStylePic()), planningCategoryItem.getDesignNo());
+                String newUrl = planningCategoryItem.getPlanningPic().replaceAll(StringUtils.getImageNameWithoutExtension(planningCategoryItem.getPlanningPic()), planningCategoryItem.getDesignNo());
 //                改图片名称
-                stylePicList.add(planningCategoryItem.getStylePic());
+                stylePicList.add(planningCategoryItem.getPlanningPic());
                 newStylePicList.add(newUrl);
 //                修改文件名称加上设计师代码
                 fileUrls.add(newUrl);
