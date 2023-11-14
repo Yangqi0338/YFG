@@ -131,11 +131,12 @@
     }
     .one_imgs_xbj>div {
         width: 21em;
-        height: 50em;
+        height: 576px;
+        background: coral;
         display: table-cell;
         box-sizing: border-box;
         /*padding: 6.6em 0;*/
-        padding-top: 3.33em;
+        padding-top: 32px;
     }
     .one_imgs_xbj>div>div {
         /*background: aquamarine;*/
@@ -837,7 +838,7 @@
                                                     </#if>
                                                 </div>
                                                 <img src="${item.url}" style="<#if item_index==0>
-                                                    margin-bottom:3.33em;
+                                                    margin-bottom:32px;
                                                 </#if>"/>
                                             </div>
                                         </#list>
