@@ -478,7 +478,7 @@
             <p class="bold">洗标</p>
             <hr>
             <#if  washingLabel != '' >
-                <img style="height:24px" src="${washingLabel}">
+                <img style="height:18px" src="${washingLabel}">
             </#if>
         </td>
     </tr>
@@ -533,6 +533,9 @@
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == 2>
+                                            border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
@@ -605,6 +608,9 @@
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == 2>
+                                            border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
