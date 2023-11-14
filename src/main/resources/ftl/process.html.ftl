@@ -135,7 +135,7 @@
         display: table-cell;
         box-sizing: border-box;
         /*padding: 6.6em 0;*/
-        padding-top: 32px;
+        padding-top: 34px;
     }
     .one_imgs_xbj>div>div {
         /*background: aquamarine;*/
@@ -314,7 +314,7 @@
 
 <!--基础信息 1 -->
 
-<table class="table_no_border info_table">
+<table class="table_no_border info_table" style="page-break-after: always;page-break-inside: avoid;">
     <tr>
         <td style="width: 15%;vertical-align: top;text-align: center;" rowspan="5">
             <table style="height: 156mm;">
@@ -509,14 +509,14 @@
             <p class="bold">洗标</p>
             <hr>
             <#if  washingLabel != '' >
-                <img style="height:24px" src="${washingLabel}">
+                <img style="height:18px" src="${washingLabel}">
             </#if>
         </td>
     </tr>
 </table>
 <#--注意事项 2-->
 <#if zysxShow>
-    <table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
+    <table class="table_border mt" style="page-break-inside: avoid;">
         <thead>
         <tr>
             <th class="th_title">
@@ -590,6 +590,9 @@
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == 2>
+                                            border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
@@ -663,6 +666,9 @@
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == 1>
+                                            border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
@@ -837,7 +843,7 @@
                                                     </#if>
                                                 </div>
                                                 <img src="${item.url}" style="<#if item_index==0>
-                                                    margin-bottom:32px;
+                                                    margin-bottom:34px;
                                                 </#if>"/>
                                             </div>
                                         </#list>
