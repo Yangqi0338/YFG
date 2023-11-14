@@ -209,8 +209,8 @@
 
     .size_wb {
         background-color: white;
-        border-left: 3px solid #000000;
-        border-right: 3px solid #000000;
+        border-left: 1.34px solid #000000;
+        border-right: 1.34px solid #000000;
     }
 
 
@@ -548,7 +548,7 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth" style="border-left: 3px solid #000000; border-right: 3px solid #000000">
+                        <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth" style="border-left: 1.34px solid #000000; border-right: 1.34px solid #000000">
                             ${size}
                         </th>
                     </#list>
@@ -559,10 +559,10 @@
 
             <tr>
                 <#list sizeList as size>
-                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; border-left: 3px solid #000000">样板<br>尺寸</td>
-                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}"  style="text-align: center;<#if washSkippingFlag><#else>border-right: 3px solid #000000</#if>">成衣<br>尺寸</td>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; border-left: 1.34px solid #000000">样板<br>尺寸</td>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}"  style="text-align: center;<#if washSkippingFlag><#else>border-right: 1.34px solid #000000</#if>">成衣<br>尺寸</td>
                     <#if washSkippingFlag>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center;border-right: 3px solid #000000">洗后<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center;border-right: 1.34px solid #000000">洗后<br>尺寸</td>
                     </#if>
                 </#list>
             </tr>
@@ -577,13 +577,13 @@
                             <#list item.rowData as c>
                                 <td class="${c.className} ${sizeClass[c_index]} "
                                     style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
-                                            border-right: 3px solid #000000;
+                                            border-right: 1.34px solid #000000;
                                         </#if>
                                     <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
-                                        border-left: 3px solid #000000;
+                                        border-left: 1.34px solid #000000;
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
-                                            border-right: 3px solid #000000;
+                                            border-right: 1.34px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
@@ -621,7 +621,7 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass" style="border-left: 3px solid #000000; border-right: 3px solid #000000">
+                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass" style="border-left: 1.34px solid #000000; border-right: 1.34px solid #000000">
                             ${size}
                         </th>
                     </#list>
@@ -632,10 +632,10 @@
 
             <tr>
                 <#list sizeList as size>
-                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; padding: 0 10px;border-left: 3px solid #000000">样板<br>尺寸</td>
-                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px;<#if washSkippingFlag><#else>border-right: 3px solid #000000</#if>">成衣<br>尺寸</td>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; padding: 0 10px;border-left: 1.34px solid #000000">样板<br>尺寸</td>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px;<#if washSkippingFlag><#else>border-right: 1.34px solid #000000</#if>">成衣<br>尺寸</td>
                     <#if washSkippingFlag>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center; padding: 0 10px;border-right: 3px solid #000000">洗后<br>尺寸</td>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center; padding: 0 10px;border-right: 1.34px solid #000000">洗后<br>尺寸</td>
                     </#if>
                 </#list>
             </tr>
@@ -650,13 +650,13 @@
                             <#list item.rowData as c>
                                 <td class="${c.className} ${sizeClass[c_index]} "
                                     style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
-                                            border-right: 3px solid #000000;
+                                            border-right: 1.34px solid #000000;
                                     </#if>
                                     <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
-                                            border-left: 3px solid #000000;
+                                            border-left: 1.34px solid #000000;
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
-                                            border-right: 3px solid #000000;
+                                            border-right: 1.34px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
