@@ -768,7 +768,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdQw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         sdQw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
         sdQw.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
-        sdQw.eq(StrUtil.isNotBlank(dto.getBandCode()), "band_code", dto.getBandCode());
+        sdQw.in(StrUtil.isNotBlank(dto.getBandCode()), "band_code",Arrays.asList(dto.getBandCode().split(",")));
         sdQw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
         sdQw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", StrUtil.split(dto.getDesignerIds(), StrUtil.COMMA));
         sdQw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
