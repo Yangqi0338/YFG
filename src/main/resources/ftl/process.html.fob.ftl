@@ -194,6 +194,14 @@
         border-right: 1.34px solid #000000;
     }
 
+    .size_table_border .gb {
+        background-color: #d2d2d2;
+    }
+
+    .size_table_border .dgb {
+        background-color: #d2d2d2;
+    }
+
     .td_lt {
         text-align: left;
         vertical-align: top;
@@ -549,7 +557,7 @@
             </tfoot>
         </table>
     <#else>
-        <table class="table_border mt size_table" style="page-break-before: always; ">
+        <table class="table_border mt size_table size_table_border" style="page-break-before: always; ">
             <thead>
             <tr>
                 <th colspan="${sizeTitleColspan}" class="th_title">

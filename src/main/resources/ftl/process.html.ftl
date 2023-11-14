@@ -218,6 +218,14 @@
         background-color: #e8e8e8;
     }
 
+    .size_table_border .gb {
+        background-color: #d2d2d2;
+    }
+
+    .size_table_border .dgb {
+        background-color: #d2d2d2;
+    }
+
     .fg {
         min-width: 30px;
         height: 28px;
@@ -535,7 +543,7 @@
 <!--测量点 3 -->
 <#if sizeDataList??>
     <#if sizeList?size gt 5>
-        <table class="table_border mt" style="page-break-before: always;">
+        <table class="table_border size_table_border mt" style="page-break-before: always; page-break-after: always;">
             <thead>
             <tr>
                 <th colspan="${sizeTitleColspan}" class="th_title">
@@ -608,7 +616,7 @@
             </tfoot>
         </table>
     <#else>
-        <table class="table_border mt size_table" style="page-break-before: always; ">
+        <table class="table_border mt size_table size_table_border" style="page-break-before: always;page-break-after: always; ">
             <thead>
             <tr>
                 <th colspan="${sizeTitleColspan}" class="th_title">
@@ -684,7 +692,7 @@
 </#if>
 
 
-<div style="page-break-before: always;page-break-inside: auto">
+<div>
     <!--    裁剪工艺 4 1-->
     <#if cjgyShow>
         <table class="table_border mt" >
