@@ -219,11 +219,11 @@
     }
 
     .size_table_border .gb {
-        background-color: #d2d2d2;
+        background-color: #e8e8e8;
     }
 
     .size_table_border .dgb {
-        background-color: #d2d2d2;
+        background-color: #e8e8e8;
     }
 
     .fg {
