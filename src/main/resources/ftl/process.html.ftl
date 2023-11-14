@@ -695,7 +695,7 @@
 <div>
     <!--    裁剪工艺 4 1-->
     <#if cjgyShow>
-        <table class="table_border mt" >
+        <table class="table_border mt" style="<#if cjgyDataList?size gt 6>page-break-after: always</#if>">
             <thead>
             <tr>
                 <th class="th_title" colspan="2">
