@@ -39,6 +39,14 @@
 
     }
 
+    .item_th {
+        width: 8em;
+    }
+    .item_td {
+        text-align: left;width: 8.05em;box-sizing: border-box;
+        padding-left: 0.5em;
+    }
+
     .flex_td {
         padding-left: 0;
         padding-right: 0;
@@ -60,9 +68,11 @@
     .flex_td_box>div{
         border-bottom:0.5px solid #000;
         box-sizing: border-box;
+        font-size: 0;
         vertical-align: middle;
         width: 100%;
         display: table;
+        /*background: black;*/
     }
     .flex_td_box>div>div {
         width: 100%;
@@ -71,23 +81,15 @@
     }
 
     .flex_td_box>div>div>div{
+        padding: 4px;
+        box-sizing: border-box;
         align-items: center;
         display: table-cell;
-        vertical-align: middle;
+        /*vertical-align: middle;*/
+        margin: 0;
     }
     .flex_td_box>div>div>div:nth-child(2) {
-        border-left:0.8px solid #000;
-        margin-left: 1px;
-        padding: 0 4px;
-    }
-
-    .item_th {
-        width: 8em;
-    }
-
-    .item_td {
-        text-align: left;width: 8em;box-sizing: border-box;
-        padding-left: 0.5em;
+        border-left:0.5px solid #000;
     }
 
     .table_border {
@@ -146,17 +148,14 @@
 
     }
 
-
     .text_color {
         font-weight: bold;
         margin: 2mm 0;
     }
 
 
-
     .size_table {
         width: auto;
-
     }
 
     .size_tr {
@@ -168,17 +167,18 @@
         font-weight: bold;
     }
 
-    .gb {
+    .gb,.size_gb {
         background-color: #b8b7b7;
     }
 
-    .dgb {
+    .dgb,.size_dgb{
         background-color: #b8b7b7;
     }
 
     .table_border .gb {
-        background-color: #e8e8e8;
+        background-color: #b8b7b7;
     }
+
 
     .fg {
         min-width: 30px;
@@ -187,6 +187,19 @@
 
     .wb {
         background-color: white;
+    }
+    .size_wb {
+        background-color: white;
+        border-left: 1.5px solid #000000;
+        border-right: 1.5px solid #000000;
+    }
+
+    .size_table_border .gb {
+        background-color: #d2d2d2;
+    }
+
+    .size_table_border .dgb {
+        background-color: #d2d2d2;
     }
 
     .td_lt {
@@ -256,7 +269,7 @@
 </style>
 <body>
 <!-- 页眉 -->
-<table class="table_no_border page_start bold gb">
+<table class="table_no_border page_start bold">
     <tr>
         <td style="width: 20%;">Eifini</td>
         <td style="width: 20%;">${designNo}</td>
@@ -273,7 +286,7 @@
         <td style="width: 15%;vertical-align: top;text-align: center;" rowspan="5">
             <table style="height: 156mm;">
                 <tr>
-                    <td style="height: 80mm; vertical-align: top;">
+                    <td style="height: 80mm;vertical-align: top;">
                         <div style="display: table-cell;text-align: center;vertical-align: middle;">
                             <img style="max-width: 58mm;max-height: 80mm;" src="${stylePic}">
                         </div>
@@ -472,7 +485,7 @@
 </table>
 <#if sizeDataList??>
     <#if sizeList?size gt 5>
-        <table class="table_border mt" style="page-break-before: always; ">
+        <table class="table_border size_table_border mt" style="page-break-before: always; ">
             <thead>
             <tr>
                 <th colspan="${sizeTitleColspan}" class="th_title">
@@ -485,7 +498,7 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth">
+                        <th colspan="${sizeColspan}" class="size_${sizeClass[(size_index)*sizeColspan+2]} sizeWidth" style="border-left: 1.5px solid #000000; border-right: 1.5px solid #000000">
                             ${size}
                         </th>
                     </#list>
@@ -496,19 +509,10 @@
 
             <tr>
                 <#list sizeList as size>
-                    <#if isFob>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}"  style="text-align: center">成衣<br>尺寸</td>
-                        <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center">洗后<br>尺寸</td>
-                        </#if>
-                    <#else>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center">样板<br>尺寸</td>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}"  style="text-align: center">成衣<br>尺寸</td>
-                        <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center">洗后<br>尺寸</td>
-                        </#if>
+                    <td class="sizeItemWidth size_${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}"  style="text-align: center;border-left: 1.5px solid #000000;<#if washSkippingFlag><#else>border-right: 1.5px solid #000000;</#if>">成衣<br>尺寸</td>
+                    <#if washSkippingFlag>
+                        <td class="sizeItemWidth size_${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center;border-right: 1.5px solid #000000;">洗后<br>尺寸</td>
                     </#if>
-
                 </#list>
             </tr>
             </thead>
@@ -520,8 +524,24 @@
                             <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
                         <#else>
                             <#list item.rowData as c>
-                                <td class="${c.className} ${sizeClass[c_index]}">
-                                    <div style="word-break: break-all;">${c.text}</div>
+                                <td class="${c.className} ${sizeClass[c_index]} "
+                                    style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
+                                            border-right: 1.5px solid #000000;
+                                    </#if>
+                                    <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
+                                            border-left: 1.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == item.rowData?size-3>
+                                            border-right: 1.5px solid #000000;
+                                    </#if>">
+                                    <div style="">
+                                        <#if c_index gt 1>
+                                            <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
+                                        <#else>
+                                            ${c.text}
+                                        </#if>
+
+                                    </div>
                                 </td>
                             </#list>
                         </#if>
@@ -537,7 +557,7 @@
             </tfoot>
         </table>
     <#else>
-        <table class="table_border mt size_table" style="page-break-before: always; ">
+        <table class="table_border mt size_table size_table_border" style="page-break-before: always; ">
             <thead>
             <tr>
                 <th colspan="${sizeTitleColspan}" class="th_title">
@@ -550,7 +570,7 @@
                 <th rowspan="2" style="text-align: center;">描述</th>
                 <#if sizeList??>
                     <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass">
+                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass" style="border-left: 1.5px solid #000000; border-right: 1.5px solid #000000">
                             ${size}
                         </th>
                     </#list>
@@ -561,19 +581,10 @@
 
             <tr>
                 <#list sizeList as size>
-                    <#if isFob>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; <#if washSkippingFlag>padding: 0 10px;<#else>padding: 0 30px;</#if>">成衣尺寸</td>
-                        <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px">洗后尺寸</td>
-                        </#if>
-                    <#else>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center; padding: 0 10px">样板<br>尺寸</td>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px">成衣<br>尺寸</td>
-                        <#if washSkippingFlag>
-                            <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2+2]}" style="text-align: center; padding: 0 10px">洗后<br>尺寸</td>
-                        </#if>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center;border-left: 1.5px solid #000000; <#if washSkippingFlag>padding: 0 10px;<#else>padding: 0 30px;border-right: 1.5px solid #000000;</#if>">成衣尺寸</td>
+                    <#if washSkippingFlag>
+                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px;border-right: 1.5px solid #000000">洗后尺寸</td>
                     </#if>
-
                 </#list>
             </tr>
             </thead>
@@ -585,8 +596,24 @@
                             <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
                         <#else>
                             <#list item.rowData as c>
-                                <td class="${c.className} ${sizeClass[c_index]}">
-                                    <div style="word-break: break-all;">${c.text}</div>
+                                <td class="${c.className} ${sizeClass[c_index]} "
+                                    style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
+                                            border-right: 1.5px solid #000000;
+                                    </#if>
+                                    <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
+                                            border-left: 1.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == item.rowData?size-3>
+                                            border-right: 1.5px solid #000000;
+                                    </#if>">
+                                    <div style="">
+                                        <#if c_index gt 1>
+                                            <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
+                                        <#else>
+                                            ${c.text}
+                                        </#if>
+
+                                    </div>
                                 </td>
                             </#list>
                         </#if>
@@ -693,8 +720,8 @@
             </th>
         </tr>
         <tr>
-            <th class="gb item_th" >工艺项目</th>
-            <th class="gb" >描述</th>
+            <th class="gb item_th">工艺项目</th>
+            <th class="gb">描述</th>
         </tr>
         </thead>
         <tbody>
@@ -727,7 +754,7 @@
             </th>
         </tr>
         <tr>
-            <th class="gb item_th" >工艺项目</th>
+            <th class="gb item_td">工艺项目</th>
             <th class="gb" >描述</th>
         </tr>
         </thead>
