@@ -362,7 +362,7 @@
                 </tr>
                 <tr>
                     <td class="td_lt bold">成分信息*</td>
-                    <td class="td_lt">
+                    <td class="td_lt" style="font-size: 11px">
                         <pre>${ingredient}</pre>
                     </td>
                 </tr>
@@ -385,15 +385,15 @@
                 </tr>
                 <tr>
                     <td class="bold">充绒量</td>
-                    <td>${downContent}</td>
+                    <td style="font-size: 11px">${downContent}</td>
                 </tr>
                 <tr>
                     <td class="gb bold">特殊规格</td>
-                    <td class="gb">${specialSpec}</td>
+                    <td class="gb" style="font-size: 11px">${specialSpec}</td>
                 </tr>
                 <tr>
                     <td class="bold">面料详情</td>
-                    <td class="" ><pre>${fabricDetails}</pre></td>
+                    <td class="" style="font-size: 11px"><pre>${fabricDetails}</pre></td>
                 </tr>
                 <tr>
                     <td class="gb bold">描述</td>

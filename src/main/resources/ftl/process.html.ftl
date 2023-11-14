@@ -166,7 +166,7 @@
 
     .jcgy_img_box img {
         height: ${jcgyImgHeight}mm;
-        max-width: 24em;
+        /*width: 288px;*/
 
     }
 
@@ -393,7 +393,7 @@
                 </tr>
                 <tr>
                     <td class="td_lt bold">成分信息*</td>
-                    <td class="td_lt">
+                    <td class="td_lt" style="font-size: 11px">
                         <pre>${ingredient}</pre>
                     </td>
                 </tr>
@@ -416,15 +416,15 @@
                 </tr>
                 <tr>
                     <td class="bold">充绒量</td>
-                    <td>${downContent}</td>
+                    <td style="font-size: 11px">${downContent}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">特殊规格</td>
-                    <td class="gb">${specialSpec}</td>
+                    <td class="gb bold" >特殊规格</td>
+                    <td class="gb" style="font-size: 11px">${specialSpec}</td>
                 </tr>
                 <tr>
                     <td class="bold">面料详情</td>
-                    <td class="" ><pre>${fabricDetails}</pre></td>
+                    <td class="" style="font-size: 11px"><pre>${fabricDetails}</pre></td>
                 </tr>
                 <tr>
                     <td class="gb bold">描述</td>
@@ -667,7 +667,7 @@
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
                                     </#if>
-                                    <#if c_index == 1>
+                                    <#if c_index == 2>
                                             border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
@@ -749,7 +749,7 @@
             <tr>
                 <th class="gb item_th">工艺项目</th>
                 <th class="gb">工艺描述</th>
-                <th class="gb" style="width: 24em">图片</th>
+                <th class="gb" style="width: 288px">图片</th>
             </tr>
             </thead>
             <tbody>
