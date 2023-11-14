@@ -88,6 +88,9 @@ public class TaskController {
 
                         String[] split1 = split[1].split("]");
                         Style style = styleService.getOne(new BaseQueryWrapper<Style>().eq("design_no", split1[0]));
+                        if (style==null){
+                            continue;
+                        }
                         List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
                         if (attachmentVoList1!=null&&!attachmentVoList1.isEmpty()){
                             flowTaskDto.setPic(attachmentVoList1.get(0).getUrl());
