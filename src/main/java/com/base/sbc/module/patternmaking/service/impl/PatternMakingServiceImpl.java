@@ -873,6 +873,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
+        qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
+        if(StringUtils.isNotBlank(dto.getOrderBy())){
+            dto.setOrderBy("p.receive_sample_date asc , "+dto.getOrderBy() );
+        }else {
+            dto.setOrderBy("p.receive_sample_date asc");
+        }
         qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
         qw.eq("p.disable_flag", BaseGlobal.NO);
 
@@ -884,7 +890,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }else if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.STOCK_STATUS_CHECKED)) {
             qw.eq( "p.break_off_pattern", BaseGlobal.YES);
         }
-
         if(StrUtil.isNotBlank(dto.getPmCreateDate())){
             String[] s = dto.getPmCreateDate().split(",");
             s[0] = s[0] + " 00:00:00";
