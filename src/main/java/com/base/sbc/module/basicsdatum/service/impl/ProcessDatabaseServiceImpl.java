@@ -321,7 +321,13 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
 
             queryWrapper.between("create_date", pageDto.getCreateDate());
         }
-        queryWrapper.orderByDesc("create_date");
+
+        if (StringUtils.isNotEmpty(pageDto.getOrderBy())) {
+            queryWrapper.orderByDesc(pageDto.getOrderBy());
+        }else {
+            queryWrapper.orderByDesc("create_date");
+        }
+
         //if (pageDto.getTime() != null && pageDto.getTime().length > 0) {
         //    queryWrapper.ge(StringUtils.isNotEmpty(pageDto.getTime()[0]), "create_date", pageDto.getTime()[0]);
         //    if (pageDto.getTime().length > 1) {
