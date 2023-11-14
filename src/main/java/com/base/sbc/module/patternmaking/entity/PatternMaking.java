@@ -54,6 +54,13 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "当前状态")
     private String status;
+
+    /**
+     * 停用标记（0启用，1停用）
+     */
+    @ApiModelProperty(value = "停用标记（0启用，1停用）")
+    private String disableFlag;
+
     /**
      * 产品季节id
      */
