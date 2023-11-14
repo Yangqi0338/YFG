@@ -166,7 +166,7 @@
 
     .jcgy_img_box img {
         height: ${jcgyImgHeight}mm;
-        width: 288px;
+        /*width: 288px;*/
 
     }
 
@@ -667,7 +667,7 @@
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
                                     </#if>
-                                    <#if c_index == 1>
+                                    <#if c_index == 2>
                                             border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
