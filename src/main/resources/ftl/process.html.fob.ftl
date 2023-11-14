@@ -362,7 +362,7 @@
                 </tr>
                 <tr>
                     <td class="td_lt bold">成分信息*</td>
-                    <td class="td_lt">
+                    <td class="td_lt" style="font-size: 11px">
                         <pre>${ingredient}</pre>
                     </td>
                 </tr>
@@ -385,15 +385,15 @@
                 </tr>
                 <tr>
                     <td class="bold">充绒量</td>
-                    <td>${downContent}</td>
+                    <td style="font-size: 11px">${downContent}</td>
                 </tr>
                 <tr>
                     <td class="gb bold">特殊规格</td>
-                    <td class="gb">${specialSpec}</td>
+                    <td class="gb" style="font-size: 11px">${specialSpec}</td>
                 </tr>
                 <tr>
                     <td class="bold">面料详情</td>
-                    <td class="" ><pre>${fabricDetails}</pre></td>
+                    <td class="" style="font-size: 11px"><pre>${fabricDetails}</pre></td>
                 </tr>
                 <tr>
                     <td class="gb bold">描述</td>
@@ -478,7 +478,7 @@
             <p class="bold">洗标</p>
             <hr>
             <#if  washingLabel != '' >
-                <img style="height:24px" src="${washingLabel}">
+                <img style="height:18px" src="${washingLabel}">
             </#if>
         </td>
     </tr>
@@ -533,6 +533,9 @@
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == 2>
+                                            border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
@@ -605,6 +608,9 @@
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == 2>
+                                            border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>

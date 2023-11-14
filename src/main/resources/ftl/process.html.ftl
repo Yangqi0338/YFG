@@ -131,11 +131,11 @@
     }
     .one_imgs_xbj>div {
         width: 21em;
-        height: 50em;
+        height: 576px;
         display: table-cell;
         box-sizing: border-box;
         /*padding: 6.6em 0;*/
-        padding-top: 3.33em;
+        padding-top: 34px;
     }
     .one_imgs_xbj>div>div {
         /*background: aquamarine;*/
@@ -166,7 +166,7 @@
 
     .jcgy_img_box img {
         height: ${jcgyImgHeight}mm;
-        max-width: 24em;
+        /*width: 288px;*/
 
     }
 
@@ -314,7 +314,7 @@
 
 <!--基础信息 1 -->
 
-<table class="table_no_border info_table">
+<table class="table_no_border info_table" style="page-break-after: always;page-break-inside: avoid;">
     <tr>
         <td style="width: 15%;vertical-align: top;text-align: center;" rowspan="5">
             <table style="height: 156mm;">
@@ -393,7 +393,7 @@
                 </tr>
                 <tr>
                     <td class="td_lt bold">成分信息*</td>
-                    <td class="td_lt">
+                    <td class="td_lt" style="font-size: 11px">
                         <pre>${ingredient}</pre>
                     </td>
                 </tr>
@@ -416,15 +416,15 @@
                 </tr>
                 <tr>
                     <td class="bold">充绒量</td>
-                    <td>${downContent}</td>
+                    <td style="font-size: 11px">${downContent}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">特殊规格</td>
-                    <td class="gb">${specialSpec}</td>
+                    <td class="gb bold" >特殊规格</td>
+                    <td class="gb" style="font-size: 11px">${specialSpec}</td>
                 </tr>
                 <tr>
                     <td class="bold">面料详情</td>
-                    <td class="" ><pre>${fabricDetails}</pre></td>
+                    <td class="" style="font-size: 11px"><pre>${fabricDetails}</pre></td>
                 </tr>
                 <tr>
                     <td class="gb bold">描述</td>
@@ -509,14 +509,14 @@
             <p class="bold">洗标</p>
             <hr>
             <#if  washingLabel != '' >
-                <img style="height:24px" src="${washingLabel}">
+                <img style="height:18px" src="${washingLabel}">
             </#if>
         </td>
     </tr>
 </table>
 <#--注意事项 2-->
 <#if zysxShow>
-    <table class="table_border mt" style="page-break-before: always;page-break-inside: avoid;">
+    <table class="table_border mt" style="page-break-inside: avoid;">
         <thead>
         <tr>
             <th class="th_title">
@@ -590,6 +590,9 @@
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == 2>
+                                            border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
@@ -663,6 +666,9 @@
                                     </#if>
                                     <#if c_index == item.rowData?size-3>
                                             border-right: 2.5px solid #000000;
+                                    </#if>
+                                    <#if c_index == 2>
+                                            border-left: 2.5px solid #000000;
                                     </#if>">
                                     <div style="">
                                         <#if c_index gt 1>
@@ -743,7 +749,7 @@
             <tr>
                 <th class="gb item_th">工艺项目</th>
                 <th class="gb">工艺描述</th>
-                <th class="gb" style="width: 24em">图片</th>
+                <th class="gb" style="width: 288px">图片</th>
             </tr>
             </thead>
             <tbody>
@@ -837,7 +843,7 @@
                                                     </#if>
                                                 </div>
                                                 <img src="${item.url}" style="<#if item_index==0>
-                                                    margin-bottom:3.33em;
+                                                    margin-bottom:34px;
                                                 </#if>"/>
                                             </div>
                                         </#list>
