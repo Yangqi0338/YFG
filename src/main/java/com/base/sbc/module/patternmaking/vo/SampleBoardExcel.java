@@ -2,6 +2,7 @@ package com.base.sbc.module.patternmaking.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
@@ -19,8 +20,10 @@ import java.util.Optional;
 public class SampleBoardExcel {
 
     @ApiModelProperty(value = "款图")
-    @Excel(name = "款图", type = 2, imageType = 1)
-    private String stylePic;
+    @Excel(name = "款图", type = 2,  imageType = 2)
+    private  byte[]  pic;
+
+    private String  stylePic;
     /**
      * 产品季
      */
