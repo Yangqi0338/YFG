@@ -131,12 +131,16 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode);
         Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
         stylePricingList.forEach(stylePricingVO -> {
-            List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
+            // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
             PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
             packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
             packCommonSearchDto.setForeignId(stylePricingVO.getId());
-            //材料成本
-            stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
+            //材料成本,如果fob,则不计算
+            if (!"FOB".equals(stylePricingVO.getProductionType())){
+                stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
+            }else {
+                stylePricingVO.setMaterialCost(BigDecimal.ZERO);
+            }
             stylePricingVO.setPackagingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "包装费")));
             stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "检测费")));
             stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "车缝加工费")));
