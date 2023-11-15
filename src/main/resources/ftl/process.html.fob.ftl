@@ -269,7 +269,7 @@
 </style>
 <body>
 <!-- 页眉 -->
-<table class="table_no_border page_start bold">
+<table class="table_no_border page_start bold gb">
     <tr>
         <td style="width: 20%;">Eifini</td>
         <td style="width: 20%;">${designNo}</td>
@@ -484,157 +484,242 @@
     </tr>
 </table>
 <#if sizeDataList??>
-    <#if sizeList?size gt 5>
-        <table class="table_border size_table_border mt" style="page-break-before: always; ">
-            <thead>
-            <tr>
-                <th colspan="${sizeTitleColspan}" class="th_title">
-                    <p>测量点</p>
-                    <hr>
-                </th>
-            </tr>
-            <tr class="size_tr gb">
-                <th rowspan="2" style="text-align: center;width: 120px;" class="partNameClass">部位</th>
-                <th rowspan="2" style="text-align: center;">描述</th>
-                <#if sizeList??>
-                    <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="size_${sizeClass[(size_index)*sizeColspan+2]} sizeWidth" style="border-left: 2.5px solid #000000; border-right: 2.5px solid #000000">
-                            ${size}
-                        </th>
-                    </#list>
-                </#if>
-                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(-)</th>
-                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(+)</th>
-            </tr>
-
-            <tr>
-                <#list sizeList as size>
-                    <td class="sizeItemWidth size_${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}"  style="text-align: center;border-left: 2.5px solid #000000;<#if washSkippingFlag><#else>border-right: 2.5px solid #000000;</#if>">成衣<br>尺寸</td>
-                    <#if washSkippingFlag>
-                        <td class="sizeItemWidth size_${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center;border-right: 2.5px solid #000000;">洗后<br>尺寸</td>
-                    </#if>
-                </#list>
-            </tr>
-            </thead>
-            <tbody>
-            <#if sizeDataList??>
-                <#list sizeDataList as item>
-                    <tr class="size_tr">
-                        <#if item.rowType=="1">
-                            <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
-                        <#else>
-                            <#list item.rowData as c>
-                                <td class="${c.className} ${sizeClass[c_index]} "
-                                    style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
-                                            border-right: 2.5px solid #000000;
-                                    </#if>
-                                    <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
-                                            border-left: 2.5px solid #000000;
-                                    </#if>
-                                    <#if c_index == item.rowData?size-3>
-                                            border-right: 2.5px solid #000000;
-                                    </#if>
-                                    <#if c_index == 2>
-                                            border-left: 2.5px solid #000000;
-                                    </#if>">
-                                    <div style="">
-                                        <#if c_index gt 1>
-                                            <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
-                                        <#else>
-                                            ${c.text}
-                                        </#if>
-
-                                    </div>
-                                </td>
-                            </#list>
-                        </#if>
-                    </tr>
-                </#list>
-            </#if>
-            </tbody>
-            <tfoot>
-            <tr>
-                <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>
-                <td colspan="2" style="height: 32px;">单位:CM</td>
-            </tr>
-            </tfoot>
-        </table>
+    <#assign sizeCount = (washSkippingFlag?then(2, 1))>
+    <#assign sizeWidth = "width: 40%;">
+    <#if sizeList?size*sizeCount lt 2>
+        <#assign sizeWidth = "width: 40%;">
+    <#elseif sizeList?size*sizeCount lt 4>
+        <#assign sizeWidth = "width: 60%;">
+    <#elseif sizeList?size*sizeCount lt 9>
+        <#assign sizeWidth = "width: 80%;">
     <#else>
-        <table class="table_border mt size_table size_table_border" style="page-break-before: always; ">
-            <thead>
-            <tr>
-                <th colspan="${sizeTitleColspan}" class="th_title">
-                    <p>测量点</p>
-                    <hr>
-                </th>
-            </tr>
-            <tr class="size_tr gb">
-                <th rowspan="2" style="text-align: center; width: 120px;" class="partNameClass">部位</th>
-                <th rowspan="2" style="text-align: center;">描述</th>
-                <#if sizeList??>
-                    <#list sizeList as size>
-                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass" style="border-left: 2.5px solid #000000; border-right: 2.5px solid #000000">
-                            ${size}
-                        </th>
-                    </#list>
-                </#if>
-                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(-)</th>
-                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(+)</th>
-            </tr>
-
-            <tr>
+        <#assign sizeWidth = "width: 100%;">
+    </#if>
+    <table class="table_border mt size_table size_table_border" style="page-break-before: always;${sizeWidth}">
+        <thead>
+        <tr>
+            <th colspan="${sizeTitleColspan}" class="th_title">
+                <p>测量点</p>
+                <hr>
+            </th>
+        </tr>
+        <tr class="size_tr gb">
+            <th rowspan="2" style="text-align: center; width: 120px;" class="partNameClass">部位</th>
+            <th rowspan="2" style="text-align: center;">描述</th>
+            <#if sizeList??>
                 <#list sizeList as size>
-                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center;border-left: 2.5px solid #000000; <#if washSkippingFlag>padding: 0 10px;<#else>padding: 0 30px;border-right: 2.5px solid #000000;</#if>">成衣尺寸</td>
-                    <#if washSkippingFlag>
-                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px;border-right: 2.5px solid #000000">洗后尺寸</td>
-                    </#if>
-                </#list>
-            </tr>
-            </thead>
-            <tbody>
-            <#if sizeDataList??>
-                <#list sizeDataList as item>
-                    <tr class="size_tr">
-                        <#if item.rowType=="1">
-                            <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
-                        <#else>
-                            <#list item.rowData as c>
-                                <td class="${c.className} ${sizeClass[c_index]} "
-                                    style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
-                                            border-right: 2.5px solid #000000;
-                                    </#if>
-                                    <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
-                                            border-left: 2.5px solid #000000;
-                                    </#if>
-                                    <#if c_index == item.rowData?size-3>
-                                            border-right: 2.5px solid #000000;
-                                    </#if>
-                                    <#if c_index == 2>
-                                            border-left: 2.5px solid #000000;
-                                    </#if>">
-                                    <div style="">
-                                        <#if c_index gt 1>
-                                            <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
-                                        <#else>
-                                            ${c.text}
-                                        </#if>
-
-                                    </div>
-                                </td>
-                            </#list>
-                        </#if>
-                    </tr>
+                    <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass" style="border-left: 2.5px solid #000000; border-right: 2.5px solid #000000">
+                        ${size}
+                    </th>
                 </#list>
             </#if>
-            </tbody>
-            <tfoot>
-            <tr>
-                <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>
-                <td colspan="2" style="height: 32px;">单位:CM</td>
-            </tr>
-            </tfoot>
-        </table>
-    </#if>
+            <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(-)</th>
+            <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(+)</th>
+        </tr>
+
+        <tr>
+            <#list sizeList as size>
+                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center;border-left: 2.5px solid #000000; <#if washSkippingFlag><#else>border-right: 2.5px solid #000000;</#if>">成衣<#if sizeList?size*sizeCount gt 8><br/></#if>尺寸</td>
+                <#if washSkippingFlag>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; border-right: 2.5px solid #000000">洗后<#if sizeList?size*sizeCount gt 8><br/></#if>尺寸</td>
+                </#if>
+            </#list>
+        </tr>
+        </thead>
+        <tbody>
+        <#if sizeDataList??>
+            <#list sizeDataList as item>
+                <tr class="size_tr">
+                    <#if item.rowType=="1">
+                        <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>
+                    <#else>
+                        <#list item.rowData as c>
+                            <td class="${c.className} ${sizeClass[c_index]} "
+                                style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
+                                        border-right: 2.5px solid #000000;
+                                </#if>
+                                <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
+                                        border-left: 2.5px solid #000000;
+                                </#if>
+                                <#if c_index == item.rowData?size-3>
+                                        border-right: 2.5px solid #000000;
+                                </#if>
+                                <#if c_index == 2>
+                                        border-left: 2.5px solid #000000;
+                                </#if>">
+                                <div style="">
+                                    <#if c_index gt 1>
+                                        <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
+                                    <#else>
+                                        ${c.text}
+                                    </#if>
+
+                                </div>
+                            </td>
+                        </#list>
+                    </#if>
+                </tr>
+            </#list>
+        </#if>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>
+            <td colspan="2" style="height: 32px;">单位:CM</td>
+        </tr>
+        </tfoot>
+    </table>
+<#--    <#if sizeList?size gt 5>-->
+<#--        <table class="table_border size_table_border mt" style="page-break-before: always; ">-->
+<#--            <thead>-->
+<#--            <tr>-->
+<#--                <th colspan="${sizeTitleColspan}" class="th_title">-->
+<#--                    <p>测量点</p>-->
+<#--                    <hr>-->
+<#--                </th>-->
+<#--            </tr>-->
+<#--            <tr class="size_tr gb">-->
+<#--                <th rowspan="2" style="text-align: center;width: 120px;" class="partNameClass">部位</th>-->
+<#--                <th rowspan="2" style="text-align: center;">描述</th>-->
+<#--                <#if sizeList??>-->
+<#--                    <#list sizeList as size>-->
+<#--                        <th colspan="${sizeColspan}" class="size_${sizeClass[(size_index)*sizeColspan+2]} sizeWidth" style="border-left: 2.5px solid #000000; border-right: 2.5px solid #000000">-->
+<#--                            ${size}-->
+<#--                        </th>-->
+<#--                    </#list>-->
+<#--                </#if>-->
+<#--                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(-)</th>-->
+<#--                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(+)</th>-->
+<#--            </tr>-->
+
+<#--            <tr>-->
+<#--                <#list sizeList as size>-->
+<#--                    <td class="sizeItemWidth size_${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}"  style="text-align: center;border-left: 2.5px solid #000000;<#if washSkippingFlag><#else>border-right: 2.5px solid #000000;</#if>">成衣<br>尺寸</td>-->
+<#--                    <#if washSkippingFlag>-->
+<#--                        <td class="sizeItemWidth size_${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center;border-right: 2.5px solid #000000;">洗后<br>尺寸</td>-->
+<#--                    </#if>-->
+<#--                </#list>-->
+<#--            </tr>-->
+<#--            </thead>-->
+<#--            <tbody>-->
+<#--            <#if sizeDataList??>-->
+<#--                <#list sizeDataList as item>-->
+<#--                    <tr class="size_tr">-->
+<#--                        <#if item.rowType=="1">-->
+<#--                            <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>-->
+<#--                        <#else>-->
+<#--                            <#list item.rowData as c>-->
+<#--                                <td class="${c.className} ${sizeClass[c_index]} "-->
+<#--                                    style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">-->
+<#--                                            border-right: 2.5px solid #000000;-->
+<#--                                    </#if>-->
+<#--                                    <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">-->
+<#--                                            border-left: 2.5px solid #000000;-->
+<#--                                    </#if>-->
+<#--                                    <#if c_index == item.rowData?size-3>-->
+<#--                                            border-right: 2.5px solid #000000;-->
+<#--                                    </#if>-->
+<#--                                    <#if c_index == 2>-->
+<#--                                            border-left: 2.5px solid #000000;-->
+<#--                                    </#if>">-->
+<#--                                    <div style="">-->
+<#--                                        <#if c_index gt 1>-->
+<#--                                            <p style="font-weight: bold;word-break: break-all;">${c.text}</p>-->
+<#--                                        <#else>-->
+<#--                                            ${c.text}-->
+<#--                                        </#if>-->
+
+<#--                                    </div>-->
+<#--                                </td>-->
+<#--                            </#list>-->
+<#--                        </#if>-->
+<#--                    </tr>-->
+<#--                </#list>-->
+<#--            </#if>-->
+<#--            </tbody>-->
+<#--            <tfoot>-->
+<#--            <tr>-->
+<#--                <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>-->
+<#--                <td colspan="2" style="height: 32px;">单位:CM</td>-->
+<#--            </tr>-->
+<#--            </tfoot>-->
+<#--        </table>-->
+<#--    <#else>-->
+<#--        <table class="table_border mt size_table size_table_border" style="page-break-before: always; ">-->
+<#--            <thead>-->
+<#--            <tr>-->
+<#--                <th colspan="${sizeTitleColspan}" class="th_title">-->
+<#--                    <p>测量点</p>-->
+<#--                    <hr>-->
+<#--                </th>-->
+<#--            </tr>-->
+<#--            <tr class="size_tr gb">-->
+<#--                <th rowspan="2" style="text-align: center; width: 120px;" class="partNameClass">部位</th>-->
+<#--                <th rowspan="2" style="text-align: center;">描述</th>-->
+<#--                <#if sizeList??>-->
+<#--                    <#list sizeList as size>-->
+<#--                        <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass" style="border-left: 2.5px solid #000000; border-right: 2.5px solid #000000">-->
+<#--                            ${size}-->
+<#--                        </th>-->
+<#--                    </#list>-->
+<#--                </#if>-->
+<#--                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(-)</th>-->
+<#--                <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(+)</th>-->
+<#--            </tr>-->
+
+<#--            <tr>-->
+<#--                <#list sizeList as size>-->
+<#--                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center;border-left: 2.5px solid #000000; <#if washSkippingFlag>padding: 0 10px;<#else>padding: 0 30px;border-right: 2.5px solid #000000;</#if>">成衣尺寸</td>-->
+<#--                    <#if washSkippingFlag>-->
+<#--                        <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; padding: 0 10px;border-right: 2.5px solid #000000">洗后尺寸</td>-->
+<#--                    </#if>-->
+<#--                </#list>-->
+<#--            </tr>-->
+<#--            </thead>-->
+<#--            <tbody>-->
+<#--            <#if sizeDataList??>-->
+<#--                <#list sizeDataList as item>-->
+<#--                    <tr class="size_tr">-->
+<#--                        <#if item.rowType=="1">-->
+<#--                            <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}</td>-->
+<#--                        <#else>-->
+<#--                            <#list item.rowData as c>-->
+<#--                                <td class="${c.className} ${sizeClass[c_index]} "-->
+<#--                                    style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">-->
+<#--                                            border-right: 2.5px solid #000000;-->
+<#--                                    </#if>-->
+<#--                                    <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">-->
+<#--                                            border-left: 2.5px solid #000000;-->
+<#--                                    </#if>-->
+<#--                                    <#if c_index == item.rowData?size-3>-->
+<#--                                            border-right: 2.5px solid #000000;-->
+<#--                                    </#if>-->
+<#--                                    <#if c_index == 2>-->
+<#--                                            border-left: 2.5px solid #000000;-->
+<#--                                    </#if>">-->
+<#--                                    <div style="">-->
+<#--                                        <#if c_index gt 1>-->
+<#--                                            <p style="font-weight: bold;word-break: break-all;">${c.text}</p>-->
+<#--                                        <#else>-->
+<#--                                            ${c.text}-->
+<#--                                        </#if>-->
+
+<#--                                    </div>-->
+<#--                                </td>-->
+<#--                            </#list>-->
+<#--                        </#if>-->
+<#--                    </tr>-->
+<#--                </#list>-->
+<#--            </#if>-->
+<#--            </tbody>-->
+<#--            <tfoot>-->
+<#--            <tr>-->
+<#--                <td colspan="${sizeTitleColspan-2}" style="height: 32px;">测量点-${sizeDataList?size}</td>-->
+<#--                <td colspan="2" style="height: 32px;">单位:CM</td>-->
+<#--            </tr>-->
+<#--            </tfoot>-->
+<#--        </table>-->
+<#--    </#if>-->
 </#if>
 
 <!-- 朴条位置(不需要) 归拔位置 4 2 -->
