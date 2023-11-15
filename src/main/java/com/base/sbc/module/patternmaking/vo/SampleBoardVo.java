@@ -319,6 +319,8 @@ public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "当前状态")
     private String  pmStatus;
 
+    private String patternDesignerName;
+
     public String getId() {
         return patternMakingId;
     }
