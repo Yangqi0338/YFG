@@ -643,7 +643,9 @@
         p.demand_finish_date AS demandFinishDate ,
         p.technician_kitting,
         p.technician_kitting_date,
-        s.*
+        s.*,
+        p.cutter_name AS cutterName,
+        p.stitcher AS stitcher
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id and p.del_flag = '0' )
