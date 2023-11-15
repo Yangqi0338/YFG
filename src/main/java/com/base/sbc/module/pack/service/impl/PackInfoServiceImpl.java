@@ -527,7 +527,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         //图样附件、物料清单、尺寸表、工序工价、核价信息、工艺说明、样衣评审、业务意见、吊牌洗唛
 
         //图样附件
-        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
+        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag,null);
         //物料清单
         packBomVersionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag, flg);
         //尺寸表
@@ -924,10 +924,13 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             }
 
         }
-
         if (StrUtil.contains(dto.getItem(), "工艺说明")) {
-            attachmentService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
-            packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            attachmentService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag(), dto.getSpecType());
+            if(StringUtils.isNotBlank(dto.getSpecType())){
+                packTechSpecService.copyItem(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getSpecType());
+            }else {
+                packTechSpecService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag());
+            }
             vo.setTechCount(packTechSpecService.count(dto.getSourceForeignId(), dto.getSourcePackType()));
             if (isRhd) {
                 targetStatus.setTechRhdFlag(BaseGlobal.YES);

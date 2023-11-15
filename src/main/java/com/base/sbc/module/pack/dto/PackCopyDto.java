@@ -39,4 +39,7 @@ public class PackCopyDto {
     @ApiModelProperty(value = "复制的项目", example = "物料清单,尺寸表,工艺说明")
     @NotBlank(message = "复制项目为空")
     private String item;
+
+    @ApiModelProperty(value = "引用类型")
+    private String specType;
 }
