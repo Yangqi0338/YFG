@@ -21,10 +21,16 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
 
 
     public QueryWrapper<T> notEmptyIn(String column, Collection<?> coll) {
+        if (coll == null) {
+            return this;
+        }
         return this.in(CollUtil.isNotEmpty(coll), column, coll);
     }
 
     public QueryWrapper<T> notEmptyIn(String column, String str) {
+        if (StrUtil.isBlank(str)) {
+            return this;
+        }
         return this.in(StrUtil.isNotBlank(str), column, StrUtil.split(str, CharUtil.COMMA));
     }
 
