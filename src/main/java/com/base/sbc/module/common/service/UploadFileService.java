@@ -114,6 +114,16 @@ public interface UploadFileService extends BaseService<UploadFile> {
     boolean delStyleImage(DelStylePicDto dto, Principal user);
 
     boolean delDesignImage(DelStylePicDto dto, Principal user);
+
+
+    /**
+     * 从服务器上下载图片
+     * @param key
+     * @param fileName
+     * @return
+     */
+    MultipartFile downloadImage(String key,String fileName);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

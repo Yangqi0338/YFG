@@ -61,10 +61,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -573,6 +570,37 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
 
         return true;
+    }
+
+    /**
+     * 从服务器上下载图片
+     *
+     * @param key
+     * @return
+     */
+    @Override
+    public MultipartFile downloadImage(String key,String fileName) {
+        /*获取链接*/
+        String  url = stylePicUtils.getStyleUrl(key);
+
+        byte[] bytes = HttpUtil.downloadBytes(url);
+        // 创建一个临时文件
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("temp", null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 将byte[]写入临时文件
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 使用Spring框架的MockMultipartFile类创建一个MultipartFile对象
+        return new MockMultipartFile(fileName, tempFile.getName(), "application/octet-stream", bytes);
     }
 
     public String getTemporaryFilePath(MultipartFile multipartFile) throws IOException {

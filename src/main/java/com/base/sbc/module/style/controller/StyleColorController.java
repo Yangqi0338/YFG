@@ -83,8 +83,8 @@ public class StyleColorController {
 
 	@ApiOperation(value = "批量新增款式配色-款式配色")
 	@PostMapping("/batchAddSampleStyleColor")
-	public Boolean batchAddSampleStyleColor(@Valid @RequestBody List<AddRevampStyleColorDto> list) {
-		return styleColorService.batchAddSampleStyleColor(list);
+	public Boolean batchAddSampleStyleColor(Principal user,@Valid @RequestBody List<AddRevampStyleColorDto> list) throws Exception {
+		return styleColorService.batchAddSampleStyleColor(user,list);
 	}
 
 
