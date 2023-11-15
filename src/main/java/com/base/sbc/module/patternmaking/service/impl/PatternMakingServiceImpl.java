@@ -748,7 +748,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
 
         // 查询样衣信息
-        QueryWrapper<Style> sdQw = new QueryWrapper<>();
+        BaseQueryWrapper<Style> sdQw = new BaseQueryWrapper<>();
 
         //临时逻辑,如果请求参数有打版指令的,就先查打版指令,再根据打版指令查的样衣id查询
         if (StrUtil.isNotBlank(dto.getPatternNo())) {
@@ -768,7 +768,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdQw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         sdQw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
         sdQw.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
-        sdQw.in(StrUtil.isNotBlank(dto.getBandCode()), "band_code",Arrays.asList(dto.getBandCode().split(",")));
+
+        sdQw.notEmptyIn("band_code",dto.getBandCode());
         sdQw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
         sdQw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", StrUtil.split(dto.getDesignerIds(), StrUtil.COMMA));
         sdQw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
@@ -849,6 +850,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
+        qw.notEmptyEq("p.prm_send_status",dto.getPrmSendStatus());
+        qw.notEmptyEq("p.break_off_pattern",dto.getBreakOffPattern());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
