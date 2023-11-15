@@ -246,7 +246,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param response
      * @param dto
      */
-    void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException;
+    void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException;
 
     /**
      * 确认收到样衣
