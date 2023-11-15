@@ -786,7 +786,7 @@
 <div>
     <!--    裁剪工艺 4 1-->
     <#if cjgyShow>
-        <table class="table_border mt" style="<#if cjgyDataList?size gt 4 || (cjgyDataList?size + jcgyDataList?size) gt 22>page-break-after: always</#if>">
+        <table class="table_border mt" style="<#if cjgyDataList?size gt 5 || (cjgyDataList?size + jcgyDataList?size) gt 20>page-break-after: always</#if>">
             <thead>
             <tr>
                 <th class="th_title" colspan="2">
@@ -871,7 +871,7 @@
                                 <div class="jcgy_img_box">
                                     <#if jcgyImgList??>
                                         <#list jcgyImgList as item>
-<#--                                            <img src="${item.url}"/> <br>-->
+                                            <img src="${item.url}"/> <br>
                                         </#list>
                                     </#if>
                                 </div>
