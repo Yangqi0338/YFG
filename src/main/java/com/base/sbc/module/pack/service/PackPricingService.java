@@ -36,6 +36,17 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
     PackPricingVo saveByDto(PackPricingDto dto);
 
+    /**
+     * 计算总价格
+     * 默认查大货 flag=1 资料包什么阶段就查什么阶段
+     * @param packInfoId
+     * @param flag
+     * @return
+     */
+    BigDecimal countTotalPrice(String packInfoId,String flag);
+
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 
