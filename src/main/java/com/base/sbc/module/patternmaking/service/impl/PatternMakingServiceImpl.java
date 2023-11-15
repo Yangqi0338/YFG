@@ -136,6 +136,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (style == null) {
             throw new OtherException("款式设计不存在");
         }
+        if( StrUtil.equals(style.getEnableStatus(),BaseGlobal.YES)){
+            throw new OtherException("款式设计已停用");
+        }
         QueryWrapper rQw = new QueryWrapper();
         rQw.eq("style_id", dto.getStyleId());
         rQw.eq("del_flag", BaseGlobal.NO);
