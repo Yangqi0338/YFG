@@ -870,6 +870,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
+        qw.notEmptyEq("p.prm_send_status",dto.getPrmSendStatus());
+        qw.notEmptyEq("p.break_off_pattern",dto.getBreakOffPattern());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));

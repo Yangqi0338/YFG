@@ -87,4 +87,9 @@ public class PatternMakingCommonPageSearchDto extends Page {
     * */
     @ApiModelProperty(value = "状态")
     private String  pmStatus;
+
+
+    private String prmSendStatus;
+
+    private String breakOffPattern;
 }
