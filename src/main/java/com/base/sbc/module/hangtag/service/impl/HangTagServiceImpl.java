@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.base.sbc.module.smp.SmpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -136,6 +137,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Lazy
 	private DataPermissionsService dataPermissionsService;
 
+
+	@Autowired
+	@Lazy
+	private SmpService smpService;
 	@Autowired
 	private HangTagIngredientService hangTagIngredientService;
 
@@ -283,8 +288,27 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		CommonUtils.removeQuery(hangTagDTO, "washingLabel");
 
 		BeanUtil.copyProperties(hangTagDTO, hangTag);
+		//如果品名修改则下发scm
+		StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq
+				("style_no", hangTag.getBulkStyleNo()).eq("company_code", userCompany).select("id"));
+
+
+		if(StringUtils.isEmpty(hangTagDTO.getId())){
+			smpService.goods(styleColor.getId().split(","));
+		}else {
+			HangTag hangTag1 = this.getById(hangTagDTO.getId());
+			if(!hangTag1.getProductName().equals(hangTag.getProductName())){
+				smpService.goods(styleColor.getId().split(","));
+			}
+		}
+
 		super.saveOrUpdate(hangTag, "吊牌管理");
 		String id = hangTag.getId();
+
+
+
+
+
 
 		// List<BasicsdatumMaterialIngredient> materialIngredientList =
 		// basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0",
@@ -304,15 +328,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
 		// hangTagIngredientService.save(hangTagIngredients, id, userCompany);
 		hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getV(), userCompany);
+
 		/**
 		 * 当存在品名时同步到配色
 		 */
 		if (!StringUtils.isEmpty(hangTag.getProductCode()) && !StringUtils.isEmpty(hangTag.getProductName())) {
-			QueryWrapper queryWrapper = new QueryWrapper();
-			queryWrapper.eq("style_no", hangTag.getBulkStyleNo());
-			queryWrapper.eq("company_code", userCompany);
-			/**/
-			StyleColor styleColor = styleColorMapper.selectOne(queryWrapper);
 			/* 同步配色品名 */
 			if (!ObjectUtils.isEmpty(styleColor)) {
 				styleColor.setProductCode(hangTag.getProductCode());

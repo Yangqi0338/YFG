@@ -390,23 +390,26 @@ public class SmpService {
                 }
                 String packType = "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
                 PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
-                //所有物料是否下发
-                boolean b =true;
-                List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));
-                if (packBoms != null && !packBoms.isEmpty()) {
-                    for (PackBom packBom : packBoms) {
-                        if ( !"1".equals(packBom.getScmSendFlag()) && !"3".equals(packBom.getScmSendFlag())) {
-                            b=false;
-                            break;
+                if (enableVersion != null) {
+                    List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));
+                    //所有物料是否下发
+                    boolean b =true;
+                    if (packBoms != null && !packBoms.isEmpty()) {
+                        for (PackBom packBom : packBoms) {
+                            if ( !"1".equals(packBom.getScmSendFlag()) && !"3".equals(packBom.getScmSendFlag())) {
+                                b=false;
+                                break;
+                            }
                         }
+                    }else {
+                        b=false;
                     }
-
-                }else {
-                    b=false;
+                    PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packType));
+                    smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()) && b);
+                    smpGoodsDto.setIntegritySample(b);
                 }
-                PackInfoStatus packInfoStatus = packInfoStatusService.getOne(new QueryWrapper<PackInfoStatus>().eq("foreign_id", packInfo.getId()).eq("pack_type", packType));
-                smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()) && b);
-                smpGoodsDto.setIntegritySample(b);
+
+
             }
             //废弃
             //smpGoodsDto.setSeriesId(null);
