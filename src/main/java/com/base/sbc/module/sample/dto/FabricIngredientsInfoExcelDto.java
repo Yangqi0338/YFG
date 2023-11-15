@@ -33,8 +33,15 @@ public class FabricIngredientsInfoExcelDto {
 
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
-    @Excel(name = "图片",type = 2)
+    @Excel(name = "图片",type = 2,orderNum ="-2")
     private String imageUrl;
+
+    /**
+     * 完成状态
+     */
+    @Excel(name = "完成状态",orderNum ="-1" )
+    @ApiModelProperty(value = "完成状态"  )
+    private String completionStatus;
     /** 厂家寄出时间 */
     @ApiModelProperty(value = "厂家寄出时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -137,10 +144,4 @@ public class FabricIngredientsInfoExcelDto {
 
     private Integer code;
 
-    /**
-     * 完成状态
-     */
-    @Excel(name = "完成状态" )
-    @ApiModelProperty(value = "完成状态"  )
-    private String completionStatus;
 }
