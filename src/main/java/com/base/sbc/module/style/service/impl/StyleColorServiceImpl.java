@@ -31,6 +31,8 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.common.dto.UploadStylePicDto;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
@@ -72,6 +74,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -139,6 +142,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private HangTagService hangTagService;
 
+    @Autowired
+    private UploadFileService uploadFileService;
     Pattern pattern = Pattern.compile("[a-z||A-Z]");
 
 
@@ -356,7 +361,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean batchAddSampleStyleColor(List<AddRevampStyleColorDto> list) {
+    public Boolean batchAddSampleStyleColor(Principal user,List<AddRevampStyleColorDto> list) throws Exception {
         int index = 0;
         list = CollUtil.distinct(list, AddRevampStyleColorDto::getColorCode, true);
         /*查询颜色*/
@@ -386,6 +391,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
         addMainAccessories(style, list, styleColorList);
+        for (StyleColor styleColor : styleColorList) {
+            /*获取到款式里面款式图给到配色中*/
+            if(StringUtils.isNotBlank(style.getStylePic())){
+                UploadStylePicDto uploadStylePicDto = new UploadStylePicDto();
+                uploadStylePicDto.setStyleColorId(styleColor.getId());
+                MultipartFile multipartFile = uploadFileService.downloadImage(style.getStylePic(), styleColor.getStyleNo() + ".jpg");
+                uploadStylePicDto.setFile(multipartFile);
+                uploadFileService.uploadStyleImage(uploadStylePicDto,user);
+            }
+        }
+
         return true;
     }
 
