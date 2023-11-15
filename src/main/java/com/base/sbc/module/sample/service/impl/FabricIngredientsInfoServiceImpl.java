@@ -86,6 +86,9 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturerNumber()),"manufacturer",queryFabricIngredientsInfoDto.getManufacturerNumber());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"manufacturer_number",queryFabricIngredientsInfoDto.getManufacturer());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getAtactiformStylist()),"atactiform_stylist",queryFabricIngredientsInfoDto.getAtactiformStylist());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCreateName()),"create_name",queryFabricIngredientsInfoDto.getCreateName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCompletionStatus()),"completion_status",queryFabricIngredientsInfoDto.getCompletionStatus());
+        queryWrapper.between("create_date",StringUtils.split(queryFabricIngredientsInfoDto.getCreateDate(),","));
         if (!StringUtils.isEmpty(queryFabricIngredientsInfoDto.getPracticalAtactiformDate())){
             queryWrapper.between("practical_atactiform_date",queryFabricIngredientsInfoDto.getPracticalAtactiformDate().split(","));
         }
