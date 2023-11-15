@@ -136,4 +136,11 @@ public class FabricIngredientsInfoExcelDto {
     private String status;
 
     private Integer code;
+
+    /**
+     * 完成状态
+     */
+    @Excel(name = "完成状态" )
+    @ApiModelProperty(value = "完成状态"  )
+    private String completionStatus;
 }
