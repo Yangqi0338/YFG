@@ -293,16 +293,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				("style_no", hangTag.getBulkStyleNo()).eq("company_code", userCompany).select("id"));
 
 
+		boolean flag = false;
 		if(StringUtils.isEmpty(hangTagDTO.getId())){
-			smpService.goods(styleColor.getId().split(","));
+			flag = true;
 		}else {
 			HangTag hangTag1 = this.getById(hangTagDTO.getId());
 			if(!hangTag1.getProductName().equals(hangTag.getProductName())){
-				smpService.goods(styleColor.getId().split(","));
+				flag = true;
 			}
 		}
 
 		super.saveOrUpdate(hangTag, "吊牌管理");
+
+		if (flag){
+			smpService.goods(styleColor.getId().split(","));
+		}
+
 		String id = hangTag.getId();
 
 
