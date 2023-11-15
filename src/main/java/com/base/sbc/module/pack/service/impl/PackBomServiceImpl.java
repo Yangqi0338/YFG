@@ -238,6 +238,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             BeanUtil.copyProperties(dto, db);
             PackUtils.setBomVersionInfo(version, db);
             db.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
+            db.setBulkUnitUse(dto.getBulkUnitUse());
+            db.setDesignUnitUse(dto.getDesignUnitUse());
             BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),null);
             updateById(db);
             packBom = db;
