@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
@@ -27,6 +28,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.IFileLoaderImpl;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -974,6 +976,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
         stylePicUtils.setStylePic(excelList, "stylePic");
+        POICacheManager.setFileLoader(new IFileLoaderImpl());
         ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
 
     }
