@@ -880,10 +880,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
         qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
+
         if(StringUtils.isNotBlank(dto.getOrderBy())){
-            dto.setOrderBy("p.receive_sample_date asc , "+dto.getOrderBy() );
+            dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
         }else {
-            dto.setOrderBy("p.receive_sample_date asc");
+            dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
         }
         qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
         qw.eq("p.disable_flag", BaseGlobal.NO);
