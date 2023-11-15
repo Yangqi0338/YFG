@@ -51,6 +51,7 @@ import com.base.sbc.module.style.service.StylePicService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StylePicVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -579,7 +580,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
      * @return
      */
     @Override
-    public MultipartFile downloadImage(String key,String fileName) {
+    public MultipartFile downloadImage(String key,String fileName) throws IOException {
         /*获取链接*/
         String  url = stylePicUtils.getStyleUrl(key);
 
@@ -598,9 +599,10 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         // 使用Spring框架的MockMultipartFile类创建一个MultipartFile对象
-        return new MockMultipartFile(fileName, tempFile.getName(), "application/octet-stream", bytes);
+        MultipartFile multipartFile = new MockMultipartFile(fileName, fileName, "application/octet-stream", bytes);
+        tempFile.delete();
+        return multipartFile;
     }
 
     public String getTemporaryFilePath(MultipartFile multipartFile) throws IOException {
