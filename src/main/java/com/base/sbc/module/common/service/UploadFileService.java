@@ -13,6 +13,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
@@ -114,6 +115,16 @@ public interface UploadFileService extends BaseService<UploadFile> {
     boolean delStyleImage(DelStylePicDto dto, Principal user);
 
     boolean delDesignImage(DelStylePicDto dto, Principal user);
+
+
+    /**
+     * 从服务器上下载图片
+     * @param key
+     * @param fileName
+     * @return
+     */
+    MultipartFile downloadImage(String key,String fileName) throws IOException;
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

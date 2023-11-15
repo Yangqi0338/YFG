@@ -70,7 +70,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param
          * @return
          */
-        Boolean  batchAddSampleStyleColor(List<AddRevampStyleColorDto> list);
+        Boolean  batchAddSampleStyleColor(Principal user,List<AddRevampStyleColorDto> list) throws Exception;
 
 
         /**
