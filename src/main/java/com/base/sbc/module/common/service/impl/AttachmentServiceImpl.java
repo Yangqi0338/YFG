@@ -254,7 +254,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag) {
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag,String specType) {
         if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
             return true;
         }
@@ -263,7 +263,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         }
         QueryWrapper qw = new QueryWrapper();
         qw.eq("foreign_id", sourceForeignId);
-        qw.likeRight("type", sourcePackType + StrUtil.DASHED);
+        qw.likeRight("type", sourcePackType + StrUtil.DASHED+specType);
         List<Attachment> list = list(qw);
         if (CollUtil.isNotEmpty(list)) {
             for (Attachment o : list) {
