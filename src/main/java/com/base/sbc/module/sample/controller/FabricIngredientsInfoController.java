@@ -5,6 +5,7 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
@@ -58,6 +59,7 @@ public class FabricIngredientsInfoController{
 
 	@ApiOperation(value = "/导出")
 	@GetMapping("/fabricIngredientsInfoDeriveExcel")
+	@DuplicationCheck(type = 1,message = "正在导出中，请稍后...")
 	public void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws Exception {
 		fabricIngredientsInfoService.fabricIngredientsInfoDeriveExcel(response,queryFabricIngredientsInfoDto);
 	}
