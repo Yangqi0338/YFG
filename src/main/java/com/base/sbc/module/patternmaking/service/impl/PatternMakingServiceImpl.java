@@ -37,6 +37,8 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -192,6 +194,21 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (patSeqCount > 0) {
             throw new OtherException("打样顺序重复");
         }
+    }
+
+    /**
+     * 打板停用启用
+     *
+     * @param startStopDto
+     * @return
+     */
+    @Override
+    public boolean startStop(StartStopDto startStopDto) {
+        UpdateWrapper<PatternMaking> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id",StringUtils.convertList(startStopDto.getIds()));
+        updateWrapper.set("disable_flag", startStopDto.getStatus());
+        /*修改状态*/
+        return baseMapper.update(null, updateWrapper) > 0;
     }
 
     @Override
@@ -859,6 +876,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
+        qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
+        qw.eq("p.disable_flag", BaseGlobal.NO);
+
+        if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
+            qw.eq( "p.break_off_sample", BaseGlobal.NO);
+            qw.eq( "p.break_off_pattern", BaseGlobal.NO);
+        } else if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.YES)) {
+            qw.eq( "p.break_off_sample", BaseGlobal.YES);
+        }else if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.STOCK_STATUS_CHECKED)) {
+            qw.eq( "p.break_off_pattern", BaseGlobal.YES);
+        }
+
         if(StrUtil.isNotBlank(dto.getPmCreateDate())){
             String[] s = dto.getPmCreateDate().split(",");
             s[0] = s[0] + " 00:00:00";

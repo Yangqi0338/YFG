@@ -18,6 +18,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
@@ -458,6 +459,13 @@ public class PatternMakingController {
     @ApiOperation(value = "修改放码师")
     public boolean updateGrading(@Validated @RequestBody PatternMaking patternMaking) {
         return patternMakingService.updateById(patternMaking);
+    }
+
+
+    @PostMapping("/startStop")
+    @ApiOperation(value = "停用启用")
+    public boolean startStop(@Valid @RequestBody StartStopDto startStopDto) {
+        return patternMakingService.startStop(startStopDto);
     }
 
 }
