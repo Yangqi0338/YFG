@@ -306,6 +306,8 @@ public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "分配车缝工备注")
     private String stitcherRemark;
 
+    private String patternDesignerName;
+
     public String getId() {
         return patternMakingId;
     }
