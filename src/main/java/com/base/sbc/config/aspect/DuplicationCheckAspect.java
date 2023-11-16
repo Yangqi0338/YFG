@@ -36,17 +36,19 @@ public class DuplicationCheckAspect {
      */
     @Around("@annotation(com.base.sbc.config.annotation.DuplicationCheck)")
     public Object logMethod(ProceedingJoinPoint joinPoint) throws Throwable {
-
         DuplicationCheck duplicationCheck = getDuplicationCheck(joinPoint);
-        if (duplicationCheck.value()) {
-            String key = generateKey(joinPoint,duplicationCheck);
-            if (redisUtils.hasKey(key)) {
-                throw new OtherException(duplicationCheck.message());
+        try {
+            if (duplicationCheck.value()) {
+                String key = generateKey(joinPoint,duplicationCheck);
+                if (redisUtils.hasKey(key)) {
+                    throw new OtherException(duplicationCheck.message());
+                }
+                redisUtils.set(key, key, duplicationCheck.time());
             }
-            redisUtils.set(key, key, duplicationCheck.time());
+            return joinPoint.proceed();
+        } finally {
+            redisUtils.del(generateKey(joinPoint,duplicationCheck));
         }
-        return joinPoint.proceed();
-
     }
 
     /**
