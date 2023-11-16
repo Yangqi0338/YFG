@@ -935,6 +935,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if(!StringUtils.isBlank(dto.getDeriveflag())){
             qw.groupBy("p.id");
             baseMapper.deriveList(qw);
+            if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
+                /*带图片只能导出3000条*/
+                if(objects.toPageInfo().getList().size() >3000){
+                    throw new OtherException("带图片最多只能导出3000条");
+                }
+            }
+
             return objects.toPageInfo();
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
@@ -957,33 +964,37 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
-        stylePicUtils.setStylePic(excelList, "stylePic");
+        /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
                 .setWorkQueue(new LinkedBlockingQueue<>(excelList.size()))
                 .build();
-//        lock.lock();
-        CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
         try {
-            for (SampleBoardExcel sampleBoardExcel : excelList) {
-                executor.submit(() -> {
-                    try{
-                        final String stylePic = sampleBoardExcel.getStylePic();
-                        sampleBoardExcel.setPic(HttpUtil.downloadBytes(stylePic));
-                    }catch (Exception e){
-                        log.error(e.getMessage());
-                    }finally {
-                        //每次减一
-                        countDownLatch.countDown();
-                        log.info(String.valueOf(countDownLatch.getCount()));
-                    }
-                });
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*获取图片链接*/
+                stylePicUtils.setStylePic(excelList, "stylePic");
+                /*计时器*/
+                CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
+                for (SampleBoardExcel sampleBoardExcel : excelList) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = sampleBoardExcel.getStylePic();
+                            sampleBoardExcel.setPic(HttpUtil.downloadBytes(stylePic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
             }
-            countDownLatch.await();
             ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
         } finally {
             executor.shutdown();
         }

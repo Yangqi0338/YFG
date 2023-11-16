@@ -280,7 +280,7 @@ public class PatternMakingController {
 
     @ApiOperation(value = "导出", notes = "")
     @GetMapping("/deriveExcel")
-    @DuplicationCheck(type = 1,message = "服务正在导出请稍等",time = 100)
+    @DuplicationCheck(type = 1,message = "服务正在导出请稍等",time = 60)
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
          patternMakingService.deriveExcel(response,dto);
     }

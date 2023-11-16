@@ -71,4 +71,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
 
     @ApiModelProperty(value = "创建指令时间")
     private String pmCreateDate;
+
+    @ApiModelProperty(value = "图片标记")
+    private String imgFlag;
 }
