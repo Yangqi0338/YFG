@@ -20,6 +20,12 @@ public class PlanningProject extends BaseDataEntity<String> {
     private String seasonId;
 
     /**
+     * 产品季id
+     */
+    @ApiModelProperty(value = "产品季名称")
+    private String seasonName;
+
+    /**
      * 企划规划名称
      */
     @ApiModelProperty(value = "企划规划名称")
@@ -35,7 +41,6 @@ public class PlanningProject extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "渠道编码")
     private String planningChannelCode;
-
 
     /**
      * 1停用、0启用

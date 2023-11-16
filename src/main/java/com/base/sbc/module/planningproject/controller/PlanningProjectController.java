@@ -1,5 +1,6 @@
 package com.base.sbc.module.planningproject.controller;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -10,6 +11,7 @@ import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
@@ -48,8 +50,17 @@ public class PlanningProjectController extends BaseController {
 
     @ApiOperation(value = "新增、修改企划看板计划")
     @PostMapping("/save")
-    public ApiResult save(@Valid @RequestBody PlanningProjectSaveDTO planningProject) {
-        return insertSuccess(planningProjectService.save(planningProject));
+    public ApiResult save(@Valid @RequestBody PlanningProjectSaveDTO planningProjectSaveDTO) {
+        return insertSuccess(planningProjectService.save(planningProjectSaveDTO));
+    }
+
+    @ApiOperation(value = "启用停用")
+    @GetMapping("/startStop")
+    public ApiResult startStop(@Valid @NotNull(message = "传入id不能为空") String ids, @Valid @NotNull(message = "传入状态不能为空") String status) {
+        UpdateWrapper<PlanningProject> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id", Arrays.asList(ids.split(",")));
+        updateWrapper.set("status", status);
+        return updateSuccess(planningProjectService.update(updateWrapper));
     }
 
     @ApiOperation(value = "删除企划看板计划")
