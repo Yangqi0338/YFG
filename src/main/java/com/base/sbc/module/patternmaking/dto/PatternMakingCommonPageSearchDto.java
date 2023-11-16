@@ -75,6 +75,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @ApiModelProperty(value = "紧急程度")
     private String urgency;
 
+
     @ApiModelProperty(value = "打样工艺员")
     private String patternTechnicianName;
 
