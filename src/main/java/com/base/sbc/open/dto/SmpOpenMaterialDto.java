@@ -276,7 +276,7 @@ public class SmpOpenMaterialDto {
         basicsdatumMaterial.setLongitudeShrink(C8_MaterialAttr_LongitlShrinkage);
         basicsdatumMaterial.setLatitudeShrink(C8_MaterialAttr_WeftShrinkage);
         basicsdatumMaterial.setGramWeight(Weight);
-        basicsdatumMaterial.setIngredient( Composition);
+        // basicsdatumMaterial.setIngredient( Composition);
         basicsdatumMaterial.setFactoryComposition(SupplierComposition);
         if (Images!= null){
             String join = StringUtils.join(Images, ";");

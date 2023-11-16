@@ -6,9 +6,11 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
@@ -52,6 +54,8 @@ public class OpenSmpController extends BaseController {
     private final OpenSmpService openSmpService;
 
     private final BasicsdatumMaterialIngredientService basicsdatumMaterialIngredientService;
+
+    private final BasicsdatumMaterialService basicsdatumMaterialService;
 
 
     /**
@@ -169,7 +173,9 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectContent.getInspectContent());
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
         }
-
+        BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialService.getOne(new QueryWrapper<BasicsdatumMaterial>().eq("material_code", escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
+        basicsdatumMaterial.setIngredient(escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent());
+        basicsdatumMaterialService.updateById(basicsdatumMaterial);
         return insertSuccess(null);
     }
 }
