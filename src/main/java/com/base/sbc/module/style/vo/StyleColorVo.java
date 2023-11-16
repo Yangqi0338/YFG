@@ -289,6 +289,8 @@ public class StyleColorVo {
     @ApiModelProperty(value = "配饰"  )
     private String accessory;
 
+    private String  accessory1;
+
     /** 配饰款号 */
     @ApiModelProperty(value = "配饰款号"  )
     private String accessoryNo;
@@ -435,4 +437,10 @@ public class StyleColorVo {
      * 是否是迁移历史数据 0否 1是
      */
     private String historicalData;
+
+    public String   getAccessory(){
+        return getAccessory1();
+    }
+
+
 }
