@@ -1,8 +1,8 @@
 package com.base.sbc.module.planning.controller;
 
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.planning.dto.AddSeatDto;
@@ -18,61 +18,44 @@ import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import org.simpleframework.xml.core.Validate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import sun.plugin.ClassLoaderInfo;
 
-import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 @RestController
 @Api(tags = "企划看板规划-相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/planningProject", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validate
-public class PlanningProjectController extends BaseController{
-    private final ReentrantLock lock = new ReentrantLock();
+@RequiredArgsConstructor
+public class PlanningProjectController extends BaseController {
+    private final PlanningSeasonService planningSeasonService;
+    private final PlanningProjectService planningProjectService;
+    private final MinioUtils minioUtils;
+    private final PlanningCategoryItemService planningCategoryItemService;
 
-    @Resource
-    private PlanningSeasonService planningSeasonService;
-
-    @Autowired
-    private PlanningProjectService planningProjectService;
-
-    @Autowired
-    private MinioUtils minioUtils;
-    @Resource
-    private PlanningCategoryItemService planningCategoryItemService;
-    @ApiOperation(value = "企划看板计划查询", notes = "")
-    @GetMapping("/getPlanningProjectList")
-    public PageInfo<PlanningProjectVo> planningProject(@Valid PlanningProjectPageDTO dto) {
-        PageInfo<PlanningProjectVo> pageInfoVO = planningProjectService.planningProject(dto);
-        return pageInfoVO;
+    @ApiOperation(value = "企划看板计划查询")
+    @GetMapping("/queryPage")
+    public PageInfo<PlanningProjectVo> queryPage(@Valid PlanningProjectPageDTO dto) {
+        return planningProjectService.queryPage(dto);
     }
 
-    @ApiOperation(value = "新增、修改企划看板计划", notes = "")
-    @PostMapping("/getPlanningProjectAdd")
-    public ApiResult planningProjectAdd(@Valid @RequestBody PlanningProjectDTO dto) {
-        return insertSuccess(planningProjectService.planningProjectAdd(dto));
+    @ApiOperation(value = "新增、修改企划看板计划")
+    @PostMapping("/save")
+    public ApiResult save(@Valid @RequestBody PlanningProjectDTO planningProject) {
+        return insertSuccess(planningProjectService.saveOrUpdate(planningProject));
     }
 
-    @ApiOperation(value = "新增、修改企划看板计划", notes = "")
-    @PostMapping("/getPlanningProjectUpdate")
-    public ApiResult planningProjectUpdate(@Valid @RequestBody PlanningProjectDTO dto) {
-        return updateSuccess(planningProjectService.planningProjectUpdate(dto));
-    }
-
-
-    @ApiOperation(value = "删除企划看板计划", notes = "")
-    @DeleteMapping("/getPlanningProjectDel")
-    public boolean planningProjectDel(@Valid @NotNull(message = "编号不能为空") String id) {
-
-        return planningProjectService.planningProjectDel(id);
+    @ApiOperation(value = "删除企划看板计划")
+    @DeleteMapping("/delByIds")
+    public ApiResult delByIds(@Valid @NotNull(message = "传入id不能为空") String ids) {
+        return deleteSuccess(planningProjectService.removeByIds(Arrays.asList(ids.split(","))));
     }
 
     @ApiOperation(value = "产品季-查询年份品牌树(新)")
@@ -83,13 +66,9 @@ public class PlanningProjectController extends BaseController{
 
     @ApiOperation(value = "新建坑位(新)")
     @PostMapping("/addSeat")
+    @DuplicationCheck
     public boolean addSeat(@Validated @RequestBody AddSeatDto dto) {
-        lock.lock();
-        try {
-            return planningCategoryItemService.addSeat(dto);
-        } finally {
-            lock.unlock();
-        }
+        return planningCategoryItemService.addSeat(dto);
     }
 
     @ApiOperation(value = "查询坑位列表")
