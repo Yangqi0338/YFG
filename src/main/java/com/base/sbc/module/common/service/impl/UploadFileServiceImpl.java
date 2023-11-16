@@ -51,6 +51,7 @@ import com.base.sbc.module.style.service.StylePicService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StylePicVo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -61,10 +62,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -488,6 +486,23 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
             String fileName = jsonObject.getString("FileName");
             if (StrUtil.isEmpty(style.getStylePic())) {
                 styleService.update(new UpdateWrapper<Style>().lambda().eq(Style::getId, style.getId()).set(Style::getStylePic, fileName));
+            }else {
+                /*替换之前的款式主图*/
+                if(StrUtil.equals(dto.getReplaceFlag(),BaseGlobal.YES)){
+                    DelStylePicDto delStylePicDto = new DelStylePicDto();
+                    QueryWrapper queryWrapper =new QueryWrapper();
+                    queryWrapper.eq("style_id",dto.getStyleId());
+                    queryWrapper.eq("file_name",style.getStylePic());
+                    StylePic one = stylePicService.getOne(queryWrapper);
+                    if(!ObjectUtils.isEmpty(one)){
+                        delStylePicDto.setStyleId(dto.getStyleId());
+                        delStylePicDto.setStylePicId(one.getId());
+                        /*删除图片*/
+                        delDesignImage(delStylePicDto,user);
+                        /*修改图片*/
+                        styleService.update(new UpdateWrapper<Style>().lambda().eq(Style::getId, style.getId()).set(Style::getStylePic, fileName));
+                    }
+                }
             }
             StylePic sp = BeanUtil.copyProperties(uploadDto, StylePic.class);
             sp.setDesignNo(style.getDesignNo());
@@ -556,6 +571,38 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         }
 
         return true;
+    }
+
+    /**
+     * 从服务器上下载图片
+     *
+     * @param key
+     * @return
+     */
+    @Override
+    public MultipartFile downloadImage(String key,String fileName) throws IOException {
+        /*获取链接*/
+        String  url = stylePicUtils.getStyleUrl(key);
+
+        byte[] bytes = HttpUtil.downloadBytes(url);
+        // 创建一个临时文件
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("temp", null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 将byte[]写入临时文件
+        try (FileOutputStream fos = new FileOutputStream(tempFile)) {
+            fos.write(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // 使用Spring框架的MockMultipartFile类创建一个MultipartFile对象
+        MultipartFile multipartFile = new MockMultipartFile(fileName, fileName, "application/octet-stream", bytes);
+        tempFile.delete();
+        return multipartFile;
     }
 
     public String getTemporaryFilePath(MultipartFile multipartFile) throws IOException {

@@ -13,6 +13,7 @@ import javax.validation.Valid;
 
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
@@ -82,8 +83,8 @@ public class StyleColorController {
 
 	@ApiOperation(value = "批量新增款式配色-款式配色")
 	@PostMapping("/batchAddSampleStyleColor")
-	public Boolean batchAddSampleStyleColor(@Valid @RequestBody List<AddRevampStyleColorDto> list) {
-		return styleColorService.batchAddSampleStyleColor(list);
+	public Boolean batchAddSampleStyleColor(Principal user,@Valid @RequestBody List<AddRevampStyleColorDto> list) throws Exception {
+		return styleColorService.batchAddSampleStyleColor(user,list);
 	}
 
 
@@ -197,6 +198,11 @@ public class StyleColorController {
 		return styleColorService.getStyleMainAccessoriesList(user,dto);
 	}
 
+	@ApiOperation(value = "配色增加复制功能")
+	@PostMapping("/copyStyleColor")
+	public Boolean copyStyleColor(@Valid @RequestBody IdDto idDto) {
+		return styleColorService.copyStyleColor(idDto);
+	}
 
 
 }

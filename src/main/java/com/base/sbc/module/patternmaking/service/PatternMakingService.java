@@ -8,6 +8,7 @@ package com.base.sbc.module.patternmaking.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.patternmaking.dto.*;
@@ -15,8 +16,10 @@ import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -239,7 +242,7 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     boolean nodeStatusChange(String userId, List<NodeStatusChangeDto> list, GroupUser groupUser);
 
-    PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto);
+    PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto);
 
     /**
      * 导出样衣看板
@@ -357,6 +360,13 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @param patSeq
      */
     void checkPatSeqRepeat(String styleId, String patternMakingId, String patSeq);
+
+    /**
+     * 打板停用启用
+     * @param startStopDto
+     * @return
+     */
+    boolean startStop(StartStopDto startStopDto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

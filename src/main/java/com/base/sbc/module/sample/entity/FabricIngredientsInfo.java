@@ -146,6 +146,12 @@ public class FabricIngredientsInfo extends BaseDataEntity<String> {
 
     private Integer code;
 
+    /**
+     * 完成状态
+     */
+    @ApiModelProperty(value = "完成状态"  )
+    private String completionStatus;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

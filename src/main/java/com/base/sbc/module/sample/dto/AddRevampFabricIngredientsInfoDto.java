@@ -133,4 +133,10 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     /** 提交标记(1设计师,0辅料专员) */
     @ApiModelProperty(value = "提交标记(1设计师,0辅料专员)"  )
     private String submitFlag;
+
+    /**
+     * 完成状态
+     */
+    @ApiModelProperty(value = "完成状态"  )
+    private String completionStatus;
 }

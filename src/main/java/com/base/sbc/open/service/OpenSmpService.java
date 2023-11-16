@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,6 +67,9 @@ public class OpenSmpService {
     private final CcmService ccmService;
     private final BasicsdatumSupplierService basicsdatumSupplierService;
 
+    @Value("${minio.endpoint}")
+    private String url;
+
 
     @Transactional(rollbackFor = Exception.class)
     public void smpMaterial(JSONObject smpOpenMaterialDtoJson) {
@@ -92,7 +96,7 @@ public class OpenSmpService {
 
                         String[] split = string.split("\\.");
 
-                        list.add("http://60.191.75.218:23480/CMSDocs/Material/" + smpOpenMaterialDto.getCode() + "." + split[1]);
+                        list.add(url+"/pdm/Material/" +smpOpenMaterialDto.getC8_Season_Year()+"/"+smpOpenMaterialDto.getC8_Season_Quarter()+"/"+ smpOpenMaterialDto.getCode() + "." + split[1]);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

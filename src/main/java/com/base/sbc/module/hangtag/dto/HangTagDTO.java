@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.dto;
 import java.util.Date;
 import java.util.List;
 
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -278,5 +279,12 @@ public class HangTagDTO {
      */
     private String attachment;
     private String repIngredient;
+    private String historicalData;
+
+    /**
+     * 外发工厂
+     */
+    private String outFactory;
+
 }
 

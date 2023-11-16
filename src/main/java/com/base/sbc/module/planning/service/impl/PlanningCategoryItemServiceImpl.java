@@ -41,6 +41,7 @@ import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -146,6 +147,9 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     private HttpServletRequest request;
     @Autowired
     private StyleMapper styleMapper;
+
+    @Autowired
+    private StylePicUtils stylePicUtils;
     /**
      * 款式设计流水号前缀
      */
@@ -328,7 +332,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
     public void updateCategoryItem(List<PlanningCategoryItemSaveDto> item) {
         boolean flg;
         for (PlanningCategoryItemSaveDto dto : item) {
-            CommonUtils.removeQuery(dto, "stylePic");
+            CommonUtils.removeQuery(dto, "planningPic");
+            dto.setStylePic(dto.getPlanningPic());
             PlanningCategoryItem categoryItem = BeanUtil.copyProperties(dto, PlanningCategoryItem.class);
             // 修改
             flg = updateById(categoryItem);
@@ -343,6 +348,7 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
             styleService.updateBySeatChange(categoryItem);
         }
 
+        minioUtils.setObjectUrlToList(item, "planningPic");
     }
 
     @Override
@@ -568,7 +574,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
                 }
             }
         }
-        minioUtils.setObjectUrlToList(pageInfo.getList(), "stylePic");
+        minioUtils.setObjectUrlToList(pageInfo.getList(), "planningPic");
+        stylePicUtils.setStyleColorPic2(pageInfo.getList(), "stylePic");
         return pageInfo;
     }
 
@@ -589,19 +596,19 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<String> fileUrls = new ArrayList<>(16);
         List<String> stylePicList = new ArrayList<>();
         List<String> newStylePicList = new ArrayList<>();
-        for (PlanningCategoryItem planningCategoryItem : categoryItemList) {
+        for (SeatSendDto planningCategoryItem : categoryItemList) {
             allocationDesignDtoList.add(BeanUtil.copyProperties(planningCategoryItem, AllocationDesignDto.class));
             setTaskLevelDtoList.add(BeanUtil.copyProperties(planningCategoryItem, SetTaskLevelDto.class));
             itemIds.add(planningCategoryItem.getId());
             seasonIds.add(planningCategoryItem.getPlanningSeasonId());
-            CommonUtils.removeQuery(planningCategoryItem, "stylePic");
+            CommonUtils.removeQuery(planningCategoryItem, "planningPic");
             UpdateWrapper updateWrapper = new UpdateWrapper();
             /*后续再优化*/
-            if (StrUtil.isNotBlank(planningCategoryItem.getStylePic())) {
+            if (StrUtil.isNotBlank(planningCategoryItem.getPlanningPic())) {
 //                新地址
-                String newUrl = planningCategoryItem.getStylePic().replaceAll(StringUtils.getImageNameWithoutExtension(planningCategoryItem.getStylePic()), planningCategoryItem.getDesignNo());
+                String newUrl = planningCategoryItem.getPlanningPic().replaceAll(StringUtils.getImageNameWithoutExtension(planningCategoryItem.getPlanningPic()), planningCategoryItem.getDesignNo());
 //                改图片名称
-                stylePicList.add(planningCategoryItem.getStylePic());
+                stylePicList.add(planningCategoryItem.getPlanningPic());
                 newStylePicList.add(newUrl);
 //                修改文件名称加上设计师代码
                 fileUrls.add(newUrl);

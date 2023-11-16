@@ -15,6 +15,12 @@ public interface AttachmentTypeConstant {
      * 款式设计-附件
      */
     String SAMPLE_DESIGN_FILE_ATTACHMENT = "SAMPLE_DESIGN_FILE_ATTACHMENT";
+
+    /**
+     * 款式设计-审批同意图
+     */
+    String SAMPLE_DESIGN_FILE_APPROVE_PIC = "SAMPLE_DESIGN_FILE_APPROVE_PIC";
+
     /**
      * 款式设计-款式图
      */

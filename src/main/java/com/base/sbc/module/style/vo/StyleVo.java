@@ -60,6 +60,8 @@ public class StyleVo extends Style {
 
     @ApiModelProperty(value = "附件")
     private List<AttachmentVo> attachmentList;
+    @ApiModelProperty(value = "附件")
+    private List<AttachmentVo> attachmentList1;
     @ApiModelProperty(value = "款式图片信息")
     private List<StylePicVo> stylePicList;
     @ApiModelProperty(value = "关联的素材库")

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
@@ -27,6 +28,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.IFileLoaderImpl;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -37,6 +39,8 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -70,6 +74,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -129,6 +135,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         Style style = styleService.getById(dto.getStyleId());
         if (style == null) {
             throw new OtherException("款式设计不存在");
+        }
+        if( StrUtil.equals(style.getEnableStatus(),BaseGlobal.YES)){
+            throw new OtherException("款式设计已停用");
         }
         QueryWrapper rQw = new QueryWrapper();
         rQw.eq("style_id", dto.getStyleId());
@@ -190,6 +199,21 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (patSeqCount > 0) {
             throw new OtherException("打样顺序重复");
         }
+    }
+
+    /**
+     * 打板停用启用
+     *
+     * @param startStopDto
+     * @return
+     */
+    @Override
+    public boolean startStop(StartStopDto startStopDto) {
+        UpdateWrapper<PatternMaking> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id",StringUtils.convertList(startStopDto.getIds()));
+        updateWrapper.set("disable_flag", startStopDto.getStatus());
+        /*修改状态*/
+        return baseMapper.update(null, updateWrapper) > 0;
     }
 
     @Override
@@ -746,7 +770,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PageInfo patternMakingSteps(PatternMakingCommonPageSearchDto dto) {
 
         // 查询样衣信息
-        QueryWrapper<Style> sdQw = new QueryWrapper<>();
+        BaseQueryWrapper<Style> sdQw = new BaseQueryWrapper<>();
 
         //临时逻辑,如果请求参数有打版指令的,就先查打版指令,再根据打版指令查的样衣id查询
         if (StrUtil.isNotBlank(dto.getPatternNo())) {
@@ -766,7 +790,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdQw.eq(StrUtil.isNotBlank(dto.getSeason()), "season", dto.getSeason());
         sdQw.eq(StrUtil.isNotBlank(dto.getYear()), "year", dto.getYear());
         sdQw.eq(StrUtil.isNotBlank(dto.getMonth()), "month", dto.getMonth());
-        sdQw.eq(StrUtil.isNotBlank(dto.getBandCode()), "band_code", dto.getBandCode());
+
+        sdQw.notEmptyIn("band_code",dto.getBandCode());
         sdQw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
         sdQw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", StrUtil.split(dto.getDesignerIds(), StrUtil.COMMA));
         sdQw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
@@ -843,10 +868,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
-    public PageInfo<SampleBoardVo> sampleBoardList(PatternMakingCommonPageSearchDto dto) {
+    public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
+        qw.notEmptyEq("p.prm_send_status",dto.getPrmSendStatus());
+        qw.notEmptyEq("p.break_off_pattern",dto.getBreakOffPattern());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
@@ -854,6 +881,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
+        qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
+        qw.eq("p.disable_flag", BaseGlobal.NO);
+
+        if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
+            qw.eq( "p.break_off_sample", BaseGlobal.NO);
+            qw.eq( "p.break_off_pattern", BaseGlobal.NO);
+        } else if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.YES)) {
+            qw.eq( "p.break_off_sample", BaseGlobal.YES);
+        }else if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.STOCK_STATUS_CHECKED)) {
+            qw.eq( "p.break_off_pattern", BaseGlobal.YES);
+        }
+        qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
+
+        if(StringUtils.isNotBlank(dto.getOrderBy())){
+            dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
+        }else {
+            dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
+        }
         if(StrUtil.isNotBlank(dto.getPmCreateDate())){
             String[] s = dto.getPmCreateDate().split(",");
             s[0] = s[0] + " 00:00:00";
@@ -914,10 +959,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
-        List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-        if(StringUtils.isBlank(dto.getDeriveflag())){
-            stylePicUtils.setStylePic(list, "stylePic");
+        if(!StringUtils.isBlank(dto.getDeriveflag())){
+            qw.groupBy("p.id");
+            baseMapper.deriveList(qw);
+            return objects.toPageInfo();
         }
+        List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
+
+        stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
@@ -933,12 +982,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException {
         dto.setDeriveflag(BaseGlobal.YES);
-        PageInfo<SampleBoardVo> sampleBoardVoPageInfo = sampleBoardList(dto);
-        List<SampleBoardVo> list = sampleBoardVoPageInfo.getList();
-        List<SampleBoardExcel> excelList = BeanUtil.copyToList(list, SampleBoardExcel.class);
+        PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
+        List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
+        stylePicUtils.setStylePic(excelList, "stylePic");
+        POICacheManager.setFileLoader(new IFileLoaderImpl());
         ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
-    }
 
+    }
     @Override
     public boolean receiveSample(String id) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();

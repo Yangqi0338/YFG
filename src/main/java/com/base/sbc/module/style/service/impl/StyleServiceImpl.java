@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -237,6 +238,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
         // 附件信息
         saveFiles(style.getId(), dto.getAttachmentList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
+
+        // 保存审批同意图
+        saveFiles(style.getId(), dto.getAttachmentList1(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
         // 保存图片信息
         if (!customStylePicUpload.isOpen()) {
             saveFiles(style.getId(), dto.getStylePicList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_STYLE_PIC);
@@ -565,14 +569,21 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         style.setCheckStartTime(new Date());
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
-        boolean flg = flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]", FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
-        return flg;
+        //查询附件
+        // List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
+        // String url = "";
+        // if (CollUtil.isNotEmpty(attachmentVoList1)) {
+        //     url = attachmentVoList1.get(0).getId();
+        // }
+        return flowableService.start(FlowableService.SAMPLE_DESIGN_PDN + "[" + style.getDesignNo() + "]", FlowableService.SAMPLE_DESIGN_PDN, id, "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/pdm/api/saas/style/approval", "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
     }
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean approval(AnswerDto dto) {
         Style style = getById(dto.getBusinessKey());
+        logger.info("————————————————款式设计回调方法————————————————", JSON.toJSONString(style));
+        logger.info("————————————————回调类型————————————————", dto.getApprovalType());
         if (style != null) {
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
@@ -628,7 +639,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         //查询附件
         List<AttachmentVo> attachmentVoList = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
         sampleVo.setAttachmentList(attachmentVoList);
-
+        //查询附件
+        List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
+        sampleVo.setAttachmentList1(attachmentVoList1);
         // 关联的素材库
         QueryWrapper<PlanningCategoryItemMaterial> mqw = new QueryWrapper<>();
         mqw.eq("planning_category_item_id", style.getPlanningCategoryItemId());
@@ -1338,9 +1351,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         detail.setPatternPartsPic(hisStyle.getPatternPartsPic());
 
        /*任务信息*/
-        detail.setDesigner(hisStyle.getDesigner());
-        detail.setDesignerId(hisStyle.getDesignerId());
-        detail.setTechnicianId(hisStyle.getTechnicianId());
+/*        detail.setDesigner(hisStyle.getDesigner());
+        detail.setDesignerId(hisStyle.getDesignerId());*/
+/*        detail.setTechnicianId(hisStyle.getTechnicianId());
         detail.setTechnicianName(hisStyle.getTechnicianName());
         detail.setFabDevelopeId(hisStyle.getFabDevelopeId());
         detail.setFabDevelopeName(hisStyle.getFabDevelopeName());
@@ -1353,7 +1366,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         detail.setTaskLevel(hisStyle.getTaskLevel());
         detail.setTaskLevelName(hisStyle.getTaskLevelName());
         detail.setPatternDesignName(hisStyle.getPatternDesignName());
-        detail.setPatternDesignId(hisStyle.getPatternDesignId());
+        detail.setPatternDesignId(hisStyle.getPatternDesignId());*/
         /*物料信息*/
         StyleBomSearchDto styleBomSearchDto = new StyleBomSearchDto();
         styleBomSearchDto.setStyleId(hisStyle.getId());

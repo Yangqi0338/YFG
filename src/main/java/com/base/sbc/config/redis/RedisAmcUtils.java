@@ -2,11 +2,7 @@
 package com.base.sbc.config.redis;
 
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 
 
 /**
@@ -18,9 +14,9 @@ import javax.annotation.Resource;
  * 针对所有的List 都是以l开头的方法
  */
 @Component
-public class RedisUtils extends RedisFunUtils {
+public class RedisAmcUtils extends RedisFunUtils {
 
-	public RedisUtils() {
-		setRedisTemplate(0);
+	public RedisAmcUtils() {
+		setRedisTemplate(1);
 	}
 }

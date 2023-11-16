@@ -118,7 +118,7 @@ public class BomPrintVo {
                     BigDecimal unitUse = StrUtil.equals(PackUtils.PACK_TYPE_DESIGN, item.getPackType()) ? item.getDesignUnitUse() : item.getBulkUnitUse();
                     ArrayList<String> strings = CollUtil.newArrayList(
                             item.getMaterialCode(),
-                            item.getMaterialName(),
+                            item.getSupplierMaterialCode(),
                             item.getColor() + item.getColorCode(),
                             Opt.ofNullable(unitUse).map(NumberUtil::toStr).orElse("") + item.getStockUnitName(),
                             "件"
