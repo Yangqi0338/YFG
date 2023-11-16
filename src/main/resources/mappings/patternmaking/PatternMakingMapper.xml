@@ -158,6 +158,7 @@
         p.pat_diff,p.pat_diff_name,
         s.*,
         p.*,
+        p.status pmStatus,
         p.create_date as `pmCreateDate`,
         p.demand_finish_date as demandFinishDate
         FROM

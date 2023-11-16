@@ -308,6 +308,18 @@ public class SampleBoardVo extends Style {
 
     private String patternDesignerName;
 
+    @ApiModelProperty(value = "紧急程度")
+    private String urgency;
+
+    @ApiModelProperty(value = "紧急程度名称")
+    private String urgencyName;
+
+    @ApiModelProperty(value = "当前节点")
+    private String node;
+
+    @ApiModelProperty(value = "当前状态")
+    private String  pmStatus;
+
     public String getId() {
         return patternMakingId;
     }

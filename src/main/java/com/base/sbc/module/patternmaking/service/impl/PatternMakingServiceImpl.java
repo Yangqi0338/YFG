@@ -892,7 +892,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }else if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.STOCK_STATUS_CHECKED)) {
             qw.eq( "p.break_off_pattern", BaseGlobal.YES);
         }
+        qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
 
+        if(StringUtils.isNotBlank(dto.getOrderBy())){
+            dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
+        }else {
+            dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
+        }
         if(StrUtil.isNotBlank(dto.getPmCreateDate())){
             String[] s = dto.getPmCreateDate().split(",");
             s[0] = s[0] + " 00:00:00";
