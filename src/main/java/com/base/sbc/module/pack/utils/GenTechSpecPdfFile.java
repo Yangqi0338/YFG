@@ -24,9 +24,14 @@ import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.attach.impl.layout.HtmlPageBreak;
 import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
+import com.itextpdf.io.font.FontConstants;
+import com.itextpdf.io.font.FontProgram;
+import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.kernel.events.Event;
 import com.itextpdf.kernel.events.IEventHandler;
 import com.itextpdf.kernel.events.PdfDocumentEvent;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -223,7 +228,7 @@ public class GenTechSpecPdfFile {
         config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         Template template;
-        if(this.fob) {
+        if (this.fob) {
             template = config.getTemplate("ftl/process.html.fob.ftl");
         } else {
             template = config.getTemplate("ftl/process.html.ftl");
@@ -398,10 +403,10 @@ public class GenTechSpecPdfFile {
     }
 
 
-
     public ByteArrayOutputStream gen() {
         try {
             String output = toHtml();
+            System.out.println(output);
             ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
             // 创建PDF写入器
             ConverterProperties props = new ConverterProperties();
@@ -411,6 +416,7 @@ public class GenTechSpecPdfFile {
             List<IElement> elements = HtmlConverter.convertToElements(output, props);
             PdfWriter writer1 = new PdfWriter(pdfOutputStream);
             IElement pageStart = CollUtil.getFirst(elements);
+            PdfFont font = PdfFontFactory.createFont(FontConstants.COURIER, "UTF-8");
             PdfDocument pdfDocument = new PdfDocument(writer1);
             Document document = new Document(pdfDocument, PageSize.A4.rotate(), false);
             StartPdfPageEventHandler event = new StartPdfPageEventHandler(pdfDocument, document, pageStart);
@@ -423,11 +429,22 @@ public class GenTechSpecPdfFile {
                 IElement element = elements.get(i);
                 // 分页符
                 if (element instanceof HtmlPageBreak) {
-                    document.add((HtmlPageBreak) element);
+                    HtmlPageBreak htmlPageBreak = (HtmlPageBreak) element;
+                    htmlPageBreak.setFont(font);
+                    document.add(htmlPageBreak);
                     //普通块级元素
+                } else if (element instanceof Table) {
+                    Table table = (Table) element;
+                    table.setFont(font);
+                    document.add(table);
                 } else {
-                    IBlockElement blockElement = (IBlockElement) element;
-                    document.add(blockElement);
+
+                    try {
+                        IBlockElement blockElement = (IBlockElement) element;
+                        document.add(blockElement);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        System.out.println("报错");
+                    }
                 }
             }
             // 设置页眉中的总页数
