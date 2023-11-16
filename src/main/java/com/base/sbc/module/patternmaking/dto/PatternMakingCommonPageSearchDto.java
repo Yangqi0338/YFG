@@ -92,4 +92,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String prmSendStatus;
 
     private String breakOffPattern;
+
+    @ApiModelProperty(value = "图片标记")
+    private String imgFlag;
 }
