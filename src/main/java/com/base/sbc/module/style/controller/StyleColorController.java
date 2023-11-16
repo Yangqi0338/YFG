@@ -9,14 +9,17 @@ package com.base.sbc.module.style.controller;
 import java.security.Principal;
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.basicsdatum.dto.SpecificationGroupDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
 import com.base.sbc.module.style.dto.*;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,6 +206,21 @@ public class StyleColorController {
 	public Boolean copyStyleColor(@Valid @RequestBody IdDto idDto) {
 		return styleColorService.copyStyleColor(idDto);
 	}
+
+	@ApiOperation(value = "/款式列表导出")
+	@GetMapping("/styleListDeriveExcel")
+	public void styleListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws Exception {
+		styleColorService.styleListDeriveExcel(user,response,dto);
+	}
+
+	@ApiOperation(value = "/款式配色导出")
+	@GetMapping("/styleColorListDeriveExcel")
+	public void styleColorListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws Exception {
+		styleColorService.styleColorListDeriveExcel(user,response,dto);
+	}
+
+
+
 
 
 }
