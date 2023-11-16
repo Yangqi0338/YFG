@@ -486,14 +486,19 @@
 <#if sizeDataList??>
     <#assign sizeCount = (washSkippingFlag?then(2, 1))>
     <#assign sizeWidth = "width: 40%;">
+    <#assign contentWidth = "width: 216px;">
     <#if sizeList?size*sizeCount lt 2>
         <#assign sizeWidth = "width: 40%;">
+        <#assign contentWidth = "width: 216px;">
     <#elseif sizeList?size*sizeCount lt 4>
         <#assign sizeWidth = "width: 60%;">
+        <#assign contentWidth = "width: 216px;">
     <#elseif sizeList?size*sizeCount lt 9>
         <#assign sizeWidth = "width: 80%;">
+        <#assign contentWidth = "width:  108px;">
     <#else>
         <#assign sizeWidth = "width: 100%;">
+        <#assign contentWidth = "width:  108px;">
     </#if>
     <table class="table_border mt size_table size_table_border" style="page-break-before: always;${sizeWidth}">
         <thead>
@@ -547,13 +552,16 @@
                                 <#if c_index == 2>
                                         border-left: 2.5px solid #000000;
                                 </#if>">
-                                <div style="">
+                                <div style="display: table-cell;">
                                     <#if c_index gt 1>
                                         <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
-                                    <#else>
+                                    <#elseif c_index == 1>
+                                        <div style="font-size: 0.9em;display: table-cell; white-space: nowrap;${contentWidth}">${c.text}</div>
+                                    <#elseif c_index == 0>
+                                        <div style="font-size: 0.9em; white-space: nowrap;">${c.text}</div>
+                                    <#else >
                                         ${c.text}
                                     </#if>
-
                                 </div>
                             </td>
                         </#list>
