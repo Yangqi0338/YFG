@@ -70,6 +70,7 @@ import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleColorListExcel;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.Page;
@@ -272,12 +273,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //queryWrapper.orderByAsc("tsc.scm_send_flag asc ");
 //            查询配色列表
             sampleStyleColorList = baseMapper.colorList(queryWrapper);
-
+            if( StrUtil.equals(queryDto.getExcelFlag(),BaseGlobal.YES) ){
+                return new PageInfo<>(sampleStyleColorList);
+            }
         } else {
             queryWrapper.eq("ts.del_flag", "0");
             queryWrapper.orderByDesc("ts.id");
 //            查询款式配色
             sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
+            if( StrUtil.equals(queryDto.getExcelFlag(),BaseGlobal.YES) ){
+                return new PageInfo<>(sampleStyleColorList);
+            }
             List<String> stringList = IdGen.getIds(sampleStyleColorList.size());
             int index = 0;
             for (StyleColorVo styleColorVo : sampleStyleColorList) {
@@ -1454,6 +1460,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     public void styleListDeriveExcel(Principal user,HttpServletResponse response, QueryStyleColorDto dto) throws IOException {
+        dto.setExcelFlag(BaseGlobal.YES);
         PageInfo<StyleColorVo> pageInfo = getSampleStyleColorList(user, dto);
         List<StyleColorVo> styleColorVoList = pageInfo.getList();
         List<StyleColorListExcel> list = BeanUtil.copyToList(styleColorVoList, StyleColorListExcel.class);
@@ -1470,8 +1477,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
                     throw new OtherException("带图片导出最多只能导出1500条");
                 }
-//                stylePicUtils.setStylePic(list, "stylePic");
-//                stylePicUtils.setStylePic(list, "styleColorPic");
+                stylePicUtils.setStylePic(list, "stylePic");
+                stylePicUtils.setStylePic(list, "styleColorPic");
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (StyleColorListExcel styleColorListExcel : list) {
                     executor.submit(() -> {
@@ -1509,7 +1516,50 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     public void styleColorListDeriveExcel(Principal user, HttpServletResponse response, QueryStyleColorDto dto) throws IOException {
+        dto.setExcelFlag(BaseGlobal.YES);
+        PageInfo<StyleColorVo> pageInfo = getSampleStyleColorList(user, dto);
+        List<StyleColorVo> styleColorVoList = pageInfo.getList();
+        List<StyleColorExcel> list = BeanUtil.copyToList(styleColorVoList, StyleColorExcel.class);
 
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                .build();
+
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                stylePicUtils.setStylePic(list, "stylePic");
+                stylePicUtils.setStylePic(list, "styleColorPic");
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (StyleColorExcel styleColorExcel : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = styleColorExcel.getStylePic();
+                            final String styleColorPic = styleColorExcel.getStyleColorPic();
+                            styleColorExcel.setStylePic1(HttpUtil.downloadBytes(stylePic));
+                            styleColorExcel.setStyleColorPic1(HttpUtil.downloadBytes(styleColorPic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list, StyleColorExcel.class, "款式配色.xlsx", new ExportParams("款式配色", "款式配色", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/

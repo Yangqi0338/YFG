@@ -209,12 +209,14 @@ public class StyleColorController {
 
 	@ApiOperation(value = "/款式列表导出")
 	@GetMapping("/styleListDeriveExcel")
+	@DuplicationCheck(type = 1,message = "服务已存在导出，请稍后...")
 	public void styleListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws Exception {
 		styleColorService.styleListDeriveExcel(user,response,dto);
 	}
 
 	@ApiOperation(value = "/款式配色导出")
 	@GetMapping("/styleColorListDeriveExcel")
+	@DuplicationCheck(type = 1,message = "服务已存在导出，请稍后...")
 	public void styleColorListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws Exception {
 		styleColorService.styleColorListDeriveExcel(user,response,dto);
 	}

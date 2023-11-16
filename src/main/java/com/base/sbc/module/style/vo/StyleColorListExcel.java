@@ -10,6 +10,8 @@ import java.util.Optional;
 @Data
 public class StyleColorListExcel {
 
+    @Excel(name = "SCM下发状态",replace={"重新打开_3","发送失败_2","发送成功_1","未发送_0"})
+    private String scmSendFlag;
     /**
      * 款式图
      */
@@ -88,13 +90,13 @@ public class StyleColorListExcel {
     @Excel(name = "产品细分")
     private String productSubdivideName;
 
-    @Excel(name = "产品细分")
+    @Excel(name = "主款")
     private String principalStyle;
 
-    @Excel(name = "产品细分")
+    @Excel(name = "主款款号")
     private String principalStyleNo;
 
-    @Excel(name = "产品细分")
+    @Excel(name = "配饰")
     private String accessory;
 
     @Excel(name = "配饰款号")
