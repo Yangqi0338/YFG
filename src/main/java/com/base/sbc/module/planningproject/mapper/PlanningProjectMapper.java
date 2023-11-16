@@ -1,10 +1,9 @@
-package com.base.sbc.module.planning.mapper;
+package com.base.sbc.module.planningproject.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.planning.dto.PlanningProjectDTO;
-import com.base.sbc.module.planning.dto.PlanningProjectPageDTO;
-import com.base.sbc.module.planning.entity.PlanningProject;
-import com.base.sbc.module.planning.vo.PlanningProjectVo;
+import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
+import com.base.sbc.module.planningproject.entity.PlanningProject;
+import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

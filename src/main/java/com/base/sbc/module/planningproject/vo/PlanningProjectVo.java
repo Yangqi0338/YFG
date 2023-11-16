@@ -1,4 +1,4 @@
-package com.base.sbc.module.planning.vo;
+package com.base.sbc.module.planningproject.vo;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

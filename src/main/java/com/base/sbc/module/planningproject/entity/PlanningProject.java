@@ -1,0 +1,45 @@
+package com.base.sbc.module.planningproject.entity;
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("t_planning_project")
+@ApiModel("企划规划表 PlanningProject")
+public class PlanningProject extends BaseDataEntity<String> {
+
+    /**
+     * 产品季id
+     */
+    @ApiModelProperty(value = "产品季id")
+    private String seasonId;
+
+    /**
+     * 企划规划名称
+     */
+    @ApiModelProperty(value = "企划规划名称")
+    private String planningProjectName;
+    /**
+     * 渠道名称
+     */
+    @ApiModelProperty(value = "渠道名称")
+    private String planningChannelName;
+
+    /**
+     * 渠道编码
+     */
+    @ApiModelProperty(value = "渠道编码")
+    private String planningChannelCode;
+
+
+    /**
+     * 1停用、0启用
+     */
+    @ApiModelProperty(value = "1停用、0启用")
+    private String status;
+}

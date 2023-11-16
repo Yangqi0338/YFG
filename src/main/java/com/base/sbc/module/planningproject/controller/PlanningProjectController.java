@@ -1,4 +1,4 @@
-package com.base.sbc.module.planning.controller;
+package com.base.sbc.module.planningproject.controller;
 
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -6,13 +6,13 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.planning.dto.AddSeatDto;
-import com.base.sbc.module.planning.dto.PlanningProjectDTO;
-import com.base.sbc.module.planning.dto.PlanningProjectPageDTO;
+import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
+import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningProjectService;
+import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planning.vo.PlanningProjectVo;
+import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageInfo;
@@ -48,8 +48,8 @@ public class PlanningProjectController extends BaseController {
 
     @ApiOperation(value = "新增、修改企划看板计划")
     @PostMapping("/save")
-    public ApiResult save(@Valid @RequestBody PlanningProjectDTO planningProject) {
-        return insertSuccess(planningProjectService.saveOrUpdate(planningProject));
+    public ApiResult save(@Valid @RequestBody PlanningProjectSaveDTO planningProject) {
+        return insertSuccess(planningProjectService.save(planningProject));
     }
 
     @ApiOperation(value = "删除企划看板计划")

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
         <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.planning.mapper.PlanningProjectMapper">
-    <select id="getplanningProjectList" resultType="com.base.sbc.module.planning.vo.PlanningProjectVo">
+<mapper namespace="com.base.sbc.module.planningproject.mapper.PlanningProjectMapper">
+    <select id="getplanningProjectList" resultType="com.base.sbc.module.planningproject.vo.PlanningProjectVo">
         SELECT
             planning_project_name,
             planning_channel,
