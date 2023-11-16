@@ -542,14 +542,19 @@
 <#if sizeDataList??>
     <#assign sizeCount = (washSkippingFlag?then(3, 2))>
     <#assign sizeWidth = "width: 40%;">
+    <#assign contentWidth = "width: 216px;">
     <#if sizeList?size*sizeCount lt 4>
         <#assign sizeWidth = "width: 40%;">
+        <#assign contentWidth = "width: 216px;">
     <#elseif sizeList?size*sizeCount lt 7>
         <#assign sizeWidth = "width: 60%;">
+        <#assign contentWidth = "width: 216px;">
     <#elseif sizeList?size*sizeCount lt 13>
         <#assign sizeWidth = "width: 80%;">
+        <#assign contentWidth = "width: 108px;">
     <#else>
         <#assign sizeWidth = "width: 100%;">
+        <#assign contentWidth = "width: 108px;">
     </#if>
     <table class="table_border size_table_border mt size_table" style="page-break-before: always; page-break-after: always;${sizeWidth}">
         <thead>
@@ -560,8 +565,8 @@
             </th>
         </tr>
         <tr class="size_tr gb">
-            <th rowspan="2" style="text-align: center;" class="partNameClass">部位</th>
-            <th rowspan="2" style="text-align: center;">描述</th>
+            <th rowspan="2" style="text-align: center;">部位</th>
+            <th rowspan="2" style="text-align: center;${contentWidth}">描述</th>
             <#if sizeList??>
                 <#list sizeList as size>
                     <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth" style="border-left: 2.5px solid #000000; border-right: 2.5px solid #000000">
@@ -588,7 +593,7 @@
             <#list sizeDataList as item>
                 <tr class="size_tr">
                     <#if item.rowType=="1">
-                        <td style="text-align: left;" colspan="${sizeTitleColspan}"> ${item.remark}1</td>
+                        <td style="text-align: left; <#if item_index == 2></#if>" colspan="${sizeTitleColspan}"> ${item.remark}</td>
                     <#else>
                         <#list item.rowData as c>
                             <td class="${c.className} ${sizeClass[c_index]} "
@@ -603,14 +608,20 @@
                                 </#if>
                                 <#if c_index == 2>
                                         border-left: 2.5px solid #000000;
-                                </#if>">
-                                <div style="">
+                                </#if>
+                                <#if c_index == 1>
+                                    ${contentWidth}
+                                </#if> ">
+                                <div style="display: table-cell;">
                                     <#if c_index gt 1>
                                         <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
-                                    <#else>
+                                    <#elseif c_index == 1>
+                                        <div style="font-size: 0.9em;display: table-cell; white-space: nowrap;${contentWidth}">${c.text}</div>
+                                    <#elseif c_index == 0>
+                                        <div style="font-size: 0.9em; white-space: nowrap;">${c.text}</div>
+                                    <#else >
                                         ${c.text}
                                     </#if>
-
                                 </div>
                             </td>
                         </#list>
@@ -1018,10 +1029,8 @@
             </th>
         </tr>
         <tr>
-
             <th class="gb item_th">工艺项目</th>
             <th class="gb">描述</th>
-
         </tr>
         </thead>
         <tbody>
