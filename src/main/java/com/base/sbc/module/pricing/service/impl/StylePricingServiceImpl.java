@@ -14,7 +14,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
@@ -290,14 +292,29 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                             stylePricing.setControlConfirmTime(new Date());
                         }
                     } else {
+                        StylePricing stylePricing1 = this.getById(stylePricingSaveDTO.getId());
                         if ("1".equals(stylePricingSaveDTO.getControlConfirm())){
-                            StylePricing stylePricing1 = this.getById(stylePricingSaveDTO.getId());
+
                             if (!stylePricingSaveDTO.getControlConfirm().equals(stylePricing1.getControlConfirm())){
                                 stylePricing.setControlConfirmTime(new Date());
                             }
                             stylePricing.setControlConfirmTime(new Date());
                         }
-
+                        /*取消计控确定成本*/
+                        if (StrUtil.equals(stylePricingSaveDTO.getControlConfirm(), BaseGlobal.IN)) {
+                            /*校验商品吊牌和计控吊牌确定*/
+                            if (StrUtil.equals(stylePricing1.getControlHangtagConfirm(), BaseGlobal.YES) ||
+                                    StrUtil.equals(stylePricing1.getProductHangtagConfirm(), BaseGlobal.YES)
+                            ) {
+                                throw new OtherException("商品吊牌和计控吊牌未取消");
+                            }
+                        }
+                        if (StrUtil.equals(stylePricingSaveDTO.getProductHangtagConfirm(), BaseGlobal.IN)) {
+                            /*校验商品吊牌和计控吊牌确定*/
+                            if (StrUtil.equals(stylePricing1.getControlHangtagConfirm(), BaseGlobal.YES)) {
+                                throw new OtherException("计控吊牌未取消");
+                            }
+                        }
                         stylePricing.updateInit();
                     }
 
