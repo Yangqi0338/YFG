@@ -11,6 +11,7 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectMapper;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectMaxCategoryService;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.github.pagehelper.PageHelper;
@@ -26,6 +27,7 @@ import java.util.List;
 public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectMapper, PlanningProject> implements PlanningProjectService {
     private final PlanningProjectDimensionService planningProjectDimensionService;
     private final PlanningProjectMaxCategoryService planningProjectMaxCategoryService;
+    private final PlanningProjectPlankService planningProjectPlankService;
 
     /**
      * 分页查询企划看板规划信息
@@ -59,7 +61,10 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             }
             super.save(planningProjectSaveDTO);
             //新建对应的坑位信息
-
+            List<PlanningProjectDimension> planningProjectDimensionList = planningProjectSaveDTO.getPlanningProjectDimensionList();
+            for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
+                planningProjectDimension.setPlanningProjectId(planningProjectSaveDTO.getId());
+            }
             return true;
         }
         //判断修改的时候是否存在相同的季度和渠道
