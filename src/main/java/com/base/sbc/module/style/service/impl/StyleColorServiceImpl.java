@@ -57,6 +57,8 @@ import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.DataUpdateScmService;
@@ -163,6 +165,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private UploadFileService uploadFileService;
+
+    @Autowired
+    private  PlanningSeasonService planningSeasonService;
+
     Pattern pattern = Pattern.compile("[a-z||A-Z]");
 
 
@@ -395,7 +401,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             addRevampStyleColorDto.setColorName(basicsdatumColourLibrary.getColourName());
             addRevampStyleColorDto.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
             addRevampStyleColorDto.setColorCode(basicsdatumColourLibrary.getColourCode());
-            addRevampStyleColorDto.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,style.getId(),addRevampStyleColorDto.getIsLuxury(),  ++index));
+            addRevampStyleColorDto.setStyleNo(getNextCode( style ,StringUtils.isNotEmpty(addRevampStyleColorDto.getBandName()) ? addRevampStyleColorDto.getBandName() : style.getBandName(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo(),addRevampStyleColorDto.getIsLuxury(),  ++index));
         }
         List<StyleColor> styleColorList = BeanUtil.copyToList(list, StyleColor.class);
         saveBatch(styleColorList);
@@ -473,23 +479,25 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     /**
      * 大货款号生成规则 品牌 + 年份  + 波段 +品类 +设计款号流水号+颜色流水号
-     * @param brand
-     * @param year
-     * @param season
+     * @param style
      * @param bandName
-     * @param category
      * @param designNo
-     * @param styleId
+     * @param isLuxury
      * @param index
      * @return
      */
-
-    public String getNextCode(String brand, String year,String season,String bandName, String category, String designNo,String styleId,String isLuxury, int index) {
+    public String getNextCode(Style style,String bandName,  String designNo,String isLuxury, int index) {
         if (ccmFeignService.getSwitchByCode("STYLE_EQUAL_DESIGN_NO")) {
             return designNo;
         }
-        if (StrUtil.contains(category, StrUtil.COMMA)) {
-            category = getCategory(category);
+        String category = "";
+        /*查询产品季*/
+        PlanningSeason planningSeason = planningSeasonService.getById(StrUtil.isNotBlank(style.getOldPlanningSeasonId()) ? style.getOldPlanningSeasonId() : style.getPlanningSeasonId());
+        String brand = planningSeason.getBrand();
+        String year = planningSeason.getYearName();
+        String season = planningSeason.getSeason();
+        if (StrUtil.contains(style.getProdCategory(), StrUtil.COMMA)) {
+            category = getCategory(style.getProdCategory());
         }
         if (StringUtils.isBlank(bandName)) {
             throw new OtherException("款式波段为空");
@@ -520,21 +528,21 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             Matcher m = p.matcher(designNo);
             designNo = m.replaceAll("").trim();
         } catch (Exception e) {
-            throw new OtherException(e.getMessage()+"大货编码生成失败");
+            throw new OtherException(e.getMessage() + "大货编码生成失败");
         }
 //        获取款式下的配色
         String styleNoFront = brand + yearOn + bandName + category + designNo;
         String styleNo = "";
         QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.eq("style_id",styleId);
+        queryWrapper.eq("style_id", style.getId());
         Long aLong = baseMapper.selectCount(queryWrapper);
 
         /*轻奢款选是，大货款号最后一位自带Q*/
-        isLuxury = StrUtil.equals(isLuxury,BaseGlobal.YES)?"Q":"";
+        isLuxury = StrUtil.equals(isLuxury, BaseGlobal.YES) ? "Q" : "";
         /*先使用款式下的流水号 如果重复
          * 不加流水号查询大货款号的最大流水号
          * */
-        styleNo =   styleNoFront + (aLong+ index)+isLuxury;
+        styleNo = styleNoFront + (aLong + index) + isLuxury;
         int i = baseMapper.isStyleNoExist(styleNo);
         if (i != 0) {
             String maxMark = "0";
@@ -544,7 +552,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 maxMark = number;
             }
             /*拼接流水号*/
-            styleNo = styleNoFront + (Long.parseLong(maxMark) + index) +isLuxury;
+            styleNo = styleNoFront + (Long.parseLong(maxMark) + index) + isLuxury;
             /*查询编码是否重复*/
             i = baseMapper.isStyleNoExist(styleNo);
             if (i != 0) {
@@ -1444,7 +1452,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleColor.setBom(null);
 //        查询款式
         Style style = styleService.getById(styleColor.getStyleId());
-        styleColor.setStyleNo(getNextCode(style.getBrand(), style.getYearName(),style.getSeason(), StringUtils.isNotEmpty(styleColor.getBandName()) ? styleColor.getBandName() : style.getBandName(), style.getProdCategory(), StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,style.getId(),styleColor.getIsLuxury(),  1));
+        styleColor.setStyleNo(getNextCode(style, StringUtils.isNotEmpty(styleColor.getBandName()) ? styleColor.getBandName() : style.getBandName(),  StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,styleColor.getIsLuxury(),  1));
         styleColor.setHisStyleNo(null);
         styleColor.setWareCode(null);
         styleColor.setHistoricalData(BaseGlobal.NO);
@@ -1500,7 +1508,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
             ExcelUtils.exportExcel(list, StyleColorListExcel.class, "款式列表.xlsx", new ExportParams("款式列表", "款式列表", ExcelType.HSSF), response);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new OtherException(e.getMessage());
         } finally {
             executor.shutdown();
         }
@@ -1556,7 +1564,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
             ExcelUtils.exportExcel(list, StyleColorExcel.class, "款式配色.xlsx", new ExportParams("款式配色", "款式配色", ExcelType.HSSF), response);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new OtherException(e.getMessage());
         } finally {
             executor.shutdown();
         }
