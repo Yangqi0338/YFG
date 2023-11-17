@@ -181,6 +181,13 @@ public class SampleBoardExcel {
     @ApiModelProperty(value = "备注")
     private String stitcherRemark;
 
+    /**
+     * 车缝工名称
+     */
+    @ApiModelProperty(value = "车缝工名称")
+    @Excel(name = "车缝工名称")
+    private String stitcher;
+
     @ApiModelProperty(value = "车缝开始时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Excel(name = "车缝开始时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
@@ -252,12 +259,7 @@ public class SampleBoardExcel {
     @Excel(name = "样衣工质量评分")
     private BigDecimal sampleMakingQualityScore;
 
-    /**
-     * 车缝工名称
-     */
-    @ApiModelProperty(value = "车缝工名称")
-    @Excel(name = "车缝工名称")
-    private String stitcher;
+
 
     /**
      * 二次加工(0否，1是)
