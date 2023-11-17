@@ -94,12 +94,14 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
                 planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
                 planningProjectPlank.setBandName(planningProjectDimension.getBandName());
-                planningProjectPlank.setSilhouetteName(planningProjectDimension.getDimensionName());
-                planningProjectPlank.setSilhouetteValue(planningProjectDimension.getDimensionValue());
+                planningProjectPlank.setDimensionName(planningProjectDimension.getDimensionName());
+                planningProjectPlank.setDimensionValue(planningProjectDimension.getDimensionValue());
                 planningProjectPlank.setMatchingStyleStatus("0");
                 //匹配规则 产品季  大类 品类 (中类有就匹配)  波段 廓形  这5匹配
                 QueryWrapper<StyleColor> styleColorQueryWrapper =new QueryWrapper<>();
                 styleColorQueryWrapper.eq("season_id",planningProjectSaveDTO.getPlanningProjectName());
+
+                planningProjectPlankService.save(planningProjectPlank);
             }
         }else {
 

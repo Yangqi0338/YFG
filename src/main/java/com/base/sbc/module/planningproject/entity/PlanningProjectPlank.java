@@ -43,14 +43,14 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
     private String clothesLength;
 
     /**
-     * 廓形名称
+     * 第一维度名称
      */
-    private String silhouetteName;
+    private String dimensionName;
 
     /**
-     * 廓形值
+     * 维度值
      */
-    private String silhouetteValue;
+    private String dimensionValue;
 
     /**
      * 色系
