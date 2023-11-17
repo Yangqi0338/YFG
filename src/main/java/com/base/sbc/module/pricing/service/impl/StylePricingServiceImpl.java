@@ -136,7 +136,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
             packCommonSearchDto.setForeignId(stylePricingVO.getId());
             //材料成本,如果fob,则不计算
-            if (!"FOB".equals(stylePricingVO.getProductionType())){
+            if ("CMT".equals(stylePricingVO.getProductionType())){
                 stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
             }else {
                 stylePricingVO.setMaterialCost(BigDecimal.ZERO);
