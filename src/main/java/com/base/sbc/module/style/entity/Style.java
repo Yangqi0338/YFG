@@ -542,12 +542,6 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "下发打版时间(取最新一条)"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sendPatternMakingDate;
-
-    /**
-     * 维度标签
-     */
-    @TableField(exist = false)
-    private List<FieldVal> dimensionLabels;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

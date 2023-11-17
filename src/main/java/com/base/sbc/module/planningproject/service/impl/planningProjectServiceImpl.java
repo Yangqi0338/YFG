@@ -3,9 +3,12 @@ package com.base.sbc.module.planningproject.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
@@ -20,6 +23,7 @@ import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -29,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,6 +45,8 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final PlanningProjectMaxCategoryService planningProjectMaxCategoryService;
     private final PlanningProjectPlankService planningProjectPlankService;
     private final StyleService styleService;
+    private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
+    private final StyleColorService styleColorService;
     private final FieldValService fieldValService;
 
     /**
@@ -101,36 +108,85 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         //新建对应的坑位信息
         if(b){
             for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
-                PlanningProjectPlank planningProjectPlank =new PlanningProjectPlank();
-                planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
-                planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
-                planningProjectPlank.setBandName(planningProjectDimension.getBandName());
-                planningProjectPlank.setMatchingStyleStatus("0");
-
+                //坑位数量
+                String number = planningProjectDimension.getNumber();
+                int i = Integer.parseInt(number);
+                if (i==0){
+                    continue;
+                }
                 //匹配规则 产品季  大类 品类 (中类有就匹配)  波段 第一维度  这5匹配
-                BaseQueryWrapper<Style> styleQueryWrapper =new BaseQueryWrapper<>();
-                styleQueryWrapper.eq("season_id",planningProjectSaveDTO.getSeasonId());
-                styleQueryWrapper.eq("prod_category1st",planningProjectDimension.getProdCategory1stCode());
-                styleQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()),"prod_category2nd",planningProjectDimension.getProdCategory2ndCode());
-                styleQueryWrapper.eq("band_code",planningProjectDimension.getBandCode());
+                BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper =new BaseQueryWrapper<>();
+                styleColorBaseQueryWrapper.eq("season_id",planningProjectSaveDTO.getSeasonId());
+                styleColorBaseQueryWrapper.eq("prod_category1st",planningProjectDimension.getProdCategory1stCode());
+                styleColorBaseQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()),"prod_category2nd",planningProjectDimension.getProdCategory2ndCode());
+                styleColorBaseQueryWrapper.eq("band_code",planningProjectDimension.getBandCode());
 
-                //组装style
-                List<Style> styles = styleService.list(styleQueryWrapper);
-                List<String> styleIds = styles.stream().map(Style::getId).collect(Collectors.toList());
-                List<FieldVal> fieldVals = fieldValService.list(new QueryWrapper<FieldVal>().in("foreign_id", styleIds));
-                for (Style style : styles) {
-                    List<FieldVal> fieldValList =new ArrayList<>();
+                //查询坑位所有已经匹配的大货款号
+                QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
+                queryWrapper1.select("bulk_style_no");
+                List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
+                if (!list.isEmpty()){
+                    List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
+                    styleColorBaseQueryWrapper.notIn("id",bulkStyleNoList);
+                }
+                List<StyleColor> styleColorList = styleColorService.list(styleColorBaseQueryWrapper);
+                List<String> styleIds = styleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
+                //查询款式设计所有的维度信息
+                List<FieldVal> fieldVals = fieldValService.list(new QueryWrapper<FieldVal>().in("foreign_id", styleIds).eq("data_group",FieldValDataGroupConstant.STYLE_COLOR));
+
+                Iterator<StyleColor> iterator = styleColorList.iterator();
+
+                //匹配到的坑位信息
+                List<PlanningProjectPlank> planningProjectPlanks = new ArrayList<>();
+
+                //匹配
+                while (iterator.hasNext()){
+                    List<FieldVal> fieldValList = new ArrayList<>();
+                    StyleColor next = iterator.next();
+                    boolean b1 = false;
                     for (FieldVal fieldVal : fieldVals) {
-                        if (fieldVal.getForeignId().equals(style.getId())){
+                        if (fieldVal.getForeignId().equals(next.getId())){
+                            //将配色下的所有维度信息放入集合
                             fieldValList.add(fieldVal);
+                            if (fieldVal.getFieldName().equals(planningProjectDimension.getDimensionName()) && fieldVal.getVal().equals(planningProjectDimension.getDimensionValue())){
+                                //说明匹配上了
+                                b1 = true;
+                                PlanningProjectPlank planningProjectPlank =new PlanningProjectPlank();
+                                planningProjectPlank.setBulkStyleNo(next.getStyleNo());
+                                planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
+                                planningProjectPlank.setMatchingStyleStatus("2");
+                                planningProjectPlank.setPic(next.getStyleColorPic());
+                                planningProjectPlank.setBandCode(next.getBandCode());
+                                planningProjectPlank.setBandName(next.getBandName());
+                                BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", next.getColorCode()));
+                                if (colourLibrary != null) {
+                                    planningProjectPlank.setColorSystem(colourLibrary.getColorType());
+                                }
+                                planningProjectPlanks.add(planningProjectPlank);
+                            }
                         }
                     }
-                    style.setDimensionLabels(fieldValList);
+                    //匹配上了移除列表
+                    if (b1){
+                        for (PlanningProjectPlank projectPlank : planningProjectPlanks) {
+                            projectPlank.setDimensionLabelIds(fieldValList.stream().map(FieldVal::getId).collect(Collectors.joining(",")));
+                        }
+                    }
                 }
-                //查询款式设计所有的维度信息
+                int i1 = i - planningProjectPlanks.size();
+                if (i1>0){
+                    //说明匹配不够
+                    for (int j = 0; j < i1; j++) {
+                        PlanningProjectPlank planningProjectPlank =new PlanningProjectPlank();
+                        planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
+                        planningProjectPlank.setMatchingStyleStatus("0");
+                        planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
+                        planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+                        planningProjectPlanks.add(planningProjectPlank);
+                    }
+                }
 
-
-                planningProjectPlankService.save(planningProjectPlank);
+                planningProjectPlankService.saveBatch(planningProjectPlanks);
             }
         }else {
 
