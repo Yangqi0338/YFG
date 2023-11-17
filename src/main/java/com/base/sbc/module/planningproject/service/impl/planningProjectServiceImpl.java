@@ -8,6 +8,7 @@ import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectMapper;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectMaxCategoryService;
@@ -51,37 +52,56 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(PlanningProjectSaveDTO planningProjectSaveDTO) {
-        if(StringUtils.isEmpty(planningProjectSaveDTO.getId())){
-            QueryWrapper<PlanningProject> queryWrapper =new QueryWrapper<>();
-            queryWrapper.eq("season_id",planningProjectSaveDTO.getPlanningProjectName());
-            queryWrapper.eq("planning_channel_code",planningProjectSaveDTO.getPlanningChannelCode());
-            List<PlanningProject> list = this.list(queryWrapper);
-            if (!list.isEmpty()){
-                throw new RuntimeException("该季度已经存在该渠道的企划规划");
-            }
-            super.save(planningProjectSaveDTO);
-            //新建对应的坑位信息
-            List<PlanningProjectDimension> planningProjectDimensionList = planningProjectSaveDTO.getPlanningProjectDimensionList();
-            for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
-                planningProjectDimension.setPlanningProjectId(planningProjectSaveDTO.getId());
-            }
-            return true;
-        }
-        //判断修改的时候是否存在相同的季度和渠道
+        //判断新增或者修改的时候是否存在相同的季度和渠道
         QueryWrapper<PlanningProject> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("season_id",planningProjectSaveDTO.getPlanningProjectName());
         queryWrapper.eq("planning_channel_code",planningProjectSaveDTO.getPlanningChannelCode());
-        queryWrapper.ne("id",planningProjectSaveDTO.getId());
-        List<PlanningProject> list = this.list(queryWrapper);
-        if (!list.isEmpty()){
+        queryWrapper.ne(StringUtils.isNotBlank(planningProjectSaveDTO.getId()),"id",planningProjectSaveDTO.getId());
+        List<PlanningProject> planningProjects = this.list(queryWrapper);
+        if (!planningProjects.isEmpty()){
             throw new RuntimeException("该季度已经存在该渠道的企划规划");
         }
 
+        boolean b;
+        //新增或者修改操作
+        if(StringUtils.isEmpty(planningProjectSaveDTO.getId())){
+            super.save(planningProjectSaveDTO);
+            b=true;
+        }else {
+            super.updateById(planningProjectSaveDTO);
+            b=false;
+        }
+        //更新对应关联的数据
+        List<PlanningProjectDimension> planningProjectDimensionList = planningProjectSaveDTO.getPlanningProjectDimensionList();
+        for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
+            planningProjectDimension.setPlanningProjectId(planningProjectSaveDTO.getId());
+        }
         planningProjectDimensionService.remove(new QueryWrapper<PlanningProjectDimension>().eq("planning_project_id",planningProjectSaveDTO.getId()));
         planningProjectDimensionService.saveBatch(planningProjectSaveDTO.getPlanningProjectDimensionList());
 
+        List<PlanningProjectMaxCategory> planningProjectMaxCategoryList = planningProjectSaveDTO.getPlanningProjectMaxCategoryList();
+        for (PlanningProjectMaxCategory planningProjectMaxCategory : planningProjectMaxCategoryList) {
+            planningProjectMaxCategory.setPlanningProjectId(planningProjectSaveDTO.getId());
+        }
         planningProjectMaxCategoryService.remove(new QueryWrapper<PlanningProjectMaxCategory>().eq("planning_project_id",planningProjectSaveDTO.getId()));
         planningProjectMaxCategoryService.saveBatch(planningProjectSaveDTO.getPlanningProjectMaxCategoryList());
-        return false;
+
+        //新建对应的坑位信息
+        if(b){
+            for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
+                PlanningProjectPlank planningProjectPlank =new PlanningProjectPlank();
+                planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
+                planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
+                planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+                planningProjectPlank.set
+            }
+        }else {
+
+        }
+
+
+
+
+          return false;
     }
 }
