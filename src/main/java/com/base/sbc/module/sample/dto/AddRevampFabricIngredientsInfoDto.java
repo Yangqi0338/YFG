@@ -76,9 +76,9 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     /** 厂家 */
     @ApiModelProperty(value = "厂家"  )
     private String manufacturer;
-    /** 大货含税价 */
+/*    *//** 大货含税价 *//*
     @ApiModelProperty(value = "大货含税价"  )
-    private BigDecimal containPrice;
+    private BigDecimal containPrice;*/
     /** 厂家编号 */
     @ApiModelProperty(value = "厂家编号"  )
     private String manufacturerNumber;
@@ -88,12 +88,12 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     /** 起订量 */
     @ApiModelProperty(value = "起订量"  )
     private Integer orderedQuantity;
-    /** 规格 */
+/*    *//** 规格 *//*
     @ApiModelProperty(value = "规格"  )
     private String specification;
-    /** 数量 */
+    *//** 数量 *//*
     @ApiModelProperty(value = "数量"  )
-    private Integer quantity;
+    private Integer quantity;*/
     /** 规格编码 */
     @ApiModelProperty(value = "规格编码"  )
     private String specificationCode;

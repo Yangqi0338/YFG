@@ -17,6 +17,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
@@ -47,6 +48,8 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：调样-辅料信息 service类
@@ -84,26 +87,39 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         queryFabricIngredientsInfoDto.setOrderBy("create_date desc");
         /*分页*/
         BaseQueryWrapper<FabricIngredientsInfo> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryId()),"category_id",queryFabricIngredientsInfoDto.getCategoryId());
-        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryName()),"category_name",queryFabricIngredientsInfoDto.getCategoryName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevTypeName()),"dev_type_name",queryFabricIngredientsInfoDto.getDevTypeName());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturerNumber()),"manufacturer",queryFabricIngredientsInfoDto.getManufacturerNumber());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"manufacturer_number",queryFabricIngredientsInfoDto.getManufacturer());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getAtactiformStylist()),"atactiform_stylist",queryFabricIngredientsInfoDto.getAtactiformStylist());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCreateName()),"create_name",queryFabricIngredientsInfoDto.getCreateName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCompletionStatus()),"completion_status",queryFabricIngredientsInfoDto.getCompletionStatus());
-        queryWrapper.between("create_date",StringUtils.split(queryFabricIngredientsInfoDto.getCreateDate(),","));
-        if (!StringUtils.isEmpty(queryFabricIngredientsInfoDto.getPracticalAtactiformDate())){
-            queryWrapper.between("practical_atactiform_date",queryFabricIngredientsInfoDto.getPracticalAtactiformDate().split(","));
-        }
+        queryWrapper.eq("tfii.company_code", baseController.getUserCompany());
+        queryWrapper.eq("tfii.del_flag", BaseGlobal.NO);
 
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"category_id"},true);
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryId()),"tfii.category_id",queryFabricIngredientsInfoDto.getCategoryId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryName()),"tfii.category_name",queryFabricIngredientsInfoDto.getCategoryName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevTypeName()),"tfii.dev_type_name",queryFabricIngredientsInfoDto.getDevTypeName());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturerNumber()),"tfii.manufacturer",queryFabricIngredientsInfoDto.getManufacturerNumber());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"tfii.manufacturer_number",queryFabricIngredientsInfoDto.getManufacturer());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getAtactiformStylist()),"tfii.atactiform_stylist",queryFabricIngredientsInfoDto.getAtactiformStylist());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCreateName()),"tfii.create_name",queryFabricIngredientsInfoDto.getCreateName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCompletionStatus()),"tfii.completion_status",queryFabricIngredientsInfoDto.getCompletionStatus());
+        queryWrapper.between("tfii.create_date",StringUtils.split(queryFabricIngredientsInfoDto.getCreateDate(),","));
+        if (!StringUtils.isEmpty(queryFabricIngredientsInfoDto.getPracticalAtactiformDate())){
+            queryWrapper.between("tfii.practical_atactiform_date",queryFabricIngredientsInfoDto.getPracticalAtactiformDate().split(","));
+        }
+        queryWrapper.groupBy("tfii.id");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"tfii.",new String[]{"category_id"},true);
         /*查询调样-辅料信息数据*/
         Page<FabricIngredientsInfoVo> objects = PageHelper.startPage(queryFabricIngredientsInfoDto);
         baseMapper.getSelectList(queryWrapper);
         PageInfo<FabricIngredientsInfoVo> copy = CopyUtil.copy(objects.toPageInfo(), FabricIngredientsInfoVo.class);
         List<FabricIngredientsInfoVo> list = copy.getList();
+        /*导出时不查询*/
+        if (StringUtils.isBlank(queryFabricIngredientsInfoDto.getDeriveFlag())) {
+            List<String> stringList = list.stream().map(FabricIngredientsInfoVo::getId).collect(Collectors.toList());
+            List<FabricIngredientsSpecification> ingredientsSpecificationList = fabricIngredientsSpecificationService.listByField("ingredients_info_id", stringList);
+            Map<String, List<FabricIngredientsSpecification>> map = ingredientsSpecificationList.stream().collect(Collectors.groupingBy(p -> p.getIngredientsInfoId()));
+            for (FabricIngredientsInfoVo fabricIngredientsInfoVo : list) {
+                List<FabricIngredientsSpecification> list1 = map.get(fabricIngredientsInfoVo.getId());
+                fabricIngredientsInfoVo.setIngredientsSpecificationList(list1);
+            }
+        }
+
         /*转换vo*/
         minioUtils.setObjectUrlToList(list,"imageUrl");
         return copy;
@@ -149,12 +165,11 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
             //}
             //BeanUtils.copyProperties(addRevampFabricIngredientsInfoDto, fabricIngredientsInfo);
             //fabricIngredientsInfo.updateInit();
+            /*先删除之前得数据*/
+            QueryWrapper<FabricIngredientsSpecification> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("ingredients_info_id", addRevampFabricIngredientsInfoDto.getId());
+            fabricIngredientsSpecificationService.remove(queryWrapper);
             if(CollUtil.isNotEmpty(list)){
-                QueryWrapper<FabricIngredientsSpecification> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("ingredients_info_id", addRevampFabricIngredientsInfoDto.getId());
-                fabricIngredientsSpecificationService.remove(queryWrapper);
-
-                /*先删除之前得数据*/
                 list.forEach(l -> {
                     l.setId(null);
                     l.setIngredientsInfoId(addRevampFabricIngredientsInfoDto.getId());
@@ -208,6 +223,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
      */
     @Override
     public void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws IOException {
+        queryFabricIngredientsInfoDto.setDeriveFlag(BaseGlobal.NO);
         List<FabricIngredientsInfoVo> ingredientsInfoVoList = getFabricIngredientsInfoList(queryFabricIngredientsInfoDto).getList();
         List<FabricIngredientsInfoExcelDto> list = BeanUtil.copyToList(ingredientsInfoVoList, FabricIngredientsInfoExcelDto.class);
         minioUtils.setObjectUrlToList(list,"imageUrl");
