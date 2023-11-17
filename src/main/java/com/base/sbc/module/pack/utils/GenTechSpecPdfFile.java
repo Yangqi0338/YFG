@@ -42,7 +42,9 @@ import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.font.FontProvider;
+import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -375,7 +377,15 @@ public class GenTechSpecPdfFile {
         }).orElse(CollUtil.newArrayList());
 
         dataModel.put("jcgyImgList", jcgyImgList);
-        dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 72 / jcgyImgList.size() : 72);
+        int cjgySize = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()).size();
+        if(cjgySize >= 10) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 40 / jcgyImgList.size() : 40);
+        } else if (cjgySize > 5) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 60 / jcgyImgList.size() : 60);
+        } else {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 80 / jcgyImgList.size() : 80);
+        }
+
         dataModel.put("jcgyRowsPan", jcgyDataList.size());
 
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(null));
@@ -437,14 +447,10 @@ public class GenTechSpecPdfFile {
                     Table table = (Table) element;
                     table.setFont(font);
                     document.add(table);
-                } else {
 
-                    try {
-                        IBlockElement blockElement = (IBlockElement) element;
-                        document.add(blockElement);
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        System.out.println("报错");
-                    }
+                } else {
+                    IBlockElement blockElement = (IBlockElement) element;
+                    document.add(blockElement);
                 }
             }
             // 设置页眉中的总页数
@@ -465,6 +471,7 @@ public class GenTechSpecPdfFile {
 
 
     }
+
 
     @Data
     class SizeDataDetail {
