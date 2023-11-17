@@ -55,19 +55,19 @@ public class StyleColorExcel {
     @Excel(name = "是否配饰款",replace={"否_0","是_1"})
     private String isTrim;
 
-    @Excel(name = "主款")
-    private String principalStyle;
-
-    @Excel(name = "主款款号")
-    private String principalStyleNo;
-
     @Excel(name = "配饰")
     private String accessory;
 
     @Excel(name = "配饰款号")
     private String accessoryNo;
 
-    @Excel(name = "下单标记",replace={"是_1","否_0"} )
+    @Excel(name = "主款")
+    private String principalStyle;
+
+    @Excel(name = "主款款号")
+    private String principalStyleNo;
+
+    @Excel(name = "是否下单",replace={"是_1","否_0"} )
     private String orderFlag;
 
     @Excel(name = "BOM状态",replace={"样品_0","大货_1"})
