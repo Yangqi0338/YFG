@@ -7,12 +7,14 @@
 package com.base.sbc.module.sample.vo;
 
 import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
+import com.base.sbc.module.sample.entity.FabricIngredientsSpecification;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：调样-辅料信息 Vo类
@@ -82,12 +84,7 @@ public class    FabricIngredientsInfoVo  extends FabricIngredientsInfo {
     /** 起订量 */
     @ApiModelProperty(value = "起订量"  )
     private Integer orderedQuantity;
-    /** 规格 */
-    @ApiModelProperty(value = "规格"  )
-    private String specification;
-    /** 数量 */
-    @ApiModelProperty(value = "数量"  )
-    private Integer quantity;
+
     /** 规格编码 */
     @ApiModelProperty(value = "规格编码"  )
     private String specificationCode;
@@ -126,4 +123,6 @@ public class    FabricIngredientsInfoVo  extends FabricIngredientsInfo {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private List<FabricIngredientsSpecification> ingredientsSpecificationList;
 }
