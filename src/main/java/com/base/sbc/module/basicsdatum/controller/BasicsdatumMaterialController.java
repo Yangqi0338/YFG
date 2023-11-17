@@ -385,8 +385,14 @@ public class BasicsdatumMaterialController extends BaseController {
         List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type","packBigGoods").eq("bom_version_id", packBomVersion.getId()));
         List<String> collect = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new QueryWrapper<BasicsdatumMaterial>().in("material_code", collect));
-
-        return selectSuccess(new PageInfo<>(list));
+        for (PackBom packBom : packBomList) {
+            for (BasicsdatumMaterial basicsdatumMaterial : list) {
+                if (packBom.getMaterialCode().equals(basicsdatumMaterial.getMaterialCode())){
+                    packBom.setIngredient(basicsdatumMaterial.getIngredient());
+                }
+            }
+        }
+        return selectSuccess(new PageInfo<>(packBomList));
     }
 
     @ApiOperation(value = "生成物料编号")
