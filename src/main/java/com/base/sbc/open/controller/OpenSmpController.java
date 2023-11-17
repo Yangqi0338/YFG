@@ -195,6 +195,7 @@ public class OpenSmpController extends BaseController {
         //     quanlityInspectContent = quanlityInspectContent.replace(" ", ",");
         // }
         basicsdatumMaterial.setIngredient(quanlityInspectContent);
+        basicsdatumMaterial.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.getFileUrl());
         basicsdatumMaterialService.updateById(basicsdatumMaterial);
         return insertSuccess(null);
     }
