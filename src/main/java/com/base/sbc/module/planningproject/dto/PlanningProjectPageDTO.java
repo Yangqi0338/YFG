@@ -25,8 +25,8 @@ public class PlanningProjectPageDTO extends Page{
     @ApiModelProperty(value = "企划规划名称")
     private String planningProjectName;
 
-    @ApiModelProperty(value = "渠道名称")
-    private String planningChannel;
+    @ApiModelProperty(value = "渠道编码")
+    private String planningChannelCode;
 
     @ApiModelProperty(value = "大类")
     private String prodCategory1st;

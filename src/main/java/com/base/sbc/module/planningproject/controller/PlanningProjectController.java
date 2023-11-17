@@ -7,22 +7,25 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.planning.dto.AddSeatDto;
-import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
-import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planningproject.entity.PlanningProject;
-import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planning.vo.YearSeasonBandVo;
+import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
+import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
+import com.base.sbc.module.planningproject.entity.PlanningProject;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.service.PlanningProjectService;
+import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.simpleframework.xml.core.Validate;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,11 +44,12 @@ public class PlanningProjectController extends BaseController {
     private final PlanningProjectService planningProjectService;
     private final MinioUtils minioUtils;
     private final PlanningCategoryItemService planningCategoryItemService;
+    private final PlanningProjectPlankService planningProjectPlankService;
 
     @ApiOperation(value = "企划看板计划查询")
     @GetMapping("/queryPage")
-    public PageInfo<PlanningProjectVo> queryPage(@Valid PlanningProjectPageDTO dto) {
-        return planningProjectService.queryPage(dto);
+    public ApiResult queryPage(@Valid PlanningProjectPageDTO dto) {
+        return selectSuccess(planningProjectService.queryPage(dto));
     }
 
     @ApiOperation(value = "新增、修改企划看板计划")
@@ -56,10 +60,23 @@ public class PlanningProjectController extends BaseController {
 
     @ApiOperation(value = "启用停用")
     @GetMapping("/startStop")
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult startStop(@Valid @NotNull(message = "传入id不能为空") String ids, @Valid @NotNull(message = "传入状态不能为空") String status) {
         UpdateWrapper<PlanningProject> updateWrapper = new UpdateWrapper<>();
         updateWrapper.in("id", Arrays.asList(ids.split(",")));
         updateWrapper.set("status", status);
+        //如果是停用,清空关联的坑位数据
+        if ("1".equals(status)) {
+            UpdateWrapper<PlanningProjectPlank> wrapper =new UpdateWrapper<>();
+            wrapper.in("planning_project_id",ids);
+            wrapper.set("bulk_style_no","");
+            wrapper.set("pic","");
+            wrapper.set("color_system","");
+            wrapper.set("matching_style_status","0");
+            wrapper.set("dimension_label_ids","");
+            planningProjectPlankService.update(wrapper);
+        }
+
         return updateSuccess(planningProjectService.update(updateWrapper));
     }
 

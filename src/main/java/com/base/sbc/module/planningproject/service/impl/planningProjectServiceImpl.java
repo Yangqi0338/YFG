@@ -1,5 +1,6 @@
 package com.base.sbc.module.planningproject.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
@@ -58,7 +59,21 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     public PageInfo<PlanningProjectVo> queryPage(PlanningProjectPageDTO dto) {
         /*分页*/
         PageHelper.startPage(dto);
-        List<PlanningProjectVo> planningProjectVos = this.getBaseMapper().getplanningProjectList(dto);
+        // List<PlanningProjectVo> planningProjectVos = this.getBaseMapper().getplanningProjectList(dto);
+        BaseQueryWrapper<PlanningProject> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("season_id",dto.getSeasonId());
+        queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
+
+
+
+        List<PlanningProject> list = this.list(queryWrapper);
+        List<PlanningProjectVo> planningProjectVos = BeanUtil.copyToList(list, PlanningProjectVo.class);
+        for (PlanningProjectVo planningProjectVo : planningProjectVos) {
+            List<PlanningProjectDimension> planningProjectDimensions = planningProjectDimensionService.list(new QueryWrapper<PlanningProjectDimension>().eq("planning_project_id", planningProjectVo.getId()));
+            planningProjectVo.setPlanningProjectDimensionList(planningProjectDimensions);
+            List<PlanningProjectMaxCategory> planningProjectMaxCategories = planningProjectMaxCategoryService.list(new QueryWrapper<PlanningProjectMaxCategory>().eq("planning_project_id", planningProjectVo.getId()));
+            planningProjectVo.setPlanningProjectMaxCategoryList(planningProjectMaxCategories);
+        }
         return new PageInfo<>(planningProjectVos);
     }
 
@@ -158,6 +173,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                                 planningProjectPlank.setPic(next.getStyleColorPic());
                                 planningProjectPlank.setBandCode(next.getBandCode());
                                 planningProjectPlank.setBandName(next.getBandName());
+                                planningProjectPlank.setDefDimensionLabelId(planningProjectDimension.getDimensionId());
                                 BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", next.getColorCode()));
                                 if (colourLibrary != null) {
                                     planningProjectPlank.setColorSystem(colourLibrary.getColorType());
@@ -182,6 +198,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                         planningProjectPlank.setMatchingStyleStatus("0");
                         planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
                         planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+                        planningProjectPlank.setDefDimensionLabelId(planningProjectDimension.getDimensionId());
                         planningProjectPlanks.add(planningProjectPlank);
                     }
                 }
