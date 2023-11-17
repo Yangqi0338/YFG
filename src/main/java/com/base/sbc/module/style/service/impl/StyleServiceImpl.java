@@ -224,6 +224,21 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             this.saveOperaLog("修改", "款式设计", style.getStyleName(), style.getDesignNo(), dto, style);
             resetDesignNo(dto, style);
 
+            /*判断产品季是否有变化*/
+            if(!StrUtil.equals(dto.getPlanningSeasonId(),style.getPlanningSeasonId())  ){
+                /*产品季有变化并且没有旧产品季*/
+                PlanningSeason planningSeason = planningSeasonService.getById(dto.getPlanningSeasonId());
+                dto.setYear(planningSeason.getYear());
+                dto.setYearName(planningSeason.getYearName());
+                dto.setSeason(planningSeason.getSeason());
+                dto.setSeasonName(planningSeason.getSeasonName());
+                dto.setBrand(planningSeason.getBrand());
+                dto.setBrandName(planningSeason.getBrandName());
+
+                if(StrUtil.isBlank(style.getOldPlanningSeasonId())){
+                    dto.setOldPlanningSeasonId(style.getPlanningSeasonId());
+                }
+            }
             BeanUtil.copyProperties(dto, style);
             setMainStylePic(style, dto.getStylePicList());
 

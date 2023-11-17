@@ -79,6 +79,12 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
+
+    /**
+     * 旧产品季节id
+     */
+    @ApiModelProperty(value = "旧产品季节id")
+    private String  oldPlanningSeasonId;
     /**
      * 坑位信息id
      */
