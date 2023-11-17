@@ -163,7 +163,7 @@ public class OpenSmpController extends BaseController {
         escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto,new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
 
         basicsdatumMaterialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("material_code",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
-
+        String quanlityInspectContent="";
         for (EscmMaterialCompnentInspectContent escmMaterialCompnentInspectContent : escmMaterialCompnentInspectCompanyDto.getDetailList()) {
             BasicsdatumMaterialIngredient basicsdatumMaterialIngredient =new BasicsdatumMaterialIngredient();
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
@@ -173,10 +173,17 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredient.setType("0");
             basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectContent.getInspectContent());
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
+
+            quanlityInspectContent+=escmMaterialCompnentInspectContent.getContentProportion()+escmMaterialCompnentInspectContent.getInspectContent();
+
+            if (!StringUtils.isEmpty(escmMaterialCompnentInspectContent.getRemark())){
+                quanlityInspectContent=quanlityInspectContent+"("+escmMaterialCompnentInspectContent.getRemark()+")";
+            }
+            quanlityInspectContent+=",";
         }
         BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialService.getOne(new QueryWrapper<BasicsdatumMaterial>().eq("material_code", escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
 
-        String quanlityInspectContent = escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent();
+         // quanlityInspectContent = escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent();
         // if (!StringUtils.isEmpty(quanlityInspectContent)){
         //     quanlityInspectContent = quanlityInspectContent.replace(" ", ",");
         // }
