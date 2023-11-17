@@ -176,8 +176,11 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
 
             quanlityInspectContent+=escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion()+
-                    escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent()+
-            escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark();;
+                    escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent();
+            if (StringUtils.isNotEmpty( escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark())){
+                quanlityInspectContent+=escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark();
+            }
+
 
 
             if (i!=escmMaterialCompnentInspectCompanyDto.getDetailList().size()-1){
