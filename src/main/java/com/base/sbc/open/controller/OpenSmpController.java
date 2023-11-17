@@ -177,9 +177,9 @@ public class OpenSmpController extends BaseController {
         BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialService.getOne(new QueryWrapper<BasicsdatumMaterial>().eq("material_code", escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
 
         String quanlityInspectContent = escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent();
-        if (!StringUtils.isEmpty(quanlityInspectContent)){
-            quanlityInspectContent = quanlityInspectContent.replace(" ", ",");
-        }
+        // if (!StringUtils.isEmpty(quanlityInspectContent)){
+        //     quanlityInspectContent = quanlityInspectContent.replace(" ", ",");
+        // }
         basicsdatumMaterial.setIngredient(quanlityInspectContent);
         basicsdatumMaterialService.updateById(basicsdatumMaterial);
         return insertSuccess(null);
