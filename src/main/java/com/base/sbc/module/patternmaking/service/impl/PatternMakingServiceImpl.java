@@ -929,7 +929,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             s[1] = s[1] + " 23:59:59";
             qw.between("p.create_date",s);
         }
-        if(StrUtil.isNotBlank(dto.getPmCreateDate())){
+        if(StrUtil.isNotBlank(dto.getReceiveSampleDate())){
             String[] s1 = dto.getReceiveSampleDate().split(",");
             s1[0] = s1[0] + " 00:00:00";
             s1[1] = s1[1] + " 23:59:59";
