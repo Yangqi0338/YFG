@@ -35,6 +35,12 @@ public class SampleBoardExcel {
     @Excel(name = "款式")
     private String designNo;
 
+    @Excel(name = "品类")
+    private String prodCategoryName;
+
+    @Excel(name = "波段")
+    private String bandName;
+
     @ApiModelProperty(value = "样板号")
     @Excel(name = "样板号")
     private String patternNo;
