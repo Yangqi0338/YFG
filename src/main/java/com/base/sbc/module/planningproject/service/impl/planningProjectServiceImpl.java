@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
@@ -15,6 +16,7 @@ import com.base.sbc.module.planningproject.service.PlanningProjectMaxCategorySer
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -98,8 +100,12 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 planningProjectPlank.setDimensionValue(planningProjectDimension.getDimensionValue());
                 planningProjectPlank.setMatchingStyleStatus("0");
                 //匹配规则 产品季  大类 品类 (中类有就匹配)  波段 廓形  这5匹配
-                QueryWrapper<StyleColor> styleColorQueryWrapper =new QueryWrapper<>();
-                styleColorQueryWrapper.eq("season_id",planningProjectSaveDTO.getPlanningProjectName());
+                BaseQueryWrapper<Style> styleQueryWrapper =new BaseQueryWrapper<>();
+                styleQueryWrapper.eq("season_id",planningProjectSaveDTO.getSeasonId());
+                styleQueryWrapper.eq("prod_category1st",planningProjectDimension.getProdCategory1stCode());
+                styleQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()),"prod_category2nd",planningProjectDimension.getProdCategory2ndCode());
+                styleQueryWrapper.eq("band_code",planningProjectDimension.getBandCode());
+                styleQueryWrapper.eq("silhouette",planningProjectDimension.getDimensionValue());
 
                 planningProjectPlankService.save(planningProjectPlank);
             }

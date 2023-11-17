@@ -54,4 +54,7 @@ public class PlanningProjectDimension {
     /** 数量 */
     @ApiModelProperty(value = "数量"  )
     private String number;
+    /** 是否开启中类(0:未开启,1:开启) */
+    @ApiModelProperty(value = "是否开启中类(0:未开启,1:开启)"  )
+    private String isProdCategory2nd;
 }
