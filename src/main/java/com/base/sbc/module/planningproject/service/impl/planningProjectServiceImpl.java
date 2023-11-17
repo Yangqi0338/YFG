@@ -15,6 +15,7 @@ import com.base.sbc.module.planningproject.service.PlanningProjectMaxCategorySer
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -93,7 +94,12 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
                 planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
                 planningProjectPlank.setBandName(planningProjectDimension.getBandName());
-                planningProjectPlank.set
+                planningProjectPlank.setSilhouetteName(planningProjectDimension.getDimensionName());
+                planningProjectPlank.setSilhouetteValue(planningProjectDimension.getDimensionValue());
+                planningProjectPlank.setMatchingStyleStatus("0");
+                //匹配规则 产品季  大类 品类 (中类有就匹配)  波段 廓形  这5匹配
+                QueryWrapper<StyleColor> styleColorQueryWrapper =new QueryWrapper<>();
+                styleColorQueryWrapper.eq("season_id",planningProjectSaveDTO.getPlanningProjectName());
             }
         }else {
 

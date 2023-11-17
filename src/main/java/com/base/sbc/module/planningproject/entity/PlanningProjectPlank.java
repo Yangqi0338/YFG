@@ -68,12 +68,8 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
     private String fabric;
 
     /**
-     * 匹配款式状态:(0:未匹配,1:已匹配)
+     * 匹配款式状态:(0:未匹配,1:手动匹配,2:自动匹配
      */
     private String matchingStyleStatus;
 
-    /**
-     * 匹配模式(1:手动匹配,2:自动匹配)
-     */
-    private String matchingMode;
 }
