@@ -105,7 +105,7 @@ public class StyleColorListExcel {
     @Excel(name = "状态",replace={"停用_1","启用_0"} )
     private String status;
 
-    @Excel(name = "下单标记",replace={"是_1","否_0"} )
+    @Excel(name = "是否下单",replace={"是_1","否_0"} )
     private String orderFlag;
 
     @Excel(name = "上会",replace={"是_1","否_0"} )
