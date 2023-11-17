@@ -872,12 +872,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
+
+        qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
+        qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+
         if(StrUtil.isNotBlank(dto.getPmCreateDate())){
             String[] s = dto.getPmCreateDate().split(",");
             s[0] = s[0] + " 00:00:00";
             s[1] = s[1] + " 23:59:59";
             qw.between("p.create_date",s);
         }
+        if(StrUtil.isNotBlank(dto.getPmCreateDate())){
+            String[] s1 = dto.getReceiveSampleDate().split(",");
+            s1[0] = s1[0] + " 00:00:00";
+            s1[1] = s1[1] + " 23:59:59";
+            qw.between("p.receive_sample_date",s1);
+        }
+
         qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
             String[] split = dto.getDesignerIds().split(",");

@@ -74,4 +74,16 @@ public class PatternMakingCommonPageSearchDto extends Page {
 
     @ApiModelProperty(value = "图片标记")
     private String imgFlag;
+
+    @ApiModelProperty(value = "品类")
+    private String prodCategory;
+
+    @ApiModelProperty(value = "波段")
+    private String bandName;
+
+    @ApiModelProperty(value = "打样设计师")
+    private String  patternDesignerName;
+
+    @ApiModelProperty(value = "设计收到时间")
+    private String receiveSampleDate;
 }
