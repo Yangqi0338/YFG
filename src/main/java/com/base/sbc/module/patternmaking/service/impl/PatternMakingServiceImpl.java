@@ -15,9 +15,12 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -67,6 +70,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +84,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -91,7 +101,9 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+
 public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMapper, PatternMaking> implements PatternMakingService {
+    Logger log = LoggerFactory.getLogger(getClass());
     // 自定义方法区 不替换的区域【other_start】
     private final StyleService styleService;
     private final NodeStatusService nodeStatusService;
@@ -118,6 +130,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private StylePicUtils stylePicUtils;
     @Autowired
     private ScoreConfigService scoreConfigService;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
@@ -883,6 +897,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
         qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
         qw.eq("p.disable_flag", BaseGlobal.NO);
+        qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
+        qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
 
         if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
             qw.eq( "p.break_off_sample", BaseGlobal.NO);
@@ -905,6 +922,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             s[1] = s[1] + " 23:59:59";
             qw.between("p.create_date",s);
         }
+        if(StrUtil.isNotBlank(dto.getReceiveSampleDate())){
+            String[] s1 = dto.getReceiveSampleDate().split(",");
+            s1[0] = s1[0] + " 00:00:00";
+            s1[1] = s1[1] + " 23:59:59";
+            qw.between("p.receive_sample_date",s1);
+        }
+
         qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
             String[] split = dto.getDesignerIds().split(",");
@@ -962,6 +986,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if(!StringUtils.isBlank(dto.getDeriveflag())){
             qw.groupBy("p.id");
             baseMapper.deriveList(qw);
+            if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
+                /*带图片只能导出3000条*/
+                if(objects.toPageInfo().getList().size() >3000){
+                    throw new OtherException("带图片最多只能导出3000条");
+                }
+            }
+
             return objects.toPageInfo();
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
@@ -980,14 +1011,44 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      * @param dto
      */
     @Override
-    public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException {
+    public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
-        stylePicUtils.setStylePic(excelList, "stylePic");
-        POICacheManager.setFileLoader(new IFileLoaderImpl());
-        ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
-
+        /*开启一个线程池*/
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(excelList.size()))
+                .build();
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*获取图片链接*/
+                stylePicUtils.setStylePic(excelList, "stylePic");
+                /*计时器*/
+                CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
+                for (SampleBoardExcel sampleBoardExcel : excelList) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = sampleBoardExcel.getStylePic();
+                            sampleBoardExcel.setPic(HttpUtil.downloadBytes(stylePic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
     }
     @Override
     public boolean receiveSample(String id) {
