@@ -164,23 +164,27 @@ public class OpenSmpController extends BaseController {
 
         basicsdatumMaterialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("material_code",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
         String quanlityInspectContent="";
-        for (EscmMaterialCompnentInspectContent escmMaterialCompnentInspectContent : escmMaterialCompnentInspectCompanyDto.getDetailList()) {
+
+        for (int i = 0; i < escmMaterialCompnentInspectCompanyDto.getDetailList().size(); i++) {
             BasicsdatumMaterialIngredient basicsdatumMaterialIngredient =new BasicsdatumMaterialIngredient();
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
-            basicsdatumMaterialIngredient.setSay(escmMaterialCompnentInspectContent.getRemark());
-            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectContent.getContentProportion().replace("%",""))));
+            basicsdatumMaterialIngredient.setSay(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark());
+            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion().replace("%",""))));
             basicsdatumMaterialIngredient.setType("0");
-            basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectContent.getInspectContent());
+            basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent());
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
 
-            quanlityInspectContent+=escmMaterialCompnentInspectContent.getContentProportion()+escmMaterialCompnentInspectContent.getInspectContent();
+            quanlityInspectContent+=escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion()+
+                    escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent()+
+            escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark();;
 
-            if (!StringUtils.isEmpty(escmMaterialCompnentInspectContent.getRemark())){
-                quanlityInspectContent=quanlityInspectContent+"("+escmMaterialCompnentInspectContent.getRemark()+")";
+
+            if (i!=escmMaterialCompnentInspectCompanyDto.getDetailList().size()-1){
+                quanlityInspectContent+=",\n";
             }
-            quanlityInspectContent+=",";
         }
+
         BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialService.getOne(new QueryWrapper<BasicsdatumMaterial>().eq("material_code", escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
 
          // quanlityInspectContent = escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent();
