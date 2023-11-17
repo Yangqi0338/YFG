@@ -51,6 +51,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -395,8 +396,10 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
             for (PackBomVo packBomVo : bomList) {
 //                packBomVo.setPlanningLoossRate(0);
-                //转大货 大货单件用量=设计单件用量
-                packBomVo.setBulkUnitUse(packBomVo.getDesignUnitUse());
+                if(packBomVo.getBulkUnitUse()==null ||packBomVo.getBulkUnitUse().compareTo(BigDecimal.ZERO) == 0 ){
+                    //转大货 大货单件用量=设计单件用量
+                    packBomVo.setBulkUnitUse(packBomVo.getDesignUnitUse());
+                }
                 /*转大货修改变成可编辑*/
                 packBomVo.setScmSendFlag(BaseGlobal.IN_READY);
             }
