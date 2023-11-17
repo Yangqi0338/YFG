@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
@@ -18,13 +20,18 @@ import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.beanutils.converters.FileConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +39,8 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final PlanningProjectDimensionService planningProjectDimensionService;
     private final PlanningProjectMaxCategoryService planningProjectMaxCategoryService;
     private final PlanningProjectPlankService planningProjectPlankService;
+    private final StyleService styleService;
+    private final FieldValService fieldValService;
 
     /**
      * 分页查询企划看板规划信息
@@ -96,16 +105,30 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
                 planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
                 planningProjectPlank.setBandName(planningProjectDimension.getBandName());
-                planningProjectPlank.setDimensionName(planningProjectDimension.getDimensionName());
-                planningProjectPlank.setDimensionValue(planningProjectDimension.getDimensionValue());
                 planningProjectPlank.setMatchingStyleStatus("0");
-                //匹配规则 产品季  大类 品类 (中类有就匹配)  波段 廓形  这5匹配
+
+                //匹配规则 产品季  大类 品类 (中类有就匹配)  波段 第一维度  这5匹配
                 BaseQueryWrapper<Style> styleQueryWrapper =new BaseQueryWrapper<>();
                 styleQueryWrapper.eq("season_id",planningProjectSaveDTO.getSeasonId());
                 styleQueryWrapper.eq("prod_category1st",planningProjectDimension.getProdCategory1stCode());
                 styleQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()),"prod_category2nd",planningProjectDimension.getProdCategory2ndCode());
                 styleQueryWrapper.eq("band_code",planningProjectDimension.getBandCode());
-                styleQueryWrapper.eq("silhouette",planningProjectDimension.getDimensionValue());
+
+                //组装style
+                List<Style> styles = styleService.list(styleQueryWrapper);
+                List<String> styleIds = styles.stream().map(Style::getId).collect(Collectors.toList());
+                List<FieldVal> fieldVals = fieldValService.list(new QueryWrapper<FieldVal>().in("foreign_id", styleIds));
+                for (Style style : styles) {
+                    List<FieldVal> fieldValList =new ArrayList<>();
+                    for (FieldVal fieldVal : fieldVals) {
+                        if (fieldVal.getForeignId().equals(style.getId())){
+                            fieldValList.add(fieldVal);
+                        }
+                    }
+                    style.setDimensionLabels(fieldValList);
+                }
+                //查询款式设计所有的维度信息
+
 
                 planningProjectPlankService.save(planningProjectPlank);
             }

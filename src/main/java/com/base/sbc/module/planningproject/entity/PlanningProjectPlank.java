@@ -38,21 +38,6 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
     private String bandCode;
 
     /**
-     * 衣长
-     */
-    private String clothesLength;
-
-    /**
-     * 第一维度名称
-     */
-    private String dimensionName;
-
-    /**
-     * 维度值
-     */
-    private String dimensionValue;
-
-    /**
      * 色系
      */
     private String colorSystem;
@@ -71,5 +56,6 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
      * 匹配款式状态:(0:未匹配,1:手动匹配,2:自动匹配
      */
     private String matchingStyleStatus;
+
 
 }
