@@ -6,6 +6,7 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -162,19 +163,38 @@ public class OpenSmpController extends BaseController {
         escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto,new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
 
         basicsdatumMaterialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("material_code",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
+        String quanlityInspectContent="";
 
-        for (EscmMaterialCompnentInspectContent escmMaterialCompnentInspectContent : escmMaterialCompnentInspectCompanyDto.getDetailList()) {
+        for (int i = 0; i < escmMaterialCompnentInspectCompanyDto.getDetailList().size(); i++) {
             BasicsdatumMaterialIngredient basicsdatumMaterialIngredient =new BasicsdatumMaterialIngredient();
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
-            basicsdatumMaterialIngredient.setSay(escmMaterialCompnentInspectContent.getRemark());
-            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectContent.getContentProportion().replace("%",""))));
+            basicsdatumMaterialIngredient.setSay(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark());
+            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion().replace("%",""))));
             basicsdatumMaterialIngredient.setType("0");
-            basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectContent.getInspectContent());
+            basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent());
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
+
+            quanlityInspectContent+=escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion()+
+                    escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent();
+            if (StringUtils.isNotEmpty( escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark())){
+                quanlityInspectContent+=escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark();
+            }
+
+
+
+            if (i!=escmMaterialCompnentInspectCompanyDto.getDetailList().size()-1){
+                quanlityInspectContent+=",\n";
+            }
         }
+
         BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialService.getOne(new QueryWrapper<BasicsdatumMaterial>().eq("material_code", escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
-        basicsdatumMaterial.setIngredient(escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent());
+
+         // quanlityInspectContent = escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent();
+        // if (!StringUtils.isEmpty(quanlityInspectContent)){
+        //     quanlityInspectContent = quanlityInspectContent.replace(" ", ",");
+        // }
+        basicsdatumMaterial.setIngredient(quanlityInspectContent);
         basicsdatumMaterialService.updateById(basicsdatumMaterial);
         return insertSuccess(null);
     }
