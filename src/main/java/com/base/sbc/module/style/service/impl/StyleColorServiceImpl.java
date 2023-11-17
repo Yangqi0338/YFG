@@ -1500,7 +1500,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
             ExcelUtils.exportExcel(list, StyleColorListExcel.class, "款式列表.xlsx", new ExportParams("款式列表", "款式列表", ExcelType.HSSF), response);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new OtherException(e.getMessage());
         } finally {
             executor.shutdown();
         }
@@ -1556,7 +1556,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
             ExcelUtils.exportExcel(list, StyleColorExcel.class, "款式配色.xlsx", new ExportParams("款式配色", "款式配色", ExcelType.HSSF), response);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            throw new OtherException(e.getMessage());
         } finally {
             executor.shutdown();
         }
