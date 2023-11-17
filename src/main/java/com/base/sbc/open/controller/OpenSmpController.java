@@ -6,6 +6,7 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -174,7 +175,12 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
         }
         BasicsdatumMaterial basicsdatumMaterial = basicsdatumMaterialService.getOne(new QueryWrapper<BasicsdatumMaterial>().eq("material_code", escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
-        basicsdatumMaterial.setIngredient(escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent());
+
+        String quanlityInspectContent = escmMaterialCompnentInspectCompanyDto.getQuanlityInspectContent();
+        if (!StringUtils.isEmpty(quanlityInspectContent)){
+            quanlityInspectContent = quanlityInspectContent.replace(" ", ",");
+        }
+        basicsdatumMaterial.setIngredient(quanlityInspectContent);
         basicsdatumMaterialService.updateById(basicsdatumMaterial);
         return insertSuccess(null);
     }
