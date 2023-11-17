@@ -43,4 +43,7 @@ public class QueryFabricIngredientsInfoDto extends Page {
     @ApiModelProperty(value = "完成状态"  )
     private String completionStatus;
 
+    @ApiModelProperty(value = "导出标记"  )
+    private String   deriveFlag;
+
 }
