@@ -40,10 +40,10 @@
     }
 
     .item_th {
-        width: 8em;
+        width: 12em;
     }
     .item_td {
-        text-align: left;width: 8.05em;box-sizing: border-box;
+        text-align: left;width: 12.05em;box-sizing: border-box;
         padding-left: 0.5em;
     }
 
@@ -485,20 +485,39 @@
 </table>
 <#if sizeDataList??>
     <#assign sizeCount = (washSkippingFlag?then(2, 1))>
-    <#assign sizeWidth = "width: 40%;">
+    <#assign sizeWidth = "width: 100%;">
     <#assign contentWidth = "width: 216px;">
-    <#if sizeList?size*sizeCount lt 2>
-        <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 216px;">
-    <#elseif sizeList?size*sizeCount lt 4>
-        <#assign sizeWidth = "width: 60%;">
-        <#assign contentWidth = "width: 216px;">
-    <#elseif sizeList?size*sizeCount lt 9>
-        <#assign sizeWidth = "width: 80%;">
-        <#assign contentWidth = "width:  108px;">
-    <#else>
+    <#assign rdWidth = "width: 12px;">
+    <#if sizeList?size*sizeCount gt 23>
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width:  108px;">
+        <#assign contentWidth = "width: 48px;">
+    <#elseif sizeList?size*sizeCount gt 20>
+        <#assign sizeWidth = "width: 100%;">
+        <#assign contentWidth = "width: 72px;">
+    <#elseif sizeList?size*sizeCount gt 17>
+        <#assign sizeWidth = "width: 100%;">
+        <#assign contentWidth = "width: 72px;">
+    <#elseif sizeList?size*sizeCount gt 14>
+        <#assign sizeWidth = "width: 100%;">
+        <#assign contentWidth = "width: 96px;">
+    <#elseif sizeList?size*sizeCount gt 11>
+        <#assign sizeWidth = "width: 100%;">
+        <#assign contentWidth = "width: 96px;">
+    <#elseif sizeList?size*sizeCount gt 7>
+        <#assign sizeWidth = "width: 80%;">
+        <#assign contentWidth = "width: 96px;">
+    <#elseif sizeList?size*sizeCount gt 5>
+        <#assign sizeWidth = "width: 80%;">
+        <#assign contentWidth = "width: 192px;">
+    <#elseif sizeList?size*sizeCount gt 3>
+        <#assign sizeWidth = "width: 60%;">
+        <#assign contentWidth = "width: 192px;">
+    <#elseif sizeList?size*sizeCount gt 1>
+        <#assign sizeWidth = "width: 40%;">
+        <#assign contentWidth = "width: 192px;">
+    <#else>
+        <#assign sizeWidth = "width: 40%;">
+        <#assign contentWidth = "width: 192px;">
     </#if>
     <table class="table_border mt size_table size_table_border" style="page-break-before: always;${sizeWidth}">
         <thead>
@@ -558,7 +577,7 @@
                                     <#elseif c_index == 1>
                                         <div style="font-size: 0.9em;display: table-cell; white-space: nowrap;${contentWidth}">${c.text}</div>
                                     <#elseif c_index == 0>
-                                        <div style="font-size: 0.9em; white-space: nowrap;">${c.text}</div>
+                                        <div style="font-size: 0.9em; white-space: nowrap; text-align: left">${c.text}</div>
                                     <#else >
                                         ${c.text}
                                     </#if>
