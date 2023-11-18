@@ -64,5 +64,9 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
      */
     private String dimensionLabelIds;
 
+    /**
+     * 默认维度标签
+     */
+    private String defDimensionLabelId;
 
 }

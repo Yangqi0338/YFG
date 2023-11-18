@@ -1,6 +1,8 @@
 
 package com.base.sbc.module.planningproject.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,6 +19,7 @@ import lombok.Data;
 public class PlanningProjectDimension {
     /** 主键id */
     @ApiModelProperty(value = "主键id"  )
+    @TableId(type = IdType.ASSIGN_ID)
     private String id;
     /** 企划看板规划id */
     @ApiModelProperty(value = "企划看板规划id"  )
@@ -39,6 +42,9 @@ public class PlanningProjectDimension {
     /** 中类名称 */
     @ApiModelProperty(value = "中类名称"  )
     private String prodCategory2ndName;
+    /** 第一维度id */
+    @ApiModelProperty(value = "第一维度id"  )
+    private String dimensionId;
     /** 第一维度名称 */
     @ApiModelProperty(value = "第一维度名称"  )
     private String dimensionName;

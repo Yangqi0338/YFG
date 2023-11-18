@@ -1,7 +1,9 @@
 package com.base.sbc.module.planningproject.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.github.pagehelper.PageInfo;
 
 /**
  * @author 卞康
@@ -9,4 +11,5 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
  * @mail 247967116@qq.com
  */
 public interface PlanningProjectPlankService extends BaseService<PlanningProjectPlank> {
+    PageInfo<PlanningProjectPlank> queryPage(PlanningProjectPlankPageDto dto);
 }
