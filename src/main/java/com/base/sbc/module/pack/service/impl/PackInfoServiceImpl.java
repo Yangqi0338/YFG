@@ -735,7 +735,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
         String devtType = vo.getDevtType();
         Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
+        Map<String, Map<String, String>> proccessStyleMap = ccmFeignService.getDictInfoToMap("Process-Style");
         boolean fob = dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType);
+        boolean ctBasicPage = proccessStyleMap.containsKey("Process-Style") &&proccessStyleMap.get("Process-Style").containsKey("CBasicPage") ;
+        vo.setCtBasicPage(ctBasicPage);
         vo.setFob(fob);
         vo.setDevtType(fob ? "FOB" : devtType);
         ByteArrayOutputStream gen = vo.gen();

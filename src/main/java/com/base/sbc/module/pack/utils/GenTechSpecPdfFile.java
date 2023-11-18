@@ -193,8 +193,10 @@ public class GenTechSpecPdfFile {
     private String defaultSize;
     @ApiModelProperty(value = "生产类型")
     private String devtType;
-
+    @ApiModelProperty(value = "是否是fob模板")
     private boolean fob;
+    @ApiModelProperty(value = "基础工艺和裁剪工艺是否强制同页")
+    private boolean ctBasicPage;
 
     public boolean isFob() {
         return StrUtil.equals(devtType, "FOB");
@@ -379,9 +381,9 @@ public class GenTechSpecPdfFile {
         dataModel.put("jcgyImgList", jcgyImgList);
         int cjgySize = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()).size();
         if(cjgySize >= 10) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 40 / jcgyImgList.size() : 40);
-        } else if (cjgySize > 5) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 60 / jcgyImgList.size() : 60);
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 130/ jcgyImgList.size() : 130);
+        } else if (cjgySize >= 5) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 200 / jcgyImgList.size() : 200);
         } else {
             dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 80 / jcgyImgList.size() : 80);
         }
@@ -416,7 +418,6 @@ public class GenTechSpecPdfFile {
     public ByteArrayOutputStream gen() {
         try {
             String output = toHtml();
-            System.out.println(output);
             ByteArrayOutputStream pdfOutputStream = new ByteArrayOutputStream();
             // 创建PDF写入器
             ConverterProperties props = new ConverterProperties();
