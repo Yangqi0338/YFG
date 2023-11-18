@@ -15,7 +15,7 @@ import java.util.List;
  * @mail 247967116@qq.com
  */
 @Data
-@TableName("planning_project_plank")
+@TableName("t_planning_project_plank")
 public class PlanningProjectPlank extends BaseDataEntity<String> {
     /**
      * 企划看板规划ID

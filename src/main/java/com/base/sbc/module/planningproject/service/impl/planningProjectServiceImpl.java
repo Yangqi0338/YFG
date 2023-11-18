@@ -22,6 +22,7 @@ import com.base.sbc.module.planningproject.service.PlanningProjectMaxCategorySer
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
+import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -49,6 +50,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
     private final StyleColorService styleColorService;
     private final FieldValService fieldValService;
+    private final StylePricingMapper stylePricingMapper;
 
     /**
      * 分页查询企划看板规划信息
@@ -130,11 +132,16 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                     continue;
                 }
                 //匹配规则 产品季  大类 品类 (中类有就匹配)  波段 第一维度  这5匹配
-                BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper =new BaseQueryWrapper<>();
-                styleColorBaseQueryWrapper.eq("season_id",planningProjectSaveDTO.getSeasonId());
-                styleColorBaseQueryWrapper.eq("prod_category1st",planningProjectDimension.getProdCategory1stCode());
-                styleColorBaseQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()),"prod_category2nd",planningProjectDimension.getProdCategory2ndCode());
-                styleColorBaseQueryWrapper.eq("band_code",planningProjectDimension.getBandCode());
+
+                BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
+                styleQueryWrapper.eq("ts.planning_season_id",planningProjectSaveDTO.getSeasonId());
+                styleQueryWrapper.eq("ts.prod_category1st",planningProjectDimension.getProdCategory1stCode());
+                styleQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()),"ts.prod_category2nd",planningProjectDimension.getProdCategory2ndCode());
+                styleQueryWrapper.eq("ts.prod_category",planningProjectDimension.getProdCategoryCode());
+                styleQueryWrapper.eq("ts.band_code",planningProjectDimension.getBandCode());
+
+                styleQueryWrapper.in("tsc.id",styleQueryWrapper);
+
 
                 //查询坑位所有已经匹配的大货款号
                 QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
@@ -142,9 +149,9 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
                 if (!list.isEmpty()){
                     List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
-                    styleColorBaseQueryWrapper.notIn("id",bulkStyleNoList);
+                    styleQueryWrapper.notIn("id",bulkStyleNoList);
                 }
-                List<StyleColor> styleColorList = styleColorService.list(styleColorBaseQueryWrapper);
+                List<StyleColor> styleColorList = stylePricingMapper.getByStyleList(styleQueryWrapper);
                 List<String> styleIds = styleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
                 //查询款式设计所有的维度信息
                 List<FieldVal> fieldVals = fieldValService.list(new QueryWrapper<FieldVal>().in("foreign_id", styleIds).eq("data_group",FieldValDataGroupConstant.STYLE_COLOR));
