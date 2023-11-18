@@ -204,6 +204,10 @@ public class StyleColorController {
 		return styleColorService.copyStyleColor(idDto);
 	}
 
-
+	@ApiOperation(value = "企划选择款式-款式配色")
+	@GetMapping("/getByStyleList")
+	public  PageInfo<StyleColor> getByStyleList(StyleColorsDto dto) {
+		return styleColorService.getByStyleList(dto);
+	}
 }
 

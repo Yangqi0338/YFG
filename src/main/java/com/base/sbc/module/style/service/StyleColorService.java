@@ -215,6 +215,12 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @return
          */
         Boolean copyStyleColor(IdDto idDto);
+    /**
+     * 复制配色
+     * @param dto
+     * @return
+     */
+    PageInfo<StyleColor> getByStyleList(StyleColorsDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

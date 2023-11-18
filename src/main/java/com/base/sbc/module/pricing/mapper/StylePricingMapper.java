@@ -12,6 +12,8 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.style.dto.StyleColorsDto;
+import com.base.sbc.module.style.entity.StyleColor;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -39,5 +41,9 @@ public interface StylePricingMapper extends BaseMapper<StylePricing> {
     List<StylePricingVO> getStylePricingList(@Param("dto") StylePricingSearchDTO dto,
                                              @Param(Constants.WRAPPER) QueryWrapper qw);
 
+    List<StyleColor> getByStyleList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
 // 自定义方法区 不替换的区域【other_end】
+
+
 }
