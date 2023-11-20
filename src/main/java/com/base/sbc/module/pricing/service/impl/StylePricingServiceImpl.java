@@ -109,10 +109,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         qw.notEmptyEq("sd.season", dto.getSeason());
         qw.notEmptyEq("sd.month", dto.getMonth());
         qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
-        if(StrUtil.isNotBlank(dto.getStyleNo())){
-          List<String> styleNos = com.base.sbc.config.utils.StringUtils.convertList(dto.getStyleNo());
-            qw.in("ssc.style_no",styleNos);
-        }
+        qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getStyleNo()));
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {

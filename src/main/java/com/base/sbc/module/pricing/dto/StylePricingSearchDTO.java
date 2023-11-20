@@ -38,7 +38,9 @@ public class StylePricingSearchDTO extends Page {
     private String year;
     private String tagPrice;
 
-
-    @ApiModelProperty(value = "款式")
+    @ApiModelProperty(value = "大货款号")
     private String styleNo;
+    @ApiModelProperty(value = "设计款号")
+    private String designNo;
+
 }
