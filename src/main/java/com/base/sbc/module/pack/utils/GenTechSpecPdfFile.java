@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.attach.impl.layout.HtmlPageBreak;
+import com.itextpdf.html2pdf.attach.impl.layout.HtmlPageBreakType;
 import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
 import com.itextpdf.io.font.FontConstants;
 import com.itextpdf.io.font.FontProgram;
@@ -380,8 +381,10 @@ public class GenTechSpecPdfFile {
 
         dataModel.put("jcgyImgList", jcgyImgList);
         int cjgySize = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()).size();
-        if(cjgySize >= 10) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 130/ jcgyImgList.size() : 130);
+        if(cjgySize >= 15) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 120/ jcgyImgList.size() : 120);
+        }else if(cjgySize >= 10) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 172/ jcgyImgList.size() : 172);
         } else if (cjgySize >= 5) {
             dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 200 / jcgyImgList.size() : 200);
         } else {
@@ -447,8 +450,14 @@ public class GenTechSpecPdfFile {
                 } else if (element instanceof Table) {
                     Table table = (Table) element;
                     table.setFont(font);
-                    document.add(table);
-
+                    try{
+                        table.setKeepTogether(false);
+                        document.add(table);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        System.out.println("布局出错！使用兼容性配置");
+                        table.setKeepTogether(true);
+                        document.add(table);
+                    }
                 } else {
                     IBlockElement blockElement = (IBlockElement) element;
                     document.add(blockElement);
