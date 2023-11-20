@@ -11,6 +11,7 @@ import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
@@ -62,6 +63,12 @@ public class FabricIngredientsInfoController{
 	@DuplicationCheck(type = 1,message = "正在导出中，请稍后...")
 	public void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws Exception {
 		fabricIngredientsInfoService.fabricIngredientsInfoDeriveExcel(response,queryFabricIngredientsInfoDto);
+	}
+
+	@ApiOperation(value = "复制辅料")
+	@PostMapping("/copyIngredients")
+	public Boolean copyIngredients(@Valid @RequestBody IdDto idDto) {
+		return fabricIngredientsInfoService.copyIngredients(idDto.getId());
 	}
 
 
