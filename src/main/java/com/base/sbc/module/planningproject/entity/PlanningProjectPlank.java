@@ -29,7 +29,7 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
 
 
     /**
-     * 样衣id
+     * 配色id
      */
     private String styleColorId;
 

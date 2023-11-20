@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.planningproject.mapper.PlanningProjectPlankMapper">
+    <select id="queryPage" resultType="com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo">
+        select tpp.*,tppd.*
+        from t_planning_project_plank as tpp
+                 left join t_planning_project_dimension as tppd on tppd.planning_project_id = tpp.planning_project_id
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+</mapper>

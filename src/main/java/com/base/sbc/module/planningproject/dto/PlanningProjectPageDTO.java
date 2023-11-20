@@ -12,7 +12,8 @@ import java.util.Date;
 public class PlanningProjectPageDTO extends Page{
     @ApiModelProperty(value = "产品季id")
     private String seasonId;
-
+    @ApiModelProperty(value = "年份")
+    private String year;
     @ApiModelProperty(value = "维度id")
     private String dimensionalityId;
 

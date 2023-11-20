@@ -7,6 +7,7 @@ import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectPlankMapper;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -21,11 +22,11 @@ import java.util.List;
 @Service
 public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningProjectPlankMapper, PlanningProjectPlank> implements PlanningProjectPlankService {
     @Override
-    public PageInfo<PlanningProjectPlank> queryPage(PlanningProjectPlankPageDto dto) {
+    public PageInfo<PlanningProjectPlankVo> queryPage(PlanningProjectPlankPageDto dto) {
         PageHelper.startPage(dto);
-        QueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
-
-        List<PlanningProjectPlank> list = this.list(queryWrapper);
+        BaseQueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("planning_project_id",dto.getPlanningProjectId());
+        List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);
 
         return new PageInfo<>(list);
     }

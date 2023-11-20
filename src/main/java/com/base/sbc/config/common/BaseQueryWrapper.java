@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import lombok.Data;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.List;
  * @date 2023/6/12 19:36:07
  * @mail 247967116@qq.com
  */
+@Data
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     public QueryWrapper<T> notEmptyEq(String column, Object val) {
         return this.eq(!StringUtils.isEmpty(val), column, val);

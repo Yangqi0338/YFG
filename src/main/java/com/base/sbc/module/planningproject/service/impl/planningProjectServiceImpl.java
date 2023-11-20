@@ -72,6 +72,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         BaseQueryWrapper<PlanningProject> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("season_id",dto.getSeasonId());
         queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
+        queryWrapper.notEmptyLike("season_name",dto.getYear());
 
 
 
