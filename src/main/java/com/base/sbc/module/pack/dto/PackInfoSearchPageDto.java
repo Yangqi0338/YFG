@@ -42,4 +42,11 @@ public class PackInfoSearchPageDto extends Page {
 
     @ApiModelProperty(value = "bom状态:(0样品,1大货)")
     private String bomStatus;
+
+    @ApiModelProperty(value = "设计款号")
+    private String designNo;
+
+    @ApiModelProperty(value = "大货款号")
+    private String styleNo;
+
 }

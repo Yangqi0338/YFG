@@ -61,4 +61,6 @@ public class HangTagSearchDTO extends Page {
 
     private String[] bulkStyleNos;
 
+    private String[] designNos;
+
 }
