@@ -885,9 +885,9 @@
         </table>
     </#if>
 
-    <#assign totalSize = jcgyDataList?size + cjgyDataList?size>
+    <#assign totalSize = jcgyDataList?size + 10>
     <#assign maxSize = 23>
-    <#assign diff = maxSize - cjgyDataList?size>
+    <#assign diff = maxSize - 10>
 
 
     <!--    基础工艺 4 3-->
