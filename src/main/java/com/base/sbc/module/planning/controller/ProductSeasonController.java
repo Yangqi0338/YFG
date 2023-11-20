@@ -161,6 +161,12 @@ public class ProductSeasonController extends BaseController {
         return planningCategoryItemService.getAllDesigner(userCompany);
     }
 
+    @ApiOperation(value = "产品季总览-获取坑位数据所有工艺员")
+    @GetMapping("/getPatternTechnician")
+    public List<SampleUserVo> getPatternTechnician(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return planningCategoryItemService.getPatternTechnician(userCompany);
+    }
+
 
     @ApiOperation(value = "获取产品季品类树")
     @GetMapping("/getProductCategoryTree")

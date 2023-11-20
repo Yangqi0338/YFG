@@ -77,6 +77,9 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @ApiModelProperty(value = "打样工艺员")
     private String patternTechnicianName;
 
+    @ApiModelProperty(value = "打样工艺员id")
+    private String patternTechnician;
+
     /*
      * 0 启用
      * 样衣没中断
