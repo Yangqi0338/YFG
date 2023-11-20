@@ -657,6 +657,8 @@
         p.prm_send_status,
         p.grading_name,
         p.grading_date,
+        p.pattern_designer_name,
+        p.receive_sample_date,
         s.*,
         p.cutter_name AS cutterName,
         p.stitcher AS stitcher
