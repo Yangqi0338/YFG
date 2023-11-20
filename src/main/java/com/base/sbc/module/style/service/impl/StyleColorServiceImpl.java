@@ -183,14 +183,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "tsc.color_specification", queryDto.getColorSpecification());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getStyleNo()), "tsc.style_no", queryDto.getStyleNo());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesignNo()), "ts.design_no", queryDto.getDesignNo());
+        if(StringUtils.isNotBlank(queryDto.getStyleNo())){
+            queryWrapper.likeList("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
+        }
+        if(StringUtils.isNotBlank(queryDto.getDesignNo())){
+            queryWrapper.likeList("tsc.design_no",StringUtils.convertList(queryDto.getDesignNo()));
+        }
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorName()), "tsc.color_name", queryDto.getColorName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorCode()), "tsc.color_code", queryDto.getColorCode());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getMeetFlag()), "tsc.meet_flag", queryDto.getMeetFlag());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategoryName()), "ts.prod_category_name", queryDto.getProdCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory()), "ts.prod_category", queryDto.getProdCategory());
-
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "tsc.subdivide", queryDto.getSubdivide());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getCategoryName()), "ts.prod_category_name", queryDto.getCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTaskLevelName()), "ts.task_level_name", queryDto.getTaskLevelName());

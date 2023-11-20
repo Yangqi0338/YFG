@@ -97,4 +97,25 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         });
         return this;
     }
+
+    /**
+     * 模糊搜索一个字段为集合
+     * @param columns
+     * @param val
+     * @return
+     */
+    public QueryWrapper<T> likeList(String columns, List<Object> val) {
+        if (CollUtil.isEmpty(val)) {
+            return this;
+        }
+        this.and(wrapper -> {
+            wrapper.and(i -> {
+                for (int j = 0; j < val.size(); j++) {
+                    i.like(columns, val.get(j)).or(j < val.size() - 1);
+                }
+            });
+        });
+        return this;
+    }
+
 }
