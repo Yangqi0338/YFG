@@ -7,6 +7,7 @@
 package com.base.sbc.module.sample.dto;
 
 import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
+import com.base.sbc.module.sample.entity.FabricIngredientsSpecification;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,6 +15,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：新增修改调样-辅料信息 dto类
@@ -74,9 +76,9 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     /** 厂家 */
     @ApiModelProperty(value = "厂家"  )
     private String manufacturer;
-    /** 大货含税价 */
+/*    *//** 大货含税价 *//*
     @ApiModelProperty(value = "大货含税价"  )
-    private BigDecimal containPrice;
+    private BigDecimal containPrice;*/
     /** 厂家编号 */
     @ApiModelProperty(value = "厂家编号"  )
     private String manufacturerNumber;
@@ -86,12 +88,12 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
     /** 起订量 */
     @ApiModelProperty(value = "起订量"  )
     private Integer orderedQuantity;
-    /** 规格 */
+/*    *//** 规格 *//*
     @ApiModelProperty(value = "规格"  )
     private String specification;
-    /** 数量 */
+    *//** 数量 *//*
     @ApiModelProperty(value = "数量"  )
-    private Integer quantity;
+    private Integer quantity;*/
     /** 规格编码 */
     @ApiModelProperty(value = "规格编码"  )
     private String specificationCode;
@@ -139,4 +141,8 @@ public class AddRevampFabricIngredientsInfoDto  extends FabricIngredientsInfo {
      */
     @ApiModelProperty(value = "完成状态"  )
     private String completionStatus;
+
+
+    private List<FabricIngredientsSpecification> ingredientsSpecificationList;
+
 }
