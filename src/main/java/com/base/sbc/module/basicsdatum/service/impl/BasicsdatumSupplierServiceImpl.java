@@ -81,8 +81,8 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
     @Resource
     private RedisUtils redisUtils;
 
-    @Resource
-    private BasicsdatumSupplierServiceAsync basicsdatumSupplierServiceAsync;
+    // @Resource
+    // private BasicsdatumSupplierServiceAsync basicsdatumSupplierServiceAsync;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -188,8 +188,8 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
                 }
 
             }
-        List<BasicsdatumSupplier> basicsdatumSupplierList = BeanUtil.copyToList(list, BasicsdatumSupplier.class);
-        basicsdatumSupplierServiceAsync.asyncSaveOrUpdate(basicsdatumSupplierList);
+        // List<BasicsdatumSupplier> basicsdatumSupplierList = BeanUtil.copyToList(list, BasicsdatumSupplier.class);
+        // basicsdatumSupplierServiceAsync.asyncSaveOrUpdate(basicsdatumSupplierList);
         return true;
     }
 
