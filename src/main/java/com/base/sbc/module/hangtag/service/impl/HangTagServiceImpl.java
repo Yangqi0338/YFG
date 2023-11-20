@@ -7,12 +7,7 @@
 package com.base.sbc.module.hangtag.service.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
@@ -20,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.base.sbc.module.smp.SmpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -360,7 +354,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTag.setStatus("3");
 			this.updateById(hangTag);
 		}
-		return id;
+		try {
+			//下发成分
+			smpService.sendTageComposition(Collections.singletonList(id));
+		}catch (Exception ignored){
+		}
+        return id;
 	}
 
 	@Override

@@ -31,6 +31,8 @@ import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
+import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -136,6 +138,7 @@ public class SmpService {
     private final StyleMainAccessoriesService styleMainAccessoriesService;
 
     private final  BasicsdatumSupplierService basicsdatumSupplierService;
+    private final HangTagServiceImpl hangTagService;
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -1192,6 +1195,25 @@ public class SmpService {
             preProductionSampleTaskService.updateById(preProductionSampleTask);
         }
 
+        return i;
+    }
+
+    //下发吊牌成分
+    public int sendTageComposition(List<String> ids){
+        int i =0;
+        List<HangTag> hangTags = hangTagService.listByIds(ids);
+        for (HangTag hangTag : hangTags) {
+            TagCompositionDto tagCompositionDto = new TagCompositionDto();
+            tagCompositionDto.setComposition(hangTag.getIngredient());
+            String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/sendTageComposition",jsonString);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "下发吊牌成分");
+
+            if (aBoolean) {
+                i++;
+            }
+
+        }
         return i;
     }
 }
