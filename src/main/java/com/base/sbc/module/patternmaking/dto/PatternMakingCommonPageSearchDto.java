@@ -71,21 +71,22 @@ public class PatternMakingCommonPageSearchDto extends Page {
 
     @ApiModelProperty(value = "创建指令时间")
     private String pmCreateDate;
-
     @ApiModelProperty(value = "紧急程度")
     private String urgency;
-
 
     @ApiModelProperty(value = "打样工艺员")
     private String patternTechnicianName;
 
+    @ApiModelProperty(value = "打样工艺员id")
+    private String patternTechnician;
+
     /*
-    * 0 启用
-    * 样衣没中断
-    * 打板没中断
-    * 1样衣中断
-    * 2打板中断
-    * */
+     * 0 启用
+     * 样衣没中断
+     * 打板没中断
+     * 1样衣中断
+     * 2打板中断
+     * */
     @ApiModelProperty(value = "状态")
     private String  pmStatus;
 
@@ -93,7 +94,6 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String prmSendStatus;
 
     private String breakOffPattern;
-
     @ApiModelProperty(value = "图片标记")
     private String imgFlag;
 
