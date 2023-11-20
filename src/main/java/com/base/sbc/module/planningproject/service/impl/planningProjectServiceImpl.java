@@ -150,7 +150,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
             if (!list.isEmpty()) {
                 List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
-                styleColorQueryWrapper.notIn("style_no", bulkStyleNoList);
+                styleColorQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
             }
             List<StyleColor> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper);
             // 查询款式设计所有的维度信息
