@@ -40,8 +40,12 @@ public class StyleColorsDto extends Page {
     @ApiModelProperty(value = "波段")
     private String bandName;
 
-    @ApiModelProperty(value = ""  )
+    @ApiModelProperty(value = "波段id"  )
     private String bandCode;
 
-    private String defDimensionLabelId;
+    @ApiModelProperty(value = "维度id"  )
+    private String dimensionLabelId;
+
+    @ApiModelProperty(value = "维度val"  )
+    private String dimensionLabelVal;
 }
