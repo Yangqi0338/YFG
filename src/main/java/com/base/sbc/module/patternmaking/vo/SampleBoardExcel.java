@@ -56,7 +56,7 @@ public class SampleBoardExcel {
 
     @ApiModelProperty(value = "打版类型")
     @Excel(name = "打版类型")
-    private String sampleType;
+    private String sampleTypeName;
 
     @ApiModelProperty(value = "打版难度")
     @Excel(name = "打版难度")
