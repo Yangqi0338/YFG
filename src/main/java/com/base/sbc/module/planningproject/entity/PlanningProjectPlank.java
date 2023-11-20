@@ -27,6 +27,12 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
      */
     private String bulkStyleNo;
 
+
+    /**
+     * 样衣id
+     */
+    private String styleColorId;
+
     /**
      * 图片
      */
@@ -57,16 +63,5 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
      * 匹配款式状态:(0:未匹配,1:手动匹配,2:自动匹配)
      */
     private String matchingStyleStatus;
-
-
-    /**
-     * 维度标签
-     */
-    private String dimensionLabelIds;
-
-    /**
-     * 默认维度标签
-     */
-    private String defDimensionLabelId;
 
 }

@@ -54,6 +54,7 @@ public class PlanningProjectController extends BaseController {
 
     @ApiOperation(value = "新增、修改企划看板计划")
     @PostMapping("/save")
+    @DuplicationCheck
     public ApiResult save(@Valid @RequestBody PlanningProjectSaveDTO planningProjectSaveDTO) {
         return insertSuccess(planningProjectService.save(planningProjectSaveDTO));
     }

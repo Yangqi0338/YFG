@@ -48,6 +48,9 @@ public class PlanningProjectDimension {
     /** 第一维度名称 */
     @ApiModelProperty(value = "第一维度名称"  )
     private String dimensionName;
+    /** 第一维度名称 */
+    @ApiModelProperty(value = "第一维度编码"  )
+    private String dimensionCode;
     /** 维度值 */
     @ApiModelProperty(value = "维度值"  )
     private String dimensionValue;

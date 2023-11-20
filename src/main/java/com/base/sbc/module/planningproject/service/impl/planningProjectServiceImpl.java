@@ -7,9 +7,13 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
@@ -40,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.module.formtype.utils.FormTypeCodes.DIMENSION_LABELS;
+
 @Service
 @RequiredArgsConstructor
 public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectMapper, PlanningProject> implements PlanningProjectService {
@@ -51,6 +57,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final StyleColorService styleColorService;
     private final FieldValService fieldValService;
     private final StylePricingMapper stylePricingMapper;
+    private final FieldManagementService fieldManagementService;
 
     /**
      * 分页查询企划看板规划信息
@@ -90,11 +97,12 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     public boolean save(PlanningProjectSaveDTO planningProjectSaveDTO) {
         //判断新增或者修改的时候是否存在相同的季度和渠道
         QueryWrapper<PlanningProject> queryWrapper =new QueryWrapper<>();
-        queryWrapper.eq("season_id",planningProjectSaveDTO.getPlanningProjectName());
+        queryWrapper.eq("season_id",planningProjectSaveDTO.getSeasonId());
         queryWrapper.eq("planning_channel_code",planningProjectSaveDTO.getPlanningChannelCode());
         queryWrapper.ne(StringUtils.isNotBlank(planningProjectSaveDTO.getId()),"id",planningProjectSaveDTO.getId());
-        List<PlanningProject> planningProjects = this.list(queryWrapper);
-        if (!planningProjects.isEmpty()){
+
+        long count = this.count(queryWrapper);
+        if (count>0){
             throw new RuntimeException("该季度已经存在该渠道的企划规划");
         }
 
@@ -133,28 +141,25 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 }
                 //匹配规则 产品季  大类 品类 (中类有就匹配)  波段 第一维度  这5匹配
 
-                BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
-                styleQueryWrapper.eq("ts.planning_season_id",planningProjectSaveDTO.getSeasonId());
-                styleQueryWrapper.eq("ts.prod_category1st",planningProjectDimension.getProdCategory1stCode());
-                styleQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()),"ts.prod_category2nd",planningProjectDimension.getProdCategory2ndCode());
-                styleQueryWrapper.eq("ts.prod_category",planningProjectDimension.getProdCategoryCode());
-                styleQueryWrapper.eq("ts.band_code",planningProjectDimension.getBandCode());
-
-                styleQueryWrapper.in("tsc.id",styleQueryWrapper);
-
+                BaseQueryWrapper<StyleColor> styleColorQueryWrapper =new BaseQueryWrapper<>();
+                styleColorQueryWrapper.eq("ts.planning_season_id",planningProjectSaveDTO.getSeasonId());
+                styleColorQueryWrapper.eq("ts.prod_category1st",planningProjectDimension.getProdCategory1stCode());
+                styleColorQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()),"ts.prod_category2nd",planningProjectDimension.getProdCategory2ndCode());
+                styleColorQueryWrapper.eq("ts.prod_category",planningProjectDimension.getProdCategoryCode());
+                styleColorQueryWrapper.eq("ts.band_code",planningProjectDimension.getBandCode());
 
                 //查询坑位所有已经匹配的大货款号
                 QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
                 queryWrapper1.select("bulk_style_no");
+                queryWrapper1.isNotNull("bulk_style_no");
+                queryWrapper1.last("and bulk_style_no != ''");
                 List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
                 if (!list.isEmpty()){
                     List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
-                    styleQueryWrapper.notIn("id",bulkStyleNoList);
+                    styleColorQueryWrapper.notIn("style_no",bulkStyleNoList);
                 }
-                List<StyleColor> styleColorList = stylePricingMapper.getByStyleList(styleQueryWrapper);
-                List<String> styleIds = styleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
+                List<StyleColor> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper);
                 //查询款式设计所有的维度信息
-                List<FieldVal> fieldVals = fieldValService.list(new QueryWrapper<FieldVal>().in("foreign_id", styleIds).eq("data_group",FieldValDataGroupConstant.STYLE_COLOR));
 
                 Iterator<StyleColor> iterator = styleColorList.iterator();
 
@@ -163,36 +168,24 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
 
                 //匹配
                 while (iterator.hasNext()){
-                    List<FieldVal> fieldValList = new ArrayList<>();
                     StyleColor next = iterator.next();
-                    boolean b1 = false;
-                    for (FieldVal fieldVal : fieldVals) {
-                        if (fieldVal.getForeignId().equals(next.getId())){
-                            //将配色下的所有维度信息放入集合
-                            fieldValList.add(fieldVal);
-                            if (fieldVal.getFieldName().equals(planningProjectDimension.getDimensionName()) && fieldVal.getVal().equals(planningProjectDimension.getDimensionValue())){
-                                //说明匹配上了
-                                b1 = true;
-                                PlanningProjectPlank planningProjectPlank =new PlanningProjectPlank();
-                                planningProjectPlank.setBulkStyleNo(next.getStyleNo());
-                                planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
-                                planningProjectPlank.setMatchingStyleStatus("2");
-                                planningProjectPlank.setPic(next.getStyleColorPic());
-                                planningProjectPlank.setBandCode(next.getBandCode());
-                                planningProjectPlank.setBandName(next.getBandName());
-                                planningProjectPlank.setDefDimensionLabelId(planningProjectDimension.getDimensionId());
-                                BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", next.getColorCode()));
-                                if (colourLibrary != null) {
-                                    planningProjectPlank.setColorSystem(colourLibrary.getColorType());
-                                }
-                                planningProjectPlanks.add(planningProjectPlank);
+                    List<FieldManagementVo> fieldManagementVos =  styleColorService.getStyleColorDynamicDataById(next.getId());
+                    for (FieldManagementVo fieldManagementVo :fieldManagementVos) {
+                        if (fieldManagementVo.getFieldName().equals(planningProjectDimension.getDimensionCode()) && fieldManagementVo.getVal().equals(planningProjectDimension.getDimensionValue())) {
+                            // 说明匹配上了
+                            PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
+                            planningProjectPlank.setBulkStyleNo(next.getStyleNo());
+                            planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
+                            planningProjectPlank.setMatchingStyleStatus("2");
+                            planningProjectPlank.setPic(next.getStyleColorPic());
+                            planningProjectPlank.setBandCode(next.getBandCode());
+                            planningProjectPlank.setBandName(next.getBandName());
+                            planningProjectPlank.setStyleColorId(next.getId());
+                            BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", next.getColorCode()));
+                            if (colourLibrary != null) {
+                                planningProjectPlank.setColorSystem(colourLibrary.getColorType());
                             }
-                        }
-                    }
-                    //匹配上了移除列表
-                    if (b1){
-                        for (PlanningProjectPlank projectPlank : planningProjectPlanks) {
-                            projectPlank.setDimensionLabelIds(fieldValList.stream().map(FieldVal::getId).collect(Collectors.joining(",")));
+                            planningProjectPlanks.add(planningProjectPlank);
                         }
                     }
                 }
@@ -205,7 +198,6 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                         planningProjectPlank.setMatchingStyleStatus("0");
                         planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
                         planningProjectPlank.setBandName(planningProjectDimension.getBandName());
-                        planningProjectPlank.setDefDimensionLabelId(planningProjectDimension.getDimensionId());
                         planningProjectPlanks.add(planningProjectPlank);
                     }
                 }
@@ -213,6 +205,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 planningProjectPlankService.saveBatch(planningProjectPlanks);
             }
         }else {
+            //这是修改
 
         }
 
