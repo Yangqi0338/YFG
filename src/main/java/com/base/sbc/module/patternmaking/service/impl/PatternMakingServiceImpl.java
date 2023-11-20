@@ -423,6 +423,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "p.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "s.designer_id", StrUtil.split(dto.getDesignerIds(), CharUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
+        qw.eq( "p.disable_flag", BaseGlobal.NO);
         if (StrUtil.isNotBlank(dto.getDesignSendDate())) {
             String[] split = dto.getDesignSendDate().split(",");
             qw.ge("p.design_send_date", split[0]);
@@ -619,6 +620,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSuspend()), "p.suspend", dto.getSuspend());
         qw.eq(StrUtil.isNotBlank(dto.getBreakOffSample()), "p.break_off_sample", dto.getBreakOffSample());
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
+        qw.in("p.disable_flag", BaseGlobal.NO);
         if (StrUtil.isNotBlank(dto.getIsBlackList())) {
             if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
                 // 只查询黑单
@@ -912,7 +914,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
         qw.eq("p.disable_flag", BaseGlobal.NO);
-
         if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
             qw.eq( "p.break_off_sample", BaseGlobal.NO);
             qw.eq( "p.break_off_pattern", BaseGlobal.NO);
@@ -940,6 +941,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             s1[1] = s1[1] + " 23:59:59";
             qw.between("p.receive_sample_date",s1);
         }
+
         qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
             String[] split = dto.getDesignerIds().split(",");
