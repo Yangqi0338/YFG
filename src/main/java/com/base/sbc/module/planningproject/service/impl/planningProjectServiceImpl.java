@@ -135,7 +135,6 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 continue;
             }
             // 匹配规则 产品季  大类 品类 (中类有就匹配)  波段 第一维度  这5匹配
-
             BaseQueryWrapper<StyleColor> styleColorQueryWrapper = new BaseQueryWrapper<>();
             styleColorQueryWrapper.eq("ts.planning_season_id", planningProjectSaveDTO.getSeasonId());
             styleColorQueryWrapper.eq("ts.prod_category1st", planningProjectDimension.getProdCategory1stCode());
@@ -156,27 +155,24 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             List<StyleColor> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper);
             // 查询款式设计所有的维度信息
 
-            Iterator<StyleColor> iterator = styleColorList.iterator();
-
             // 匹配到的坑位信息
             List<PlanningProjectPlank> planningProjectPlanks = new ArrayList<>();
 
             // 匹配
-            while (iterator.hasNext()) {
-                StyleColor next = iterator.next();
-                List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(next.getId());
+            for (StyleColor styleColor : styleColorList) {
+                List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
                 for (FieldManagementVo fieldManagementVo : fieldManagementVos) {
                     if (fieldManagementVo.getFieldName().equals(planningProjectDimension.getDimensionCode()) && fieldManagementVo.getVal().equals(planningProjectDimension.getDimensionValue())) {
                         // 说明匹配上了
                         PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
-                        planningProjectPlank.setBulkStyleNo(next.getStyleNo());
+                        planningProjectPlank.setBulkStyleNo(styleColor.getStyleNo());
                         planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
                         planningProjectPlank.setMatchingStyleStatus("2");
-                        planningProjectPlank.setPic(next.getStyleColorPic());
-                        planningProjectPlank.setBandCode(next.getBandCode());
-                        planningProjectPlank.setBandName(next.getBandName());
-                        planningProjectPlank.setStyleColorId(next.getId());
-                        BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", next.getColorCode()));
+                        planningProjectPlank.setPic(styleColor.getStyleColorPic());
+                        planningProjectPlank.setBandCode(styleColor.getBandCode());
+                        planningProjectPlank.setBandName(styleColor.getBandName());
+                        planningProjectPlank.setStyleColorId(styleColor.getId());
+                        BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColor.getColorCode()));
                         if (colourLibrary != null) {
                             planningProjectPlank.setColorSystem(colourLibrary.getColorType());
                         }
@@ -199,6 +195,6 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
 
             planningProjectPlankService.saveBatch(planningProjectPlanks);
         }
-        return false;
+        return true;
     }
 }
