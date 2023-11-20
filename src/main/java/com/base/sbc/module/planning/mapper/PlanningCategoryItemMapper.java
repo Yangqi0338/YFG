@@ -43,6 +43,10 @@ public interface PlanningCategoryItemMapper extends BaseMapper<PlanningCategoryI
 
     List<SampleUserVo> getAllDesigner(@Param("companyCode") String userCompany);
 
+
+    List<SampleUserVo> getPatternTechnician(@Param("companyCode") String userCompany);
+
+
     List<DimensionTotalVo> dimensionTotal(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<PlanningSummaryDetailVo> planningSummaryDetail(@Param(Constants.WRAPPER) QueryWrapper qw);

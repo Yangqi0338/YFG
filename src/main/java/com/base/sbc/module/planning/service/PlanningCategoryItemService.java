@@ -149,6 +149,14 @@ public interface PlanningCategoryItemService extends BaseService<PlanningCategor
     List<SampleUserVo> getAllDesigner(String userCompany);
 
     /**
+     * 获取坑位数据所有工艺员
+     * @param userCompany
+     * @return
+     */
+    List<SampleUserVo> getPatternTechnician(String userCompany);
+
+
+    /**
      * 维度统计
      *
      * @param qw@return

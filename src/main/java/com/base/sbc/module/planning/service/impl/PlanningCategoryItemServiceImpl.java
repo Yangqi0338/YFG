@@ -818,6 +818,17 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         return list;
     }
 
+    /**
+     * 获取坑位数据所有工艺员
+     *
+     * @param userCompany
+     * @return
+     */
+    @Override
+    public List<SampleUserVo> getPatternTechnician(String userCompany) {
+        return  getBaseMapper().getPatternTechnician(userCompany);
+    }
+
     @Override
     public List<DimensionTotalVo> dimensionTotal(QueryWrapper qw) {
         return getBaseMapper().dimensionTotal(qw);
