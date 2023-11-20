@@ -43,6 +43,12 @@ public class PlanningProject extends BaseDataEntity<String> {
     private String planningChannelCode;
 
     /**
+     * 是否已匹配
+     */
+    @ApiModelProperty(value = "是否已匹配:0否,1是")
+    private String isMatch;
+
+    /**
      * 1停用、0启用
      */
     @ApiModelProperty(value = "1停用、0启用")
