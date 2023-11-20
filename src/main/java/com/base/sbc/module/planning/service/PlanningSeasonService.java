@@ -102,7 +102,7 @@ public interface PlanningSeasonService extends BaseService<PlanningSeason> {
      */
     PlanningSeasonVo getByName(String name);
 
-    List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany, String businessType);
+    List<SelectOptionsVo> getPlanningSeasonOptions(String userCompany, String businessType,ProductCategoryTreeVo vo);
 
     /**
      * 企划汇总
