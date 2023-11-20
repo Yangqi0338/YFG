@@ -93,8 +93,8 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryId()),"tfii.category_id",queryFabricIngredientsInfoDto.getCategoryId());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryName()),"tfii.category_name",queryFabricIngredientsInfoDto.getCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevTypeName()),"tfii.dev_type_name",queryFabricIngredientsInfoDto.getDevTypeName());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturerNumber()),"tfii.manufacturer",queryFabricIngredientsInfoDto.getManufacturerNumber());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"tfii.manufacturer_number",queryFabricIngredientsInfoDto.getManufacturer());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturerNumber()),"tfii.manufacturer_number",queryFabricIngredientsInfoDto.getManufacturerNumber());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"tfii.manufacturer",queryFabricIngredientsInfoDto.getManufacturer());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getAtactiformStylist()),"tfii.atactiform_stylist",queryFabricIngredientsInfoDto.getAtactiformStylist());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCreateName()),"tfii.create_name",queryFabricIngredientsInfoDto.getCreateName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCompletionStatus()),"tfii.completion_status",queryFabricIngredientsInfoDto.getCompletionStatus());
