@@ -11,9 +11,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -298,6 +300,7 @@ public class StyleColor extends BaseDataEntity<String> {
      * 是否是迁移历史数据 0否 1是
      */
     private String historicalData;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

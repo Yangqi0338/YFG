@@ -41,7 +41,9 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
@@ -59,6 +61,11 @@ import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
+import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.DataUpdateScmService;
@@ -133,6 +140,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private StyleColorService styleColorService;
+
+    private final FieldManagementService fieldManagementService;
+
     @Lazy
     @Resource
     private SmpService smpService;
@@ -1571,6 +1584,42 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         } finally {
             executor.shutdown();
         }
+    }
+
+    /**
+     * 复制配色
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public  PageInfo<StyleColor> getByStyleList(StyleColorsDto dto) {
+        FieldManagement fieldManagement = fieldManagementService.getById(dto.getDimensionLabelId());
+        if (fieldManagement == null){
+            throw  new OtherException("维度信息为空");
+        }
+        QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
+        queryWrapper.eq("field_name",fieldManagement.getFieldName());
+        queryWrapper.eq("val",dto.getDimensionLabelVal());
+        queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
+        queryWrapper.select("foreign_id");
+        List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
+        List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
+
+        List<String> styleColorIds1 = styleColorService.list(new BaseQueryWrapper<StyleColor>().eq("band_code", dto.getBandCode()).select("id")).stream().map(StyleColor::getId).collect(Collectors.toList());
+        styleColorIds1.addAll(styleColorIds);
+
+        BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
+        styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
+        styleQueryWrapper.eq("ts.prod_category1st",dto.getProdCategory1st());
+        styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
+        styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
+        styleQueryWrapper.in("tsc.id",styleColorIds1);
+        PageHelper.startPage(dto);
+        List<StyleColor> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper);
+
+
+        return new PageInfo<>(styleList);
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/
