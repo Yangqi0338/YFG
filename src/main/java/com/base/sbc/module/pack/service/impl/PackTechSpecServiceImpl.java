@@ -180,6 +180,9 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
         PackUtils.commonQw(countQw, dto);
         countQw.eq(StrUtil.isNotBlank(dto.getSpecType()), "spec_type", dto.getSpecType());
         long count = count(countQw);
+        if(count + list.size() > 10 && "裁剪工艺".equals(dto.getSpecType())) {
+            throw new OtherException("裁剪工艺最多只能定义10条数据！");
+        }
         List<PackTechSpec> packTechSpecs = BeanUtil.copyToList(list, PackTechSpec.class);
         for (PackTechSpec packTechSpec : packTechSpecs) {
             packTechSpec.setForeignId(dto.getForeignId());
