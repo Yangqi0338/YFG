@@ -105,4 +105,10 @@ public class PatternMakingCommonPageSearchDto extends Page {
 
     @ApiModelProperty(value = "设计收到时间")
     private String receiveSampleDate;
+
+    @ApiModelProperty(value = "设计款号")
+    private String designNo;
+
+    @ApiModelProperty(value = "大货款号")
+    private String styleNo;
 }

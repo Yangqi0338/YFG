@@ -900,6 +900,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
         qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
 
         if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
             qw.eq( "p.break_off_sample", BaseGlobal.NO);

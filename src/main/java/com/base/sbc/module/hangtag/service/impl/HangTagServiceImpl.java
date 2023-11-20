@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.smp.SmpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,6 +157,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				.getDataPermissionsSql(DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
+		}
+		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
+			hangTagDTO.setDesignNos(StringUtils.split(hangTagDTO.getDesignNo(),","));
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
 		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
