@@ -861,6 +861,7 @@
             <tbody>
             <#if cjgyDataList??>
                 <#list cjgyDataList as item>
+                    <#if item_index lt 10>
                         <tr>
                             <td class="item_td">
                                 ${item.item}
@@ -869,6 +870,7 @@
                                 ${item.content}
                             </td>
                         </tr>
+                    </#if>
                 </#list>
             </#if>
             </tbody>
