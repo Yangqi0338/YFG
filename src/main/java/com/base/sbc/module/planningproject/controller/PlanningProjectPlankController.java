@@ -76,13 +76,13 @@ public class PlanningProjectPlankController extends BaseController {
         PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(unMatchDto.getPlankId());
         PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectPlank.getPlanningProjectDimensionId());
 
-        planningProjectPlank.setBulkStyleNo(null);
-        planningProjectPlank.setStyleColorId(null);
-        planningProjectPlank.setPic(null);
+        planningProjectPlank.setBulkStyleNo("");
+        planningProjectPlank.setStyleColorId("");
+        planningProjectPlank.setPic("");
         planningProjectPlank.setBandName(planningProjectDimension.getBandName());
         planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
         planningProjectPlank.setMatchingStyleStatus("0");
-        planningProjectPlank.setColorSystem(null);
+        planningProjectPlank.setColorSystem("");
         planningProjectPlankService.updateById(planningProjectPlank);
         return updateSuccess("取消匹配成功");
     }
