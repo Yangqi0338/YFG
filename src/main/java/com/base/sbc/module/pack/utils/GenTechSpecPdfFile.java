@@ -17,27 +17,35 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.generator.utils.UtilFreemarker;
 import com.base.sbc.module.pack.dto.PackTechAttachmentVo;
+import com.base.sbc.module.pack.entity.PackTechSpec;
 import com.base.sbc.module.pack.vo.PackSizeVo;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.html2pdf.attach.impl.layout.HtmlPageBreak;
+import com.itextpdf.html2pdf.attach.impl.layout.HtmlPageBreakType;
 import com.itextpdf.html2pdf.resolver.font.DefaultFontProvider;
+import com.itextpdf.io.font.FontConstants;
+import com.itextpdf.io.font.FontProgram;
+import com.itextpdf.io.font.FontProgramFactory;
 import com.itextpdf.kernel.events.Event;
 import com.itextpdf.kernel.events.IEventHandler;
 import com.itextpdf.kernel.events.PdfDocumentEvent;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfPage;
-import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.font.FontProvider;
+import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -186,8 +194,10 @@ public class GenTechSpecPdfFile {
     private String defaultSize;
     @ApiModelProperty(value = "生产类型")
     private String devtType;
-
+    @ApiModelProperty(value = "是否是fob模板")
     private boolean fob;
+    @ApiModelProperty(value = "基础工艺和裁剪工艺是否强制同页")
+    private boolean ctBasicPage;
 
     public boolean isFob() {
         return StrUtil.equals(devtType, "FOB");
@@ -223,7 +233,7 @@ public class GenTechSpecPdfFile {
         config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
         Template template;
-        if(this.fob) {
+        if (this.fob) {
             template = config.getTemplate("ftl/process.html.fob.ftl");
         } else {
             template = config.getTemplate("ftl/process.html.ftl");
@@ -370,9 +380,26 @@ public class GenTechSpecPdfFile {
         }).orElse(CollUtil.newArrayList());
 
         dataModel.put("jcgyImgList", jcgyImgList);
-        dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 72 / jcgyImgList.size() : 72);
+        int cjgySize = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()).size();
+        List<PackTechSpecVo> packTechSpecVos = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList());
+        int totalRows = 0;
+        for (int i = 0; i < packTechSpecVos.size(); i++) {
+            PackTechSpec packTechSpec = packTechSpecVos.get(i);
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+        }
+        dataModel.put("cjgyRows", totalRows);
+        if(totalRows >= 10) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
+        } else if (totalRows >= 7) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 220 / jcgyImgList.size() : 220);
+        } else if (totalRows >= 4) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
+        } else {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 260 / jcgyImgList.size() : 260);
+        }
         dataModel.put("jcgyRowsPan", jcgyDataList.size());
-
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(null));
 
         // 裁剪工艺是否显示
@@ -398,7 +425,6 @@ public class GenTechSpecPdfFile {
     }
 
 
-
     public ByteArrayOutputStream gen() {
         try {
             String output = toHtml();
@@ -411,6 +437,7 @@ public class GenTechSpecPdfFile {
             List<IElement> elements = HtmlConverter.convertToElements(output, props);
             PdfWriter writer1 = new PdfWriter(pdfOutputStream);
             IElement pageStart = CollUtil.getFirst(elements);
+            PdfFont font = PdfFontFactory.createFont(FontConstants.COURIER, "UTF-8");
             PdfDocument pdfDocument = new PdfDocument(writer1);
             Document document = new Document(pdfDocument, PageSize.A4.rotate(), false);
             StartPdfPageEventHandler event = new StartPdfPageEventHandler(pdfDocument, document, pageStart);
@@ -423,8 +450,21 @@ public class GenTechSpecPdfFile {
                 IElement element = elements.get(i);
                 // 分页符
                 if (element instanceof HtmlPageBreak) {
-                    document.add((HtmlPageBreak) element);
+                    HtmlPageBreak htmlPageBreak = (HtmlPageBreak) element;
+                    htmlPageBreak.setFont(font);
+                    document.add(htmlPageBreak);
                     //普通块级元素
+                } else if (element instanceof Table) {
+                    Table table = (Table) element;
+                    table.setFont(font);
+                    try{
+                        table.setKeepTogether(false);
+                        document.add(table);
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        System.out.println("布局出错！使用兼容性配置");
+                        table.setKeepTogether(true);
+                        document.add(table);
+                    }
                 } else {
                     IBlockElement blockElement = (IBlockElement) element;
                     document.add(blockElement);
@@ -448,6 +488,7 @@ public class GenTechSpecPdfFile {
 
 
     }
+
 
     @Data
     class SizeDataDetail {
