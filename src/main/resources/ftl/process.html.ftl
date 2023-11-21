@@ -174,12 +174,11 @@
     }
 
     .jcgy_img_box img {
-        width: 288px;
+        width: 200px;
         <#--height: ${jcgyImgHeight}px;-->
         /*width: 288px;*/
         /*height: 100%;*/
         /*display: table-cell;*/
-
     }
 
 
@@ -1101,7 +1100,7 @@
                         </div>
                     </td>
                     <#list jcgyDataList as item>
-                        <#if  item_index==0 >
+<#--                        <#if  item_index==0 >-->
                             <td rowspan="${jcgyRowsPan}" style="padding: 0;">
                                 <div class="jcgy_img_box">
                                     <#if jcgyImgList??>
@@ -1111,7 +1110,7 @@
                                     </#if>
                                 </div>
                             </td>
-                        </#if>
+<#--                        </#if>-->
                     </#list>
                 </tr>
             </#if>

@@ -390,15 +390,15 @@ public class GenTechSpecPdfFile {
             totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
         }
         dataModel.put("cjgyRows", totalRows);
-//        if(totalRows >= 10) {
-//            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
-//        } else if (totalRows >= 7) {
-//            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 220 / jcgyImgList.size() : 220);
-//        } else if (totalRows >= 4) {
-//            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
-//        } else {
-//            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 260 / jcgyImgList.size() : 260);
-//        }
+        if(totalRows >= 10) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
+        } else if (totalRows >= 7) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 220 / jcgyImgList.size() : 220);
+        } else if (totalRows >= 4) {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
+        } else {
+            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 260 / jcgyImgList.size() : 260);
+        }
         dataModel.put("jcgyRowsPan", jcgyDataList.size());
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(null));
 
