@@ -1,29 +1,22 @@
+package com.base.sbc.module.planningproject.vo;
 
-package com.base.sbc.module.planningproject.entity;
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModel;
+import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.tablecolumn.entity.TableColumn;
+import com.base.sbc.module.tablecolumn.vo.TableColumnVo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author 卞康
- * @date 2023/11/16 17:32:22
+ * @date 2023/11/20 18:10:14
  * @mail 247967116@qq.com
  */
 @Data
-@TableName("t_planning_project_dimension")
-@ApiModel("企划看板-规划-维度 PlanningProjectDimension")
-public class PlanningProjectDimension {
-    /** 主键id */
-    @ApiModelProperty(value = "主键id"  )
-    @TableId(type = IdType.ASSIGN_ID)
-    private String id;
-    /** 企划看板规划id */
-    @ApiModelProperty(value = "企划看板规划id"  )
-    private String planningProjectId;
+public class PlanningProjectPlankVo extends PlanningProjectPlank {
     /** 大类编码 */
     @ApiModelProperty(value = "大类编码"  )
     private String prodCategory1stCode;
@@ -54,17 +47,14 @@ public class PlanningProjectDimension {
     /** 维度值 */
     @ApiModelProperty(value = "维度值"  )
     private String dimensionValue;
-    /** 波段名称 */
-    @ApiModelProperty(value = "波段名称"  )
-    private String bandName;
-    /** 波段编码 */
-    @ApiModelProperty(value = "波段编码"  )
-    private String bandCode;
-    /** 数量 */
-    @ApiModelProperty(value = "数量"  )
-    private String number;
-    private String dimensionTypeCode;
     /** 是否开启中类(0:未开启,1:开启) */
     @ApiModelProperty(value = "是否开启中类(0:未开启,1:开启)"  )
     private String isProdCategory2nd;
+
+    private List<FieldManagementVo> fieldManagementVos;
+
+    /**
+     * 表头列
+     */
+    private List<TableColumnVo> columnVos;
 }

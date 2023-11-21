@@ -1,8 +1,13 @@
 package com.base.sbc.module.planningproject.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * @author 卞康
@@ -11,4 +16,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface PlanningProjectPlankMapper extends BaseMapper<PlanningProjectPlank>{
+    List<PlanningProjectPlankVo> queryPage(@Param("ew") QueryWrapper<PlanningProjectPlank> queryWrapper);
 }

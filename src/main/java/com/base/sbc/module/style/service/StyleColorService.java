@@ -222,7 +222,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
      * @param dto
      * @return
      */
-    PageInfo<StyleColor> getByStyleList(StyleColorsDto dto);
+    PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto);
 
         /**
          * 款式列表导出

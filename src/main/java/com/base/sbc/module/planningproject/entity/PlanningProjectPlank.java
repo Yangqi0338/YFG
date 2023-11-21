@@ -1,15 +1,12 @@
 package com.base.sbc.module.planningproject.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.module.formtype.entity.FieldVal;
 import lombok.Data;
-
-import java.util.List;
 
 /**
  * 企划看板坑位实体类
+ *
  * @author 卞康
  * @date 2023/11/17 9:43:54
  * @mail 247967116@qq.com
@@ -23,13 +20,18 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
     private String planningProjectId;
 
     /**
+     * 对应企划维度id
+     */
+    private String planningProjectDimensionId;
+
+    /**
      * 大货款号
      */
     private String bulkStyleNo;
 
 
     /**
-     * 样衣id
+     * 配色id
      */
     private String styleColorId;
 

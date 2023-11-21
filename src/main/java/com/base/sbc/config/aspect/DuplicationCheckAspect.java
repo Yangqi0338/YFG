@@ -47,7 +47,10 @@ public class DuplicationCheckAspect {
             }
             return joinPoint.proceed();
         } finally {
-            redisUtils.del(generateKey(joinPoint,duplicationCheck));
+            if (duplicationCheck.time()>3){
+                redisUtils.del(generateKey(joinPoint,duplicationCheck));
+            }
+
         }
     }
 

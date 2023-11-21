@@ -1592,14 +1592,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * @return
      */
     @Override
-    public  PageInfo<StyleColor> getByStyleList(StyleColorsDto dto) {
+    public  PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto) {
         FieldManagement fieldManagement = fieldManagementService.getById(dto.getDimensionLabelId());
         if (fieldManagement == null){
             throw  new OtherException("维度信息为空");
         }
         QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("field_name",fieldManagement.getFieldName());
-        queryWrapper.eq("val",dto.getDimensionLabelVal());
+//        queryWrapper.eq("val",dto.getDimensionLabelVal());
         queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
         queryWrapper.select("foreign_id");
         List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
@@ -1615,7 +1615,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
         styleQueryWrapper.in("tsc.id",styleColorIds1);
         PageHelper.startPage(dto);
-        List<StyleColor> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper);
+        List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper);
 
 
         return new PageInfo<>(styleList);
