@@ -174,8 +174,11 @@
     }
 
     .jcgy_img_box img {
-        height: ${jcgyImgHeight}px;
+        width: 288px;
+        <#--height: ${jcgyImgHeight}px;-->
         /*width: 288px;*/
+        /*height: 100%;*/
+        /*display: table-cell;*/
 
     }
 
@@ -885,9 +888,9 @@
         </table>
     </#if>
 
-    <#assign totalSize = jcgyDataList?size + 10>
-    <#assign maxSize = 23>
-    <#assign diff = maxSize - 10>
+    <#assign totalSize = jcgyDataList?size + cjgyRows>
+    <#assign maxSize = 25>
+    <#assign diff = maxSize - cjgyRows>
 
 
     <!--    基础工艺 4 3-->

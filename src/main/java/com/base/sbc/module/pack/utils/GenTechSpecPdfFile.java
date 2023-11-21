@@ -17,6 +17,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.generator.utils.UtilFreemarker;
 import com.base.sbc.module.pack.dto.PackTechAttachmentVo;
+import com.base.sbc.module.pack.entity.PackTechSpec;
 import com.base.sbc.module.pack.vo.PackSizeVo;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -35,10 +36,9 @@ import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfPage;
-import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.*;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.TextChunk;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
@@ -381,18 +381,25 @@ public class GenTechSpecPdfFile {
 
         dataModel.put("jcgyImgList", jcgyImgList);
         int cjgySize = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()).size();
-        if(cjgySize >= 15) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 120/ jcgyImgList.size() : 120);
-        }else if(cjgySize >= 10) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 172/ jcgyImgList.size() : 172);
-        } else if (cjgySize >= 5) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 200 / jcgyImgList.size() : 200);
-        } else {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 80 / jcgyImgList.size() : 80);
+        List<PackTechSpecVo> packTechSpecVos = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList());
+        int totalRows = 0;
+        for (int i = 0; i < packTechSpecVos.size(); i++) {
+            PackTechSpec packTechSpec = packTechSpecVos.get(i);
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
         }
-
+        dataModel.put("cjgyRows", totalRows);
+//        if(totalRows >= 10) {
+//            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
+//        } else if (totalRows >= 7) {
+//            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 220 / jcgyImgList.size() : 220);
+//        } else if (totalRows >= 4) {
+//            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
+//        } else {
+//            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 260 / jcgyImgList.size() : 260);
+//        }
         dataModel.put("jcgyRowsPan", jcgyDataList.size());
-
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(null));
 
         // 裁剪工艺是否显示
