@@ -43,6 +43,12 @@ public class ProductCategoryTreeVo {
      */
     @ApiModelProperty(value = "品牌")
     private String brand;
+
+    /**
+     * 年
+     */
+    @ApiModelProperty(value = "年")
+    private String year;
     /**
      * 渠道名称
      */
