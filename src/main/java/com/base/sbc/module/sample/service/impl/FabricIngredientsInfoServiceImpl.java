@@ -241,6 +241,8 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
 
         FabricIngredientsInfo fabricIngredientsInfo = baseMapper.selectById(id);
         fabricIngredientsInfo.setId(null);
+        fabricIngredientsInfo.setCode(null);
+        fabricIngredientsInfo.insertInit();
         /*先保存辅料单*/
         baseMapper.insert(fabricIngredientsInfo);
         /*辅料规格信息*/
