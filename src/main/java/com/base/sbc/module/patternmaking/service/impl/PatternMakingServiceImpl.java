@@ -1359,6 +1359,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public void checkBreak(PatternMaking pm) {
+        if(StrUtil.equals(pm.getDisableFlag(),BaseGlobal.YES)){
+            throw new OtherException("打版任务已停止");
+        }
         if (StrUtil.equals(pm.getNode(), "打版任务") && StrUtil.equals(pm.getBreakOffPattern(), BaseGlobal.YES)) {
             throw new OtherException("打版任务已中断");
         }
