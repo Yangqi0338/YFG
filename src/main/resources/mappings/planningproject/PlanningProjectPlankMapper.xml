@@ -2,9 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.planningproject.mapper.PlanningProjectPlankMapper">
     <select id="queryPage" resultType="com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo">
-        select tpp.*,tppd.*
+        select
+        tpp.*,
+        tppd.prod_category1st_code,
+        tppd.prod_category1st_name,
+        tppd.prod_category2nd_code,
+        tppd.prod_category2nd_name,
+        tppd.prod_category_name,
+        tppd.prod_category_code,
+        tppd.dimension_id,
+        tppd.dimension_name,
+        tppd.dimension_code,
+        tppd.dimension_value
         from t_planning_project_plank as tpp
-                 left join t_planning_project_dimension as tppd on tppd.planning_project_id = tpp.planning_project_id
+        left join t_planning_project_dimension as tppd on tppd.id = tpp.planning_project_dimension_id
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

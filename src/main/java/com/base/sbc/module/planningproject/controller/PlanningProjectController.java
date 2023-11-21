@@ -4,9 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
@@ -31,10 +28,7 @@ import java.util.Arrays;
 @Validate
 @RequiredArgsConstructor
 public class PlanningProjectController extends BaseController {
-    private final PlanningSeasonService planningSeasonService;
     private final PlanningProjectService planningProjectService;
-    private final MinioUtils minioUtils;
-    private final PlanningCategoryItemService planningCategoryItemService;
     private final PlanningProjectPlankService planningProjectPlankService;
 
     @ApiOperation(value = "企划看板计划查询")
@@ -51,7 +45,7 @@ public class PlanningProjectController extends BaseController {
     }
 
     @ApiOperation(value = "启用停用")
-    @GetMapping("/startStop")
+    @PostMapping("/startStop")
     @Transactional(rollbackFor = Exception.class)
     public ApiResult startStop(@Valid @NotNull(message = "传入id不能为空") String ids, @Valid @NotNull(message = "传入状态不能为空") String status) {
         UpdateWrapper<PlanningProject> updateWrapper = new UpdateWrapper<>();
@@ -67,11 +61,21 @@ public class PlanningProjectController extends BaseController {
             wrapper.set("bulk_style_no","");
             wrapper.set("pic","");
             wrapper.set("color_system","");
-            wrapper.set("matching_style_status","0");
-            wrapper.set("dimension_label_ids","");
+            wrapper.set("style_color_id","0");
             planningProjectPlankService.update(wrapper);
         }
 
         return updateSuccess(planningProjectService.update(updateWrapper));
+    }
+
+    /**
+     * 根据ids删除
+     */
+    @ApiOperation(value = "根据ids删除")
+    @DeleteMapping("/delByIds")
+    public ApiResult delByIds(String ids) {
+        String[] split = ids.split(",");
+        return deleteSuccess(planningProjectService.removeByIds(Arrays.asList(split)));
+
     }
 }

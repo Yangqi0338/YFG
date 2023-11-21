@@ -12,18 +12,15 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
-import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleService;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * @author 卞康
@@ -37,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PlanningProjectPlankController extends BaseController {
     private final PlanningProjectPlankService planningProjectPlankService;
     private final StyleColorService styleColorService;
-    private final StyleService styleService;
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
     private final PlanningProjectDimensionService planningProjectDimensionService;
 
@@ -45,9 +41,9 @@ public class PlanningProjectPlankController extends BaseController {
      * 查询列表
      */
     @ApiOperation(value = "查询列表")
-    @GetMapping("/queryPage")
-    public ApiResult queryPage(PlanningProjectPlankPageDto dto) {
-        return selectSuccess(planningProjectPlankService.queryPage(dto));
+    @GetMapping("/ListByDto")
+    public ApiResult ListByDto(PlanningProjectPlankPageDto dto) {
+        return selectSuccess(planningProjectPlankService.ListByDto(dto));
     }
 
     /**
@@ -57,11 +53,10 @@ public class PlanningProjectPlankController extends BaseController {
     @PostMapping("/match")
     public ApiResult match(MatchSaveDto matchSaveDto) {
         StyleColor styleColor = styleColorService.getById(matchSaveDto.getStyleColorId());
-        Style style = styleService.getById(styleColor.getStyleId());
         PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(matchSaveDto.getPlankId());
         planningProjectPlank.setBulkStyleNo(styleColor.getStyleNo());
         planningProjectPlank.setStyleColorId(matchSaveDto.getStyleColorId());
-        planningProjectPlank.setPic(style.getStylePic());
+        planningProjectPlank.setPic(styleColor.getStyleColorPic());
         planningProjectPlank.setBandName(styleColor.getBandName());
         planningProjectPlank.setBandCode(styleColor.getBandCode());
         planningProjectPlank.setMatchingStyleStatus("1");
@@ -79,7 +74,7 @@ public class PlanningProjectPlankController extends BaseController {
     @PostMapping("/unMatch")
     public ApiResult unMatch(UnMatchDto unMatchDto) {
         PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(unMatchDto.getPlankId());
-        PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getOne(new QueryWrapper<PlanningProjectDimension>().eq("planning_project_id", planningProjectPlank.getPlanningProjectId()));
+        PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectPlank.getPlanningProjectDimensionId());
 
         planningProjectPlank.setBulkStyleNo(null);
         planningProjectPlank.setStyleColorId(null);
@@ -90,5 +85,17 @@ public class PlanningProjectPlankController extends BaseController {
         planningProjectPlank.setColorSystem(null);
         return updateSuccess("取消匹配成功");
     }
+
+    /**
+     * 根据ids删除
+     */
+    @ApiOperation(value = "根据ids删除")
+    @DeleteMapping("/delByIds")
+    public ApiResult delByIds(String ids) {
+        String[] split = ids.split(",");
+        return deleteSuccess(planningProjectPlankService.removeByIds(Arrays.asList(split)));
+    }
+
+
 
 }

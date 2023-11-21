@@ -73,7 +73,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         queryWrapper.notEmptyEq("season_id",dto.getSeasonId());
         queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
         queryWrapper.notEmptyLike("season_name",dto.getYear());
-
+        queryWrapper.notEmptyLike("planning_project_name",dto.getPlanningProjectName());
 
 
         List<PlanningProject> list = this.list(queryWrapper);
@@ -167,6 +167,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                         // 说明匹配上了
                         PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
                         planningProjectPlank.setBulkStyleNo(styleColor.getStyleNo());
+                        planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
                         planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
                         planningProjectPlank.setMatchingStyleStatus("2");
                         planningProjectPlank.setPic(styleColor.getStyleColorPic());
@@ -190,6 +191,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                     planningProjectPlank.setMatchingStyleStatus("0");
                     planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
                     planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+                    planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
                     planningProjectPlanks.add(planningProjectPlank);
                 }
             }
