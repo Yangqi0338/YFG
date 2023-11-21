@@ -11,4 +11,6 @@ import lombok.Data;
 @Data
 public class PlanningProjectPlankPageDto extends Page {
     private String planningProjectId;
+    private String planningBandCode;
+    private String planningBulkStyleNo;
 }

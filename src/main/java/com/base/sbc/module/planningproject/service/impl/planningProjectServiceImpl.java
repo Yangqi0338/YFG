@@ -31,6 +31,7 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -127,7 +128,12 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         }
         planningProjectMaxCategoryService.remove(new QueryWrapper<PlanningProjectMaxCategory>().eq("planning_project_id",planningProjectSaveDTO.getId()));
         planningProjectMaxCategoryService.saveBatch(planningProjectSaveDTO.getPlanningProjectMaxCategoryList());
-
+        //如果是修改,先删除之前的坑位
+        if (StringUtils.isNotBlank(planningProjectSaveDTO.getId())) {
+            QueryWrapper<PlanningProjectPlank> queryWrapper2 = new QueryWrapper<>();
+            queryWrapper2.eq("planning_project_id", planningProjectSaveDTO.getId());
+            planningProjectPlankService.physicalDeleteQWrap(queryWrapper2);
+        }
         for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
             // 坑位数量
             String number = planningProjectDimension.getNumber();
@@ -153,28 +159,32 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
                 styleColorQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
             }
-            List<StyleColor> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper);
+            List<StyleColorVo> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper);
             // 查询款式设计所有的维度信息
 
             // 匹配到的坑位信息
             List<PlanningProjectPlank> planningProjectPlanks = new ArrayList<>();
 
+
+
+
+
             // 匹配
-            for (StyleColor styleColor : styleColorList) {
-                List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
+            for (StyleColorVo styleColorVo : styleColorList) {
+                List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColorVo.getId());
                 for (FieldManagementVo fieldManagementVo : fieldManagementVos) {
                     if (fieldManagementVo.getFieldName().equals(planningProjectDimension.getDimensionCode()) && fieldManagementVo.getVal().equals(planningProjectDimension.getDimensionValue())) {
                         // 说明匹配上了
                         PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
-                        planningProjectPlank.setBulkStyleNo(styleColor.getStyleNo());
+                        planningProjectPlank.setBulkStyleNo(styleColorVo.getStyleNo());
                         planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
                         planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
                         planningProjectPlank.setMatchingStyleStatus("2");
-                        planningProjectPlank.setPic(styleColor.getStyleColorPic());
-                        planningProjectPlank.setBandCode(styleColor.getBandCode());
-                        planningProjectPlank.setBandName(styleColor.getBandName());
-                        planningProjectPlank.setStyleColorId(styleColor.getId());
-                        BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColor.getColorCode()));
+                        planningProjectPlank.setPic(styleColorVo.getStyleColorPic());
+                        planningProjectPlank.setBandCode(styleColorVo.getBandCode());
+                        planningProjectPlank.setBandName(styleColorVo.getBandName());
+                        planningProjectPlank.setStyleColorId(styleColorVo.getId());
+                        BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColorVo.getColorCode()));
                         if (colourLibrary != null) {
                             planningProjectPlank.setColorSystem(colourLibrary.getColorType());
                         }

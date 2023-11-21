@@ -35,6 +35,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         Map<String,Object> hashMap =new HashMap<>();
         BaseQueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tpp.planning_project_id",dto.getPlanningProjectId());
+        queryWrapper.notEmptyEq("tpp.planning_band_code",dto.getPlanningBandCode());
+        queryWrapper.notEmptyEq("tpp.bulk_style_no",dto.getPlanningBulkStyleNo());
         queryWrapper.orderBy(true,true,"tpp.band_code");
 
         List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);

@@ -20,7 +20,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * @author 卞康
@@ -51,7 +50,7 @@ public class PlanningProjectPlankController extends BaseController {
      */
     @ApiOperation(value = "匹配坑位")
     @PostMapping("/match")
-    public ApiResult match(MatchSaveDto matchSaveDto) {
+    public ApiResult match(@RequestBody MatchSaveDto matchSaveDto) {
         StyleColor styleColor = styleColorService.getById(matchSaveDto.getStyleColorId());
         PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(matchSaveDto.getPlankId());
         planningProjectPlank.setBulkStyleNo(styleColor.getStyleNo());
@@ -64,6 +63,7 @@ public class PlanningProjectPlankController extends BaseController {
         if (colourLibrary != null) {
             planningProjectPlank.setColorSystem(colourLibrary.getColorType());
         }
+        planningProjectPlankService.updateById(planningProjectPlank);
         return updateSuccess("匹配成功");
     }
 
@@ -72,7 +72,7 @@ public class PlanningProjectPlankController extends BaseController {
      */
     @ApiOperation(value = "取消匹配")
     @PostMapping("/unMatch")
-    public ApiResult unMatch(UnMatchDto unMatchDto) {
+    public ApiResult unMatch(@RequestBody UnMatchDto unMatchDto) {
         PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(unMatchDto.getPlankId());
         PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectPlank.getPlanningProjectDimensionId());
 
@@ -83,6 +83,7 @@ public class PlanningProjectPlankController extends BaseController {
         planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
         planningProjectPlank.setMatchingStyleStatus("0");
         planningProjectPlank.setColorSystem(null);
+        planningProjectPlankService.updateById(planningProjectPlank);
         return updateSuccess("取消匹配成功");
     }
 
