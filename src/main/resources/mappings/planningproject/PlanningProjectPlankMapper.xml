@@ -16,6 +16,7 @@
         tppd.dimension_value
         from t_planning_project_plank as tpp
         left join t_planning_project_dimension as tppd on tppd.id = tpp.planning_project_dimension_id
+        where tpp.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

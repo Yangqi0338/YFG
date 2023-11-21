@@ -15,10 +15,7 @@ import com.base.sbc.module.tablecolumn.vo.TableColumnVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author 卞康
@@ -35,7 +32,11 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         Map<String,Object> hashMap =new HashMap<>();
         BaseQueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tpp.planning_project_id",dto.getPlanningProjectId());
-        queryWrapper.notEmptyEq("tpp.band_code",dto.getPlanningBandCode());
+        if (StringUtils.isNotEmpty(dto.getPlanningBandCode())) {
+            String[] split = dto.getPlanningBandCode().split(",");
+            queryWrapper.in("tpp.band_code", Arrays.asList(split));
+        }
+
         queryWrapper.notEmptyEq("tpp.bulk_style_no",dto.getPlanningBulkStyleNo());
         queryWrapper.orderBy(true,true,"tpp.band_code");
 
