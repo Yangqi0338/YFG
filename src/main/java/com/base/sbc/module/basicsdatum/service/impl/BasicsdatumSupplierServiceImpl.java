@@ -40,6 +40,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -81,8 +82,9 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
     @Resource
     private RedisUtils redisUtils;
 
-    // @Resource
-    // private BasicsdatumSupplierServiceAsync basicsdatumSupplierServiceAsync;
+    @Resource
+    @Lazy
+    private BasicsdatumSupplierServiceAsync basicsdatumSupplierServiceAsync;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -188,8 +190,8 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
                 }
 
             }
-        // List<BasicsdatumSupplier> basicsdatumSupplierList = BeanUtil.copyToList(list, BasicsdatumSupplier.class);
-        // basicsdatumSupplierServiceAsync.asyncSaveOrUpdate(basicsdatumSupplierList);
+        List<BasicsdatumSupplier> basicsdatumSupplierList = BeanUtil.copyToList(list, BasicsdatumSupplier.class);
+        basicsdatumSupplierServiceAsync.asyncSaveOrUpdate(basicsdatumSupplierList);
         return true;
     }
 
