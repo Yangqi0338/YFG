@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -91,13 +92,27 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
         if (CommonUtils.isInitId(dto.getId())) {
             PackTechSpec pageData = BeanUtil.copyProperties(dto, PackTechSpec.class);
             pageData.setId(null);
-            //查询排序
+            QueryWrapper<PackTechSpec> countQw = new QueryWrapper<>();
+            PackUtils.commonQw(countQw, dto);
+            countQw.eq(StrUtil.isNotBlank(dto.getSpecType()), "spec_type", dto.getSpecType());
             if (dto.getSort() == null) {
-                QueryWrapper<PackTechSpec> countQw = new QueryWrapper<>();
-                PackUtils.commonQw(countQw, dto);
-                countQw.eq(StrUtil.isNotBlank(dto.getSpecType()), "spec_type", dto.getSpecType());
-                long count = count(countQw);
+                //查询排序
+                List<PackTechSpec> pts = list(countQw);
+                long count = pts.size();
                 pageData.setSort(new BigDecimal(String.valueOf(count + 1)));
+            }
+            if ("裁剪工艺".equals(dto.getSpecType())) {
+                List<PackTechSpec> pts = list(countQw);
+                pts.add(dto);
+                int totalRows = 0;
+                for (PackTechSpec packTechSpec : pts) {
+                    Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+                    Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+                    totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+                }
+                if(totalRows > 10) {
+                    throw new OtherException("裁剪工艺最多只能定义10条数据！(当前超出"+(totalRows - 10)+")");
+                }
             }
             genContentImgUrl(dto.getContent(), null, pageData);
             save(pageData);
@@ -108,6 +123,23 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
             PackTechSpec dbData = getById(dto.getId());
             if (dbData == null) {
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
+            }
+            QueryWrapper<PackTechSpec> countQw = new QueryWrapper<>();
+            PackUtils.commonQw(countQw, dto);
+            countQw.eq(StrUtil.isNotBlank(dto.getSpecType()), "spec_type", dto.getSpecType());
+            countQw.ne("id", dto.getId());
+            if ("裁剪工艺".equals(dto.getSpecType())) {
+                List<PackTechSpec> pts = list(countQw);
+                pts.add(dto);
+                int totalRows = 0;
+                for (PackTechSpec packTechSpec : pts) {
+                    Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+                    Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+                    totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+                }
+                if(totalRows > 10) {
+                    throw new OtherException("裁剪工艺最多只能定义10条数据！(当前超出"+(totalRows - 10)+")");
+                }
             }
             saveOrUpdateOperaLog(dto, dbData, genOperaLogEntity(dbData, "修改"));
             BeanUtil.copyProperties(dto, dbData);
