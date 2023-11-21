@@ -799,6 +799,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 if (packBomVersion == null) {
                     throw new OtherException("无物料数据");
                 }
+                // 版本有几个物料信息
+                Long versionBomCount = packBomService.countByVersion(packBomVersion.getId());
                 /*迁移数据时在那个阶段就复制那个阶段的数据*/
                 if (StringUtils.equals(dto.getOverlayFlag(), BaseGlobal.YES)) {
                     /*覆盖先删除再新增*/
@@ -854,6 +856,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         String newId = snowflake.nextIdStr();
                         bom.setPackType(dto.getTargetPackType());
                         bom.setCode(null);
+                        bom.setSort(Math.toIntExact(versionBomCount+i+1));
                         bom.setForeignId(dto.getTargetForeignId());
                         bom.setBomVersionId(packBomVersion1.getId());
                         bom.setScmSendFlag(BaseGlobal.NO);
