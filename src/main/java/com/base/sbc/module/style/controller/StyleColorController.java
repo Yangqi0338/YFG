@@ -206,7 +206,7 @@ public class StyleColorController {
 
 	@ApiOperation(value = "企划选择款式-款式配色")
 	@GetMapping("/getByStyleList")
-	public  PageInfo<StyleColor> getByStyleList(StyleColorsDto dto) {
+	public  PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto) {
 		return styleColorService.getByStyleList(dto);
 	}
 }

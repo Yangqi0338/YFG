@@ -105,7 +105,7 @@
 
         group by p.id
     </select>
-    <select id="getByStyleList" resultType="com.base.sbc.module.style.entity.StyleColor"
+    <select id="getByStyleList" resultType="com.base.sbc.module.style.vo.StyleColorVo"
             parameterType="com.base.sbc.module.style.dto.StyleColorsDto">
         select tsc.* from t_style_color as tsc
             left join t_style as ts on   tsc.style_id = ts.id and ts.del_flag ='0'

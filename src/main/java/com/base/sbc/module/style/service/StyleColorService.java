@@ -220,7 +220,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
      * @param dto
      * @return
      */
-    PageInfo<StyleColor> getByStyleList(StyleColorsDto dto);
+    PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 
