@@ -28,6 +28,7 @@ import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.mapper.PackTechSpecMapper;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
 import com.base.sbc.module.pack.service.PackTechSpecService;
+import com.base.sbc.module.pack.utils.CharUtils;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
@@ -41,8 +42,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * 类描述：资料包-工艺说明 service类
@@ -179,9 +182,20 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
         QueryWrapper<PackTechSpec> countQw = new QueryWrapper<>();
         PackUtils.commonQw(countQw, dto);
         countQw.eq(StrUtil.isNotBlank(dto.getSpecType()), "spec_type", dto.getSpecType());
-        long count = count(countQw);
-        if(count + list.size() > 10 && "裁剪工艺".equals(dto.getSpecType())) {
-            throw new OtherException("裁剪工艺最多只能定义10条数据！");
+        List<PackTechSpec> pts = list(countQw);
+        long count = pts.size();
+        if ("裁剪工艺".equals(dto.getSpecType())) {
+            int totalRows = 0;
+            pts.addAll(list);
+            for (int i = 0; i < pts.size(); i++) {
+                PackTechSpec packTechSpec = pts.get(i);
+                Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+                Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+                totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+            }
+            if(totalRows > 10) {
+                throw new OtherException("裁剪工艺最多只能定义10条数据！(当前超出"+(totalRows - 10)+")");
+            }
         }
         List<PackTechSpec> packTechSpecs = BeanUtil.copyToList(list, PackTechSpec.class);
         for (PackTechSpec packTechSpec : packTechSpecs) {
