@@ -417,8 +417,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     packBomSize.setPackType(version.getPackType());
                     packBomSize.setForeignId(version.getForeignId());
                     packBomSize.setBomVersionId(version.getId());
-                    packBomSize.setWidthCode(packBomDto.getTranslateCode());
-                    packBomSize.setWidth(packBomDto.getTranslate());
+                    /**/
+                    packBomSize.setWidthCode(StrUtil.equals(packBomDto.getTranslateCode(),packBomSize.getWidthCode())?packBomDto.getTranslateCode():packBomSize.getWidthCode() );
+                    packBomSize.setWidth(StrUtil.equals(packBomDto.getTranslate(),packBomSize.getWidth())?packBomDto.getTranslate():packBomSize.getWidth());
                     packBomSize.setQuantity(
                             Opt.ofNullable(packBomSize.getQuantity()).orElse(
                             StrUtil.equals(packBomDto.getPackType(),PackUtils.PACK_TYPE_DESIGN)?packBomDto.getDesignUnitUse():packBomDto.getBulkUnitUse())
