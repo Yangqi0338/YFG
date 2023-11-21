@@ -147,7 +147,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             styleColorQueryWrapper.eq("ts.prod_category1st", planningProjectDimension.getProdCategory1stCode());
             styleColorQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()), "ts.prod_category2nd", planningProjectDimension.getProdCategory2ndCode());
             styleColorQueryWrapper.eq("ts.prod_category", planningProjectDimension.getProdCategoryCode());
-            styleColorQueryWrapper.eq("ts.band_code", planningProjectDimension.getBandCode());
+            styleColorQueryWrapper.eq("tsc.band_code", planningProjectDimension.getBandCode());
 
             // 查询坑位所有已经匹配的大货款号
             QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
