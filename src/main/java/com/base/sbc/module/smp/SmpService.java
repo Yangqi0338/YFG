@@ -2,6 +2,7 @@ package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -95,8 +96,13 @@ public class SmpService {
 
     private final UserUtils userUtils;
 
+    @Resource
+    @Lazy
     private final PackInfoService packInfoService;
 
+    @Resource
+    @Lazy
+    private final PackTechSpecService packTechSpecService;
 
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
@@ -114,6 +120,10 @@ public class SmpService {
 
     private final CcmFeignService ccmFeignService;
 
+    @Resource
+    @Lazy
+    private PackSizeService packSizeService;
+
     private final AttachmentService attachmentService;
 
     private final PackInfoStatusService packInfoStatusService;
@@ -121,8 +131,6 @@ public class SmpService {
     private final PackPricingService packPricingService;
 
     private final PackTechPackagingService packTechPackagingService;
-
-    private final PackTechSpecService packTechSpecService;
 
     private final StylePricingService stylePricingService;
 
@@ -1193,6 +1201,57 @@ public class SmpService {
         }
 
         return i;
+    }
+
+    /**
+     * 尺寸和外辅工艺明细数据
+     *
+     * @param id
+     * @return
+     */
+    public BomSizeAndProcessDto checkProcessSize(String id) {
+        BomSizeAndProcessDto bomSizeAndProcessDto = new BomSizeAndProcessDto();
+        PackInfoListVo infoListVo = packInfoService.getDetail(id, PackUtils.PACK_TYPE_BIG_GOODS);
+        if (ObjectUtil.isNotEmpty(infoListVo)){
+            if (StrUtil.isNotBlank(infoListVo.getStyleNo())){
+                List<PackSize> packSizeList = packSizeService.list(infoListVo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+                if (CollUtil.isNotEmpty(packSizeList)){
+                    List<BomSizeAndProcessDto.BomSize> bomSizeList = new ArrayList<>();
+                    for (PackSize packSize : packSizeList) {
+                        BomSizeAndProcessDto.BomSize bomSize = new BomSizeAndProcessDto.BomSize();
+                        bomSize.setId(packSize.getId());
+                        bomSize.setSort(packSize.getSort());
+                        bomSize.setPartName(packSize.getPartName());
+                        bomSize.setMinus(packSize.getMinus());
+                        bomSize.setMethod(packSize.getMethod());
+                        bomSize.setPositive(packSize.getPositive());
+                        bomSize.setPartCode(packSize.getPartCode());
+                        bomSize.setStandard(packSize.getStandard());
+                        bomSize.setSize(packSize.getSize());
+                        bomSizeList.add(bomSize);
+                    }
+                    bomSizeAndProcessDto.setBomSizeList(bomSizeList);
+                }
+                List<PackTechSpec> packTechSpecList = packTechSpecService.list(infoListVo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+                //过滤外辅数据
+                packTechSpecList =  packTechSpecList.stream().filter(p -> StrUtil.equals(p.getSpecType(),"外辅工艺")).collect(Collectors.toList());
+                if (CollUtil.isNotEmpty(packTechSpecList)){
+                    List<BomSizeAndProcessDto.BomProcess> bomProcessList = new ArrayList<>();
+                    for (PackTechSpec packSize : packTechSpecList) {
+                        BomSizeAndProcessDto.BomProcess bomProcess = new BomSizeAndProcessDto.BomProcess();
+                        bomProcess.setId(packSize.getId());
+                        bomProcess.setItem(packSize.getItem());
+                        bomProcess.setItemCode(packSize.getItemCode());
+                        bomProcess.setSort(packSize.getSort());
+                        bomProcess.setContent(packSize.getContent());
+                        bomProcessList.add(bomProcess);
+                    }
+                    bomSizeAndProcessDto.setBomProcessList(bomProcessList);
+                }
+            }
+
+        }
+return bomSizeAndProcessDto;
     }
 }
 
