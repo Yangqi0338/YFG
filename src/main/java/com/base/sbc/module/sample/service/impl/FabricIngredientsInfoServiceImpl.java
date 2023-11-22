@@ -230,6 +230,33 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         ExcelUtils.exportExcel(list,  FabricIngredientsInfoExcelDto.class, "辅料调样单.xlsx",new ExportParams("辅料调样单", "辅料调样单", ExcelType.HSSF) ,response);
     }
 
+    /**
+     * 复制辅料
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Boolean copyIngredients(String id) {
+
+        FabricIngredientsInfo fabricIngredientsInfo = baseMapper.selectById(id);
+        fabricIngredientsInfo.setId(null);
+        fabricIngredientsInfo.setCode(null);
+        fabricIngredientsInfo.insertInit();
+        /*先保存辅料单*/
+        baseMapper.insert(fabricIngredientsInfo);
+        /*辅料规格信息*/
+        List<FabricIngredientsSpecification> ingredientsSpecificationList = fabricIngredientsSpecificationService.listByField("ingredients_info_id", StringUtils.convertList(id));
+        ingredientsSpecificationList.forEach(i -> {
+            i.setIngredientsInfoId(fabricIngredientsInfo.getId());
+            i.setId(null);
+        });
+        /*保存复制辅料*/
+        fabricIngredientsSpecificationService.saveBatch(ingredientsSpecificationList);
+        this.saveOperaLog("复制","辅料调样单",null,fabricIngredientsInfo.getCodeName(),fabricIngredientsInfo,null);
+        return true;
+    }
+
     /** 自定义方法区 不替换的区域【other_end】 **/
 
 }
