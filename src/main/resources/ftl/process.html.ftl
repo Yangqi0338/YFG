@@ -561,41 +561,59 @@
 <#if sizeDataList??>
     <#assign sizeCount = (washSkippingFlag?then(3, 2))>
     <#assign sizeWidth = "width: 100%;">
+    <#--描述列-->
     <#assign contentWidth = "width: 216px;">
-    <#assign rdWidth = "width: 12px;">
-    <#if sizeList?size*sizeCount gt 23>
+    <#--档差-->
+    <#assign rdWidth = "width: 20px;">
+    <#--部位-->
+    <#assign partWidth = "width: 60px;">
+    <#if sizeList?size*sizeCount gt 20>
+        <#--尺寸列为21个-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 48px;">
-    <#elseif sizeList?size*sizeCount gt 20>
-        <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 72px;">
+        <#assign contentWidth = "width: 60px;">
+        <#assign rdWidth = "width: 20px;">
     <#elseif sizeList?size*sizeCount gt 17>
+        <#--尺寸列为18个-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 72px;">
+        <#assign contentWidth = "width: 60px;">
+        <#assign rdWidth = "width: 20px;">
     <#elseif sizeList?size*sizeCount gt 14>
+        <#--尺寸列15， 16-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 96px;">
+        <#assign contentWidth = "width: 80px;">
+        <#assign rdWidth = "width: 20px;">
     <#elseif sizeList?size*sizeCount gt 11>
+        <#--尺寸列为12 14-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 96px;">
+        <#assign contentWidth = "width: 80px;">
+        <#assign rdWidth = "width: 40px;">
     <#elseif sizeList?size*sizeCount gt 7>
-        <#assign sizeWidth = "width: 80%;">
-        <#assign contentWidth = "width: 96px;">
+        <#--尺寸列为8 10-->
+        <#assign sizeWidth = "width: 90%;">
+        <#assign contentWidth = "width: 80px;">
+        <#assign rdWidth = "width: 40px;">
     <#elseif sizeList?size*sizeCount gt 5>
+        <#--尺寸列为6-->
         <#assign sizeWidth = "width: 80%;">
-        <#assign contentWidth = "width: 192px;">
+        <#assign contentWidth = "width: 160px;">
+        <#assign rdWidth = "width: 40px;">
     <#elseif sizeList?size*sizeCount gt 3>
+        <#--尺寸列为4-->
         <#assign sizeWidth = "width: 60%;">
-        <#assign contentWidth = "width: 192px;">
+        <#assign contentWidth = "width: 160px;">
+        <#assign rdWidth = "width: 40px;">
     <#elseif sizeList?size*sizeCount gt 1>
+        <#--尺寸列为2-->
         <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 192px;">
+        <#assign contentWidth = "width: 160px;">
+        <#assign rdWidth = "width: 40px;">
     <#else>
         <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 192px;">
+        <#assign contentWidth = "width: 160px;">
+        <#assign rdWidth = "width: 40px;">
     </#if>
     <table class="table_border size_table_border mt size_table"
-           style="page-break-before: always; page-break-after: always;${sizeWidth}">
+           style="page-break-before: always; page-break-after: always;font-size: 10px; ${sizeWidth}">
         <thead>
         <tr>
             <th colspan="${sizeTitleColspan}" class="th_title">
@@ -604,18 +622,18 @@
             </th>
         </tr>
         <tr class="size_tr gb">
-            <th rowspan="2" style="text-align: center; border-right: 2px solid #000000">部位</th>
-            <th rowspan="2" style="text-align: center;${contentWidth}">描述</th>
+            <th rowspan="2" style="text-align: center;font-size: 12px; border-right: 2px solid #000000;${partWidth}">部位</th>
+            <th rowspan="2" style="text-align: center;font-size: 12px;${contentWidth}">描述</th>
             <#if sizeList??>
                 <#list sizeList as size>
                     <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth"
-                        style="border-left: 2px solid #000000; border-right: 2px solid #000000">
+                        style="font-size: 12px;border-left: 2px solid #000000; border-right: 2px solid #000000">
                         ${size}
                     </th>
                 </#list>
             </#if>
-            <th rowspan="2" class="gc" style="text-align: center">公差<br/>(-)</th>
-            <th rowspan="2" class="gc" style="text-align: center">公差<br/>(+)</th>
+            <th rowspan="2" class="gc" style="text-align: center;font-size: 12px;">公差<br/>(-)</th>
+            <th rowspan="2" class="gc" style="text-align: center;font-size: 12px;">公差<br/>(+)</th>
         </tr>
 
         <tr>
@@ -644,7 +662,8 @@
                     <#else>
                         <#list item.rowData as c>
                             <td class="${c.className} ${sizeClass[c_index]} "
-                                style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
+                                style="padding: 0;
+                                <#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
                                         border-right: 2px solid #000000;
                                 </#if>
                                 <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
@@ -658,7 +677,10 @@
                                 </#if>
                                 <#if c_index == 1>
                                     ${contentWidth}
-                                </#if> ">
+                                </#if>
+                                <#if c_index == 0>
+                                    ${partWidth}
+                                </#if>">
                                 <div style="display: table-cell;">
                                     <#if c_index gt 1>
                                         <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
@@ -887,8 +909,10 @@
         </table>
     </#if>
 
-    <#assign totalSize = jcgyDataList?size + cjgyRows>
-    <#assign maxSize = 25>
+    <#assign lastIndex = jcgyDataList?size - 1>
+    <#assign totalSize = jcgyDataList[lastIndex].rows + cjgyRows>
+    <#--测试机器字体最多只能容纳22行-->
+    <#assign maxSize = 22>
     <#assign diff = maxSize - cjgyRows>
 
 
@@ -915,7 +939,7 @@
                         <div>
                             <div class="flex_td_box">
                                 <#list jcgyDataList as item>
-                                    <#if item_index lt diff >
+                                    <#if item.rows lt diff >
                                         <div>
                                             <div>
                                                 <div class="item_td">
@@ -935,19 +959,15 @@
                             </div>
                         </div>
                     </td>
-                    <#list jcgyDataList as item>
-                        <#if  item_index==0 >
-                            <td rowspan="${jcgyRowsPan}" style="padding: 0;">
-                                <div class="jcgy_img_box">
-                                    <#if jcgyImgList??>
-                                        <#list jcgyImgList as item>
-                                            <img src="${item.url}"/> <br>
-                                        </#list>
-                                    </#if>
-                                </div>
-                            </td>
-                        </#if>
-                    </#list>
+                    <td rowspan="${jcgyRowsPan}" style="padding: 0;">
+                        <div class="jcgy_img_box">
+                            <#if jcgyImgList??>
+                                <#list jcgyImgList as item>
+                                    <img src="${item.url}"/> <br>
+                                </#list>
+                            </#if>
+                        </div>
+                    </td>
                 </tr>
             </#if>
             </tbody>
@@ -976,7 +996,7 @@
                         <div>
                             <div class="flex_td_box">
                                 <#list jcgyDataList as item>
-                                    <#if item_index gt (diff - 1)>
+                                    <#if item.rows gt diff || item.rows == diff>
                                         <div>
                                             <div>
                                                 <div class="item_td">
@@ -1099,19 +1119,15 @@
 
                         </div>
                     </td>
-                    <#list jcgyDataList as item>
-<#--                        <#if  item_index==0 >-->
-                            <td rowspan="${jcgyRowsPan}" style="padding: 0;">
-                                <div class="jcgy_img_box">
-                                    <#if jcgyImgList??>
-                                        <#list jcgyImgList as item>
-                                            <img src="${item.url}"/> <br>
-                                        </#list>
-                                    </#if>
-                                </div>
-                            </td>
-<#--                        </#if>-->
-                    </#list>
+                    <td rowspan="${jcgyRowsPan}" style="padding: 0;">
+                        <div class="jcgy_img_box">
+                            <#if jcgyImgList??>
+                                <#list jcgyImgList as item>
+                                    <img src="${item.url}"/> <br>
+                                </#list>
+                            </#if>
+                        </div>
+                    </td>
                 </tr>
             </#if>
             </tbody>

@@ -15,4 +15,5 @@ import lombok.Data;
 @Data
 @ApiModel("资料包-工艺说明 PackTechSpecVo")
 public class PackTechSpecVo extends PackTechSpec {
+    private Integer rows;
 }

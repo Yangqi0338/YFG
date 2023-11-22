@@ -371,6 +371,13 @@ public class GenTechSpecPdfFile {
         dataModel.put("xbjRowsPan", xbjDataList.size());
 
         List<PackTechSpecVo> jcgyDataList = Optional.ofNullable(gyMap.get("基础工艺")).orElse(CollUtil.newArrayList());
+        // 基础工艺行数
+        int jcgyDataRows = CharUtils.getRowsVO(jcgyDataList);
+
+
+
+
+        dataModel.put("jcgyDataRows", jcgyDataRows);
         dataModel.put("jcgyDataList", jcgyDataList);
         List<PackTechAttachmentVo> jcgyImgList = Optional.ofNullable(picMap.get("基础工艺")).map(img -> {
             if (img.size() > 2) {
@@ -378,17 +385,9 @@ public class GenTechSpecPdfFile {
             }
             return img;
         }).orElse(CollUtil.newArrayList());
-
         dataModel.put("jcgyImgList", jcgyImgList);
-        int cjgySize = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()).size();
         List<PackTechSpecVo> packTechSpecVos = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList());
-        int totalRows = 0;
-        for (int i = 0; i < packTechSpecVos.size(); i++) {
-            PackTechSpec packTechSpec = packTechSpecVos.get(i);
-            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
-            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
-            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
-        }
+        int totalRows = CharUtils.getRows(packTechSpecVos.stream().map(p -> (PackTechSpec)p).collect(Collectors.toList()));
         dataModel.put("cjgyRows", totalRows);
         if(totalRows >= 10) {
             dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
@@ -423,7 +422,6 @@ public class GenTechSpecPdfFile {
 //        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
         return html;
     }
-
 
     public ByteArrayOutputStream gen() {
         try {
@@ -483,6 +481,7 @@ public class GenTechSpecPdfFile {
             document.close();
             return pdfOutputStream;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new OtherException("生成工艺单失败:" + e.getMessage());
         }
 

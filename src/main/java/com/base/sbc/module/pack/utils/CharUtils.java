@@ -1,5 +1,7 @@
 package com.base.sbc.module.pack.utils;
 
+import com.base.sbc.module.pack.entity.PackTechSpec;
+import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
@@ -16,6 +18,39 @@ import java.util.List;
  * Date: 2023 2023/11/21 10:17
  */
 public class CharUtils {
+    /**
+     * 注意：开发windows系统生成的字体长度比测试机和生产机器的要小，所以取值，必须从测试机器或者生产机器上测试行容纳字符数
+     * 获取行数（基础工艺）,基础工艺的描述只有624，这个长度 = 最大中文字符串数量*fontSize, 工艺项目要求12个字符所以长度= 12*11
+     * @param list
+     * @return
+     */
+    public static int getRowsVO(List<PackTechSpecVo> list) {
+        int totalRows = 0;
+        for (int i = 0; i < list.size(); i++) {
+            PackTechSpecVo packTechSpec = list.get(i);
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+            Integer contentRowCount = CharUtils.contentRows(624f, packTechSpec.getContent());
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+            packTechSpec.setRows(totalRows);
+        }
+        return totalRows;
+    }
+
+    /**
+     * 获取行数(裁剪工艺)
+     * @param list
+     * @return
+     */
+    public static int getRows(List<PackTechSpec> list) {
+        int totalRows = 0;
+        for (int i = 0; i < list.size(); i++) {
+            PackTechSpec packTechSpec = list.get(i);
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+        }
+        return totalRows;
+    }
 
     /**
      * 判断内容行数
@@ -31,10 +66,10 @@ public class CharUtils {
         int rows = 0;
         for (int i = 0; i < strings.size(); i++) {
             List<Integer> count = countCharacters(strings.get(i));
-            int chineseCount = count.get(0); // 12px
-            int englishCount = count.get(1); // 9px;
-            int chinesePunctuationCount = count.get(2); // 12px
-            int englishPunctuationCount = count.get(3); // 9px;
+            int chineseCount = count.get(0);
+            int englishCount = count.get(1);
+            int chinesePunctuationCount = count.get(2);
+            int englishPunctuationCount = count.get(3);
             int numberCount = count.get(4);
             int otherCount = count.get(5);
             float v = chineseFontSize * (chineseCount + chinesePunctuationCount + otherCount);
@@ -42,15 +77,18 @@ public class CharUtils {
             float v2 = numberFontSize * numberCount;
             if(v + v1 + v2 > oneRowWidth) {
                 rows += Math.ceil((v + v1 + v2) / oneRowWidth);
-//                System.out.println("第" +(i+1)+ "段落行数" + Math.ceil((v + v1 + v2) / oneRowWidth));
             } else {
                 rows++;
-//                System.out.println("第" +(i+1)+ "段落行数" + 1);
             }
         }
         return rows;
     }
 
+    /**
+     * 汇总字符串中内容成分： 中文，英文，其他字符
+     * @param str
+     * @return 返回list{中文字符数量，英文字符数量， 中文符号数量，英文符号数量，数字数量，其他字符数量}
+     */
     public static List<Integer> countCharacters(String str) {
         int chineseCount = 0;
         int englishCount = 0;
@@ -81,7 +119,8 @@ public class CharUtils {
         Document doc = Jsoup.parse(html);
         Elements pElements = doc.select("p");
         if(pElements.size() == 0) {
-            return Collections.singletonList(html);
+            Document htmlDoc = Jsoup.parse(html);
+            return Collections.singletonList(htmlDoc.text());
         }
         for (Element p : pElements) {
             paragraphs.add(p.text());
