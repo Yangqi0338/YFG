@@ -196,6 +196,11 @@ public class SmpService {
                     style= styleService.getById(styleColor.getStyleId());
                 }
             }
+            if (StringUtils.isEmpty(styleColor.getColorCrash())){
+                smpGoodsDto.setColorCrash("1".equals(style.getColorCrash()) ? "是" : "否");
+            }else {
+                smpGoodsDto.setColorCrash("1".equals(styleColor.getColorCrash()) ? "是" : "否");
+            }
 
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
