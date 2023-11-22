@@ -252,6 +252,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (StringUtils.isNotBlank(queryDto.getDesignCorrectDate())) {
             queryWrapper.between("tsc.design_correct_date", queryDto.getDesignCorrectDate().split(","));
         }
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignCorrectDate()), "tsc.design_correct_date", queryDto.getDesignCorrectDate());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductSubdivideName()), "tsc.product_subdivide_name", queryDto.getProductSubdivideName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyle()), "tsc.principal_style", queryDto.getPrincipalStyle());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyleNo()), "tsc.principal_style_no", queryDto.getPrincipalStyleNo());
