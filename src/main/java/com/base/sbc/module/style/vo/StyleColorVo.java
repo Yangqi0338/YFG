@@ -26,6 +26,11 @@ import java.util.Optional;
 
 @ApiModel("样衣-款式配色 SampleStyleColor")
 public class StyleColorVo {
+    /**
+     * 是否撞色
+     */
+    @ApiModelProperty(value = "是否撞色,0否 1是")
+    private String colorCrash;
 
     private String id;
 
