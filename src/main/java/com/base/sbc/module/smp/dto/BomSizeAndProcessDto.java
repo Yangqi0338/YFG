@@ -11,17 +11,15 @@ import java.util.List;
 @Data
 public class BomSizeAndProcessDto {
 
-    private String styleNo;
-
     private List<BomSize> bomSizeList;
 
-    private List<BomProcess> bomProcessList;
+    private List<BomProcess> bomBomProcessList;
 
     /**
      * 外辅工艺数据
      */
     @Data
-    class BomProcess {
+    public static class BomProcess {
 
         private String id;
         /**工艺项目*/
@@ -38,7 +36,7 @@ public class BomSizeAndProcessDto {
      * bom尺寸数据
      */
     @Data
-    class BomSize {
+    public static class BomSize {
         private String id;
         /** 部位编码 */
         private String partCode;
@@ -48,7 +46,7 @@ public class BomSizeAndProcessDto {
         private String method;
         /**标准值*/
         private String standard;
-        /**尺寸信息*/
+        /**标准值*/
         private String size;
         /**正公差+*/
         private String positive;
