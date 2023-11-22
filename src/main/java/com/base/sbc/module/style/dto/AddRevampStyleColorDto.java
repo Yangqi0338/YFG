@@ -30,6 +30,11 @@ import java.util.List;
 public class AddRevampStyleColorDto extends StyleColor {
 
     private String id;
+    /**
+     * 是否撞色
+     */
+    @ApiModelProperty(value = "是否撞色,0否 1是")
+    private String colorCrash;
     /** 款式(大货款号) */
     @ApiModelProperty(value = "款式(大货款号)"  )
     private String styleNo;
