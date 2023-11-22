@@ -1059,7 +1059,7 @@
 
     <!--    基础工艺 4 3-->
     <#if jcgyShow && jcgyDataList?size gt 0>
-        <table class="table_border mt" style="page-break-inside: auto; <#if cjgyDataList?size gt 9 || (cjgyDataList?size gt 9 && jcgyDataList?size > 10)>page-break-before: always;</#if>">
+        <table class="table_border mt" style="page-break-inside: auto;">
             <thead>
             <tr>
                 <th colspan="3" class="th_title">
