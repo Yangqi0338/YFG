@@ -565,6 +565,8 @@
     <#assign contentWidth = "width: 216px;">
     <#--档差-->
     <#assign rdWidth = "width: 24px;">
+    <#--部位-->
+    <#assign partWidth = "width: 72px;">
     <#if sizeList?size*sizeCount gt 20>
         <#--尺寸列为21个-->
         <#assign sizeWidth = "width: 100%;">
@@ -620,7 +622,7 @@
             </th>
         </tr>
         <tr class="size_tr gb">
-            <th rowspan="2" style="text-align: center; border-right: 2px solid #000000">部位</th>
+            <th rowspan="2" style="text-align: center; border-right: 2px solid #000000;${partWidth}">部位</th>
             <th rowspan="2" style="text-align: center;${contentWidth}">描述</th>
             <#if sizeList??>
                 <#list sizeList as size>
@@ -660,7 +662,8 @@
                     <#else>
                         <#list item.rowData as c>
                             <td class="${c.className} ${sizeClass[c_index]} "
-                                style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
+                                style="
+                                <#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
                                         border-right: 2px solid #000000;
                                 </#if>
                                 <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
@@ -674,7 +677,10 @@
                                 </#if>
                                 <#if c_index == 1>
                                     ${contentWidth}
-                                </#if> ">
+                                </#if>
+                                <#if c_index == 0>
+                                    ${partWidth}
+                                </#if>">
                                 <div style="display: table-cell;">
                                     <#if c_index gt 1>
                                         <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
@@ -905,7 +911,7 @@
 
     <#assign lastIndex = jcgyDataList?size - 1>
     <#assign totalSize = jcgyDataList[lastIndex].rows + cjgyRows>
-    <#assign maxSize = 25>
+    <#assign maxSize = 22>
     <#assign diff = maxSize - cjgyRows>
 
 
