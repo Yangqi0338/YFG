@@ -914,6 +914,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
         qw.eq("p.disable_flag", BaseGlobal.NO);
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
+
         if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
             qw.eq( "p.break_off_sample", BaseGlobal.NO);
             qw.eq( "p.break_off_pattern", BaseGlobal.NO);
