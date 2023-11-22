@@ -508,12 +508,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         //月份
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "c.month", dto.getMonth());
         //波段
-        String fruits = dto.getBandCode();
-        if (fruits == null){
-            throw new OtherException("波段为空，不能查询");
+        if (StringUtils.isNotEmpty(dto.getBandCode())){
+            String[] fruitArray = dto.getBandCode().split(",");
+            qw.in("c.band_code",Arrays.asList(fruitArray));
         }
-        String[] fruitArray = fruits.split(",");
-        qw.in("c.band_code",Arrays.asList(fruitArray));
         //渠道
         qw.notEmptyEq("c.channel_name", dto.getChannelName());
         //产品线
