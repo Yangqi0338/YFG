@@ -425,10 +425,11 @@ public class SmpService {
             //smpGoodsDto.setRegion(null);
             //smpGoodsDto.setSalesGroup(null);
             List<String> sizeCodes = StringUtils.convertList(style.getSizeCodes());
-            List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
-            if (basicsdatumSizes.isEmpty()){
+            if (sizeCodes.isEmpty()){
                 throw new OtherException("尺码不能为空");
             }
+            List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
+
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
                 SmpSize smpSize = new SmpSize();
