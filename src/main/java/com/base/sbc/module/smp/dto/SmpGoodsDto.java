@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -227,4 +228,9 @@ public class SmpGoodsDto extends SmpBaseDto {
     private List<SmpSize> itemList;
     /**图片地址集合*/
     private List<String> imgList;
+    /**
+     * 是否撞色
+     */
+    @ApiModelProperty(value = "是否撞色,0否 1是")
+    private String colorCrash;
 }
