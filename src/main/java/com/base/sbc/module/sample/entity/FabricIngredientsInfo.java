@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.entity;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -69,11 +70,14 @@ public class FabricIngredientsInfo extends BaseDataEntity<String> {
     private String devCondition;
     /** 预估到样时间 */
     @ApiModelProperty(value = "预估到样时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+
+    @TableField( fill = FieldFill.INSERT_UPDATE)
     private Date estimateAtactiformDate;
     /** 实际到样时间 */
     @ApiModelProperty(value = "实际到样时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @TableField( fill = FieldFill.INSERT_UPDATE)
     private Date practicalAtactiformDate;
     /** 看样1 */
     @ApiModelProperty(value = "看样1"  )
