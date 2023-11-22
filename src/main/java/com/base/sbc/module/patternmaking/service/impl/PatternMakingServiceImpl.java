@@ -619,6 +619,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSuspend()), "p.suspend", dto.getSuspend());
         qw.eq(StrUtil.isNotBlank(dto.getBreakOffSample()), "p.break_off_sample", dto.getBreakOffSample());
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
+        qw.in("p.disable_flag", BaseGlobal.NO);
         if (StrUtil.isNotBlank(dto.getIsBlackList())) {
             if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
                 // 只查询黑单
