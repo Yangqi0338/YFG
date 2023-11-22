@@ -55,7 +55,5 @@ public class BomSizeAndProcessDto {
         private String positive;
         /**负公差-*/
         private String minus;
-        /**排序-*/
-        private int sort;
     }
 }

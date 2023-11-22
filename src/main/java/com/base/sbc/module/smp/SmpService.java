@@ -61,10 +61,7 @@ import org.springframework.transaction.TransactionStatus;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
@@ -1214,13 +1211,13 @@ public class SmpService {
         PackInfoListVo infoListVo = packInfoService.getDetail(id, PackUtils.PACK_TYPE_BIG_GOODS);
         if (ObjectUtil.isNotEmpty(infoListVo)){
             if (StrUtil.isNotBlank(infoListVo.getStyleNo())){
+                bomSizeAndProcessDto.setStyleNo(infoListVo.getStyleNo());
                 List<PackSize> packSizeList = packSizeService.list(infoListVo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
                 if (CollUtil.isNotEmpty(packSizeList)){
                     List<BomSizeAndProcessDto.BomSize> bomSizeList = new ArrayList<>();
                     for (PackSize packSize : packSizeList) {
                         BomSizeAndProcessDto.BomSize bomSize = new BomSizeAndProcessDto.BomSize();
                         bomSize.setId(packSize.getId());
-                        bomSize.setSort(packSize.getSort());
                         bomSize.setPartName(packSize.getPartName());
                         bomSize.setMinus(packSize.getMinus());
                         bomSize.setMethod(packSize.getMethod());
