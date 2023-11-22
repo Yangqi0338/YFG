@@ -481,6 +481,7 @@ public class GenTechSpecPdfFile {
             document.close();
             return pdfOutputStream;
         } catch (Exception e) {
+            e.printStackTrace();
             throw new OtherException("生成工艺单失败:" + e.getMessage());
         }
 
