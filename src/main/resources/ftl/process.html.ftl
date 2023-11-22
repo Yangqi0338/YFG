@@ -561,38 +561,54 @@
 <#if sizeDataList??>
     <#assign sizeCount = (washSkippingFlag?then(3, 2))>
     <#assign sizeWidth = "width: 100%;">
+    <#--描述列-->
     <#assign contentWidth = "width: 216px;">
-    <#assign rdWidth = "width: 12px;">
-    <#if sizeList?size*sizeCount gt 23>
-        <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 48px;">
-    <#elseif sizeList?size*sizeCount gt 20>
+    <#--档差-->
+    <#assign rdWidth = "width: 24px;">
+    <#if sizeList?size*sizeCount gt 20>
+        <#--尺寸列为21个-->
         <#assign sizeWidth = "width: 100%;">
         <#assign contentWidth = "width: 72px;">
+        <#assign rdWidth = "width: 24px;">
     <#elseif sizeList?size*sizeCount gt 17>
+        <#--尺寸列为18个-->
         <#assign sizeWidth = "width: 100%;">
         <#assign contentWidth = "width: 72px;">
+        <#assign rdWidth = "width: 24px;">
     <#elseif sizeList?size*sizeCount gt 14>
+        <#--尺寸列15， 16-->
         <#assign sizeWidth = "width: 100%;">
         <#assign contentWidth = "width: 96px;">
+        <#assign rdWidth = "width: 24px;">
     <#elseif sizeList?size*sizeCount gt 11>
+        <#--尺寸列为12 14-->
         <#assign sizeWidth = "width: 100%;">
         <#assign contentWidth = "width: 96px;">
+        <#assign rdWidth = "width: 48px;">
     <#elseif sizeList?size*sizeCount gt 7>
-        <#assign sizeWidth = "width: 80%;">
+        <#--尺寸列为8 10-->
+        <#assign sizeWidth = "width: 90%;">
         <#assign contentWidth = "width: 96px;">
+        <#assign rdWidth = "width: 48px;">
     <#elseif sizeList?size*sizeCount gt 5>
+        <#--尺寸列为6-->
         <#assign sizeWidth = "width: 80%;">
         <#assign contentWidth = "width: 192px;">
+        <#assign rdWidth = "width: 48px;">
     <#elseif sizeList?size*sizeCount gt 3>
+        <#--尺寸列为4-->
         <#assign sizeWidth = "width: 60%;">
         <#assign contentWidth = "width: 192px;">
+        <#assign rdWidth = "width: 48px;">
     <#elseif sizeList?size*sizeCount gt 1>
+        <#--尺寸列为2-->
         <#assign sizeWidth = "width: 40%;">
         <#assign contentWidth = "width: 192px;">
+        <#assign rdWidth = "width: 48px;">
     <#else>
         <#assign sizeWidth = "width: 40%;">
         <#assign contentWidth = "width: 192px;">
+        <#assign rdWidth = "width: 48px;">
     </#if>
     <table class="table_border size_table_border mt size_table"
            style="page-break-before: always; page-break-after: always;${sizeWidth}">
@@ -887,7 +903,8 @@
         </table>
     </#if>
 
-    <#assign totalSize = jcgyDataList?size + cjgyRows>
+    <#assign lastIndex = jcgyDataList?size - 1>
+    <#assign totalSize = jcgyDataList[lastIndex].rows + cjgyRows>
     <#assign maxSize = 25>
     <#assign diff = maxSize - cjgyRows>
 
@@ -915,7 +932,7 @@
                         <div>
                             <div class="flex_td_box">
                                 <#list jcgyDataList as item>
-                                    <#if item_index lt diff >
+                                    <#if item.rows lt diff >
                                         <div>
                                             <div>
                                                 <div class="item_td">
@@ -976,7 +993,7 @@
                         <div>
                             <div class="flex_td_box">
                                 <#list jcgyDataList as item>
-                                    <#if item_index gt (diff - 1)>
+                                    <#if item.rows gt diff || item.rows == diff>
                                         <div>
                                             <div>
                                                 <div class="item_td">
