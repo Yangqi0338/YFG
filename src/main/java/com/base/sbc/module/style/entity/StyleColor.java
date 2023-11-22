@@ -60,7 +60,6 @@ public class StyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setCode(styleNo);
         smpGoodsDto.setMainCode(principalStyleNo);
         smpGoodsDto.setSecCode(accessoryNo);
-        smpGoodsDto.setColorCrash("1".equals(colorCrash) ? "是" : "否");
         IdGen idGen = new IdGen();
         smpGoodsDto.setId(id);
         smpGoodsDto.setName(colorName);
