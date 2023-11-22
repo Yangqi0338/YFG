@@ -104,12 +104,7 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
             if ("裁剪工艺".equals(dto.getSpecType())) {
                 List<PackTechSpec> pts = list(countQw);
                 pts.add(dto);
-                int totalRows = 0;
-                for (PackTechSpec packTechSpec : pts) {
-                    Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
-                    Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
-                    totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
-                }
+                int totalRows = CharUtils.getRows(pts);
                 if(totalRows > 10) {
                     throw new OtherException("裁剪工艺最多只能定义10条数据！(当前超出"+(totalRows - 10)+")");
                 }
@@ -131,12 +126,7 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
             if ("裁剪工艺".equals(dto.getSpecType())) {
                 List<PackTechSpec> pts = list(countQw);
                 pts.add(dto);
-                int totalRows = 0;
-                for (PackTechSpec packTechSpec : pts) {
-                    Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
-                    Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
-                    totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
-                }
+                int totalRows = CharUtils.getRows(pts);
                 if(totalRows > 10) {
                     throw new OtherException("裁剪工艺最多只能定义10条数据！(当前超出"+(totalRows - 10)+")");
                 }

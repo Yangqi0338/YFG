@@ -1,5 +1,7 @@
 package com.base.sbc.module.pack.utils;
 
+import com.base.sbc.module.pack.entity.PackTechSpec;
+import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.itextpdf.styledxmlparser.jsoup.Jsoup;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Document;
 import com.itextpdf.styledxmlparser.jsoup.nodes.Element;
@@ -16,6 +18,38 @@ import java.util.List;
  * Date: 2023 2023/11/21 10:17
  */
 public class CharUtils {
+    /**
+     * 获取行数（基础工艺）
+     * @param list
+     * @return
+     */
+    public static int getRowsVO(List<PackTechSpecVo> list) {
+        int totalRows = 0;
+        for (int i = 0; i < list.size(); i++) {
+            PackTechSpecVo packTechSpec = list.get(i);
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+            Integer contentRowCount = CharUtils.contentRows(624f, packTechSpec.getContent());
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+            packTechSpec.setRows(totalRows);
+        }
+        return totalRows;
+    }
+
+    /**
+     * 获取行数(裁剪工艺)
+     * @param list
+     * @return
+     */
+    public static int getRows(List<PackTechSpec> list) {
+        int totalRows = 0;
+        for (int i = 0; i < list.size(); i++) {
+            PackTechSpec packTechSpec = list.get(i);
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
+            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+        }
+        return totalRows;
+    }
 
     /**
      * 判断内容行数
@@ -81,7 +115,8 @@ public class CharUtils {
         Document doc = Jsoup.parse(html);
         Elements pElements = doc.select("p");
         if(pElements.size() == 0) {
-            return Collections.singletonList(html);
+            Document htmlDoc = Jsoup.parse(html);
+            return Collections.singletonList(htmlDoc.text());
         }
         for (Element p : pElements) {
             paragraphs.add(p.text());
