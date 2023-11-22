@@ -662,7 +662,7 @@
                     <#else>
                         <#list item.rowData as c>
                             <td class="${c.className} ${sizeClass[c_index]} "
-                                style="padding: 0;
+                                style="padding: 0; vertical-align: middle; font-size: 10px;
                                 <#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
                                         border-right: 2px solid #000000;
                                 </#if>
@@ -681,15 +681,13 @@
                                 <#if c_index == 0>
                                     ${partWidth}
                                 </#if>">
-                                <div style="display: table-cell;">
+                                <div style="display: table-cell;height: 100%">
                                     <#if c_index gt 1>
                                         <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
-                                    <#elseif c_index == 1>
-                                        <div style="font-size: 0.9em;display: table-cell; white-space: nowrap;${contentWidth}">${c.text}</div>
-                                    <#elseif c_index == 0>
-                                        <div style="font-size: 0.9em; white-space: nowrap; text-align: left">${c.text}</div>
+                                    <#elseif c_index == 0 || c_index == 1>
+                                        <p style="font-size: 1em; white-space: nowrap; text-align: left;">${c.text}</p>
                                     <#else >
-                                        ${c.text}
+                                        <p>${c.text}</p>
                                     </#if>
                                 </div>
                             </td>
