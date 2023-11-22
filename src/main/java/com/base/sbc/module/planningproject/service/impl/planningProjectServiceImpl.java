@@ -148,7 +148,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             styleColorQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()), "ts.prod_category2nd", planningProjectDimension.getProdCategory2ndCode());
             styleColorQueryWrapper.eq("ts.prod_category", planningProjectDimension.getProdCategoryCode());
             styleColorQueryWrapper.eq("tsc.band_code", planningProjectDimension.getBandCode());
-
+            styleColorQueryWrapper.eq("tsc.order_flag", "1");
             // 查询坑位所有已经匹配的大货款号
             QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
             queryWrapper1.select("bulk_style_no");
@@ -173,7 +173,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             for (StyleColorVo styleColorVo : styleColorList) {
                 List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColorVo.getId());
                 for (FieldManagementVo fieldManagementVo : fieldManagementVos) {
-                    if (fieldManagementVo.getFieldName().equals(planningProjectDimension.getDimensionCode()) && fieldManagementVo.getVal().equals(planningProjectDimension.getDimensionValue())) {
+                    if (fieldManagementVo.getFieldId().equals(planningProjectDimension.getDimensionId()) && fieldManagementVo.getVal().equals(planningProjectDimension.getDimensionValue())) {
                         // 说明匹配上了
                         PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
                         planningProjectPlank.setBulkStyleNo(styleColorVo.getStyleNo());
@@ -189,9 +189,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                             planningProjectPlank.setColorSystem(colourLibrary.getColorType());
                         }
                         planningProjectPlanks.add(planningProjectPlank);
+                        planningProjectSaveDTO.setIsMatch("1");
                     }
                 }
             }
+            this.saveOrUpdate(planningProjectSaveDTO);
             int i1 = i - planningProjectPlanks.size();
             if (i1 > 0) {
                 // 说明匹配不够
