@@ -584,7 +584,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						size1.setEXTSIZECODE("");
 						size1.setShowIntSize("0".equals(basicsdatumSize.getShowSizeStatus()));
 						size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
-						size1.setSKUFiller(hangTag.getDownContent());
+						String downContent = hangTag.getDownContent();
+						if (!StringUtils.isEmpty(downContent)) {
+							for (String s : downContent.split("\n")) {
+								if (!StringUtils.isEmpty(s)) {
+									String[] split = s.split(":");
+									if (split.length > 1) {
+										if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
+											size1.setSKUFiller(split[1]);
+										}
+									}
+								}
+							}
+
+						}
+
 						size1.setSpecialSpec("");
 						size.add(size1);
 					}
