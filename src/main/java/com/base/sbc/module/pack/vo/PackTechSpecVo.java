@@ -16,4 +16,6 @@ import lombok.Data;
 @ApiModel("资料包-工艺说明 PackTechSpecVo")
 public class PackTechSpecVo extends PackTechSpec {
     private Integer rows;
+    // 数字行数，累加
+    private Integer numberRows;
 }
