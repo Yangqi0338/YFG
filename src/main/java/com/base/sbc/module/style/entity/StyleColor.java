@@ -70,6 +70,8 @@ public class StyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setPlmId(null);
         smpGoodsDto.setSyncId(String.valueOf(idGen.nextId()));
         smpGoodsDto.setActive("0".equals(status));
+        smpGoodsDto.setDesignCorrectDate(designCorrectDate);
+        smpGoodsDto.setDesignDetailDate(designDetailDate);
         return smpGoodsDto;
     }
     /**********************************实体存放的其他字段区 【other_end】******************************************/
