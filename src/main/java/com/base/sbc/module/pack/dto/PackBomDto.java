@@ -41,7 +41,6 @@ public class PackBomDto extends PackBom {
     @ApiModelProperty(value = "替换之前的搭配")
     private String replaceCollocationName;
 
-    @ApiModelProperty(value = "物料复制标记")
-    private String copyFlag;
+
 
 }

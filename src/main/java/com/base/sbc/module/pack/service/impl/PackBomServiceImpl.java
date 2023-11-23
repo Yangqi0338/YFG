@@ -361,7 +361,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         Long versionBomCount = getBaseMapper().countByVersion(version.getId());
         // 保存物料清单表
         List<PackBom> packBoms = BeanUtil.copyToList(dtoList, PackBom.class);
-        int index = 1;
         for (PackBom packBom : packBoms) {
             PackUtils.bomDefaultVal(packBom);
             PackUtils.setBomVersionInfo(version, packBom);
@@ -370,14 +369,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 pageBomIds.add(packBom.getId());
             } else {
                 packBom.setCode(null);
-                /*复制时排序加1*/
-                if(StrUtil.equals(dtoList.get(0).getCopyFlag(),BaseGlobal.YES)){
-                    packBom.setSort(packBom.getSort()+1);
-                }else {
-                    /*排序加10*/
-                    packBom.setSort(Math.toIntExact((versionBomCount+index)*10));
-                    index++;
-                }
+                packBom.setSort(Math.toIntExact(versionBomCount+1));
             }
             packBom.calculateCost();
         }

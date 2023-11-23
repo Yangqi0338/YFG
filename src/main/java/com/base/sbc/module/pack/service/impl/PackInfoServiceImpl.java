@@ -859,7 +859,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         String newId = snowflake.nextIdStr();
                         bom.setPackType(dto.getTargetPackType());
                         bom.setCode(null);
-                        bom.setSort(Math.toIntExact((versionBomCount+(i+1))*10));
+                        bom.setSort(Math.toIntExact(versionBomCount+(i+1)));
                         bom.setForeignId(dto.getTargetForeignId());
                         bom.setBomVersionId(packBomVersion1.getId());
                         bom.setScmSendFlag(BaseGlobal.NO);
