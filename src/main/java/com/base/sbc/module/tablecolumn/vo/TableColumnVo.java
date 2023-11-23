@@ -77,4 +77,6 @@ public class TableColumnVo {
      * 是否可编辑
      */
     private Boolean disabled;
+
+    private String num;
 }

@@ -108,8 +108,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             throw new RuntimeException("该季度已经存在该渠道的企划规划");
         }
         //已匹配不允许修改
-        if ("1".equals(planningProjectSaveDTO.getIsMatch())){
-            throw new RuntimeException("已匹配不允许修改");
+        if (StringUtils.isNotBlank(planningProjectSaveDTO.getId())) {
+            PlanningProject planningProject = this.getById(planningProjectSaveDTO.getId());
+            if ("1".equals(planningProject.getIsMatch())){
+                throw new RuntimeException("已匹配不允许修改");
+            }
         }
 
 
