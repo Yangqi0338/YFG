@@ -31,7 +31,10 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
+import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
+import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -51,6 +54,9 @@ import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -141,6 +147,7 @@ public class SmpService {
     private final StyleMainAccessoriesService styleMainAccessoriesService;
 
     private final  BasicsdatumSupplierService basicsdatumSupplierService;
+    private final HangTagServiceImpl hangTagService;
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -1200,6 +1207,7 @@ public class SmpService {
         return i;
     }
 
+
     /**
      * 尺寸和外辅工艺明细数据
      *
@@ -1248,7 +1256,50 @@ public class SmpService {
             }
 
         }
-return bomSizeAndProcessDto;
+        return bomSizeAndProcessDto;
+
     }
+    /**
+     * 吊牌下发数据
+     *
+     * @param
+     * @return
+     */
+    public List<TagConfirmDateDto> tagConfirmDate(List<String> bulkStyleNos, String userCompany) {
+        List<TagConfirmDateDto>  hangTagList = new ArrayList<>();
+        // 11,22,33
+        String bulkStyleNosStr = bulkStyleNos.stream().map(String::valueOf).collect(Collectors.joining(","));
+        /* 获取大货款号 */
+        HangTagSearchDTO searchDTO = new HangTagSearchDTO();
+        searchDTO.setBulkStyleNo(bulkStyleNosStr);
+        PageInfo<HangTagListVO> hangTagVOList = hangTagService.queryPageInfo(searchDTO, userCompany);
+        List<HangTagListVO> list = hangTagVOList.getList();
+        if (CollUtil.isNotEmpty(list)){
+            for (HangTagListVO hangTagListVO : list){
+                TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
+                tagConfirmDateDto.setStyleNo(hangTagListVO.getBulkStyleNo());
+                Integer integer = Integer.valueOf(hangTagListVO.getStatus());
+                if (integer >=2){
+                    tagConfirmDateDto.setTechnologistConfirm(Integer.valueOf(hangTagListVO.getStatus()));
+                }
+                if (integer >=3){
+                    tagConfirmDateDto.setTechnologistConfirm(Integer.valueOf(hangTagListVO.getStatus()));
+                }
+                if (integer >=4){
+                    tagConfirmDateDto.setTechnologistConfirm(Integer.valueOf(hangTagListVO.getStatus()));
+                }
+                if (integer >=5){
+                    tagConfirmDateDto.setTechnologistConfirm(Integer.valueOf(hangTagListVO.getStatus()));
+                }
+                tagConfirmDateDto.setTechnologistConfirm(Integer.valueOf(hangTagListVO.getStatus()));
+                tagConfirmDateDto.setStyleNo(hangTagListVO.getBulkStyleNo());
+                hangTagList.add(tagConfirmDateDto);
+            }
+
+        }
+        return hangTagList;
+
+    }
+
 }
 
