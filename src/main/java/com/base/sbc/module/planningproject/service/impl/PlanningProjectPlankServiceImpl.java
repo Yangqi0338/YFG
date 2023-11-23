@@ -43,7 +43,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
 
         List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);
         List<TableColumnVo> tableColumnVos =new ArrayList<>();
-        Map<String, Integer> map =new HashMap<>();
+        Map<String, Integer> map =new TreeMap<>();
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             //获取所有波段,当作列
             Integer i = map.get(planningProjectPlankVo.getBandName());
