@@ -14,30 +14,32 @@ import java.util.List;
 
 /**
  * Description:
+ * 计算行数 (contentRows 方法):
+ * 输入: 一行的长度、内容、是否只统计含数字的行
+ * 过程:
+ * 分解内容为段落
+ * 遍历每个段落
+ * 计算不同类型字符的数量
+ * 计算行宽度
+ * 判断是否需要换行
+ * 对含数字的行进行特殊处理（如果 hasNumber 为 true）
+ * 累加行数
+ * 输出: 行数
+ * 获取字符宽度 (getCharWidth 方法):
+ *
+ * 输入: 字符
+ * 过程:
+ * 根据字符类型（数字、中文、英文、中英文标点等）返回对应的宽度
+ * 输出: 字符宽度
+ * 辅助方法:
+ * isDigit, isChinese, isEnglish, isChinesePunctuation, isEnglishPunctuation 等方法用于判断字符类型。
  * Author: weiql
  * Date: 2023 2023/11/21 10:17
  */
 public class CharUtils {
     /**
-     * 注意：开发windows系统生成的字体长度比测试机和生产机器的要小，所以取值，必须从测试机器或者生产机器上测试行容纳字符数
-     * 获取行数（基础工艺）,基础工艺的描述只有624，这个长度 = 最大中文字符串数量*fontSize, 工艺项目要求12个字符所以长度= 12*11
-     * @param list
-     * @return
-     */
-    public static int getRowsVO(List<PackTechSpecVo> list) {
-        int totalRows = 0;
-        for (int i = 0; i < list.size(); i++) {
-            PackTechSpecVo packTechSpec = list.get(i);
-            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
-            Integer contentRowCount = CharUtils.contentRows(624f, packTechSpec.getContent());
-            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
-            packTechSpec.setRows(totalRows);
-        }
-        return totalRows;
-    }
-
-    /**
      * 获取行数(裁剪工艺)
+     *
      * @param list
      * @return
      */
@@ -45,8 +47,8 @@ public class CharUtils {
         int totalRows = 0;
         for (int i = 0; i < list.size(); i++) {
             PackTechSpec packTechSpec = list.get(i);
-            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
-            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem(), false);
+            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent(), false);
             totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
         }
         return totalRows;
@@ -54,11 +56,13 @@ public class CharUtils {
 
     /**
      * 判断内容行数
+     *
      * @param oneRowWidth 一行的长度，通常是px， 字符数量*fontSize
-     * @param content 内容
+     * @param content     内容
+     * @param hasNumber   是否只统计有数字的行
      * @return 行数
      */
-    public static Integer contentRows(float oneRowWidth, String content){
+    public static Integer contentRows(float oneRowWidth, String content, boolean hasNumber) {
         float chineseFontSize = 12f;
         float englishFontSize = 6.7f;
         float numberFontSize = 8.36f;
@@ -75,18 +79,78 @@ public class CharUtils {
             float v = chineseFontSize * (chineseCount + chinesePunctuationCount + otherCount);
             float v1 = englishFontSize * (englishCount + englishPunctuationCount);
             float v2 = numberFontSize * numberCount;
-            if(v + v1 + v2 > oneRowWidth) {
-                rows += Math.ceil((v + v1 + v2) / oneRowWidth);
+            if (v + v1 + v2 > oneRowWidth) {
+                if (hasNumber && numberCount != 0) {
+                    // 统计有数字的行数
+                    // 遍历获取每一行的内容
+                    float initWidth = 0;
+                    int lastCutIndex = 0;
+                    char[] charArray = strings.get(i).toCharArray();
+                    for (int pointer = 0; pointer < charArray.length; pointer++) {
+                        char ch = charArray[pointer];
+                        float charWidth = getCharWidth(ch);
+                        initWidth += charWidth;
+                        if (initWidth > oneRowWidth) {
+                            // 如果加上当前字符会换行
+                            String substring = strings.get(i).substring(lastCutIndex, pointer);
+                            if (countCharacters(substring).get(4) > 0) {
+                                // 这一行存在数字
+                                rows++;
+                            }
+                            lastCutIndex = pointer;
+                            initWidth = 0; // 复位
+                        }
+                    }
+                    String substring = strings.get(i).substring(lastCutIndex, charArray.length);
+                    if (countCharacters(substring).get(4) > 0) {
+                        // 这一行存在数字
+                        rows++;
+                    }
+                } else {
+                    rows += Math.ceil((v + v1 + v2) / oneRowWidth);
+                }
+
             } else {
-                rows++;
+                if(!hasNumber) {
+                    rows++;
+                } else {
+                    if(numberCount > 0) {
+                        rows++;
+                    }
+                }
             }
+
+
         }
         return rows;
     }
 
     /**
+     * 获取字符宽度
+     *
+     * @param ch 字符
+     * @return float类型宽度
+     */
+    public static float getCharWidth(char ch) {
+        if (isDigit(ch)) {
+            return 8.36f;
+        } else if (isChinese(ch)) {
+            return 12f;
+        } else if (isEnglish(ch)) {
+            return 6.7f;
+        } else if (isChinesePunctuation(ch)) {
+            return 12f;
+        } else if (isEnglishPunctuation(ch)) {
+            return 6.7f;
+        } else {
+            return 12f;
+        }
+    }
+
+    /**
      * 汇总字符串中内容成分： 中文，英文，其他字符
-     * @param str
+     *
+     * @param str 判断的字符串
      * @return 返回list{中文字符数量，英文字符数量， 中文符号数量，英文符号数量，数字数量，其他字符数量}
      */
     public static List<Integer> countCharacters(String str) {
@@ -97,7 +161,7 @@ public class CharUtils {
         int otherCount = 0;
         int numberCount = 0;
         for (char ch : str.toCharArray()) {
-            if (isDigit(ch)){
+            if (isDigit(ch)) {
                 numberCount++;
             } else if (isChinese(ch)) {
                 chineseCount++;
@@ -111,14 +175,14 @@ public class CharUtils {
                 otherCount++;
             }
         }
-        return Arrays.asList(chineseCount, englishCount, chinesePunctuationCount, englishPunctuationCount,numberCount, otherCount);
+        return Arrays.asList(chineseCount, englishCount, chinesePunctuationCount, englishPunctuationCount, numberCount, otherCount);
     }
 
     public static List<String> extractParagraphs(String html) {
         List<String> paragraphs = new ArrayList<>();
         Document doc = Jsoup.parse(html);
         Elements pElements = doc.select("p");
-        if(pElements.size() == 0) {
+        if (pElements.size() == 0) {
             Document htmlDoc = Jsoup.parse(html);
             return Collections.singletonList(htmlDoc.text());
         }
@@ -131,6 +195,7 @@ public class CharUtils {
 
     /**
      * 是否是汉字
+     *
      * @param ch
      * @return
      */
@@ -146,6 +211,7 @@ public class CharUtils {
 
     /**
      * 字符是否是英文字母
+     *
      * @param ch
      * @return
      */
@@ -158,6 +224,7 @@ public class CharUtils {
 
     /**
      * 是否是中文符号
+     *
      * @param ch
      * @return
      */
@@ -172,6 +239,7 @@ public class CharUtils {
 
     /**
      * 是否是英文符号
+     *
      * @param ch
      * @return
      */
@@ -187,6 +255,7 @@ public class CharUtils {
 
     /**
      * 是否是数字
+     *
      * @param ch
      * @return
      */

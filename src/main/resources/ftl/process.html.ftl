@@ -170,7 +170,7 @@
         display: table-cell;
         vertical-align: middle;
         text-align: center;
-        padding: 10px;
+        /*padding: 10px;*/
     }
 
     .jcgy_img_box img {
@@ -562,57 +562,57 @@
     <#assign sizeCount = (washSkippingFlag?then(3, 2))>
     <#assign sizeWidth = "width: 100%;">
     <#--描述列-->
-    <#assign contentWidth = "width: 216px;">
+    <#assign contentWidth = "width: 216px;font-size: 10px;">
     <#--档差-->
-    <#assign rdWidth = "width: 20px;">
+    <#assign rdWidth = "width: 20px;font-size: 10px;">
     <#--部位-->
-    <#assign partWidth = "width: 60px;">
+    <#assign partWidth = "width: 60px;font-size: 10px;">
     <#if sizeList?size*sizeCount gt 20>
         <#--尺寸列为21个-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 60px;">
-        <#assign rdWidth = "width: 20px;">
+        <#assign contentWidth = "width: 60px;font-size: 10px;">
+        <#assign rdWidth = "width: 20px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 17>
         <#--尺寸列为18个-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 60px;">
-        <#assign rdWidth = "width: 20px;">
+        <#assign contentWidth = "width: 60px;font-size: 10px;">
+        <#assign rdWidth = "width: 20px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 14>
         <#--尺寸列15， 16-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 80px;">
-        <#assign rdWidth = "width: 20px;">
+        <#assign contentWidth = "width: 80px;font-size: 10px;">
+        <#assign rdWidth = "width: 20px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 11>
         <#--尺寸列为12 14-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 80px;">
-        <#assign rdWidth = "width: 40px;">
+        <#assign contentWidth = "width: 80px;font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 7>
         <#--尺寸列为8 10-->
         <#assign sizeWidth = "width: 90%;">
-        <#assign contentWidth = "width: 80px;">
-        <#assign rdWidth = "width: 40px;">
+        <#assign contentWidth = "width: 80px;font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 5>
         <#--尺寸列为6-->
         <#assign sizeWidth = "width: 80%;">
-        <#assign contentWidth = "width: 160px;">
-        <#assign rdWidth = "width: 40px;">
+        <#assign contentWidth = "width: 160px;font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 3>
         <#--尺寸列为4-->
-        <#assign sizeWidth = "width: 60%;">
-        <#assign contentWidth = "width: 160px;">
-        <#assign rdWidth = "width: 40px;">
+        <#assign sizeWidth = "width: 60%;font-size: 10px;">
+        <#assign contentWidth = "width: 160px;font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 1>
         <#--尺寸列为2-->
         <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 160px;">
-        <#assign rdWidth = "width: 40px;">
+        <#assign contentWidth = "width: 160px; font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#else>
         <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 160px;">
-        <#assign rdWidth = "width: 40px;">
+        <#assign contentWidth = "width: 160px; font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     </#if>
-    <table class="table_border size_table_border mt size_table"
+    <table class="table_border size_table_border mt"
            style="page-break-before: always; page-break-after: always;font-size: 10px; ${sizeWidth}">
         <thead>
         <tr>
@@ -863,7 +863,7 @@
 
 <!--    裁剪工艺 4 1-->
 <#if ctBasicPage>
-    <#if cjgyShow>
+    <#if cjgyShow&&cjgyDataList?size gt 0>
     <#--        <#if cjgyDataList?size gt 5 || (cjgyDataList?size + jcgyDataList?size) gt 20>page-break-after: always</#if>-->
         <table class="table_border mt" style="">
             <thead>
@@ -909,12 +909,16 @@
 
     <#assign lastIndex = jcgyDataList?size - 1>
     <#assign totalSize = jcgyDataList[lastIndex].rows + cjgyRows>
-    <#--测试机器字体最多只能容纳22行-->
-    <#assign maxSize = 22>
-    <#assign diff = maxSize - cjgyRows>
+    <#--可以容纳27个没有数字的行-->
+    <#assign maxSize = 26>
+    <#--如果每一行都有数字则能容纳22行（测试机器和生产机器为准）-->
+    <#--25/22 约等于 0.88, 也就是说存在数字的行数/0.88 + 不存在数字的行数 是否大于 25，如果大于则换行-->
+    <#--假如基础工艺8行没有数字的 + 2行有数字的  2*0.88 + 8*1-->
+<#--    <#assign maxSize = 23>-->
 
 
     <!--    基础工艺 4 3-->
+    <#assign breakPointer = 0 >
     <#if jcgyShow && jcgyDataList?size gt 0>
         <table class="table_border mt" style="page-break-inside: auto">
             <thead>
@@ -937,12 +941,13 @@
                         <div>
                             <div class="flex_td_box">
                                 <#list jcgyDataList as item>
-                                    <#if item.rows lt diff >
+                                    <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
+                                    <#if curRows lt maxSize>
                                         <div>
                                             <div>
                                                 <div class="item_td">
                                                     <div style="height: 100%; ">
-                                                        ${item.item}
+                                                       <#-- ${item.item}-->${item.numberRows}, ${item.rows},${curRows}
                                                     </div>
                                                 </div>
                                                 <div>
@@ -952,18 +957,20 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <#assign breakPointer = item_index >
                                     </#if>
                                 </#list>
                             </div>
                         </div>
                     </td>
                     <td rowspan="${jcgyRowsPan}" style="padding: 0;">
-                        <div class="jcgy_img_box">
+                        <div class="jcgy_img_box" style="height: ${jcgyImgHeight}px;">
                             <#if jcgyImgList??>
                                 <#list jcgyImgList as item>
                                     <img src="${item.url}"/> <br>
                                 </#list>
                             </#if>
+
                         </div>
                     </td>
                 </tr>
@@ -972,7 +979,11 @@
         </table>
     </#if>
 
-    <#if totalSize gt maxSize>
+    <#assign lastItem = jcgyDataList[breakPointer+1]>
+    <#--总行数减去有数字的行数 = 不存在数字的行数-->
+    <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/0.88 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 27>
+    <#--如果需要分页-->
+    <#if hasPageBreak>
         <table class="table_border mt" style="page-break-before: always">
             <thead>
             <tr>
@@ -994,12 +1005,13 @@
                         <div>
                             <div class="flex_td_box">
                                 <#list jcgyDataList as item>
-                                    <#if item.rows gt diff || item.rows == diff>
+                                    <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
+                                    <#if curRows gt maxSize || curRows == maxSize>
                                         <div>
                                             <div>
                                                 <div class="item_td">
                                                     <div style="height: 100%; ">
-                                                        ${item.item}
+<#--                                                        ${item.item}-->${curRows}
                                                     </div>
                                                 </div>
                                                 <div>
@@ -1057,7 +1069,7 @@
                 <#list cjgyDataList as item>
                     <tr>
                         <td class="item_td">
-                            ${item.item}
+                            <#--${item.item}--> ${item.numberRows}, ${item.rows}
                         </td>
                         <td>
                             ${item.content}

@@ -211,8 +211,8 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
             pts.addAll(list);
             for (int i = 0; i < pts.size(); i++) {
                 PackTechSpec packTechSpec = pts.get(i);
-                Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem());
-                Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent());
+                Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem(), false);
+                Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent(), false);
                 totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
             }
             if(totalRows > 10) {

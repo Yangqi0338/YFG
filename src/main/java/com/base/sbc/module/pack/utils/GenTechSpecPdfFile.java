@@ -361,7 +361,9 @@ public class GenTechSpecPdfFile {
             }
         }
         dataModel.put("ztbzDataList", Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList()));
-        dataModel.put("cjgyDataList", Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
+        List<PackTechSpecVo> cjgyDataList = Optional.ofNullable(gyMap.get("裁剪工艺")).orElse(CollUtil.newArrayList());
+        getCJGYRows(cjgyDataList);
+        dataModel.put("cjgyDataList", cjgyDataList);
         dataModel.put("cjgyImgList", Optional.ofNullable(picMap.get("裁剪工艺")).orElse(CollUtil.newArrayList()));
         List<PackTechSpecVo> xbjDataList = Optional.ofNullable(gyMap.get("小部件")).orElse(CollUtil.newArrayList());
         List<PackTechSpecVo> zysxDataList = Optional.ofNullable(gyMap.get("注意事项")).orElse(CollUtil.newArrayList());
@@ -372,11 +374,7 @@ public class GenTechSpecPdfFile {
 
         List<PackTechSpecVo> jcgyDataList = Optional.ofNullable(gyMap.get("基础工艺")).orElse(CollUtil.newArrayList());
         // 基础工艺行数
-        int jcgyDataRows = CharUtils.getRowsVO(jcgyDataList);
-
-
-
-
+        int jcgyDataRows = getJCGYRows(jcgyDataList);
         dataModel.put("jcgyDataRows", jcgyDataRows);
         dataModel.put("jcgyDataList", jcgyDataList);
         List<PackTechAttachmentVo> jcgyImgList = Optional.ofNullable(picMap.get("基础工艺")).map(img -> {
@@ -390,13 +388,13 @@ public class GenTechSpecPdfFile {
         int totalRows = CharUtils.getRows(packTechSpecVos.stream().map(p -> (PackTechSpec)p).collect(Collectors.toList()));
         dataModel.put("cjgyRows", totalRows);
         if(totalRows >= 10) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
+            dataModel.put("jcgyImgHeight", 280);
         } else if (totalRows >= 7) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 220 / jcgyImgList.size() : 220);
+            dataModel.put("jcgyImgHeight", 340);
         } else if (totalRows >= 4) {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 240 / jcgyImgList.size() : 240);
+            dataModel.put("jcgyImgHeight", 400);
         } else {
-            dataModel.put("jcgyImgHeight", jcgyImgList.size() > 0 ? 260 / jcgyImgList.size() : 260);
+            dataModel.put("jcgyImgHeight", 500);
         }
         dataModel.put("jcgyRowsPan", jcgyDataList.size());
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(null));
@@ -421,6 +419,48 @@ public class GenTechSpecPdfFile {
 //        System.out.println("temp目录路径:" + FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html");
 //        FileUtil.writeString(html, new File(FileUtil.getTmpDirPath() + "/" + designNo + "htmltoPdf.html"), Charset.defaultCharset());
         return html;
+    }
+
+    /**
+     * @param list
+     * @return
+     */
+    public static int getJCGYRows(List<PackTechSpecVo> list) {
+        int totalRows = 0;
+        int numberRows = 0;
+        for (PackTechSpecVo packTechSpec : list) {
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem(), false);
+            Integer contentRowCount = CharUtils.contentRows(624f, packTechSpec.getContent(), false);
+            // 数字行数
+            float oneRowWidth = itemRowCount > contentRowCount ? 132f : 624f;
+            String content = itemRowCount > contentRowCount ? packTechSpec.getItem() : packTechSpec.getContent();
+            numberRows += CharUtils.contentRows(oneRowWidth, content, true);
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+            packTechSpec.setRows(totalRows);
+            packTechSpec.setNumberRows(numberRows);
+        }
+        return totalRows;
+    }
+
+    /**
+     * @param list
+     * @return
+     */
+    public static int getCJGYRows(List<PackTechSpecVo> list) {
+        int totalRows = 0;
+        int numberRows = 0;
+        for (PackTechSpecVo packTechSpec : list) {
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem(), false);
+            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent(), false);
+            // 数字行数
+            float oneRowWidth = itemRowCount > contentRowCount ? 132f : 912f;
+            String content = itemRowCount > contentRowCount ? packTechSpec.getItem() : packTechSpec.getContent();
+            numberRows += CharUtils.contentRows(oneRowWidth, content, true);
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+            packTechSpec.setRows(totalRows);
+            packTechSpec.setNumberRows(numberRows);
+        }
+        return totalRows;
     }
 
     public ByteArrayOutputStream gen() {
