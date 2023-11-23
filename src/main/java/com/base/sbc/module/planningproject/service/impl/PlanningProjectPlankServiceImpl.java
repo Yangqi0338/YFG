@@ -12,6 +12,7 @@ import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.tablecolumn.vo.TableColumnVo;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -42,19 +43,29 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
 
         List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);
         List<TableColumnVo> tableColumnVos =new ArrayList<>();
-        Map<String,String> map =new HashMap<>();
+        Map<String, Integer> map =new TreeMap<>();
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             //获取所有波段,当作列
-            map.put(planningProjectPlankVo.getBandName(),planningProjectPlankVo.getBandName());
+            if (StringUtils.isNotEmpty(planningProjectPlankVo.getBandName())){
+                Integer i = map.get(planningProjectPlankVo.getBandName());
+                if (i == null) {
+                    map.put(planningProjectPlankVo.getBandName(), 1);
+                }else {
+                    i++;
+                    map.put(planningProjectPlankVo.getBandName(), i);
+                }
+            }
+
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
                 List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(planningProjectPlankVo.getStyleColorId());
                 planningProjectPlankVo.setFieldManagementVos(fieldManagementVos);
             }
         }
         //生成表格列
-        for (Map.Entry<String, String> stringStringEntry : map.entrySet()) {
+        for (Map.Entry<String, Integer> stringStringEntry : map.entrySet()) {
             TableColumnVo tableColumnVo =new TableColumnVo();
-            tableColumnVo.setTitle(stringStringEntry.getValue());
+            tableColumnVo.setTitle(stringStringEntry.getKey());
+            tableColumnVo.setNum(String.valueOf(stringStringEntry.getValue()));
             tableColumnVos.add(tableColumnVo);
         }
         stylePicUtils.setStyleColorPic2(list, "pic");
