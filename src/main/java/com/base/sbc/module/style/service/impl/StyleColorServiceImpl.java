@@ -1490,8 +1490,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
         BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
 
-        styleColorBaseQueryWrapper.eq("band_code", dto.getBandCode()).select("id");
-      ;
         if (!list.isEmpty()) {
             List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
             styleColorBaseQueryWrapper.notIn("style_no", bulkStyleNoList);
@@ -1505,6 +1503,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleQueryWrapper.eq("ts.prod_category1st",dto.getProdCategory1st());
         styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
         styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
+        styleQueryWrapper.eq("tsc.order_flag", "1");
         styleQueryWrapper.in("tsc.id",styleColorIds1);
         PageHelper.startPage(dto);
         List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper);
