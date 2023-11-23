@@ -1,6 +1,7 @@
 package com.base.sbc.module.style.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -35,7 +36,7 @@ public class StyleColorExcel {
     @Excel(name = "品类")
     private String  prodCategoryName;
 
-    @Excel(name = "SCM下发状态",replace={"重新打开_3","发送失败_2","发送成功_1","未发送_0"})
+    @Excel(name = "SCM下发状态",replace={"_null","重新打开_3","发送失败_2","发送成功_1","未发送_0"})
     private String scmSendFlag;
 
     private String styleColorPic;
@@ -52,7 +53,7 @@ public class StyleColorExcel {
     @Excel(name = "配色")
     private String  colorName;
 
-    @Excel(name = "是否配饰款",replace={"否_0","是_1"})
+    @Excel(name = "是否配饰款",replace={"_null","否_0","是_1"})
     private String isTrim;
 
     @Excel(name = "配饰")
@@ -67,10 +68,17 @@ public class StyleColorExcel {
     @Excel(name = "主款款号")
     private String principalStyleNo;
 
-    @Excel(name = "是否下单",replace={"是_1","否_0"} )
+    /** 设计下明细单 */
+    @Excel(name = "设计下明细单",exportFormat = "yyyy-MM-dd")
+    private Date designDetailDate;
+    /** 设计下正确样 */
+    @Excel(name = "设计下正确样",exportFormat = "yyyy-MM-dd")
+    private Date designCorrectDate;
+
+    @Excel(name = "是否下单",replace={"_null","是_1","否_0"} )
     private String orderFlag;
 
-    @Excel(name = "BOM状态",replace={"样品_0","大货_1"})
+    @Excel(name = "BOM状态",replace={"_null","样品_0","大货_1"})
     private String bomStatus;
 
     @Excel(name = "紧急程度")
@@ -94,7 +102,7 @@ public class StyleColorExcel {
     @Excel(name = "工艺员")
     private String technicianName;
 
-    @Excel(name = "状态",replace={"停用_1","启用_0"} )
+    @Excel(name = "状态",replace={"_null","停用_1","启用_0"} )
     private String status;
 
 

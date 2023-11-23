@@ -10,7 +10,7 @@ import java.util.Optional;
 @Data
 public class StyleColorListExcel {
 
-    @Excel(name = "SCM下发状态",replace={"重新打开_3","发送失败_2","发送成功_1","未发送_0"})
+    @Excel(name = "SCM下发状态",replace={"_null","重新打开_3","发送失败_2","发送成功_1","未发送_0"})
     private String scmSendFlag;
     /**
      * 款式图
@@ -46,7 +46,7 @@ public class StyleColorListExcel {
     @Excel(name = "大货款号")
     private String styleNo;
 
-    @Excel(name = "轻奢款",replace={"是_1","否_0"} )
+    @Excel(name = "轻奢款",replace={"_null","是_1","否_0"} )
     private String isLuxury;
 
     @Excel(name = "细分")
@@ -102,13 +102,13 @@ public class StyleColorListExcel {
     @Excel(name = "配饰款号")
     private String accessoryNo;
 
-    @Excel(name = "状态",replace={"停用_1","启用_0"} )
+    @Excel(name = "状态",replace={"_null","停用_1","启用_0"} )
     private String status;
 
-    @Excel(name = "是否下单",replace={"是_1","否_0"} )
+    @Excel(name = "是否下单",replace={"_null","是_1","否_0"} )
     private String orderFlag;
 
-    @Excel(name = "上会",replace={"是_1","否_0"} )
+    @Excel(name = "上会",replace={"_null","是_1","否_0"} )
     private String meetFlag;
 
     @Excel(name = "大类")
@@ -123,10 +123,10 @@ public class StyleColorListExcel {
     @Excel(name = "关联BOM")
     private String bom;
 
-    @Excel(name = "BOM状态",replace={"样品_0","大货_1"})
+    @Excel(name = "BOM状态",replace={"_null","样品_0","大货_1"})
     private String bomStatus;
 
-    @Excel(name = "是否配饰款",replace={"否_0","是_1"})
+    @Excel(name = "是否配饰款",replace={"_null","否_0","是_1"})
     private String isTrim;
 
     @Excel(name = "销售类型")
@@ -156,13 +156,13 @@ public class StyleColorListExcel {
     @Excel(name = "品名")
     private String productName;
 
-    @Excel(name = "计控吊牌确定",replace={"未确定_0","已确定_1"})
+    @Excel(name = "计控吊牌确定",replace={"未确定_null","未确定_0","已确定_1"})
     private String productHangtagConfirm;
 
-    @Excel(name = "计控成本确认",replace={"未确定_0","已确定_1"})
+    @Excel(name = "计控成本确认",replace={"未确定_null","未确定_0","已确定_1"})
     private String controlConfirm;
 
-    @Excel(name = "品控吊牌价确定",replace={"未确定_0","已确定_1"})
+    @Excel(name = "品控吊牌价确定",replace={"未确定_null","未确定_0","已确定_1"})
     private String controlHangtagConfirm;
 
     @Excel(name = "款式类型")

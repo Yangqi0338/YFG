@@ -166,6 +166,7 @@
             CASE WHEN tsc.is_trim = '0' THEN tsma.color_name ELSE'' END as accessory1,
         	CASE WHEN tsc.is_trim  = '0' THEN ''ELSE tsma.style_no  END as principalStyleNo,
             CASE WHEN tsc.is_trim = '0' THEN ''ELSE tsma.color_name END as principalStyle,
+            if(tsc.color_crash is null or tsc.color_crash = '', ts.color_crash, tsc.color_crash) as colorCrash,
             tpi.id packInfoId,
             tpi.name infoName,
             ts.task_level,

@@ -26,6 +26,11 @@ import java.util.Optional;
 
 @ApiModel("样衣-款式配色 SampleStyleColor")
 public class StyleColorVo {
+    /**
+     * 是否撞色
+     */
+    @ApiModelProperty(value = "是否撞色,0否 1是")
+    private String colorCrash;
 
     private String id;
 
@@ -324,11 +329,11 @@ public class StyleColorVo {
     private Date sendSingleDate;
     /** 设计下明细单 */
     @ApiModelProperty(value = "设计下明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date designDetailDate;
     /** 设计下正确样 */
     @ApiModelProperty(value = "设计下正确样"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date designCorrectDate;
 
     /** 供应商 */

@@ -31,6 +31,8 @@ import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
+import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -136,6 +138,7 @@ public class SmpService {
     private final StyleMainAccessoriesService styleMainAccessoriesService;
 
     private final  BasicsdatumSupplierService basicsdatumSupplierService;
+    private final HangTagServiceImpl hangTagService;
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -192,6 +195,11 @@ public class SmpService {
                 if (style==null){
                     style= styleService.getById(styleColor.getStyleId());
                 }
+            }
+            if (StringUtils.isEmpty(styleColor.getColorCrash())){
+                smpGoodsDto.setColorCrash("1".equals(style.getColorCrash()) ? "是" : "否");
+            }else {
+                smpGoodsDto.setColorCrash("1".equals(styleColor.getColorCrash()) ? "是" : "否");
             }
 
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
@@ -417,10 +425,11 @@ public class SmpService {
             //smpGoodsDto.setRegion(null);
             //smpGoodsDto.setSalesGroup(null);
             List<String> sizeCodes = StringUtils.convertList(style.getSizeCodes());
-            List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
-            if (basicsdatumSizes.isEmpty()){
+            if (sizeCodes.isEmpty()){
                 throw new OtherException("尺码不能为空");
             }
+            List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
+
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
                 SmpSize smpSize = new SmpSize();
@@ -1192,6 +1201,26 @@ public class SmpService {
             preProductionSampleTaskService.updateById(preProductionSampleTask);
         }
 
+        return i;
+    }
+
+    //下发吊牌成分
+    public int sendTageComposition(List<String> ids){
+        int i =0;
+        List<HangTag> hangTags = hangTagService.listByIds(ids);
+        for (HangTag hangTag : hangTags) {
+            TagCompositionDto tagCompositionDto = new TagCompositionDto();
+            tagCompositionDto.setComposition(hangTag.getIngredient());
+            tagCompositionDto.setBulkStyleNo(hangTag.getStyleNo());
+            String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
+            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/sendTageComposition",jsonString);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "下发吊牌成分");
+
+            if (aBoolean) {
+                i++;
+            }
+
+        }
         return i;
     }
 }

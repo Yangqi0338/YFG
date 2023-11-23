@@ -78,6 +78,14 @@ public interface FabricIngredientsInfoService extends BaseService<FabricIngredie
          */
         void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws IOException;
 
+
+        /**
+         * 复制辅料
+         * @param id
+         * @return
+         */
+        Boolean copyIngredients(String id);
+
 // 自定义方法区 不替换的区域【other_end】
 
 
