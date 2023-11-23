@@ -195,8 +195,10 @@ public class SmpService {
             if (packInfo!=null){
                 //产前样
                 PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
-                smpGoodsDto.setTechReceiveDate(preProductionSampleTask.getTechReceiveDate());
-                smpGoodsDto.setProcessDepartmentDate(preProductionSampleTask.getProcessDepartmentDate());
+                if (preProductionSampleTask!=null){
+                    smpGoodsDto.setTechReceiveDate(preProductionSampleTask.getTechReceiveDate());
+                    smpGoodsDto.setProcessDepartmentDate(preProductionSampleTask.getProcessDepartmentDate());
+                }
                 style = styleService.getById(packInfo.getStyleId());
                 if (style==null){
                     style= styleService.getById(styleColor.getStyleId());
