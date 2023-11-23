@@ -118,4 +118,7 @@ public class FlowTaskDto implements Serializable {
 
     private String pic;
 
+    @ApiModelProperty("款图")
+    private String stylePic;
+
 }
