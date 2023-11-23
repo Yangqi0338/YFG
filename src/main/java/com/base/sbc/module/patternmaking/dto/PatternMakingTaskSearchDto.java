@@ -92,4 +92,7 @@ public class PatternMakingTaskSearchDto extends Page {
     @ApiModelProperty(value = "是否手机端")
     private String isApp;
 
+    /*打板类型*/
+    private String sampleType;
+
 }
