@@ -135,7 +135,7 @@ public class StylePicUtils {
         String allStr = badge + name + fileName + tiemStr + appKey + appSecret;
         String allStrP = DigestUtils.md5DigestAsHex(allStr.getBytes());
 		String param = "&useraccount=" + badgeP + "&username=" + nameP + "&time=" + tiemStr + "&key=" + appkeyP
-				+ "&md5=" + allStrP;
+				+ "&md5=" + allStrP+"&lossnum=100";
         return customStylePicUpload.getViewUrl() + fileName + param;
     }
 }
