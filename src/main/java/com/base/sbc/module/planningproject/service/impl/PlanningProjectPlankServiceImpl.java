@@ -46,12 +46,14 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         Map<String, Integer> map =new TreeMap<>();
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             //获取所有波段,当作列
-            Integer i = map.get(planningProjectPlankVo.getBandName());
-            if (i == null) {
-                map.put(planningProjectPlankVo.getBandName(), 1);
-            }else {
-                i++;
-                map.put(planningProjectPlankVo.getBandName(), i);
+            if (StringUtils.isNotEmpty(planningProjectPlankVo.getBandName())){
+                Integer i = map.get(planningProjectPlankVo.getBandName());
+                if (i == null) {
+                    map.put(planningProjectPlankVo.getBandName(), 1);
+                }else {
+                    i++;
+                    map.put(planningProjectPlankVo.getBandName(), i);
+                }
             }
 
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {

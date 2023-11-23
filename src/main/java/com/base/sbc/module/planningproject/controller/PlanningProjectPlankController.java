@@ -2,10 +2,20 @@ package com.base.sbc.module.planningproject.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.formtype.entity.FieldManagement;
+import com.base.sbc.module.formtype.entity.FieldOptionConfig;
+import com.base.sbc.module.formtype.entity.FormType;
+import com.base.sbc.module.formtype.service.FieldManagementService;
+import com.base.sbc.module.formtype.service.FieldOptionConfigService;
+import com.base.sbc.module.formtype.service.FormTypeService;
+import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planningproject.dto.MatchSaveDto;
+import com.base.sbc.module.planningproject.dto.PlanningProjectPlankDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.dto.UnMatchDto;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
@@ -17,9 +27,12 @@ import com.base.sbc.module.style.service.StyleColorService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -35,6 +48,9 @@ public class PlanningProjectPlankController extends BaseController {
     private final StyleColorService styleColorService;
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
     private final PlanningProjectDimensionService planningProjectDimensionService;
+    private final FormTypeService formTypeService;
+    private final FieldOptionConfigService fieldOptionConfigService;
+    private final FieldManagementService fieldManagementService;
 
     /**
      * 查询列表
@@ -43,6 +59,38 @@ public class PlanningProjectPlankController extends BaseController {
     @GetMapping("/ListByDto")
     public ApiResult ListByDto(PlanningProjectPlankPageDto dto) {
         return selectSuccess(planningProjectPlankService.ListByDto(dto));
+    }
+
+    /**
+     * 查询维度标签列表
+     */
+    @ApiOperation(value = "查询维度标签列表")
+    @GetMapping("/queryDimensionLabelList")
+    public ApiResult queryDimensionLabelList(PlanningProjectPlankDto planningProjectPlankDto) {
+        QueryWrapper<FormType> formTypeQueryWrapper = new QueryWrapper<>();
+        formTypeQueryWrapper.eq("code", planningProjectPlankDto.getFormCode());
+        FormType formType = formTypeService.getOne(formTypeQueryWrapper);
+        if (formType==null) {
+            throw new OtherException("获取表单失败");
+        }
+        /*品类查询字段配置列表查询品类下的字段id*/
+        BaseQueryWrapper<FieldOptionConfig> qw = new BaseQueryWrapper<>();
+        planningProjectPlankDto.setFieldId(formType.getId());
+        PlanningUtils.fieldConfigQw(qw,planningProjectPlankDto);
+        /*查询字段配置中的数据*/
+        List<FieldOptionConfig> optionConfigList = fieldOptionConfigService.list(qw);
+
+        /*获取到这个品类下存在的字段*/
+        List<String> fieldManagementIdList = optionConfigList.stream().map(FieldOptionConfig::getFieldManagementId).distinct().collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(fieldManagementIdList)) {
+            throw new OtherException("字段未配置选项");
+        }
+        /*配置的字段*/
+        /**
+         * 查询需求占比中依赖于字段id
+         */
+        List<FieldManagement> fieldManagementList = fieldManagementService.listByIds(fieldManagementIdList);
+        return selectSuccess(fieldManagementList);
     }
 
     /**
