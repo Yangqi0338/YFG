@@ -1,12 +1,18 @@
 package com.base.sbc.open.controller;
 
 
+import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioConfig;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +21,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -39,6 +46,13 @@ public class OpenTechSpecViewController {
     PackInfoService packInfoService;
     @Autowired
     AttachmentService attachmentService;
+    @Resource
+    private UploadFileService uploadFileService;
+    @Resource
+    private PackInfoStatusService packInfoStatusService;
+
+    @Autowired
+    private MinioConfig minioConfig;
     @Autowired
     UserUtils userUtils;
 
@@ -72,20 +86,26 @@ public class OpenTechSpecViewController {
         dto.setForeignId(foreignId);
         dto.setPackType(packType);
 
-        GenTechSpecPdfFile genTechSpecPdfFile = packInfoService.queryGenTechSpecPdfFile(null, dto);
-        genTechSpecPdfFile.setPdfView(false);
-        String html;
-        try {
-            html = genTechSpecPdfFile.toHtml();
-            html = html.replaceAll(minioDomain, "/minio");
-        } catch (Exception e) {
-            html = e.getMessage();
-        }
-        response.setContentType("text/html;charset=UTF-8");
-        PrintWriter writer = response.getWriter();
-        writer.write(html);
-        writer.flush();
-        writer.close();
+//        GenTechSpecPdfFile genTechSpecPdfFile = packInfoService.queryGenTechSpecPdfFile(null, dto);
+        PackInfoListVo detail = packInfoService.getDetail(foreignId, dto.getPackType());
+
+            if(ObjectUtils.isNotNull(detail)) {
+                response.sendRedirect(detail.getTechSpecFile().getUrl());
+            }
+
+//        genTechSpecPdfFile.setPdfView(false);
+//        String html;
+//        try {
+//            html = genTechSpecPdfFile.toHtml();
+//            html = html.replaceAll(minioDomain, "/minio");
+//        } catch (Exception e) {
+//            html = e.getMessage();
+//        }
+//        response.setContentType("text/html;charset=UTF-8");
+//        PrintWriter writer = response.getWriter();
+//        writer.write(html);
+//        writer.flush();
+//        writer.close();
     }
 
 }
