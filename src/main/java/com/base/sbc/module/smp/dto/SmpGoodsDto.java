@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -228,9 +229,33 @@ public class SmpGoodsDto extends SmpBaseDto {
     private List<SmpSize> itemList;
     /**图片地址集合*/
     private List<String> imgList;
+
+
+    //新加字段
     /**
      * 是否撞色
      */
     @ApiModelProperty(value = "是否撞色,0否 1是")
     private String colorCrash;
+    /** 设计下正确样 */
+    @ApiModelProperty(value = "设计下正确样"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designCorrectDate;
+    /** 设计下明细单 */
+    @ApiModelProperty(value = "设计下明细单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designDetailDate;
+    /**
+     * 工艺部接收正确样时间
+     */
+    @ApiModelProperty(value = "工艺部接收正确样时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date techReceiveDate;
+
+    /**
+     * 技术下工艺部正确样
+     */
+    @ApiModelProperty(value = "技术下工艺部正确样")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date processDepartmentDate;
 }
