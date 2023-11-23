@@ -41,4 +41,6 @@ public class PackBomDto extends PackBom {
     @ApiModelProperty(value = "替换之前的搭配")
     private String replaceCollocationName;
 
+
+
 }
