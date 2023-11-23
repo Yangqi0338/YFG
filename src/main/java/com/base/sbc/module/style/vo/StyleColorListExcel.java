@@ -156,13 +156,13 @@ public class StyleColorListExcel {
     @Excel(name = "品名")
     private String productName;
 
-    @Excel(name = "计控吊牌确定",replace={"_null","未确定_0","已确定_1"})
+    @Excel(name = "计控吊牌确定",replace={"未确定_null","未确定_0","已确定_1"})
     private String productHangtagConfirm;
 
-    @Excel(name = "计控成本确认",replace={"_null","未确定_0","已确定_1"})
+    @Excel(name = "计控成本确认",replace={"未确定_null","未确定_0","已确定_1"})
     private String controlConfirm;
 
-    @Excel(name = "品控吊牌价确定",replace={"_null","未确定_0","已确定_1"})
+    @Excel(name = "品控吊牌价确定",replace={"未确定_null","未确定_0","已确定_1"})
     private String controlHangtagConfirm;
 
     @Excel(name = "款式类型")
