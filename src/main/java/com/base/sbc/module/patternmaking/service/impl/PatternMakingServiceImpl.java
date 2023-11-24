@@ -1034,7 +1034,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*获取图片链接*/
-                stylePicUtils.setStylePic(excelList, "stylePic");
+                stylePicUtils.setStylePic(excelList, "stylePic",30);
                 /*计时器*/
                 CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
                 for (SampleBoardExcel sampleBoardExcel : excelList) {

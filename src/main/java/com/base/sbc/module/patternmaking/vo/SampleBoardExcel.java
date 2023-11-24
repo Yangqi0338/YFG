@@ -265,7 +265,7 @@ public class SampleBoardExcel {
      * 二次加工(0否，1是)
      */
     @ApiModelProperty(value = "二次加工(0否，1是)")
-    @Excel(name = "二次加工", replace = {"是_1", "否_0"})
+    @Excel(name = "二次加工", replace = { "_null"})
     private String secondProcessing;
 
     @ApiModelProperty(value = "打版任务当前状态")
@@ -311,9 +311,9 @@ public class SampleBoardExcel {
         return getYearName() + " " + getSeason() + " " + getBrandName();
     }
 
-    public String  getPmStatus() {return StrUtil.equals(getPrmSendStatus(), BaseGlobal.NO)?"未提交":
-            StrUtil.equals(getBreakOffPattern(), BaseGlobal.YES)?"停用":
-                    StrUtil.equals(getBreakOffSample(), BaseGlobal.YES)?"样衣中断":"启用";
+    public String  getPmStatus() {
+        return StrUtil.equals(getBreakOffPattern(), BaseGlobal.YES)?"打板中断":
+             StrUtil.equals(getBreakOffSample(), BaseGlobal.YES)?"样衣中断":"启用";
     }
 
 }
