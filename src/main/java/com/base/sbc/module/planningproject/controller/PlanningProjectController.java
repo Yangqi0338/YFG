@@ -1,26 +1,39 @@
 package com.base.sbc.module.planningproject.controller;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
+import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
+import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
+import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
-import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
-import com.base.sbc.module.planningproject.service.PlanningProjectService;
+import com.base.sbc.module.planningproject.service.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.simpleframework.xml.core.Validate;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.method.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @Api(tags = "企划看板规划-相关接口")
@@ -30,6 +43,9 @@ import java.util.Arrays;
 public class PlanningProjectController extends BaseController {
     private final PlanningProjectService planningProjectService;
     private final PlanningProjectPlankService planningProjectPlankService;
+    private final PlanningProjectDimensionService planningProjectDimensionService;
+    private final PlanningProjectImportService planningProjectImportService;
+    private final PlanningProjectMaxCategoryService  planningProjectMaxCategoryService;
 
     @ApiOperation(value = "企划看板计划查询")
     @GetMapping("/queryPage")
@@ -73,9 +89,55 @@ public class PlanningProjectController extends BaseController {
      */
     @ApiOperation(value = "根据ids删除")
     @DeleteMapping("/delByIds")
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult delByIds(String ids) {
-        String[] split = ids.split(",");
-        return deleteSuccess(planningProjectService.removeByIds(Arrays.asList(split)));
+        if (StringUtils.isEmpty(ids)) {
+            return deleteSuccess(false);
+        }
+        Set<String> idSet = Collections.singleton(ids);
+        boolean b = planningProjectService.removeByIds(idSet);
+        if (b){
+            QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.in("planning_project_id",idSet);
+            planningProjectDimensionService.remove(queryWrapper);
+            QueryWrapper<PlanningProjectMaxCategory> queryWrapper1 =new BaseQueryWrapper<>();
+            queryWrapper1.in("planning_project_id",idSet);
+            planningProjectMaxCategoryService.remove(queryWrapper1);
+            QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
+            queryWrapper2.in("planning_project_id",idSet);
+            planningProjectPlankService.remove(queryWrapper2);
+        }
+        return deleteSuccess(b);
 
+    }
+
+    /**
+     * 导入数据看板
+     */
+    @ApiOperation(value = "导入Excel")
+    @PostMapping("/importExcel")
+    public ApiResult importExcel(@RequestParam("file") MultipartFile file,String seasonId,String planningChannelCode) throws Exception {
+        List<PlanningProjectImportDto> list = ExcelImportUtil.importExcel(file.getInputStream(), PlanningProjectImportDto.class, new ImportParams());
+        QueryWrapper<PlanningProjectImportDto> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.eq("season_id",seasonId);
+        queryWrapper.eq("planning_channel_code",planningChannelCode);
+        for (PlanningProjectImportDto planningProjectImportDto : list) {
+            planningProjectImportDto.setPlanningChannelCode(planningChannelCode);
+            planningProjectImportDto.setSeasonId(seasonId);
+            planningProjectImportService.saveOrUpdate(planningProjectImportDto,queryWrapper);
+        }
+        return insertSuccess(true);
+    }
+
+    /**
+     * 查询看板数据
+     */
+    @ApiOperation(value = "查询看板数据")
+    @GetMapping("/queryPlank")
+    public ApiResult queryPlank(String seasonId,String planningChannelCode) {
+        QueryWrapper<PlanningProjectImportDto> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.eq("season_id",seasonId);
+        queryWrapper.eq("planning_channel_code",planningChannelCode);
+        return selectSuccess(planningProjectImportService.list(queryWrapper));
     }
 }
