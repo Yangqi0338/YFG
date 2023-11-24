@@ -254,7 +254,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
 		}
 		hangTagVO.setStylePic(stylePicUtils.getStyleUrl(hangTagVO.getStylePic()));
-		hangTagVO.setStyleColorPic(stylePicUtils.getStyleColorUrl2(hangTagVO.getStyleColorPic()));
+		hangTagVO.setStyleColorPic(stylePicUtils.getStyleUrl(hangTagVO.getStyleColorPic()));
 		minioUtils.setObjectUrlToObject(hangTagVO, "washingLabel");
 		if (StringUtils.isEmpty(hangTagVO.getStatus())) {
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());

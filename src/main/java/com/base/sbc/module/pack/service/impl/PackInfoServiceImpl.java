@@ -701,7 +701,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (StrUtil.isNotBlank(detail.getStyleColorId())) {
             StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
             if (styleColor != null && StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
-                String styleNoImgUrl = stylePicUtils.getStyleColorUrl2(styleColor.getStyleColorPic());
+                String styleNoImgUrl = stylePicUtils.getStyleUrl(styleColor.getStyleColorPic());
                 vo.setStylePic(styleNoImgUrl);
             }
         }
@@ -988,7 +988,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (styleColor != null) {
             //图片
             if (StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
-                String styleNoImgUrl = stylePicUtils.getStyleColorUrl2(styleColor.getStyleColorPic());
+                String styleNoImgUrl = stylePicUtils.getStyleUrl(styleColor.getStyleColorPic());
                 vo.setStylePic(styleNoImgUrl);
             }
             vo.setIsMainly(styleColor.getIsMainly());

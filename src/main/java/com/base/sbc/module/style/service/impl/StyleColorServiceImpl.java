@@ -1505,8 +1505,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
                     throw new OtherException("带图片导出最多只能导出1500条");
                 }
-                stylePicUtils.setStylePic(list, "stylePic");
-                stylePicUtils.setStylePic(list, "styleColorPic");
+                stylePicUtils.setStylePic(list, "stylePic",30);
+                stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (StyleColorListExcel styleColorListExcel : list) {
                     executor.submit(() -> {
@@ -1561,8 +1561,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
                     throw new OtherException("带图片导出最多只能导出1500条");
                 }
-                stylePicUtils.setStylePic(list, "stylePic");
-                stylePicUtils.setStylePic(list, "styleColorPic");
+                stylePicUtils.setStylePic(list, "stylePic",30);
+                stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (StyleColorExcel styleColorExcel : list) {
                     executor.submit(() -> {
