@@ -93,9 +93,9 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryId()),"tfii.category_id",queryFabricIngredientsInfoDto.getCategoryId());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCategoryName()),"tfii.category_name",queryFabricIngredientsInfoDto.getCategoryName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevTypeName()),"tfii.dev_type_name",queryFabricIngredientsInfoDto.getDevTypeName());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"tfii.manufacturer",queryFabricIngredientsInfoDto.getManufacturer());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturerNumber()),"tfii.manufacturer_number",queryFabricIngredientsInfoDto.getManufacturerNumber());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getAtactiformStylist()),"tfii.atactiform_stylist",queryFabricIngredientsInfoDto.getAtactiformStylist());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getManufacturer()),"tfii.manufacturer",queryFabricIngredientsInfoDto.getManufacturer());
+        queryWrapper.in(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getAtactiformStylist()),"tfii.atactiform_stylist_user_id",StringUtils.convertList(queryFabricIngredientsInfoDto.getAtactiformStylist()));
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCreateName()),"tfii.create_name",queryFabricIngredientsInfoDto.getCreateName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCompletionStatus()),"tfii.completion_status",queryFabricIngredientsInfoDto.getCompletionStatus());
         queryWrapper.between("tfii.create_date",StringUtils.split(queryFabricIngredientsInfoDto.getCreateDate(),","));
@@ -111,12 +111,14 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         List<FabricIngredientsInfoVo> list = copy.getList();
         /*导出时不查询*/
         if (StringUtils.isBlank(queryFabricIngredientsInfoDto.getDeriveFlag())) {
-            List<String> stringList = list.stream().map(FabricIngredientsInfoVo::getId).collect(Collectors.toList());
-            List<FabricIngredientsSpecification> ingredientsSpecificationList = fabricIngredientsSpecificationService.listByField("ingredients_info_id", stringList);
-            Map<String, List<FabricIngredientsSpecification>> map = ingredientsSpecificationList.stream().collect(Collectors.groupingBy(p -> p.getIngredientsInfoId()));
-            for (FabricIngredientsInfoVo fabricIngredientsInfoVo : list) {
-                List<FabricIngredientsSpecification> list1 = map.get(fabricIngredientsInfoVo.getId());
-                fabricIngredientsInfoVo.setIngredientsSpecificationList(list1);
+            if(CollUtil.isNotEmpty(list)){
+                List<String> stringList = list.stream().map(FabricIngredientsInfoVo::getId).collect(Collectors.toList());
+                List<FabricIngredientsSpecification> ingredientsSpecificationList = fabricIngredientsSpecificationService.listByField("ingredients_info_id", stringList);
+                Map<String, List<FabricIngredientsSpecification>> map = ingredientsSpecificationList.stream().collect(Collectors.groupingBy(p -> p.getIngredientsInfoId()));
+                for (FabricIngredientsInfoVo fabricIngredientsInfoVo : list) {
+                    List<FabricIngredientsSpecification> list1 = map.get(fabricIngredientsInfoVo.getId());
+                    fabricIngredientsInfoVo.setIngredientsSpecificationList(list1);
+                }
             }
         }
 
