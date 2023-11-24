@@ -423,12 +423,24 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTag.setConfirmDate(null);
 			}
 			updateHangTags.add(hangTag);
-
 		});
 		super.updateBatchById(updateHangTags);
 		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(),
 				OperationDescriptionEnum.getV(hangTagUpdateStatusDTO.getStatus()), userCompany);
 
+		String status = hangTagUpdateStatusDTO.getStatus();
+		int type;
+		switch (status){
+			case "3" :type= 1;
+			break;
+			case "4" :type= 2;
+				break;
+			case "5" :type= 3;
+				break;
+			default:type= 3;
+		}
+
+		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
 		if ("2".equals(hangTagUpdateStatusDTO.getCheckType())) {
 			// 发送审批
 			List<HangTag> hangTags1 = this.listByIds(hangTagUpdateStatusDTO.getIds());
