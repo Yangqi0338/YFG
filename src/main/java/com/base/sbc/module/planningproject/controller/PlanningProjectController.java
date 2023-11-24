@@ -4,12 +4,20 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
+import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
+import com.base.sbc.module.planning.entity.PlanningCategoryItem;
+import com.base.sbc.module.planning.entity.PlanningChannel;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
+import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
@@ -46,7 +54,9 @@ public class PlanningProjectController extends BaseController {
     private final PlanningProjectDimensionService planningProjectDimensionService;
     private final PlanningProjectImportService planningProjectImportService;
     private final PlanningProjectMaxCategoryService  planningProjectMaxCategoryService;
-
+    private final PlanningCategoryItemService planningCategoryItemService;
+    private final DataPermissionsService dataPermissionsService;
+    private final PlanningChannelService planningChannelService;
     @ApiOperation(value = "企划看板计划查询")
     @GetMapping("/queryPage")
     public ApiResult queryPage(@Valid PlanningProjectPageDTO dto) {
@@ -121,11 +131,12 @@ public class PlanningProjectController extends BaseController {
         QueryWrapper<PlanningProjectImportDto> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.eq("season_id",seasonId);
         queryWrapper.eq("planning_channel_code",planningChannelCode);
+        planningProjectImportService.remove(queryWrapper);
         for (PlanningProjectImportDto planningProjectImportDto : list) {
             planningProjectImportDto.setPlanningChannelCode(planningChannelCode);
             planningProjectImportDto.setSeasonId(seasonId);
-            planningProjectImportService.saveOrUpdate(planningProjectImportDto,queryWrapper);
         }
+        planningProjectImportService.saveBatch(list);
         return insertSuccess(true);
     }
 
@@ -140,4 +151,32 @@ public class PlanningProjectController extends BaseController {
         queryWrapper.eq("planning_channel_code",planningChannelCode);
         return selectSuccess(planningProjectImportService.list(queryWrapper));
     }
+
+
+    /**
+     * 根据大类或者中类查询最大坑位数量
+     */
+    @ApiOperation(value = "根据大类或者中类查询最大坑位数量")
+    @GetMapping("/seatCount")
+    public ApiResult seatCount(ProductCategoryItemSearchDto dto) {
+        List<PlanningChannel> planningChannels = planningChannelService.list(new QueryWrapper<PlanningChannel>().eq("planning_season_id", dto.getPlanningSeasonId()));
+        if (planningChannels.isEmpty()){
+           throw new OtherException("该季节下没有企划渠道");
+        }
+        BaseQueryWrapper<PlanningCategoryItem> qw = new BaseQueryWrapper<>();
+        for (PlanningChannel planningChannel : planningChannels) {
+            if (planningChannel.getChannel().equals(dto.getChannelCode())){
+                qw.eq("planning_channel_id",planningChannel.getId());
+                break;
+            }
+        }
+
+        qw.notEmptyEq("prod_category",dto.getProdCategory());
+        qw.notEmptyEq("prod_category1st",dto.getProdCategory1st());
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningCategoryItem.getK(), "t_planning_category_item");
+        long count = planningCategoryItemService.count(qw);
+        return selectSuccess(count);
+
+    }
+
 }
