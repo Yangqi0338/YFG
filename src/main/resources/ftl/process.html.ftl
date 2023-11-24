@@ -870,7 +870,7 @@
 
 <!--    裁剪工艺 4 1-->
 <#if ctBasicPage>
-    <#if cjgyShow&&cjgyDataList?size gt 0>
+    <#if cjgyShow&&cjgyDataList?size gt 0 && jcgyDataList?size gt 0>
     <#--        <#if cjgyDataList?size gt 5 || (cjgyDataList?size + jcgyDataList?size) gt 20>page-break-after: always</#if>-->
         <table class="table_border mt" style="">
             <thead>
@@ -926,7 +926,7 @@
 
     <!--    基础工艺 4 3-->
     <#assign breakPointer = 0 >
-    <#if jcgyShow && jcgyDataList?size gt 0>
+    <#if jcgyShow && jcgyDataList?size gt 0 && cjgyDataList?size gt 0>
         <table class="table_border mt" style="page-break-inside: auto">
             <thead>
             <tr>
@@ -954,7 +954,7 @@
                                             <div>
                                                 <div class="item_td">
                                                     <div style="height: 100%; ">
-                                                       <#-- ${item.item}-->${item.numberRows}, ${item.rows},${curRows}
+                                                        ${item.item}
                                                     </div>
                                                 </div>
                                                 <div>
@@ -986,71 +986,73 @@
         </table>
     </#if>
 
-    <#assign lastItem = jcgyDataList[breakPointer+1]>
+    <#if breakPointer gt 0>
+        <#assign lastItem = jcgyDataList[breakPointer+1]>
     <#--总行数减去有数字的行数 = 不存在数字的行数-->
-    <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/0.88 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 27>
+        <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/0.88 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 27>
     <#--如果需要分页-->
-    <#if hasPageBreak>
-        <table class="table_border mt" style="page-break-before: always">
-            <thead>
-            <tr>
-                <th colspan="3" class="th_title">
-                    <p>基础工艺</p>
-                    <hr>
-                </th>
-            </tr>
-            <tr>
-                <th class="gb item_th">工艺项目</th>
-                <th class="gb">工艺描述</th>
-                <th class="gb" style="width: 288px">图片</th>
-            </tr>
-            </thead>
-            <tbody>
-            <#if jcgyDataList??>
-                <tr style="border-right: 0.5px solid #000">
-                    <td class="flex_td" colspan="2" rowspan="${jcgyRowsPan}">
-                        <div>
-                            <div class="flex_td_box">
-                                <#list jcgyDataList as item>
-                                    <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
-                                    <#if curRows gt maxSize || curRows == maxSize>
-                                        <div>
+        <#if hasPageBreak>
+            <table class="table_border mt" style="page-break-before: always">
+                <thead>
+                <tr>
+                    <th colspan="3" class="th_title">
+                        <p>基础工艺</p>
+                        <hr>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="gb item_th">工艺项目</th>
+                    <th class="gb">工艺描述</th>
+                    <th class="gb" style="width: 288px">图片</th>
+                </tr>
+                </thead>
+                <tbody>
+                <#if jcgyDataList??>
+                    <tr style="border-right: 0.5px solid #000">
+                        <td class="flex_td" colspan="2" rowspan="${jcgyRowsPan}">
+                            <div>
+                                <div class="flex_td_box">
+                                    <#list jcgyDataList as item>
+                                        <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
+                                        <#if curRows gt maxSize || curRows == maxSize>
                                             <div>
-                                                <div class="item_td">
-                                                    <div style="height: 100%; ">
-<#--                                                        ${item.item}-->${curRows}
-                                                    </div>
-                                                </div>
                                                 <div>
+                                                    <div class="item_td">
+                                                        <div style="height: 100%; ">
+                                                            ${item.item}
+                                                        </div>
+                                                    </div>
                                                     <div>
-                                                        ${item.content}
+                                                        <div>
+                                                            ${item.content}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </#if>
-                                </#list>
-                            </div>
-                        </div>
-                    </td>
-                    <#list jcgyDataList as item>
-                        <#if  item_index==0 >
-                            <td rowspan="${jcgyRowsPan}" style="padding: 0;">
-                                <div class="jcgy_img_box">
-                                    <#if jcgyImgList??>
-                                        <#list jcgyImgList as item>
-                                            <#--这个1故意留的，不要删除-->
-                                            <img src="${item.url}1"/> <br>
-                                        </#list>
-                                    </#if>
+                                        </#if>
+                                    </#list>
                                 </div>
-                            </td>
-                        </#if>
-                    </#list>
-                </tr>
-            </#if>
-            </tbody>
-        </table>
+                            </div>
+                        </td>
+                        <#list jcgyDataList as item>
+                            <#if  item_index==0 >
+                                <td rowspan="${jcgyRowsPan}" style="padding: 0;">
+                                    <div class="jcgy_img_box">
+                                        <#if jcgyImgList??>
+                                            <#list jcgyImgList as item>
+                                            <#--这个1故意留的，不要删除-->
+                                                <img src="${item.url}1"/> <br>
+                                            </#list>
+                                        </#if>
+                                    </div>
+                                </td>
+                            </#if>
+                        </#list>
+                    </tr>
+                </#if>
+                </tbody>
+            </table>
+        </#if>
     </#if>
 <#else>
     <#--没有开启强制换页，不限制裁剪工艺的显示行数-->
@@ -1076,7 +1078,7 @@
                 <#list cjgyDataList as item>
                     <tr>
                         <td class="item_td">
-                            <#--${item.item}--> ${item.numberRows}, ${item.rows}
+                            ${item.item}
                         </td>
                         <td>
                             ${item.content}
