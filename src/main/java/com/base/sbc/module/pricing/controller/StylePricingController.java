@@ -194,18 +194,20 @@ public class StylePricingController extends BaseController {
         }
         //是否计控确认
         int type =0;
-        if (dto.getControlConfirm().equals("1")) {
+        if(StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
             type = 4;
         }
+
         //是否商品吊牌确认
-        if (dto.getControlHangtagConfirm().equals("1")) {
+        if(StrUtil.equals(dto.getControlHangtagConfirm(),BaseGlobal.YES)){
             type = 5;
         }
+
         //是否商品吊牌确认
-        if (dto.getProductHangtagConfirm().equals("1")) {
+        if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
             type = 6;
         }
-        smpService.tagConfirmDates(Collections.singletonList(dto.getIds()),type,0);
+        smpService.tagConfirmDates(Collections.singletonList(dto.getIds()),type,1);
 
         /*吊牌确认下发*/
         if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE)){
