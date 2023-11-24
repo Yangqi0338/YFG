@@ -1482,21 +1482,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("field_name",fieldManagement.getFieldName());
-//        queryWrapper.eq("val",dto.getDimensionLabelVal());
         queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
         queryWrapper.select("foreign_id");
 
         List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
         List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
-        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
+//        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
 
-        if (!list.isEmpty()) {
-            List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
-            styleColorBaseQueryWrapper.notIn("style_no", bulkStyleNoList);
-        }
-        List<StyleColor> list1 = styleColorService.list(styleColorBaseQueryWrapper);
-        List<String> styleColorIds1 = list1.stream().map(StyleColor::getId).collect(Collectors.toList());
-        styleColorIds1.addAll(styleColorIds);
+
+//        List<StyleColor> list1 = styleColorService.list(styleColorBaseQueryWrapper);
+//        List<String> styleColorIds1 = list1.stream().map(StyleColor::getId).collect(Collectors.toList());
+//        styleColorIds1.addAll(styleColorIds);
 
         BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
         styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
@@ -1504,7 +1500,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
         styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
         styleQueryWrapper.eq("tsc.order_flag", "1");
-        styleQueryWrapper.in("tsc.id",styleColorIds1);
+        styleQueryWrapper.in("tsc.id",styleColorIds);
+        if (!list.isEmpty()) {
+            List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
+            styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
+        }
         PageHelper.startPage(dto);
         List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper);
 
