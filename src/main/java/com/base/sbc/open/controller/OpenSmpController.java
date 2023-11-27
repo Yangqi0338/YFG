@@ -169,7 +169,11 @@ public class OpenSmpController extends BaseController {
             BasicsdatumMaterialIngredient basicsdatumMaterialIngredient =new BasicsdatumMaterialIngredient();
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
-            basicsdatumMaterialIngredient.setSay(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark());
+            String say = "";
+            if(StringUtils.isNotEmpty(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark())){
+                 say = escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark().replace("（", "(").replace("）", ")");
+                basicsdatumMaterialIngredient.setSay(say);
+            }
             basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion().replace("%",""))));
             basicsdatumMaterialIngredient.setType("0");
             basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent());
@@ -177,8 +181,8 @@ public class OpenSmpController extends BaseController {
 
             quanlityInspectContent+=escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion()+
                     escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent();
-            if (StringUtils.isNotEmpty( escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark())){
-                quanlityInspectContent+=escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark();
+            if (StringUtils.isNotEmpty( say)){
+                quanlityInspectContent+=say;
             }
 
 
