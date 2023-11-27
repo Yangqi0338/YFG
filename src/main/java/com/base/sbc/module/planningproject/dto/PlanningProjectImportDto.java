@@ -4,8 +4,11 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * @author 卞康
@@ -31,12 +34,15 @@ public class PlanningProjectImportDto {
     private String week;
     @Excel(name = "上市波段", orderNum = "1")
     private String waveBand;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Excel(name = "上市时间", orderNum = "2")
-    private String marketTime;
+    private Date marketTime;
     @Excel(name = "下单时间", orderNum = "3")
-    private String orderTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date orderTime;
     @Excel(name = "面料下单时间", orderNum = "4")
-    private String fabricOrderTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date fabricOrderTime;
     @Excel(name = "SKC数", orderNum = "5")
     private String skcNumber;
 }
