@@ -11,6 +11,8 @@ import java.util.List;
 @Data
 public class BomSizeAndProcessDto {
 
+    private String styleNo;
+
     private List<BomSize> bomSizeList;
 
     private List<BomProcess> bomBomProcessList;
@@ -30,6 +32,7 @@ public class BomSizeAndProcessDto {
         private String content;
         /**排序-*/
         private int sort;
+
     }
 
     /**
