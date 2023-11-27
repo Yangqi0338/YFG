@@ -74,6 +74,7 @@
 			and t.status=#{status}
 		</if>
 		GROUP BY t.id
+		order by t.name
 	</select>
 
 	<select id="getBasicsdatumMaterialWidthSelect" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthSelectVo">
