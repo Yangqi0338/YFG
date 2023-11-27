@@ -13,6 +13,7 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -512,6 +513,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
+        if(StrUtil.isNotBlank(dto.getOrderStatus())){
+            if("1".equals(dto.getOrderStatus())){
+                qw.exists("SELECT 1 FROM t_style_color WHERE design_no = s.design_no AND `scm_send_flag` = '1' AND `status` = '0' AND order_flag = '1'");
+            }else {
+                qw.notExists("SELECT 1 FROM t_style_color WHERE design_no = s.design_no AND `scm_send_flag` = '1'  AND `status` = '0' AND order_flag = '1'");
+            }
+        }
 
         //1我下发的
         if (StrUtil.equals(dto.getUserType(), StylePageDto.USER_TYPE_1)) {
@@ -564,6 +572,21 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 设置图片
         stylePicUtils.setStylePic(result, "stylePic");
 
+        //判断是否下单标识，一个设计款号存在多个大货款号， 只要有一个是启用且下单 的 标识下单
+        if(CollUtil.isNotEmpty(result)){
+            LambdaQueryWrapper<StyleColor> styleColorQuery = new LambdaQueryWrapper<>();
+            styleColorQuery.in(StyleColor::getDesignNo, result.stream().map(Style::getDesignNo).distinct().collect(Collectors.toList()));
+            styleColorQuery.eq(StyleColor::getScmSendFlag, "1");
+            styleColorQuery.eq(StyleColor::getStatus, "0");
+            styleColorQuery.eq(StyleColor::getOrderFlag, "1");
+            List<StyleColor> styleColors = styleColorMapper.selectList(styleColorQuery);
+            List<String> orderStyleColorList = styleColors.stream().map(StyleColor::getDesignNo).distinct().collect(Collectors.toList());
+            result.forEach(o->{
+                if(orderStyleColorList.contains(o.getDesignNo())){
+                    o.setOrderFlag("1");
+                }
+            });
+        }
 
         amcFeignService.addUserAvatarToList(result, "designerId", "aliasUserAvatar");
         return objects.toPageInfo();

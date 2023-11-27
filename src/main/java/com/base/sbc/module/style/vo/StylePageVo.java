@@ -43,4 +43,10 @@ public class StylePageVo extends Style {
         return abs + DateUtil.betweenDay(getPlanningFinishDate(), now, false);
 
     }
+
+    /**
+     * 下单标记（0否 1是）
+     */
+    @ApiModelProperty(value = "下单标记（0否 1是）")
+    private String orderFlag;
 }
