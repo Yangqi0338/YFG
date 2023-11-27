@@ -562,58 +562,62 @@
     <#assign sizeCount = (washSkippingFlag?then(3, 2))>
     <#assign sizeWidth = "width: 100%;">
     <#--描述列-->
-    <#assign contentWidth = "width: 216px;font-size: 10px;">
+    <#assign contentWidth = "width: 200px;font-size: 10px;">
     <#--档差-->
-    <#assign rdWidth = "width: 20px;font-size: 10px;">
+    <#assign rdWidth = "width: 25px;font-size: 10px;">
     <#--部位-->
-    <#assign partWidth = "width: 60px;font-size: 10px;">
+    <#assign partWidth = "width: 75px;font-size: 10px;">
     <#if sizeList?size*sizeCount gt 20>
         <#--尺寸列为21个-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 60px;font-size: 10px;">
-        <#assign rdWidth = "width: 20px;font-size: 10px;">
+        <#assign contentWidth = "width: 75px;font-size: 10px;">
+        <#assign rdWidth = "width: 25px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 17>
         <#--尺寸列为18个-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 60px;font-size: 10px;">
-        <#assign rdWidth = "width: 20px;font-size: 10px;">
+        <#assign contentWidth = "width: 75px; font-size: 10px;">
+        <#assign rdWidth = "width: 25px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 14>
         <#--尺寸列15， 16-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 80px;font-size: 10px;">
-        <#assign rdWidth = "width: 20px;font-size: 10px;">
+        <#assign contentWidth = "width: 100px;font-size: 10px;">
+        <#assign rdWidth = "width: 25px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 11>
         <#--尺寸列为12 14-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 80px;font-size: 10px;">
-        <#assign rdWidth = "width: 40px;font-size: 10px;">
+        <#assign contentWidth = "width: 100px;font-size: 10px;">
+        <#assign rdWidth = "width: 50px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 7>
         <#--尺寸列为8 10-->
         <#assign sizeWidth = "width: 90%;">
-        <#assign contentWidth = "width: 80px;font-size: 10px;">
-        <#assign rdWidth = "width: 40px;font-size: 10px;">
+        <#assign contentWidth = "width: 100px;font-size: 10px;">
+        <#assign rdWidth = "width: 50px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 5>
         <#--尺寸列为6-->
         <#assign sizeWidth = "width: 80%;">
-        <#assign contentWidth = "width: 160px;font-size: 10px;">
-        <#assign rdWidth = "width: 40px;font-size: 10px;">
+        <#assign contentWidth = "width: 200px;font-size: 10px;">
+        <#assign rdWidth = "width: 50px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 3>
         <#--尺寸列为4-->
         <#assign sizeWidth = "width: 60%;font-size: 10px;">
-        <#assign contentWidth = "width: 160px;font-size: 10px;">
-        <#assign rdWidth = "width: 40px;font-size: 10px;">
+        <#assign contentWidth = "width: 200px;font-size: 10px;">
+        <#assign rdWidth = "width: 50px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 1>
         <#--尺寸列为2-->
         <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 160px; font-size: 10px;">
-        <#assign rdWidth = "width: 40px;font-size: 10px;">
+        <#assign contentWidth = "width: 200px; font-size: 10px;">
+        <#assign rdWidth = "width: 50px;font-size: 10px;">
     <#else>
         <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 160px; font-size: 10px;">
-        <#assign rdWidth = "width: 40px;font-size: 10px;">
+        <#assign contentWidth = "width: 200px; font-size: 10px;">
+        <#assign rdWidth = "width: 50px;font-size: 10px;">
     </#if>
     <table class="table_border size_table_border mt"
            style="page-break-before: always; page-break-after: always;font-size: 10px; ${sizeWidth}">
+        <colgroup>
+            <col style="${partWidth}"> <!-- 固定第一列宽度 -->
+            <col style="${contentWidth}"> <!-- 固定第二列宽度 -->
+        </colgroup>
         <thead>
         <tr>
             <th colspan="${sizeTitleColspan}" class="th_title">
@@ -627,13 +631,13 @@
             <#if sizeList??>
                 <#list sizeList as size>
                     <th colspan="${sizeColspan}" class="${sizeClass[(size_index)*sizeColspan+2]} sizeWidth"
-                        style="font-size: 12px;border-left: 2px solid #000000; border-right: 2px solid #000000">
+                        style="font-size: 12px;border-left: 2px solid #000000; border-right: 2px solid #000000; ">
                         ${size}
                     </th>
                 </#list>
             </#if>
-            <th rowspan="2" class="gc" style="text-align: center;font-size: 12px;">公差<br/>(-)</th>
-            <th rowspan="2" class="gc" style="text-align: center;font-size: 12px;">公差<br/>(+)</th>
+            <th rowspan="2" class="gc" style="text-align: center;font-size: 12px;${rdWidth}">公差<br/>(-)</th>
+            <th rowspan="2" class="gc" style="text-align: center;font-size: 12px;${rdWidth}">公差<br/>(+)</th>
         </tr>
 
         <tr>
@@ -680,7 +684,10 @@
                                 </#if>
                                 <#if c_index == 0>
                                     ${partWidth}
-                                </#if>">
+                                </#if>
+                                        <#if c_index == item.rowData?size - 1 || c_index == item.rowData?size - 2>
+                                            ${rdWidth}
+                                        </#if>">
                                 <div style="display: table-cell;height: 100%">
                                     <#if c_index gt 1>
                                         <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
@@ -863,7 +870,7 @@
 
 <!--    裁剪工艺 4 1-->
 <#if ctBasicPage>
-    <#if cjgyShow&&cjgyDataList?size gt 0>
+    <#if cjgyShow&&cjgyDataList?size gt 0 && jcgyDataList?size gt 0>
     <#--        <#if cjgyDataList?size gt 5 || (cjgyDataList?size + jcgyDataList?size) gt 20>page-break-after: always</#if>-->
         <table class="table_border mt" style="">
             <thead>
@@ -919,7 +926,7 @@
 
     <!--    基础工艺 4 3-->
     <#assign breakPointer = 0 >
-    <#if jcgyShow && jcgyDataList?size gt 0>
+    <#if jcgyShow && jcgyDataList?size gt 0 && cjgyDataList?size gt 0>
         <table class="table_border mt" style="page-break-inside: auto">
             <thead>
             <tr>
@@ -947,7 +954,7 @@
                                             <div>
                                                 <div class="item_td">
                                                     <div style="height: 100%; ">
-                                                       <#-- ${item.item}-->${item.numberRows}, ${item.rows},${curRows}
+                                                        ${item.item}
                                                     </div>
                                                 </div>
                                                 <div>
@@ -979,71 +986,73 @@
         </table>
     </#if>
 
-    <#assign lastItem = jcgyDataList[breakPointer+1]>
+    <#if breakPointer gt 0>
+        <#assign lastItem = jcgyDataList[breakPointer+1]>
     <#--总行数减去有数字的行数 = 不存在数字的行数-->
-    <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/0.88 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 27>
+        <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/0.88 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 27>
     <#--如果需要分页-->
-    <#if hasPageBreak>
-        <table class="table_border mt" style="page-break-before: always">
-            <thead>
-            <tr>
-                <th colspan="3" class="th_title">
-                    <p>基础工艺</p>
-                    <hr>
-                </th>
-            </tr>
-            <tr>
-                <th class="gb item_th">工艺项目</th>
-                <th class="gb">工艺描述</th>
-                <th class="gb" style="width: 288px">图片</th>
-            </tr>
-            </thead>
-            <tbody>
-            <#if jcgyDataList??>
-                <tr style="border-right: 0.5px solid #000">
-                    <td class="flex_td" colspan="2" rowspan="${jcgyRowsPan}">
-                        <div>
-                            <div class="flex_td_box">
-                                <#list jcgyDataList as item>
-                                    <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
-                                    <#if curRows gt maxSize || curRows == maxSize>
-                                        <div>
+        <#if hasPageBreak>
+            <table class="table_border mt" style="page-break-before: always">
+                <thead>
+                <tr>
+                    <th colspan="3" class="th_title">
+                        <p>基础工艺</p>
+                        <hr>
+                    </th>
+                </tr>
+                <tr>
+                    <th class="gb item_th">工艺项目</th>
+                    <th class="gb">工艺描述</th>
+                    <th class="gb" style="width: 288px">图片</th>
+                </tr>
+                </thead>
+                <tbody>
+                <#if jcgyDataList??>
+                    <tr style="border-right: 0.5px solid #000">
+                        <td class="flex_td" colspan="2" rowspan="${jcgyRowsPan}">
+                            <div>
+                                <div class="flex_td_box">
+                                    <#list jcgyDataList as item>
+                                        <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
+                                        <#if curRows gt maxSize || curRows == maxSize>
                                             <div>
-                                                <div class="item_td">
-                                                    <div style="height: 100%; ">
-<#--                                                        ${item.item}-->${curRows}
-                                                    </div>
-                                                </div>
                                                 <div>
+                                                    <div class="item_td">
+                                                        <div style="height: 100%; ">
+                                                            ${item.item}
+                                                        </div>
+                                                    </div>
                                                     <div>
-                                                        ${item.content}
+                                                        <div>
+                                                            ${item.content}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </#if>
-                                </#list>
-                            </div>
-                        </div>
-                    </td>
-                    <#list jcgyDataList as item>
-                        <#if  item_index==0 >
-                            <td rowspan="${jcgyRowsPan}" style="padding: 0;">
-                                <div class="jcgy_img_box">
-                                    <#if jcgyImgList??>
-                                        <#list jcgyImgList as item>
-                                            <#--这个1故意留的，不要删除-->
-                                            <img src="${item.url}1"/> <br>
-                                        </#list>
-                                    </#if>
+                                        </#if>
+                                    </#list>
                                 </div>
-                            </td>
-                        </#if>
-                    </#list>
-                </tr>
-            </#if>
-            </tbody>
-        </table>
+                            </div>
+                        </td>
+                        <#list jcgyDataList as item>
+                            <#if  item_index==0 >
+                                <td rowspan="${jcgyRowsPan}" style="padding: 0;">
+                                    <div class="jcgy_img_box">
+                                        <#if jcgyImgList??>
+                                            <#list jcgyImgList as item>
+                                            <#--这个1故意留的，不要删除-->
+                                                <img src="${item.url}1"/> <br>
+                                            </#list>
+                                        </#if>
+                                    </div>
+                                </td>
+                            </#if>
+                        </#list>
+                    </tr>
+                </#if>
+                </tbody>
+            </table>
+        </#if>
     </#if>
 <#else>
     <#--没有开启强制换页，不限制裁剪工艺的显示行数-->
@@ -1069,7 +1078,7 @@
                 <#list cjgyDataList as item>
                     <tr>
                         <td class="item_td">
-                            <#--${item.item}--> ${item.numberRows}, ${item.rows}
+                            ${item.item}
                         </td>
                         <td>
                             ${item.content}
