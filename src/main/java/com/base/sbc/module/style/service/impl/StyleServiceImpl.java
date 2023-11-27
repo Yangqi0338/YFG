@@ -515,9 +515,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.eq(BaseConstant.COMPANY_CODE, companyCode);
         if(StrUtil.isNotBlank(dto.getOrderStatus())){
             if("1".equals(dto.getOrderStatus())){
-                qw.exists("SELECT 1 FROM t_style_color WHERE design_no = s.design_no AND `scmSendFlag` = '1' AND `status` = '0' AND order_flag = '1'");
+                qw.exists("SELECT 1 FROM t_style_color WHERE design_no = s.design_no AND `scm_send_flag` = '1' AND `status` = '0' AND order_flag = '1'");
             }else {
-                qw.notExists("SELECT 1 FROM t_style_color WHERE design_no = s.design_no AND `scmSendFlag` = '1'  AND `status` = '0' AND order_flag = '1'");
+                qw.notExists("SELECT 1 FROM t_style_color WHERE design_no = s.design_no AND `scm_send_flag` = '1'  AND `status` = '0' AND order_flag = '1'");
             }
         }
 
