@@ -89,4 +89,6 @@ public class StylePageDto extends Page {
     private String businessType;
     @ApiModelProperty(value = "设计师编码")
     private String  designerIds;
+    @ApiModelProperty(value = "是否下单")
+    private String orderStatus;
 }
