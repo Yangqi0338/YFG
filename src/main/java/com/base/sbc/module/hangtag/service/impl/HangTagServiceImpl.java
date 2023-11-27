@@ -280,6 +280,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Override
 	@Transactional(rollbackFor = { Exception.class })
 	public String save(HangTagDTO hangTagDTO, String userCompany) {
+		//判断大货款号是否存在
+		if (StringUtils.isEmpty(hangTagDTO.getId())) {
+			long count = this.count(new QueryWrapper<HangTag>().eq("bulk_style_no", hangTagDTO.getBulkStyleNo()).eq("company_code", userCompany));
+			if (count > 0) {
+				throw new OtherException("大货款号已存在,请勿重复添加");
+			}
+		}
+
+
 		logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO),
 				userCompany);
 		HangTag hangTag = new HangTag();
