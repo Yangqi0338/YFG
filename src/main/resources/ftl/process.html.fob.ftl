@@ -8,7 +8,6 @@
         font-size: 12px;
 
     }
-
     html {
         width: 277mm;
         margin: 50px auto;
@@ -485,41 +484,99 @@
 </table>
 <#if sizeDataList??>
     <#assign sizeCount = (washSkippingFlag?then(2, 1))>
+<#--    <#assign sizeWidth = "width: 100%;">-->
+<#--    <#assign contentWidth = "width: 216px;">-->
+<#--    <#assign rdWidth = "width: 12px;">-->
+<#--    <#if sizeList?size*sizeCount gt 23>-->
+<#--        <#assign sizeWidth = "width: 100%;">-->
+<#--        <#assign contentWidth = "width: 48px;">-->
+<#--    <#elseif sizeList?size*sizeCount gt 20>-->
+<#--        <#assign sizeWidth = "width: 100%;">-->
+<#--        <#assign contentWidth = "width: 72px;">-->
+<#--    <#elseif sizeList?size*sizeCount gt 17>-->
+<#--        <#assign sizeWidth = "width: 100%;">-->
+<#--        <#assign contentWidth = "width: 72px;">-->
+<#--    <#elseif sizeList?size*sizeCount gt 14>-->
+<#--        <#assign sizeWidth = "width: 100%;">-->
+<#--        <#assign contentWidth = "width: 96px;">-->
+<#--    <#elseif sizeList?size*sizeCount gt 11>-->
+<#--        <#assign sizeWidth = "width: 100%;">-->
+<#--        <#assign contentWidth = "width: 96px;">-->
+<#--    <#elseif sizeList?size*sizeCount gt 7>-->
+<#--        <#assign sizeWidth = "width: 80%;">-->
+<#--        <#assign contentWidth = "width: 96px;">-->
+<#--    <#elseif sizeList?size*sizeCount gt 5>-->
+<#--        <#assign sizeWidth = "width: 80%;">-->
+<#--        <#assign contentWidth = "width: 192px;">-->
+<#--    <#elseif sizeList?size*sizeCount gt 3>-->
+<#--        <#assign sizeWidth = "width: 60%;">-->
+<#--        <#assign contentWidth = "width: 192px;">-->
+<#--    <#elseif sizeList?size*sizeCount gt 1>-->
+<#--        <#assign sizeWidth = "width: 40%;">-->
+<#--        <#assign contentWidth = "width: 192px;">-->
+<#--    <#else>-->
+<#--        <#assign sizeWidth = "width: 40%;">-->
+<#--        <#assign contentWidth = "width: 192px;">-->
+<#--    </#if>-->
     <#assign sizeWidth = "width: 100%;">
-    <#assign contentWidth = "width: 216px;">
-    <#assign rdWidth = "width: 12px;">
-    <#if sizeList?size*sizeCount gt 23>
+<#--描述列-->
+    <#assign contentWidth = "width: 160px;font-size: 10px;">
+<#--档差-->
+    <#assign rdWidth = "width: 40px;font-size: 10px;">
+<#--部位-->
+    <#assign partWidth = "width: 65px;font-size: 10px;">
+<#---->
+    <#if sizeList?size*sizeCount gt 20>
+    <#--尺寸列为21个-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 48px;">
-    <#elseif sizeList?size*sizeCount gt 20>
-        <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 72px;">
+        <#assign contentWidth = "width: 65px;font-size: 10px;">
+        <#assign rdWidth = "width: 20px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 17>
+    <#--尺寸列为18个-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 72px;">
+        <#assign contentWidth = "width: 65px; font-size: 10px;">
+        <#assign rdWidth = "width: 20px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 14>
+    <#--尺寸列15， 16-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 96px;">
+        <#assign contentWidth = "width: 85px;font-size: 10px;">
+        <#assign rdWidth = "width: 20px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 11>
+    <#--尺寸列为12 14-->
         <#assign sizeWidth = "width: 100%;">
-        <#assign contentWidth = "width: 96px;">
+        <#assign contentWidth = "width: 85px;font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 7>
-        <#assign sizeWidth = "width: 80%;">
-        <#assign contentWidth = "width: 96px;">
+    <#--尺寸列为8 10-->
+        <#assign sizeWidth = "width: 90%;">
+        <#assign contentWidth = "width: 85px;font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 5>
+    <#--尺寸列为6-->
         <#assign sizeWidth = "width: 80%;">
-        <#assign contentWidth = "width: 192px;">
+        <#assign contentWidth = "width: 165px;font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 3>
-        <#assign sizeWidth = "width: 60%;">
-        <#assign contentWidth = "width: 192px;">
+    <#--尺寸列为4-->
+        <#assign sizeWidth = "width: 60%;font-size: 10px;">
+        <#assign contentWidth = "width: 165px;font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#elseif sizeList?size*sizeCount gt 1>
+    <#--尺寸列为2-->
         <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 192px;">
+        <#assign contentWidth = "width: 165px; font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     <#else>
         <#assign sizeWidth = "width: 40%;">
-        <#assign contentWidth = "width: 192px;">
+    <#--预留5px-->
+        <#assign contentWidth = "width: 165px; font-size: 10px;">
+        <#assign rdWidth = "width: 40px;font-size: 10px;">
     </#if>
-    <table class="table_border mt size_table size_table_border" style="page-break-before: always;${sizeWidth}">
+    <table class="table_border mt size_table size_table_border" style="page-break-before: always;font-size: 10px;${sizeWidth}">
+        <colgroup>
+            <col style="${partWidth}"> <!-- 固定第一列宽度 -->
+            <col style="${contentWidth}"> <!-- 固定第二列宽度 -->
+        </colgroup>
         <thead>
         <tr>
             <th colspan="${sizeTitleColspan}" class="th_title">
@@ -528,8 +585,8 @@
             </th>
         </tr>
         <tr class="size_tr gb">
-            <th rowspan="2" style="text-align: center; width: 120px;" class="partNameClass">部位</th>
-            <th rowspan="2" style="text-align: center;">描述</th>
+            <th rowspan="2" style="text-align: center;font-size: 12px; border-right: 2px solid #000000;${partWidth}">部位</th>
+            <th rowspan="2" style="text-align: center;font-size: 12px; ${contentWidth}">描述</th>
             <#if sizeList??>
                 <#list sizeList as size>
                     <th colspan="${sizeColspan}" class="sizeWidth ${sizeClass[(size_index)*sizeColspan+2]} partNameClass" style="border-left: 2px solid #000000; border-right: 2px solid #000000">
@@ -537,15 +594,15 @@
                     </th>
                 </#list>
             </#if>
-            <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(-)</th>
-            <th rowspan="2" class="gc" style="text-align: center; padding: 0 10px;">公差<br/>(+)</th>
+            <th rowspan="2" class="gc" style="text-align: center; ${rdWidth}">公差<br/>(-)</th>
+            <th rowspan="2" class="gc" style="text-align: center; ${rdWidth}">公差<br/>(+)</th>
         </tr>
 
         <tr>
             <#list sizeList as size>
-                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center;border-left: 2px solid #000000; <#if washSkippingFlag><#else>border-right: 2px solid #000000;</#if>">成衣<#if sizeList?size*sizeCount gt 8><br/></#if>尺寸</td>
+                <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+2]}" style="text-align: center;border-left: 2px solid #000000; <#if washSkippingFlag><#else>border-right: 2px solid #000000;</#if>">成衣<br/>尺寸</td>
                 <#if washSkippingFlag>
-                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; border-right: 2px solid #000000">洗后<#if sizeList?size*sizeCount gt 8><br/></#if>尺寸</td>
+                    <td class="sizeItemWidth ${sizeClass[(size_index+1)*sizeColspan-sizeColspan+1+2]}" style="text-align: center; border-right: 2px solid #000000">洗后<br/>尺寸</td>
                 </#if>
             </#list>
         </tr>
@@ -559,7 +616,8 @@
                     <#else>
                         <#list item.rowData as c>
                             <td class="${c.className} ${sizeClass[c_index]} "
-                                style="<#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
+                                style="padding: 0; vertical-align: middle; font-size: 10px;
+                                <#if sizeClass[c_index]?string == "wb" && (c_index+1) <= item.rowData?size && sizeClass[c_index+1]?string != "wb">
                                         border-right: 2px solid #000000;
                                 </#if>
                                 <#if (c_index-1) gt -1 && sizeClass[c_index]?string == "wb" && sizeClass[c_index-1]?string != "wb">
@@ -570,16 +628,23 @@
                                 </#if>
                                 <#if c_index == 2>
                                         border-left: 2px solid #000000;
+                                </#if>
+                                <#if c_index == 1>
+                                    ${contentWidth}
+                                </#if>
+                                <#if c_index == 0>
+                                        border-right: 2px solid #000000; ${partWidth}
+                                </#if>
+                                <#if c_index == item.rowData?size - 1 || c_index == item.rowData?size - 2>
+                                    ${rdWidth}
                                 </#if>">
-                                <div style="display: table-cell;">
+                                <div style="display: table-cell;height: 100%">
                                     <#if c_index gt 1>
-                                        <p style="font-weight: bold;word-break: break-all;">${c.text}</p>
-                                    <#elseif c_index == 1>
-                                        <div style="font-size: 0.9em;display: table-cell; white-space: nowrap;${contentWidth}">${c.text}</div>
-                                    <#elseif c_index == 0>
-                                        <div style="font-size: 0.9em; white-space: nowrap; text-align: left">${c.text}</div>
+                                        <p style="font-size: 10px;font-weight: bold;word-break: break-all;">${c.text}</p>
+                                    <#elseif c_index == 0 || c_index == 1>
+                                        <p style="font-size: 10px; white-space: nowrap; text-align: left;">${c.text}</p>
                                     <#else >
-                                        ${c.text}
+                                        <p style="font-size: 10px;">${c.text}</p>
                                     </#if>
                                 </div>
                             </td>
