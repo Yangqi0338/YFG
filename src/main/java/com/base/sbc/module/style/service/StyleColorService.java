@@ -19,7 +19,9 @@ import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.List;
@@ -221,6 +223,24 @@ public interface StyleColorService extends BaseService<StyleColor> {
      * @return
      */
     PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto);
+
+        /**
+         * 款式列表导出
+         * @param response
+         * @param dto
+         */
+        void styleListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws IOException;
+
+
+        /**
+         * 款式配色列表导出
+         * @param user
+         * @param response
+         * @param dto
+         * @throws IOException
+         */
+        void styleColorListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws IOException;
+
 
 // 自定义方法区 不替换的区域【other_end】
 

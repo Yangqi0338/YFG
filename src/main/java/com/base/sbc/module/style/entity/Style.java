@@ -83,6 +83,12 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
+
+    /**
+     * 旧产品季节id
+     */
+    @ApiModelProperty(value = "旧产品季节id")
+    private String  oldPlanningSeasonId;
     /**
      * 坑位信息id
      */
@@ -542,6 +548,12 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "下发打版时间(取最新一条)"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sendPatternMakingDate;
+
+    /**
+     * 是否撞色
+     */
+    @ApiModelProperty(value = "是否撞色,0否 1是")
+    private String colorCrash;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

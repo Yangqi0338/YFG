@@ -15,9 +15,12 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -67,6 +70,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,6 +84,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -91,7 +101,9 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+
 public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMapper, PatternMaking> implements PatternMakingService {
+    Logger log = LoggerFactory.getLogger(getClass());
     // 自定义方法区 不替换的区域【other_start】
     private final StyleService styleService;
     private final NodeStatusService nodeStatusService;
@@ -118,6 +130,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private StylePicUtils stylePicUtils;
     @Autowired
     private ScoreConfigService scoreConfigService;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Override
     public List<PatternMakingListVo> findBySampleDesignId(String styleId) {
@@ -401,7 +415,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper qw = new QueryWrapper();
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.like(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type_name", dto.getSampleType());
-        qw.like(StrUtil.isNotBlank(dto.getUrgencyName()), "p.urgency_name", dto.getUrgencyName());
+        qw.eq(StrUtil.isNotBlank(dto.getUrgencyName()), "p.urgency_name", dto.getUrgencyName());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
         qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
@@ -584,6 +598,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
+        qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         //手机端
         if (StrUtil.equals(dto.getIsApp(), BasicNumber.ONE.getNumber())) {
             //判断是否是样衣组长
@@ -605,6 +620,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSuspend()), "p.suspend", dto.getSuspend());
         qw.eq(StrUtil.isNotBlank(dto.getBreakOffSample()), "p.break_off_sample", dto.getBreakOffSample());
         qw.in(StrUtil.isNotBlank(dto.getStatus()), "p.status", StrUtil.split(dto.getStatus(), CharUtil.COMMA));
+        qw.in("p.disable_flag", BaseGlobal.NO);
         if (StrUtil.isNotBlank(dto.getIsBlackList())) {
             if (StrUtil.equals(dto.getIsBlackList(), BasicNumber.ONE.getNumber())) {
                 // 只查询黑单
@@ -800,9 +816,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdQw.eq("del_flag", BaseGlobal.NO);
         sdQw.eq("status", BasicNumber.TWO.getNumber());
         sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0'");
-        if (StrUtil.isNotBlank(dto.getOrderBy())) {
-            dto.setOrderBy("create_date desc");
-        }
+//        if (StrUtil.isNotBlank(dto.getOrderBy())) {
+//        }
+        dto.setOrderBy("create_date desc");
         Page page = PageHelper.startPage(dto);
         List<Style> sdList = styleService.list(sdQw);
         PageInfo pageInfo = page.toPageInfo();
@@ -881,8 +897,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
-        qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
+        qw.in(StrUtil.isNotBlank(dto.getPatternTechnician()), "p.pattern_technician_id", StringUtils.convertList(dto.getPatternTechnician()));
         qw.eq("p.disable_flag", BaseGlobal.NO);
+        qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
+        qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
 
         if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
             qw.eq( "p.break_off_sample", BaseGlobal.NO);
@@ -905,6 +925,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             s[1] = s[1] + " 23:59:59";
             qw.between("p.create_date",s);
         }
+        if(StrUtil.isNotBlank(dto.getReceiveSampleDate())){
+            String[] s1 = dto.getReceiveSampleDate().split(",");
+            s1[0] = s1[0] + " 00:00:00";
+            s1[1] = s1[1] + " 23:59:59";
+            qw.between("p.receive_sample_date",s1);
+        }
+
+        if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.IN)){
+            qw.isNull("p.receive_sample_date");
+        }
+        if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.YES)){
+            qw.isNotNull("p.receive_sample_date");
+        }
+
         qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
             String[] split = dto.getDesignerIds().split(",");
@@ -912,48 +946,48 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
 
         if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
-            qw.gt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[0]);
-            qw.lt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[1]);
+            qw.ge(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "   date_format(p.technician_kitting_date,'%Y-%m-%d')    ", dto.getTechnicianKittingDate().split(",")[0]);
+            qw.le(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "date_format(p.technician_kitting_date,'%Y-%m-%d')", dto.getTechnicianKittingDate().split(",")[1]);
         }
         if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getBfzgxfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and start_date >={0} and {1} >= end_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(end_date,'%Y-%m-%d')"
                     , dto.getBfzgxfsj().split(",")[0], dto.getBfzgxfsj().split(",")[1]);
         }
         // bsjssj
         if (StrUtil.isNotBlank(dto.getBsjssj()) && dto.getBsjssj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getBsjssj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='已接收' and start_date >={0} and {1} >= end_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='已接收' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(end_date,'%Y-%m-%d')"
                     , dto.getBsjssj().split(",")[0], dto.getBsjssj().split(",")[1]);
         }
         //zysj
         if (StrUtil.isNotBlank(dto.getZysj()) && dto.getZysj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getZysj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='打版完成' and start_date >={0} and {1} >= end_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='打版完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(end_date,'%Y-%m-%d')"
                     , dto.getZysj().split(",")[0], dto.getZysj().split(",")[1]);
         }
         //cjsj
         if (StrUtil.isNotBlank(dto.getCjsj()) && dto.getCjsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and start_date >={0}"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and date_format(start_date,'%Y-%m-%d') >={0}"
                     , dto.getCjsj().split(",")[0]);
             qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= start_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getCjsj().split(",")[1]);
         }
         //cfsj
         if (StrUtil.isNotBlank(dto.getCfsj()) && dto.getCfsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and start_date >={0}"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and date_format(start_date,'%Y-%m-%d') >={0}"
                     , dto.getCfsj().split(",")[0]);
             qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= start_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getCfsj().split(",")[1]);
         }
         // yywcsj
         if (StrUtil.isNotBlank(dto.getYywcsj()) && dto.getYywcsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getYywcsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and start_date >={0} and {1} >= end_date order by start_date desc"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(end_date,'%Y-%m-%d')  order by start_date desc"
                     , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
         }
 
@@ -962,6 +996,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if(!StringUtils.isBlank(dto.getDeriveflag())){
             qw.groupBy("p.id");
             baseMapper.deriveList(qw);
+            if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
+                /*带图片只能导出3000条*/
+                if(objects.toPageInfo().getList().size() >3000){
+                    throw new OtherException("带图片最多只能导出3000条");
+                }
+            }
+
             return objects.toPageInfo();
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
@@ -980,14 +1021,44 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      * @param dto
      */
     @Override
-    public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException {
+    public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
-        stylePicUtils.setStylePic(excelList, "stylePic");
-        POICacheManager.setFileLoader(new IFileLoaderImpl());
-        ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
-
+        /*开启一个线程池*/
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(excelList.size()))
+                .build();
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*获取图片链接*/
+                stylePicUtils.setStylePic(excelList, "stylePic",30);
+                /*计时器*/
+                CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
+                for (SampleBoardExcel sampleBoardExcel : excelList) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = sampleBoardExcel.getStylePic();
+                            sampleBoardExcel.setPic(HttpUtil.downloadBytes(stylePic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
     }
     @Override
     public boolean receiveSample(String id) {
@@ -1285,6 +1356,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public void checkBreak(PatternMaking pm) {
+        if(StrUtil.equals(pm.getDisableFlag(),BaseGlobal.YES)){
+            throw new OtherException("打版任务已停止");
+        }
         if (StrUtil.equals(pm.getNode(), "打版任务") && StrUtil.equals(pm.getBreakOffPattern(), BaseGlobal.YES)) {
             throw new OtherException("打版任务已中断");
         }

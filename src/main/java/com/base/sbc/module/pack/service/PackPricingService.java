@@ -45,6 +45,7 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
      */
     BigDecimal countTotalPrice(String packInfoId,String flag);
 
+    void asyncCost(String foreignId);
 
 
 // 自定义方法区 不替换的区域【other_end】

@@ -221,6 +221,13 @@ public class QueryStyleColorDto extends Page {
 
     private String yearName;
 
+    /*是否导出图片*/
+    private String imgFlag;
+
+    /*导出标记*/
+    private String excelFlag;
+
+
 
     /**
      * 工艺师

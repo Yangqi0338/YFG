@@ -95,7 +95,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierMaterialCode()), "supplier_material_code", queryFabricInformationDto.getSupplierMaterialCode());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierName()), "supplier_name", queryFabricInformationDto.getSupplierName());
         queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierColor()), "supplier_color", queryFabricInformationDto.getSupplierColor());
-        queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getAtactiformStylist()), "atactiform_stylist", queryFabricInformationDto.getAtactiformStylist());
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricInformationDto.getAtactiformStylist()), "atactiform_stylist_user_id", queryFabricInformationDto.getAtactiformStylist());
         if (StringUtils.isNotBlank(queryFabricInformationDto.getSearch())) {
             queryWrapper.andLike(queryFabricInformationDto.getSearch(), "supplier_material_code", "supplier_name");
           /*  queryWrapper.apply("and ( supplier_material_code like concat('%','" + queryFabricInformationDto.getSearch() + "','%') " +

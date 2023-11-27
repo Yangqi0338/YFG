@@ -4,6 +4,7 @@ import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpColor;
 import com.base.sbc.module.smp.entity.SmpModuleSize;
 import com.base.sbc.module.smp.entity.SmpQuot;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -78,4 +79,57 @@ public class  SmpMaterialDto extends SmpBaseDto {
     private List<SmpQuot> quotList;
     /**图片地址集合*/
     private List<String> imgList;
+
+    //2023-11-23 新加字段
+    /** 供应商色号 */
+    @ApiModelProperty(value = "供应商色号")
+    private String supplierColorNo;
+    /** 供应商颜色描述 */
+    @ApiModelProperty(value = "供应商颜色描述")
+    private String supplierColorSay;
+    /** 面料成分说明 */
+    @ApiModelProperty(value = "面料成分说明")
+    private String ingredientSay;
+    /** 面料卖点 */
+    @ApiModelProperty(value = "面料卖点")
+    private String fabricSalePoint;
+    /** 有胚周期(天) */
+    @ApiModelProperty(value = "有胚周期(天)")
+    private BigDecimal embryonicCycle;
+    /** 无胚周期(天) */
+    @ApiModelProperty(value = "无胚周期(天)")
+    private BigDecimal embryonicFreeCycle;
+    /** 补单生产周期 */
+    @ApiModelProperty(value = "补单生产周期")
+    private BigDecimal replenishmentProductionCycle;
+    /** 密度 */
+    @ApiModelProperty(value = "密度")
+    private String density;
+    /**持续环保（1是 0否 空白） */
+    @ApiModelProperty(value = "持续环保（1是 0否 空白）")
+    private String isProtection;
+    /** 门幅 */
+    @ApiModelProperty(value = "门幅")
+    private String translate;
+    /** 织造类型 */
+    @ApiModelProperty(value = "织造类型")
+    private String weaveType;
+    /** 织造类型名称 */
+    @ApiModelProperty(value = "织造类型名称")
+    private String weaveTypeName;
+    /** 胚布类型 */
+    @ApiModelProperty(value = "胚布类型")
+    private String embryoType;
+    /** 胚布类型名称 */
+    @ApiModelProperty(value = "胚布类型名称")
+    private String embryoTypeName;
+    /** 面料属性分类 */
+    @ApiModelProperty(value = "面料属性分类")
+    private String fabricPropertyType;
+    /** 面料属性分类名称 */
+    @ApiModelProperty(value = "面料属性分类名称")
+    private String fabricPropertyTypeName;
+    /** 辅料材质 */
+    @ApiModelProperty(value = "辅料材质")
+    private String auxiliaryMaterial;
 }

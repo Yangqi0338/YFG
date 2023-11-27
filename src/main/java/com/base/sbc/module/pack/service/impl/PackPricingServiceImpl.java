@@ -11,6 +11,9 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
@@ -19,6 +22,7 @@ import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.entity.PackPricing;
+import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -134,6 +138,55 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         }
         BigDecimal formula = formula(collect.get(0).getExpressionShow().replaceAll(",",""), hashMap);
         return  formula;
+    }
+
+    /**
+     * 同步设计BOM核价到大货BOM
+     * @param foreignId 资料包id
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void asyncCost(String foreignId) {
+        // PackPricingVo detail = getDetail(new PackCommonSearchDto(foreignId, PackUtils.PACK_TYPE_DESIGN));
+        // if(ObjectUtil.isEmpty(detail)){
+        //     throw new OtherException("设计BOM核价信息不存在");
+        // }
+        // PackInfo packInfo = packInfoService.getById(foreignId);
+        // if(ObjectUtil.isEmpty(packInfo)){
+        //     throw new OtherException("资料包信息不存在");
+        // }
+        // PackPricingVo bigGoodsDetail = getDetail(new PackCommonSearchDto(foreignId, PackUtils.PACK_TYPE_BIG_GOODS));
+        // if(ObjectUtil.isEmpty(bigGoodsDetail)){
+        //     bigGoodsDetail = new PackPricingVo();
+        //     bigGoodsDetail.setForeignId(foreignId);
+        //     bigGoodsDetail.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+        // }
+        // //旧数据的物料费不变
+        // JSONObject jsonObject = JSON.parseObject(detail.getCalcItemVal());
+        // if (jsonObject!=null){
+        //     jsonObject.remove("物料费");
+        //     bigGoodsDetail.setCalcItemVal(jsonObject.toJSONString());
+        //     JSONObject jsonObject1 = JSON.parseObject(bigGoodsDetail.getCalcItemVal());
+        //     if (jsonObject1!=null){
+        //         String string = jsonObject1.getString("物料费");
+        //         jsonObject.put("物料费",string);
+        //     }
+        // }else {
+        //     bigGoodsDetail.setCalcItemVal("");
+        // }
+        //
+        // bigGoodsDetail.setPricingTemplateId(detail.getPricingTemplateId());
+        //
+        // saveByDto(BeanUtil.copyProperties(bigGoodsDetail,PackPricingDto.class));
+
+        //同步其他费用
+        packPricingOtherCostsService.copy(foreignId,PackUtils.PACK_TYPE_DESIGN,foreignId,PackUtils.PACK_TYPE_BIG_GOODS,BaseGlobal.YES);
+        //同步加工费用
+        packPricingProcessCostsService.copy(foreignId,PackUtils.PACK_TYPE_DESIGN,foreignId,PackUtils.PACK_TYPE_BIG_GOODS,BaseGlobal.YES);
+        //同步二次加工费用
+        packPricingCraftCostsService.copy(foreignId,PackUtils.PACK_TYPE_DESIGN,foreignId,PackUtils.PACK_TYPE_BIG_GOODS,BaseGlobal.YES);
+
+
     }
 
     @Override

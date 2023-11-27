@@ -507,6 +507,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qw.notEmptyLike("bm.material_code", dto.getMaterialCode());
         qw.notEmptyLike("bm.material_name", dto.getMaterialName());
         qw.notEmptyIn("bm.status", dto.getStatus());
+        qw.notEmptyLike("bm.supplier_fabric_code", dto.getSupplierMaterialCode());
         qw.eq("bm.del_flag", BaseGlobal.NO);
         qw.andLike(dto.getCategoryId(), "bm.category1_code", "bm.category2_code", "bm.category3_code");
         qw.eq("bm.biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());

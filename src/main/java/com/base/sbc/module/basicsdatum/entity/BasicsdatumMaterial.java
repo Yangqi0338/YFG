@@ -72,6 +72,25 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setTolerance(null);
 		smpMaterialDto.setSupplierComposition(factoryComposition);
 		smpMaterialDto.setPickingMethod(pickingMethod);
+		smpMaterialDto.setSupplierColorNo(supplierColorNo);
+		smpMaterialDto.setSupplierColorSay(supplierColorSay);
+		smpMaterialDto.setIngredientSay(ingredientSay);
+		smpMaterialDto.setFabricSalePoint(fabricSalePoint);
+		smpMaterialDto.setEmbryonicCycle(embryonicCycle);
+		smpMaterialDto.setEmbryonicFreeCycle(embryonicFreeCycle);
+		smpMaterialDto.setReplenishmentProductionCycle(replenishmentProductionCycle);
+		smpMaterialDto.setDensity(density);
+		smpMaterialDto.setIsProtection(isProtection);
+		smpMaterialDto.setTranslate(translate);
+		smpMaterialDto.setWeaveType(weaveType);
+		smpMaterialDto.setWeaveTypeName(weaveTypeName);
+		smpMaterialDto.setEmbryoType(embryoType);
+		smpMaterialDto.setEmbryoTypeName(embryoTypeName);
+		smpMaterialDto.setFabricPropertyType(fabricPropertyType);
+		smpMaterialDto.setFabricPropertyTypeName(fabricPropertyTypeName);
+		smpMaterialDto.setAuxiliaryMaterial(auxiliaryMaterial);
+
+
 		try {
 			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
 		}catch (Exception ignored){}

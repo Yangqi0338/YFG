@@ -52,7 +52,7 @@ public class StylePicUtils {
      */
     public String getStyleUrl(String stylePic) {
         if (customStylePicUpload.isOpen()) {
-            return getStyleColorUrl2(stylePic);
+            return getStyleColorUrl2(stylePic,100);
         }
         AttachmentVo attachmentVo = attachmentService.getAttachmentByFileId(stylePic);
         return Optional.ofNullable(attachmentVo).map(v -> v.getUrl()).orElse(null);
@@ -69,6 +69,50 @@ public class StylePicUtils {
             setStyleColorPic2(list, fileIdKey);
         } else {
             attachmentService.setListStylePic(list, fileIdKey);
+        }
+    }
+
+    /**
+     * 款式设计图
+     * @param list
+     * @param fileIdKey 修改字段
+     * @param lossnum 清晰度
+     */
+    public void setStylePic(List list, String fileIdKey,Integer lossnum) {
+        if (customStylePicUpload.isOpen()) {
+            setStyleColorPic2(list, fileIdKey,lossnum);
+        } else {
+            attachmentService.setListStylePic(list, fileIdKey);
+        }
+    }
+
+    /**
+     * 获取大货款号的图片
+     * @param list
+     * @param fileIdKey 修改字段
+     * @param lossnum 清晰度
+     */
+    public void setStyleColorPic2(List list, String fileIdKey,Integer lossnum) {
+        if (CollUtil.isEmpty(list)) {
+            return;
+        }
+        List<String> fileId = new ArrayList<>(12);
+        for (Object vo : list) {
+            String v = BeanUtil.getProperty(vo, fileIdKey);
+            if (StrUtil.isNotBlank(v)) {
+                fileId.add(v);
+            }
+        }
+        if (CollUtil.isEmpty(fileId)) {
+            return;
+        }
+        /*获取款式图*/
+        for (Object l : list) {
+            String v = BeanUtil.getProperty(l, fileIdKey);
+            if (StrUtil.isBlank(v)) {
+                continue;
+            }
+            BeanUtil.setProperty(l, fileIdKey, Optional.of(getStyleColorUrl2(v,lossnum)).orElse(""));
         }
     }
 
@@ -98,17 +142,18 @@ public class StylePicUtils {
             if (StrUtil.isBlank(v)) {
                 continue;
             }
-            BeanUtil.setProperty(l, fileIdKey, Optional.of(getStyleColorUrl2(v)).orElse(""));
+            BeanUtil.setProperty(l, fileIdKey, Optional.of(getStyleColorUrl2(v,100)).orElse(""));
         }
     }
 
 
     /**
      * 获取大货款号的url
-     *
+     * @param fileName
+     * @param lossnum
      * @return
      */
-    public String getStyleColorUrl2(String fileName) {
+    public String getStyleColorUrl2(String fileName,Integer lossnum) {
         if (StrUtil.isBlank(fileName)) {
             return null;
         }
@@ -135,7 +180,7 @@ public class StylePicUtils {
         String allStr = badge + name + fileName + tiemStr + appKey + appSecret;
         String allStrP = DigestUtils.md5DigestAsHex(allStr.getBytes());
 		String param = "&useraccount=" + badgeP + "&username=" + nameP + "&time=" + tiemStr + "&key=" + appkeyP
-				+ "&md5=" + allStrP;
+				+ "&md5=" + allStrP+"&lossnum="+lossnum;
         return customStylePicUpload.getViewUrl() + fileName + param;
     }
 }

@@ -40,6 +40,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,6 +83,7 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
     private RedisUtils redisUtils;
 
     @Resource
+    @Lazy
     private BasicsdatumSupplierServiceAsync basicsdatumSupplierServiceAsync;
 
 /** 自定义方法区 不替换的区域【other_start】 **/

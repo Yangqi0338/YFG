@@ -45,8 +45,8 @@ public class FabricIngredientsInfoExcelDto {
     /** 厂家寄出时间 */
     @ApiModelProperty(value = "厂家寄出时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "厂家寄出时间",exportFormat = "yyyy-MM-dd")
-    private Date sendDate;
+    @Excel(name = "创建时间",exportFormat = "yyyy-MM-dd")
+    private Date createDate;
     /** 开发厂家 */
     @ApiModelProperty(value = "开发厂家"  )
     @Excel(name = "开发厂家")
@@ -97,10 +97,19 @@ public class FabricIngredientsInfoExcelDto {
     @ApiModelProperty(value = "规格"  )
     @Excel(name = "规格")
     private String specification;
+
+    @ApiModelProperty(value = "颜色名称"  )
+    @Excel(name = "颜色名称")
+    private String colorName;
     /** 数量 */
     @ApiModelProperty(value = "数量"  )
     @Excel(name = "数量")
-    private Integer quantity;
+    private String quantity;
+
+    @ApiModelProperty(value = "大货含税价"  )
+    @Excel(name = "大货含税价")
+    private String containPrice;
+
     /** 设计到样时间 */
     @ApiModelProperty(value = "设计到样时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

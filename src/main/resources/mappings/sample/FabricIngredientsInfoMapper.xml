@@ -12,6 +12,20 @@
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
 
 
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+    <select id="getSelectList" resultType="com.base.sbc.module.sample.vo.FabricIngredientsInfoVo">
+      select
+        tfii.*,
+        GROUP_CONCAT( tfis.specification SEPARATOR '/') specification,
+        GROUP_CONCAT( tfis.quantity SEPARATOR '/') quantity,
+        GROUP_CONCAT( tfis.contain_price SEPARATOR '/') containPrice,
+        GROUP_CONCAT( tfis.color_code SEPARATOR '/') colorCode,
+        GROUP_CONCAT( tfis.color_name SEPARATOR '/') colorName
+        from  t_fabric_ingredients_info tfii
+        left join  t_fabric_ingredients_specification tfis  on (tfii.id = tfis.ingredients_info_id and tfis.del_flag = '0')
+         ${ew.customSqlSegment}
+
+    </select>
 </mapper>
 

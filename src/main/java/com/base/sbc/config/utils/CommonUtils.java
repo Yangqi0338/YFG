@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -215,6 +217,9 @@ public class CommonUtils {
                     if (o != null) {
                         if (o instanceof Date) {
                             oldStr = DateUtils.formatDateTime((Date) o);
+                        } else if (o instanceof BigDecimal) {
+                            /*判断是不是BigDecimal类型 保留两位小数转字符串*/
+                            oldStr = ((BigDecimal) o).setScale(2, RoundingMode.DOWN).toPlainString();
                         } else {
                             oldStr = o.toString();
                         }
@@ -225,7 +230,10 @@ public class CommonUtils {
                     if (o1 != null) {
                         if (o1 instanceof Date) {
                             newStr = DateUtils.formatDateTime((Date) o1);
-                        } else {
+                        } else if (o1 instanceof BigDecimal) {
+                            /*判断是不是BigDecimal类型 保留两位小数转字符串*/
+                            newStr = ((BigDecimal) o1).setScale(2, RoundingMode.DOWN).toPlainString();
+                        } else{
                             newStr = o1.toString();
                         }
 

@@ -508,8 +508,10 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         //月份
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "c.month", dto.getMonth());
         //波段
-        qw.eq(StrUtil.isNotBlank(dto.getBandCode()), "c.band_code", dto.getBandCode());
-        qw.eq(StrUtil.isNotBlank(dto.getBandName()), "c.band_name", dto.getBandName());
+        if (StringUtils.isNotEmpty(dto.getBandCode())){
+            String[] fruitArray = dto.getBandCode().split(",");
+            qw.in("c.band_code",Arrays.asList(fruitArray));
+        }
         //渠道
         qw.notEmptyEq("c.channel_name", dto.getChannelName());
         //产品线
@@ -816,6 +818,17 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<SampleUserVo> list = getBaseMapper().getAllDesigner(userCompany);
         amcFeignService.setUserAvatarToList(list);
         return list;
+    }
+
+    /**
+     * 获取坑位数据所有工艺员
+     *
+     * @param userCompany
+     * @return
+     */
+    @Override
+    public List<SampleUserVo> getPatternTechnician(String userCompany) {
+        return  getBaseMapper().getPatternTechnician(userCompany);
     }
 
     @Override

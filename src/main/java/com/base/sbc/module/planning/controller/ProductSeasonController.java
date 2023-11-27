@@ -57,8 +57,8 @@ public class ProductSeasonController extends BaseController {
 
     @ApiOperation(value = "查询产品季-查询所有产品季下拉选择")
     @GetMapping("/getPlanningSeasonOptions")
-    public List<SelectOptionsVo> getPlanningSeasonOptions(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String businessType) {
-        return planningSeasonService.getPlanningSeasonOptions(userCompany, businessType);
+    public List<SelectOptionsVo> getPlanningSeasonOptions(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany, String businessTypem,ProductCategoryTreeVo vo) {
+        return planningSeasonService.getPlanningSeasonOptions(userCompany, businessTypem,vo);
     }
 
 
@@ -159,6 +159,12 @@ public class ProductSeasonController extends BaseController {
     @GetMapping("/getAllDesigner")
     public List<SampleUserVo> getAllDesigner(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
         return planningCategoryItemService.getAllDesigner(userCompany);
+    }
+
+    @ApiOperation(value = "产品季总览-获取坑位数据所有工艺员")
+    @GetMapping("/getPatternTechnician")
+    public List<SampleUserVo> getPatternTechnician(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return planningCategoryItemService.getPatternTechnician(userCompany);
     }
 
 

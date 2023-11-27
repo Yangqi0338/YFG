@@ -1,6 +1,7 @@
 package com.base.sbc.module.task.controller;
 
-import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -9,11 +10,8 @@ import com.base.sbc.client.flowable.vo.FlowQueryVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.module.common.entity.Attachment;
-import com.base.sbc.module.common.entity.UploadFile;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.AttachmentService;
-import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.style.entity.Style;
@@ -22,17 +20,15 @@ import com.base.sbc.module.task.vo.FlowTaskDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.http.fileupload.FileUpload;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author 卞康
@@ -49,6 +45,9 @@ public class TaskController {
     // private final UploadFileService uploadFileService;
     // private final MinioUtils minioUtils;
     private final StyleService styleService;
+
+    private final StylePicUtils stylePicUtils;
+
     @ApiOperation(value = "获取待办列表", response = FlowTaskDto.class)
     @GetMapping(value = "/todoList")
     public ApiResult todoList(FlowQueryVo queryVo){
@@ -72,47 +71,47 @@ public class TaskController {
         JSONArray jsonArray= jsonObject.getJSONArray("list");
         List<FlowTaskDto> data = jsonArray.toJavaList(FlowTaskDto.class);
 
-        if (data!=null&& !data.isEmpty()){
+        if (data!=null&& !data.isEmpty()) {
             for (FlowTaskDto flowTaskDto : data) {
                 String contentApproval = flowTaskDto.getContentApproval();
-                if (!StringUtils.isEmpty(contentApproval)){
-                    // String[] split = contentApproval.split("--");
-                    // if (split.length>1){
-                    //     flowTaskDto.setContentApproval(split[0]);
-                    //     flowTaskDto.setPic(split[1]);
-                    // }else {
-                    //     flowTaskDto.setContentApproval(split[0].replace("--",""));
-                    // }
-                    String[] split = contentApproval.split("\\[");
-                    if (split.length>1){
-
-                        String[] split1 = split[1].split("]");
-                        Style style = styleService.getOne(new BaseQueryWrapper<Style>().eq("design_no", split1[0]));
-                        if (style==null){
-                            continue;
-                        }
-                        List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
-                        if (attachmentVoList1!=null&&!attachmentVoList1.isEmpty()){
-                            flowTaskDto.setPic(attachmentVoList1.get(0).getUrl());
+                String procDefName = flowTaskDto.getProcDefName();
+                /*判断是否是款式设计的审批*/
+                if (StrUtil.isNotBlank(contentApproval) && StrUtil.equals(procDefName, "款式设计审批")) {
+                    /*获取[]中的元素*/
+                    Pattern pattern = Pattern.compile("\\[(.*?)\\]");
+                    Matcher matcher = pattern.matcher(contentApproval);
+                    if (matcher.find()) {
+                        /*设计款号*/
+                        String designNo = matcher.group(1);
+                        if (StrUtil.isNotBlank(designNo)) {
+                            Style style = styleService.getOne(new BaseQueryWrapper<Style>().eq("design_no", designNo));
+                            if (ObjectUtil.isEmpty(style)) {
+                                continue;
+                            }
+                            List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
+                            if (attachmentVoList1 != null && !attachmentVoList1.isEmpty()) {
+                                flowTaskDto.setPic(attachmentVoList1.get(0).getUrl());
+                            }
+                            flowTaskDto.setStylePic(stylePicUtils.getStyleUrl(style.getStylePic()));
                         }
                     }
-            }
+
+                }
 
 
-
-            // List<String> ids = data.stream().map(FlowTaskDto::getPic).filter(res -> !StringUtils.isEmpty(res) ).collect(Collectors.toList());
-            // if (!ids.isEmpty()){
-            //     List<Attachment> attachments = attachmentService.listByIds(ids);
-            //     List<String> fileIds = attachments.stream().map(Attachment::getFileId).collect(Collectors.toList());
-            //     Map<String,String > collect1 = attachments.stream().collect(Collectors.toMap(Attachment::getId, Attachment::getFileId));
-            //     List<UploadFile> uploadFiles = uploadFileService.listByIds(fileIds);
-            //     Map<String, String> collect = uploadFiles.stream().collect(Collectors.toMap(UploadFile::getId, UploadFile::getUrl));
-            //     for (FlowTaskDto flowTaskDto : data) {
-            //         String s = collect1.get(flowTaskDto.getPic());
-            //         if (!StringUtils.isEmpty(s)){
-            //             flowTaskDto.setPic(minioUtils.getObjectUrl(collect.get(s)));
-            //         }
-            //     }
+                // List<String> ids = data.stream().map(FlowTaskDto::getPic).filter(res -> !StringUtils.isEmpty(res) ).collect(Collectors.toList());
+                // if (!ids.isEmpty()){
+                //     List<Attachment> attachments = attachmentService.listByIds(ids);
+                //     List<String> fileIds = attachments.stream().map(Attachment::getFileId).collect(Collectors.toList());
+                //     Map<String,String > collect1 = attachments.stream().collect(Collectors.toMap(Attachment::getId, Attachment::getFileId));
+                //     List<UploadFile> uploadFiles = uploadFileService.listByIds(fileIds);
+                //     Map<String, String> collect = uploadFiles.stream().collect(Collectors.toMap(UploadFile::getId, UploadFile::getUrl));
+                //     for (FlowTaskDto flowTaskDto : data) {
+                //         String s = collect1.get(flowTaskDto.getPic());
+                //         if (!StringUtils.isEmpty(s)){
+                //             flowTaskDto.setPic(minioUtils.getObjectUrl(collect.get(s)));
+                //         }
+                //     }
             }
 
         }

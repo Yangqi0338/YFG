@@ -7,20 +7,15 @@
 package com.base.sbc.module.hangtag.service.impl;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.smp.SmpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -157,6 +152,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
+		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
+			hangTagDTO.setDesignNos(StringUtils.split(hangTagDTO.getDesignNo(),","));
+		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
 		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
 		if (hangTagListVOS.isEmpty()) {
@@ -256,7 +254,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
 		}
 		hangTagVO.setStylePic(stylePicUtils.getStyleUrl(hangTagVO.getStylePic()));
-		hangTagVO.setStyleColorPic(stylePicUtils.getStyleColorUrl2(hangTagVO.getStyleColorPic()));
+		hangTagVO.setStyleColorPic(stylePicUtils.getStyleUrl(hangTagVO.getStyleColorPic()));
 		minioUtils.setObjectUrlToObject(hangTagVO, "washingLabel");
 		if (StringUtils.isEmpty(hangTagVO.getStatus())) {
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
@@ -266,7 +264,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (packInfo != null) {
 			List<PackBom> packBomList = packBomService.list(
-					new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type", "packBigGoods"));
+					new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
 			if (!packBomList.isEmpty()) {
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
 				if (!codes.isEmpty()) {
@@ -282,6 +280,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Override
 	@Transactional(rollbackFor = { Exception.class })
 	public String save(HangTagDTO hangTagDTO, String userCompany) {
+		//判断大货款号是否存在
+		if (StringUtils.isEmpty(hangTagDTO.getId())) {
+			long count = this.count(new QueryWrapper<HangTag>().eq("bulk_style_no", hangTagDTO.getBulkStyleNo()).eq("company_code", userCompany));
+			if (count > 0) {
+				throw new OtherException("大货款号已存在,请勿重复添加");
+			}
+		}
+
+
 		logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO),
 				userCompany);
 		HangTag hangTag = new HangTag();
@@ -360,7 +367,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTag.setStatus("3");
 			this.updateById(hangTag);
 		}
-		return id;
+		try {
+			//下发成分
+			smpService.sendTageComposition(Collections.singletonList(id));
+		}catch (Exception ignored){
+		}
+        return id;
 	}
 
 	@Override
@@ -581,7 +593,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						size1.setEXTSIZECODE("");
 						size1.setShowIntSize("0".equals(basicsdatumSize.getShowSizeStatus()));
 						size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
-						size1.setSKUFiller(hangTag.getDownContent());
+						String downContent = hangTag.getDownContent();
+						if (!StringUtils.isEmpty(downContent)) {
+							for (String s : downContent.split("\n")) {
+								if (!StringUtils.isEmpty(s)) {
+									String[] split = s.split(":");
+									if (split.length > 1) {
+										if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
+											size1.setSKUFiller(split[1]);
+										}
+									}
+								}
+							}
+
+						}
+
 						size1.setSpecialSpec("");
 						size.add(size1);
 					}

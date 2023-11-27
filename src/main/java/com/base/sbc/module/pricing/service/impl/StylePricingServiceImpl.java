@@ -107,7 +107,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         qw.notEmptyEq("sd.season", dto.getSeason());
         qw.notEmptyEq("sd.month", dto.getMonth());
         qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
-
+        qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getStyleNo()));
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
         List<StylePricingVO> stylePricingList = super.getBaseMapper().getStylePricingList(dto, qw);
         if (CollectionUtils.isEmpty(stylePricingList)) {
@@ -136,7 +137,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
             packCommonSearchDto.setForeignId(stylePricingVO.getId());
             //材料成本,如果fob,则不计算
-            if (!"FOB".equals(stylePricingVO.getProductionType())){
+            if ("CMT".equals(stylePricingVO.getProductionType())){
                 stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
             }else {
                 stylePricingVO.setMaterialCost(BigDecimal.ZERO);

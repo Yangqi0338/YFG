@@ -60,6 +60,13 @@ public class PackPricingController {
         return packPricingService.getDetail(dto);
     }
 
+   @ApiOperation(value = "设计BOM核价同步到大货BOM", notes = "设计BOM核价同步到大货BOM,不同步物料费用")
+    @PostMapping("/asyncCost")
+    public ApiResult asyncCost(@Valid @NotEmpty(message = "主id不可为空") String foreignId){
+        packPricingService.asyncCost(foreignId);
+        return ApiResult.success();
+    }
+
     @ApiOperation(value = "保存")
     @PostMapping()
     public PackPricingVo savePackPricing(@Valid @RequestBody PackPricingDto dto) {

@@ -60,7 +60,6 @@ public class StyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setCode(styleNo);
         smpGoodsDto.setMainCode(principalStyleNo);
         smpGoodsDto.setSecCode(accessoryNo);
-
         IdGen idGen = new IdGen();
         smpGoodsDto.setId(id);
         smpGoodsDto.setName(colorName);
@@ -71,6 +70,8 @@ public class StyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setPlmId(null);
         smpGoodsDto.setSyncId(String.valueOf(idGen.nextId()));
         smpGoodsDto.setActive("0".equals(status));
+        smpGoodsDto.setDesignCorrectDate(designCorrectDate);
+        smpGoodsDto.setDesignDetailDate(designDetailDate);
         return smpGoodsDto;
     }
     /**********************************实体存放的其他字段区 【other_end】******************************************/
@@ -295,6 +296,12 @@ public class StyleColor extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "产品风格")
     private String productStyleName;
+
+    /**
+     * 是否撞色
+     */
+    @ApiModelProperty(value = "是否撞色,0否 1是")
+    private String colorCrash;
 
     /**
      * 是否是迁移历史数据 0否 1是

@@ -359,7 +359,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         List<String> pageBomIds = new ArrayList<>();
         // 版本有几个物料信息
         Long versionBomCount = getBaseMapper().countByVersion(version.getId());
-        ;
         // 保存物料清单表
         List<PackBom> packBoms = BeanUtil.copyToList(dtoList, PackBom.class);
         for (PackBom packBom : packBoms) {
@@ -370,7 +369,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 pageBomIds.add(packBom.getId());
             } else {
                 packBom.setCode(null);
-                packBom.setSort(Math.toIntExact(versionBomCount));
+                packBom.setSort(Math.toIntExact(versionBomCount+1));
             }
             packBom.calculateCost();
         }
@@ -417,8 +416,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     packBomSize.setPackType(version.getPackType());
                     packBomSize.setForeignId(version.getForeignId());
                     packBomSize.setBomVersionId(version.getId());
-                    packBomSize.setWidthCode(packBomDto.getTranslateCode());
-                    packBomSize.setWidth(packBomDto.getTranslate());
+                    /**/
+                    packBomSize.setWidthCode(StrUtil.equals(packBomDto.getTranslateCode(),packBomSize.getWidthCode())?packBomDto.getTranslateCode():packBomSize.getWidthCode() );
+                    packBomSize.setWidth(StrUtil.equals(packBomDto.getTranslate(),packBomSize.getWidth())?packBomDto.getTranslate():packBomSize.getWidth());
                     packBomSize.setQuantity(
                             Opt.ofNullable(packBomSize.getQuantity()).orElse(
                             StrUtil.equals(packBomDto.getPackType(),PackUtils.PACK_TYPE_DESIGN)?packBomDto.getDesignUnitUse():packBomDto.getBulkUnitUse())

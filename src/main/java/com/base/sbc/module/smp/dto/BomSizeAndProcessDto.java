@@ -38,7 +38,7 @@ public class BomSizeAndProcessDto {
      * bom尺寸数据
      */
     @Data
-    class BomSize {
+    public static class BomSize {
         private String id;
         /** 部位编码 */
         private String partCode;
@@ -48,7 +48,7 @@ public class BomSizeAndProcessDto {
         private String method;
         /**标准值*/
         private String standard;
-        /**尺寸信息*/
+        /**标准值*/
         private String size;
         /**正公差+*/
         private String positive;

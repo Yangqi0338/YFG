@@ -6,30 +6,22 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
-
-/**
- * 类描述：调样-辅料信息 dao类
- * @address com.base.sbc.module.sample.dao.FabricIngredientsInfoDao
+import com.base.sbc.module.sample.entity.FabricIngredientsSpecification;
+/** 
+ * 类描述： dao类
+ * @address com.base.sbc.module.sample.dao.FabricIngredientsSpecificationDao
  * @author mengfanjiang  
  * @email  XX.com
- * @date 创建时间：2023-7-14 17:32:38 
+ * @date 创建时间：2023-11-17 15:11:41 
  * @version 1.0  
  */
 @Mapper
-public interface FabricIngredientsInfoMapper extends BaseMapper<FabricIngredientsInfo> {
+public interface FabricIngredientsSpecificationMapper extends BaseMapper<FabricIngredientsSpecification> {
 // 自定义方法区 不替换的区域【other_start】
 
-  List<FabricIngredientsInfoVo> getSelectList(@Param(Constants.WRAPPER) QueryWrapper qw);
+
 
 // 自定义方法区 不替换的区域【other_end】
 }
-

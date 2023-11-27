@@ -113,7 +113,12 @@
             <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 and tsd.design_no is not null
             </if>
-
+            <if test="dto.designNos !=null and dto.designNos.size() !=0 ">
+                and
+                <foreach item="designNo" collection="designNos" open="(" separator="or" close=")">
+                    tsd.design_no like concat('%',#{designNo},'%')
+                </foreach>
+            </if>
             <if test="authSql != null and authSql != ''">
                 and (${authSql})
             </if>

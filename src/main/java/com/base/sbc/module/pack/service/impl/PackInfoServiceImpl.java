@@ -215,6 +215,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
         sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
         sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
+        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getDesignNo() ) ,"design_no", StringUtils.convertList(pageDto.getDesignNo()) );
+        sdQw.likeList(  StrUtil.isNotBlank( pageDto.getStyleNo() ) ,"style_no", StringUtils.convertList(pageDto.getStyleNo()) );
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
         sdQw.orderByDesc("create_date");
@@ -699,7 +701,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (StrUtil.isNotBlank(detail.getStyleColorId())) {
             StyleColor styleColor = styleColorMapper.selectById(detail.getStyleColorId());
             if (styleColor != null && StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
-                String styleNoImgUrl = stylePicUtils.getStyleColorUrl2(styleColor.getStyleColorPic());
+                String styleNoImgUrl = stylePicUtils.getStyleUrl(styleColor.getStyleColorPic());
                 vo.setStylePic(styleNoImgUrl);
             }
         }
@@ -735,7 +737,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         GenTechSpecPdfFile vo = queryGenTechSpecPdfFile(groupUser, dto);
         String devtType = vo.getDevtType();
         Map<String, Map<String, String>> dictMap = ccmFeignService.getDictInfoToMap("ProcessTemplate-FOB");
+        Map<String, Map<String, String>> proccessStyleMap = ccmFeignService.getDictInfoToMap("Process-Style");
         boolean fob = dictMap.containsKey("ProcessTemplate-FOB") && dictMap.get("ProcessTemplate-FOB").containsKey(devtType);
+        boolean ctBasicPage = proccessStyleMap.containsKey("Process-Style") &&proccessStyleMap.get("Process-Style").containsKey("CBasicPage") ;
+        vo.setCtBasicPage(ctBasicPage);
         vo.setFob(fob);
         vo.setDevtType(fob ? "FOB" : devtType);
         ByteArrayOutputStream gen = vo.gen();
@@ -797,6 +802,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 if (packBomVersion == null) {
                     throw new OtherException("无物料数据");
                 }
+                // 版本有几个物料信息
+                Long versionBomCount = packBomService.countByVersion(packBomVersion1.getId());
                 /*迁移数据时在那个阶段就复制那个阶段的数据*/
                 if (StringUtils.equals(dto.getOverlayFlag(), BaseGlobal.YES)) {
                     /*覆盖先删除再新增*/
@@ -852,6 +859,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         String newId = snowflake.nextIdStr();
                         bom.setPackType(dto.getTargetPackType());
                         bom.setCode(null);
+                        bom.setSort(Math.toIntExact(versionBomCount+(i+1)));
                         bom.setForeignId(dto.getTargetForeignId());
                         bom.setBomVersionId(packBomVersion1.getId());
                         bom.setScmSendFlag(BaseGlobal.NO);
@@ -978,7 +986,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (styleColor != null) {
             //图片
             if (StrUtil.isNotBlank(styleColor.getStyleColorPic())) {
-                String styleNoImgUrl = stylePicUtils.getStyleColorUrl2(styleColor.getStyleColorPic());
+                String styleNoImgUrl = stylePicUtils.getStyleUrl(styleColor.getStyleColorPic());
                 vo.setStylePic(styleNoImgUrl);
             }
             vo.setIsMainly(styleColor.getIsMainly());
@@ -1277,6 +1285,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
         sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
         sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
+        sdQw.likeList(StrUtil.isNotBlank(pageDto.getDesignNo()),"design_no",StringUtils.convertList(pageDto.getDesignNo()));
+        sdQw.likeList(StrUtil.isNotBlank(pageDto.getStyleNo()),"style_no",StringUtils.convertList(pageDto.getStyleNo()));
         sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
         sdQw.orderByDesc("create_date");
         // 数据权限
