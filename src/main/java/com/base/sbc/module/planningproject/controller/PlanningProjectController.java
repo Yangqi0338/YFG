@@ -163,14 +163,18 @@ public class PlanningProjectController extends BaseController {
         if (planningChannels.isEmpty()){
            throw new OtherException("该季节下没有企划渠道");
         }
+        boolean flag =false;
         BaseQueryWrapper<PlanningCategoryItem> qw = new BaseQueryWrapper<>();
         for (PlanningChannel planningChannel : planningChannels) {
             if (planningChannel.getChannel().equals(dto.getChannelCode())){
                 qw.eq("planning_channel_id",planningChannel.getId());
+                flag=true;
                 break;
             }
         }
-
+        if (!flag){
+            throw new OtherException("该季节下没有该企划渠道");
+        }
         qw.notEmptyEq("prod_category",dto.getProdCategory());
         qw.notEmptyEq("prod_category1st",dto.getProdCategory1st());
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningCategoryItem.getK(), "t_planning_category_item");
