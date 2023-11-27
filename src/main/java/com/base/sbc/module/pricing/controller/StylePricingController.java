@@ -44,6 +44,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -174,7 +175,7 @@ public class StylePricingController extends BaseController {
             }
         }
         /*迁移数据不能操作*/
-      List<String> packIds = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
+        List<String> packIds = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.in("id",packIds);
         queryWrapper.eq("historical_data",BaseGlobal.YES);
@@ -193,6 +194,23 @@ public class StylePricingController extends BaseController {
                 messageUtils.stylePricingSendMessage("M商品企划", packInfo.getDesignNo(), packInfo.getPlanningSeasonId(), "1", baseController.getUser());
             }
         }
+        //是否计控确认
+        int type =0;
+        if(StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
+            type = 4;
+        }
+
+        //是否商品吊牌确认
+        if(StrUtil.equals(dto.getControlHangtagConfirm(),BaseGlobal.YES)){
+            type = 5;
+        }
+
+        //是否商品吊牌确认
+        if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
+            type = 6;
+        }
+        smpService.tagConfirmDates(Collections.singletonList(dto.getIds()),type,1);
+
         /*吊牌确认下发*/
         if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE)){
             String collect = packInfoList.stream().filter(f -> StrUtil.isNotBlank(f.getStyleColorId())).map(PackInfo::getStyleColorId).collect(Collectors.joining(","));

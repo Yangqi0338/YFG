@@ -111,6 +111,7 @@ public class PackInfoStatusServiceImpl extends AbstractPackBaseServiceImpl<PackI
                 "/pdm/api/saas/packTechSpec/approval",
                 StrUtil.format("/styleManagement/dataPackage?id={}&styleId={}&style={}", packInfo.getId(), packInfo.getForeignId(), packInfo.getDesignNo()),
                 variables);
+        smpService.checkProcessSize(packInfoStatus.getForeignId());
         return true;
     }
 
