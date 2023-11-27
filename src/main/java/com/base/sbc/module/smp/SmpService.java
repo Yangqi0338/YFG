@@ -1226,7 +1226,6 @@ public class SmpService {
         PackInfoListVo infoListVo = packInfoService.getDetail(id, PackUtils.PACK_TYPE_BIG_GOODS);
         if (ObjectUtil.isNotEmpty(infoListVo)) {
             if (StrUtil.isNotBlank(infoListVo.getStyleNo())) {
-                bomSizeAndProcessDto.setStyleNo(infoListVo.getStyleNo());
                 List<PackSize> packSizeList = packSizeService.list(infoListVo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
                 if (CollUtil.isNotEmpty(packSizeList)) {
                     List<BomSizeAndProcessDto.BomSize> bomSizeList = new ArrayList<>();
