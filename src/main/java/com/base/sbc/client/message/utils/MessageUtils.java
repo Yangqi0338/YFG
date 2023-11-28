@@ -157,7 +157,7 @@ public class MessageUtils {
             map.put("userId", groupUser.getId());
             map.put("userName", groupUser.getName());
             map.put("avatar", groupUser.getAvatar());
-            modelMessage.setUserIds(userId);
+            modelMessage.setUserIds("772096418008530944");
             modelMessage.setParams(map);
             String s = messagesService.sendNoticeByModel(modelMessage);
         }
@@ -247,7 +247,7 @@ public class MessageUtils {
                         if(StrUtil.isNotBlank(stitcherRemark)){
                             map.put("stitcherRemark","备注："+ stitcherRemark);
                         }else {
-                            map.put("stitcherRemark", "");
+                            map.put("stitcherRemark", "_");
                         }
                         map.put("status", status);
                         map.put("userId", groupUser.getId());
