@@ -13,7 +13,11 @@ import com.base.sbc.module.formtype.entity.FormType;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.formtype.service.FormTypeService;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.planning.entity.PlanningDimensionality;
+import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.base.sbc.module.planning.vo.FieldDisplayVo;
 import com.base.sbc.module.planningproject.dto.MatchSaveDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
@@ -51,6 +55,7 @@ public class PlanningProjectPlankController extends BaseController {
     private final FormTypeService formTypeService;
     private final FieldOptionConfigService fieldOptionConfigService;
     private final FieldManagementService fieldManagementService;
+    private final PlanningDimensionalityService planningDimensionalityService;
 
     /**
      * 查询列表
@@ -143,6 +148,24 @@ public class PlanningProjectPlankController extends BaseController {
     public ApiResult delByIds(String ids) {
         String[] split = ids.split(",");
         return deleteSuccess(planningProjectPlankService.removeByIds(Arrays.asList(split)));
+    }
+
+    /**
+     * 获取维度字段卡片
+     */
+    @ApiOperation(value = "获取维度字段卡片")
+    @GetMapping("/getDimensionFieldCard")
+    public ApiResult getDimensionFieldCard(DimensionLabelsSearchDto dto){
+        List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.getDimensionalityList(dto).getPlanningDimensionalities();
+        List<FieldDisplayVo> fieldDisplayVoList = planningDimensionalities.stream().map(planningDimensionality -> {
+            FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
+            fieldDisplayVo.setField(planningDimensionality.getDimensionalityName());
+            fieldDisplayVo.setName(planningDimensionality.getDimensionalityName());
+            fieldDisplayVo.setDisplay(true);
+            return fieldDisplayVo;
+        }).collect(Collectors.toList());
+
+        return selectSuccess(fieldDisplayVoList);
     }
 
 

@@ -202,8 +202,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         if (colourLibrary != null) {
                             planningProjectPlankVo.setColorSystem(colourLibrary.getColorType());
                         }
-                        planningProjectPlankVo.setId(null);
-                        planningProjectPlankVo.setIsVirtual("1");
+                        planningProjectPlankVo1.setId(null);
+                        planningProjectPlankVo1.setIsVirtual("1");
                         bulkNos.add(planningProjectPlankVo1.getBulkStyleNo());
                         list1.add(planningProjectPlankVo1);
                         planningProject.setIsMatch("1");
