@@ -499,8 +499,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         String brand = planningSeason.getBrand();
         String year = planningSeason.getYearName();
         String season = planningSeason.getSeason();
-        if (StrUtil.contains(style.getProdCategory(), StrUtil.COMMA)) {
-            category = getCategory(style.getProdCategory());
+        if (StringUtils.isNotBlank(style.getProdCategory())) {
+            category = style.getProdCategory();
         }
         if (StringUtils.isBlank(bandName)) {
             throw new OtherException("款式波段为空");
