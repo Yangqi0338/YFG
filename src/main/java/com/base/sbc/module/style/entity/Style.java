@@ -550,6 +550,12 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否撞色,0否 1是")
     private String colorCrash;
+
+    /**
+     * 套版款号
+     */
+    @ApiModelProperty(value = "套版款号"  )
+    private String registeringNo;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
