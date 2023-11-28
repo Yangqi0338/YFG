@@ -51,6 +51,10 @@ public class FabricInformationExcelDto {
     @Excel(name = "品牌")
     private String brandName;
 
+    /** 调样设计师 */
+    @Excel(name = "调样设计师")
+    private String  atactiformStylist;
+
     /** 供应商 */
     @Excel(name = "供应商")
     private String supplierName;
@@ -63,12 +67,12 @@ public class FabricInformationExcelDto {
     private String supplierColor;
     /** 是否新面料（0是 1否 */
     @ApiModelProperty(value = "是否新面料（1是 0否"  )
-    @Excel(name = "是否新面料", replace = {"false_0", "true_1"} )
+    @Excel(name = "是否新面料", replace = {"否_0", "是_1", "否_null"} )
     private String isNewFabric;
 
     /** 持续环保（0是 1否 */
     @ApiModelProperty(value = "持续环保（1是 0否"  )
-    @Excel(name = "持续环保", replace = {"否_0", "是_1", "_null"} )
+    @Excel(name = "持续环保", replace = {"否_0", "是_1", "否_null"} )
     private String isProtection;
 
     /** 数量（米） */
@@ -109,6 +113,11 @@ public class FabricInformationExcelDto {
     @ApiModelProperty(value = "胚布情况"  )
     @Excel(name = "胚布情况")
     private String germinalCondition;
+
+    /** 发送供应商标记(1是0否 */
+    @ApiModelProperty(value = "发送供应商标记(1是0否"  )
+    @Excel(name = "发送供应商", replace = {"否_0", "是_1","否_null"} )
+    private String sendingSupplierFlag;
     /** 调样日期 */
     @ApiModelProperty(value = "调样日期"  )
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
@@ -131,13 +140,13 @@ public class FabricInformationExcelDto {
     private Date inspectDate;
 
     @ApiModelProperty(value = "面料是否可用(1是，0否)"  )
-    @Excel(name = "面料是否可用", replace = {"false_0", "true_1","null_0"} )
+    @Excel(name = "面料是否可用", replace = {"否_0", "是_1","否_null"} )
     private String fabricIsUsable;
 
 
     /** 理化检测结果（0是1否 */
     @ApiModelProperty(value = "理化检测结果（0是1否"  )
-    @Excel(name = "理化检测结果", replace = {"false_0", "true_1"} )
+    @Excel(name = "理化检测结果", replace = {"否_0", "是_1","否_null"} )
     private String physicochemistryDetectionResult;
 
     /** 样衣试穿洗涤送检时间 */
@@ -148,6 +157,6 @@ public class FabricInformationExcelDto {
 
     /** 洗涤检测结果（0是1否 */
     @ApiModelProperty(value = "洗涤检测结果（0是1否"  )
-    @Excel(name = "洗涤检测结果", replace = {"false_0", "true_1"} )
+    @Excel(name = "洗涤检测结果",  replace = {"否_0", "是_1","否_null"} )
     private String washDetectionResult;
 }
