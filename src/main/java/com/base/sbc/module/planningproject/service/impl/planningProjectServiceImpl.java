@@ -53,12 +53,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final PlanningProjectDimensionService planningProjectDimensionService;
     private final PlanningProjectMaxCategoryService planningProjectMaxCategoryService;
     private final PlanningProjectPlankService planningProjectPlankService;
-    private final StyleService styleService;
-    private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
-    private final StyleColorService styleColorService;
-    private final FieldValService fieldValService;
-    private final StylePricingMapper stylePricingMapper;
-    private final FieldManagementService fieldManagementService;
+
 
     /**
      * 分页查询企划看板规划信息
@@ -69,7 +64,6 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     public PageInfo<PlanningProjectVo> queryPage(PlanningProjectPageDTO dto) {
         /*分页*/
         PageHelper.startPage(dto);
-        // List<PlanningProjectVo> planningProjectVos = this.getBaseMapper().getplanningProjectList(dto);
         BaseQueryWrapper<PlanningProject> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("season_id",dto.getSeasonId());
         queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
@@ -137,80 +131,18 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             queryWrapper2.eq("planning_project_id", planningProjectSaveDTO.getId());
             planningProjectPlankService.physicalDeleteQWrap(queryWrapper2);
         }
+        //生成坑位
         for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
-            // 坑位数量
-            String number = planningProjectDimension.getNumber();
-            int i = Integer.parseInt(number);
-            if (i == 0) {
-                continue;
-            }
-            // 匹配规则 产品季  大类 品类 (中类有就匹配)  波段 第一维度  这5匹配
-            BaseQueryWrapper<StyleColor> styleColorQueryWrapper = new BaseQueryWrapper<>();
-            styleColorQueryWrapper.eq("ts.planning_season_id", planningProjectSaveDTO.getSeasonId());
-            styleColorQueryWrapper.eq("ts.prod_category1st", planningProjectDimension.getProdCategory1stCode());
-            styleColorQueryWrapper.eq("1".equals(planningProjectDimension.getIsProdCategory2nd()), "ts.prod_category2nd", planningProjectDimension.getProdCategory2ndCode());
-            styleColorQueryWrapper.eq("ts.prod_category", planningProjectDimension.getProdCategoryCode());
-            styleColorQueryWrapper.eq("tsc.band_code", planningProjectDimension.getBandCode());
-            styleColorQueryWrapper.eq("tsc.order_flag", "1");
-            // 查询坑位所有已经匹配的大货款号
-            QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
-            queryWrapper1.select("bulk_style_no");
-            queryWrapper1.isNotNull("bulk_style_no");
-            queryWrapper1.last("and bulk_style_no != ''");
-            List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
-            if (!list.isEmpty()) {
-                List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
-                styleColorQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
-            }
-            List<StyleColorVo> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper);
-            // 查询款式设计所有的维度信息
-
-            // 匹配到的坑位信息
             List<PlanningProjectPlank> planningProjectPlanks = new ArrayList<>();
-
-
-
-
-
-            // 匹配
-            for (StyleColorVo styleColorVo : styleColorList) {
-                List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColorVo.getId());
-                for (FieldManagementVo fieldManagementVo : fieldManagementVos) {
-                    if (fieldManagementVo.getFieldId().equals(planningProjectDimension.getDimensionId()) && fieldManagementVo.getVal().equals(planningProjectDimension.getDimensionValue())) {
-                        // 说明匹配上了
-                        PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
-                        planningProjectPlank.setBulkStyleNo(styleColorVo.getStyleNo());
-                        planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
-                        planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
-                        planningProjectPlank.setMatchingStyleStatus("2");
-                        planningProjectPlank.setPic(styleColorVo.getStyleColorPic());
-                        planningProjectPlank.setBandCode(styleColorVo.getBandCode());
-                        planningProjectPlank.setBandName(styleColorVo.getBandName());
-                        planningProjectPlank.setStyleColorId(styleColorVo.getId());
-                        BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColorVo.getColorCode()));
-                        if (colourLibrary != null) {
-                            planningProjectPlank.setColorSystem(colourLibrary.getColorType());
-                        }
-                        planningProjectPlanks.add(planningProjectPlank);
-                        planningProjectSaveDTO.setIsMatch("1");
-                    }
-                }
+            for (int i = 0; i <  Integer.parseInt(planningProjectDimension.getNumber()); i++) {
+                PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
+                planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
+                planningProjectPlank.setMatchingStyleStatus("0");
+                planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
+                planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+                planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
+                planningProjectPlanks.add(planningProjectPlank);
             }
-            this.saveOrUpdate(planningProjectSaveDTO);
-            int i1 = i - planningProjectPlanks.size();
-            if (i1 > 0) {
-                // 说明匹配不够
-                for (int j = 0; j < i1; j++) {
-                    PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
-                    planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
-                    planningProjectPlank.setMatchingStyleStatus("0");
-                    planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
-                    planningProjectPlank.setBandName(planningProjectDimension.getBandName());
-                    planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
-                    planningProjectPlanks.add(planningProjectPlank);
-                }
-            }
-
             planningProjectPlankService.saveBatch(planningProjectPlanks);
         }
         return true;

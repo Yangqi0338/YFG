@@ -38,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -75,7 +76,8 @@ public class PlanningProjectController extends BaseController {
     @Transactional(rollbackFor = Exception.class)
     public ApiResult startStop(@Valid @NotNull(message = "传入id不能为空") String ids, @Valid @NotNull(message = "传入状态不能为空") String status) {
         UpdateWrapper<PlanningProject> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.in("id", Arrays.asList(ids.split(",")));
+        List<String> idList = Arrays.asList(ids.split(","));
+        updateWrapper.in("id", idList);
         updateWrapper.set("status", status);
 
         //如果是停用,清空关联的坑位数据
@@ -83,11 +85,12 @@ public class PlanningProjectController extends BaseController {
             updateWrapper.set("is_match", "0");
 
             UpdateWrapper<PlanningProjectPlank> wrapper =new UpdateWrapper<>();
-            wrapper.in("planning_project_id",ids);
+            wrapper.in("planning_project_id",idList);
             wrapper.set("bulk_style_no","");
             wrapper.set("pic","");
             wrapper.set("color_system","");
-            wrapper.set("style_color_id","0");
+            wrapper.set("style_color_id","");
+            wrapper.set("matching_style_status","0");
             planningProjectPlankService.update(wrapper);
         }
 
@@ -104,17 +107,17 @@ public class PlanningProjectController extends BaseController {
         if (StringUtils.isEmpty(ids)) {
             return deleteSuccess(false);
         }
-        Set<String> idSet = Collections.singleton(ids);
-        boolean b = planningProjectService.removeByIds(idSet);
+        List<String> idList = Arrays.asList(ids.split(","));
+        boolean b = planningProjectService.removeByIds(idList);
         if (b){
             QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
-            queryWrapper.in("planning_project_id",idSet);
+            queryWrapper.in("planning_project_id",idList);
             planningProjectDimensionService.remove(queryWrapper);
             QueryWrapper<PlanningProjectMaxCategory> queryWrapper1 =new BaseQueryWrapper<>();
-            queryWrapper1.in("planning_project_id",idSet);
+            queryWrapper1.in("planning_project_id",idList);
             planningProjectMaxCategoryService.remove(queryWrapper1);
             QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
-            queryWrapper2.in("planning_project_id",idSet);
+            queryWrapper2.in("planning_project_id",idList);
             planningProjectPlankService.remove(queryWrapper2);
         }
         return deleteSuccess(b);
@@ -150,8 +153,7 @@ public class PlanningProjectController extends BaseController {
         if (StringUtils.isEmpty(ids)) {
             return deleteSuccess(false);
         }
-        Set<String> idSet = Collections.singleton(ids);
-        boolean b = planningProjectImportService.removeByIds(idSet);
+        boolean b = planningProjectImportService.removeByIds(Arrays.asList(ids.split(",")));
         return deleteSuccess(b);
 
     }
