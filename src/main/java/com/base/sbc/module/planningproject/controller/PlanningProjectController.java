@@ -141,6 +141,22 @@ public class PlanningProjectController extends BaseController {
     }
 
     /**
+     * 根据导入数据的ids删除
+     */
+    @ApiOperation(value = "根据导入数据的ids删除")
+    @DeleteMapping("/delByImportIds")
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult delByImportIds(String ids) {
+        if (StringUtils.isEmpty(ids)) {
+            return deleteSuccess(false);
+        }
+        Set<String> idSet = Collections.singleton(ids);
+        boolean b = planningProjectImportService.removeByIds(idSet);
+        return deleteSuccess(b);
+
+    }
+
+    /**
      * 查询看板数据
      */
     @ApiOperation(value = "查询看板数据")
