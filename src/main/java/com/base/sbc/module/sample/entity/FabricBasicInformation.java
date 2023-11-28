@@ -105,7 +105,7 @@ public class FabricBasicInformation extends BaseDataEntity<String> {
 
     /** 登记时间 */
     @ApiModelProperty(value = "登记时间"  )
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date registerDate;
 
     /** 发送供应商标记(1是0否 */

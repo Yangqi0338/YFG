@@ -35,8 +35,8 @@ public class FabricInformationExcelDto {
     private String imageUrl5;
 
     @ApiModelProperty(value = "登记时间"  )
-    @Excel(name = "登记时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @Excel(name = "登记时间",exportFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date registerDate;
 
     @Excel(name = "编码")
