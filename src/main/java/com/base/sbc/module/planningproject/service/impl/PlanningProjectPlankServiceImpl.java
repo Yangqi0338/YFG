@@ -33,6 +33,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         Map<String,Object> hashMap =new HashMap<>();
         BaseQueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tpp.planning_project_id",dto.getPlanningProjectId());
+        queryWrapper.notEmptyEq("tppd.prod_category_code",dto.getProdCategoryCode());
+        queryWrapper.notEmptyEq("tppd.prod_category2nd_code",dto.getProdCategory2ndCode());
+        queryWrapper.notEmptyEq("tppd.prod_category1st_code",dto.getProdCategory1stCode());
         if (StringUtils.isNotEmpty(dto.getPlanningBandCode())) {
             String[] split = dto.getPlanningBandCode().split(",");
             queryWrapper.in("tpp.band_code", Arrays.asList(split));
