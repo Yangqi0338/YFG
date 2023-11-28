@@ -34,10 +34,7 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
-import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
-import com.base.sbc.module.planning.dto.QueryDemandDto;
-import com.base.sbc.module.planning.dto.SaveDelDemandDto;
-import com.base.sbc.module.planning.dto.SyncToSeatDto;
+import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
@@ -250,6 +247,8 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     @Override
     @Transactional(readOnly = false)
     public ApiResult saveDel(List<SaveDelDemandDto> saveDelDemandDto) {
+        this.checkMutex(saveDelDemandDto.get(0));
+
         /*查询已存在的*/
         BaseQueryWrapper<PlanningDemand> queryWrapper = new BaseQueryWrapper<>();
         if (StrUtil.isNotBlank(saveDelDemandDto.get(0).getProdCategory2nd())) {
@@ -436,6 +435,27 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         //保存坑位的维度数据
         fieldValService.saveBatch(seatFvList);
         return true;
+    }
+
+    @Override
+    public void checkMutex(CheckMutexDto checkMutexDto) {
+        //品类和中类互斥,当前如果是中类,查询是否存在品类,如果是品类,查询是否存在中类
+        QueryWrapper<PlanningDemand> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("planning_season_id", checkMutexDto.getPlanningSeasonId());
+        queryWrapper.eq("channel", checkMutexDto.getChannel());
+        if (StrUtil.isNotBlank(checkMutexDto.getProdCategory2nd())) {
+            queryWrapper.eq("prod_category", checkMutexDto.getProdCategory());
+            long count = this.count(queryWrapper);
+            if (count>0) {
+                throw new OtherException("已存在品类维度");
+            }
+        } else {
+            queryWrapper.eq("prod_category2nd", checkMutexDto.getProdCategory2nd());
+            long count = this.count(queryWrapper);
+            if (count>0) {
+                throw new OtherException("已存在中类维度");
+            }
+        }
     }
 
 
