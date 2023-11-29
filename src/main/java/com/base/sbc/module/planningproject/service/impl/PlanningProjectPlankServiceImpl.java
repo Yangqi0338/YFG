@@ -63,17 +63,25 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         queryWrapper.orderBy(true,true,"tppp.band_code");
 
         List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);
-
+        //匹配
+        this.match(list);
         List<TableColumnVo> tableColumnVos =new ArrayList<>();
         Map<String, Integer> map =new TreeMap<>();
+
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             //获取所有波段,当作列
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getBandName())){
                 Integer i = map.get(planningProjectPlankVo.getBandName());
                 if (i == null) {
-                    map.put(planningProjectPlankVo.getBandName(), 1);
+                    if (StringUtils.isNotEmpty(planningProjectPlankVo.getId())){
+                        map.put(planningProjectPlankVo.getBandName(), 1);
+                    }else {
+                        map.put(planningProjectPlankVo.getBandName(), 0);
+                    }
                 }else {
-                    i++;
+                    if (StringUtils.isNotEmpty(planningProjectPlankVo.getId())){
+                        i++;
+                    }
                     map.put(planningProjectPlankVo.getBandName(), i);
                 }
             }
@@ -83,6 +91,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 planningProjectPlankVo.setFieldManagementVos(fieldManagementVos);
             }
         }
+
         //生成表格列
         for (Map.Entry<String, Integer> stringStringEntry : map.entrySet()) {
             TableColumnVo tableColumnVo =new TableColumnVo();
@@ -91,8 +100,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             tableColumnVos.add(tableColumnVo);
         }
 
-        //匹配
-        this.match(list);
+
         stylePicUtils.setStyleColorPic2(list, "pic");
         hashMap.put("list",list);
         hashMap.put("tableColumnVos",tableColumnVos);
@@ -145,8 +153,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         planningProjectPlankVo.setBulkStyleNo(styleColorVo.getStyleNo());
                         planningProjectPlankVo.setMatchingStyleStatus("2");
                         planningProjectPlankVo.setPic(styleColorVo.getStyleColorPic());
-                        planningProjectPlankVo.setBandCode(styleColorVo.getBandCode());
-                        planningProjectPlankVo.setBandName(styleColorVo.getBandName());
+                        // planningProjectPlankVo.setBandCode(styleColorVo.getBandCode());
+                        // planningProjectPlankVo.setBandName(styleColorVo.getBandName());
                         planningProjectPlankVo.setStyleColorId(styleColorVo.getId());
                         BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColorVo.getColorCode()));
                         if (colourLibrary != null) {
@@ -173,7 +181,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             styleColorQueryWrapper.eq("ts.prod_category1st", planningProjectPlankVo.getProdCategory1stCode());
             styleColorQueryWrapper.eq("1".equals(planningProjectPlankVo.getIsProdCategory2nd()), "ts.prod_category2nd", planningProjectPlankVo.getProdCategory2ndCode());
             styleColorQueryWrapper.eq("ts.prod_category", planningProjectPlankVo.getProdCategoryCode());
-            styleColorQueryWrapper.eq("tsc.band_code", planningProjectPlankVo.getBandCode());
+            // styleColorQueryWrapper.eq("tsc.band_code", planningProjectPlankVo.getBandCode());
             styleColorQueryWrapper.eq("tsc.order_flag", "1");
             if (!bulkNos.isEmpty()) {
                 styleColorQueryWrapper.notIn("tsc.style_no", bulkNos);

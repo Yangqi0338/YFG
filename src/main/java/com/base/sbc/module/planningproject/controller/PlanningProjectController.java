@@ -80,12 +80,13 @@ public class PlanningProjectController extends BaseController {
         updateWrapper.in("id", idList);
         updateWrapper.set("status", status);
 
-        //如果是停用,清空关联的坑位数据
+        //如果是停用,清空关联的坑位数据,不清除关联历史款的坑位数据
         if ("1".equals(status)) {
             updateWrapper.set("is_match", "0");
 
             UpdateWrapper<PlanningProjectPlank> wrapper =new UpdateWrapper<>();
             wrapper.in("planning_project_id",idList);
+            wrapper.ne("matching_style_status","3");
             wrapper.set("bulk_style_no","");
             wrapper.set("pic","");
             wrapper.set("color_system","");
