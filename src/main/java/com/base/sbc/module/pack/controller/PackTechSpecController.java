@@ -95,7 +95,7 @@ public class PackTechSpecController {
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping()
     public Boolean removeById(@Valid IdsDto dto) {
-        return packTechSpecService.removeByIds(StringUtils.convertList(dto.getId()));
+        return packTechSpecService.removeById(dto);
     }
 
     @ApiOperation(value = "保存")

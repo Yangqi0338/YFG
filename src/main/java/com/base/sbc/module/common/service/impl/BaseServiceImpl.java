@@ -520,6 +520,31 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     /**
+     * 保存修改操作日志
+     *
+     * @param type         操作类型 新增/修改
+     * @param name         模块名称
+     * @param parentId     父级id
+     * @param documentName 单据名称
+     * @param documentCode 单据编码
+     * @param newObject    新对象
+     * @param oldObject    原对象
+     */
+    @Override
+    public void saveOperaLog(String type, String name, String parentId, String documentName, String documentCode, T newObject, T oldObject) {
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        JSONArray jsonArray = CommonUtils.recordField(newObject, oldObject);
+        operaLogEntity.setDocumentId(newObject.getId());
+        operaLogEntity.setJsonContent(jsonArray.toJSONString());
+        operaLogEntity.setName(name);
+        operaLogEntity.setDocumentName(documentName);
+        operaLogEntity.setDocumentCode(documentCode);
+        operaLogEntity.setType(type);
+        operaLogEntity.setParentId(parentId);
+        operaLogService.save(operaLogEntity);
+    }
+
+    /**
      * 批量保存操作日志
      */
     @Override
