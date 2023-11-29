@@ -748,7 +748,7 @@ public class SmpService {
             //smpBomDto.setBomMaterials(bomMaterials);
 
             List<SmpSizeQty> sizeQtyList = new ArrayList<>();
-            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()))) {
+            for (PackBomSize packBomSize : packBomSizeService.list(new QueryWrapper<PackBomSize>().eq("bom_id", packBom.getId()).eq("bom_version_id",packBom.getBomVersionId()))) {
                 packBomVersionService.checkBomSizeDataEmptyThrowException(packBomSize);
                 SmpSizeQty smpSizeQty = packBomSize.toSmpSizeQty();
                 //根据尺码id查询尺码
