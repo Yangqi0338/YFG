@@ -502,7 +502,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignerIds()));
         qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", dto.getPlanningSeasonId());
-        if (!StrUtil.equals(dto.getEnableStatus(), BaseGlobal.STOCK_STATUS_CHECKED)) {
+        if (StrUtil.isNotBlank(dto.getEnableStatus()) && !StrUtil.equals(dto.getEnableStatus(), BaseGlobal.STOCK_STATUS_CHECKED)) {
             qw.eq("enable_status", dto.getEnableStatus());
         } else {
             qw.eq("enable_status", BaseGlobal.NO);
