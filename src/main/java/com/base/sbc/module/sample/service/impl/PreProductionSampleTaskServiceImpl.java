@@ -7,13 +7,16 @@
 package com.base.sbc.module.sample.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -39,6 +42,7 @@ import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
 import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
+import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
@@ -51,10 +55,13 @@ import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +74,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 类描述：产前样-任务 service类
@@ -79,7 +89,7 @@ import java.util.Map;
  */
 @Service
 public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProductionSampleTaskMapper, PreProductionSampleTask> implements PreProductionSampleTaskService {
-
+    Logger log = LoggerFactory.getLogger(getClass());
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -232,8 +242,42 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
         List<PreProductionSampleTaskVoExcel> list = CopyUtil.copy(sampleTaskVoList, PreProductionSampleTaskVoExcel.class);
 
-        List<PreProductionSampleTaskVoExcel> excelList = BeanUtil.copyToList(list, PreProductionSampleTaskVoExcel.class);
-        ExcelUtils.exportExcel(excelList, PreProductionSampleTaskVoExcel.class, "产前样看板.xlsx", new ExportParams(), response);
+
+        /*开启一个线程池*/
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                .build();
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*获取图片链接*/
+                stylePicUtils.setStylePic(list, "stylePic",30);
+                minioUtils.setObjectUrlToList(list, "samplePic");
+                /*计时器*/
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (PreProductionSampleTaskVoExcel preProductionSampleTaskVoExcel : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = preProductionSampleTaskVoExcel.getStylePic();
+                            preProductionSampleTaskVoExcel.setPic(HttpUtil.downloadBytes(stylePic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list, PreProductionSampleTaskVoExcel.class, "产前样看板.xlsx", new ExportParams("产前样看板", "产前样看板", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
     }
 
     @Override
