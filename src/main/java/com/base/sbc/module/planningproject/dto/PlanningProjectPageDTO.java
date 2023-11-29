@@ -10,6 +10,12 @@ import java.util.Date;
 @Data
 @ApiModel("企划看板规划筛选条件 PlanningBoardSearchDto")
 public class PlanningProjectPageDTO extends Page{
+
+    @ApiModelProperty(value = "企划规划看板id")
+    private String planningProjectId;
+
+    @ApiModelProperty(value = "企划需求看板id")
+    private String planningChannelId;
     @ApiModelProperty(value = "产品季id")
     private String seasonId;
     @ApiModelProperty(value = "年份")

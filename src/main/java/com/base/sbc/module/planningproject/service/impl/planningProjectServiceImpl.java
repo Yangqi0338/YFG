@@ -2,6 +2,8 @@ package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -14,6 +16,9 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
+import com.base.sbc.module.planning.entity.PlanningChannel;
+import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
@@ -39,10 +44,7 @@ import org.apache.commons.beanutils.converters.FileConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.module.formtype.utils.FormTypeCodes.DIMENSION_LABELS;
@@ -53,6 +55,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final PlanningProjectDimensionService planningProjectDimensionService;
     private final PlanningProjectMaxCategoryService planningProjectMaxCategoryService;
     private final PlanningProjectPlankService planningProjectPlankService;
+    private final DataPermissionsService dataPermissionsService;
 
 
     /**
@@ -146,5 +149,30 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             planningProjectPlankService.saveBatch(planningProjectPlanks);
         }
         return true;
+    }
+
+    @Override
+    public PageInfo<PlanningSeasonOverviewVo> historyList(PlanningProjectPageDTO dto) {
+
+        //查询企划规划看板中每个品类或者或者开启中类的剩余未匹配的坑位数量
+        QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.eq("planning_project_id",dto.getPlanningProjectId());
+        List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper);
+        Set<String> category1stCodes = list.stream().map(PlanningProjectDimension::getProdCategory1stCode).collect(Collectors.toSet());
+        Set<String> categoryCodes = list.stream().map(PlanningProjectDimension::getProdCategoryCode).collect(Collectors.toSet());
+        List<String> category2ndCodes =new ArrayList<>();
+        for (PlanningProjectDimension planningProjectDimension : list) {
+            if("1".equals(planningProjectDimension.getIsProdCategory2nd())){
+                category2ndCodes.add(planningProjectDimension.getProdCategory2ndCode());
+            }
+        }
+
+        dto.setProdCategory1st(StringUtils.join(category1stCodes,","));
+        dto.setProdCategory(StringUtils.join(categoryCodes,","));
+        PageHelper.startPage(dto);
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.PlanningCategoryItem.getK(), "c.");
+        this.baseMapper.historyList(dto);
+
+        return null;
     }
 }

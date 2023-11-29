@@ -11,6 +11,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
@@ -18,6 +19,7 @@ import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
+import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
@@ -26,6 +28,7 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.*;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +46,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @Api(tags = "企划看板规划-相关接口")
@@ -201,5 +205,34 @@ public class PlanningProjectController extends BaseController {
         return selectSuccess(count);
 
     }
+
+    /**
+     * 可引用历史款列表
+     */
+    @ApiOperation(value = "可引用历史款列表")
+    @GetMapping("/historyList")
+    public ApiResult historyList(PlanningProjectPageDTO dto) {
+        PlanningProject planningProject = planningProjectService.getById(dto.getPlanningProjectId());
+
+        List<PlanningChannel> planningChannels = planningChannelService.list(new QueryWrapper<PlanningChannel>().eq("planning_season_id", planningProject.getSeasonId()));
+        if (planningChannels.isEmpty()){
+            return selectSuccess(Collections.emptyList());
+        }
+        boolean flag =false;
+        for (PlanningChannel planningChannel : planningChannels) {
+            if (planningChannel.getChannel().equals(planningProject.getPlanningChannelCode())){
+                dto.setPlanningChannelId(planningChannel.getId());
+                flag=true;
+                break;
+            }
+        }
+        if (!flag){
+            return selectSuccess(Collections.emptyList());
+        }
+        PageInfo<PlanningSeasonOverviewVo> productCategoryItem = planningProjectService.historyList(dto);
+
+        return selectSuccess(productCategoryItem);
+    }
+
 
 }
