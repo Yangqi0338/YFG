@@ -12,8 +12,6 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
-import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
@@ -33,19 +31,15 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
-import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
-import com.base.sbc.module.pricing.controller.StylePricingController;
-import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -60,9 +54,6 @@ import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -70,7 +61,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -164,7 +154,6 @@ public class SmpService {
 
     @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
     private String OA_URL;
-
 
     /**
      * 商品主数据下发
@@ -1235,7 +1224,7 @@ public class SmpService {
             tagCompositionDto.setComposition(hangTag.getIngredient());
             tagCompositionDto.setBulkStyleNo(hangTag.getStyleNo());
             String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
-            HttpResp httpResp = restTemplateService.spmPost(OA_URL + "/sendTageComposition",jsonString);
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition",jsonString);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "下发吊牌成分");
 
             if (aBoolean) {
@@ -1253,7 +1242,8 @@ public class SmpService {
      * @param id
      * @return
      */
-    public BomSizeAndProcessDto checkProcessSize(String id) {
+    public int checkProcessSize(String id) {
+        int i =0;
         BomSizeAndProcessDto bomSizeAndProcessDto = new BomSizeAndProcessDto();
         PackInfoListVo infoListVo = packInfoService.getDetail(id, PackUtils.PACK_TYPE_BIG_GOODS);
         if (ObjectUtil.isNotEmpty(infoListVo)) {
@@ -1291,10 +1281,16 @@ public class SmpService {
                     }
                     bomSizeAndProcessDto.setBomProcessList(bomProcessList);
                 }
-            }
 
+            }
+            String jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/bomSizeAndProcess", jsonString);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "下发尺寸和外辅工艺明细数据");
+            if (aBoolean) {
+                i++;
+            }
         }
-        return bomSizeAndProcessDto;
+        return i;
 
     }
 
@@ -1304,7 +1300,8 @@ public class SmpService {
      * @param confirmStatus 确认状态
      * @return
      */
-    public List<TagConfirmDateDto> tagConfirmDates(List<String> ids, Integer type, Integer confirmStatus) {
+    public int tagConfirmDates(List<String> ids, Integer type, Integer confirmStatus) {
+        int i =0;
         TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
         List<TagConfirmDateDto> tagConfirmDate = new ArrayList<>();
         for (String id : ids) {
@@ -1353,9 +1350,15 @@ public class SmpService {
                      tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
+            String jsonString = JsonStringUtils.toJSONString(tagConfirmDate);
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", jsonString);
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "下发吊牌");
+            if (aBoolean) {
+                i++;
+            }
             // TODO: 2023/11/23  发送无地址
         }
-            return tagConfirmDate;
+            return i;
     }
 }
 
