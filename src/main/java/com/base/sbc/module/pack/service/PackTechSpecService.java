@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
@@ -93,6 +94,14 @@ public interface PackTechSpecService extends PackBaseService<PackTechSpec> {
     List<PackTechSpecVo> batchSave(PackTechSpecBatchSaveDto dto);
 
     boolean references(PackTechSpecReferencesDto dto);
+
+
+    /**
+     * 删除工艺说明
+     * @param dto
+     * @return
+     */
+    boolean removeById(IdsDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

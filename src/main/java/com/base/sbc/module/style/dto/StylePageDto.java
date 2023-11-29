@@ -91,4 +91,7 @@ public class StylePageDto extends Page {
     private String  designerIds;
     @ApiModelProperty(value = "是否下单")
     private String orderStatus;
+
+    @ApiModelProperty(value = "1停用0启用2所有")
+    private String enableStatus;
 }

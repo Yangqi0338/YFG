@@ -32,8 +32,13 @@ public class PreProductionSampleTaskVoExcel {
     private String styleNo;
 
     @ApiModelProperty(value = "款式图")
-    @Excel(name = "款式图",type = 2)
     private String stylePic;
+
+    @Excel(name = "款图", type = 2,  imageType = 2)
+    private  byte[]  pic;
+
+    @Excel(name = "样衣图", type = 2)
+    private String   samplePic;
 
     @ApiModelProperty(value = "配色")
     @Excel(name = "配色")

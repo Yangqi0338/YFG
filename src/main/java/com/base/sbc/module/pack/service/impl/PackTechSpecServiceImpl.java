@@ -10,13 +10,14 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.MdUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -43,10 +44,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.awt.image.BufferedImage;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-工艺说明 service类
@@ -131,7 +131,7 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
                     throw new OtherException("裁剪工艺最多只能定义10条数据！(当前超出"+(totalRows - 10)+")");
                 }
             }
-            saveOrUpdateOperaLog(dto, dbData, genOperaLogEntity(dbData, "修改"));
+            this.saveOperaLog("修改",dto.getPackType()+StrUtil.DASHED+dto.getSpecType(),dto.getForeignId(),dto.getItem(),dto.getItemCode(),dto, dbData);
             BeanUtil.copyProperties(dto, dbData);
 //            String oldContent = dbData.getContent();
 //            genContentImgUrl(dto.getContent(), oldContent, dbData);
@@ -186,6 +186,9 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
             packTechSpec.setSort(new BigDecimal(++count));
         }
         saveBatch(packTechSpecs);
+        for (PackTechSpec packTechSpec : packTechSpecs) {
+            this.saveOperaLog("复制",packTechSpec.getPackType()+StrUtil.DASHED+packTechSpec.getSpecType(),packTechSpec.getForeignId(),packTechSpec.getItem(),packTechSpec.getItemCode(),packTechSpec, null);
+        }
         return BeanUtil.copyToList(packTechSpecs, PackTechSpecVo.class);
     }
 
@@ -228,6 +231,11 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
             packTechSpec.setId(null);
         }
         saveBatch(packTechSpecs);
+        /*日志记录*/
+        for (PackTechSpec packTechSpec : packTechSpecs) {
+            /*新增操作记录*/
+            this.saveOperaLog("新增",dto.getPackType()+StrUtil.DASHED+dto.getSpecType(),dto.getForeignId(),packTechSpec.getItem(),packTechSpec.getItemCode(),packTechSpec,null);
+        }
         return BeanUtil.copyToList(packTechSpecs, PackTechSpecVo.class);
     }
 
@@ -253,6 +261,26 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
             packTechPackagingService.copy(packInfoListVo.getId(), packInfoListVo.getPackType(), dto.getTargetForeignId(), dto.getTargetPackType(), BaseGlobal.NO);
         }
 
+
+        return true;
+    }
+
+    /**
+     * 删除工艺说明
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public boolean removeById(IdsDto dto) {
+        List<PackTechSpec> packTechSpecList = baseMapper.selectBatchIds(StringUtils.convertList(dto.getId()));
+        List<String> collect = packTechSpecList.stream().map(PackTechSpec::getId).collect(Collectors.toList());
+        removeByIds(collect);
+        /*操作记录*/
+        for (PackTechSpec packTechSpec : packTechSpecList) {
+            this.saveOperaLog("删除",packTechSpec.getPackType()+StrUtil.DASHED+packTechSpec.getSpecType(),packTechSpec.getForeignId(),packTechSpec.getItem(),packTechSpec.getItemCode(),packTechSpec,null);
+
+        }
 
         return true;
     }
@@ -308,8 +336,10 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
     @Override
     public PageInfo<OperaLogEntity> operationLog(PackTechSpecPageDto pageDto) {
         QueryWrapper<OperaLogEntity> qw = new QueryWrapper<>();
-        qw.eq("path", pageDto.getPackType());
-        qw.eq("name", getModeName() + StrUtil.DASHED + pageDto.getSpecType());
+//        qw.eq("path", pageDto.getPackType());
+        qw.eq("name", pageDto.getPackType() + StrUtil.DASHED + pageDto.getSpecType());
+        qw.eq("parent_id", pageDto.getForeignId());
+
         qw.orderByDesc("id");
         Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
         operaLogService.list(qw);

@@ -103,6 +103,22 @@ public interface BaseService<T> extends IService<T> {
      */
     void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity);
 
+
+    /**
+     * 保存修改操作日志
+     * @param type 操作类型 新增/修改
+     * @param name 模块名称
+     * @param documentId 单据id
+     * @param documentName 单据名称
+     * @param documentCode 单据编码
+     * @param newObject 新对象
+     * @param oldObject 原对象
+     */
+    void saveOperaLog(String type, String name,String documentId,String documentName,String documentCode, T newObject, T oldObject);
+
+
+
+
     /**
      * 批量保存操作日志
      */
@@ -133,5 +149,4 @@ public interface BaseService<T> extends IService<T> {
      * 启用与停用并且记录日志
      */
     void startStopLog(StartStopDto startStopDto);
-
 }
