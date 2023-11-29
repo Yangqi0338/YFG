@@ -26,10 +26,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -48,6 +45,7 @@ import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
+import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
@@ -204,11 +202,19 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
         }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
-        // 设置图
-        stylePicUtils.setStylePic(list, "stylePic");
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);
+        /**/
+        if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
+            /*带图片只能导出3000条*/
+            if(objects.toPageInfo().getList().size() >2000){
+                throw new OtherException("带图片最多只能导出2000条");
+            }
+            return objects.toPageInfo();
+        }
+        // 设置图
+        stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
         return objects.toPageInfo();
     }
@@ -221,26 +227,10 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
      */
     @Override
     public void taskderiveExcel(HttpServletResponse response, PreProductionSampleTaskSearchDto dto) throws IOException {
-        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
-        qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
-        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
-        qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
-        qw.andLike(dto.getSearch(), "s.style_no", "t.code");
-        qw.notEmptyIn("s.year", dto.getYear());
-        qw.notEmptyIn("s.season", dto.getSeason());
-        qw.notEmptyIn("s.month", dto.getMonth());
-        qw.orderByDesc("t.create_date");
-        if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
-            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
-        } else {
-            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
-        }
-        List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
-        // 设置图
-        stylePicUtils.setStylePic(list, "stylePic");
-        // 设置头像
-        amcFeignService.setUserAvatarToList(list);
-        nodeStatusService.setNodeStatus(list);
+        /**/
+        List<PreProductionSampleTaskVo> sampleTaskVoList = taskList(dto).getList();
+
+        List<PreProductionSampleTaskVoExcel> list = CopyUtil.copy(sampleTaskVoList, PreProductionSampleTaskVoExcel.class);
 
         List<PreProductionSampleTaskVoExcel> excelList = BeanUtil.copyToList(list, PreProductionSampleTaskVoExcel.class);
         ExcelUtils.exportExcel(excelList, PreProductionSampleTaskVoExcel.class, "产前样看板.xlsx", new ExportParams(), response);
