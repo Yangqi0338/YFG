@@ -125,7 +125,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         //匹配实体
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             // //如果已经匹配上了,就不再匹配
-            if (!"0".equals(planningProjectPlankVo.getMatchingStyleStatus())){
+            if (!"0".equals(planningProjectPlankVo.getMatchingStyleStatus()) && !"3".equals(planningProjectPlankVo.getMatchingStyleStatus())){
                 continue;
             }
             // 匹配规则 产品季  大类 品类 (中类有就匹配)  波段 第一维度  这5匹配

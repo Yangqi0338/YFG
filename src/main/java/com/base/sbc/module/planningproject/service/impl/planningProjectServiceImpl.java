@@ -10,6 +10,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.vo.BasePageInfo;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldManagementService;
@@ -156,15 +157,40 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     }
 
     @Override
-    public PageInfo<PlanningSeasonOverviewVo> historyList(PlanningProjectPageDTO dto) {
-
+    public BasePageInfo<PlanningSeasonOverviewVo> historyList(PlanningProjectPageDTO dto) {
+        Map<String,Object> map =new HashMap<>();
         //查询企划规划看板中每个品类或者或者开启中类的剩余未匹配的坑位数量
         QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.eq("planning_project_id",dto.getPlanningProjectId());
         List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper);
 
+        Set<String> category1stCodes = new HashSet<>();
+        Set<String> categoryCodes = new HashSet<>();
+        //查询剩余还能匹配坑位的数量
+        for (PlanningProjectDimension planningProjectDimension : list) {
+            category1stCodes.add(planningProjectDimension.getProdCategory1stCode());
+            categoryCodes.add(planningProjectDimension.getProdCategoryCode());
+
+            QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
+            queryWrapper2.eq("planning_project_dimension_id",planningProjectDimension.getId());
+            queryWrapper2.eq("matching_style_status","0");
+            long count = planningProjectPlankService.count(queryWrapper2);
+            String key;
+            if ("1".equals(planningProjectDimension.getIsProdCategory2nd())){
+                key=planningProjectDimension.getProdCategory1stCode()+","+planningProjectDimension.getProdCategoryCode()+","+planningProjectDimension.getProdCategory2ndCode();
+            }else {
+                key=planningProjectDimension.getProdCategory1stCode()+","+planningProjectDimension.getProdCategoryCode();
+            }
+
+            map.put(key,count);
+        }
+
+
+
         //查询已经匹配的大货款号
-        List<PlanningProjectPlank> projectPlanks = planningProjectPlankService.list(new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no").isNotNull("bulk_style_no").last("and bulk_style_no != ''"));
+        List<PlanningProjectPlank> projectPlanks = planningProjectPlankService.list(
+                new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no").isNotNull("bulk_style_no").
+                        ne("bulk_style_no","").isNotNull("old_design_no").ne("old_design_no",""));
         List<String>  bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().collect(Collectors.toList());
 
         List<PlanningChannel> planningChannels = planningChannelService.list(new QueryWrapper<PlanningChannel>().eq("channel", dto.getPlanningChannelCode()).eq("planning_season_id", dto.getSeasonId()));
@@ -174,8 +200,6 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         PlanningChannel planningChannel = planningChannels.get(0);
 
         QueryWrapper queryWrapper2 = new BaseQueryWrapper<>();
-        Set<String> category1stCodes = list.stream().map(PlanningProjectDimension::getProdCategory1stCode).collect(Collectors.toSet());
-        Set<String> categoryCodes = list.stream().map(PlanningProjectDimension::getProdCategoryCode).collect(Collectors.toSet());
 
         //中类筛选,有问题
         // List<String> category2ndCodes =new ArrayList<>();
@@ -190,10 +214,10 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         // }
 
 
-        dto.setProdCategory1st(StringUtils.join(category1stCodes,","));
-        dto.setProdCategory(StringUtils.join(categoryCodes,","));
+
+
         queryWrapper2.eq("c.planning_channel_id",planningChannel.getId());
-        if (bulkNos.isEmpty()) {
+        if (!bulkNos.isEmpty()) {
             queryWrapper2.notIn("c.his_design_no", bulkNos);
         }
         // queryWrapper2.eq("c.planning_season_id",dto.getSeasonId());
@@ -206,6 +230,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         dataPermissionsService.getDataPermissionsForQw(queryWrapper2, DataPermissionsBusinessTypeEnum.PlanningCategoryItem.getK(), "c.");
         List<PlanningSeasonOverviewVo> planningSeasonOverviewVos = this.baseMapper.historyList(queryWrapper2);
         minioUtils.setObjectUrlToList(planningSeasonOverviewVos, "planningPic");
-        return new PageInfo<>(planningSeasonOverviewVos);
+        BasePageInfo<PlanningSeasonOverviewVo> pageInfo = new BasePageInfo<>(planningSeasonOverviewVos);
+
+
+
+        pageInfo.setMap(map);
+        return  pageInfo;
     }
 }

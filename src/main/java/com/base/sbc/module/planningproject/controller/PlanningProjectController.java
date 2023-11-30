@@ -14,12 +14,15 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
+import com.base.sbc.module.planningproject.dto.HistoryMatchDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
@@ -28,6 +31,10 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.*;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -62,6 +69,9 @@ public class PlanningProjectController extends BaseController {
     private final PlanningCategoryItemService planningCategoryItemService;
     private final DataPermissionsService dataPermissionsService;
     private final PlanningChannelService planningChannelService;
+    private final StyleColorService styleColorService;
+    private final StyleService styleService;
+    private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
     @ApiOperation(value = "企划看板计划查询")
     @GetMapping("/queryPage")
     public ApiResult queryPage(@Valid PlanningProjectPageDTO dto) {
@@ -229,9 +239,51 @@ public class PlanningProjectController extends BaseController {
         if (!flag){
             return selectSuccess(Collections.emptyList());
         }
-        PageInfo<PlanningSeasonOverviewVo> productCategoryItem = planningProjectService.historyList(dto);
+        return selectSuccess( planningProjectService.historyList(dto));
+    }
 
-        return selectSuccess(productCategoryItem);
+    /**
+     * 引用历史款匹配
+     */
+    @ApiOperation(value = "引用历史款匹配")
+    @PostMapping("/historyMatch")
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult historyMatch(@Valid @RequestBody HistoryMatchDto historyMatchDto) {
+        QueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.eq("planning_project_id",historyMatchDto.getPlanningProjectId());
+        queryWrapper.eq("matching_style_status","0");
+        List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper);
+        if (list.isEmpty()){
+            throw new OtherException("没有可匹配的坑位");
+        }
+
+        List<StyleColor> styleColors = styleColorService.listByField("style_no", historyMatchDto.getOldDesignNos());
+        String oldDesignNos = historyMatchDto.getOldDesignNos();
+        String[] split = oldDesignNos.split(",");
+        List<String> oldDesignNoList = Arrays.asList(split);
+        for (PlanningProjectPlank planningProjectPlank : list) {
+            String planningProjectDimensionId = planningProjectPlank.getPlanningProjectDimensionId();
+            PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectDimensionId);
+            for (StyleColor styleColor : styleColors) {
+                String styleId = styleColor.getStyleId();
+                Style style = styleService.getById(styleId);
+                if (style.getProdCategory().equals(planningProjectDimension.getProdCategoryCode()) && style.getProdCategory1st().equals(planningProjectDimension.getProdCategory1stCode())){
+                    planningProjectPlank.setBulkStyleNo(styleColor.getStyleNo());
+                    planningProjectPlank.setStyleColorId(styleColor.getId());
+                    planningProjectPlank.setPic(styleColor.getStyleColorPic());
+                    planningProjectPlank.setMatchingStyleStatus("3");
+                    planningProjectPlank.setOldDesignNo(styleColor.getStyleNo());
+                    BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColor.getColorCode()));
+                    if (colourLibrary != null) {
+                        planningProjectPlank.setColorSystem(colourLibrary.getColorType());
+                    }
+                    planningProjectPlankService.updateById(planningProjectPlank);
+                    oldDesignNoList.remove(styleColor.getStyleNo());
+                }
+            }
+        }
+
+        return updateSuccess("匹配成功");
     }
 
 
