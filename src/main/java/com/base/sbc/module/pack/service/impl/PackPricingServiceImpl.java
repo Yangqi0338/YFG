@@ -125,6 +125,10 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         if(ObjectUtil.isEmpty(detail)){
             return BigDecimal.ZERO;
         }
+        /*没有核价模板时*/
+        if(StrUtil.isEmpty(detail.getPricingTemplateId())){
+            return BigDecimal.ZERO;
+        }
         List<PricingTemplateItemVO> pricingTemplateItems = pricingTemplateService.getDetailsById(detail.getPricingTemplateId(), baseController.getUserCompany()).getPricingTemplateItems();
 
         List<PricingTemplateItemVO> collect = pricingTemplateItems.stream()
