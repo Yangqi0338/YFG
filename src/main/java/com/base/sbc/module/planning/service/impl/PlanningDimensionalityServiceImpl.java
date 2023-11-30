@@ -171,6 +171,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      * @return
      */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public List<PlanningDimensionality> batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList) {
 
         if (dimensionalityDtoList.isEmpty()) {

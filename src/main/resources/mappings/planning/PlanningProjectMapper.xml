@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
         <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.planningproject.mapper.PlanningProjectMapper">
-    <select id="historyList">
-        select  * from  t_planning_category_item
+
+    <select id="historyList" resultType="com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo">
+        SELECT
+        c.*,
+        c.style_pic planningPic,
+        sd.`status` AS sd_status,
+        sd.confirm_status AS sd_confirm_status,
+        sd.style_pic stylePic,
+        sd.id styleId,
+        pc.product_line_name,
+        pc.sort
+        FROM
+        t_planning_category_item c
+        join t_planning_channel pc on(pc.id=c.planning_channel_id )
+        LEFT JOIN t_style sd ON ( sd.planning_category_item_id = c.id AND sd.del_flag = '0' )
+        WHERE
+        c.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
 
     </select>
 </mapper>

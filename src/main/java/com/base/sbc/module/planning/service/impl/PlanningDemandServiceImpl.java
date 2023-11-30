@@ -245,7 +245,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult saveDel(List<SaveDelDemandDto> saveDelDemandDto) {
         this.checkMutex(saveDelDemandDto.get(0));
 
@@ -450,7 +450,8 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
                 throw new OtherException("已存在品类维度");
             }
         } else {
-            queryWrapper.eq("prod_category2nd", checkMutexDto.getProdCategory2nd());
+            queryWrapper.isNotNull("prod_category2nd");
+            queryWrapper.ne("prod_category2nd", "");
             long count = this.count(queryWrapper);
             if (count>0) {
                 throw new OtherException("已存在中类维度");

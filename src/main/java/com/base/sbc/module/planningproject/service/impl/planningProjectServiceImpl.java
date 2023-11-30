@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
@@ -18,6 +19,7 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
+import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
@@ -56,6 +58,8 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final PlanningProjectMaxCategoryService planningProjectMaxCategoryService;
     private final PlanningProjectPlankService planningProjectPlankService;
     private final DataPermissionsService dataPermissionsService;
+    private final MinioUtils minioUtils;
+    private final PlanningChannelService planningChannelService;
 
 
     /**
@@ -158,21 +162,43 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.eq("planning_project_id",dto.getPlanningProjectId());
         List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper);
+
+        List<PlanningChannel> planningChannels = planningChannelService.list(new QueryWrapper<PlanningChannel>().eq("channel", dto.getPlanningChannelCode()).eq("planning_season_id", dto.getSeasonId()));
+        if (planningChannels.isEmpty()){
+            throw new RuntimeException("该渠道不存在");
+        }
+        PlanningChannel planningChannel = planningChannels.get(0);
+
+        QueryWrapper queryWrapper2 = new BaseQueryWrapper<>();
         Set<String> category1stCodes = list.stream().map(PlanningProjectDimension::getProdCategory1stCode).collect(Collectors.toSet());
         Set<String> categoryCodes = list.stream().map(PlanningProjectDimension::getProdCategoryCode).collect(Collectors.toSet());
-        List<String> category2ndCodes =new ArrayList<>();
-        for (PlanningProjectDimension planningProjectDimension : list) {
-            if("1".equals(planningProjectDimension.getIsProdCategory2nd())){
-                category2ndCodes.add(planningProjectDimension.getProdCategory2ndCode());
-            }
-        }
+
+        //中类筛选,有问题
+        // List<String> category2ndCodes =new ArrayList<>();
+        // for (PlanningProjectDimension planningProjectDimension : list) {
+        //     if("1".equals(planningProjectDimension.getIsProdCategory2nd())){
+        //         category2ndCodes.add(planningProjectDimension.getProdCategory2ndCode());
+        //     }
+        // }
+        // if(!category2ndCodes.isEmpty()){
+        //     queryWrapper2.or();
+        //     queryWrapper2.in("c.prod_category2nd",category2ndCodes);
+        // }
+
 
         dto.setProdCategory1st(StringUtils.join(category1stCodes,","));
         dto.setProdCategory(StringUtils.join(categoryCodes,","));
-        PageHelper.startPage(dto);
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.PlanningCategoryItem.getK(), "c.");
-        this.baseMapper.historyList(dto);
+        queryWrapper2.eq("c.planning_channel_id",planningChannel.getId());
+        // queryWrapper2.eq("c.planning_season_id",dto.getSeasonId());
+        queryWrapper2.in("c.prod_category1st",category1stCodes);
+        queryWrapper2.ne("c.his_design_no","");
+        queryWrapper2.isNotNull("c.his_design_no");
+        queryWrapper2.in("c.prod_category",categoryCodes);
 
-        return null;
+        PageHelper.startPage(dto);
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper2, DataPermissionsBusinessTypeEnum.PlanningCategoryItem.getK(), "c.");
+        List<PlanningSeasonOverviewVo> planningSeasonOverviewVos = this.baseMapper.historyList(queryWrapper2);
+        minioUtils.setObjectUrlToList(planningSeasonOverviewVos, "planningPic");
+        return new PageInfo<>(planningSeasonOverviewVos);
     }
 }
