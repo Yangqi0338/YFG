@@ -163,6 +163,10 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         queryWrapper.eq("planning_project_id",dto.getPlanningProjectId());
         List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper);
 
+        //查询已经匹配的大货款号
+        List<PlanningProjectPlank> projectPlanks = planningProjectPlankService.list(new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no").isNotNull("bulk_style_no").last("and bulk_style_no != ''"));
+        List<String>  bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().collect(Collectors.toList());
+
         List<PlanningChannel> planningChannels = planningChannelService.list(new QueryWrapper<PlanningChannel>().eq("channel", dto.getPlanningChannelCode()).eq("planning_season_id", dto.getSeasonId()));
         if (planningChannels.isEmpty()){
             throw new RuntimeException("该渠道不存在");
@@ -189,6 +193,9 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         dto.setProdCategory1st(StringUtils.join(category1stCodes,","));
         dto.setProdCategory(StringUtils.join(categoryCodes,","));
         queryWrapper2.eq("c.planning_channel_id",planningChannel.getId());
+        if (bulkNos.isEmpty()) {
+            queryWrapper2.notIn("c.his_design_no", bulkNos);
+        }
         // queryWrapper2.eq("c.planning_season_id",dto.getSeasonId());
         queryWrapper2.in("c.prod_category1st",category1stCodes);
         queryWrapper2.ne("c.his_design_no","");
