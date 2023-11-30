@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -1350,13 +1351,18 @@ public class SmpService {
                      tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
-            String jsonString = JsonStringUtils.toJSONString(tagConfirmDate);
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", jsonString);
-            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "下发吊牌");
-            if (aBoolean) {
-                i++;
+            String params = JSONArray.toJSONString(tagConfirmDate);
+            System.out.println(params);
+            for(TagConfirmDateDto tagConfirmDateDto1: tagConfirmDate){
+                HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", JSONArray.toJSONString(params));
+                Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "oa", "下发吊牌");
+                if (aBoolean) {
+                    i++;
+                }
+
             }
-            // TODO: 2023/11/23  发送无地址
+                // TODO: 2023/11/23  发送无地址
+
         }
             return i;
     }
