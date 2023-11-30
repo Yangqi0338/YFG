@@ -259,9 +259,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                         if(valuesList.contains(dto.getReplaceCollocationName())){
                             /*判断款式定价的状态全部都通过*/
                             HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
-                            if (StrUtil.equals(hangTag.getStatus(), BaseGlobal.FIVE_STRING)) {
-                                //发送消息
-                                messageUtils.sendMessage("",hangTag.getCreateId(),packInfo.getStyleNo()+"大货款号，物料已替换请注意查收","/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods","",baseController.getUser());
+                            if(ObjectUtils.isNotEmpty(hangTag)){
+                                if (StrUtil.equals(hangTag.getStatus(), BaseGlobal.FIVE_STRING)) {
+                                    //发送消息
+                                    messageUtils.sendMessage("",hangTag.getCreateId(),packInfo.getStyleNo()+"大货款号，物料已替换请注意查收","/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods","",baseController.getUser());
+                                }
                             }
                         }
                     }
