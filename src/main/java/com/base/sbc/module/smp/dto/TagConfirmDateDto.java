@@ -1,5 +1,7 @@
 package com.base.sbc.module.smp.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
@@ -41,25 +43,31 @@ public class TagConfirmDateDto {
     /**
      * 工艺员确认时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date technologistConfirmDate;
     /**
      * 技术确认时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date technicalConfirmDate;
     /**
      * 品控确认时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date qualityControlConfirmDate;
     /**
      * 商品吊牌价确认时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date productTagPriceConfirmDate;
     /**
      * 计控吊牌价确认时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planTagPriceConfirmDate;
     /**
      * 计控成本确认时间
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planCostConfirmDate;
 }

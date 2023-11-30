@@ -1312,19 +1312,19 @@ public class SmpService {
                     //工艺员确认
                     tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
                     tagConfirmDateDto.setTechnologistConfirm(1);
-                    tagConfirmDateDto.setTechnologistConfirmDate(confirmStatus == 0 ? null : new Date());
+                    tagConfirmDateDto.setTechnologistConfirmDate(confirmStatus.equals(0) ? null : new Date());
                     tagConfirmDate.add(tagConfirmDateDto);
                 } else if (2 == type) {
                     //技术确认
                     tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
                     tagConfirmDateDto.setTechnicalConfirm(1);
-                    tagConfirmDateDto.setTechnicalConfirmDate(confirmStatus == 0 ? null : new Date());
+                    tagConfirmDateDto.setTechnicalConfirmDate(confirmStatus.equals(0) ? null : new Date());
                     tagConfirmDate.add(tagConfirmDateDto);
                 } else if (3 == type) {
                     //品控确认
                     tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
                     tagConfirmDateDto.setQualityControlConfirm(1);
-                    tagConfirmDateDto.setQualityControlConfirmDate(confirmStatus == 0 ? null : new Date());
+                    tagConfirmDateDto.setQualityControlConfirmDate(confirmStatus.equals(0) ? null : new Date());
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
@@ -1335,7 +1335,7 @@ public class SmpService {
                     //计控成本确认
                     tagConfirmDateDto.setStyleNo(packInfo.getStyleNo());
                     tagConfirmDateDto.setPlanTagPriceConfirm(1);
-                    tagConfirmDateDto.setPlanTagPriceConfirmDate(confirmStatus == 0 ? null : new Date());
+                    tagConfirmDateDto.setPlanTagPriceConfirmDate(confirmStatus.equals(0) ? null : new Date());
                      tagConfirmDate.add(tagConfirmDateDto);
                 } else if (5 == type) {
                     //商品吊牌确认
@@ -1347,7 +1347,7 @@ public class SmpService {
                     //计控吊牌确认
                     tagConfirmDateDto.setStyleNo(packInfo.getStyleNo());
                     tagConfirmDateDto.setPlanCostConfirm(1);
-                    tagConfirmDateDto.setPlanCostConfirmDate(confirmStatus == 0 ? null : new Date());
+                    tagConfirmDateDto.setPlanCostConfirmDate(confirmStatus.equals(0) ? null : new Date());
                      tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
