@@ -1,5 +1,6 @@
 package com.base.sbc.module.common.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -149,4 +150,16 @@ public interface BaseService<T> extends IService<T> {
      * 启用与停用并且记录日志
      */
     void startStopLog(StartStopDto startStopDto);
+
+    /**
+     * 根据queryWrapper检查是否存在
+     */
+    boolean exists(Wrapper<T> wrapper);
+
+    /**
+     * 用于redis回查
+     */
+    default Object findByCode(String code) {
+        return null;
+    }
 }

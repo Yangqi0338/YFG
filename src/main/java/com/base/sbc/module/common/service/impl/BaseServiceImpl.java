@@ -7,6 +7,7 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -633,6 +634,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         operaLogEntity.setName(startStopDto.getName());
         operaLogEntity.setParentId(startStopDto.getParentId());
         this.saveLog(operaLogEntity);
+    }
+
+    @Override
+    public boolean exists(Wrapper<T> wrapper) {
+        return this.count(wrapper) > 0;
     }
 
 

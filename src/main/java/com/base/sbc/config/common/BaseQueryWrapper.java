@@ -3,6 +3,7 @@ package com.base.sbc.config.common;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.util.StringUtils;
 
@@ -141,4 +142,8 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
+    @Override
+    public BaseLambdaQueryWrapper<T> lambda() {
+        return (BaseLambdaQueryWrapper<T>) super.lambda();
+    }
 }
