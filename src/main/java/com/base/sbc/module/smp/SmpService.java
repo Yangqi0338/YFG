@@ -1341,7 +1341,7 @@ public class SmpService {
                     //商品吊牌确认
                     tagConfirmDateDto.setStyleNo(packInfo.getStyleNo());
                     tagConfirmDateDto.setProductTagPriceConfirm(1);
-                    tagConfirmDateDto.setProductTagPriceConfirmDate(confirmStatus == 0 ? null : new Date());
+                    tagConfirmDateDto.setProductTagPriceConfirmDate(confirmStatus.equals(0) ? null : new Date());
                      tagConfirmDate.add(tagConfirmDateDto);
                 } else if (6 == type) {
                     //计控吊牌确认
