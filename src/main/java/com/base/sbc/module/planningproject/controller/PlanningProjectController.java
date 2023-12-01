@@ -247,6 +247,7 @@ public class PlanningProjectController extends BaseController {
     @PostMapping("/historyMatch")
     @Transactional(rollbackFor = Exception.class)
     public ApiResult historyMatch(@Valid @RequestBody HistoryMatchDto historyMatchDto) {
+        PlanningProject planningProject = planningProjectService.getById(historyMatchDto.getPlanningProjectId());
         QueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.eq("planning_project_id",historyMatchDto.getPlanningProjectId());
         queryWrapper.eq("matching_style_status","0");
@@ -285,11 +286,12 @@ public class PlanningProjectController extends BaseController {
                     planningProjectPlankService.updateById(planningProjectPlank);
 
                     oldDesignNoList.remove(styleColor.getStyleNo());
+                    planningProject.setIsMatch("1");
                     break;
                 }
             }
         }
-
+        planningProjectService.updateById(planningProject);
         return updateSuccess("匹配成功");
     }
 

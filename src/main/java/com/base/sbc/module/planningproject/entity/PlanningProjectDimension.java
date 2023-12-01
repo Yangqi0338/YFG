@@ -2,6 +2,7 @@
 package com.base.sbc.module.planningproject.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -67,4 +68,10 @@ public class PlanningProjectDimension {
     /** 是否开启中类(0:未开启,1:开启) */
     @ApiModelProperty(value = "是否开启中类(0:未开启,1:开启)"  )
     private String isProdCategory2nd;
+
+    /**
+     * 已匹配数量
+     */
+    @TableField(exist = false)
+    private Long matchedNumber;
 }

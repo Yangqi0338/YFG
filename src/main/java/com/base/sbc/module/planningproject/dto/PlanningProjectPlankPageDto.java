@@ -14,6 +14,14 @@ public class PlanningProjectPlankPageDto extends Page {
     private String planningProjectId;
     private String planningBandCode;
     private String planningBulkStyleNo;
+    /**
+     * 产品季id
+     */
+    private String seasonId;
+    /**
+     * 渠道编码
+     */
+    private String planningChannelCode;
     /** 大类编码 */
     @ApiModelProperty(value = "大类编码"  )
     private String prodCategory1stCode;

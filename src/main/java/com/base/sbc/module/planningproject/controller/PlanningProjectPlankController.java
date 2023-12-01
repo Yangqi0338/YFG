@@ -6,6 +6,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -27,10 +28,12 @@ import com.base.sbc.module.planningproject.dto.MatchSaveDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.dto.UnMatchDto;
+import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -67,6 +70,8 @@ public class PlanningProjectPlankController extends BaseController {
     private final PlanningDimensionalityService planningDimensionalityService;
     private final StylePicUtils stylePicUtils;
     private final StyleService styleService;
+    private final PlanningProjectService planningProjectService;
+    private final RedisUtils redisUtils;
 
     /**
      * 查询列表
@@ -76,6 +81,37 @@ public class PlanningProjectPlankController extends BaseController {
     public ApiResult ListByDto(PlanningProjectPlankPageDto dto) {
         return selectSuccess(planningProjectPlankService.ListByDto(dto));
     }
+
+    /**
+     * 根据企划规划看板id和大类,品类,中类,查询
+     */
+    @ApiOperation(value = "根据企划规划看板id和大类,品类,中类,查询")
+    @GetMapping("/ListByDtoAndCategory")
+    public ApiResult ListByDtoAndCategory(PlanningProjectPlankPageDto dto) {
+        QueryWrapper<PlanningProject> queryWrapper1 =new QueryWrapper<>();
+        queryWrapper1.eq("season_id",dto.getSeasonId());
+        queryWrapper1.eq("planning_channel_code",dto.getPlanningChannelCode());
+        PlanningProject planningProject = planningProjectService.getOne(queryWrapper1);
+        if (planningProject==null) {
+            throw new OtherException("当前产品季和渠道下无企划规划看板");
+        }
+        BaseQueryWrapper<PlanningProjectDimension> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("planning_project_id", planningProject.getId());
+        queryWrapper.notEmptyEq("prod_category1st_code", dto.getProdCategory1stCode());
+        queryWrapper.notEmptyEq("prod_category_code", dto.getProdCategoryCode());
+        queryWrapper.notEmptyEq("prod_category2nd_code", dto.getProdCategory2ndCode());
+        List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper);
+        for (PlanningProjectDimension planningProjectDimension : list) {
+            //查询已匹配坑位的数量
+            BaseQueryWrapper<PlanningProjectPlank> planningProjectPlankQueryWrapper = new BaseQueryWrapper<>();
+            planningProjectPlankQueryWrapper.eq("planning_project_dimension_id", planningProjectDimension.getId());
+            planningProjectPlankQueryWrapper.ne("matching_style_status", "0");
+            long count = planningProjectPlankService.count(planningProjectPlankQueryWrapper);
+            planningProjectDimension.setMatchedNumber(count);
+        }
+        return selectSuccess(list);
+    }
+
     /**
      * 根据坑位Id查询坑位详情
      */
@@ -143,6 +179,15 @@ public class PlanningProjectPlankController extends BaseController {
     }
 
     /**
+     * 保存
+     */
+    @ApiOperation(value = "保存")
+    @PostMapping("/save")
+    public ApiResult save(@RequestBody PlanningProjectPlank planningProjectPlank) {
+        return insertSuccess( planningProjectPlankService.saveOrUpdate(planningProjectPlank));
+    }
+
+    /**
      * 匹配坑位
      */
     @ApiOperation(value = "匹配坑位")
@@ -205,13 +250,31 @@ public class PlanningProjectPlankController extends BaseController {
             FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
             fieldDisplayVo.setField(planningDimensionality.getDimensionalityName());
             fieldDisplayVo.setName(planningDimensionality.getDimensionalityName());
-            fieldDisplayVo.setDisplay(true);
+            //设置是否显示
+            String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ planningDimensionality.getDimensionalityName();
+            if (redisUtils.hasKey(key)) {
+                fieldDisplayVo.setDisplay("1".equals(redisUtils.get(key)));
+            }else {
+                fieldDisplayVo.setDisplay(true);
+            }
             return fieldDisplayVo;
         }).collect(Collectors.toList());
 
         return selectSuccess(fieldDisplayVoList);
     }
 
+    /**
+     * 设置维度字段卡片
+     */
+    @ApiOperation(value = "设置维度字段卡片")
+    @PostMapping("/setDimensionFieldCard")
+    public ApiResult setDimensionFieldCard(@RequestBody List<FieldDisplayVo> fieldDisplayVoList){
+        fieldDisplayVoList.forEach(fieldDisplayVo -> {
+            String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ fieldDisplayVo.getField();
+            redisUtils.set(key,fieldDisplayVo.isDisplay()?"1":"0");
+        });
+        return updateSuccess("设置成功");
+    }
 
 
 }
