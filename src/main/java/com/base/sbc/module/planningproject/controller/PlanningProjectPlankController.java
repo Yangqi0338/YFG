@@ -7,6 +7,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -18,6 +19,7 @@ import com.base.sbc.module.formtype.service.FormTypeService;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
+import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.FieldDisplayVo;
@@ -30,8 +32,11 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -60,6 +65,8 @@ public class PlanningProjectPlankController extends BaseController {
     private final FieldOptionConfigService fieldOptionConfigService;
     private final FieldManagementService fieldManagementService;
     private final PlanningDimensionalityService planningDimensionalityService;
+    private final StylePicUtils stylePicUtils;
+    private final StyleService styleService;
 
     /**
      * 查询列表
@@ -85,9 +92,21 @@ public class PlanningProjectPlankController extends BaseController {
 
         if (StringUtils.isNotEmpty(planningProjectPlankVo.getHisDesignNo())) {
             StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlankVo.getHisDesignNo()));
+            Style style = styleService.getById(styleColor.getStyleId());
+            StyleColorVo styleColorVo =new StyleColorVo();
+
+            BeanUtil.copyProperties(style,styleColorVo);
+            BeanUtil.copyProperties(styleColor,styleColorVo);
+            String styleUrl = stylePicUtils.getStyleUrl(styleColorVo.getStyleColorPic());
+            styleColorVo.setStyleColorPic(styleUrl);
+            planningProjectPlankVo.setOldStyleColor(styleColorVo);
+
             List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
             planningProjectPlankVo.setOldFieldManagementVos(fieldManagementVos);
         }
+
+        String styleUrl = stylePicUtils.getStyleUrl(planningProjectPlankVo.getPic());
+        planningProjectPlankVo.setPic(styleUrl);
         return selectSuccess(planningProjectPlankVo);
     }
 

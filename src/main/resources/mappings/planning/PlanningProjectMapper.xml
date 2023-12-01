@@ -4,17 +4,10 @@
 
     <select id="historyList" resultType="com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo">
         SELECT
-        ts.*,
-        c.style_pic planningPic,
-        c.his_design_no as hisDesignNo,
-        ts.`status` AS sd_status,
-        ts.confirm_status AS sd_confirm_status,
-        ts.style_pic stylePic,
-        ts.id styleId
+        c.*
         FROM
         t_planning_category_item c
-        LEFT JOIN t_style_color tsc ON ( c.his_design_no = tsc.style_no AND tsc.del_flag = '0' )
-        LEFT JOIN t_style ts ON ( ts.id = tsc.style_id)
+
         WHERE
         c.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">

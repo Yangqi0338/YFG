@@ -15,6 +15,11 @@ public class HistoryMatchDto {
      */
     private String hisDesignNos;
 
+    /**
+     * 企划需求坑位ids
+     */
+    private String plankIds;
+
     @ApiModelProperty(value = "企划规划看板id")
     private String planningProjectId;
 }

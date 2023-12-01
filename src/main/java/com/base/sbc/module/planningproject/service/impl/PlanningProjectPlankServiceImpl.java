@@ -119,9 +119,10 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         }
         PlanningProject planningProject = planningProjectService.getById(list.get(0).getPlanningProjectId());
         //查询已经匹配的大货款号
-        List<PlanningProjectPlank> projectPlanks = this.list(new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no").isNotNull("bulk_style_no").last("and bulk_style_no != ''"));
-        List<String>  bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().collect(Collectors.toList());
-
+        List<PlanningProjectPlank> projectPlanks = this.list(new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no","his_design_no").isNotNull("bulk_style_no").ne("bulk_style_no","").or().isNotNull("his_design_no").ne("his_design_no",""));
+        List<String>  bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+        List<String> getHisDesignNos = projectPlanks.stream().map(PlanningProjectPlank::getHisDesignNo).distinct().filter(StringUtils::isNotEmpty).collect(Collectors.toList());
+        bulkNos.addAll(getHisDesignNos);
         //匹配实体
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             // //如果已经匹配上了,就不再匹配
@@ -145,6 +146,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 continue;
             }
             //  初步匹配上,再去筛选维度
+            out:
             for (StyleColorVo styleColorVo : styleColorList) {
                 List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColorVo.getId());
                 for (FieldManagementVo fieldManagementVo : fieldManagementVos) {
@@ -166,6 +168,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         this.updateById(planningProjectPlank);
                         bulkNos.add(planningProjectPlankVo.getBulkStyleNo());
                         planningProject.setIsMatch("1");
+                        break out;
                     }
                 }
             }
@@ -192,6 +195,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 continue;
             }
             //  初步匹配上,再去筛选维度
+
             for (StyleColorVo styleColorVo : styleColorList) {
                 List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColorVo.getId());
 
@@ -208,13 +212,14 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         planningProjectPlankVo1.setStyleColorId(styleColorVo.getId());
                         BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColorVo.getColorCode()));
                         if (colourLibrary != null) {
-                            planningProjectPlankVo.setColorSystem(colourLibrary.getColorType());
+                            planningProjectPlankVo1.setColorSystem(colourLibrary.getColorType());
                         }
                         planningProjectPlankVo1.setId(null);
                         planningProjectPlankVo1.setIsVirtual("1");
                         bulkNos.add(planningProjectPlankVo1.getBulkStyleNo());
                         list1.add(planningProjectPlankVo1);
                         planningProject.setIsMatch("1");
+
                     }
                 }
             }

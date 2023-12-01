@@ -193,10 +193,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
 
         //查询已经匹配的大货款号
         List<PlanningProjectPlank> projectPlanks = planningProjectPlankService.list(
-                new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no").isNotNull("bulk_style_no").
-                        ne("bulk_style_no","").isNotNull("his_design_no").ne("his_design_no",""));
-        List<String>  bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().collect(Collectors.toList());
-
+                new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no","his_design_no").isNotNull("bulk_style_no").
+                        ne("bulk_style_no","").or().isNotNull("his_design_no").ne("his_design_no",""));
+        List<String>  bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        List<String> hisDesignNos = projectPlanks.stream().map(PlanningProjectPlank::getHisDesignNo).distinct().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        bulkNos.addAll(hisDesignNos);
         List<PlanningChannel> planningChannels = planningChannelService.list(new QueryWrapper<PlanningChannel>().eq("channel", dto.getPlanningChannelCode()).eq("planning_season_id", dto.getSeasonId()));
         if (planningChannels.isEmpty()){
             throw new RuntimeException("该渠道不存在");

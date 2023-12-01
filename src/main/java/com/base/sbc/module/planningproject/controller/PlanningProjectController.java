@@ -97,11 +97,12 @@ public class PlanningProjectController extends BaseController {
 
             UpdateWrapper<PlanningProjectPlank> wrapper =new UpdateWrapper<>();
             wrapper.in("planning_project_id",idList);
-            wrapper.ne("matching_style_status","3");
+            // wrapper.ne("matching_style_status","3");
             wrapper.set("bulk_style_no","");
             wrapper.set("pic","");
             wrapper.set("color_system","");
             wrapper.set("style_color_id","");
+            wrapper.set("his_design_no","");
             wrapper.set("matching_style_status","0");
             planningProjectPlankService.update(wrapper);
         }
@@ -253,18 +254,25 @@ public class PlanningProjectController extends BaseController {
         if (list.isEmpty()){
             throw new OtherException("没有可匹配的坑位");
         }
-
         String hisDesignNos = historyMatchDto.getHisDesignNos();
         String[] split = hisDesignNos.split(",");
         Set<String> oldDesignNoList =new HashSet<>( Arrays.asList(split));
         for (PlanningProjectPlank planningProjectPlank : list) {
             String planningProjectDimensionId = planningProjectPlank.getPlanningProjectDimensionId();
             PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectDimensionId);
-            List<StyleColor> styleColors = styleColorService.listByField("style_no", oldDesignNoList);
-            for (StyleColor styleColor : styleColors) {
-                String styleId = styleColor.getStyleId();
-                Style style = styleService.getById(styleId);
-                if (style.getProdCategory().equals(planningProjectDimension.getProdCategoryCode()) && style.getProdCategory1st().equals(planningProjectDimension.getProdCategory1stCode())){
+            if (oldDesignNoList.isEmpty()){
+                break;
+            }
+            List<PlanningCategoryItem> categoryItemList = planningCategoryItemService.listByField("his_design_no", oldDesignNoList);
+
+            for (PlanningCategoryItem planningCategoryItem : categoryItemList) {
+                if (planningCategoryItem.getProdCategory().equals(planningProjectDimension.getProdCategoryCode()) && planningCategoryItem.getProdCategory1st().equals(planningProjectDimension.getProdCategory1stCode())){
+                    QueryWrapper<StyleColor> queryWrapper1 =new BaseQueryWrapper<>();
+                    queryWrapper1.eq("style_no",planningCategoryItem.getHisDesignNo());
+                    StyleColor styleColor = styleColorService.getOne(queryWrapper1);
+                    if (styleColor==null){
+                        throw new OtherException("不存在对应的大货:"+planningCategoryItem.getHisDesignNo());
+                    }
                     planningProjectPlank.setBulkStyleNo(styleColor.getStyleNo());
                     planningProjectPlank.setStyleColorId(styleColor.getId());
                     planningProjectPlank.setPic(styleColor.getStyleColorPic());
@@ -275,8 +283,9 @@ public class PlanningProjectController extends BaseController {
                         planningProjectPlank.setColorSystem(colourLibrary.getColorType());
                     }
                     planningProjectPlankService.updateById(planningProjectPlank);
-                    System.out.println(styleColor.getStyleNo());
+
                     oldDesignNoList.remove(styleColor.getStyleNo());
+                    break;
                 }
             }
         }
