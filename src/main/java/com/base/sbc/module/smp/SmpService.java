@@ -1353,8 +1353,9 @@ public class SmpService {
             }
             String params = JSONArray.toJSONString(tagConfirmDate);
             System.out.println(params);
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate",params);
             for(TagConfirmDateDto tagConfirmDateDto1: tagConfirmDate){
-                HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", JSONArray.toJSONString(params));
+
                 Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "oa", "下发吊牌");
                 if (aBoolean) {
                     i++;
