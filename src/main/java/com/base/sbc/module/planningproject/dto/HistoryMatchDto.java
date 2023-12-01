@@ -11,9 +11,9 @@ import lombok.Data;
 @Data
 public class HistoryMatchDto {
     /**
-     * 旧号集合
+     * 旧大货款号集合
      */
-    private String oldDesignNos;
+    private String hisDesignNos;
 
     @ApiModelProperty(value = "企划规划看板id")
     private String planningProjectId;

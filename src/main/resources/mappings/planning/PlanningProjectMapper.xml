@@ -4,18 +4,17 @@
 
     <select id="historyList" resultType="com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo">
         SELECT
-        c.*,
+        ts.*,
         c.style_pic planningPic,
-        sd.`status` AS sd_status,
-        sd.confirm_status AS sd_confirm_status,
-        sd.style_pic stylePic,
-        sd.id styleId,
-        pc.product_line_name,
-        pc.sort
+        c.his_design_no as hisDesignNo,
+        ts.`status` AS sd_status,
+        ts.confirm_status AS sd_confirm_status,
+        ts.style_pic stylePic,
+        ts.id styleId
         FROM
         t_planning_category_item c
-        join t_planning_channel pc on(pc.id=c.planning_channel_id )
-        LEFT JOIN t_style sd ON ( sd.planning_category_item_id = c.id AND sd.del_flag = '0' )
+        LEFT JOIN t_style_color tsc ON ( c.his_design_no = tsc.style_no AND tsc.del_flag = '0' )
+        LEFT JOIN t_style ts ON ( ts.id = tsc.style_id)
         WHERE
         c.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">

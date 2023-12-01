@@ -58,6 +58,7 @@ public class PlanningProjectPlankVo extends PlanningProjectPlank {
 
     private List<FieldManagementVo> fieldManagementVos;
 
+    private List<FieldManagementVo> oldFieldManagementVos;
     /**
      * 表头列
      */

@@ -1,10 +1,12 @@
 package com.base.sbc.module.planningproject.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -13,6 +15,7 @@ import com.base.sbc.module.formtype.entity.FormType;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.formtype.service.FormTypeService;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
@@ -26,6 +29,7 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import io.swagger.annotations.ApiOperation;
@@ -64,6 +68,27 @@ public class PlanningProjectPlankController extends BaseController {
     @GetMapping("/ListByDto")
     public ApiResult ListByDto(PlanningProjectPlankPageDto dto) {
         return selectSuccess(planningProjectPlankService.ListByDto(dto));
+    }
+    /**
+     * 根据坑位Id查询坑位详情
+     */
+    @ApiOperation(value = "根据坑位Id查询坑位详情")
+    @GetMapping("/getById")
+    public ApiResult getById(String id) {
+        PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(id);
+        PlanningProjectPlankVo planningProjectPlankVo =new PlanningProjectPlankVo();
+        BeanUtil.copyProperties(planningProjectPlank,planningProjectPlankVo);
+        if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
+            List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(planningProjectPlankVo.getStyleColorId());
+            planningProjectPlankVo.setFieldManagementVos(fieldManagementVos);
+        }
+
+        if (StringUtils.isNotEmpty(planningProjectPlankVo.getHisDesignNo())) {
+            StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlankVo.getHisDesignNo()));
+            List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
+            planningProjectPlankVo.setOldFieldManagementVos(fieldManagementVos);
+        }
+        return selectSuccess(planningProjectPlankVo);
     }
 
     /**

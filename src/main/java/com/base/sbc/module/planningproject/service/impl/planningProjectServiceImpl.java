@@ -182,7 +182,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 key=planningProjectDimension.getProdCategory1stCode()+","+planningProjectDimension.getProdCategoryCode();
             }
 
-            map.put(key,count);
+            if (!Objects.isNull(map.get(key))) {
+                map.put(key, Long.parseLong(map.get(key).toString()) + count);
+            }else {
+                map.put(key,count);
+            }
         }
 
 
@@ -190,7 +194,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         //查询已经匹配的大货款号
         List<PlanningProjectPlank> projectPlanks = planningProjectPlankService.list(
                 new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no").isNotNull("bulk_style_no").
-                        ne("bulk_style_no","").isNotNull("old_design_no").ne("old_design_no",""));
+                        ne("bulk_style_no","").isNotNull("his_design_no").ne("his_design_no",""));
         List<String>  bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().collect(Collectors.toList());
 
         List<PlanningChannel> planningChannels = planningChannelService.list(new QueryWrapper<PlanningChannel>().eq("channel", dto.getPlanningChannelCode()).eq("planning_season_id", dto.getSeasonId()));

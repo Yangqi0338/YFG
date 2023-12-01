@@ -66,6 +66,6 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
      */
     private String matchingStyleStatus;
 
-    private String oldDesignNo;
+    private String hisDesignNo;
 
 }

@@ -49,10 +49,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -257,13 +254,13 @@ public class PlanningProjectController extends BaseController {
             throw new OtherException("没有可匹配的坑位");
         }
 
-        List<StyleColor> styleColors = styleColorService.listByField("style_no", historyMatchDto.getOldDesignNos());
-        String oldDesignNos = historyMatchDto.getOldDesignNos();
-        String[] split = oldDesignNos.split(",");
-        List<String> oldDesignNoList = Arrays.asList(split);
+        String hisDesignNos = historyMatchDto.getHisDesignNos();
+        String[] split = hisDesignNos.split(",");
+        Set<String> oldDesignNoList =new HashSet<>( Arrays.asList(split));
         for (PlanningProjectPlank planningProjectPlank : list) {
             String planningProjectDimensionId = planningProjectPlank.getPlanningProjectDimensionId();
             PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectDimensionId);
+            List<StyleColor> styleColors = styleColorService.listByField("style_no", oldDesignNoList);
             for (StyleColor styleColor : styleColors) {
                 String styleId = styleColor.getStyleId();
                 Style style = styleService.getById(styleId);
@@ -272,12 +269,13 @@ public class PlanningProjectController extends BaseController {
                     planningProjectPlank.setStyleColorId(styleColor.getId());
                     planningProjectPlank.setPic(styleColor.getStyleColorPic());
                     planningProjectPlank.setMatchingStyleStatus("3");
-                    planningProjectPlank.setOldDesignNo(styleColor.getStyleNo());
+                    planningProjectPlank.setHisDesignNo(styleColor.getStyleNo());
                     BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColor.getColorCode()));
                     if (colourLibrary != null) {
                         planningProjectPlank.setColorSystem(colourLibrary.getColorType());
                     }
                     planningProjectPlankService.updateById(planningProjectPlank);
+                    System.out.println(styleColor.getStyleNo());
                     oldDesignNoList.remove(styleColor.getStyleNo());
                 }
             }
