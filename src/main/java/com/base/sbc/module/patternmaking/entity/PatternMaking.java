@@ -390,6 +390,7 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "放码时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gradingDate;
     /** 完成数量 */
     @ApiModelProperty(value = "完成数量"  )
