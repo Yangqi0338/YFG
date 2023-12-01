@@ -6,15 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_IS_ONLY_ONCE_SWITCH;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.MATERIAL_CREATE_PURCHASEDEMAND;
-import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
-import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
-import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
-
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -24,6 +17,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -49,10 +43,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -73,59 +64,13 @@ import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.BomPrintVo;
-import com.base.sbc.module.pack.dto.CopyBomDto;
-import com.base.sbc.module.pack.dto.CreatePackInfoByStyleDto;
-import com.base.sbc.module.pack.dto.PackBomVersionDto;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
-import com.base.sbc.module.pack.dto.PackCopyDto;
-import com.base.sbc.module.pack.dto.PackInfoAssociationDto;
-import com.base.sbc.module.pack.dto.PackInfoDto;
-import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
-import com.base.sbc.module.pack.dto.PackInfoSetPatternNoDto;
-import com.base.sbc.module.pack.dto.PackTechSpecSearchDto;
-import com.base.sbc.module.pack.dto.PricingSelectSearchDTO;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackBomColor;
-import com.base.sbc.module.pack.entity.PackBomSize;
-import com.base.sbc.module.pack.entity.PackBomVersion;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
-import com.base.sbc.module.pack.entity.PackPricing;
-import com.base.sbc.module.pack.entity.PackSize;
-import com.base.sbc.module.pack.entity.PackTechPackaging;
+import com.base.sbc.module.pack.dto.*;
+import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.PackBomColorService;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomSizeService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackBusinessOpinionService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackPricingCraftCostsService;
-import com.base.sbc.module.pack.service.PackPricingOtherCostsService;
-import com.base.sbc.module.pack.service.PackPricingProcessCostsService;
-import com.base.sbc.module.pack.service.PackPricingService;
-import com.base.sbc.module.pack.service.PackProcessPriceService;
-import com.base.sbc.module.pack.service.PackSampleReviewService;
-import com.base.sbc.module.pack.service.PackSizeConfigService;
-import com.base.sbc.module.pack.service.PackSizeService;
-import com.base.sbc.module.pack.service.PackTechPackagingService;
-import com.base.sbc.module.pack.service.PackTechSpecService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.BigGoodsPackInfoListVo;
-import com.base.sbc.module.pack.vo.CopyItemsVo;
-import com.base.sbc.module.pack.vo.PackBomSizeVo;
-import com.base.sbc.module.pack.vo.PackBomVersionVo;
-import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
-import com.base.sbc.module.pack.vo.PackInfoStatusVo;
-import com.base.sbc.module.pack.vo.PackSizeConfigVo;
-import com.base.sbc.module.pack.vo.PackSizeVo;
-import com.base.sbc.module.pack.vo.PricingSelectListVO;
-import com.base.sbc.module.pack.vo.StylePackInfoListVo;
+import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
 import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
@@ -144,7 +89,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -157,32 +101,30 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import javax.annotation.Resource;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.lang.Snowflake;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 类描述：资料包 service类
@@ -195,7 +137,7 @@ import cn.hutool.core.util.URLUtil;
  */
 @Service
 public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMapper, PackInfo> implements PackInfoService {
-
+    Logger log = LoggerFactory.getLogger(getClass());
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -1544,10 +1486,64 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
         List<PackInfoListVo> packInfoListVos =  baseMapper.queryByListQw(sdQw);
+        if (StrUtil.equals(pageDto.getImgFlag(), BaseGlobal.YES)) {
+            if (packInfoListVos.size() > 3000) {
+                throw new OtherException("带图片最多只能导出3000条");
+            }
+            return new PageInfo(packInfoListVos);
+        }
         stylePicUtils.setStylePic(packInfoListVos, "stylePic");
         stylePicUtils.setStylePic(packInfoListVos, "styleColorPic");
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
         return pageInfo;
+    }
+
+    /**
+     * 资料包导出
+     *
+     * @param response
+     * @param pageDto
+     * @return
+     */
+    @Override
+    public void pageByBigGoodsDerive(HttpServletResponse response, PackInfoSearchPageDto pageDto) throws IOException {
+        PageInfo<BigGoodsPackInfoListVo> pageInfo = pageByBigGoods(pageDto);
+        List<BigGoodsPackInfoListVo> list1 = pageInfo.getList();
+        /*转换类型*/
+        List<BigGoodsPackInfoExcel> list = CopyUtil.copy(list1, BigGoodsPackInfoExcel.class);
+        if (StrUtil.equals(pageDto.getImgFlag(), BaseGlobal.YES)) {
+            ExecutorService executor = ExecutorBuilder.create()
+                    .setCorePoolSize(8)
+                    .setMaxPoolSize(10)
+                    .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                    .build();
+            stylePicUtils.setStylePic(list, "stylePic", 30);
+            try {
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (BigGoodsPackInfoExcel bigGoodsPackInfoExcel : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = bigGoodsPackInfoExcel.getStylePic();
+                            bigGoodsPackInfoExcel.setStylePic1(HttpUtil.downloadBytes(stylePic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                ExcelUtils.exportExcel(list, BigGoodsPackInfoExcel.class, "标准资料包.xlsx", new ExportParams("标准资料包", "标准资料包", ExcelType.HSSF), response);
+            } catch (Exception e) {
+                throw new OtherException(e.getMessage());
+            } finally {
+                executor.shutdown();
+            }
+        } else {
+            ExcelUtils.exportExcel(list, BigGoodsPackInfoExcel.class, "标准资料包.xlsx", new ExportParams("标准资料包", "标准资料包", ExcelType.HSSF), response);
+
+        }
     }
 
     @Override
