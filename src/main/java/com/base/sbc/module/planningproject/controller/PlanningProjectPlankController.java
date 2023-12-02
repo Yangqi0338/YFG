@@ -79,7 +79,18 @@ public class PlanningProjectPlankController extends BaseController {
     @ApiOperation(value = "查询列表")
     @GetMapping("/ListByDto")
     public ApiResult ListByDto(PlanningProjectPlankPageDto dto) {
+        //将查询条件放入redis
+        redisUtils.set("planningProjectPlank:ListByDto:" + this.getUserId(), dto);
         return selectSuccess(planningProjectPlankService.ListByDto(dto));
+    }
+
+    /**
+     * 获取查询记录
+     */
+    @ApiOperation(value = "获取查询记录")
+    @GetMapping("/getSearchRecord")
+    public ApiResult getSearchRecord() {
+        return selectSuccess(redisUtils.get("planningProjectPlank:ListByDto:" + this.getUserId()));
     }
 
     /**
