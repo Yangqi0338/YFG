@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.smp.SmpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,9 +104,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private HangTagMapper hangTagMapper;
 	@Autowired
 	private StylePicUtils stylePicUtils;
-	private CustomStylePicUpload customStylePicUpload;
-	@Autowired
-	private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 	@Autowired
 	private HangTagLogService hangTagLogService;
 	@Autowired
@@ -131,6 +130,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Autowired
 	@Lazy
 	private DataPermissionsService dataPermissionsService;
+	private final BasicsdatumModelTypeService basicsdatumModelTypeService;
 
 
 	@Autowired
@@ -539,10 +539,36 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					tagPrinting.setProductType(style.getStyleName());
 					// 大类
 					tagPrinting.setC8_1stProdCategory(style.getProdCategory1stName());
+					// 尺码号型:分类
+					BaseQueryWrapper<BasicsdatumModelType> queryWrapper = new BaseQueryWrapper<>();
+					queryWrapper.eq("code", style.getSizeRange());
+					BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getOne(queryWrapper);
+					if ( basicsdatumModelType != null) {
+                        switch (basicsdatumModelType.getDimensionType()) {
+                            case "规格":
+								tagPrinting.setSizeRangeDimensionType("Spec");
+								break;
+							case "特殊规格":
+								tagPrinting.setSizeRangeDimensionType("SpecialSpec");
+								break;
+							case "门幅":
+								tagPrinting.setSizeRangeDimensionType("Width");
+								break;
+							case "无规格":
+								tagPrinting.setSizeRangeDimensionType("NonSpec");
+								break;
+							case "其他":
+								tagPrinting.setSizeRangeDimensionType("Other");
+								break;
+                            case "号型":
+                            default:
+								tagPrinting.setSizeRangeDimensionType("Size");
+								break;
+                        }
+					}
 				}
 
-				// 尺码号型:分类
-				tagPrinting.setSizeRangeDimensionType("size");
+
 				// 成分
 				tagPrinting.setComposition(hangTag.getIngredient());
 				// 洗标
