@@ -140,6 +140,12 @@ public class PlanningDemandController {
 	@ApiOperation(value = "保存/编辑维度标签")
 	@PostMapping("/saveDimensionality")
 	public ApiResult saveDimensionality(@Valid @RequestBody UpdateDimensionalityDto updateDimensionalityDto) {
+		CheckMutexDto checkMutexDto = new CheckMutexDto();
+		checkMutexDto.setChannel(updateDimensionalityDto.getChannel());
+		checkMutexDto.setPlanningSeasonId(updateDimensionalityDto.getPlanningSeasonId());
+		checkMutexDto.setProdCategory(updateDimensionalityDto.getProdCategory());
+		checkMutexDto.setProdCategory2nd(updateDimensionalityDto.getProdCategory2nd());
+		planningDemandService.checkMutex(checkMutexDto);
 		return planningDimensionalityService.saveDimensionality(updateDimensionalityDto);
 	}
 

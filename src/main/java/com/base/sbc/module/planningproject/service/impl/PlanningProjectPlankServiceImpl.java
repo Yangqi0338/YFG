@@ -8,6 +8,11 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.entity.FieldManagement;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldManagementService;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
@@ -43,6 +48,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     private final StylePicUtils stylePicUtils;
     private final StylePricingMapper stylePricingMapper;
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
+    private final FieldManagementService fieldManagementService;
+    private final FieldValService fieldValService;
     @Resource
     @Lazy
     private  PlanningProjectService planningProjectService ;
@@ -145,12 +152,21 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             if (styleColorList == null || styleColorList.isEmpty()) {
                 continue;
             }
+            List<String> styleColorIds = styleColorList.stream().map(StyleColorVo::getId).collect(Collectors.toList());
+            //  初步匹配上,再去筛选维度
+            List<FieldVal> fieldVals = fieldValService.list(new QueryWrapper<FieldVal>().eq("data_group", FieldValDataGroupConstant.STYLE_COLOR).in("foreign_id", styleColorIds));
+            Map<String, List<FieldVal>> map= fieldVals.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
+
             //  初步匹配上,再去筛选维度
             out:
             for (StyleColorVo styleColorVo : styleColorList) {
-                List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColorVo.getId());
-                for (FieldManagementVo fieldManagementVo : fieldManagementVos) {
-                    if (fieldManagementVo.getFieldId().equals(planningProjectPlankVo.getDimensionId()) && fieldManagementVo.getVal().equals(planningProjectPlankVo.getDimensionValue())) {
+                // List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColorVo.getId());
+                List<FieldVal> fieldVals1 = map.get(styleColorVo.getId());
+                if (fieldVals1 == null || fieldVals1.isEmpty()) {
+                    continue;
+                }
+                for (FieldVal fieldVal : fieldVals1) {
+                    if (fieldVal.getFieldId().equals(planningProjectPlankVo.getDimensionId()) && fieldVal.getVal().equals(planningProjectPlankVo.getDimensionValue())) {
                         // 说明匹配上了
                         planningProjectPlankVo.setBulkStyleNo(styleColorVo.getStyleNo());
                         planningProjectPlankVo.setMatchingStyleStatus("2");
@@ -194,13 +210,19 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             if (styleColorList == null || styleColorList.isEmpty()) {
                 continue;
             }
+            List<String> styleColorIds = styleColorList.stream().map(StyleColorVo::getId).collect(Collectors.toList());
             //  初步匹配上,再去筛选维度
+            List<FieldVal> fieldVals = fieldValService.list(new QueryWrapper<FieldVal>().eq("data_group", FieldValDataGroupConstant.STYLE_COLOR).in("foreign_id", styleColorIds));
+            Map<String, List<FieldVal>> map= fieldVals.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
+
 
             for (StyleColorVo styleColorVo : styleColorList) {
-                List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColorVo.getId());
-
-                for (FieldManagementVo fieldManagementVo : fieldManagementVos) {
-                    if (fieldManagementVo.getFieldId().equals(planningProjectPlankVo.getDimensionId()) && fieldManagementVo.getVal().equals(planningProjectPlankVo.getDimensionValue())) {
+                List<FieldVal> fieldVals1 = map.get(styleColorVo.getId());
+                if (fieldVals1 == null || fieldVals1.isEmpty()) {
+                    continue;
+                }
+                for (FieldVal FieldVal : fieldVals1) {
+                    if (FieldVal.getFieldId().equals(planningProjectPlankVo.getDimensionId()) && FieldVal.getVal().equals(planningProjectPlankVo.getDimensionValue())) {
                         // 说明匹配上了
                         PlanningProjectPlankVo planningProjectPlankVo1 = new PlanningProjectPlankVo();
                         BeanUtil.copyProperties(planningProjectPlankVo, planningProjectPlankVo1);

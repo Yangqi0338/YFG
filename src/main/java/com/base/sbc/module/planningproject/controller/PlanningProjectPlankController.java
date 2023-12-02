@@ -188,6 +188,30 @@ public class PlanningProjectPlankController extends BaseController {
     }
 
     /**
+     * 更换历史款
+     */
+    @ApiOperation(value = "更换历史款")
+    @PostMapping("/changeHistoryStyle")
+    public ApiResult changeHistoryStyle(@RequestBody PlanningProjectPlank planningProjectPlank) {
+        PlanningProjectPlank planningProjectPlank1 = planningProjectPlankService.getById(planningProjectPlank.getId());
+
+        if ("0".equals(planningProjectPlank.getMatchingStyleStatus()) || "3".equals(planningProjectPlank1.getMatchingStyleStatus())) {
+            // 是历史款或者未匹配就将历史款的数据放入当前坑位
+            planningProjectPlank1.setHisDesignNo(planningProjectPlank.getHisDesignNo());
+            planningProjectPlank1.setBulkStyleNo(planningProjectPlank.getBulkStyleNo());
+            StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlank.getHisDesignNo()));
+            planningProjectPlank1.setStyleColorId(styleColor.getId());
+            planningProjectPlank1.setPic(styleColor.getStyleColorPic());
+        } else {
+            //不是是历史款就更换历史款号
+            planningProjectPlank1.setHisDesignNo(planningProjectPlank.getHisDesignNo());
+
+        }
+        planningProjectPlankService.updateById(planningProjectPlank1);
+        return updateSuccess("更换历史款成功");
+    }
+
+    /**
      * 匹配坑位
      */
     @ApiOperation(value = "匹配坑位")
