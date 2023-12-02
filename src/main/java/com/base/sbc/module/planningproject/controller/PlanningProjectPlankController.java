@@ -195,9 +195,10 @@ public class PlanningProjectPlankController extends BaseController {
     public ApiResult changeHistoryStyle(@RequestBody PlanningProjectPlank planningProjectPlank) {
         PlanningProjectPlank planningProjectPlank1 = planningProjectPlankService.getById(planningProjectPlank.getId());
 
-        if ("0".equals(planningProjectPlank.getMatchingStyleStatus()) || "3".equals(planningProjectPlank1.getMatchingStyleStatus())) {
+        if ("0".equals(planningProjectPlank1.getMatchingStyleStatus()) || "3".equals(planningProjectPlank1.getMatchingStyleStatus())) {
             // 是历史款或者未匹配就将历史款的数据放入当前坑位
             planningProjectPlank1.setHisDesignNo(planningProjectPlank.getHisDesignNo());
+            planningProjectPlank1.setMatchingStyleStatus("3");
             planningProjectPlank1.setBulkStyleNo(planningProjectPlank.getBulkStyleNo());
             StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlank.getHisDesignNo()));
             planningProjectPlank1.setStyleColorId(styleColor.getId());
