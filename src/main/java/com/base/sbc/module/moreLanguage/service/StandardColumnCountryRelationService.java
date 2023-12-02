@@ -10,7 +10,7 @@ import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 
 /** 
  * 类描述：吊牌列与国家地区关联表 service类
- * @address com.base.sbc.module.moreLanguage.service.TagCountryRelationService
+ * @address com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService
  * @author KC
  * @email KC
  * @date 创建时间：2023-11-30 15:07:53

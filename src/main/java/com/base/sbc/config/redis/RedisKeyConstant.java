@@ -24,5 +24,6 @@ public interface RedisKeyConstant {
 	String BUSINESS = "businessData";
 	String COMMA = ":";
 	String STANDARD_COLUMN_LIST = BUSINESS + COMMA + "standard_column_list" + COMMA;
+	String STANDARD_COLUMN_COUNTRY_RELATION = BUSINESS + COMMA + "standard_column_country_relation" + COMMA;
 
 }

@@ -24,9 +24,6 @@ public class StandardColumnSaveDto {
     /** 实体主键 */
     protected String id;
 
-    /** 属性编码 */
-    @ApiModelProperty(value = "属性编码"  )
-    private String code;
     /** 属性名称 */
     @ApiModelProperty(value = "吊牌属性名称"  )
     private String name;

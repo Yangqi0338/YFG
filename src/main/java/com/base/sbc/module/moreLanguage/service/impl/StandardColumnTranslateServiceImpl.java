@@ -7,20 +7,20 @@
 package com.base.sbc.module.moreLanguage.service.impl;
 
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.moreLanguage.mapper.TagTranslateMapper;
-import com.base.sbc.module.moreLanguage.entity.TagTranslate;
-import com.base.sbc.module.moreLanguage.service.TagTranslateService;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
+import com.base.sbc.module.moreLanguage.mapper.StandardColumnTranslateMapper;
+import com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService;
 import org.springframework.stereotype.Service;
 /** 
  * 类描述：吊牌列头翻译表 service类
- * @address com.base.sbc.module.moreLanguage.service.TagTranslateService
+ * @address com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService
  * @author KC
  * @email KC
  * @date 创建时间：2023-11-30 15:07:58
  * @version 1.0  
  */
 @Service
-public class TagTranslateServiceImpl extends BaseServiceImpl<TagTranslateMapper, TagTranslate> implements TagTranslateService {
+public class StandardColumnTranslateServiceImpl extends BaseServiceImpl<StandardColumnTranslateMapper, StandardColumnTranslate> implements StandardColumnTranslateService {
 
 // 自定义方法区 不替换的区域【other_start】
 

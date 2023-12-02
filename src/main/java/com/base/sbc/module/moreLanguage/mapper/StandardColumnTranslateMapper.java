@@ -7,18 +7,19 @@
 package com.base.sbc.module.moreLanguage.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.moreLanguage.entity.TagTranslate;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
 /** 
  * 类描述：吊牌列头翻译表 dao类
- * @address com.base.sbc.module.moreLanguage.dao.TagTranslateDao
+ * @address com.base.sbc.module.moreLanguage.dao.StandardColumnTranslateMapper
  * @author KC  
  * @email  KC
  * @date 创建时间：2023-11-30 15:07:58 
  * @version 1.0  
  */
 @Mapper
-public interface TagTranslateMapper extends BaseMapper<TagTranslate> {
+public interface StandardColumnTranslateMapper extends BaseMapper<StandardColumnTranslate> {
 // 自定义方法区 不替换的区域【other_start】
 
 

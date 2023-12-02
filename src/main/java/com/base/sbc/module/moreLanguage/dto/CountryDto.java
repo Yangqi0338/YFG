@@ -1,13 +1,11 @@
 package com.base.sbc.module.moreLanguage.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.module.moreLanguage.entity.Country;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import java.util.List;
 
 /**
  * @author 卞康
@@ -15,10 +13,8 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MoreLanguageQueryDto extends Page {
+public class CountryDto extends Country {
 
-    @NotBlank(message = "国家语言不能为空")
-    @ApiModelProperty(value = "查询国家语言条件标签Id")
-    private String countryLanguageId;
+
 
 }

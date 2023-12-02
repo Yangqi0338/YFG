@@ -7,6 +7,7 @@
 package com.base.sbc.module.standard.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -52,10 +53,16 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         standardColumn.setType(StandardColumnType.TAG);
 
         // 构建code唯一qw
-        LambdaQueryWrapper<StandardColumn> queryWrapper = new LambdaQueryWrapper<StandardColumn>().eq(StandardColumn::getCode, standardColumnSaveDto.getCode());
+        LambdaQueryWrapper<StandardColumn> queryWrapper = new LambdaQueryWrapper<StandardColumn>().eq(StandardColumn::getName, standardColumnSaveDto.getName());
         if (StrUtil.isNotBlank(id)) {
             standardColumn = this.getById(id);
             queryWrapper.ne(StandardColumn::getId, id);
+        }else {
+            // 新创建编码
+            StandardColumnType type = standardColumn.getType();
+            long code = this.count(new BaseLambdaQueryWrapper<StandardColumn>()
+                    .eq(StandardColumn::getType, type)) + 1;
+            standardColumn.setCode(type.getPreCode() + code);
         }
         // 无法修改系统默认数据
         if (!rightOperationValue.equals(standardColumn.getIsDefault())) {
@@ -64,7 +71,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         // 属性拷贝
         BeanUtil.copyProperties(standardColumnSaveDto, standardColumn);
         if (this.count(queryWrapper) > 0) {
-            throw new OtherException("已存在相同的标准表编码");
+            throw new OtherException("已存在相同的标准表");
         }
 
         this.saveOrUpdate(standardColumn);
@@ -87,7 +94,10 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
 
         BaseLambdaQueryWrapper<StandardColumn> queryWrapper = new BaseLambdaQueryWrapper<>();
 
-        queryWrapper.notEmptyIn(StandardColumn::getType, typeList);
+        if (CollUtil.isEmpty(typeList)) {
+            typeList = CollUtil.toList(StandardColumnType.TAG);
+        }
+        queryWrapper.in(StandardColumn::getType, typeList);
         queryWrapper.notNullEq(StandardColumn::getModel, noModel);
 
         List<StandardColumn> standardColumnList = this.list(queryWrapper);

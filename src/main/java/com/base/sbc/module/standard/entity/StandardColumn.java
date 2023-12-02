@@ -54,6 +54,12 @@ public class StandardColumn extends BaseDataEntity<String> {
     /** 子表头对应的字典表名 */
     @ApiModelProperty(value = "子表头对应的字典表名"  )
     private StandardColumnDictTable dictTable;
+    /** 子表头对应的表头json */
+    @ApiModelProperty(value = "子表头对应的表头json"  )
+    private String tableTitleJson;
+    /** 子表头对应的关键code */
+    @ApiModelProperty(value = "子表头对应的关键code"  )
+    private String tableCode;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

@@ -19,9 +19,12 @@ import java.util.List;
 public class StandardColumnQueryDto extends Page {
 
     @ApiModelProperty(value = "标准类型")
-    private List<StandardColumnType> typeList = CollUtil.toList(StandardColumnType.TAG);
+    private List<StandardColumnType> typeList;
 
     @ApiModelProperty(value = "标准使用模式")
     private StandardColumnModel noModel;
+
+    @ApiModelProperty(value = "code列表")
+    private List<String> codeList;
 
 }

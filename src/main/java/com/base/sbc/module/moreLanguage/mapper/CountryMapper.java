@@ -4,27 +4,24 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.moreLanguage.service;
+package com.base.sbc.module.moreLanguage.mapper;
 
-import com.base.sbc.module.moreLanguage.dto.CountryAddDto;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
-import com.base.sbc.module.standard.dto.StandardColumnDto;
-
-import java.util.List;
-import java.util.Map;
-
-public interface MoreLanguageService {
-    List<StandardColumnDto> queryCountryTitle(MoreLanguageQueryDto moreLanguageQueryDto);
-
-    String countryAdd(CountryAddDto countryAddDto);
-
-    Map<String, Object> listQuery(MoreLanguageQueryDto moreLanguageQueryDto);
-
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
+import com.base.sbc.module.moreLanguage.entity.Country;
+/** 
+ * 类描述：国家地区表 dao类
+ * @address com.base.sbc.module.moreLanguage.dao.CountryDao
+ * @author KC  
+ * @email  KC
+ * @date 创建时间：2023-11-30 15:07:37 
+ * @version 1.0  
+ */
+@Mapper
+public interface CountryMapper extends BaseMapper<Country> {
 // 自定义方法区 不替换的区域【other_start】
 
 
 
 // 自定义方法区 不替换的区域【other_end】
-
-	
 }

@@ -5,9 +5,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
-
-import java.util.List;
 
 /**
  * @author 卞康
@@ -15,10 +12,14 @@ import java.util.List;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class MoreLanguageQueryDto extends Page {
+public class CountryQueryDto extends Page {
 
-    @NotBlank(message = "国家语言不能为空")
-    @ApiModelProperty(value = "查询国家语言条件标签Id")
-    private String countryLanguageId;
+    @NotBlank(message = "国家不能为空")
+    @ApiModelProperty(value = "查询条件标签id")
+    private String countryCode;
+
+    @NotBlank(message = "语言不能为空")
+    @ApiModelProperty(value = "查询条件标签id集合")
+    private String languageCode;
 
 }

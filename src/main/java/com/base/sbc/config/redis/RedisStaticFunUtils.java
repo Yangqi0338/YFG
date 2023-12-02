@@ -483,6 +483,10 @@ public class RedisStaticFunUtils {
 	}
 	//===============================list=================================
 
+	public static List<Object> lGet(String key){
+		return lGet(key, 0, -1);
+	}
+
 	/**
 	 * 获取list缓存的内容
 	 * @param key 键

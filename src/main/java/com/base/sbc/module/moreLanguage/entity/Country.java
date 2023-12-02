@@ -14,18 +14,18 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：品名多语言属性值配置表 实体类
- * @address com.base.sbc.module.moreLanguage.entity.CountryLanguageConfig
+ * 类描述：国家地区表 实体类
+ * @address com.base.sbc.module.moreLanguage.entity.Country
  * @author KC
  * @email KC
- * @date 创建时间：2023-11-30 15:07:41
+ * @date 创建时间：2023-11-30 15:07:37
  * @version 1.0
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_country_language_config")
-@ApiModel("品名多语言属性值配置表 CountryLanguageConfig")
-public class CountryLanguageConfig extends BaseDataEntity<String> {
+@TableName("t_country_language")
+@ApiModel("国家地区表 Country")
+public class Country extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -37,18 +37,21 @@ public class CountryLanguageConfig extends BaseDataEntity<String> {
     /** 国家编码 */
     @ApiModelProperty(value = "国家编码"  )
     private String countryCode;
-    /** 吊牌属性编码 */
-    @ApiModelProperty(value = "吊牌属性编码"  )
-    private String tagCode;
-    /** 吊牌属性名称 */
-    @ApiModelProperty(value = "吊牌属性名称"  )
-    private String tagName;
-    /** 翻译 */
-    @ApiModelProperty(value = "翻译"  )
-    private String content;
-    /** 分类 */
-    @ApiModelProperty(value = "分类"  )
-    private String type;
+    /** 国家名称 */
+    @ApiModelProperty(value = "国家名称"  )
+    private String countryName;
+    /** 国家编码 */
+    @ApiModelProperty(value = "语言编码"  )
+    private String languageCode;
+    /** 国家名称 */
+    @ApiModelProperty(value = "语言名称"  )
+    private String languageName;
+    /** 国家编码 */
+    @ApiModelProperty(value = "币种编码"  )
+    private String coinCode;
+    /** 国家名称 */
+    @ApiModelProperty(value = "币种名称"  )
+    private String coinName;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;

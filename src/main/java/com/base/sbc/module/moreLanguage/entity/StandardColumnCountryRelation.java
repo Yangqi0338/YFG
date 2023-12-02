@@ -37,11 +37,8 @@ public class StandardColumnCountryRelation extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 国家编码 */
-    @ApiModelProperty(value = "国家编码"  )
-    private String countryCode;
-    /** 语言编码 */
-    @ApiModelProperty(value = "语言编码"  )
-    private String languageCode;
+    @ApiModelProperty(value = "国家语言Id"  )
+    private String countryLanguageId;
     /** 属性编码 */
     @ApiModelProperty(value = "属性编码"  )
     private String standardColumnCode;

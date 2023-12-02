@@ -7,20 +7,20 @@
 package com.base.sbc.module.moreLanguage.service.impl;
 
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.moreLanguage.mapper.CountryLanguageConfigMapper;
-import com.base.sbc.module.moreLanguage.entity.CountryLanguageConfig;
-import com.base.sbc.module.moreLanguage.service.CountryLanguageConfigService;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.mapper.StandardColumnCountryTranslateMapper;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import org.springframework.stereotype.Service;
 /** 
  * 类描述：品名多语言属性值配置表 service类
- * @address com.base.sbc.module.moreLanguage.service.CountryLanguageConfigService
+ * @address com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService
  * @author KC
  * @email KC
  * @date 创建时间：2023-11-30 15:07:41
  * @version 1.0  
  */
 @Service
-public class CountryLanguageConfigServiceImpl extends BaseServiceImpl<CountryLanguageConfigMapper, CountryLanguageConfig> implements CountryLanguageConfigService {
+public class StandardColumnCountryTranslateServiceImpl extends BaseServiceImpl<StandardColumnCountryTranslateMapper, StandardColumnCountryTranslate> implements StandardColumnCountryTranslateService {
 
 // 自定义方法区 不替换的区域【other_start】
 

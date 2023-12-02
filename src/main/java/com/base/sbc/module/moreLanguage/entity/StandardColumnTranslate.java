@@ -14,8 +14,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：吊牌列头翻译表 实体类
- * @address com.base.sbc.module.moreLanguage.entity.TagTranslate
+ * 类描述：标准列头翻译表 实体类
+ * @address com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate
  * @author KC
  * @email KC
  * @date 创建时间：2023-11-30 15:07:58
@@ -23,9 +23,9 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_tag_translate")
+@TableName("t_standard_column_translate")
 @ApiModel("吊牌列头翻译表 TagTranslate")
-public class TagTranslate extends BaseDataEntity<String> {
+public class StandardColumnTranslate extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -35,14 +35,14 @@ public class TagTranslate extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 国家编码 */
-    @ApiModelProperty(value = "国家编码"  )
-    private String countryCode;
-    /** 吊牌属性编码 */
-    @ApiModelProperty(value = "吊牌属性编码"  )
-    private String tagCode;
-    /** 吊牌属性名称 */
-    @ApiModelProperty(value = "吊牌属性名称"  )
-    private String tagName;
+    @ApiModelProperty(value = "国家语言Id"  )
+    private String countryLanguageId;
+    /** 属性编码 */
+    @ApiModelProperty(value = "属性编码"  )
+    private String standardColumnCode;
+    /** 属性名称 */
+    @ApiModelProperty(value = "属性名称"  )
+    private String standardColumnName;
     /** 翻译文本 */
     @ApiModelProperty(value = "翻译文本"  )
     private String content;

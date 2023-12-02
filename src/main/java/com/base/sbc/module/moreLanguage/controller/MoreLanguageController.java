@@ -1,54 +1,26 @@
 package com.base.sbc.module.moreLanguage.controller;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
-import com.alibaba.excel.EasyExcel;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.material.dto.CategoryIdDto;
-import com.base.sbc.module.material.dto.MaterialQueryDto;
-import com.base.sbc.module.material.dto.MaterialSaveDto;
-import com.base.sbc.module.material.entity.Material;
-import com.base.sbc.module.material.entity.MaterialLabel;
-import com.base.sbc.module.material.entity.Test;
-import com.base.sbc.module.material.service.MaterialLabelService;
-import com.base.sbc.module.material.service.MaterialService;
-import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.moreLanguage.dto.CountryAddDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
-import com.base.sbc.module.moreLanguage.service.CountryLanguageConfigService;
-import com.base.sbc.module.moreLanguage.service.CountryModelService;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
-import com.base.sbc.module.standard.service.StandardColumnService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author 孔祥基
@@ -75,8 +47,8 @@ public class MoreLanguageController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增国家", notes = "新增国家")
     public ApiResult countryAdd(@Valid @RequestBody CountryAddDto countryAddDto) {
-        moreLanguageService.countryAdd(countryAddDto);
-        return insertSuccess(countryAddDto.getCountryCode());
+        String id = moreLanguageService.countryAdd(countryAddDto);
+        return insertSuccess(id);
     }
 //
 //    /**
@@ -179,13 +151,13 @@ public class MoreLanguageController extends BaseController {
         if (moreLanguageQueryDto == null) {
             throw new OtherException("参数不能为空");
         }
-        return selectSuccess(materialService.listQuery(moreLanguageQueryDto));
+        return selectSuccess(moreLanguageService.listQuery(moreLanguageQueryDto));
     }
 
     /**
      * 查询国家拥有的标准表表头
      */
-    @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
+    @ApiOperation(value = "查询国家拥有的标准表表头", notes = "查询国家拥有的标准表表头")
     @GetMapping("/queryCountryTitle")
     public ApiResult  queryCountryTitle(MoreLanguageQueryDto moreLanguageQueryDto) {
         if (moreLanguageQueryDto == null) {

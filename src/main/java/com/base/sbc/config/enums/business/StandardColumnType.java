@@ -19,8 +19,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 public enum StandardColumnType {
-    TAG("吊牌&洗唛"),
-    TAG_ROOT("吊牌字段"),
+    TAG("吊牌&洗唛","DP"),
+    TAG_ROOT("吊牌字段", "DP"),
 
     ;
     /** 编码 */
@@ -28,15 +28,17 @@ public enum StandardColumnType {
     private final String code;
     /** 文本 */
     private final String text;
+    private final String preCode;
 
     @JsonValue
     public String getCode() {
         return code;
     }
 
-    StandardColumnType(String text) {
+    StandardColumnType(String text, String preCode) {
         String code = this.name().toLowerCase();
         this.code = StrUtil.toCamelCase(code);
         this.text = text;
+        this.preCode = preCode;
     }
 }

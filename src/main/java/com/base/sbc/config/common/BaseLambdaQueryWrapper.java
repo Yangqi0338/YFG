@@ -38,36 +38,36 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         this.mainQueryWrapper = mainQueryWrapper;
     }
 
-    public <R> LambdaQueryWrapper<T> notEmptyEq(SFunction<T, R> column, R val) {
-        return this.eq(!StringUtils.isEmpty(val), column, val);
+    public <R> BaseLambdaQueryWrapper<T> notEmptyEq(SFunction<T, R> column, R val) {
+        this.eq(!StringUtils.isEmpty(val), column, val);
+        return this;
     }
 
-    public <R> LambdaQueryWrapper<T> notNullEq(SFunction<T, R> column, R val) {
-        return this.eq(ObjectUtil.isNotEmpty(val), column, val);
+    public <R> BaseLambdaQueryWrapper<T> notNullEq(SFunction<T, R> column, R val) {
+        this.eq(ObjectUtil.isNotEmpty(val), column, val);
+        return this;
     }
 
 
-    public <R> LambdaQueryWrapper<T> notEmptyIn(SFunction<T, R> column, Collection<R> coll) {
-        if (coll == null) {
-            return this;
-        }
-        return this.in(CollUtil.isNotEmpty(coll), column, coll);
+    public <R> BaseLambdaQueryWrapper<T> notEmptyIn(SFunction<T, R> column, Collection<R> coll) {
+        this.in(CollUtil.isNotEmpty(coll), column, coll);
+
+        return this;
     }
 
-    public LambdaQueryWrapper<T> notEmptyIn(SFunction<T, String> column, String str) {
-        if (StrUtil.isBlank(str)) {
-            return this;
-        }
-        return this.in(StrUtil.isNotBlank(str), column, StrUtil.split(str, CharUtil.COMMA));
+    public BaseLambdaQueryWrapper<T> notEmptyIn(SFunction<T, String> column, String str) {
+        this.in(StrUtil.isNotBlank(str), column, StrUtil.split(str, CharUtil.COMMA));
+        return this;
     }
 
-    public LambdaQueryWrapper<T> notEmptyLike(SFunction<T, String> column, String val) {
-        return this.like(!StringUtils.isEmpty(val), column, val);
+    public BaseLambdaQueryWrapper<T> notEmptyLike(SFunction<T, String> column, String val) {
+        this.like(!StringUtils.isEmpty(val), column, val);
+        return this;
     }
 
-    public LambdaQueryWrapper<T> between(SFunction<T, String> column, String[] dates) {
+    public BaseLambdaQueryWrapper<T> between(SFunction<T, String> column, String[] dates) {
         if (!Arrays.isNullOrEmpty(dates)) {
-            return this.and(i-> {
+            this.and(i-> {
                 i.ge(!StringUtils.isEmpty(dates[0]), column, dates[0]);
                 if (dates.length > 1) {
                     i.le(!StringUtils.isEmpty(dates[1]), column, dates[1]);
@@ -78,7 +78,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     @SafeVarargs
-    public final LambdaQueryWrapper<T> andLike(String value, SFunction<T, String>... columns) {
+    public final BaseLambdaQueryWrapper<T> andLike(String value, SFunction<T, String>... columns) {
         // 最好不用这个,容易导致索引失效
         // 推荐使用虚拟列+虚拟索引
         if (StrUtil.isBlank(value)) {
@@ -94,13 +94,13 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
-    public <R> LambdaQueryWrapper<T> notNull(SFunction<T, R> column) {
+    public <R> BaseLambdaQueryWrapper<T> notNull(SFunction<T, R> column) {
         this.isNotNull(column);
         this.ne(column, "");
         return this;
     }
 
-    public <R> LambdaQueryWrapper<T> isNull(SFunction<T, R> column) {
+    public <R> BaseLambdaQueryWrapper<T> isNull(SFunction<T, R> column) {
         this.and(qw -> qw.isNull(column).or(qw2 -> qw2.eq(column, "")));
         return this;
     }
@@ -114,7 +114,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
      * @param value  1,2
      * @return
      */
-    public <R> LambdaQueryWrapper<T> findInSet(SFunction<T, R> column, String value) {
+    public <R> BaseLambdaQueryWrapper<T> findInSet(SFunction<T, R> column, String value) {
         if (StrUtil.isBlank(value)) {
             return this;
         }
@@ -136,7 +136,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
      * @param value
      * @return
      */
-    public <R> LambdaQueryWrapper<T> likeList(SFunction<T, R> columns, List<Object> value) {
+    public <R> BaseLambdaQueryWrapper<T> likeList(SFunction<T, R> columns, List<Object> value) {
         if (CollUtil.isEmpty(value)) {
             return this;
         }
@@ -156,7 +156,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
      * @param value
      * @return
      */
-    public <R> LambdaQueryWrapper<T> likeList(SFunction<T, R> columns, String value) {
+    public <R> BaseLambdaQueryWrapper<T> likeList(SFunction<T, R> columns, String value) {
         if (StrUtil.isBlank(value)) {
             return this;
         }
