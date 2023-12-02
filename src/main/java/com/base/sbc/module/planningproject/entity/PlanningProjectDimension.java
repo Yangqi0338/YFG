@@ -70,6 +70,11 @@ public class PlanningProjectDimension {
     private String isProdCategory2nd;
 
     /**
+     * 虚拟坑位数量
+     */
+    private String virtualNumber;
+
+    /**
      * 已匹配数量
      */
     @TableField(exist = false)

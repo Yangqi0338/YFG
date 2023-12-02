@@ -1,7 +1,9 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -16,8 +18,10 @@ import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
+import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectPlankMapper;
+import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
@@ -29,6 +33,7 @@ import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.tablecolumn.vo.TableColumnVo;
 import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
+import netscape.javascript.JSObject;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -48,8 +53,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     private final StylePicUtils stylePicUtils;
     private final StylePricingMapper stylePricingMapper;
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
-    private final FieldManagementService fieldManagementService;
     private final FieldValService fieldValService;
+    private final PlanningProjectDimensionService planningProjectDimensionService;
     @Resource
     @Lazy
     private  PlanningProjectService planningProjectService ;
@@ -192,6 +197,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
 
         List<PlanningProjectPlankVo> list1 =new ArrayList<>();
         //匹配虚拟
+        JSONObject jsonObject =new JSONObject();
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
 
             // 匹配规则 产品季  大类 品类 (中类有就匹配)  波段 第一维度  这5匹配
@@ -240,12 +246,25 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         planningProjectPlankVo1.setIsVirtual("1");
                         bulkNos.add(planningProjectPlankVo1.getBulkStyleNo());
                         list1.add(planningProjectPlankVo1);
+                        if (jsonObject.get(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue()) == null){
+                            jsonObject.put(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue(),1);
+                        }else {
+                            jsonObject.put(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue(),jsonObject.getInteger(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue())+1);
+                        }
+
                         planningProject.setIsMatch("1");
 
                     }
                 }
             }
         }
+
+        //hashMap转为字符串
+        Set<String> ids = list1.stream().map(PlanningProjectPlankVo::getPlanningProjectDimensionId).collect(Collectors.toSet());
+        UpdateWrapper<PlanningProjectDimension> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id",ids);
+        updateWrapper.set("virtual_number",jsonObject.toJSONString());
+        planningProjectDimensionService.update(updateWrapper);
         list.addAll(list1);
         planningProjectService.updateById(planningProject);
     }

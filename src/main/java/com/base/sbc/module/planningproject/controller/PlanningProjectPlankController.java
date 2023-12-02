@@ -80,7 +80,7 @@ public class PlanningProjectPlankController extends BaseController {
     @GetMapping("/ListByDto")
     public ApiResult ListByDto(PlanningProjectPlankPageDto dto) {
         //将查询条件放入redis
-        redisUtils.set("planningProjectPlank:ListByDto:" + this.getUserId(), dto);
+        redisUtils.set("planningProjectPlank:ListByDto:"+dto.getPlanningProjectId() +":"+ this.getUserId(), dto);
         return selectSuccess(planningProjectPlankService.ListByDto(dto));
     }
 
@@ -89,8 +89,9 @@ public class PlanningProjectPlankController extends BaseController {
      */
     @ApiOperation(value = "获取查询记录")
     @GetMapping("/getSearchRecord")
-    public ApiResult getSearchRecord() {
-        return selectSuccess(redisUtils.get("planningProjectPlank:ListByDto:" + this.getUserId()));
+    public ApiResult getSearchRecord(String planningProjectId) {
+        Object o = redisUtils.get("planningProjectPlank:ListByDto:" + planningProjectId + ":" + this.getUserId());
+        return selectSuccess(o);
     }
 
     /**
