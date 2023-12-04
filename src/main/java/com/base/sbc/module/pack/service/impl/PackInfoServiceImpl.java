@@ -1512,37 +1512,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         /*转换类型*/
         List<BigGoodsPackInfoExcel> list = CopyUtil.copy(list1, BigGoodsPackInfoExcel.class);
         if (StrUtil.equals(pageDto.getImgFlag(), BaseGlobal.YES)) {
-            ExecutorService executor = ExecutorBuilder.create()
-                    .setCorePoolSize(8)
-                    .setMaxPoolSize(10)
-                    .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
-                    .build();
             stylePicUtils.setStylePic(list, "stylePic", 30);
-            try {
-                CountDownLatch countDownLatch = new CountDownLatch(list.size());
-                for (BigGoodsPackInfoExcel bigGoodsPackInfoExcel : list) {
-                    executor.submit(() -> {
-                        try {
-                            final String stylePic = bigGoodsPackInfoExcel.getStylePic();
-                            bigGoodsPackInfoExcel.setStylePic1(HttpUtil.downloadBytes(stylePic));
-                        } catch (Exception e) {
-                            log.error(e.getMessage());
-                        } finally {
-                            //每次减一
-                            countDownLatch.countDown();
-                            log.info(String.valueOf(countDownLatch.getCount()));
-                        }
-                    });
-                }
-                ExcelUtils.exportExcel(list, BigGoodsPackInfoExcel.class, "标准资料包.xlsx", new ExportParams("标准资料包", "标准资料包", ExcelType.HSSF), response);
-            } catch (Exception e) {
-                throw new OtherException(e.getMessage());
-            } finally {
-                executor.shutdown();
-            }
+            ExcelUtils.executorExportExcel(list,BigGoodsPackInfoExcel.class,"标准资料包",pageDto.getImgFlag(),3000,response,"stylePic");
         } else {
             ExcelUtils.exportExcel(list, BigGoodsPackInfoExcel.class, "标准资料包.xlsx", new ExportParams("标准资料包", "标准资料包", ExcelType.HSSF), response);
-
         }
     }
 
