@@ -48,6 +48,14 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
     void asyncCost(String foreignId);
 
 
+    /**
+     * 获取核价信息中的路由信息
+     * @param styleNo
+     * @return
+     */
+   Map getPricingRoute(String styleNo);
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 

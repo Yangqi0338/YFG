@@ -11,8 +11,6 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -20,9 +18,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.entity.PackPricing;
-import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -192,6 +188,34 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
 
     }
+
+    /**
+     * 获取核价信息中的路由信息
+     *
+     * @param visitParam
+     * @return
+     */
+    @Override
+    public Map getPricingRoute(String styleNo) {
+        if (StrUtil.isEmpty(styleNo)) {
+            throw new OtherException("参数为空");
+        }
+        styleNo= com.base.sbc.config.utils.StringUtils.convertList(styleNo).get(1);
+        Map<String, String> stringMap = new HashMap<>();
+        QueryWrapper<PackInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("style_no", styleNo);
+        PackInfo packInfo = packInfoService.getOne(queryWrapper);
+        if (ObjectUtil.isEmpty(packInfo)) {
+            throw new OtherException(styleNo + "无资料包信息");
+        }
+        stringMap.put("id", packInfo.getId());
+        stringMap.put("styleId", packInfo.getStyleId());
+        stringMap.put("style", packInfo.getStyleNo());
+        stringMap.put("packType", PackUtils.PACK_TYPE_DESIGN);
+        return stringMap;
+    }
+
+
 
     @Override
     public Map<String, BigDecimal>  calculateCosts(PackCommonSearchDto dto) {

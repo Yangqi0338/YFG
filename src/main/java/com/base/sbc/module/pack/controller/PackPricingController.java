@@ -165,6 +165,13 @@ public class PackPricingController {
     public BigDecimal formula(@Valid @RequestBody FormulaDto dto) {
         return packPricingService.formula(dto.getFormula(), dto.getItemVal());
     }
+
+
+    @ApiOperation(value = "获取核价信息路由参数")
+    @GetMapping("/getPricingRoute")
+    public Map getPricingRoute(String styleNo) {
+        return packPricingService.getPricingRoute(styleNo);
+    }
 }
 
 
