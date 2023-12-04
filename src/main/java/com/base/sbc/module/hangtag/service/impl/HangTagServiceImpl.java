@@ -536,7 +536,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					// 尺码号型名称
 					tagPrinting.setSizeRangeName(style.getSizeRangeName());
 					// 款式分类
-					tagPrinting.setProductType(style.getStyleName());
+					tagPrinting.setProductType(style.getStyleTypeName());
 					// 大类
 					tagPrinting.setC8_1stProdCategory(style.getProdCategory1stName());
 					// 尺码号型:分类
