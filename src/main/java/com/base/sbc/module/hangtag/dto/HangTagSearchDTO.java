@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author xhj
  * @Date 2023/6/26 17:53
@@ -62,6 +64,11 @@ public class HangTagSearchDTO extends Page {
 
     @ApiModelProperty(value = "品类编码")
     private String  prodCategory;
+
+
+    private String[] productCodes;
+
+    private String[]   prodCategorys;
 
     private String checkType;
 
