@@ -268,10 +268,13 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
 
         //hashMap转为字符串
         Set<String> ids = list1.stream().map(PlanningProjectPlankVo::getPlanningProjectDimensionId).collect(Collectors.toSet());
-        UpdateWrapper<PlanningProjectDimension> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.in("id",ids);
-        updateWrapper.set("virtual_number",jsonObject.toJSONString());
-        planningProjectDimensionService.update(updateWrapper);
+        if (!ids.isEmpty()){
+            UpdateWrapper<PlanningProjectDimension> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.in("id",ids);
+            updateWrapper.set("virtual_number",jsonObject.toJSONString());
+            planningProjectDimensionService.update(updateWrapper);
+        }
+
         list.addAll(list1);
         planningProjectService.updateById(planningProject);
     }
