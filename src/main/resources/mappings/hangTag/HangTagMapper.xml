@@ -84,12 +84,18 @@
             </if>
 
 
-            <if test="dto.productCode != null and dto.productCode != ''">
-                AND ht.product_code = #{dto.productCode}
+            <if test="null != dto.productCodes and dto.productCodes.length > 0">
+                AND  ht.product_code IN
+                <foreach collection="dto.productCodes" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
             </if>
 
-            <if test="dto.prodCategory != null and dto.prodCategory != ''">
-                AND tsd.prod_category = #{dto.prodCategory}
+            <if test="null != dto.prodCategorys and dto.prodCategorys.length > 0">
+                AND  tsd.prod_category IN
+                <foreach collection="dto.prodCategorys" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
             </if>
 
             <if test="dto.status != null and dto.status != ''">
