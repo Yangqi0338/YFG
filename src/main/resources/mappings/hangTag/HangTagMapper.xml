@@ -37,6 +37,7 @@
         tbmt.model_Type AS modelType,
         ht.product_name AS productName,
         ht.product_code AS productCode,
+        tsd.prod_category_name,
         ht.*,
         tsp.control_confirm as planCostConfirm,
         tsp.product_hangtag_confirm as productTagPriceConfirm,
@@ -81,6 +82,16 @@
             <if test="dto.ingredient != null and dto.ingredient != ''">
                 AND ht.ingredient like concat('%',#{dto.ingredient},'%')
             </if>
+
+
+            <if test="dto.productCode != null and dto.productCode != ''">
+                AND ht.product_code = #{dto.productCode}
+            </if>
+
+            <if test="dto.prodCategory != null and dto.prodCategory != ''">
+                AND tsd.prod_category = #{dto.prodCategory}
+            </if>
+
             <if test="dto.status != null and dto.status != ''">
                 <choose>
                     <when test="dto.status == 0">

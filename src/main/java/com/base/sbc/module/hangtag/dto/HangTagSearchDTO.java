@@ -57,6 +57,12 @@ public class HangTagSearchDTO extends Page {
     @ApiModelProperty(value = "查询类型：packBigGoods.标准资料包")
     private String selectType;
 
+    @ApiModelProperty(value = "品名编码")
+    private String  productCode;
+
+    @ApiModelProperty(value = "品类编码")
+    private String  prodCategory;
+
     private String checkType;
 
     private String[] bulkStyleNos;
