@@ -616,8 +616,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						size1.setSORTCODE(basicsdatumSize.getSort());
 						size1.setSIZENAME(basicsdatumSize.getModel());
 						size1.setSizeID(basicsdatumSize.getCode());
-						size1.setEXTSIZECODE("");
-						size1.setShowIntSize("0".equals(basicsdatumSize.getShowSizeStatus()));
+						size1.setEXTSIZECODE(basicsdatumSize.getExtSizeCode());
+						size1.setShowIntSize("1".equals(basicsdatumSize.getHangTagShowSizeStatus()));
 						size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
 						String downContent = hangTag.getDownContent();
 						if (!StringUtils.isEmpty(downContent)) {
@@ -633,8 +633,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							}
 
 						}
+						String specialSpec = hangTag.getSpecialSpec();
+						if (!StringUtils.isEmpty(specialSpec)) {
+							for (String s : specialSpec.split("\n")) {
+								if (!StringUtils.isEmpty(s)) {
+									String[] split = s.split(":");
+									if (split.length > 1) {
+										if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
+											size1.setSpecialSpec(split[1]);
+										}
+									}
+								}
+							}
 
-						size1.setSpecialSpec("");
+						}
 						size.add(size1);
 					}
 

@@ -10,7 +10,10 @@ import lombok.Data;
 public class AddRevampSizeDto {
 
     private String id;
-
+    private String extSizeCode;
+    /** 吊牌打印 显示尺码标识(0显示，1隐藏)*/
+    @ApiModelProperty(value = "吊牌打印 显示尺码标识(0显示，1隐藏)"  )
+    private String hangTagShowSizeStatus;
     /** 吊牌显示 */
     @ApiModelProperty(value = "吊牌显示"  )
     private String hangtags;

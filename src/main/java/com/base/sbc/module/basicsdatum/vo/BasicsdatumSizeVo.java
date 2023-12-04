@@ -10,6 +10,10 @@ import lombok.Data;
  */
 public class BasicsdatumSizeVo extends BaseDataEntity<String> {
 
+    private String extSizeCode;
+    /** 吊牌打印 显示尺码标识(0显示，1隐藏)*/
+    @ApiModelProperty(value = "吊牌打印 显示尺码标识(0显示，1隐藏)"  )
+    private String hangTagShowSizeStatus;
     private String id;
     /*号型类型编码*/
     private String modelTypeCode;
