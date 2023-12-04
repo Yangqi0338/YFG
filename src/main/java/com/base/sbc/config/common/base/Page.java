@@ -46,14 +46,14 @@ public class Page implements Serializable {
 
     public Integer getPageSize() {
         if (pageSize == null) {
-            pageSize = 0;
+            pageSize = 10;
         }
         return pageSize;
     }
 
     public Integer getPageNum() {
         if (pageNum == null) {
-            pageNum = 0;
+            pageNum = 1;
         }
         return pageNum;
     }

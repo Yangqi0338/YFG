@@ -228,31 +228,38 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                     continue;
                 }
                 for (FieldVal FieldVal : fieldVals1) {
-                    if (FieldVal.getFieldId().equals(planningProjectPlankVo.getDimensionId()) && FieldVal.getVal().equals(planningProjectPlankVo.getDimensionValue())) {
-                        // 说明匹配上了
-                        PlanningProjectPlankVo planningProjectPlankVo1 = new PlanningProjectPlankVo();
-                        BeanUtil.copyProperties(planningProjectPlankVo, planningProjectPlankVo1);
-                        planningProjectPlankVo1.setBulkStyleNo(styleColorVo.getStyleNo());
-                        planningProjectPlankVo1.setMatchingStyleStatus("2");
-                        planningProjectPlankVo1.setPic(styleColorVo.getStyleColorPic());
-                        planningProjectPlankVo1.setBandCode(styleColorVo.getBandCode());
-                        planningProjectPlankVo1.setBandName(styleColorVo.getBandName());
-                        planningProjectPlankVo1.setStyleColorId(styleColorVo.getId());
-                        BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColorVo.getColorCode()));
-                        if (colourLibrary != null) {
-                            planningProjectPlankVo1.setColorSystem(colourLibrary.getColorType());
+                    if (FieldVal.getFieldId().equals(planningProjectPlankVo.getDimensionId())) {
+                        if (FieldVal.getVal() ==null){
+                            continue;
                         }
-                        planningProjectPlankVo1.setId(null);
-                        planningProjectPlankVo1.setIsVirtual("1");
-                        bulkNos.add(planningProjectPlankVo1.getBulkStyleNo());
-                        list1.add(planningProjectPlankVo1);
-                        if (jsonObject.get(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue()) == null){
-                            jsonObject.put(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue(),1);
-                        }else {
-                            jsonObject.put(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue(),jsonObject.getInteger(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue())+1);
+                        if (FieldVal.getVal().equals(planningProjectPlankVo.getDimensionValue())) {
+                            // 说明匹配上了
+                            PlanningProjectPlankVo planningProjectPlankVo1 = new PlanningProjectPlankVo();
+                            BeanUtil.copyProperties(planningProjectPlankVo, planningProjectPlankVo1);
+                            planningProjectPlankVo1.setBulkStyleNo(styleColorVo.getStyleNo());
+                            planningProjectPlankVo1.setMatchingStyleStatus("2");
+                            planningProjectPlankVo1.setPic(styleColorVo.getStyleColorPic());
+                            planningProjectPlankVo1.setBandCode(styleColorVo.getBandCode());
+                            planningProjectPlankVo1.setBandName(styleColorVo.getBandName());
+                            planningProjectPlankVo1.setStyleColorId(styleColorVo.getId());
+                            BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColorVo.getColorCode()));
+                            if (colourLibrary != null) {
+                                planningProjectPlankVo1.setColorSystem(colourLibrary.getColorType());
+                            }
+                            planningProjectPlankVo1.setId(null);
+                            planningProjectPlankVo1.setIsVirtual("1");
+                            bulkNos.add(planningProjectPlankVo1.getBulkStyleNo());
+                            list1.add(planningProjectPlankVo1);
+                            if (jsonObject.get(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue()) == null){
+                                jsonObject.put(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue(),1);
+                            }else {
+                                jsonObject.put(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue(),jsonObject.getInteger(planningProjectPlankVo1.getBandName()+","+planningProjectPlankVo1.getDimensionValue())+1);
+                            }
+
+                            planningProject.setIsMatch("1");
+
                         }
 
-                        planningProject.setIsMatch("1");
 
                     }
                 }
