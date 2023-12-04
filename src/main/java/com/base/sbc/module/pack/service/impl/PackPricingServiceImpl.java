@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URLDecoder;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -200,7 +201,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         if (StrUtil.isEmpty(styleNo)) {
             throw new OtherException("参数为空");
         }
-        styleNo= com.base.sbc.config.utils.StringUtils.convertList(styleNo).get(1);
+        styleNo= com.base.sbc.config.utils.StringUtils.convertList(URLDecoder.decode(styleNo)).get(1);
         Map<String, String> stringMap = new HashMap<>();
         QueryWrapper<PackInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("style_no", styleNo);
