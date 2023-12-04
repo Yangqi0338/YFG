@@ -138,6 +138,9 @@ public class HangTagListVO extends HangTag {
     @ApiModelProperty(value = "品名")
     private String productName;
 
+    @ApiModelProperty(value = "品类")
+    private String prodCategoryName;
+
     /**
      * 执行标准编码
      */
