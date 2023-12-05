@@ -525,7 +525,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					// 大货款号是否激活
 					tagPrinting.setActive("0".equals(styleColor.getStatus()));
 					// 销售类型
-					tagPrinting.setC8_Colorway_SaleType(styleColor.getSalesType());
+					tagPrinting.setC8_Colorway_SaleType(styleColor.getSalesTypeName());
 				}
 				if (style != null) {
 
