@@ -39,10 +39,7 @@ import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningChannelService;
-import com.base.sbc.module.planning.service.PlanningDemandService;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.PlanningDemandProportionDataVo;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
@@ -92,6 +89,8 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     private PlanningCategoryItemService planningCategoryItemService;
     @Autowired
     private PlanningChannelService planningChannelService;
+    @Autowired
+    private PlanningDimensionalityService planningDimensionalityService;
 
     @Override
     public List<PlanningDemandVo> getDemandListById(Principal user, QueryDemandDto queryDemandDimensionalityDto) {
@@ -440,19 +439,19 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     @Override
     public void checkMutex(CheckMutexDto checkMutexDto) {
         //品类和中类互斥,当前如果是中类,查询是否存在品类,如果是品类,查询是否存在中类
-        QueryWrapper<PlanningDemand> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<PlanningDimensionality> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("planning_season_id", checkMutexDto.getPlanningSeasonId());
         queryWrapper.eq("channel", checkMutexDto.getChannel());
         if (StrUtil.isNotBlank(checkMutexDto.getProdCategory2nd())) {
             queryWrapper.eq("prod_category", checkMutexDto.getProdCategory());
-            long count = this.count(queryWrapper);
+            long count = planningDimensionalityService.count(queryWrapper);
             if (count>0) {
                 throw new OtherException("已存在品类维度");
             }
         } else {
             queryWrapper.isNotNull("prod_category2nd");
             queryWrapper.ne("prod_category2nd", "");
-            long count = this.count(queryWrapper);
+            long count = planningDimensionalityService.count(queryWrapper);
             if (count>0) {
                 throw new OtherException("已存在中类维度");
             }
