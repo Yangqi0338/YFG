@@ -1293,7 +1293,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packBigGoods.getK());
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
 //        list(sdQw);
-        List<PackInfoListVo> packInfoListVos = queryByQw(sdQw);
+        List<PackInfoListVo> packInfoListVos =  baseMapper.queryByListQw(sdQw);
         stylePicUtils.setStylePic(packInfoListVos, "stylePic");
         stylePicUtils.setStylePic(packInfoListVos, "styleColorPic");
         PageInfo<BigGoodsPackInfoListVo> pageInfo = CopyUtil.copy(page.toPageInfo(), BigGoodsPackInfoListVo.class);
