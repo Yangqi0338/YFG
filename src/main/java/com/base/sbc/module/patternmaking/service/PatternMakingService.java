@@ -331,6 +331,14 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score);
 
     /**
+     * 样衣工编辑
+     * @param user
+     * @param dto
+     * @return
+     */
+    boolean sampleMakingEdit(Principal user,PatternMakingDto dto);
+
+    /**
      * 获取所有版师列表
      *
      * @param companyCode

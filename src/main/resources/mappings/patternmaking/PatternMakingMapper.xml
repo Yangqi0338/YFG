@@ -102,6 +102,7 @@
         s.style_name,
         s.designer,
         s.designer_id,
+        p.style_id,
         p.code,
         p.sample_type,
         p.design_send_date,
@@ -134,7 +135,10 @@
         p.grading_name,
         p.stitcher_remark,
         p.sample_bar_code,
-        p.grading_date
+        p.grading_date,
+        p.sample_making_score,
+        p.sample_making_quality_score,
+        p.second_processing
         FROM
         t_pattern_making p,
         t_style s

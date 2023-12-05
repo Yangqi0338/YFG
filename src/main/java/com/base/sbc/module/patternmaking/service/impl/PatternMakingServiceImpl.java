@@ -1490,6 +1490,29 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return update(updateBean, uw);
     }
 
+    /**
+     * 样衣工编辑
+     *
+     * @param user
+     * @param dto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean sampleMakingEdit(Principal user, PatternMakingDto dto) {
+        /*样衣工的质量打分*/
+        sampleMakingQualityScore(user, dto.getId(), dto.getSampleMakingQualityScore());
+        /*样衣制作评分*/
+        sampleMakingScore(user, dto.getId(), dto.getSampleMakingScore());
+        /*二次*/
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().set(PatternMaking::getSecondProcessing, dto.getSecondProcessing())
+                .eq(PatternMaking::getId, dto.getId());
+        update(uw);
+
+        return true;
+    }
+
 
     @Override
     public boolean sampleMakingScore(Principal user, String id, BigDecimal score) {

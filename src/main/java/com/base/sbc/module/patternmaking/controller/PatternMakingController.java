@@ -429,6 +429,12 @@ public class PatternMakingController {
         return patternMakingService.sampleMakingQualityScore(user, dto.getId(), dto.getScore());
     }
 
+    @ApiOperation(value = "样衣工编辑", notes = "")
+    @PostMapping("/sampleMakingEdit")
+    public boolean sampleMakingEdit(Principal user, @Validated @RequestBody PatternMakingDto dto) {
+        return patternMakingService.sampleMakingEdit(user, dto);
+    }
+
     @ApiOperation(value = "设置样衣条码", notes = "")
     @PostMapping("/setSampleBarCode")
     public boolean setSampleBarCode(@Validated @RequestBody SetSampleBarCodeDto dto, @RequestHeader(BaseConstant.ENV) String env) {
