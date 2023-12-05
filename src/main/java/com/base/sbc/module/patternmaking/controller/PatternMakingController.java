@@ -18,6 +18,7 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.IdDto;
@@ -460,6 +461,7 @@ public class PatternMakingController {
     @PostMapping("/updateGrading")
     @ApiOperation(value = "修改放码师")
     public boolean updateGrading(@Validated @RequestBody PatternMaking patternMaking) {
+        CommonUtils.removeQuery(patternMaking, "samplePic");
         return patternMakingService.updateById(patternMaking);
     }
 
