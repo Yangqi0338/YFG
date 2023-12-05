@@ -139,7 +139,16 @@
             <if test="authSql != null and authSql != ''">
                 and (${authSql})
             </if>
+            <choose>
+                <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
+                    ORDER BY  tpi.create_date DESC
+                </when>
+                <otherwise>
+                    ORDER BY   tssc.create_date DESC
+                </otherwise>
+            </choose>
         </where>
+
 
     </select>
 
