@@ -1278,7 +1278,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> sdQw = new BaseQueryWrapper<>();
         sdQw.notEmptyEq("bom_status", pageDto.getBomStatus());
-        sdQw.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
+//        sdQw.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
         sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
         sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
         sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
