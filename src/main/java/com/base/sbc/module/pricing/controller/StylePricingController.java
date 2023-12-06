@@ -43,10 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -209,7 +206,10 @@ public class StylePricingController extends BaseController {
         if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
             type = 6;
         }
-        smpService.tagConfirmDates(Collections.singletonList(dto.getIds()),type,1);
+        String[] split1 = dto.getIds().split(",");
+        if (split1.length>1){
+            smpService.tagConfirmDates(Arrays.asList(split1),type,1);
+        }
 
         /*吊牌确认下发*/
         if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE)){
