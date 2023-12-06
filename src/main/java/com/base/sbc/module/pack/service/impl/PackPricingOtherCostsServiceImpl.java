@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
@@ -29,9 +30,11 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +52,8 @@ import java.util.Map;
 public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImpl<PackPricingOtherCostsMapper, PackPricingOtherCosts> implements PackPricingOtherCostsService {
 
 
+    @Autowired
+    private CcmFeignService ccmFeignService;
 // 自定义方法区 不替换的区域【other_start】
 
     @Override
@@ -130,6 +135,44 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         }
         return super.getBaseMapper().getPriceSumByForeignIds(foreignIds, companyCode);
     }
+
+    /**
+     * 生成费用明细单
+     *
+     * @param dict      字典编码 多个用,分割
+     * @param foreignId 父级id
+     * @param packType
+     * @return
+     */
+    @Override
+    public boolean createCostDetail(String dict, String foreignId, String packType) {
+        /*获取字典值*/
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap(dict);
+        List<PackPricingOtherCosts> list = new ArrayList<>();
+        /**/
+        if (CollUtil.isNotEmpty(dictInfoToMap)) {
+
+            for (Map.Entry<String, Map<String, String>> outerEntry : dictInfoToMap.entrySet()) {
+                Map<String, String> innerMap = outerEntry.getValue();
+                for (Map.Entry<String, String> innerEntry : innerMap.entrySet()) {
+                    PackPricingOtherCosts packPricingOtherCosts = new PackPricingOtherCosts();
+                    packPricingOtherCosts.setPackType(packType);
+                    packPricingOtherCosts.setForeignId(foreignId);
+                    packPricingOtherCosts.setCostsItem( "costOtherPrice".equals(outerEntry.getKey())?"其他费":"外协加工费"  );
+                    packPricingOtherCosts.setCostsType(innerEntry.getKey());
+                    packPricingOtherCosts.setCostsTypeId(innerEntry.getValue());
+                    packPricingOtherCosts.setPrice(BigDecimal.ZERO);
+                    list.add(packPricingOtherCosts);
+                }
+            }
+        }
+        if(CollUtil.isNotEmpty(list)){
+            saveOrUpdateBatch(list);
+        }
+        return true;
+    }
+
+
 
     @Override
     String getModeName() {
