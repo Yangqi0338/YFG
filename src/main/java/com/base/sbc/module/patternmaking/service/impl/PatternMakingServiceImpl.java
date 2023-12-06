@@ -423,6 +423,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "p.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "s.designer_id", StrUtil.split(dto.getDesignerIds(), CharUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
+        qw.eq( "p.disable_flag", BaseGlobal.NO);
         if (StrUtil.isNotBlank(dto.getDesignSendDate())) {
             String[] split = dto.getDesignSendDate().split(",");
             qw.ge("p.design_send_date", split[0]);
@@ -598,6 +599,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "p.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
+        qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         //手机端
         if (StrUtil.equals(dto.getIsApp(), BasicNumber.ONE.getNumber())) {
             //判断是否是样衣组长
@@ -897,10 +899,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
         qw.in(StrUtil.isNotBlank(dto.getPatternTechnician()), "p.pattern_technician_id", StringUtils.convertList(dto.getPatternTechnician()));
-        qw.eq("p.disable_flag", BaseGlobal.NO);
+        qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
         qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+        qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
+        qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
+
+        if(StringUtils.isNotBlank(dto.getOrderBy())){
+            dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
+        }else {
+            dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
+        }
+        qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
+        qw.eq("p.disable_flag", BaseGlobal.NO);
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
 
         if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
@@ -931,6 +945,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.between("p.receive_sample_date",s1);
         }
 
+        if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.IN)){
+            qw.isNull("p.receive_sample_date");
+        }
+        if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.YES)){
+            qw.isNotNull("p.receive_sample_date");
+        }
+
         qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
             String[] split = dto.getDesignerIds().split(",");
@@ -938,48 +959,48 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
 
         if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
-            qw.gt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[0]);
-            qw.lt(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "p.technician_kitting_date", dto.getTechnicianKittingDate().split(",")[1]);
+            qw.ge(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "   date_format(p.technician_kitting_date,'%Y-%m-%d')    ", dto.getTechnicianKittingDate().split(",")[0]);
+            qw.le(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "date_format(p.technician_kitting_date,'%Y-%m-%d')", dto.getTechnicianKittingDate().split(",")[1]);
         }
         if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getBfzgxfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and start_date >={0} and {1} >= end_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(end_date,'%Y-%m-%d')"
                     , dto.getBfzgxfsj().split(",")[0], dto.getBfzgxfsj().split(",")[1]);
         }
         // bsjssj
         if (StrUtil.isNotBlank(dto.getBsjssj()) && dto.getBsjssj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getBsjssj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='已接收' and start_date >={0} and {1} >= end_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='已接收' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(end_date,'%Y-%m-%d')"
                     , dto.getBsjssj().split(",")[0], dto.getBsjssj().split(",")[1]);
         }
         //zysj
         if (StrUtil.isNotBlank(dto.getZysj()) && dto.getZysj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getZysj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='打版完成' and start_date >={0} and {1} >= end_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='打版完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(end_date,'%Y-%m-%d')"
                     , dto.getZysj().split(",")[0], dto.getZysj().split(",")[1]);
         }
         //cjsj
         if (StrUtil.isNotBlank(dto.getCjsj()) && dto.getCjsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and start_date >={0}"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and date_format(start_date,'%Y-%m-%d') >={0}"
                     , dto.getCjsj().split(",")[0]);
             qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= start_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getCjsj().split(",")[1]);
         }
         //cfsj
         if (StrUtil.isNotBlank(dto.getCfsj()) && dto.getCfsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and start_date >={0}"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and date_format(start_date,'%Y-%m-%d') >={0}"
                     , dto.getCfsj().split(",")[0]);
             qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= start_date"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getCfsj().split(",")[1]);
         }
         // yywcsj
         if (StrUtil.isNotBlank(dto.getYywcsj()) && dto.getYywcsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getYywcsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and start_date >={0} and {1} >= end_date order by start_date desc"
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(end_date,'%Y-%m-%d')  order by start_date desc"
                     , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
         }
 
@@ -1026,7 +1047,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*获取图片链接*/
-                stylePicUtils.setStylePic(excelList, "stylePic");
+                stylePicUtils.setStylePic(excelList, "stylePic",30);
                 /*计时器*/
                 CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
                 for (SampleBoardExcel sampleBoardExcel : excelList) {

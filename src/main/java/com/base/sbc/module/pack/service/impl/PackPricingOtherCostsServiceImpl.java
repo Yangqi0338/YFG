@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -35,6 +36,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-核价信息-其他费用 service类
@@ -113,6 +115,7 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
         qw1.eq("costs_item","其它费");
         List<TotalVo> costsItemTotalList = getBaseMapper().newCostsItemTotal(qw,qw1);
         if (CollUtil.isNotEmpty(costsItemTotalList)) {
+            costsItemTotalList =  costsItemTotalList.stream().filter(c -> !ObjectUtil.isEmpty(c)&& StrUtil.isNotBlank(c.getLabel())).collect(Collectors.toList());
             for (TotalVo total : costsItemTotalList) {
                 if(StrUtil.isNotBlank(total.getLabel()) ){
                     result.put(total.getLabel(), total.getTotal());

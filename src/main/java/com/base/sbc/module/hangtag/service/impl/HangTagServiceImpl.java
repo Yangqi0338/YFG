@@ -254,7 +254,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
 		}
 		hangTagVO.setStylePic(stylePicUtils.getStyleUrl(hangTagVO.getStylePic()));
-		hangTagVO.setStyleColorPic(stylePicUtils.getStyleColorUrl2(hangTagVO.getStyleColorPic()));
+		hangTagVO.setStyleColorPic(stylePicUtils.getStyleUrl(hangTagVO.getStyleColorPic()));
 		minioUtils.setObjectUrlToObject(hangTagVO, "washingLabel");
 		if (StringUtils.isEmpty(hangTagVO.getStatus())) {
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
@@ -280,6 +280,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Override
 	@Transactional(rollbackFor = { Exception.class })
 	public String save(HangTagDTO hangTagDTO, String userCompany) {
+		//判断大货款号是否存在
+		if (StringUtils.isEmpty(hangTagDTO.getId())) {
+			long count = this.count(new QueryWrapper<HangTag>().eq("bulk_style_no", hangTagDTO.getBulkStyleNo()).eq("company_code", userCompany));
+			if (count > 0) {
+				throw new OtherException("大货款号已存在,请勿重复添加");
+			}
+		}
+
+
 		logger.info("HangTagService#save 保存吊牌 hangTagDTO:{}, userCompany:{}", JSON.toJSONString(hangTagDTO),
 				userCompany);
 		HangTag hangTag = new HangTag();
@@ -422,12 +431,24 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTag.setConfirmDate(null);
 			}
 			updateHangTags.add(hangTag);
-
 		});
 		super.updateBatchById(updateHangTags);
 		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(),
 				OperationDescriptionEnum.getV(hangTagUpdateStatusDTO.getStatus()), userCompany);
 
+		String status = hangTagUpdateStatusDTO.getStatus();
+		int type;
+		switch (status){
+			case "3" :type= 1;
+			break;
+			case "4" :type= 2;
+				break;
+			case "5" :type= 3;
+				break;
+			default:type= 3;
+		}
+
+		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
 		if ("2".equals(hangTagUpdateStatusDTO.getCheckType())) {
 			// 发送审批
 			List<HangTag> hangTags1 = this.listByIds(hangTagUpdateStatusDTO.getIds());

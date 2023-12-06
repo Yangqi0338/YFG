@@ -41,7 +41,9 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
@@ -59,6 +61,11 @@ import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
+import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.DataUpdateScmService;
@@ -131,8 +138,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     private final StylePricingMapper stylePricingMapper;
 
+    @Resource
+    @Lazy
+    private PlanningProjectPlankService planningProjectPlankService;
+
     @Autowired
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private StyleColorService styleColorService;
+
+    private final FieldManagementService fieldManagementService;
+
     @Lazy
     @Resource
     private SmpService smpService;
@@ -212,6 +229,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleTypeName()), "ts.style_type_name", queryDto.getStyleTypeName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getHisDesignNo()), "ts.his_design_no", queryDto.getHisDesignNo());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getSizeRangeName()), "ts.size_range_name", queryDto.getSizeRangeName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getBandCode()), "ts.band_code", queryDto.getBandCode());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getBandName()), "ts.band_name", queryDto.getBandName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()), "ts.designer", queryDto.getDesigner());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()), "ts.technician_name", queryDto.getTechnicianName());
@@ -499,8 +517,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         String brand = planningSeason.getBrand();
         String year = planningSeason.getYearName();
         String season = planningSeason.getSeason();
-        if (StrUtil.contains(style.getProdCategory(), StrUtil.COMMA)) {
-            category = getCategory(style.getProdCategory());
+        if (StringUtils.isNotBlank(style.getProdCategory())) {
+            category = style.getProdCategory();
         }
         if (StringUtils.isBlank(bandName)) {
             throw new OtherException("款式波段为空");
@@ -1488,8 +1506,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
                     throw new OtherException("带图片导出最多只能导出1500条");
                 }
-                stylePicUtils.setStylePic(list, "stylePic");
-                stylePicUtils.setStylePic(list, "styleColorPic");
+                stylePicUtils.setStylePic(list, "stylePic",30);
+                stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (StyleColorListExcel styleColorListExcel : list) {
                     executor.submit(() -> {
@@ -1544,8 +1562,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
                     throw new OtherException("带图片导出最多只能导出1500条");
                 }
-                stylePicUtils.setStylePic(list, "stylePic");
-                stylePicUtils.setStylePic(list, "styleColorPic");
+                stylePicUtils.setStylePic(list, "stylePic",30);
+                stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (StyleColorExcel styleColorExcel : list) {
                     executor.submit(() -> {
@@ -1571,6 +1589,58 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         } finally {
             executor.shutdown();
         }
+    }
+
+    /**
+     * 复制配色
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public  PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto) {
+        FieldManagement fieldManagement = fieldManagementService.getById(dto.getDimensionLabelId());
+        if (fieldManagement == null){
+            throw  new OtherException("维度信息为空");
+        }
+        // 查询坑位所有已经匹配的大货款号
+        QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.select("bulk_style_no");
+        queryWrapper1.isNotNull("bulk_style_no");
+        queryWrapper1.last("and bulk_style_no != ''");
+        List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
+
+
+        QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
+        queryWrapper.eq("field_name",fieldManagement.getFieldName());
+        queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
+        queryWrapper.select("foreign_id");
+
+        List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
+        List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
+//        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
+
+
+//        List<StyleColor> list1 = styleColorService.list(styleColorBaseQueryWrapper);
+//        List<String> styleColorIds1 = list1.stream().map(StyleColor::getId).collect(Collectors.toList());
+//        styleColorIds1.addAll(styleColorIds);
+
+        BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
+        styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
+        styleQueryWrapper.eq("ts.prod_category1st",dto.getProdCategory1st());
+        styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
+        styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
+        styleQueryWrapper.eq("tsc.order_flag", "1");
+        styleQueryWrapper.in("tsc.id",styleColorIds);
+        if (!list.isEmpty()) {
+            List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
+            styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
+        }
+        PageHelper.startPage(dto);
+        List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper);
+
+
+        return new PageInfo<>(styleList);
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/

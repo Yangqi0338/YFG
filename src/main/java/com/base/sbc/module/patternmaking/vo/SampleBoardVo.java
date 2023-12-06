@@ -306,7 +306,6 @@ public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "分配车缝工备注")
     private String stitcherRemark;
 
-    private String patternDesignerName;
 
     @ApiModelProperty(value = "紧急程度")
     private String urgency;
@@ -319,6 +318,8 @@ public class SampleBoardVo extends Style {
 
     @ApiModelProperty(value = "当前状态")
     private String  pmStatus;
+
+    private String patternDesignerName;
 
     public String getId() {
         return patternMakingId;

@@ -87,6 +87,9 @@ public class QueryStyleColorDto extends Page {
     @ApiModelProperty(value = "波段")
     private String bandName;
 
+    @ApiModelProperty(value = "波段code")
+    private String bandCode;
+
     @ApiModelProperty(value = "设计师")
     private String designer;
 

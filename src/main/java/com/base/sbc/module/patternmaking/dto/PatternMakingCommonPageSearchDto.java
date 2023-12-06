@@ -114,4 +114,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
 
     @ApiModelProperty(value = "大货款号")
     private String styleNo;
+
+    @ApiModelProperty(value = "设计收到时间判断为空标记")
+    private String sampleNullFlag;
 }
