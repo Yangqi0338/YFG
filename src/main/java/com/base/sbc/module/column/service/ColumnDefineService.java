@@ -24,7 +24,7 @@ public interface ColumnDefineService extends BaseService<ColumnDefine> {
 
     List<ColumnDefine> getByTableCode(String tableCode);
 
-    void saveMain(List<ColumnDefine> list);
+    void saveMain(List<ColumnDefine> list, String tableCode);
 
 
 }

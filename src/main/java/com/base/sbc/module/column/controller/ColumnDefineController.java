@@ -44,9 +44,9 @@ public class ColumnDefineController {
     }
 
     @ApiOperation("保存")
-    @PostMapping
-    public ApiResult save(@RequestBody List<ColumnDefine> list) {
-        this.columnDefineService.saveMain(list);
+    @PostMapping("/{tableCode}")
+    public ApiResult save(@RequestBody List<ColumnDefine> list, @PathVariable("tableCode") String tableCode) {
+        this.columnDefineService.saveMain(list, tableCode);
         return ApiResult.success("保存成功");
     }
 
