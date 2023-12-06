@@ -75,6 +75,7 @@ select tsc.style_no                                                             
        tht.place_order_date                                                                                as 下单时间,
        if(tpts.foreign_id > '0', '是', '否')                                                                       as 含外辅工艺,
        CONCAT(tsc.ware_code, tsc.color_code, ts.default_size)                                              as 默认条形码,
+       ts.historical_data                                                                               as 历史数据,
        if(tsc.del_flag = '0', '存在', '删除')                                                              as 删除标识
 from t_style_color as tsc
          left join t_style as ts on ts.id = tsc.style_id
