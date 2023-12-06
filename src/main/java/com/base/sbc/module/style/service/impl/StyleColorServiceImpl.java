@@ -1147,6 +1147,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
          * 大货款号加上次品编号，改为次品 ，同时复制一个bom名称为大货款号加次品编号
          * 复制一个未审核的吊牌
          * 复制出的BOM是样品阶段，里面的物料也修改未样品阶段未下发
+         * 资料包如果已经转大货需要查看设计用量是否为空 空取大货用量
          */
         if (StringUtils.isBlank(publicStyleColorDto.getDefectiveName())) {
             throw new OtherException("次品必填");
@@ -1197,7 +1198,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         codeQw.eq("foreign_id", styleColor.getStyleId());
         long count = packInfoMapper.countByQw(codeQw);
         /*复制配色*/
-
+        String packType = "";
+        if(StrUtil.equals(copyStyleColor.getBom(),BaseGlobal.NO)){
+            packType = PackUtils.PACK_TYPE_DESIGN;
+        }else {
+            packType =  PackUtils.PACK_TYPE_BIG_GOODS;
+        }
         BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryServicel.getByOne("colour_code",publicStyleColorDto.getColorCode());
         copyStyleColor.setColorName(basicsdatumColourLibrary.getColourName());
         copyStyleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
@@ -1234,9 +1240,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
 
         /*复制资料包里面的数据*/
-        packInfoService.copyPack(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES, BasicNumber.ZERO.getNumber());
+        packInfoService.copyPack(packInfo.getId(),packType , copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES, BasicNumber.ZERO.getNumber(),BaseGlobal.YES);
         /*复制状态*/
-        packInfoStatusService.copy(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES);
+        packInfoStatusService.copy(packInfo.getId(), packType, copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES);
         /*查询BOM状态，BOM阶段修改未为样品 BOM里面物料也修改为样品*/
         /*复制出来的BOM*/
         PackInfoStatus copyPackInfoStatus = packInfoStatusService.get(copyPackInfo.getId(), packInfoStatus.getPackType());

@@ -79,7 +79,7 @@
     <select id="isStyleNoExist" resultType="java.lang.Integer">
         select count(1)
         from t_style_color
-        where style_no = #{styleNo}
+        where del_flag = '0' and style_no = #{styleNo}
     </select>
 
     <select id="getStyleColorNumber" resultType="java.lang.String">
