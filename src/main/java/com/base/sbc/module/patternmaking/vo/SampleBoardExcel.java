@@ -235,6 +235,22 @@ public class SampleBoardExcel {
     @Excel(name = "审版设计师")
     private String      reviewedDesignName;
 
+
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    @Excel(name = "中类")
+    private String prodCategory2ndName;
+
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    @Excel(name = "小类")
+    private String prodCategory3rdName;
+
+
     @ApiModelProperty(value = "纸样完成数量")
     @Excel(name = "纸样完成数量",type = 10)
     private BigDecimal patternFinishNum;
