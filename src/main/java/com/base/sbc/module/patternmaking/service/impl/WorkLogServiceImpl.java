@@ -90,22 +90,9 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
      */
     @Override
     public void workLogDeriveExcel(WorkLogSearchDto dto, HttpServletResponse response) throws IOException {
-        BaseQueryWrapper<WorkLog> qw = new BaseQueryWrapper<>();
-
-        qw.notEmptyIn("worker_id", dto.getWorkerId());
-        qw.notEmptyIn("log_type", dto.getLogType());
-        qw.notEmptyIn("num_type", dto.getNumType());
-        qw.in(StringUtils.isNotBlank(dto.getId()) ,"id",StringUtils.convertList(dto.getId()));
-        qw.andLike(dto.getSearch(), "worker", "reference_no", "work_description");
-        if (StrUtil.isNotBlank(dto.getWorkDate())) {
-            qw.between("work_date",
-                    DateUtil.parse(dto.getWorkDate() + " 00:00:00"),
-                    DateUtil.parse(dto.getWorkDate() + " 23:59:59"));
-        }
-        if (StrUtil.isEmpty(dto.getOrderBy())) {
-            dto.setOrderBy("create_date desc");
-        }
-        List<WorkLogVoExcel> list = BeanUtil.copyToList(baseMapper.selectList(qw), WorkLogVoExcel.class);
+        PageInfo<WorkLogVo> workLogVoPageInfo = pageInfo(dto);
+        List<WorkLogVo> list1 = workLogVoPageInfo.getList();
+        List<WorkLogVoExcel> list = BeanUtil.copyToList(list1, WorkLogVoExcel.class);
         ExcelUtils.exportExcel(list, WorkLogVoExcel.class, "基础资料-号型类型.xlsx", new ExportParams(), response);
 
     }

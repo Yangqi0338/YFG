@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.smp.SmpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,9 +104,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private HangTagMapper hangTagMapper;
 	@Autowired
 	private StylePicUtils stylePicUtils;
-	private CustomStylePicUpload customStylePicUpload;
-	@Autowired
-	private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 	@Autowired
 	private HangTagLogService hangTagLogService;
 	@Autowired
@@ -131,6 +130,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Autowired
 	@Lazy
 	private DataPermissionsService dataPermissionsService;
+	private final BasicsdatumModelTypeService basicsdatumModelTypeService;
 
 
 	@Autowired
@@ -536,13 +536,39 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					// 尺码号型名称
 					tagPrinting.setSizeRangeName(style.getSizeRangeName());
 					// 款式分类
-					tagPrinting.setProductType(style.getStyleName());
+					tagPrinting.setProductType(style.getStyleTypeName());
 					// 大类
 					tagPrinting.setC8_1stProdCategory(style.getProdCategory1stName());
+					// 尺码号型:分类
+					BaseQueryWrapper<BasicsdatumModelType> queryWrapper = new BaseQueryWrapper<>();
+					queryWrapper.eq("code", style.getSizeRange());
+					BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getOne(queryWrapper);
+					if ( basicsdatumModelType != null) {
+                        switch (basicsdatumModelType.getDimensionType()) {
+                            case "规格":
+								tagPrinting.setSizeRangeDimensionType("Spec");
+								break;
+							case "特殊规格":
+								tagPrinting.setSizeRangeDimensionType("SpecialSpec");
+								break;
+							case "门幅":
+								tagPrinting.setSizeRangeDimensionType("Width");
+								break;
+							case "无规格":
+								tagPrinting.setSizeRangeDimensionType("NonSpec");
+								break;
+							case "其他":
+								tagPrinting.setSizeRangeDimensionType("Other");
+								break;
+                            case "号型":
+                            default:
+								tagPrinting.setSizeRangeDimensionType("Size");
+								break;
+                        }
+					}
 				}
 
-				// 尺码号型:分类
-				tagPrinting.setSizeRangeDimensionType("size");
+
 				// 成分
 				tagPrinting.setComposition(hangTag.getIngredient());
 				// 洗标
@@ -590,8 +616,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						size1.setSORTCODE(basicsdatumSize.getSort());
 						size1.setSIZENAME(basicsdatumSize.getModel());
 						size1.setSizeID(basicsdatumSize.getCode());
-						size1.setEXTSIZECODE("");
-						size1.setShowIntSize("0".equals(basicsdatumSize.getShowSizeStatus()));
+						size1.setEXTSIZECODE(basicsdatumSize.getExtSizeCode());
+						size1.setShowIntSize("1".equals(basicsdatumSize.getHangTagShowSizeStatus()));
 						size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
 						String downContent = hangTag.getDownContent();
 						if (!StringUtils.isEmpty(downContent)) {
@@ -607,8 +633,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							}
 
 						}
+						String specialSpec = hangTag.getSpecialSpec();
+						if (!StringUtils.isEmpty(specialSpec)) {
+							for (String s : specialSpec.split("\n")) {
+								if (!StringUtils.isEmpty(s)) {
+									String[] split = s.split(":");
+									if (split.length > 1) {
+										if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
+											size1.setSpecialSpec(split[1]);
+										}
+									}
+								}
+							}
 
-						size1.setSpecialSpec("");
+						}
 						size.add(size1);
 					}
 

@@ -57,6 +57,7 @@ SELECT tpm.id                                                                   
        null                                                                               as 查版日期,
        null                                                                               as 面料检测单日期,
        GREATEST(tpm.update_date, ts.update_date, tns.update_date)                         as 修改时间,
+       ts.historical_data                                                                               as 历史数据,
        if(tpm.del_flag = '0', '存在', '删除')                                             as 删除标识
 FROM t_pattern_making tpm
          LEFT JOIN t_style ts ON ts.id = tpm.style_id AND ts.del_flag = '0'
@@ -122,6 +123,7 @@ SELECT tppst.id                                                                 
        tppst.sample_cha_ban_data                                                              as 查版日期,
        tppst.material_check_date                                                              as 面料检测单日期,
        GREATEST(tppst.update_date, ts.update_date, tns.update_date)                           as 修改时间,
+       ts.historical_data                                                                               as 历史数据,
        if(tppst.del_flag = '0', '存在', '删除')                                               as 删除标识
 FROM t_pre_production_sample_task tppst
          LEFT JOIN t_style ts ON ts.id = tppst.style_id AND ts.del_flag = '0'

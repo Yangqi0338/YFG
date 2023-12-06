@@ -5,8 +5,6 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -37,6 +35,7 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
     /** 编码 */
     @ApiModelProperty(value = "编码"  )
     private String code;
+    private String extSizeCode;
     /** 吊牌显示 */
     @ApiModelProperty(value = "吊牌显示"  )
     private String hangtags;
@@ -82,6 +81,9 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
     /** 显示尺码标识(0显示，1隐藏) */
     @ApiModelProperty(value = "显示尺码标识(0显示，1隐藏)"  )
     private String showSizeStatus;
+    /** 吊牌打印 显示尺码标识(0显示，1隐藏)*/
+    @ApiModelProperty(value = "吊牌打印 显示尺码标识(1显示，0隐藏)"  )
+    private String hangTagShowSizeStatus;
     /** 编码（笛莎） */
     @ApiModelProperty(value = "编码（笛莎）"  )
     private String realCode;

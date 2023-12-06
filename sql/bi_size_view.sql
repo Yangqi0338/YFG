@@ -21,6 +21,7 @@ SELECT ts.size_range                                                            
        tpsd.washing                                                                               AS 洗后尺寸,
        tpz.part_code                                                                              AS 测量点ID,
        ts.design_no                                                                               AS 设计款号,
+       ts.historical_data                                                                               as 历史数据,
        if(ts.del_flag = '0', '存在', '删除')                                                      as 删除标识
 FROM t_style ts
          LEFT JOIN t_pack_info as tpi ON tpi.foreign_id = ts.id and tpi.del_flag = '0'

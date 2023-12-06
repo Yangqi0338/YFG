@@ -63,6 +63,7 @@ select ts.id,
        ts.revised_design_name                                                       as 改款设计师,
        ts.revised_design_id                                                         as 改款设计师id,
        ts.positioning_name                                                          as 款式定位,
+       ts.historical_data                                                                               as 历史数据,
        if(ts.del_flag = '0', '存在', '删除')                                        as 删除标识
 from t_style as ts
          left join t_field_val as tfv on ts.id = tfv.foreign_id and tfv.del_flag = '0' and tfv.val_name is not null
