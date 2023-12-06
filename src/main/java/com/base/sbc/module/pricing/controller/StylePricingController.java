@@ -207,7 +207,7 @@ public class StylePricingController extends BaseController {
             type = 6;
         }
         String[] split1 = dto.getIds().split(",");
-        if (split1.length>1){
+        if (split1.length>0){
             smpService.tagConfirmDates(Arrays.asList(split1),type,1);
         }
 
