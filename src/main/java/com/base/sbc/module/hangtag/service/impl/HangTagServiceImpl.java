@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
@@ -374,6 +375,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		try {
 			//下发成分
 			smpService.sendTageComposition(Collections.singletonList(id));
+
+			//region 2023-12-06 吊牌保存需要修改工艺员确认状态
+			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode(), 1);
+			//endregion
+
 		}catch (Exception ignored){
 		}
         return id;
@@ -442,14 +448,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		String status = hangTagUpdateStatusDTO.getStatus();
 		int type;
-		switch (status){
-			case "3" :type= 1;
-			break;
-			case "4" :type= 2;
+		switch (status) {
+			case "3":
+				type = 1;
 				break;
-			case "5" :type= 3;
+			case "4":
+				type = 2;
 				break;
-			default:type= 3;
+			case "5":
+				type = 3;
+				break;
+			default:
+				type = 3;
 		}
 
 		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);

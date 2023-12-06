@@ -34,6 +34,7 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
@@ -1298,76 +1299,85 @@ public class SmpService {
      * @return
      */
     public int tagConfirmDates(List<String> ids, Integer type, Integer confirmStatus) {
-        int i =0;
+        int index = 0;
         TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
         List<TagConfirmDateDto> tagConfirmDate = new ArrayList<>();
         for (String id : ids) {
-            if (type <=3){
+            Date date = confirmStatus.equals(0) ? null : new Date();
+            boolean tagBol =
+                    (type == HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() ||
+                            type == HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode() ||
+                            type == HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM.getCode() ||
+                            type == HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM.getCode());
+            if (tagBol) {
                 HangTag hangTag = hangTagService.getById(id);
-                if (0==type){
+                String bulkStyleNo = hangTag.getBulkStyleNo();
+                if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() == type) {
                     //反审
-                    tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
+                    tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setTechnologistConfirm(0);
                     tagConfirmDateDto.setTechnicalConfirm(0);
                     tagConfirmDateDto.setQualityControlConfirm(0);
                     tagConfirmDateDto.setTechnologistConfirmDate(null);
+                    tagConfirmDateDto.setTechnicalConfirmDate(null);
+                    tagConfirmDateDto.setQualityControlConfirmDate(null);
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
-                if (1 == type) {
+                if (HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode() == type) {
                     //工艺员确认
-                    tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
+                    tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setTechnologistConfirm(1);
-                    tagConfirmDateDto.setTechnologistConfirmDate(confirmStatus.equals(0) ? null : new Date());
+                    tagConfirmDateDto.setTechnologistConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
-                } else if (2 == type) {
+                } else if (HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM.getCode() == type) {
                     //技术确认
-                    tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
+                    tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setTechnicalConfirm(1);
-                    tagConfirmDateDto.setTechnicalConfirmDate(confirmStatus.equals(0) ? null : new Date());
+                    tagConfirmDateDto.setTechnicalConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
-                } else if (3 == type) {
+                } else if (HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM.getCode() == type) {
                     //品控确认
-                    tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
+                    tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setQualityControlConfirm(1);
-                    tagConfirmDateDto.setQualityControlConfirmDate(confirmStatus.equals(0) ? null : new Date());
+                    tagConfirmDateDto.setQualityControlConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
-            }
-            else {
+            } else {
                 StylePricing stylePricing = stylePricingService.getById(id);
                 PackInfo packInfo = packInfoService.getById(stylePricing.getPackId());
-                if (4 == type) {
+                String styleNo = packInfo.getStyleNo();
+                if (HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode() == type) {
                     //计控成本确认
-                    tagConfirmDateDto.setStyleNo(packInfo.getStyleNo());
-                    tagConfirmDateDto.setPlanTagPriceConfirm(1);
-                    tagConfirmDateDto.setPlanTagPriceConfirmDate(confirmStatus.equals(0) ? null : new Date());
-                     tagConfirmDate.add(tagConfirmDateDto);
-                } else if (5 == type) {
+                    tagConfirmDateDto.setStyleNo(styleNo);
+                    tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
+                    tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
+                    tagConfirmDate.add(tagConfirmDateDto);
+                } else if (HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM.getCode() == type) {
                     //商品吊牌确认
-                    tagConfirmDateDto.setStyleNo(packInfo.getStyleNo());
-                    tagConfirmDateDto.setProductTagPriceConfirm(1);
-                    tagConfirmDateDto.setProductTagPriceConfirmDate(confirmStatus.equals(0) ? null : new Date());
-                     tagConfirmDate.add(tagConfirmDateDto);
-                } else if (6 == type) {
+                    tagConfirmDateDto.setStyleNo(styleNo);
+                    tagConfirmDateDto.setProductTagPriceConfirm(confirmStatus);
+                    tagConfirmDateDto.setProductTagPriceConfirmDate(date);
+                    tagConfirmDate.add(tagConfirmDateDto);
+                } else if (HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM.getCode() == type) {
                     //计控吊牌确认
-                    tagConfirmDateDto.setStyleNo(packInfo.getStyleNo());
-                    tagConfirmDateDto.setPlanCostConfirm(1);
-                    tagConfirmDateDto.setPlanCostConfirmDate(confirmStatus.equals(0) ? null : new Date());
-                     tagConfirmDate.add(tagConfirmDateDto);
+                    tagConfirmDateDto.setStyleNo(styleNo);
+                    tagConfirmDateDto.setPlanCostConfirm(confirmStatus);
+                    tagConfirmDateDto.setPlanCostConfirmDate(date);
+                    tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
             String params = JSONArray.toJSONString(tagConfirmDate);
 
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate",params);
-            for(TagConfirmDateDto tagConfirmDateDto1: tagConfirmDate){
+            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
+            for (TagConfirmDateDto tagConfirmDateDto1 : tagConfirmDate) {
 
                 Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
                 if (aBoolean) {
-                    i++;
+                    index++;
                 }
             }
         }
-            return i;
+        return index;
     }
 }
 

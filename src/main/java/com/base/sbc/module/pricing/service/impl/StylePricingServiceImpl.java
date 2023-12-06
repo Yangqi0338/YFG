@@ -22,6 +22,7 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackPricingCraftCosts;
@@ -92,6 +93,10 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     private StylePicUtils stylePicUtils;
     @Autowired
     private DataPermissionsService dataPermissionsService;
+
+    @Autowired
+    @Lazy
+    private SmpService smpService;
 
     private final PackPricingCraftCostsService packPricingCraftCostsService;
     private final PackPricingProcessCostsService packPricingProcessCostsService;
@@ -315,6 +320,20 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                         }
                         stylePricing.updateInit();
                     }
+
+
+                    //region 2023-12-06 款式定价3个按钮反审核下发到scm
+                    if (null != stylePricingSaveDTO.getControlConfirm() && "0".equals(stylePricingSaveDTO.getControlConfirm())) {
+                        //是否计控确认
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode(), 0);
+                    } else if (null != stylePricingSaveDTO.getProductHangtagConfirm() && "0".equals(stylePricingSaveDTO.getProductHangtagConfirm())) {
+                        //是否商品吊牌确认
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM.getCode(), 0);
+                    } else if (null != stylePricingSaveDTO.getControlHangtagConfirm() && "0".equals(stylePricingSaveDTO.getControlHangtagConfirm())) {
+                        //是否计控吊牌确认
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM.getCode(), 0);
+                    }
+                    //endregion
 
                     stylePricing.setCompanyCode(companyCode);
                     BeanUtils.copyProperties(stylePricingSaveDTO, stylePricing);
