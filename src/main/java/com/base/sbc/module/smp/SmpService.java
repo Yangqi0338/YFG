@@ -1218,7 +1218,7 @@ public class SmpService {
         for (HangTag hangTag : hangTags) {
             TagCompositionDto tagCompositionDto = new TagCompositionDto();
             tagCompositionDto.setComposition(hangTag.getIngredient());
-            tagCompositionDto.setBulkStyleNo(hangTag.getBulkStyleNo());
+            tagCompositionDto.setStyleNo(hangTag.getBulkStyleNo());
             String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition",jsonString);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "scm", "下发吊牌成分");

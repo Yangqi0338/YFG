@@ -9,6 +9,6 @@ public class TagCompositionDto {
      */
     private String composition;
 
-    private String bulkStyleNo;
+    private String styleNo;
 
 }
