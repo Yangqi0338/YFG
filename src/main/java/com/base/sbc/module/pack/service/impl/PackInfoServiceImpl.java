@@ -498,13 +498,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             /*配饰款会下发大货阶段的物料*/
             StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
             if (StrUtil.equals(styleColor.getIsDefective(), BaseGlobal.YES)) {
-                /*获取这个bom下的大货阶段要下发的数据*/
-                QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("foreign_id",packInfo.getId());
-                queryWrapper.eq("stage_flag",PackUtils.PACK_TYPE_BIG_GOODS);
-                queryWrapper.eq("scm_send_flag",BaseGlobal.IN_READY);
-                queryWrapper.eq("bom_version_id",version.getId());
-                List<PackBom> packBomList = packBomService.list(queryWrapper);
+                List<PackBom> packBomList = packBomService.list(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
                 if(CollUtil.isNotEmpty(packBomList)){
                     String collect = packBomList.stream().map(PackBom::getId).collect(Collectors.joining(","));
                     smpService.bom(collect.split(","));
