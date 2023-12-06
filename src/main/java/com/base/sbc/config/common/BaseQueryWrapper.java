@@ -104,7 +104,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
      * @param val
      * @return
      */
-    public QueryWrapper<T> likeList(String columns, List<Object> val) {
+    public QueryWrapper<T> likeList(String columns, List<String> val) {
         if (CollUtil.isEmpty(val)) {
             return this;
         }

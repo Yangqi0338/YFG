@@ -133,7 +133,7 @@ public class SampleBoardExcel {
 
 
     @ApiModelProperty(value = "需求数")
-    @Excel(name = "需求数")
+    @Excel(name = "需求数",type = 10)
     private BigDecimal requirementNum;
 
 
@@ -150,7 +150,7 @@ public class SampleBoardExcel {
      * 版师工作量评分
      */
     @ApiModelProperty(value = "版师工作量评分")
-    @Excel(name = "版师工作量评分")
+    @Excel(name = "版师工作量评分",type = 10)
     private BigDecimal patternMakingScore;
 
     @ApiModelProperty(value = "裁剪工")
@@ -168,7 +168,7 @@ public class SampleBoardExcel {
     private Date cjwcsj;
 
     @ApiModelProperty(value = "裁剪完成数量")
-    @Excel(name = "裁剪完成数量")
+    @Excel(name = "裁剪完成数量",type = 10)
     private BigDecimal cutterFinishNum;
 
     /**
@@ -236,7 +236,7 @@ public class SampleBoardExcel {
     private String      reviewedDesignName;
 
     @ApiModelProperty(value = "纸样完成数量")
-    @Excel(name = "纸样完成数量")
+    @Excel(name = "纸样完成数量",type = 10)
     private BigDecimal patternFinishNum;
 
     @ApiModelProperty(value = "尺码")
@@ -250,13 +250,13 @@ public class SampleBoardExcel {
     @Excel(name = "部件编码")
     private String  patternParts;
 
-    @Excel(name = "完成件数")
+    @Excel(name = "完成件数",type = 10)
     private BigDecimal sampleFinishNum;
 
-    @Excel(name = "样衣工作量评分")
+    @Excel(name = "样衣工作量评分",type = 10)
     private BigDecimal sampleMakingScore;
 
-    @Excel(name = "样衣工质量评分")
+    @Excel(name = "样衣工质量评分",type = 10)
     private BigDecimal sampleMakingQualityScore;
 
 

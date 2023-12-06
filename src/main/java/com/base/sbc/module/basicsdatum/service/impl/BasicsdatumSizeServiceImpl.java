@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -87,7 +88,6 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         queryWrapper.notEmptyLike("create_name", dto.getCreateName());
         queryWrapper.notEmptyEq("status", dto.getStatus());
         queryWrapper.between("create_date",dto.getCreateDate());
-
         if (StringUtils.isNotEmpty(dto.getAll())){
             if("0".equals(dto.getAll())){
                 queryWrapper.eq("model_type_code","").or().isNull("model_type_code");
@@ -96,6 +96,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
 
             }
         }
+        queryWrapper.likeList(StrUtil.isNotBlank(dto.getModelTypeCode()),"model_type_code",StringUtils.convertList(dto.getModelTypeCode()));
         queryWrapper.orderByAsc("sort");
         /*查询尺码数据*/
         List<BasicsdatumSize> basicsdatumSizeList = baseMapper.selectList(queryWrapper);
