@@ -217,6 +217,12 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @return
          */
         Boolean copyStyleColor(IdDto idDto);
+    /**
+     * 复制配色
+     * @param dto
+     * @return
+     */
+    PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto);
 
         /**
          * 款式列表导出

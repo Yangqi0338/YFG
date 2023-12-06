@@ -15,7 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.style.entity.StyleMainAccessories;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +143,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private HangTagIngredientService hangTagIngredientService;
 
 	private final MinioUtils minioUtils;
+
+	private final StyleMainAccessoriesService styleMainAccessoriesService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -378,6 +383,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		try {
 			//下发成分
 			smpService.sendTageComposition(Collections.singletonList(id));
+
+			//region 2023-12-06 吊牌保存需要修改工艺员确认状态
+			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode(), 1);
+			//endregion
+
 		}catch (Exception ignored){
 		}
         return id;
@@ -439,12 +449,28 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTag.setConfirmDate(null);
 			}
 			updateHangTags.add(hangTag);
-
 		});
 		super.updateBatchById(updateHangTags);
 		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(),
 				OperationDescriptionEnum.getV(hangTagUpdateStatusDTO.getStatus()), userCompany);
 
+		String status = hangTagUpdateStatusDTO.getStatus();
+		int type;
+		switch (status) {
+			case "3":
+				type = 1;
+				break;
+			case "4":
+				type = 2;
+				break;
+			case "5":
+				type = 3;
+				break;
+			default:
+				type = 3;
+		}
+
+		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
 		if ("2".equals(hangTagUpdateStatusDTO.getCheckType())) {
 			// 发送审批
 			List<HangTag> hangTags1 = this.listByIds(hangTagUpdateStatusDTO.getIds());
@@ -514,14 +540,23 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 				if (styleColor != null) {
 
-					// 配饰款号
-					tagPrinting.setSecCode(styleColor.getAccessoryNo());
-					// 主款款号
-					tagPrinting.setMainCode(styleColor.getPrincipalStyleNo());
+// 是否内配饰
+					tagPrinting.setIsAccessories("1".equals(styleColor.getIsTrim()));
+					List<StyleMainAccessories> styleMainAccessories = styleMainAccessoriesService.list(new QueryWrapper<StyleMainAccessories>().eq("style_color_id", styleColor.getId()));
+					if (!styleMainAccessories.isEmpty()){
+						List<String> collect = styleMainAccessories.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.toList());
+						if ("1".equals(styleColor.getIsTrim())){
+							// 主款款号
+							tagPrinting.setMainCode(String.join(",",collect));
+						}else {
+							// 配饰款号
+							tagPrinting.setSecCode(String.join(",",collect));
+						}
+					}
+
 					// 吊牌价
 					tagPrinting.setC8_Colorway_SalesPrice(styleColor.getTagPrice());
-					// 是否内配饰
-					tagPrinting.setIsAccessories(!StringUtils.isEmpty(styleColor.getAccessoryNo()));
+
 					// 大货款号是否激活
 					tagPrinting.setActive("0".equals(styleColor.getStatus()));
 					// 销售类型
@@ -606,7 +641,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 产地
 				tagPrinting.setC8_APPBOM_MadeIn(hangTag.getProducer());
 				// 入库时间
-				tagPrinting.setC8_APPBOM_StorageTime(null);
+				tagPrinting.setC8_APPBOM_StorageTime(hangTag.getProduceDate());
 				// 英文成分
 				tagPrinting.setCompsitionMix(null);
 				// 英文温馨提示

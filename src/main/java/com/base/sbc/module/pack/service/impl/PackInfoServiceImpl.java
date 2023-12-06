@@ -812,21 +812,23 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     packBomService.remove(delQw);
                     packBomSizeService.remove(delQw);
                 }
-
                 /*如果是迁移数据先查询大货的物料清单，如何大货物料不存在再过滤样品*/
-                List<PackBomVo> packBomVoList = packBomService.list(null, null, packBomVersion.getId());
-                if (CollUtil.isEmpty(packBomVoList)) {
+                List<PackBomVo> goodsPackBomVoList = packBomService.list(null, PackUtils.PACK_TYPE_BIG_GOODS, packBomVersion.getId());
+                if (CollUtil.isEmpty(goodsPackBomVoList)){
+                    goodsPackBomVoList = packBomService.list(null, PackUtils.PACK_TYPE_DESIGN, packBomVersion.getId());
+                }
+                if (CollUtil.isEmpty(goodsPackBomVoList)) {
+                    throw new OtherException("无物料清单");
+                }
+       /*         if (CollUtil.isEmpty(packBomVoList)) {
                     throw new OtherException("无物料清单");
                 }
                 List<PackBomVo> goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_BIG_GOODS)).collect(Collectors.toList());
                 if (CollUtil.isEmpty(goodsPackBomVoList)) {
-                    /*查样品*/
+                    *//*查样品*//*
 //                    packBomVoList = packBomService.list(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN, packBomVersion.getId());
                     goodsPackBomVoList = packBomVoList.stream().filter(p -> StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
-                }
-                if (CollUtil.isEmpty(goodsPackBomVoList)) {
-                    throw new OtherException("无物料清单");
-                }
+                }*/
                 /*查询原资料报*/
                 PackInfo packInfo1 = baseMapper.selectById(dto.getTargetForeignId());
                 /*查询款里面的尺码*/

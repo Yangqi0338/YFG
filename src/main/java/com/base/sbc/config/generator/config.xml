@@ -9,13 +9,13 @@
 		<!-- 总包名 -->
 		<javapackage value="com.base.sbc.module"></javapackage>
 		<!-- 模块名称 -->
-		<project     value="basicsdatum"></project>
+		<project     value="planningproject"></project>
 <!--		<project     value="common"></project>-->
 <!--		<project     value="planning"></project>&lt;!&ndash; 模块名称 &ndash;&gt;-->
 	</params>
 	<tables>
 		<!--<table  project="basicsdatum"     value="t_basicsdatum_material"   genType="2" ></table>-->
-		<table  project="basicsdatum"     value="t_size_bulk_style"   genType="1,2,3,4" ></table>
+		<table  project="planningproject"     value="t_planning_project_max_category"   genType="1,2,3,4" ></table>
 <!--		<table       value="t_field_val"   genType="2" ></table>-->
 <!--		<table       value="t_upload_file"   genType="2" ></table>-->
 <!--		<table       value="t_attachment"   genType="2" ></table>-->
@@ -31,7 +31,7 @@
 
 	<dataSource>
 		<driver      value="com.mysql.jdbc.Driver"></driver>
-		<url         value="jdbc:mysql://10.98.250.44:3306/s_pdm_data?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf-8"></url>
+		<url         value="jdbc:mysql://10.8.252.12:3306/s_pdm_data?useSSL=false&amp;useUnicode=true&amp;characterEncoding=utf-8"></url>
 		<username    value="root"></username>
 		<password    value="yfg123456."></password>
 	</dataSource>

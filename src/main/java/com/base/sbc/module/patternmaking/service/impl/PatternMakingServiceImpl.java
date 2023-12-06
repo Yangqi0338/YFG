@@ -423,6 +423,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "p.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "s.designer_id", StrUtil.split(dto.getDesignerIds(), CharUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
+        qw.eq( "p.disable_flag", BaseGlobal.NO);
         if (StrUtil.isNotBlank(dto.getDesignSendDate())) {
             String[] split = dto.getDesignSendDate().split(",");
             qw.ge("p.design_send_date", split[0]);
@@ -898,10 +899,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
         qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
         qw.in(StrUtil.isNotBlank(dto.getPatternTechnician()), "p.pattern_technician_id", StringUtils.convertList(dto.getPatternTechnician()));
-        qw.eq("p.disable_flag", BaseGlobal.NO);
+        qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
         qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+        qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
+        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
+        qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
+
+        if(StringUtils.isNotBlank(dto.getOrderBy())){
+            dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
+        }else {
+            dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
+        }
+        qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
+        qw.eq("p.disable_flag", BaseGlobal.NO);
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
 
         if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {

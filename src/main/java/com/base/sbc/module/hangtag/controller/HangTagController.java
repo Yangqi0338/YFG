@@ -24,6 +24,7 @@ import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
+import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageInfo;
@@ -32,6 +33,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -65,6 +68,10 @@ public class HangTagController extends BaseController {
     private HangTagIngredientService hangTagIngredientService;
     private final StyleColorService styleColorService;
     private final FlowableService flowableService;
+
+    @Autowired
+    @Lazy
+    private SmpService smpService;
 
     @ApiOperation(value = "分页查询")
     @PostMapping("/queryPageInfo")
@@ -181,6 +188,19 @@ public class HangTagController extends BaseController {
             hangTag1.setStatus("2");
         }
 
+        String status = hangTag1.getStatus();
+        int type;
+        switch (status){
+            case "2" :type= 0;
+                break;
+            case "3" :type= 2;
+                break;
+            case "4" :type= 3;
+                break;
+            default:type= 0;
+        }
+
+        smpService.tagConfirmDates(Collections.singletonList(hangTag.getId()),type,0);
         hangTagService.updateById(hangTag1);
         return updateSuccess("反审成功");
     }
