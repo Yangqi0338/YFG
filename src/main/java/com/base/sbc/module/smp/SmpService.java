@@ -208,12 +208,7 @@ public class SmpService {
                     style= styleService.getById(styleColor.getStyleId());
                 }
             }
-            if (StringUtils.isEmpty(styleColor.getColorCrash())){
-                smpGoodsDto.setColorCrash("1".equals(style.getColorCrash()) ? "是" : "否");
-            }else {
-                smpGoodsDto.setColorCrash("1".equals(styleColor.getColorCrash()) ? "是" : "否");
-            }
-
+            smpGoodsDto.setColorCrash(style.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
             smpGoodsDto.setCategoryName(style.getProdCategoryName());
@@ -1226,7 +1221,7 @@ public class SmpService {
             tagCompositionDto.setBulkStyleNo(hangTag.getBulkStyleNo());
             String jsonString = JsonStringUtils.toJSONString(tagCompositionDto);
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagComposition",jsonString);
-            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "下发吊牌成分");
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "scm", "下发吊牌成分");
 
             if (aBoolean) {
                 i++;
@@ -1249,6 +1244,7 @@ public class SmpService {
         PackInfoListVo infoListVo = packInfoService.getDetail(id, PackUtils.PACK_TYPE_BIG_GOODS);
         if (ObjectUtil.isNotEmpty(infoListVo)) {
             if (StrUtil.isNotBlank(infoListVo.getStyleNo())) {
+                bomSizeAndProcessDto.setStyleNo(infoListVo.getStyleNo());
                 List<PackSize> packSizeList = packSizeService.list(infoListVo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
                 if (CollUtil.isNotEmpty(packSizeList)) {
                     List<BomSizeAndProcessDto.BomSize> bomSizeList = new ArrayList<>();
@@ -1286,7 +1282,7 @@ public class SmpService {
             }
             String jsonString = JsonStringUtils.toJSONString(bomSizeAndProcessDto);
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/bomSizeAndProcess", jsonString);
-            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "oa", "下发尺寸和外辅工艺明细数据");
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "scm", "下发尺寸和外辅工艺明细数据");
             if (aBoolean) {
                 i++;
             }
@@ -1308,6 +1304,13 @@ public class SmpService {
         for (String id : ids) {
             if (type <=3){
                 HangTag hangTag = hangTagService.getById(id);
+                if (0==type){
+                    //反审
+                    tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
+                    tagConfirmDateDto.setTechnologistConfirm(0);
+                    tagConfirmDateDto.setTechnologistConfirmDate(null);
+                    tagConfirmDate.add(tagConfirmDateDto);
+                }
                 if (1 == type) {
                     //工艺员确认
                     tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
@@ -1352,18 +1355,15 @@ public class SmpService {
                 }
             }
             String params = JSONArray.toJSONString(tagConfirmDate);
-            System.out.println(params);
+
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate",params);
             for(TagConfirmDateDto tagConfirmDateDto1: tagConfirmDate){
 
-                Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "oa", "下发吊牌");
+                Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
                 if (aBoolean) {
                     i++;
                 }
-
             }
-                // TODO: 2023/11/23  发送无地址
-
         }
             return i;
     }

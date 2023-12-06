@@ -191,13 +191,13 @@ public class HangTagController extends BaseController {
         String status = hangTag1.getStatus();
         int type;
         switch (status){
-            case "2" :type= 1;
+            case "2" :type= 0;
                 break;
             case "3" :type= 2;
                 break;
             case "4" :type= 3;
                 break;
-            default:type= 1;
+            default:type= 0;
         }
 
         smpService.tagConfirmDates(Collections.singletonList(hangTag.getId()),type,0);
