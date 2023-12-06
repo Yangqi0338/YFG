@@ -626,7 +626,7 @@
     </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
 
-                SELECT
+        SELECT
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '版房主管下发' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bfzgxfsj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '已接收' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bsjssj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '已接收' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'jssdrq',
@@ -637,10 +637,10 @@
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '车缝完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'cfwcsj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '样衣完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'yywcsj',
         p.id AS patternMakingId,
-        p.pattern_design_name,
-        p.pattern_design_id,
-        p.pat_diff,
-        p.pat_diff_name,
+        p.pattern_design_name patternDesignName,
+        p.pattern_design_id patternDesignId,
+        p.pat_diff patDiff,
+        p.pat_diff_name patDiffName,
         p.sample_bar_code AS sampleBarCode,
         p.sample_type_name,
         p.pat_seq_name,
@@ -679,7 +679,7 @@
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id and p.del_flag = '0' )
-				LEFT JOIN t_node_status ns ON (ns.data_id = p.id and ns.del_flag = '0' )
+        LEFT JOIN t_node_status ns ON (ns.data_id = p.id and ns.del_flag = '0' )
         where  s.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

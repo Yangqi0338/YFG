@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -173,30 +174,37 @@ public class StyleColor extends BaseDataEntity<String> {
     /** 下主面料单 */
     @ApiModelProperty(value = "下主面料单"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date sendMainFabricDate;
     /** 下配料1 */
     @ApiModelProperty(value = "下配料1"  )
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sendBatchingDate1;
     /** 下配料2 */
     @ApiModelProperty(value = "下配料2"  )
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sendBatchingDate2;
     /** 下配料3 */
     @ApiModelProperty(value = "下配料3"  )
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date sendBatchingDate3;
     /** 下里布单 */
     @ApiModelProperty(value = "下里布单"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date sendSingleDate;
     /** 设计下明细单 */
     @ApiModelProperty(value = "设计下明细单"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date designDetailDate;
     /** 设计下正确样 */
     @ApiModelProperty(value = "设计下正确样"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date designCorrectDate;
     /** 吊牌价 */
     @ApiModelProperty(value = "吊牌价"  )
