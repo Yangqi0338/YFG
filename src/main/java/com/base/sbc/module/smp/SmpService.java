@@ -1308,6 +1308,8 @@ public class SmpService {
                     //反审
                     tagConfirmDateDto.setStyleNo(hangTag.getBulkStyleNo());
                     tagConfirmDateDto.setTechnologistConfirm(0);
+                    tagConfirmDateDto.setTechnicalConfirm(0);
+                    tagConfirmDateDto.setQualityControlConfirm(0);
                     tagConfirmDateDto.setTechnologistConfirmDate(null);
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
