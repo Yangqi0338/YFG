@@ -538,11 +538,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (!styleMainAccessories.isEmpty()){
 						List<String> collect = styleMainAccessories.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.toList());
 						if ("1".equals(styleColor.getIsTrim())){
-							// 配饰款号
-							tagPrinting.setSecCode(String.join(",",collect));
-						}else {
 							// 主款款号
 							tagPrinting.setMainCode(String.join(",",collect));
+						}else {
+							// 配饰款号
+							tagPrinting.setSecCode(String.join(",",collect));
 						}
 					}
 
