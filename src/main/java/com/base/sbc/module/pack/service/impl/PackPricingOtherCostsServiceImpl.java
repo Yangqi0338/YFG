@@ -162,8 +162,8 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
                     packPricingOtherCosts.setPackType(packType);
                     packPricingOtherCosts.setForeignId(foreignId);
                     packPricingOtherCosts.setCostsItem( "costOtherPrice".equals(outerEntry.getKey())?"其他费":"外协加工费"  );
-                    packPricingOtherCosts.setCostsType(innerEntry.getKey());
-                    packPricingOtherCosts.setCostsTypeId(innerEntry.getValue());
+                    packPricingOtherCosts.setCostsType(innerEntry.getValue());
+                    packPricingOtherCosts.setCostsTypeId(innerEntry.getKey());
                     packPricingOtherCosts.setPrice(BigDecimal.ZERO);
                     list.add(packPricingOtherCosts);
                 }

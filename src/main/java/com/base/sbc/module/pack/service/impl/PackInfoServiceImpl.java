@@ -320,8 +320,11 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
         //新建尺码表配置
         packSizeConfigService.createByStyle(newId, PackUtils.PACK_TYPE_DESIGN, style);
-        /*新建初始化核价消息的数据*/
-//        packPricingOtherCostsService.createCostDetail("costOtherPrice,outsource",packInfo.getId(),PackUtils.PACK_TYPE_DESIGN);
+        if(StrUtil.equals(dto.getCopyFlag(),BaseGlobal.YES)){
+            /*新建初始化核价消息的数据*/
+            packPricingOtherCostsService.createCostDetail("costOtherPrice,outsource",packInfo.getId(),PackUtils.PACK_TYPE_DESIGN);
+
+        }
 
         try {
             // 保存款式设计详情颜色
@@ -1079,6 +1082,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Transactional(rollbackFor = {Exception.class})
     public PackInfoListVo copyBom(CopyBomDto dto) {
         // 1 先新建一个资料包
+        dto.setCopyFlag(BaseGlobal.YES);
         PackInfoListVo byStyle = createByStyle(dto);
         // 2 拷贝资料包数据
         copyPack(dto.getSourceForeignId(), dto.getSourcePackType(), byStyle.getId(), byStyle.getPackType(), BasicNumber.ZERO.getNumber(), BaseGlobal.NO,null);
