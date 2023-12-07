@@ -35,9 +35,6 @@ public class SampleBoardExcel {
     @Excel(name = "款式")
     private String designNo;
 
-    @Excel(name = "品类")
-    private String prodCategoryName;
-
     @Excel(name = "波段")
     private String bandName;
 
@@ -100,6 +97,10 @@ public class SampleBoardExcel {
     @ApiModelProperty(value = "技术收到日期")
     @Excel(name = "技术收到日期",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
     private Date jssdrq;
+
+    @ApiModelProperty(value = "备注")
+    @Excel(name = "备注")
+    private String shortageRemarks;
 
     /**
      * 改版意见
@@ -235,7 +236,8 @@ public class SampleBoardExcel {
     @Excel(name = "审版设计师")
     private String      reviewedDesignName;
 
-
+    @Excel(name = "品类")
+    private String prodCategoryName;
     /**
      * 中类名称
      */
