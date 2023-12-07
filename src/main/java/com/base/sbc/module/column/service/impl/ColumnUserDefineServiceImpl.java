@@ -117,20 +117,23 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
         if (StrUtil.isNotEmpty(columnUserDefine.getId())) {
             columnUserDefine.updateInit();
         } else {
-            columnUserDefine.preInsert();
+            columnUserDefine.insertInit();
         }
 
         columnUserDefine.setUserId(userId);
         columnUserDefine.setIsDefault(BaseGlobal.NO);
         String tableCode = columnUserDefine.getTableCode();
         String id = columnUserDefine.getId();
+        saveOrUpdate(columnUserDefine);
+
         List<ColumnUserDefineItem> itemList = dto.getItemList();
+
 
         for (ColumnUserDefineItem userDefineItem : itemList) {
             if (StrUtil.isNotEmpty(userDefineItem.getId())) {
                 userDefineItem.updateInit();
             } else {
-                userDefineItem.preInsert();
+                userDefineItem.insertInit();
             }
             userDefineItem.setTableCode(tableCode);
             userDefineItem.setUserId(userId);

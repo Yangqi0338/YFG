@@ -48,7 +48,7 @@ public class ColumnDefineServiceImpl extends BaseServiceImpl<ColumnDefineMapper,
         Map<String, ColumnDefine> collect = byTableCode.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
         for (ColumnDefine columnDefine : list) {
             if (StrUtil.isEmpty(columnDefine.getId())) {
-                columnDefine.preInsert();
+                columnDefine.insertInit();
             } else {
                 columnDefine.updateInit();
             }
