@@ -123,6 +123,9 @@ public class StylePricingController extends BaseController {
     @DuplicationCheck
     @Transactional(rollbackFor = {Exception.class})
     public ApiResult updateStatus( @RequestBody StylePricingStatusDTO dto) {
+        if(StringUtils.isEmpty(dto.getIds())){
+            throw new OtherException("数据不存在,请先修改后再确认");
+        }
         String[] split = dto.getIds().split(",");
         List<String> list = new ArrayList<>();
         for (String s : split) {
