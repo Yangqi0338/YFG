@@ -10,7 +10,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class PlanningProjectPlankPageDto extends Page {
+public class PlanningProjectPlankPageDto {
     private String planningProjectId;
     private String planningBandCode;
     private String planningBulkStyleNo;
