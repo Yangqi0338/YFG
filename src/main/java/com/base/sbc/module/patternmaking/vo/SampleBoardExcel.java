@@ -98,8 +98,8 @@ public class SampleBoardExcel {
     @Excel(name = "技术收到日期",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
     private Date jssdrq;
 
-    @ApiModelProperty(value = "打板备注")
-    @Excel(name = "打板备注")
+    @ApiModelProperty(value = "备注")
+    @Excel(name = "备注")
     private String shortageRemarks;
 
     /**
