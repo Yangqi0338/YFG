@@ -17,6 +17,7 @@ import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -50,10 +51,21 @@ public class HangTagIngredientController extends BaseController{
     }
 
     @PostMapping("/saveList")
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult saveList(@RequestBody HangTagDTO hangTagDTO){
 
         List<HangTagIngredient> hangTagIngredients = hangTagDTO.getHangTagIngredients();
         HangTag hangTag =BeanUtil.copyProperties(hangTagDTO, HangTag.class);
+
+        if (StringUtils.isEmpty(hangTag.getId())){
+            QueryWrapper<HangTag> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.eq("bulk_style_no",hangTag.getBulkStyleNo());
+            HangTag one = hangTagService.getOne(queryWrapper);
+            if (one!=null){
+                hangTag = one;
+            }
+        }
+
         String id = hangTag.getId();
         if (StringUtils.isEmpty(id)){
             hangTag.setStatus("1");
