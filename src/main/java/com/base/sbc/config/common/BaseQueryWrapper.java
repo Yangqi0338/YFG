@@ -143,8 +143,8 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
-    @Override
-    public BaseLambdaQueryWrapper<T> lambda() {
-        return BeanUtil.copyProperties(super.lambda(), BaseLambdaQueryWrapper.class );
-    }
+//    @Override
+//    public BaseLambdaQueryWrapper<T> lambda() {
+//        return BeanUtil.copyProperties(super.lambda(), BaseLambdaQueryWrapper.class );
+//    }
 }

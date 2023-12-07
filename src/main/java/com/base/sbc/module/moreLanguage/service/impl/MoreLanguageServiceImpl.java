@@ -20,6 +20,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.exception.OtherException;
@@ -430,7 +431,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         // 查询翻译 也可以找redis,不常修改
         translateFieldList.add("properties_code");
         List<Map<String, Object>> translateList = standardColumnCountryTranslateService.pageMaps(moreLanguageQueryDto.toMPPageMap(),
-                new QueryWrapper<StandardColumnCountryTranslate>().select(translateFieldList)
+                new BaseQueryWrapper<StandardColumnCountryTranslate>().select(translateFieldList)
                         .lambda()
                         .eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
                         .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)

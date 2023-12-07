@@ -8,6 +8,7 @@ package com.base.sbc.module.hangtag.service.impl;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,6 +29,8 @@ import com.base.sbc.module.moreLanguage.service.CountryService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.standard.dto.StandardColumnDto;
+import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import javafx.util.Pair;
 import org.slf4j.Logger;
@@ -753,36 +756,41 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		);
 		if (CollectionUtil.isEmpty(relationList)) return new ArrayList<>();
 
+		List<String> standardColumnCodeList = relationList.stream().map(StandardColumnCountryRelation::getStandardColumnCode).collect(Collectors.toList());
 		// 先查询表头 可以去查另一个表 TODO
 		List<StandardColumnCountryTranslate> titleTranslateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
 				.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-				.in(StandardColumnCountryTranslate::getTitleCode,
-								relationList.stream().map(StandardColumnCountryRelation::getStandardColumnCode).collect(Collectors.toList()))
+				.in(StandardColumnCountryTranslate::getTitleCode,standardColumnCodeList)
 				.isNull(StandardColumnCountryTranslate::getPropertiesCode)
 		);
 
 		if (CollectionUtil.isEmpty(titleTranslateList)) return new ArrayList<>();
 
 		// 获取对应的标准列数据
-
-
-		// 先查询表头 可以去查另一个表 TODO
-		List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-				.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-				.in(StandardColumnCountryTranslate::getTitleCode,
-						relationList.stream().map(StandardColumnCountryRelation::getStandardColumnCode).collect(Collectors.toList()))
-				.isNull(StandardColumnCountryTranslate::getPropertiesCode)
-		);
+		StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
+		queryDto.setCodeList(standardColumnCodeList);
+		List<StandardColumnDto> standardColumnList = standardColumnService.listQuery(queryDto);
 
 		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType());
 		if (hangTagVO == null) {
 			throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
 		}
 		// 转换成codeMap
-		Map<Function<HangTagVO, String>, Function<String, HangTagVO>> codeMap = new HashMap<>();
-		codeMap.put(HangTagVO::getColorCode, (name)-> hangTagVO);
+		Map<Function<HangTagVO, String>, BiConsumer<HangTagVO, String>> codeMap = new HashMap<>();
+		codeMap.put(HangTagVO::getColorCode, HangTagVO::setColor);
+		codeMap.put(HangTagVO::getColorCode, HangTagVO::setColor);
+		codeMap.put(HangTagVO::getColorCode, HangTagVO::setColor);
+		codeMap.put(HangTagVO::getColorCode, HangTagVO::setColor);
+		codeMap.put(HangTagVO::getColorCode, HangTagVO::setColor);
 
-		return null;
+		List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+				.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
+				.in(StandardColumnCountryTranslate::getTitleCode, standardColumnCodeList)
+		);
+
+		return standardColumnList.stream().map(standardColumn -> {
+			return null;
+		}).collect(Collectors.toList());
 	}
 
 // 自定义方法区 不替换的区域【other_end】
