@@ -9,6 +9,11 @@ package com.base.sbc.module.moreLanguage.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
+
 /**
  * 类描述：品名多语言属性值配置表 dao类
  * @address com.base.sbc.module.moreLanguage.dao.StandardColumnCountryTranslateMapper
@@ -19,6 +24,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface StandardColumnCountryTranslateMapper extends BaseMapper<StandardColumnCountryTranslate> {
+    List<Map<String, Object>> listAllByTable(@Param("fields") String fields, @Param("tableName") String tableName, @Param("where") String where);
 // 自定义方法区 不替换的区域【other_start】
 
 

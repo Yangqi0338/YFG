@@ -24,9 +24,4 @@ public interface StandardColumnCountryRelationService extends BaseService<Standa
 
 // 自定义方法区 不替换的区域【other_end】
 
-
-    @Override
-    default StandardColumnCountryRelation findByCode(String code) {
-        return null;
-    }
 }

@@ -3,6 +3,7 @@ package com.base.sbc.config.enums.business;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 
+import com.baomidou.mybatisplus.annotation.IEnum;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @AllArgsConstructor
-public enum StandardColumnType {
+public enum StandardColumnType implements IEnum<String> {
     TAG("吊牌&洗唛","DP"),
     TAG_ROOT("吊牌字段", "DP"),
 
@@ -40,5 +41,10 @@ public enum StandardColumnType {
         this.code = StrUtil.toCamelCase(code);
         this.text = text;
         this.preCode = preCode;
+    }
+
+    @Override
+    public String getValue() {
+        return this.code;
     }
 }

@@ -21,6 +21,7 @@ import com.base.sbc.module.material.vo.AssociationMaterialVo;
 import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.dto.StandardColumnSaveDto;
 import com.base.sbc.module.standard.service.StandardColumnService;
+import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -87,11 +88,12 @@ public class StandardColumnController extends BaseController {
      */
     @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
     @GetMapping("/listQuery")
-    public ApiResult  listQuery(StandardColumnQueryDto standardColumnQueryDto) {
+    public ApiResult listQuery(StandardColumnQueryDto standardColumnQueryDto) {
         if (standardColumnQueryDto == null) {
             throw new OtherException("参数不能为空");
         }
-        return selectSuccess(standardColumnService.listQuery(standardColumnQueryDto));
+        standardColumnQueryDto.setPageSize(Integer.MAX_VALUE);
+        return selectSuccess(new PageInfo<>(standardColumnService.listQuery(standardColumnQueryDto)));
     }
     
 }

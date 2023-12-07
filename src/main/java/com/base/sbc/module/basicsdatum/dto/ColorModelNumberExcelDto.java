@@ -10,14 +10,14 @@ import lombok.Data;
  */
 @Data
 public class ColorModelNumberExcelDto {
-    @Excel(name = "枚举值")
+    @Excel(name = "编码")
     private String code;
 
-    @Excel(name = "显示名")
+    @Excel(name = "字段名称")
     private String name;
 
-    @Excel(name = "描述")
-    private String remarks;
+    @Excel(name = "翻译内容")
+    private String content;
 
     @Excel(name = "依赖于")
     private String mat2ndCategoryName;

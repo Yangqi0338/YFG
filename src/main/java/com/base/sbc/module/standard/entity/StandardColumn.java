@@ -8,7 +8,6 @@ package com.base.sbc.module.standard.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.config.enums.business.StandardColumnDictTable;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import io.swagger.annotations.ApiModel;
@@ -53,7 +52,7 @@ public class StandardColumn extends BaseDataEntity<String> {
     private StandardColumnModel model;
     /** 子表头对应的字典表名 */
     @ApiModelProperty(value = "子表头对应的字典表名"  )
-    private StandardColumnDictTable dictTable;
+    private String tableName;
     /** 子表头对应的表头json */
     @ApiModelProperty(value = "子表头对应的表头json"  )
     private String tableTitleJson;

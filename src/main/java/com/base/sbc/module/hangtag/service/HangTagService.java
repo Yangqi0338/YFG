@@ -8,6 +8,7 @@ package com.base.sbc.module.hangtag.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.entity.HangTag;
@@ -19,6 +20,7 @@ import com.github.pagehelper.PageInfo;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：吊牌表 service类
@@ -101,6 +103,8 @@ public interface HangTagService extends BaseService<HangTag> {
      * @return
      */
     Boolean copyPack(String styleNo, String newStyleNo);
+
+    List<?> getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO);
 
 // 自定义方法区 不替换的区域【other_end】
 

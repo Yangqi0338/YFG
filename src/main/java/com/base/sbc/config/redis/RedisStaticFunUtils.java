@@ -2,9 +2,11 @@
 package com.base.sbc.config.redis;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.module.common.service.BaseService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -22,6 +24,7 @@ import java.util.concurrent.TimeUnit;
  * 针对所有的Set 都是以s开头的方法                    不含通用方法
  * 针对所有的List 都是以l开头的方法
  */
+@Component
 public class RedisStaticFunUtils {
 
 	@Resource(name = "redisTemplateAmc")
@@ -30,17 +33,18 @@ public class RedisStaticFunUtils {
 	}
 
 	@Resource(name = "redisTemplate")
-	public void redisTemplateDefault(RedisTemplate<String, Object> redisTemplateDefault) {
-		RedisStaticFunUtils.redisTemplateDefault = redisTemplateDefault;
+	public void redisTemplate(RedisTemplate<String, Object> redisTemplate) {
+		RedisStaticFunUtils.redisTemplateDefault = redisTemplate;
 	}
 
 	private static RedisTemplate<String, Object> redisTemplateAmc;
 	private static RedisTemplate<String, Object> redisTemplateDefault;
 
-	private static ThreadLocal<RedisEnhanceTemplate> currentRedisTemplate = new ThreadLocal<>();
+	private static final ThreadLocal<RedisEnhanceTemplate> currentRedisTemplate = new ThreadLocal<>();
 
 	public static RedisEnhanceTemplate setRedisTemplate(int flag) {
-		RedisEnhanceTemplate template = (RedisEnhanceTemplate) (flag == 1 ? redisTemplateAmc : redisTemplateDefault);
+		RedisEnhanceTemplate template = BeanUtil.copyProperties(flag == 1 ? redisTemplateAmc : redisTemplateDefault, RedisEnhanceTemplate.class);
+		template.afterPropertiesSet();
 		currentRedisTemplate.set(template);
 		return template;
 	}
@@ -51,6 +55,13 @@ public class RedisStaticFunUtils {
 			redisEnhanceTemplate = setRedisTemplate(0);
 		}
 		return redisEnhanceTemplate;
+	}
+
+	public static void clear() {
+		RedisEnhanceTemplate redisEnhanceTemplate = currentRedisTemplate.get();
+		if (redisEnhanceTemplate != null) {
+			currentRedisTemplate.remove();
+		}
 	}
 
 	public static RedisEnhanceTemplate setBusinessService(BaseService<?> businessService) {
@@ -584,7 +595,7 @@ public class RedisStaticFunUtils {
 	 */
 	public static boolean lSet(String key, List<Object> value) {
 		try {
-			
+
 			getRedisTemplate().opsForList().rightPushAll(key, value);
 			return true;
 		} catch (Exception e) {
@@ -602,7 +613,7 @@ public class RedisStaticFunUtils {
 	 */
 	public static boolean lSet(String key, List<Object> value, long time) {
 		try {
-			
+
 			getRedisTemplate().opsForList().rightPushAll(key, value);
 			if (time > 0) {
 				expire(key, time);

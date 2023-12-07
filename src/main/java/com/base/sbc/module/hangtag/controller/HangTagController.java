@@ -16,6 +16,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
@@ -81,8 +82,16 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "查询详情")
     @GetMapping("/getDetailsByBulkStyleNo")
+    @Deprecated
     public ApiResult getDetailsByBulkStyleNo(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType) {
         return selectSuccess(hangTagService.getDetailsByBulkStyleNo(bulkStyleNo, super.getUserCompany(), selectType));
+    }
+
+    @ApiOperation(value = "查询详情多语言")
+    @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
+    public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
+        hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
+        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO));
     }
 
     @ApiOperation(value = "保存")

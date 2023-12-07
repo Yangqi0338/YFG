@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.moreLanguage.mapper.CountryLanguageConfigMapper">
+<mapper namespace="com.base.sbc.module.moreLanguage.mapper.StandardColumnTranslateMapper">
     <!--
-        品名多语言属性值配置表
+        吊牌列头翻译表
         创建人：KC
         邮箱：KC
-        创建时间：2023-11-30 15:07:41
+        创建时间：2023-11-30 15:07:58
         版本号：1.0
       -->
 

@@ -56,4 +56,8 @@ public class Country extends BaseDataEntity<String> {
     @ApiModelProperty(value = "备注"  )
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public String getUniqueName(){
+        return this.countryName + "-" + this.languageName;
+    }
 }

@@ -18,6 +18,7 @@ public enum StandardColumnModel {
     TEXT("单文本"),
     RADIO("单选"),
     MULTIPLE("多选"),
+    DICT("字典"),
 
     ;
     /** 编码 */

@@ -9,6 +9,7 @@ package com.base.sbc.module.standard.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.PageUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
@@ -18,12 +19,15 @@ import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.dto.StandardColumnSaveDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.mapper.StandardColumnMapper;
 import com.base.sbc.module.standard.service.StandardColumnService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -84,13 +88,14 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         // 不能删除系统默认标准
         return this.remove(new BaseLambdaQueryWrapper<StandardColumn>()
                         .notEmptyIn(StandardColumn::getId, list)
-                .eq(StandardColumn::getIsDefault, YesOrNoEnum.NO));
+                .eq(StandardColumn::getIsDefault, YesOrNoEnum.NO.getValueStr()));
     }
 
     @Override
     public List<StandardColumnDto> listQuery(StandardColumnQueryDto standardColumnQueryDto) {
         List<StandardColumnType> typeList = standardColumnQueryDto.getTypeList();
         StandardColumnModel noModel = standardColumnQueryDto.getNoModel();
+        List<String> codeList = standardColumnQueryDto.getCodeList();
 
         BaseLambdaQueryWrapper<StandardColumn> queryWrapper = new BaseLambdaQueryWrapper<>();
 
@@ -98,7 +103,8 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
             typeList = CollUtil.toList(StandardColumnType.TAG);
         }
         queryWrapper.in(StandardColumn::getType, typeList);
-        queryWrapper.notNullEq(StandardColumn::getModel, noModel);
+        queryWrapper.notNullNe(StandardColumn::getModel, noModel);
+        queryWrapper.notEmptyIn(StandardColumn::getCode, codeList);
 
         List<StandardColumn> standardColumnList = this.list(queryWrapper);
 
@@ -106,8 +112,8 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
     }
 
     @Override
-    public Object findByCode(String code) {
-        return this.list(new BaseLambdaQueryWrapper<StandardColumn>().eq(StandardColumn::getCode, code).last("limit 1")).stream().findFirst().orElse(null);
+    public StandardColumn findByCode(String code) {
+        return this.findOne(new BaseLambdaQueryWrapper<StandardColumn>().eq(StandardColumn::getCode, code));
     }
 
     // 自定义方法区 不替换的区域【other_start】

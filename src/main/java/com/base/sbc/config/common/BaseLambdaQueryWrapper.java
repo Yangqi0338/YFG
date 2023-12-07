@@ -48,6 +48,11 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
+    public <R> BaseLambdaQueryWrapper<T> notNullNe(SFunction<T, R> column, R val) {
+        this.ne(ObjectUtil.isNotEmpty(val), column, val);
+        return this;
+    }
+
 
     public <R> BaseLambdaQueryWrapper<T> notEmptyIn(SFunction<T, R> column, Collection<R> coll) {
         this.in(CollUtil.isNotEmpty(coll), column, coll);

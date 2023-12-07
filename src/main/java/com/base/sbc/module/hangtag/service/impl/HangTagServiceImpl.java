@@ -8,14 +8,28 @@ package com.base.sbc.module.hangtag.service.impl;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.moreLanguage.entity.Country;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.service.CountryService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.standard.service.StandardColumnService;
+import javafx.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,6 +154,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private HangTagIngredientService hangTagIngredientService;
 
 	private final MinioUtils minioUtils;
+
+	@Autowired
+	private CountryService countryService;
+
+	@Autowired
+	private StandardColumnService standardColumnService;
+
+	@Autowired
+	private StandardColumnCountryRelationService standardColumnCountryRelationService;
+
+	@Autowired
+	private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -711,6 +737,52 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagLogService.save(hangTagLog);
 		}
 		return true;
+	}
+
+	@Override
+	public List<?> getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
+		String countryLanguageId = hangTagMoreLanguageDTO.getCountryLanguageId();
+		String bulkStyleNo = hangTagMoreLanguageDTO.getBulkStyleNo();
+		SystemSource source = hangTagMoreLanguageDTO.getSource();
+
+		Country country = countryService.getById(countryLanguageId);
+		if (country == null) throw new OtherException("无效的国家语言");
+
+		List<StandardColumnCountryRelation> relationList = standardColumnCountryRelationService.list(new BaseLambdaQueryWrapper<StandardColumnCountryRelation>()
+				.eq(StandardColumnCountryRelation::getCountryLanguageId, countryLanguageId)
+		);
+		if (CollectionUtil.isEmpty(relationList)) return new ArrayList<>();
+
+		// 先查询表头 可以去查另一个表 TODO
+		List<StandardColumnCountryTranslate> titleTranslateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+				.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
+				.in(StandardColumnCountryTranslate::getTitleCode,
+								relationList.stream().map(StandardColumnCountryRelation::getStandardColumnCode).collect(Collectors.toList()))
+				.isNull(StandardColumnCountryTranslate::getPropertiesCode)
+		);
+
+		if (CollectionUtil.isEmpty(titleTranslateList)) return new ArrayList<>();
+
+		// 获取对应的标准列数据
+
+
+		// 先查询表头 可以去查另一个表 TODO
+		List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+				.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
+				.in(StandardColumnCountryTranslate::getTitleCode,
+						relationList.stream().map(StandardColumnCountryRelation::getStandardColumnCode).collect(Collectors.toList()))
+				.isNull(StandardColumnCountryTranslate::getPropertiesCode)
+		);
+
+		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType());
+		if (hangTagVO == null) {
+			throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
+		}
+		// 转换成codeMap
+		Map<Function<HangTagVO, String>, Function<String, HangTagVO>> codeMap = new HashMap<>();
+		codeMap.put(HangTagVO::getColorCode, (name)-> hangTagVO);
+
+		return null;
 	}
 
 // 自定义方法区 不替换的区域【other_end】

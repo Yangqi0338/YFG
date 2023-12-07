@@ -1,11 +1,15 @@
 package com.base.sbc.config.common.base;
 
 import cn.hutool.core.lang.Opt;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.github.pagehelper.PageHelper;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @author Youkehai
@@ -64,5 +68,15 @@ public class Page implements Serializable {
         return false;
     }
 
+    public com.baomidou.mybatisplus.extension.plugins.pagination.Page<?> toMPPage(){
+        return new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(this.pageNum, this.pageSize);
+    }
+    public com.baomidou.mybatisplus.extension.plugins.pagination.Page<Map<String,Object>> toMPPageMap(){
+        return new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(this.pageNum, this.pageSize);
+    }
+
+    public <E> com.github.pagehelper.Page<E> startPage(){
+        return PageHelper.startPage(this.pageNum, this.pageSize);
+    }
 
 }

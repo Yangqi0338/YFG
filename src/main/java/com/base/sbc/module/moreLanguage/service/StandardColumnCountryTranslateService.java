@@ -5,8 +5,12 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.service;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 /** 
  * 类描述：品名多语言属性值配置表 service类
@@ -24,5 +28,16 @@ public interface StandardColumnCountryTranslateService extends BaseService<Stand
 
 // 自定义方法区 不替换的区域【other_end】
 
-	
+
+    @Override
+    default StandardColumnCountryTranslate findByCode(String code) {
+        String[] codeList = code.split(COMMA);
+        if (codeList.length < 3) throw new OtherException("缺少唯一组成");
+
+        return this.findOne(new BaseLambdaQueryWrapper<StandardColumnCountryTranslate>()
+                .notEmptyIn(StandardColumnCountryTranslate::getPropertiesCode, codeList[2])
+                .eq(StandardColumnCountryTranslate::getCountryLanguageId, codeList[0])
+                .eq(StandardColumnCountryTranslate::getTitleCode, codeList[1])
+        );
+    }
 }

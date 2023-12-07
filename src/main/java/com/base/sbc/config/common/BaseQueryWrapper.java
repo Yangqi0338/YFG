@@ -1,5 +1,6 @@
 package com.base.sbc.config.common;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
@@ -144,6 +145,6 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
 
     @Override
     public BaseLambdaQueryWrapper<T> lambda() {
-        return (BaseLambdaQueryWrapper<T>) super.lambda();
+        return BeanUtil.copyProperties(super.lambda(), BaseLambdaQueryWrapper.class );
     }
 }
