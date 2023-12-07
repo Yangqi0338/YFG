@@ -30,40 +30,39 @@ public class Page implements Serializable {
     private String search;
     @ApiModelProperty(value = "状态", example = "")
     private String status;
-    private String sql;
 
     public String getSql() {
         return null;
     }
 
-    // public Boolean isAsc() {
-    //     return Opt.ofBlankAble(orderBy).map(o -> o.toUpperCase().contains("ASC")).orElse(false);
-    // }
-    //
-    // public String getOrderByColumn() {
-    //     return Opt.ofBlankAble(orderBy).map(o -> o.toUpperCase().replace("ASC", "").replace("DESC", "")).orElse(null);
-    // }
+    public Boolean isAsc() {
+        return Opt.ofBlankAble(orderBy).map(o -> o.toUpperCase().contains("ASC")).orElse(false);
+    }
+
+    public String getOrderByColumn() {
+        return Opt.ofBlankAble(orderBy).map(o -> o.toUpperCase().replace("ASC", "").replace("DESC", "")).orElse(null);
+    }
 
     public Integer getPageSize() {
         if (pageSize == null) {
-            pageSize = 1;
+            pageSize = 0;
         }
         return pageSize;
     }
 
     public Integer getPageNum() {
         if (pageNum == null) {
-            pageNum = 999999999;
+            pageNum = 0;
         }
         return pageNum;
     }
 
-    // public Boolean getPageSizeZero() {
-    //     if (getPageSize() == 0) {
-    //         return true;
-    //     }
-    //     return false;
-    // }
+    public Boolean getPageSizeZero() {
+        if (getPageSize() == 0) {
+            return true;
+        }
+        return false;
+    }
 
 
 }
