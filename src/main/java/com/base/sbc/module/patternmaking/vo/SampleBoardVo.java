@@ -204,6 +204,12 @@ public class SampleBoardVo extends Style {
     private BigDecimal patternMakingQualityScore;
 
     /**
+     * 打板备注
+     */
+    @ApiModelProperty(value = "打板备注")
+    private String shortageRemarks;
+
+    /**
      * 改版原因
      */
     @ApiModelProperty(value = "改版原因")

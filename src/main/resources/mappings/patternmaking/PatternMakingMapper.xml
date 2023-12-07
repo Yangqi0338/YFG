@@ -643,6 +643,7 @@
         p.pat_diff_name patDiffName,
         p.sample_bar_code AS sampleBarCode,
         p.sample_type_name,
+        p.shortage_remarks,
         p.pat_seq_name,
         p.pattern_no,
         p.create_date AS `pmCreateDate`,
