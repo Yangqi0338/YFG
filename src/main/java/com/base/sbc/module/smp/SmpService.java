@@ -973,7 +973,7 @@ public class SmpService {
             fabricCompositionDto.setCode(basicsdatumIngredient.getCode());
             fabricCompositionDto.setId(fabricCompositionDto.getId());
             fabricCompositionDto.setIngredient(basicsdatumIngredient.getIngredient());
-
+            fabricCompositionDto.setStatus(basicsdatumIngredient.getStatus());
             String jsonString = JsonStringUtils.toJSONString(fabricCompositionDto);
             HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElement", jsonString);
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "scm", "面料成分名称码表下发");
