@@ -198,7 +198,7 @@ public class TagPrinting {
      * 入库时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date C8_APPBOM_StorageTime;
+    private Date c8_APPBOM_StorageTime;
 
     /**
      * 英文成分
