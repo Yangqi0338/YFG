@@ -649,50 +649,51 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 英文贮藏要求
 				tagPrinting.setStorageReqEN(null);
 				List<TagPrinting.Size> size = new ArrayList<>();
-
-				String sizeIds = style.getSizeIds();
-				if (!StringUtils.isEmpty(sizeIds)) {
-					for (BasicsdatumSize basicsdatumSize : basicsdatumSizeService
-							.listByIds(Arrays.asList(sizeIds.split(",")))) {
-						TagPrinting.Size size1 = new TagPrinting.Size();
-						size1.setSIZECODE(basicsdatumSize.getInternalSize());
-						size1.setSORTCODE(basicsdatumSize.getSort());
-						size1.setSIZENAME(basicsdatumSize.getModel());
-						size1.setSizeID(basicsdatumSize.getCode());
-						size1.setEXTSIZECODE(basicsdatumSize.getExtSizeCode());
-						size1.setShowIntSize("1".equals(basicsdatumSize.getHangTagShowSizeStatus()));
-						size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
-						String downContent = hangTag.getDownContent();
-						if (!StringUtils.isEmpty(downContent)) {
-							for (String s : downContent.split("\n")) {
-								if (!StringUtils.isEmpty(s)) {
-									String[] split = s.split(":");
-									if (split.length > 1) {
-										if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
-											size1.setSKUFiller(split[1]);
+				if (style!= null) {
+					String sizeIds = style.getSizeIds();
+					if (!StringUtils.isEmpty(sizeIds)) {
+						for (BasicsdatumSize basicsdatumSize : basicsdatumSizeService
+								.listByIds(Arrays.asList(sizeIds.split(",")))) {
+							TagPrinting.Size size1 = new TagPrinting.Size();
+							size1.setSIZECODE(basicsdatumSize.getInternalSize());
+							size1.setSORTCODE(basicsdatumSize.getSort());
+							size1.setSIZENAME(basicsdatumSize.getModel());
+							size1.setSizeID(basicsdatumSize.getCode());
+							size1.setEXTSIZECODE(basicsdatumSize.getExtSizeCode());
+							size1.setShowIntSize("1".equals(basicsdatumSize.getHangTagShowSizeStatus()));
+							size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
+							String downContent = hangTag.getDownContent();
+							if (!StringUtils.isEmpty(downContent)) {
+								for (String s : downContent.split("\n")) {
+									if (!StringUtils.isEmpty(s)) {
+										String[] split = s.split(":",2);
+										if (split.length > 1) {
+											if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
+												size1.setSKUFiller(split[1]);
+											}
 										}
 									}
 								}
-							}
 
-						}
-						String specialSpec = hangTag.getSpecialSpec();
-						if (!StringUtils.isEmpty(specialSpec)) {
-							for (String s : specialSpec.split("\n")) {
-								if (!StringUtils.isEmpty(s)) {
-									String[] split = s.split(":");
-									if (split.length > 1) {
-										if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
-											size1.setSpecialSpec(split[1]);
+							}
+							String specialSpec = hangTag.getSpecialSpec();
+							if (!StringUtils.isEmpty(specialSpec)) {
+								for (String s : specialSpec.split("\n")) {
+									if (!StringUtils.isEmpty(s)) {
+										String[] split = s.split(":",2);
+										if (split.length > 1) {
+											if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
+												size1.setSpecialSpec(split[1]);
+											}
 										}
 									}
 								}
-							}
 
+							}
+							size.add(size1);
 						}
-						size.add(size1);
+
 					}
-
 				}
 				// 款式尺码明细
 				tagPrinting.setSize(size);
