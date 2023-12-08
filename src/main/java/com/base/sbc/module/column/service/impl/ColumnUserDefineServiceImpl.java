@@ -138,10 +138,9 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
             if(count > 0){
                 throw new OtherException("模板名称不能重复");
             }
+            columnUserDefine.setIsDefault(BaseGlobal.NO);
         }
-
         columnUserDefine.setUserId(userId);
-        columnUserDefine.setIsDefault(BaseGlobal.NO);
         String id = columnUserDefine.getId();
         saveOrUpdate(columnUserDefine);
 
