@@ -534,11 +534,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (StrUtil.isBlank(styleColorId)) {
             return;
         }
-        StyleColor styleColor = new StyleColor();
+        StyleColor styleColor =styleColorMapper.selectById(styleColorId);
         styleColor.setBomStatus(bomStatus);
-        UpdateWrapper<StyleColor> uw = new UpdateWrapper<>();
-        uw.eq("id", styleColorId);
-        styleColorMapper.update(styleColor, uw);
+        styleColorMapper.updateById(styleColor);
     }
 
 

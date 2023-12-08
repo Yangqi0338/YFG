@@ -169,9 +169,9 @@
                   ps.foreign_id as pack_foreign_id,
                   ps.tech_spec_video_file_id
               FROM t_pack_info p
-                       LEFT JOIN (SELECT * FROM t_pack_info_status GROUP BY foreign_id , bom_status) ps ON ( p.id = ps.foreign_id AND ps.del_flag = '0' )
                        left join t_style sd on (sd.id = p.foreign_id)
                        left join t_style_color sc on (sc.id = p.style_color_id and sc.del_flag = '0')
+                       	LEFT JOIN t_pack_info_status ps on ( p.id = ps.foreign_id and IF(sc.bom_status='0',ps.pack_type='packDesign',ps.pack_type='packBigGoods')   )
               where p.del_flag = '0') t
             ${ ew.customSqlSegment}
     </select>
