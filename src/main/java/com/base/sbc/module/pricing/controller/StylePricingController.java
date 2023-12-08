@@ -209,10 +209,7 @@ public class StylePricingController extends BaseController {
         if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
             type = 6;
         }
-        String[] split1 = dto.getIds().split(",");
-        if (split1.length>0){
-            smpService.tagConfirmDates(Arrays.asList(split1),type,1);
-        }
+        smpService.tagConfirmDates(list,type,1);
 
         /*吊牌确认下发*/
         if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE)){
