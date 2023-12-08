@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.dto.ColumnUserDefineDto;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.entity.ColumnUserDefine;
@@ -114,15 +115,33 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
     public void saveMain(ColumnUserDefineDto dto) {
         String userId = getUserId();
         ColumnUserDefine columnUserDefine = dto.getColumnUserDefine();
+        String tableCode = columnUserDefine.getTableCode();
+        String tableName = columnUserDefine.getTableName();
+        if (StrUtil.isEmpty(tableCode) || StrUtil.isEmpty(tableName)) {
+            //名字不能为空
+            throw new OtherException("模板名称不能为空");
+        }
+        LambdaQueryWrapper<ColumnUserDefine> checkOne = new LambdaQueryWrapper<>();
+        checkOne.eq(ColumnUserDefine::getTableName, tableName);
+        checkOne.eq(ColumnUserDefine::getUserId, userId);
+        checkOne.eq(ColumnUserDefine::getTableCode, tableCode);
+        checkOne.eq(ColumnUserDefine::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL);
+        long count = count(checkOne);
+
         if (StrUtil.isNotEmpty(columnUserDefine.getId())) {
             columnUserDefine.updateInit();
+            if(count > 1){
+                throw new OtherException("模板名称不能重复");
+            }
         } else {
             columnUserDefine.insertInit();
+            if(count > 0){
+                throw new OtherException("模板名称不能重复");
+            }
         }
 
         columnUserDefine.setUserId(userId);
         columnUserDefine.setIsDefault(BaseGlobal.NO);
-        String tableCode = columnUserDefine.getTableCode();
         String id = columnUserDefine.getId();
         saveOrUpdate(columnUserDefine);
 

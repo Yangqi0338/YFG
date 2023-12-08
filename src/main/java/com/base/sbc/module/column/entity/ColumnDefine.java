@@ -143,5 +143,18 @@ public class ColumnDefine extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "字段颜色")
     private String columnColor;
+    /**
+     * 导出时replace
+     */
+    @ApiModelProperty(value = "导出时replace")
+    private String excelReplace;
+    /**
+     * 分组名称
+     */
+    @ApiModelProperty(value = "分组名称")
+    private String groupName;
+
+    private String exportFunction;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
