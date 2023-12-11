@@ -72,6 +72,9 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
         Map<String, ColumnUserDefineItem> collect = list.stream().collect(Collectors.toMap(ColumnUserDefineItem::getSysId, o -> o, (v1, v2) -> v1));
 
         for (ColumnDefine columnDefine : byTableCode) {
+            if(BaseGlobal.YES.equals(columnDefine.getHidden())){
+                continue;
+            }
             columnDefine.setSysId(columnDefine.getId());
             if (collect.containsKey(columnDefine.getId())) {
                 ColumnUserDefineItem userDefineItem = collect.get(columnDefine.getId());
