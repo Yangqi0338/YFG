@@ -1509,7 +1509,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("field_name",fieldManagement.getFieldName());
-        queryWrapper.eq("val",dto.getDimensionLabelVal());
+        queryWrapper.eq("val",dto.getDimensionValue());
         queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
         queryWrapper.select("foreign_id");
 
