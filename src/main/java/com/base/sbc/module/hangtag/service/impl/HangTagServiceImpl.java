@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
@@ -324,17 +327,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
 		super.saveOrUpdate(hangTag, "吊牌管理");
+		String id = hangTag.getId();
+
+		// 成分检查
+		strictCheckIngredientPercentage(Collections.singletonList(id));
 
 		if (flag){
 			smpService.goods(styleColor.getId().split(","));
 		}
-
-		String id = hangTag.getId();
-
-
-
-
-
 
 		// List<BasicsdatumMaterialIngredient> materialIngredientList =
 		// basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0",
@@ -393,6 +393,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
         return id;
 	}
 
+	private void strictCheckIngredientPercentage(List<String> hangTagIdList){
+		List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(new BaseLambdaQueryWrapper<HangTagIngredient>()
+				.in(HangTagIngredient::getHangTagId, hangTagIdList)
+				.eq(HangTagIngredient::getStrictCheck, YesOrNoEnum.YES.getValueStr())
+		);
+
+		hangTagIngredientList.stream().collect(Collectors.groupingBy(HangTagIngredient::getHangTagId)).forEach((hangTagId, sameHangTagIdList)-> {
+			sameHangTagIdList.stream().collect(Collectors.groupingBy(it-> it.getIngredientCode() + "-" + it.getIngredientSecondCode())).forEach((code, list)-> {
+				String ingredientName = list.get(0).getIngredientName();
+				String ingredientSecondName = list.get(0).getIngredientSecondName();
+				if (list.stream().mapToDouble(it-> it.getPercentage().doubleValue()).sum() != 100.0)
+					throw new OtherException(ingredientName + "-" + ingredientSecondName +"百分比相加不是100,未通过校验");
+			});
+		});
+	}
+
 	@Override
 	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, String userCompany) {
 		logger.info("HangTagService#updateStatus 更新状态 hangTagUpdateStatusDTO:{}, userCompany:{}",
@@ -404,6 +420,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (CollectionUtils.isEmpty(hangTags)) {
 			throw new OtherException("存在未填写数据，请先填写");
 		}
+		// 检查
+		strictCheckIngredientPercentage(hangTags.stream().map(HangTag::getId).collect(Collectors.toList()));
+
 		ArrayList<HangTag> updateHangTags = Lists.newArrayList();
 		hangTags.forEach(e -> {
 			if (!HangTagStatusEnum.NOT_SUBMIT.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
