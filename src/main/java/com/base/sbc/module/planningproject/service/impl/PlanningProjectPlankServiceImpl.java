@@ -278,4 +278,23 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         list.addAll(list1);
         planningProjectService.updateById(planningProject);
     }
+
+    @Override
+    public void unMatchByBulkStyleNo(String bulkStyleNo) {
+        QueryWrapper<PlanningProjectPlank> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("bulk_style_no", bulkStyleNo);
+        PlanningProjectPlank planningProjectPlank = this.getOne(queryWrapper);
+        if (planningProjectPlank!=null){
+            PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectPlank.getPlanningProjectDimensionId());
+
+            planningProjectPlank.setBulkStyleNo("");
+            planningProjectPlank.setStyleColorId("");
+            planningProjectPlank.setPic("");
+            planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+            planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
+            planningProjectPlank.setMatchingStyleStatus("0");
+            planningProjectPlank.setColorSystem("");
+            this.updateById(planningProjectPlank);
+        }
+    }
 }

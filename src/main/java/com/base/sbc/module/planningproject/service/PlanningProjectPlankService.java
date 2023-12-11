@@ -21,4 +21,9 @@ public interface PlanningProjectPlankService extends BaseService<PlanningProject
      * 坑位匹配
      */
     void match( List<PlanningProjectPlankVo> list);
+
+    /**
+     * 根据大货款号取消匹配
+     */
+    void unMatchByBulkStyleNo(String bulkStyleNo);
 }

@@ -817,6 +817,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor.setPrincipalStyle("");
             styleColor.setPrincipalStyleNo("");
             this.updateById(styleColor);
+            if ("0".equals(addRevampStyleColorDto.getOrderFlag())){
+                planningProjectPlankService.unMatchByBulkStyleNo(styleColor.getStyleNo());
+            }
             StyleColor styleColor1 = this.getById(styleColor.getId());
 
             this.saveOperaLog("修改", "款式配色", styleColor.getColorName(), styleColor.getStyleNo(), styleColor1, old);
@@ -1316,6 +1319,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     String fieldName = managementVoList.stream().map(FieldManagementVo::getFieldName).collect(Collectors.joining(","));
                     throw new OtherException("大货款号：" + styleColor.getStyleNo() + "中的" + fieldName + "未填写");
                 }
+                if ("0".equals(styleColor.getOrderFlag())){
+                    planningProjectPlankService.unMatchByBulkStyleNo(styleColor.getStyleNo());
+                }
+
             }
         } else {
             updateWrapper.set("order_date", null);
