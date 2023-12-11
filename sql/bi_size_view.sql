@@ -1,4 +1,5 @@
 SELECT
+
     tsc.style_no as 大货款号,
     ts.size_range                                                                              AS 尺寸表名称,
        ts.size_range                                                                              AS 号型类型,
@@ -13,7 +14,7 @@ SELECT
        tpsd.create_date                                                                           as 创建时间,
 
        tpsd.update_name                                                                           as 更新人,
-       GREATEST(tpsd.update_date, tpi.update_date, tpz.update_date, tpsd.update_date)             as 更新时间,
+       GREATEST(ts.update_date,tpsd.update_date, tpi.update_date, tpz.update_date, tpsd.update_date,tsc.update_date)             as 更新时间,
        tpz.part_name                                                                              as 测量点名称,
        tpz.method                                                                                 as 测量点描述,
        tpsd.size                                                                                  as 尺码名称,
@@ -26,10 +27,11 @@ SELECT
        ts.historical_data                                                                               as 历史数据,
        if(ts.del_flag = '0', '存在', '删除')                                                      as 删除标识
 
-FROM t_style ts
-         LEFT JOIN t_style_color as tsc ON tsc.style_id = ts.id and tsc.del_flag = '0'
-         LEFT JOIN t_pack_info as tpi ON tpi.foreign_id = ts.id and tpi.del_flag = '0'
+FROM t_style_color tsc
+         LEFT JOIN t_style as ts ON tsc.style_id = ts.id and tsc.del_flag = '0'
+         LEFT JOIN t_pack_info as tpi ON tpi.style_color_id = tsc.id and tpi.del_flag = '0'
          LEFT JOIN t_pack_size as tpz ON tpz.foreign_id = tpi.id and tpz.del_flag = '0'
          LEFT JOIN t_pack_size_detail as tpsd
                    ON tpsd.foreign_id = tpi.id and pack_size_id = tpz.id and tpsd.del_flag = '0'
 
+where tsc.style_no='5990328222661-10'
