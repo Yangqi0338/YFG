@@ -17,6 +17,7 @@ import com.base.sbc.module.column.entity.ColumnUserDefine;
 import com.base.sbc.module.column.entity.ColumnUserDefineItem;
 import com.base.sbc.module.column.mapper.ColumnUserDefineMapper;
 import com.base.sbc.module.column.service.ColumnDefineService;
+import com.base.sbc.module.column.service.ColumnGroupDefineService;
 import com.base.sbc.module.column.service.ColumnUserDefineItemService;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -49,6 +50,9 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
     @Autowired
     private ColumnUserDefineItemService columnUserDefineItemService;
 
+    @Autowired
+    private ColumnGroupDefineService columnGroupDefineService;
+
     @Override
     public List<ColumnUserDefine> findList(String tableCode) {
         LambdaQueryWrapper<ColumnUserDefine> queryWrapper = new LambdaQueryWrapper<>();
@@ -66,15 +70,14 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
 
     @Override
     public List<ColumnDefine> findDetail(String tableCode, String id) {
-        List<ColumnDefine> byTableCode = columnDefineService.getByTableCode(tableCode);
+        //查询用户组级配置，如果没有用户组配置则返回的系统级配置
+        List<ColumnDefine> byTableCode = columnGroupDefineService.findDetailByJoblist(tableCode, getJobList());
 
+        //查询用户配置
         List<ColumnUserDefineItem> list = columnUserDefineItemService.findListByHeadId(tableCode, id);
         Map<String, ColumnUserDefineItem> collect = list.stream().collect(Collectors.toMap(ColumnUserDefineItem::getSysId, o -> o, (v1, v2) -> v1));
 
         for (ColumnDefine columnDefine : byTableCode) {
-            if(BaseGlobal.YES.equals(columnDefine.getHidden())){
-                continue;
-            }
             columnDefine.setSysId(columnDefine.getId());
             if (collect.containsKey(columnDefine.getId())) {
                 ColumnUserDefineItem userDefineItem = collect.get(columnDefine.getId());
@@ -135,12 +138,12 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
 
         if (StrUtil.isNotEmpty(columnUserDefine.getId())) {
             columnUserDefine.updateInit();
-            if(count > 1){
+            if (count > 1) {
                 throw new OtherException("模板名称不能重复");
             }
         } else {
             columnUserDefine.preInsert();
-            if(count > 0){
+            if (count > 0) {
                 throw new OtherException("模板名称不能重复");
             }
             columnUserDefine.setIsDefault(BaseGlobal.NO);

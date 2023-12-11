@@ -25,6 +25,8 @@ public interface ColumnGroupDefineService extends BaseService<ColumnGroupDefine>
 
     List<ColumnDefine> findDetail(String tableCode, String userGroupId);
 
+    List<ColumnDefine> findDetailByJoblist(String tableCode, List<String> userGroupId);
+
     void saveMain(ColumnGroupDefineDto dto);
 
 }

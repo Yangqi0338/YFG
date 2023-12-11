@@ -24,5 +24,6 @@ public interface ColumnGroupDefineItemService extends BaseService<ColumnGroupDef
 
     List<ColumnGroupDefineItem> findListByHeadId(String tableCode, String userGroupId);
 
+    List<ColumnGroupDefineItem> findListByHeadIdJobList(String tableCode, List<String> userGroupIds);
 
 }

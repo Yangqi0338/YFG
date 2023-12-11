@@ -22,7 +22,13 @@ import java.util.List;
  */
 public interface ColumnDefineService extends BaseService<ColumnDefine> {
 
-    List<ColumnDefine> getByTableCode(String tableCode);
+    /**
+     *
+     * @param tableCode
+     * @param isSys 不是系统级查询时，只查询显示的字段
+     * @return
+     */
+    List<ColumnDefine> getByTableCode(String tableCode, boolean isSys);
 
     void saveMain(List<ColumnDefine> list, String tableCode);
 

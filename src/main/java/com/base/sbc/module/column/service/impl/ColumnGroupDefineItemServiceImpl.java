@@ -35,4 +35,13 @@ public class ColumnGroupDefineItemServiceImpl extends BaseServiceImpl<ColumnGrou
         queryWrapper.eq(ColumnGroupDefineItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL);
         return list(queryWrapper);
     }
+
+    @Override
+    public List<ColumnGroupDefineItem> findListByHeadIdJobList(String tableCode, List<String> userGroupIds) {
+        LambdaQueryWrapper<ColumnGroupDefineItem> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ColumnGroupDefineItem::getTableCode, tableCode);
+        queryWrapper.in(ColumnGroupDefineItem::getUserGroupId, userGroupIds);
+        queryWrapper.eq(ColumnGroupDefineItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL);
+        return list(queryWrapper);
+    }
 }

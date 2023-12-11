@@ -11,7 +11,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.dto.ColumnGroupDefineDto;
-import com.base.sbc.module.column.entity.*;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.entity.ColumnGroupDefine;
+import com.base.sbc.module.column.entity.ColumnGroupDefineItem;
 import com.base.sbc.module.column.mapper.ColumnGroupDefineMapper;
 import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.column.service.ColumnGroupDefineItemService;
@@ -28,11 +30,12 @@ import java.util.stream.Collectors;
 
 /**
  * 类描述： service类
- * @address com.base.sbc.module.column.service.ColumnGroupDefineService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.column.service.ColumnGroupDefineService
  * @email your email
  * @date 创建时间：2023-12-11 10:55:06
- * @version 1.0  
  */
 @Service
 public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDefineMapper, ColumnGroupDefine> implements ColumnGroupDefineService {
@@ -47,7 +50,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
 
     @Override
     public List<ColumnDefine> findDetail(String tableCode, String userGroupId) {
-        List<ColumnDefine> byTableCode = columnDefineService.getByTableCode(tableCode);
+        List<ColumnDefine> byTableCode = columnDefineService.getByTableCode(tableCode, false);
 
         List<ColumnGroupDefineItem> list = columnGroupDefineItemService.findListByHeadId(tableCode, userGroupId);
         Map<String, ColumnGroupDefineItem> collect = list.stream().collect(Collectors.toMap(ColumnGroupDefineItem::getSysId, o -> o, (v1, v2) -> v1));
@@ -74,6 +77,38 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
     }
 
     @Override
+    public List<ColumnDefine> findDetailByJoblist(String tableCode, List<String> userGroupId) {
+        //查询系统级
+        List<ColumnDefine> byTableCode = columnDefineService.getByTableCode(tableCode, false);
+
+        //根据用户组查询
+        List<ColumnGroupDefineItem> listByHeadIdJobList = columnGroupDefineItemService.findListByHeadIdJobList(tableCode, getJobList());
+        //一个用户可能存在多个用户组，过滤出显示的字段，取并集去重
+        Map<String, ColumnGroupDefineItem> collect = listByHeadIdJobList.stream().filter(o -> BaseGlobal.YES.equals(o.getHidden())).collect(Collectors.toMap(ColumnGroupDefineItem::getSysId, o -> o, (v1, v2) -> v1));
+
+        for (ColumnDefine columnDefine : byTableCode) {
+            columnDefine.setSysId(columnDefine.getId());
+            if (collect.containsKey(columnDefine.getId())) {
+                ColumnGroupDefineItem groupDefineItem = collect.get(columnDefine.getId());
+                columnDefine.setId(groupDefineItem.getId());
+                columnDefine.setColumnName(groupDefineItem.getColumnName());
+                columnDefine.setColumnNameI18nKey(groupDefineItem.getColumnNameI18nKey());
+                columnDefine.setHidden(groupDefineItem.getHidden());
+                columnDefine.setAlignType(groupDefineItem.getAlignType());
+                columnDefine.setFixType(groupDefineItem.getFixType());
+                columnDefine.setColumnWidth(groupDefineItem.getColumnWidth());
+                columnDefine.setSortOrder(groupDefineItem.getSortOrder());
+                columnDefine.setColumnColor(groupDefineItem.getColumnColor());
+            } else {
+                columnDefine.setId(null);
+            }
+        }
+        byTableCode.sort(Comparator.comparing(ColumnDefine::getSortOrder));
+
+        return byTableCode;
+    }
+
+    @Override
     @Transactional
     public void saveMain(ColumnGroupDefineDto dto) {
         String userGroupId = dto.getUserGroupId();
@@ -93,12 +128,12 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
 
         if (StrUtil.isNotEmpty(columnGroupDefine.getId())) {
             columnGroupDefine.updateInit();
-            if(count > 1){
+            if (count > 1) {
                 throw new OtherException("模板名称不能重复");
             }
         } else {
             columnGroupDefine.preInsert();
-            if(count > 0){
+            if (count > 0) {
                 throw new OtherException("模板名称不能重复");
             }
             columnGroupDefine.setIsDefault(BaseGlobal.NO);
@@ -116,6 +151,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
             } else {
                 groupDefineItem.insertInit();
             }
+            groupDefineItem.setId(groupDefineItem.getSysId());
             groupDefineItem.setTableCode(tableCode);
             groupDefineItem.setUserGroupId(userGroupId);
             groupDefineItem.setVersionId(id);

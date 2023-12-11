@@ -40,7 +40,7 @@ public class ColumnDefineController {
     @ApiOperation("明细-通过tableCode查询")
     @GetMapping({"/{tableCode}"})
     public ApiResult getById(@PathVariable("tableCode") String tableCode) {
-        return ApiResult.success("查询成功", this.columnDefineService.getByTableCode(tableCode));
+        return ApiResult.success("查询成功", this.columnDefineService.getByTableCode(tableCode, true));
     }
 
     @ApiOperation("保存")

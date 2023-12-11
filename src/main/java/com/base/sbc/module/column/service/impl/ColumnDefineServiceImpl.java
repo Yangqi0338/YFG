@@ -33,10 +33,13 @@ import java.util.stream.Collectors;
 @Service
 public class ColumnDefineServiceImpl extends BaseServiceImpl<ColumnDefineMapper, ColumnDefine> implements ColumnDefineService {
     @Override
-    public List<ColumnDefine> getByTableCode(String tableCode) {
+    public List<ColumnDefine> getByTableCode(String tableCode, boolean isSys) {
         LambdaQueryWrapper<ColumnDefine> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ColumnDefine::getTableCode, tableCode);
         queryWrapper.eq(ColumnDefine::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL);
+        if (!isSys) {
+            queryWrapper.eq(ColumnDefine::getHidden, BaseGlobal.YES);
+        }
         queryWrapper.orderByAsc(ColumnDefine::getSortOrder);
         return list(queryWrapper);
     }
@@ -44,7 +47,7 @@ public class ColumnDefineServiceImpl extends BaseServiceImpl<ColumnDefineMapper,
     @Override
     @Transactional
     public void saveMain(List<ColumnDefine> list, String tableCode) {
-        List<ColumnDefine> byTableCode = getByTableCode(tableCode);
+        List<ColumnDefine> byTableCode = getByTableCode(tableCode, true);
         Map<String, ColumnDefine> collect = byTableCode.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
         for (ColumnDefine columnDefine : list) {
             if (StrUtil.isEmpty(columnDefine.getId())) {
