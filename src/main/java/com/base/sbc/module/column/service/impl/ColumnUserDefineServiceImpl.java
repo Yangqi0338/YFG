@@ -136,7 +136,7 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
                 throw new OtherException("模板名称不能重复");
             }
         } else {
-            columnUserDefine.insertInit();
+            columnUserDefine.preInsert();
             if(count > 0){
                 throw new OtherException("模板名称不能重复");
             }
