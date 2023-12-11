@@ -51,6 +51,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -116,16 +117,23 @@ public class BasicsdatumMaterialController extends BaseController {
             Matcher matcher = pattern3.matcher(ingredients.trim());
             BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
 
+            int offset = 0;
             if (matcher.matches()) {
                 String kindName = matcher.group(1);
-                in.setRatio(BigDecimalUtil.valueOf(matcher.group(2)));
-                String name = matcher.group(3).trim();
-                String note = matcher.group(4) == null ? "" : matcher.group(4).trim();
+                try {
+                    in.setRatio(BigDecimalUtil.valueOf(kindName));
+                }catch (NumberFormatException nfe) {
+                    offset = 1;
+                    in.setRatio(BigDecimalUtil.valueOf(matcher.group(2)));
+                    in.setMaterialKindName(kindName);
+                }
+                String name = matcher.group(3 - offset).trim();
+                String note = matcher.group(4 - offset) == null ? "" : matcher.group(4 - offset).trim();
                 in.setName(name);
                 in.setSay(note);
                 in.setType(type);
                 in.setMaterialCode(materialCode);
-                in.setMaterialKindName(kindName);
+
             }
             list.add(in);
         }
