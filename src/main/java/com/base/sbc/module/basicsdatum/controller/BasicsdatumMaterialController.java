@@ -91,6 +91,7 @@ public class BasicsdatumMaterialController extends BaseController {
 
     Pattern pattern = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
     Pattern pattern2 = Pattern.compile("(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
+    Pattern pattern3 = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -112,17 +113,19 @@ public class BasicsdatumMaterialController extends BaseController {
         String[] strs = str.split(",");
         List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
         for (String ingredients : strs) {
-            Matcher matcher = pattern.matcher(ingredients.trim());
+            Matcher matcher = pattern3.matcher(ingredients.trim());
             BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
 
             if (matcher.matches()) {
-                in.setRatio(BigDecimalUtil.valueOf(matcher.group(1)));
-                String name = matcher.group(2).trim();
-                String note = matcher.group(3) == null ? "" : matcher.group(3).trim();
+                String kindName = matcher.group(1);
+                in.setRatio(BigDecimalUtil.valueOf(matcher.group(2)));
+                String name = matcher.group(3).trim();
+                String note = matcher.group(4) == null ? "" : matcher.group(4).trim();
                 in.setName(name);
                 in.setSay(note);
                 in.setType(type);
                 in.setMaterialCode(materialCode);
+                in.setMaterialKindName(kindName);
             }
             list.add(in);
         }
