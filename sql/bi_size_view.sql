@@ -33,5 +33,3 @@ FROM t_style_color tsc
          LEFT JOIN t_pack_size as tpz ON tpz.foreign_id = tpi.id and tpz.del_flag = '0'
          LEFT JOIN t_pack_size_detail as tpsd
                    ON tpsd.foreign_id = tpi.id and pack_size_id = tpz.id and tpsd.del_flag = '0'
-
-where tsc.style_no='5990328222661-10'
