@@ -1488,7 +1488,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     /**
-     * 复制配色
+     *
      *
      * @param dto
      * @return
@@ -1509,11 +1509,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("field_name",fieldManagement.getFieldName());
+        queryWrapper.eq("val",dto.getDimensionLabelVal());
         queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
         queryWrapper.select("foreign_id");
 
         List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
         List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
+        if (styleColorIds.isEmpty()){
+            return new PageInfo<>();
+        }
 //        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
 
 

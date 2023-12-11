@@ -54,4 +54,6 @@ public class StyleColorsDto extends Page {
      */
     @ApiModelProperty(value = "下单标记（0否 1是）")
     private String orderFlag;
+
+    private String dimensionValue;
 }
