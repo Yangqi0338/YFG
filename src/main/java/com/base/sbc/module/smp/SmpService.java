@@ -209,7 +209,7 @@ public class SmpService {
                     style= styleService.getById(styleColor.getStyleId());
                 }
             }
-            smpGoodsDto.setColorCrash(style.getColorCrash());
+            smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
             smpGoodsDto.setCategoryName(style.getProdCategoryName());
