@@ -20,6 +20,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.SecondIngredientSyncDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
@@ -1230,6 +1231,16 @@ public class SmpService {
 
         }
         return i;
+    }
+
+
+    /**
+     * 修改吊牌价的时候验证(暂不需要)
+     */
+    public Boolean secondIngredient(List<SecondIngredientSyncDto> secondIngredientSyncDto) {
+        String jsonString = JsonStringUtils.toJSONString(secondIngredientSyncDto);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString);
+        return pushRecordsService.pushRecordSave(httpResp, jsonString, "smp", "成分二级分类字典下发");
     }
 }
 

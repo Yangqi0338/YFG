@@ -22,11 +22,20 @@ public class HangTagIngredient extends BaseDataEntity<String> {
     /** 物料名称 */
     private String materialName;
 
+    /** 严格性校验 */
+    private String strictCheck;
+
     /** 成分名称 */
     private String ingredientName;
 
     /** 成分编码 */
     private String ingredientCode;
+
+    /** 成分二级名称 */
+    private String ingredientSecondName;
+
+    /** 成分二级编码 */
+    private String ingredientSecondCode;
 
     /** 类型编码 */
     private String typeCode;
