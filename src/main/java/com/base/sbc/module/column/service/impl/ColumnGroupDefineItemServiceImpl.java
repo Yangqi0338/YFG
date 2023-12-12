@@ -12,8 +12,10 @@ import com.base.sbc.module.column.entity.ColumnGroupDefineItem;
 import com.base.sbc.module.column.mapper.ColumnGroupDefineItemMapper;
 import com.base.sbc.module.column.service.ColumnGroupDefineItemService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -38,6 +40,9 @@ public class ColumnGroupDefineItemServiceImpl extends BaseServiceImpl<ColumnGrou
 
     @Override
     public List<ColumnGroupDefineItem> findListByHeadIdJobList(String tableCode, List<String> userGroupIds) {
+        if(CollectionUtils.isEmpty(userGroupIds)){
+            return new ArrayList<>();
+        }
         LambdaQueryWrapper<ColumnGroupDefineItem> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ColumnGroupDefineItem::getTableCode, tableCode);
         queryWrapper.in(ColumnGroupDefineItem::getUserGroupId, userGroupIds);

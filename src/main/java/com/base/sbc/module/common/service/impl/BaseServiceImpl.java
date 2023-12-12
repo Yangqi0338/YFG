@@ -67,10 +67,6 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return userUtils.getUserCompany().getUserId();
     }
 
-    public List<String> getJobList() {
-        return userUtils.getUserCompany().getJobList().stream().map(o->o.getId()).collect(Collectors.toList());
-    }
-
     public String getUserName() {
         return userUtils.getUserCompany().getAliasUserName();
     }

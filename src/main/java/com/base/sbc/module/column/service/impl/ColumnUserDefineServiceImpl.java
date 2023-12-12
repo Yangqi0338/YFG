@@ -9,6 +9,9 @@ package com.base.sbc.module.column.service.impl;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.client.amc.entity.Job;
+import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.dto.ColumnUserDefineDto;
@@ -21,10 +24,12 @@ import com.base.sbc.module.column.service.ColumnGroupDefineService;
 import com.base.sbc.module.column.service.ColumnUserDefineItemService;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +58,9 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
     @Autowired
     private ColumnGroupDefineService columnGroupDefineService;
 
+    @Autowired
+    private AmcService amcService;
+
     @Override
     public List<ColumnUserDefine> findList(String tableCode) {
         LambdaQueryWrapper<ColumnUserDefine> queryWrapper = new LambdaQueryWrapper<>();
@@ -71,7 +79,12 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
     @Override
     public List<ColumnDefine> findDetail(String tableCode, String id) {
         //查询用户组级配置，如果没有用户组配置则返回的系统级配置
-        List<ColumnDefine> byTableCode = columnGroupDefineService.findDetailByJoblist(tableCode, getJobList());
+        List<Job> jobList = amcService.getByUserId(getUserId());
+        List<String> jobs = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(jobList)) {
+            jobs = jobList.stream().map(BaseEntity::getId).collect(Collectors.toList());
+        }
+        List<ColumnDefine> byTableCode = columnGroupDefineService.findDetailByJoblist(tableCode, jobs);
 
         //查询用户配置
         List<ColumnUserDefineItem> list = columnUserDefineItemService.findListByHeadId(tableCode, id);

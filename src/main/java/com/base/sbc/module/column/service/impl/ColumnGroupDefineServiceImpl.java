@@ -19,10 +19,12 @@ import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.column.service.ColumnGroupDefineItemService;
 import com.base.sbc.module.column.service.ColumnGroupDefineService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -82,26 +84,29 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
         List<ColumnDefine> byTableCode = columnDefineService.getByTableCode(tableCode, false);
 
         //根据用户组查询
-        List<ColumnGroupDefineItem> listByHeadIdJobList = columnGroupDefineItemService.findListByHeadIdJobList(tableCode, getJobList());
-        //一个用户可能存在多个用户组，过滤出显示的字段，取并集去重
-        Map<String, ColumnGroupDefineItem> collect = listByHeadIdJobList.stream().filter(o -> BaseGlobal.YES.equals(o.getHidden())).collect(Collectors.toMap(ColumnGroupDefineItem::getSysId, o -> o, (v1, v2) -> v1));
+        List<ColumnGroupDefineItem> listByHeadIdJobList = columnGroupDefineItemService.findListByHeadIdJobList(tableCode, userGroupId);
+        if(CollectionUtils.isNotEmpty(listByHeadIdJobList)){
+            //一个用户可能存在多个用户组，过滤出显示的字段，取并集去重
+            Map<String, ColumnGroupDefineItem> collect = listByHeadIdJobList.stream().filter(o -> BaseGlobal.YES.equals(o.getHidden())).collect(Collectors.toMap(ColumnGroupDefineItem::getSysId, o -> o, (v1, v2) -> v1));
 
-        for (ColumnDefine columnDefine : byTableCode) {
-            columnDefine.setSysId(columnDefine.getId());
-            if (collect.containsKey(columnDefine.getId())) {
-                ColumnGroupDefineItem groupDefineItem = collect.get(columnDefine.getId());
-                columnDefine.setId(groupDefineItem.getId());
-                columnDefine.setColumnName(groupDefineItem.getColumnName());
-                columnDefine.setColumnNameI18nKey(groupDefineItem.getColumnNameI18nKey());
-                columnDefine.setHidden(groupDefineItem.getHidden());
-                columnDefine.setAlignType(groupDefineItem.getAlignType());
-                columnDefine.setFixType(groupDefineItem.getFixType());
-                columnDefine.setColumnWidth(groupDefineItem.getColumnWidth());
-                columnDefine.setSortOrder(groupDefineItem.getSortOrder());
-                columnDefine.setColumnColor(groupDefineItem.getColumnColor());
-            } else {
-                columnDefine.setId(null);
+            List<ColumnDefine> byTableCode1 = new ArrayList<>();
+            for (ColumnDefine columnDefine : byTableCode) {
+                if (collect.containsKey(columnDefine.getId())) {
+                    columnDefine.setSysId(columnDefine.getId());
+                    ColumnGroupDefineItem groupDefineItem = collect.get(columnDefine.getId());
+                    columnDefine.setId(groupDefineItem.getId());
+                    columnDefine.setColumnName(groupDefineItem.getColumnName());
+                    columnDefine.setColumnNameI18nKey(groupDefineItem.getColumnNameI18nKey());
+                    columnDefine.setHidden(groupDefineItem.getHidden());
+                    columnDefine.setAlignType(groupDefineItem.getAlignType());
+                    columnDefine.setFixType(groupDefineItem.getFixType());
+                    columnDefine.setColumnWidth(groupDefineItem.getColumnWidth());
+                    columnDefine.setSortOrder(groupDefineItem.getSortOrder());
+                    columnDefine.setColumnColor(groupDefineItem.getColumnColor());
+                    byTableCode1.add(columnDefine);
+                }
             }
+            byTableCode = byTableCode1;
         }
         byTableCode.sort(Comparator.comparing(ColumnDefine::getSortOrder));
 
