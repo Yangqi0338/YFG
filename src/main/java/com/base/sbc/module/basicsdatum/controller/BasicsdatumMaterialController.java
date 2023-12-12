@@ -92,7 +92,7 @@ public class BasicsdatumMaterialController extends BaseController {
 
     Pattern pattern = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
     Pattern pattern2 = Pattern.compile("(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
-    Pattern pattern3 = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
+    Pattern pattern3 = Pattern.compile("^([^)]*)([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -117,13 +117,13 @@ public class BasicsdatumMaterialController extends BaseController {
             Matcher matcher = pattern3.matcher(ingredients.trim());
             BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
 
-            int offset = 0;
+            int offset = 1;
             if (matcher.matches()) {
                 String kindName = matcher.group(1);
                 try {
                     in.setRatio(BigDecimalUtil.valueOf(kindName));
                 }catch (NumberFormatException nfe) {
-                    offset = 1;
+                    offset = 0;
                     in.setRatio(BigDecimalUtil.valueOf(matcher.group(2)));
                     in.setMaterialKindName(kindName);
                 }
