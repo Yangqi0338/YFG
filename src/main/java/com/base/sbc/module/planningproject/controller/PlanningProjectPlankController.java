@@ -152,9 +152,14 @@ public class PlanningProjectPlankController extends BaseController {
             List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
             planningProjectPlankVo.setOldFieldManagementVos(fieldManagementVos);
         }
+        if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())){
+            StyleColor styleColor = styleColorService.getById(planningProjectPlankVo.getStyleColorId());
+            if (styleColor!=null){
+                String styleUrl = stylePicUtils.getStyleUrl(styleColor.getStyleColorPic());
+                planningProjectPlankVo.setPic(styleUrl);
+            }
+        }
 
-        String styleUrl = stylePicUtils.getStyleUrl(planningProjectPlankVo.getPic());
-        planningProjectPlankVo.setPic(styleUrl);
         return selectSuccess(planningProjectPlankVo);
     }
 

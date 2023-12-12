@@ -3,9 +3,9 @@
 <mapper namespace="com.base.sbc.module.planningproject.mapper.PlanningProjectPlankMapper">
     <select id="queryPage" resultType="com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo">
         select
+        tsc.style_color_pic as pic,
         tppp.*,
         tppd.prod_category1st_code,
-        tsc.style_color_pic as pic,
         tppd.prod_category1st_name,
         tppd.prod_category2nd_code,
         tppd.prod_category2nd_name,
