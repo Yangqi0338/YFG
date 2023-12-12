@@ -145,7 +145,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             List<BasicsdatumSize> list1 = basicsdatumSizeList.subList(i, endIndex);
             for (BasicsdatumSize basicsdatumSize : list1) {
                 QueryWrapper<BasicsdatumSize> queryWrapper =new BaseQueryWrapper<>();
-                queryWrapper.eq("sort",basicsdatumSize.getSort());
+                queryWrapper.eq("code",basicsdatumSize.getCode());
                 this.saveOrUpdate(basicsdatumSize,queryWrapper);
             }
 
@@ -190,7 +190,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         BasicsdatumSize basicsdatumSize = new BasicsdatumSize();
         if (StringUtils.isEmpty(addRevampSizeDto.getId())) {
             QueryWrapper<BasicsdatumSize> queryWrapper =new QueryWrapper<>();
-            queryWrapper.eq("sort",addRevampSizeDto.getSort());
+            queryWrapper.eq("code",addRevampSizeDto.getCode());
             BasicsdatumSize one = this.getOne(queryWrapper);
             if (one!=null){
                 throw new OtherException("排序重复");
@@ -209,7 +209,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             }
             if (!basicsdatumSize.getSort().equals(addRevampSizeDto.getSort())){
                 QueryWrapper<BasicsdatumSize> queryWrapper =new QueryWrapper<>();
-                queryWrapper.eq("sort",basicsdatumSize.getSort());
+                queryWrapper.eq("code",basicsdatumSize.getCode());
                 BasicsdatumSize one = this.getOne(queryWrapper);
                 if (one!=null){
                     throw new OtherException("排序重复");
