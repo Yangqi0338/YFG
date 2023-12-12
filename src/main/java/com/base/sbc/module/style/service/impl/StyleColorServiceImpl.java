@@ -1319,14 +1319,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     String fieldName = managementVoList.stream().map(FieldManagementVo::getFieldName).collect(Collectors.joining(","));
                     throw new OtherException("大货款号：" + styleColor.getStyleNo() + "中的" + fieldName + "未填写");
                 }
-                if ("0".equals(styleColor.getOrderFlag())){
-                    planningProjectPlankService.unMatchByBulkStyleNo(styleColor.getStyleNo());
-                }
-
             }
         } else {
             updateWrapper.set("order_date", null);
+            for (String id : ids) {
+                StyleColor styleColor = this.getById(id);
+                planningProjectPlankService.unMatchByBulkStyleNo(styleColor.getStyleNo());
+            }
         }
+
+
 
         updateWrapper.set("order_flag", publicStyleColorDto.getOrderFlag());
         updateWrapper.in("id", ids);
