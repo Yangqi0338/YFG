@@ -67,7 +67,7 @@ select tsc.style_no                                                             
        tsc.supplier_abbreviation                                                                           as 厂家,
        tsc.supplier_no                                                                                     as 厂家款号,
        tsc.supplier_color                                                                                  as 厂家款颜色,
-       tsc.id                                                                                              as StyleURL,
+       ts.id                                                                                              as StyleURL,
        if('0' = tsc.is_mainly, '否', '是')                                                                 as 是否主推,
        tsc.create_name                                                                                     as 创建人,
        tsc.update_name                                                                                     as 修改者,
