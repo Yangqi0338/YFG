@@ -90,9 +90,8 @@ public class BasicsdatumMaterialController extends BaseController {
 
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
-    Pattern pattern = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
-    Pattern pattern2 = Pattern.compile("(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
-    Pattern pattern3 = Pattern.compile("^([^)]*)([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
+    Pattern pattern = Pattern.compile("^(.*?)([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
+    Pattern pattern2 = Pattern.compile("(.*?)(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -114,38 +113,35 @@ public class BasicsdatumMaterialController extends BaseController {
         String[] strs = str.split(",");
         List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
         for (String ingredients : strs) {
-            Matcher matcher = pattern3.matcher(ingredients.trim());
+            Matcher matcher = Pattern.compile("^(.*?)([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$").matcher(ingredients.trim());
             BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
-
-            int offset = 1;
             if (matcher.matches()) {
-                String kindName = matcher.group(1);
-                try {
-                    in.setRatio(BigDecimalUtil.valueOf(kindName));
-                }catch (NumberFormatException nfe) {
-                    offset = 0;
-                    in.setRatio(BigDecimalUtil.valueOf(matcher.group(2)));
-                    in.setMaterialKindName(kindName);
-                }
-                String name = matcher.group(3 - offset).trim();
-                String note = matcher.group(4 - offset) == null ? "" : matcher.group(4 - offset).trim();
+                String kindName = matcher.group(1).trim();
+                BigDecimal ratio = BigDecimalUtil.valueOf(matcher.group(2));
+                String name = matcher.group(3) == null ? "" : matcher.group(3).trim();
+                String note = matcher.group(4) == null ? "" : matcher.group(4).trim();
+                in.setMaterialKindName(kindName);
+                in.setRatio(ratio);
                 in.setName(name);
                 in.setSay(note);
                 in.setType(type);
                 in.setMaterialCode(materialCode);
-
             }
             list.add(in);
         }
         if (list.size() == 1) {
             if (list.get(0).getRatio() == null) {
                 list = new ArrayList<>();
-                Matcher matcher = pattern2.matcher(str);
+                Matcher matcher = Pattern.compile("(.*?)(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)").matcher(str);
                 while (matcher.find()) {
                     BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
-                    String name = matcher.group(1) == null ? "" : matcher.group(1).trim();
-                    in.setSay(matcher.group(2) == null ? "" : matcher.group(2).trim());
-                    in.setRatio(BigDecimalUtil.valueOf(matcher.group(3)));
+                    String kindName = matcher.group(1).trim();
+                    String name = matcher.group(2) == null ? "" : matcher.group(2).trim();
+                    String note = matcher.group(3) == null ? "" : matcher.group(3).trim();
+                    BigDecimal ratio = BigDecimalUtil.valueOf(matcher.group(4));
+                    in.setMaterialKindName(kindName);
+                    in.setSay(note);
+                    in.setRatio(ratio);
                     in.setName(name);
                     in.setType(type);
 

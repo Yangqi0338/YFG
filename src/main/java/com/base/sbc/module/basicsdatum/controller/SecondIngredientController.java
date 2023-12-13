@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
@@ -19,6 +20,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
+import org.apache.commons.lang.math.IntRange;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +39,7 @@ import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -53,12 +57,18 @@ public class SecondIngredientController extends BaseController {
     public CcmFeignService ccmFeignService;
 
     @Autowired
+    public CcmService ccmService;
+
+    @Autowired
     public SmpService smpService;
+
+    private String uniqueDictCode = "pd021";
+    private String dictPreCode = "EJ";
 
     @GetMapping("/sync2scm")
     @ApiOperation(value = "同步到scm")
     public ApiResult sync2scm(@Valid @NotEmpty(message = "同步code列表不能为空") String[] codeList){
-        List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList("pd021");
+        List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(uniqueDictCode);
         List<SecondIngredientSyncDto> syncDtoList = pd021DictList.stream().filter(it -> Arrays.asList(codeList).contains(it.getValue())).map(it -> {
             SecondIngredientSyncDto secondIngredientSyncDto = BeanUtil.copyProperties(it, SecondIngredientSyncDto.class);
             secondIngredientSyncDto.setKindCode(it.getValue());
@@ -69,7 +79,18 @@ public class SecondIngredientController extends BaseController {
         if (CollectionUtil.isNotEmpty(syncDtoList)) {
             smpService.secondIngredient(syncDtoList);
         }
-        return selectSuccess("同步成功");
+        return success("同步成功");
+    }
+
+    @PostMapping("/batchInsert")
+    @ApiOperation(value = "新增字典")
+    public ApiResult batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts){
+        List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(uniqueDictCode);
+        AtomicInteger num = new AtomicInteger(pd021DictList.size());
+        ccmService.batchInsert(basicBaseDicts.stream().peek(it-> {
+            it.setValue(dictPreCode + (num.incrementAndGet() < 100 ? (num.get() < 10 ? "00" : "0") : "") + num.get());
+        }).collect(Collectors.toList()));
+        return success("新增字典成功");
     }
 
 }
