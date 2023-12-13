@@ -81,7 +81,7 @@ public class OpenTechSpecViewController {
     }
 
     @GetMapping("pdfHtml")
-    public void html(String foreignId, String packType, String userId, String minioDomain, HttpServletResponse response) throws IOException {
+    public String html(String foreignId, String packType, String userId, String minioDomain, HttpServletResponse response) throws IOException {
         PackCommonSearchDto dto = new PackCommonSearchDto();
         dto.setForeignId(foreignId);
         dto.setPackType(packType);
@@ -89,10 +89,11 @@ public class OpenTechSpecViewController {
 //        GenTechSpecPdfFile genTechSpecPdfFile = packInfoService.queryGenTechSpecPdfFile(null, dto);
         PackInfoListVo detail = packInfoService.getDetail(foreignId, dto.getPackType());
 
-            if(ObjectUtils.isNotNull(detail)) {
-                response.sendRedirect(detail.getTechSpecFile().getUrl());
-            }
-
+        if(ObjectUtils.isNotNull(detail)) {
+            return   detail.getTechSpecFile().getUrl();
+//                response.sendRedirect(detail.getTechSpecFile().getUrl());
+        }
+        return "";
 //        genTechSpecPdfFile.setPdfView(false);
 //        String html;
 //        try {
