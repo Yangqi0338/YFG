@@ -818,6 +818,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor.setPrincipalStyle("");
             styleColor.setPrincipalStyleNo("");
             this.updateById(styleColor);
+
+            UpdateWrapper<StyleColor> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.lambda().set(StyleColor::getSendBatchingDate1, styleColor.getSendBatchingDate1())
+                    .set(StyleColor::getSendBatchingDate2, styleColor.getSendBatchingDate2())
+                    .set(StyleColor::getSendBatchingDate3, styleColor.getSendBatchingDate3())
+                    .set(StyleColor::getSendSingleDate, styleColor.getSendSingleDate())
+                    .set(StyleColor::getDesignDetailDate, styleColor.getDesignDetailDate())
+                    .set(StyleColor::getDesignCorrectDate, styleColor.getDesignCorrectDate())
+                    .eq(StyleColor::getId, styleColor.getId());
+            this.update(null, updateWrapper);
+
             StyleColor styleColor1 = this.getById(styleColor.getId());
 
             this.saveOperaLog("修改", "款式配色", styleColor.getColorName(), styleColor.getStyleNo(), styleColor1, old);
