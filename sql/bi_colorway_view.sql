@@ -1,4 +1,5 @@
 select tsc.style_no                                                                                        as 大货款号,
+       ts.design_no                                                                                        as 设计款号,
        tsc.color_specification                                                                             as 颜色规格,
        tsc.color_code                                                                                      as 颜色代码,
        tsc.color_name                                                                                      as 颜色名称,
@@ -6,7 +7,7 @@ select tsc.style_no                                                             
        tsc.tag_price                                                                                       as 吊牌价,
        tsc.new_date                                                                                        as 上新时间,
        ts.style_flavour_name                                                                               as 款式风格,
-       ts.style_flavour                                                                               as 款式风格编码,
+       ts.style_flavour                                                                                    as 款式风格编码,
        ts.pattern_design_name                                                                              as 版式名称,
        JSON_EXTRACT(tpc.calc_item_val, '$."物料费"')                                                       as 物料费,
        JSON_EXTRACT(tpc.calc_item_val, '$."车缝加工费"')                                                   as 车缝加工费,
@@ -59,7 +60,7 @@ select tsc.style_no                                                             
        GREATEST(tsc.update_date, ts.update_date, tpi.update_date, tsp.update_date, tpb.update_date, pbv.update_date,
                 tht.update_date, tuf.update_date, tpts.update_date)                                        as 修改时间,
        tsc.sales_type_name                                                                                 as 销售类型,
-       tsc.sales_type                                                                               as 销售类型编码,
+       tsc.sales_type                                                                                      as 销售类型编码,
        tsc.principal_style_no                                                                              as 主款款号,
        tsc.bom_status                                                                                      as BOM发送状态,
        tsc.remarks                                                                                         as 备注,
@@ -73,9 +74,9 @@ select tsc.style_no                                                             
        ts.technician_name                                                                                  as 后技术工艺师,
        ts.designer                                                                                         as 后技术下单员,
        tht.place_order_date                                                                                as 下单时间,
-       if(tpts.foreign_id > '0', '是', '否')                                                                       as 含外辅工艺,
+       if(tpts.foreign_id > '0', '是', '否')                                                               as 含外辅工艺,
        CONCAT(tsc.ware_code, tsc.color_code, ts.default_size)                                              as 默认条形码,
-       ts.historical_data                                                                               as 历史数据,
+       ts.historical_data                                                                                  as 历史数据,
        if(tsc.del_flag = '0', '存在', '删除')                                                              as 删除标识
 from t_style_color as tsc
          left join t_style as ts on ts.id = tsc.style_id
@@ -100,13 +101,11 @@ from t_style_color as tsc
     and tht.del_flag = '0'
          left join t_upload_file as tuf on tuf.id = ts.style_pic
     and tuf.del_flag = '0'
-    LEFT JOIN (
-    SELECT DISTINCT  tpts.foreign_id,tpts.update_date
-    FROM t_pack_tech_spec AS tpts
-    WHERE tpts.del_flag = '0'
-      AND tpts.spec_type = '外辅工艺'
-      AND tpts.pack_type = 'packBigGoods'
-) as tpts on tpts.foreign_id = tpi.id
+         LEFT JOIN (SELECT DISTINCT tpts.foreign_id, tpts.update_date
+                    FROM t_pack_tech_spec AS tpts
+                    WHERE tpts.del_flag = '0'
+                      AND tpts.spec_type = '外辅工艺'
+                      AND tpts.pack_type = 'packBigGoods') as tpts on tpts.foreign_id = tpi.id
 
 where tsc.del_flag = '0'
   and tsc.`status` = '0'
