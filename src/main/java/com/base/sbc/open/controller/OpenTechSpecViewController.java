@@ -39,7 +39,7 @@ import java.util.Map;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = BaseController.OPEN_URL + "/techSpecView")
+@RequestMapping(value = BaseController.SAAS_URL + "/techSpecView")
 public class OpenTechSpecViewController {
 
     @Autowired
