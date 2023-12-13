@@ -7,7 +7,10 @@
 package com.base.sbc.module.basicsdatum.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -90,6 +93,8 @@ public class BasicsdatumMaterialController extends BaseController {
 
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
+    private final CcmFeignService ccmFeignService;
+
     Pattern pattern = Pattern.compile("^(.*?)([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
     Pattern pattern2 = Pattern.compile("(.*?)(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
 
@@ -112,8 +117,10 @@ public class BasicsdatumMaterialController extends BaseController {
     public List<BasicsdatumMaterialIngredient> formatToList(String str, String type, String materialCode) {
         String[] strs = str.split(",");
         List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
+        List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(SecondIngredientController.uniqueDictCode);
+
         for (String ingredients : strs) {
-            Matcher matcher = Pattern.compile("^(.*?)([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$").matcher(ingredients.trim());
+            Matcher matcher = pattern.matcher(ingredients.trim());
             BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
             if (matcher.matches()) {
                 String kindName = matcher.group(1).trim();
@@ -121,6 +128,10 @@ public class BasicsdatumMaterialController extends BaseController {
                 String name = matcher.group(3) == null ? "" : matcher.group(3).trim();
                 String note = matcher.group(4) == null ? "" : matcher.group(4).trim();
                 in.setMaterialKindName(kindName);
+                if (StrUtil.isNotBlank(kindName)) {
+                    BasicBaseDict baseDict = pd021DictList.stream().filter(it -> it.getName().equals(kindName)).findFirst().orElseThrow(() -> new OtherException("非法的二级分类值"));
+                    in.setMaterialKindCode(baseDict.getValue());
+                }
                 in.setRatio(ratio);
                 in.setName(name);
                 in.setSay(note);
@@ -132,7 +143,7 @@ public class BasicsdatumMaterialController extends BaseController {
         if (list.size() == 1) {
             if (list.get(0).getRatio() == null) {
                 list = new ArrayList<>();
-                Matcher matcher = Pattern.compile("(.*?)(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)").matcher(str);
+                Matcher matcher = pattern2.matcher(str);
                 while (matcher.find()) {
                     BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
                     String kindName = matcher.group(1).trim();
@@ -140,6 +151,10 @@ public class BasicsdatumMaterialController extends BaseController {
                     String note = matcher.group(3) == null ? "" : matcher.group(3).trim();
                     BigDecimal ratio = BigDecimalUtil.valueOf(matcher.group(4));
                     in.setMaterialKindName(kindName);
+                    if (StrUtil.isNotBlank(kindName)) {
+                        BasicBaseDict baseDict = pd021DictList.stream().filter(it -> it.getName().equals(kindName)).findFirst().orElseThrow(() -> new OtherException("非法的二级分类值"));
+                        in.setMaterialKindCode(baseDict.getValue());
+                    }
                     in.setSay(note);
                     in.setRatio(ratio);
                     in.setName(name);
