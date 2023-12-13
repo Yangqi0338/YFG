@@ -62,8 +62,8 @@ public class SecondIngredientController extends BaseController {
     @Autowired
     public SmpService smpService;
 
-    private String uniqueDictCode = "pd021";
-    private String dictPreCode = "EJ";
+    public static String uniqueDictCode = "pd021";
+    private final String dictPreCode = "EJ";
 
     @GetMapping("/sync2scm")
     @ApiOperation(value = "同步到scm")
