@@ -250,7 +250,7 @@
     .td_lt {
         text-align: left;
         vertical-align: top;
-        padding-top: 4px;
+        /*padding-top: 4px;*/
     }
 
     hr {
