@@ -19,9 +19,6 @@ public class MoreLanguageExportBaseDTO {
     @Excel(name = "翻译语言", width = 20.0, mergeVertical = true)
     private String languageName;
 
-    @Excel(name = "国家语言Id", isColumnHidden = true)
-    private String countryLanguageId;
-
     @Excel(name = "标准列Code", isColumnHidden = true)
     private String standardColumnCode;
 

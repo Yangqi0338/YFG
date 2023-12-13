@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @AllArgsConstructor
-public enum StandardColumnType implements IEnum<String> {
+public enum StandardColumnType {
     TAG("吊牌&洗唛","DP"),
     TAG_ROOT("吊牌字段", "DP"),
 
@@ -43,8 +43,5 @@ public enum StandardColumnType implements IEnum<String> {
         this.preCode = preCode;
     }
 
-    @Override
-    public String getValue() {
-        return this.code;
-    }
+
 }

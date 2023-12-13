@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class HangTagMoreLanguageDTO {
      * 来源：PDM,BCS,PRINT(打印)
      */
     @ApiModelProperty(value = "来源：PDM,BCS,PRINT(打印)")
-    @NotBlank(message = "来源不能为空")
+    @NotNull(message = "来源不能为空")
     private SystemSource source;
 
     /**

@@ -16,11 +16,17 @@ import com.base.sbc.module.moreLanguage.dto.DataVerifyResultVO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageMapExportMapping;
 import com.base.sbc.module.moreLanguage.entity.Country;
+import com.base.sbc.module.moreLanguage.entity.CountryModel;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
+import com.base.sbc.module.moreLanguage.service.CountryModelService;
 import com.base.sbc.module.moreLanguage.service.CountryService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService;
+import com.base.sbc.module.moreLanguage.service.impl.CountryModelServiceImpl;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +67,12 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     public static ThreadLocal<Map<String, MoreLanguageMapExportMapping>> sheetExportMapping = new ThreadLocal<>();
 
     @Autowired
+    private StandardColumnTranslateService standardColumnTranslateService;
+
+    @Autowired
+    private CountryModelService countryModelService;
+
+    @Autowired
     private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
 
     @Autowired
@@ -68,6 +80,9 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
 
     @Autowired
     private StandardColumnService standardColumnService;
+
+    @Setter
+    private String countryLanguageId;
 
 
     @Override
@@ -121,7 +136,6 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             // 初始化
             String key = exportBaseDTO.getKey();
             String keyName = exportBaseDTO.getKeyName();
-            String countryLanguageId = exportBaseDTO.getCountryLanguageId();
             String standardColumnCode = exportBaseDTO.getStandardColumnCode();
 
             baseSource = new StandardColumnCountryTranslate();
@@ -135,8 +149,10 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             baseSource = exportMapping.getBaseSourceData();
         }
         String content = map.get("content");
-        String code = map.get(baseSource.getPropertiesCode());
-        String name = map.get(baseSource.getPropertiesName());
+        String code = Arrays.stream(baseSource.getPropertiesCode().split("-"))
+                .map(it -> map.get(baseSource.getPropertiesCode())).collect(Collectors.joining("-"));
+        String name = Arrays.stream(baseSource.getPropertiesName().split("-"))
+                .map(it -> map.get(baseSource.getPropertiesName())).collect(Collectors.joining("-"));
 
         // 获取TableData,查看数据是否修改
         // 也可以使用隐藏列,缺点是会被修改移除
@@ -204,9 +220,33 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
 
         standardColumnCountryTranslateService.saveOrUpdateBatch(translateList);
 
-        // 号型和表头特殊 设置专门的表存储
+        // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
+        countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>().eq(CountryModel::getCountryLanguageId, countryLanguageId));
+        List<CountryModel> translateModelList = translateList.stream().filter(it -> "DP06".equals(it.getTitleCode())).map(it -> {
+            CountryModel countryModel = new CountryModel();
+            countryModel.setCountryLanguageId(countryLanguageId);
+            countryModel.setModelCode("");
+            countryModel.setModelName("");
+            countryModel.setBasicSizeCode("");
+            countryModel.setBasicSizeName("");
+            countryModel.setContent(it.getContent());
+            return countryModel;
+        }).collect(Collectors.toList());
+        countryModelService.saveBatch(translateModelList);
+
+        standardColumnTranslateService.remove(new BaseLambdaQueryWrapper<StandardColumnTranslate>().eq(StandardColumnTranslate::getCountryLanguageId, countryLanguageId));
+        List<StandardColumnTranslate> translateTitleList = translateList.stream().filter(it -> "DP00".equals(it.getTitleCode())).map(it -> {
+            StandardColumnTranslate standardColumnTranslate = new StandardColumnTranslate();
+            standardColumnTranslate.setCountryLanguageId(countryLanguageId);
+            standardColumnTranslate.setStandardColumnCode(it.getPropertiesCode());
+            standardColumnTranslate.setStandardColumnName(it.getPropertiesName());
+            standardColumnTranslate.setContent(it.getContent());
+            return standardColumnTranslate;
+        }).collect(Collectors.toList());
+        standardColumnTranslateService.saveBatch(translateTitleList);
 
         removeMapping(context);
+        setCountryLanguageId(null);
 //        //非空判断
 //        List<DataVerifyResultVO> dataVerifyResultVOS = dataVerifyResults.get();
 //        if (CollectionUtil.isNotEmpty(dataVerifyResultVOS)) {

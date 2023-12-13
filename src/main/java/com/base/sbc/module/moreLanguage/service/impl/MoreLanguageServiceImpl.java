@@ -71,6 +71,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -245,7 +246,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         MoreLanguageExportBaseDTO exportBaseDTO = new MoreLanguageExportBaseDTO();
         exportBaseDTO.setLanguageName(languageName);
-        exportBaseDTO.setCountryLanguageId(countryLanguageId);
 
         for (StandardColumnDto standardColumnDto : standardColumnDtoList) {
             String standardColumnCode = standardColumnDto.getCode();
@@ -262,19 +262,40 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             exportParam.setTitle(params);
 
             String tableTitleJson = standardColumnDto.getTableTitleJson();
-            List<ExcelExportEntity> beanList = JSONUtil.toList(tableTitleJson, MoreLanguageTableTitle.class)
-                    .stream().map(it -> new ExcelExportEntity(it.getText(), it.getCode())).collect(Collectors.toList());
+            List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(tableTitleJson, MoreLanguageTableTitle.class);
+            List<ExcelExportEntity> beanList = tableTitleList.stream().sorted(Comparator.comparing(MoreLanguageTableTitle::isHidden)).map(it -> {
+                ExcelExportEntity exportEntity = new ExcelExportEntity(it.getText(), it.getCode());
+                exportEntity.setColumnHidden(it.isHidden());
+                return exportEntity;
+            }).collect(Collectors.toList());
             if (CollectionUtil.isEmpty(beanList)) {
                 continue;
             }
 
             // 可以修改MoreLanguageTableTitle这个类来决定get的位置
-            exportBaseDTO.setKey(beanList.get(0).getKey().toString());
-            exportBaseDTO.setKeyName(beanList.get(1).getKey().toString());
+            List<MoreLanguageTableTitle> keyList = tableTitleList.stream().filter(it -> it.getKey() != null)
+                    .sorted(Comparator.comparing(MoreLanguageTableTitle::getKey)).collect(Collectors.toList());
+            if (CollectionUtil.isEmpty(keyList)) {
+                keyList = Collections.singletonList(tableTitleList.get(0));
+            }
+            tableTitleList.removeAll(keyList);
+            String key = keyList.stream().map(MoreLanguageTableTitle::getCode).collect(Collectors.joining("-"));
+
+            List<MoreLanguageTableTitle> keyNameList = tableTitleList.stream().filter(it -> it.getKeyName() != null)
+                    .sorted(Comparator.comparing(MoreLanguageTableTitle::getKeyName)).collect(Collectors.toList());
+            if (CollectionUtil.isEmpty(keyNameList)) {
+                keyNameList = Collections.singletonList(tableTitleList.get(0));
+            }
+            tableTitleList.removeAll(keyNameList);
+            String keyName = keyNameList.stream().map(MoreLanguageTableTitle::getCode).collect(Collectors.joining("-"));
+
+            exportBaseDTO.setKey(key);
+            exportBaseDTO.setKeyName(keyName);
 
             // 封装exportBaseDTO数据为map
-            Map<String, Object> baseMap = BeanUtil.beanToMap(exportBaseDTO);
-            beanList.removeIf(it-> baseMap.containsKey(it.getKey().toString()));
+            Map<String, Object> baseTitleMap = BeanUtil.beanToMap(exportBaseDTO);
+            Map<String, Object> baseMap = BeanUtil.beanToMap(exportBaseDTO, false, true);
+            beanList.removeIf(it-> baseTitleMap.containsKey(it.getKey().toString()));
 
             // 添加map默认表头,否则无法支持导入
             // 直接在ExcelExportService拷出来的
@@ -355,11 +376,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 //                    CellStyle cellStyle = workbook.createCellStyle();
 //                    cellStyle.setAlignment(HorizontalAlignment.LEFT);
 //                    sheet.setDefaultColumnStyle(0, cellStyle);
-
-//                    ExcelUtils.addFixText2LastRow(sheet, "温馨提示：请您按照导入规测进行导入，否测可能影响到导入成功，请注意。\n" +
-//                            "1、如若需要删除内容信息，请删除整行信息。\n" +
-//                            "2、请不要删除表头信息。\n" +
-//                            "3、请不要删除翻译语言内自带信息。");
                 }
 
                 workbook.write(baos);
@@ -371,11 +387,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                 workbook.close();
             }
         }
-    }
-
-    private List<List<String>> head(String tableTitleJson){
-        List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(tableTitleJson, MoreLanguageTableTitle.class);
-        return tableTitleList.stream().map(it-> Arrays.asList(it.getText(), it.getCode())).collect(Collectors.toList());
     }
 
     @Override

@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -25,96 +27,138 @@ import java.util.Date;
 public class HangTagMoreLanguageVO {
 
     /**
-     * 下单时间
+     * 标准列Id
      */
-    @ApiModelProperty(value = "下单时间")
+    private String standardColumnId;
+
+    /**
+     * 标准列码
+     */
+    @ApiModelProperty(value = "标准列码")
     private String standardColumnCode;
 
     /**
-     * 下单时间
+     * 标准列名
      */
-    @ApiModelProperty(value = "下单时间")
+    @ApiModelProperty(value = "标准列名")
     private String standardColumnName;
 
     /**
-     * 下单时间
+     * 标准列翻译
      */
-    @ApiModelProperty(value = "下单时间")
-    private String standardColumnTranslateContent;
+    @ApiModelProperty(value = "标准列翻译")
+    private String standardColumnContent;
 
     /**
-     * 下单时间
+     * 不能找到标准列翻译
      */
-    @ApiModelProperty(value = "下单时间")
-    private String model;
+    @ApiModelProperty(value = "不能找到标准列翻译")
+    private Boolean cannotFindStandardColumnContent = true;
 
     /**
-     * 下单时间
+     * 标准列模型
      */
-    @ApiModelProperty(value = "下单时间")
-    private String countryCode;
+    @ApiModelProperty(value = "标准列模型")
+    private StandardColumnModel model;
 
     /**
-     * 下单时间
+     * 查数据库的编码
      */
-    @ApiModelProperty(value = "下单时间")
-    private String countryName;
-
-    /**
-     * 下单时间
-     */
-    @ApiModelProperty(value = "下单时间")
-    private String languageCode;
-
-    /**
-     * 下单时间
-     */
-    @ApiModelProperty(value = "下单时间")
-    private String languageName;
-
-    /**
-     * 下单时间
-     */
-    @ApiModelProperty(value = "下单时间")
-    private String propertiesCode;
-
-    /**
-     * 下单时间
-     */
-    @ApiModelProperty(value = "下单时间")
-    private String propertiesName;
-
-    /**
-     * 下单时间
-     */
-    @ApiModelProperty(value = "下单时间")
+    @ApiModelProperty(value = "查数据库的编码")
     private String tableCode;
 
     /**
-     * 下单时间
+     * 仅model为radio时使用
      */
-    @ApiModelProperty(value = "下单时间")
+    @ApiModelProperty(value = "仅model为radio时使用")
     private String tableName;
 
     /**
-     * 下单时间
+     * 国家编码
      */
-    @ApiModelProperty(value = "下单时间")
+    @ApiModelProperty(value = "国家编码")
+    private String countryCode;
+
+    /**
+     * 国家名
+     */
+    @ApiModelProperty(value = "国家名")
+    private String countryName;
+
+    /**
+     * 语言码
+     */
+    @ApiModelProperty(value = "语言码")
+    private String languageCode;
+
+    /**
+     * 语言名
+     */
+    @ApiModelProperty(value = "语言名")
+    private String languageName;
+
+    /**
+     * 具体数据的编码
+     */
+    @ApiModelProperty(value = "具体数据的编码")
+    private String propertiesCode;
+
+    /**
+     * 具体数据
+     */
+    @ApiModelProperty(value = "具体数据")
+    private String propertiesName;
+
+    /**
+     * 具体数据的翻译
+     */
+    @ApiModelProperty(value = "具体数据的翻译")
     private String propertiesContent;
 
     /**
-     * 下单时间
+     * 是否是温馨提示
      */
-    @ApiModelProperty(value = "下单时间")
-    private String content;
+    @ApiModelProperty(value = "是否是温馨提示")
+    private Boolean isWarnTips = false;
 
-    private String createid;
+    /**
+     * 不能找到数据翻译
+     */
+    @ApiModelProperty(value = "不能找到数据翻译")
+    private Boolean cannotFindPropertiesContent = true;
+
+    /**
+     * 是组合的
+     */
+    @ApiModelProperty(value = "是组合的")
+    @JsonIgnore
+    private Boolean isGroup = false;
+
+    /**
+     * 全量数据
+     */
+    @ApiModelProperty(value = "全量数据")
+    public String getSourceContent() {
+        return String.format("%s:%s %s", standardColumnName, isGroup ? "\n" : "", propertiesName);
+    }
+
+    /**
+     * 全量数据翻译
+     */
+    @ApiModelProperty(value = "全量数据翻译")
+    public String getContent() {
+        return String.format("%s:%s %s", standardColumnContent, isGroup ? "\n" : "", propertiesContent);
+    }
+
+
+
+    private String createId;
     private String createName;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 
-    private String updateid;
+    private String updateId;
     private String updateName;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

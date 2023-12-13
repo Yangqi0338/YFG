@@ -65,20 +65,21 @@ public class MoreLanguageController extends BaseController {
     private MoreLanguageImportListener importListener;
 
     /**
-     * 新增国家
+     * 导入国家翻译
      */
     @SneakyThrows
     @PostMapping("/importExcel")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "导入国家翻译", notes = "导入国家翻译")
-    public ApiResult importExcel(@RequestPart MultipartFile file) {
+    public ApiResult importExcel(@RequestPart MultipartFile file, @RequestParam String moreLanguageId) {
 //        moreLanguageService.importExcel(excelQueryDto);
+        importListener.setCountryLanguageId(moreLanguageId);
         EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAll();
 
         return selectSuccess("");
     }
     /**
-     * 新增国家
+     * 导出国家翻译
      */
     @GetMapping("/exportExcel")
     @Transactional(rollbackFor = {Exception.class})

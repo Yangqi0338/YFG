@@ -76,7 +76,7 @@ public class Page implements Serializable {
     }
 
     public <E> com.github.pagehelper.Page<E> startPage(){
-        return PageHelper.startPage(this);
+        return PageHelper.startPage(this.pageNum, this.pageSize);
     }
 
 }

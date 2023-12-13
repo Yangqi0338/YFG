@@ -43,7 +43,7 @@ public class MoreLanguageDictTableStrategy implements MoreLanguageTableStrategy 
         // 没有分页,手动分页,后续再联调ccm做
         List<BasicBaseDict> dictInfoList = ccmFeignService.getDictInfoToList(standardColumn.getTableCode());
         dictInfoList = dictInfoList.stream().collect(Collectors.groupingBy(BasicBaseDict::getValue))
-                .values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+                .values().stream().map(it-> it.get(0)).collect(Collectors.toList());
 
         long pageSize = page.getPageSize();
         int maxSize = dictInfoList.size();

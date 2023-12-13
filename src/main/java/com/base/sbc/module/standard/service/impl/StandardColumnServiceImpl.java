@@ -31,6 +31,7 @@ import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -68,10 +69,10 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
                     .eq(StandardColumn::getType, type)) + 1;
             standardColumn.setCode(type.getPreCode() + code);
         }
-        // 无法修改系统默认数据
-        if (!rightOperationValue.equals(standardColumn.getIsDefault())) {
-            throw new OtherException("无法修改系统默认标准");
-        }
+//        // 无法修改系统默认数据
+//        if (!rightOperationValue.equals(standardColumn.getIsDefault())) {
+//            throw new OtherException("无法修改系统默认标准");
+//        }
         // 属性拷贝
         BeanUtil.copyProperties(standardColumnSaveDto, standardColumn);
         if (this.count(queryWrapper) > 0) {

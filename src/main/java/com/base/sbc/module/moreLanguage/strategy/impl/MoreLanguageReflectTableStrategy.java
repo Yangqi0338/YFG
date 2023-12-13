@@ -44,6 +44,7 @@ public class MoreLanguageReflectTableStrategy implements MoreLanguageTableStrate
 
     @Override
     public PageInfo<Map<String,Object>> findChildrenPage(Page page, StandardColumn standardColumn) {
+        // findStandardColumn
         String tableName = standardColumn.getTableName();
         String param = MoreLanguageTableContext.findParam(standardColumn.getTableCode());
         try {

@@ -15,4 +15,10 @@ public class MoreLanguageTableTitle {
 
     private String text;
 
+    private boolean isHidden = false;
+
+    private Integer key;
+
+    private Integer keyName;
+
 }

@@ -16,7 +16,7 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum SystemSource implements IEnum<String> {
+public enum SystemSource {
     PDM("PDM系统"),
     BCS("BCS系统"),
     PRINT("打印系统"),
@@ -40,8 +40,4 @@ public enum SystemSource implements IEnum<String> {
         this.text = text;
     }
 
-    @Override
-    public String getValue() {
-        return this.code;
-    }
 }

@@ -43,9 +43,12 @@ public class CountryModel extends BaseDataEntity<String> {
     /** 号型名称 */
     @ApiModelProperty(value = "号型名称"  )
     private String modelName;
-    /** 国际尺码 */
-    @ApiModelProperty(value = "国际尺码"  )
-    private String basicSize;
+    /** 尺码编码 */
+    @ApiModelProperty(value = "尺码编码"  )
+    private String basicSizeCode;
+    /** 尺码名称 */
+    @ApiModelProperty(value = "尺码名称"  )
+    private String basicSizeName;
     /** 翻译 */
     @ApiModelProperty(value = "翻译"  )
     private String content;
