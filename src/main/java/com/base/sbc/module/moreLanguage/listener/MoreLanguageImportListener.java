@@ -246,7 +246,6 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         standardColumnTranslateService.saveBatch(translateTitleList);
 
         removeMapping(context);
-        setCountryLanguageId(null);
 //        //非空判断
 //        List<DataVerifyResultVO> dataVerifyResultVOS = dataVerifyResults.get();
 //        if (CollectionUtil.isNotEmpty(dataVerifyResultVOS)) {

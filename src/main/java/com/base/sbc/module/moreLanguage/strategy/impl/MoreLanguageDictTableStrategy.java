@@ -45,14 +45,15 @@ public class MoreLanguageDictTableStrategy implements MoreLanguageTableStrategy 
         dictInfoList = dictInfoList.stream().collect(Collectors.groupingBy(BasicBaseDict::getValue))
                 .values().stream().map(it-> it.get(0)).collect(Collectors.toList());
 
-        long pageSize = page.getPageSize();
+        int pageSize = page.getPageSize();
+        int pageNum = page.getPageNum();
         int maxSize = dictInfoList.size();
         long maxPageSize = (maxSize / pageSize);
-        long currentPageSize = Math.max(0, page.getPageNum() - 1);
+        long currentPageSize = Math.max(0, pageNum - 1);
         long formIndex = Math.min(maxPageSize, currentPageSize) * pageSize;
         long toIndex = Math.min(formIndex + pageSize, maxSize);
 
-        com.github.pagehelper.Page startPage = page.startPage();
+        com.github.pagehelper.Page startPage = new com.github.pagehelper.Page<>(pageNum, pageSize);
         PageInfo<Map<String,Object>> pageInfo = startPage.toPageInfo();
         pageInfo.setList(dictInfoList.subList((int) formIndex, (int) toIndex).stream().map(BeanUtil::beanToMap).collect(Collectors.toList()));
         pageInfo.setTotal(maxSize);

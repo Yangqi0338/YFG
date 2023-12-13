@@ -2,6 +2,7 @@ package com.base.sbc.module.moreLanguage.strategy;
 
 import cn.hutool.core.collection.CollUtil;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Component;
@@ -34,6 +35,9 @@ public class MoreLanguageTableContext {
         PageInfo<Map<String,Object>> defaultValue = new PageInfo<>();
         if (CollUtil.isEmpty(tableStrategyList)) {
             return defaultValue;
+        }
+        if (page.getPageNum() == 0 || page.getPageSize() == 0){
+            throw new OtherException("缺少必要的分页参数");
         }
         paramMap.set(reflectMap);
         // 有顺序问题 注意!

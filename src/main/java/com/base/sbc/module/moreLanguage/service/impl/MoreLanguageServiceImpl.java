@@ -438,6 +438,10 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         PageInfo<Map<String, Object>> mapList = MoreLanguageTableContext.getTableData(moreLanguageQueryDto, standardColumn, reflectMap);
 
+        String key = StrUtil.toUnderlineCase(showFieldList.get(0));
+
+        List<Map<String, Object>> resultList = mapList.getList();
+        List<String> propertiesCodeList = resultList.stream().map(it -> it.get(key).toString()).collect(Collectors.toList());
         // 分页.. 有顺序问题
         // 查询翻译 也可以找redis,不常修改
         translateFieldList.add("properties_code");
@@ -446,12 +450,11 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                         .lambda()
                         .eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
                         .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
+                        .in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
         ).getRecords();
 
-        List<Map<String, Object>> resultList = mapList.getList();
         mapList.setList(resultList.stream().map(resultMap-> {
             Map<String, Object> map = new HashMap<>();
-            String key = StrUtil.toUnderlineCase(showFieldList.get(0));
             Map<String, Object> translateResultMap = translateList.stream()
                     .filter(it -> resultMap.getOrDefault(key,"").equals(it.get("properties_code"))).findFirst().orElse(new HashMap<>());
             showFieldList.forEach(field->{

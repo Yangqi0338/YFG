@@ -843,19 +843,27 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			String propertiesCode = codeFunc.getKey().apply(hangTagVO);
 			hangTagMoreLanguageVO.setPropertiesCode(propertiesCode);
 
-			StandardColumnCountryTranslate translate = standardColumnCountryTranslateService.findOne(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+			boolean needFeed = propertiesCode.contains("\n");
+			List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
 					.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
 					.eq(StandardColumnCountryTranslate::getTitleCode, code)
-					.eq(StandardColumnCountryTranslate::getPropertiesCode, propertiesCode)
+					.in(StandardColumnCountryTranslate::getPropertiesCode, Arrays.asList(propertiesCode.split("\n")))
 			);
 
 			String defaultValue = codeFunc.getValue().apply(hangTagVO);
 			hangTagMoreLanguageVO.setPropertiesName(defaultValue);
 			hangTagMoreLanguageVO.setPropertiesContent(defaultValue);
-			if (translate != null) {
+			if (CollectionUtil.isNotEmpty(translateList)) {
+				StandardColumnCountryTranslate translate = translateList.get(0);
 				hangTagMoreLanguageVO.setCannotFindPropertiesContent(false);
 				BeanUtil.copyProperties(translate,hangTagMoreLanguageDTO);
-				hangTagMoreLanguageVO.setPropertiesContent(translate.getContent());
+				String content;
+				if (needFeed) {
+					content = translateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining("\n"));
+				}else {
+					content = translate.getContent();
+				}
+				hangTagMoreLanguageVO.setPropertiesContent(content);
 			}
 			return hangTagMoreLanguageVO;
 		}).collect(Collectors.toList());
