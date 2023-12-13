@@ -1,7 +1,10 @@
 package com.base.sbc.module.hangtag.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.BigDecimalJsonSerializer;
+import com.base.sbc.config.JacksonHttpMessageConverter;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -35,6 +38,7 @@ public class HangTagIngredient extends BaseDataEntity<String> {
     private String type;
 
     /** 百分比 */
+    @JsonSerialize(using = BigDecimalJsonSerializer.class)
     private BigDecimal percentage;
 
     /** 成分备注 */
