@@ -439,7 +439,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         if (CollectionUtil.isNotEmpty(one2ManyKeyList)) {
             keyList = one2ManyKeyList.stream().map(it-> StrUtil.toUnderlineCase(it.getCode())).collect(Collectors.toList());
         }else {
-            keyList = Collections.singletonList(showFieldList.get(0));
+            keyList = Collections.singletonList(StrUtil.toUnderlineCase(showFieldList.get(0)));
         }
 
         // 找差集
