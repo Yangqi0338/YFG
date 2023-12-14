@@ -600,6 +600,17 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
+        if (StrUtil.isNotBlank(dto.getUserType())){
+            switch (dto.getUserType()) {
+                case "0":
+                    qw.ne("p.pattern_design_id", getUserId());
+                    break;
+                case "3":
+                    qw.eq("p.pattern_design_id", getUserId());
+                    break;
+                default:
+            }
+        }
         //手机端
         if (StrUtil.equals(dto.getIsApp(), BasicNumber.ONE.getNumber())) {
             //判断是否是样衣组长
