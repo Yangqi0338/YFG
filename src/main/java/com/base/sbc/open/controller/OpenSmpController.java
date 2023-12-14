@@ -1,10 +1,13 @@
 package com.base.sbc.open.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
@@ -30,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -61,7 +65,7 @@ public class OpenSmpController extends BaseController {
 
     private final BasicsdatumMaterialService basicsdatumMaterialService;
 
-    private final CcmFeignService ccmFeignService;
+    private final CcmService ccmService;
 
 
     /**
@@ -170,7 +174,12 @@ public class OpenSmpController extends BaseController {
         basicsdatumMaterialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("material_code",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
         String quanlityInspectContent="";
 
-        List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList("pd021");
+        List<BasicBaseDict> pd021DictList = new ArrayList<>();
+        String dictInfo = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "pd021");
+        JSONObject dictJsonObject = JSON.parseObject(dictInfo);
+        if (dictJsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            pd021DictList = dictJsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+        }
         for (int i = 0; i < escmMaterialCompnentInspectCompanyDto.getDetailList().size(); i++) {
             EscmMaterialCompnentInspectContent inspectContent = escmMaterialCompnentInspectCompanyDto.getDetailList().get(i);
 
