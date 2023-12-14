@@ -7,9 +7,7 @@
 package com.base.sbc.module.column.service.impl;
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.dto.ColumnGroupDefineDto;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.entity.ColumnGroupDefine;
@@ -117,7 +115,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
     @Transactional
     public void saveMain(ColumnGroupDefineDto dto) {
         String userGroupId = dto.getUserGroupId();
-        ColumnGroupDefine columnGroupDefine = dto.getColumnGroupDefine();
+        /*ColumnGroupDefine columnGroupDefine = dto.getColumnGroupDefine();
         String tableCode = columnGroupDefine.getTableCode();
         String tableName = columnGroupDefine.getTableName();
         if (StrUtil.isEmpty(tableCode) || StrUtil.isEmpty(tableName)) {
@@ -145,7 +143,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
         }
         columnGroupDefine.setUserGroupId(userGroupId);
         String id = columnGroupDefine.getId();
-        saveOrUpdate(columnGroupDefine);
+        saveOrUpdate(columnGroupDefine);*/
 
         List<ColumnGroupDefineItem> itemList = dto.getItemList();
 
@@ -157,9 +155,9 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                 groupDefineItem.insertInit();
             }
             groupDefineItem.setId(groupDefineItem.getSysId());
-            groupDefineItem.setTableCode(tableCode);
+            //groupDefineItem.setTableCode(tableCode);
             groupDefineItem.setUserGroupId(userGroupId);
-            groupDefineItem.setVersionId(id);
+            //groupDefineItem.setVersionId(id);
         }
 
         columnGroupDefineItemService.saveOrUpdateBatch(itemList);
