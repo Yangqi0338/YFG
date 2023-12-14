@@ -891,6 +891,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                                     p.setForeignId(dto.getTargetForeignId());
                                     p.setBomId(newId);
                                     p.setPackType(dto.getTargetPackType());
+                                    p.setBomVersionId(packBomVersion1.getId());
                                     p.setId(null);
                                 });
                                 bomSizeList.addAll(BeanUtil.copyToList(packBomSizeList, PackBomSize.class));
