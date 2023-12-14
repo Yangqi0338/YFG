@@ -23,31 +23,33 @@ import redis.clients.jedis.JedisPoolConfig;
 @Configuration
 @EnableCaching
 public class RedisConfig extends CachingConfigurerSupport {
-//    @Value("${spring.redis.host}")
-//    private String host;
-//
-//    @Value("${spring.redis.port}")
-//    private int port;
-//
-//    @Value("${spring.redis.password}")
-//    private String password;
+    @Value("${spring.redis.host}")
+    private String host;
+
+    @Value("${spring.redis.port}")
+    private int port;
+
+    @Value("${spring.redis.password}")
+    private String password;
     @Value("${spring.redis.database}")
     private int database;
     @Value("${spring.redis.databaseAmc}")
     private int databaseAmc;
-//    @Value("${spring.redis.pool.max-active}")
-//    private int maxActive;
-//
-//    @Value("${spring.redis.pool.max-idle}")
-//    private int maxIdle;
-//    @Value("${spring.redis.pool.max-wait}")
-//    private int maxWait;
+    @Value("${spring.redis.pool.max-active}")
+    private int maxActive;
+
+    @Value("${spring.redis.pool.max-idle}")
+    private int maxIdle;
+    @Value("${spring.redis.pool.max-wait}")
+    private int maxWait;
+
     /**
      * 选择redis作为默认缓存工具
+     *
      * @param redisTemplate
      * @return
      */
-	@Bean
+    @Bean
     public CacheManager cacheManager(RedisTemplate redisTemplate) {
         RedisCacheManager rcm = new RedisCacheManager(redisTemplate);
         return rcm;
@@ -69,16 +71,16 @@ public class RedisConfig extends CachingConfigurerSupport {
      * @return
      */
     public RedisTemplate<String, Object> redisTemplateInit(int database, JedisConnectionFactory factory) {
-//        JedisConnectionFactory factory = new JedisConnectionFactory();
-//        factory.setHostName(host);
-//        factory.setPort(port);
-//        factory.setPassword(password);
+        factory = new JedisConnectionFactory();
+        factory.setHostName(host);
+        factory.setPort(port);
+        factory.setPassword(password);
         factory.setDatabase(database);
-//        JedisPoolConfig poolConfig = new JedisPoolConfig(); // 进行连接池配置
-//        poolConfig.setMaxTotal(maxActive);
-//        poolConfig.setMaxIdle(maxIdle);
-//        poolConfig.setMaxWaitMillis(maxWait);
-//        factory.setPoolConfig(poolConfig);
+        JedisPoolConfig poolConfig = new JedisPoolConfig(); // 进行连接池配置
+        poolConfig.setMaxTotal(maxActive);
+        poolConfig.setMaxIdle(maxIdle);
+        poolConfig.setMaxWaitMillis(maxWait);
+        factory.setPoolConfig(poolConfig);
         factory.afterPropertiesSet(); // 初始化连接池配置
 
         RedisTemplate<String, Object> template = new RedisTemplate<>();
