@@ -121,6 +121,9 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
         }
+        if(StrUtil.equals(dto.getDeriveFlag(),BaseGlobal.YES) && stylePricingList.size() >2000){
+            throw new OtherException("最多只能导出2000条");
+        }
         stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
         this.dataProcessing(stylePricingList, dto.getCompanyCode());
         return new PageInfo<>(stylePricingList);

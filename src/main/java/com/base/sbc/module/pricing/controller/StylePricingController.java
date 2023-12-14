@@ -90,10 +90,10 @@ public class StylePricingController extends BaseController {
     @ApiOperation(value = "导出款式定价列表")
     @GetMapping("/exportStylePricingList")
     public void exportStylePricingList(Principal user, StylePricingSearchDTO stylePricingSearchDTO, HttpServletResponse response) throws IOException {
+        stylePricingSearchDTO.setDeriveFlag(BaseGlobal.YES);
         PageInfo<StylePricingVO> stylePricingList = stylePricingService.getStylePricingList(user, stylePricingSearchDTO);
         //导出
-        // EasyExcel.write(response.getOutputStream(), StylePricingVO.class).excelType(ExcelTypeEnum.CSV).sheet("款式定价").doWrite(stylePricingList.getList());
-        ExcelUtils.exportExcel(stylePricingList.getList(),  StylePricingVO.class, "款式定价.xlsx",new ExportParams("title","sheetName",ExcelType.HSSF) ,response);
+        ExcelUtils.executorExportExcel(stylePricingList.getList(), StylePricingVO.class,"款式定价.xlsx","1",2000,response,"styleColorPic");
     }
 
 

@@ -6,7 +6,16 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,12 +25,18 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Excel导入导出工具类
  */
 
 public class ExcelUtils {
+
+    private static final Log logger = LogFactory.getLog(ExcelUtils.class);
+
+
 
     /**
      * excel 导出
@@ -227,4 +242,54 @@ public class ExcelUtils {
             throw new IOException(e.getMessage());
         }
     }
+
+    /**
+     * 线程导出表格
+     * @param list 导出的数据
+     * @param pojoClass class
+     * @param name 文件名称
+     * @param imgFlag 是否导出图片
+     * @param maxNumber 最大导出量
+     * @param response
+     * @param columns 图片列名
+     */
+    public static void executorExportExcel(List<?> list, Class<?> pojoClass, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, String... columns){
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .build();
+        try {
+            if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > maxNumber) {
+                    throw new OtherException("带图片导出最多只能导出"+maxNumber+"条");
+                }
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+
+                for (Object o  : list) {
+                    executor.submit(() -> {
+                        try {
+                            for (String column : columns) {
+                                final String stylePic = BeanUtil.getProperty(o, column);
+                                BeanUtil.setProperty(o, column+"1", HttpUtil.downloadBytes(stylePic));
+                            }
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            logger.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
 }
