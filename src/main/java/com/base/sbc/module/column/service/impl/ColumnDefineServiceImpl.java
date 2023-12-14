@@ -14,9 +14,11 @@ import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.mapper.ColumnDefineMapper;
 import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,16 +51,23 @@ public class ColumnDefineServiceImpl extends BaseServiceImpl<ColumnDefineMapper,
     public void saveMain(List<ColumnDefine> list, String tableCode) {
         List<ColumnDefine> byTableCode = getByTableCode(tableCode, true);
         Map<String, ColumnDefine> collect = byTableCode.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+        List<String> delIds = new ArrayList<>();
         for (ColumnDefine columnDefine : list) {
             if (StrUtil.isEmpty(columnDefine.getId())) {
                 columnDefine.insertInit();
             } else {
                 columnDefine.updateInit();
+                if(BaseGlobal.DEL_FLAG_DELETE.equals(columnDefine.getDelFlag())){
+                    delIds.add(columnDefine.getId());
+                }
             }
             columnDefine.setTableCode(tableCode);
         }
 
         saveOrUpdateBatch(list);
+        if(CollectionUtils.isNotEmpty(delIds)){
+            removeBatchByIds(delIds);
+        }
     }
 
 }
