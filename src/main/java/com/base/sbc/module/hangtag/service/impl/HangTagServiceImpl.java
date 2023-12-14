@@ -400,11 +400,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		);
 
 		hangTagIngredientList.stream().collect(Collectors.groupingBy(HangTagIngredient::getHangTagId)).forEach((hangTagId, sameHangTagIdList)-> {
-			sameHangTagIdList.stream().collect(Collectors.groupingBy(it-> it.getIngredientCode() + "-" + it.getIngredientSecondCode())).forEach((code, list)-> {
-				String ingredientName = list.get(0).getIngredientName();
+			sameHangTagIdList.stream().collect(Collectors.groupingBy(it-> it.getTypeCode() + "-" + it.getIngredientSecondCode())).forEach((code, list)-> {
+				String type = list.get(0).getType();
 				String ingredientSecondName = list.get(0).getIngredientSecondName();
 				if (list.stream().mapToDouble(it-> it.getPercentage().doubleValue()).sum() != 100.0)
-					throw new OtherException(ingredientName + "-" + ingredientSecondName +"百分比相加不是100,未通过校验");
+					throw new OtherException(type + "-" + ingredientSecondName +"百分比相加不是100,未通过校验");
 			});
 		});
 	}
