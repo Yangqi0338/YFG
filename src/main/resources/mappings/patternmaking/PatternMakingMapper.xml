@@ -624,7 +624,7 @@
 
         </if>
     </select>
-    <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
+    <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
 
                 SELECT
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '版房主管下发' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bfzgxfsj',
@@ -637,43 +637,12 @@
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '车缝完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'cfwcsj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '样衣完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'yywcsj',
         p.id AS patternMakingId,
-        p.pattern_design_name,
-        p.pattern_design_id,
-        p.pat_diff,
-        p.pat_diff_name,
+        CONCAT(s.year_name,' ',s.season,' ',s.brand_name) AS season,
         p.sample_bar_code AS sampleBarCode,
-        p.sample_type_name,
-        p.pat_seq_name,
-        p.pattern_no,
         p.create_date AS `pmCreateDate`,
         p.demand_finish_date AS demandFinishDate ,
-        p.technician_kitting,
-        p.technician_kitting_date,
-        p.sgl_kitting,
-        p.sgl_kitting_date,
-        p.pattern_technician_name,
-        p.pattern_finish_num,
-        p.sample_finish_num,
-        p.sample_making_score,
-        p.sample_making_quality_score,
-        p.pattern_making_score,
-        p.pattern_making_quality_score,
-        p.second_processing,
-        p.prm_send_date,
-        p.prm_send_status,
-        p.grading_name,
-        p.grading_date,
-        p.pattern_designer_name,
-        p.receive_sample_date,
-        p.break_off_sample,
-        p.break_off_pattern,
-        p.pattern_req_date,
-        p.revision_comments,
-        p.revision_reason,
-        p.requirement_num,
-        p.suspend_remarks,
-        p.cutter_finish_num,
         s.*,
+        p.*,
         p.cutter_name AS cutterName,
         p.stitcher AS stitcher
         FROM
