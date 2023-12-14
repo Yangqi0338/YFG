@@ -9,8 +9,10 @@ package com.base.sbc.module.hangtag.vo;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 import java.util.StringJoiner;
@@ -24,19 +26,15 @@ import java.util.StringJoiner;
  * @email ch.183.g1114@gmail.com
  * @date 创建时间：2023-6-26 17:15:52
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class HangTagMoreLanguageVO {
+public class HangTagMoreLanguageVO extends HangTagMoreLanguageSupportVO {
 
     /**
-     * 标准列Id
+     * 大货款号
      */
-    private String standardColumnId;
-
-    /**
-     * 标准列码
-     */
-    @ApiModelProperty(value = "标准列码")
-    private String standardColumnCode;
+    @ApiModelProperty(value = "大货款号")
+    private String bulkStyleNo;
 
     /**
      * 标准列名
@@ -54,31 +52,11 @@ public class HangTagMoreLanguageVO {
      * 不能找到标准列翻译
      */
     @ApiModelProperty(value = "不能找到标准列翻译")
-    private Boolean cannotFindStandardColumnContent = true;
+    protected Boolean cannotFindStandardColumnContent = true;
 
-    /**
-     * 标准列模型
-     */
-    @ApiModelProperty(value = "标准列模型")
-    private StandardColumnModel model;
-
-    /**
-     * 查数据库的编码
-     */
-    @ApiModelProperty(value = "查数据库的编码")
-    private String tableCode;
-
-    /**
-     * 仅model为radio时使用
-     */
-    @ApiModelProperty(value = "仅model为radio时使用")
-    private String tableName;
-
-    /**
-     * 国家编码
-     */
-    @ApiModelProperty(value = "国家编码")
-    private String countryCode;
+    public Boolean getCannotFindStandardColumnContent() {
+        return this.cannotFindStandardColumnContent && !isGroup;
+    }
 
     /**
      * 国家名
@@ -87,22 +65,10 @@ public class HangTagMoreLanguageVO {
     private String countryName;
 
     /**
-     * 语言码
-     */
-    @ApiModelProperty(value = "语言码")
-    private String languageCode;
-
-    /**
      * 语言名
      */
     @ApiModelProperty(value = "语言名")
     private String languageName;
-
-    /**
-     * 具体数据的编码
-     */
-    @ApiModelProperty(value = "具体数据的编码")
-    private String propertiesCode;
 
     /**
      * 具体数据
@@ -117,46 +83,21 @@ public class HangTagMoreLanguageVO {
     private String propertiesContent;
 
     /**
-     * 是否是温馨提示
-     */
-    @ApiModelProperty(value = "是否是温馨提示")
-    private Boolean isWarnTips = false;
-
-    /**
      * 不能找到数据翻译
      */
     @ApiModelProperty(value = "不能找到数据翻译")
     private Boolean cannotFindPropertiesContent = false;
 
     public Boolean getCannotFindPropertiesContent() {
-        return cannotFindPropertiesContent && model != StandardColumnModel.TEXT;
+        return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
     }
-
-    /**
-     * 打印系统专门检查信息
-     */
-    @ApiModelProperty(value = "打印系统专门检查信息")
-    private String getPrinterCheckMessage(){
-        String messageFormat = "%s未翻译";
-        StringJoiner message = new StringJoiner("/");
-        if (cannotFindStandardColumnContent) message.add(String.format(messageFormat, message + "字段"));
-        if (getCannotFindPropertiesContent())  message.add(String.format(messageFormat, message + "内容"));
-        return message.toString();
-    };
-
-    /**
-     * 是组合的
-     */
-    @ApiModelProperty(value = "是组合的")
-    @JsonIgnore
-    private Boolean isGroup = false;
 
     /**
      * 全量数据
      */
     @ApiModelProperty(value = "全量数据")
     public String getSourceContent() {
-        return String.format("%s:%s %s", standardColumnName, isGroup ? "\n" : "", propertiesName);
+        return String.format("%s:%s %s", this.standardColumnName, this.isGroup ? "\n" : "", this.propertiesName);
     }
 
     /**
@@ -164,20 +105,7 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        return String.format("%s:%s %s", standardColumnContent, isGroup ? "\n" : "", propertiesContent);
+        return String.format("%s:%s %s", this.standardColumnContent, this.isGroup ? "\n" : "", this.propertiesContent);
     }
 
-
-
-    private String createId;
-    private String createName;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date createTime;
-
-    private String updateId;
-    private String updateName;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    private Date updateTime;
 }

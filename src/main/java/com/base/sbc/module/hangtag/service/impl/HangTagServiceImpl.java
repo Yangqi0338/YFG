@@ -32,7 +32,10 @@ import com.base.sbc.module.basicsdatum.service.SizeBulkStyleService;
 import com.base.sbc.module.basicsdatum.vo.SizeBulkStyleVo;
 import com.base.sbc.module.hangtag.dto.HangTagIngredientDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguagePrinterVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebVO;
 import com.base.sbc.module.moreLanguage.entity.Country;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
@@ -292,7 +295,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public HangTagVO getDetailsByBulkStyleNo(String bulkStyleNo, String userCompany, String selectType) {
-		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, userCompany, selectType);
+		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(Collections.singletonList(bulkStyleNo), userCompany, selectType).stream().findFirst().orElse(null);
 		if (hangTagVO == null) {
 			throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
 		}
@@ -773,9 +776,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	@Override
-	public List<HangTagMoreLanguageVO> getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
+	public List<?> getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
 		String countryLanguageId = hangTagMoreLanguageDTO.getCountryLanguageId();
-		String bulkStyleNo = hangTagMoreLanguageDTO.getBulkStyleNo();
+		List<String> bulkStyleNoList = Arrays.asList(hangTagMoreLanguageDTO.getBulkStyleNo().split(","));
 		SystemSource source = hangTagMoreLanguageDTO.getSource();
 
 		Country country = countryService.getById(countryLanguageId);
@@ -800,144 +803,177 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		queryDto.setCodeList(standardColumnCodeList);
 		List<StandardColumnDto> standardColumnList = standardColumnService.listQuery(queryDto);
 
-		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNo, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType());
-		if (hangTagVO == null) {
-			throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
-		}
-		// 转换成codeMap
-		Map<String, Pair<Function<HangTagVO, String>, Function<HangTagVO, String>>> codeMap = new HashMap<>();
-		// 选择了安全技术类别的安全标题 修改
-		if ("10".equals(hangTagVO.getSaftyTitleCode())) {
-			codeMap.put("DP02", Pair.of(HangTagVO::getSaftyTypeCode, HangTagVO::getSaftyType));
-		}
-		codeMap.put("DP03", Pair.of(HangTagVO::getExecuteStandardCode, HangTagVO::getExecuteStandard));
-		codeMap.put("DP04", Pair.of(HangTagVO::getBulkStyleNo, HangTagVO::getBulkStyleNo));
-		codeMap.put("DP05", Pair.of(HangTagVO::getProductCode, HangTagVO::getProductName));
-		codeMap.put("DP07", Pair.of(HangTagVO::getColorCode, HangTagVO::getColor));
-		codeMap.put("DP12", Pair.of(HangTagVO::getDownContent, HangTagVO::getDownContent));
-		codeMap.put("DP13", Pair.of(HangTagVO::getWarmTipsCode, HangTagVO::getWarmTips));
 
-		String isWarmTipsCode = standardColumnList.stream().filter(it -> YesOrNoEnum.YES.getValueStr().equals(it.getIsDefault())).max(Comparator.comparing(it -> Long.parseLong(it.getId())))
-				.map(StandardColumn::getCode).orElse("");
-		List<HangTagMoreLanguageVO> result = standardColumnList.stream().filter(it -> codeMap.containsKey(it.getCode())).map(standardColumn -> {
-			HangTagMoreLanguageVO hangTagMoreLanguageVO = new HangTagMoreLanguageVO();
+		List<HangTagVO> hangTagVOList = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNoList, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType());
 
-			String code = standardColumn.getCode();
-			BeanUtil.copyProperties(standardColumn, hangTagMoreLanguageVO);
-			hangTagMoreLanguageVO.setStandardColumnId(standardColumn.getId());
-			hangTagMoreLanguageVO.setStandardColumnCode(code);
-			hangTagMoreLanguageVO.setStandardColumnName(standardColumn.getName());
-			BeanUtil.copyProperties(country, hangTagMoreLanguageVO);
+		List<HangTagMoreLanguageVO> resultList = new ArrayList<>();
+		bulkStyleNoList.forEach(bulkStyleNo -> {
+			HangTagVO hangTagVO = hangTagVOList.stream().filter(it-> it.getBulkStyleNo().equals(bulkStyleNo))
+					.findFirst().orElseThrow(()-> new OtherException("大货款号:" + bulkStyleNo + " 不存在"));
 
-			if (code.equals(isWarmTipsCode)) {
-				hangTagMoreLanguageVO.setIsWarnTips(true);
+			// 转换成codeMap
+			Map<String, Pair<Function<HangTagVO, String>, Function<HangTagVO, String>>> codeMap = new HashMap<>();
+			// 选择了安全技术类别的安全标题 修改
+			if ("10".equals(hangTagVO.getSaftyTitleCode())) {
+				codeMap.put("DP02", Pair.of(HangTagVO::getSaftyTypeCode, HangTagVO::getSaftyType));
 			}
+			codeMap.put("DP03", Pair.of(HangTagVO::getExecuteStandardCode, HangTagVO::getExecuteStandard));
+			codeMap.put("DP04", Pair.of(HangTagVO::getBulkStyleNo, HangTagVO::getBulkStyleNo));
+			codeMap.put("DP05", Pair.of(HangTagVO::getProductCode, HangTagVO::getProductName));
+			codeMap.put("DP07", Pair.of(HangTagVO::getColorCode, HangTagVO::getColor));
+			codeMap.put("DP12", Pair.of(HangTagVO::getDownContent, HangTagVO::getDownContent));
+			codeMap.put("DP13", Pair.of(HangTagVO::getWarmTipsCode, HangTagVO::getWarmTips));
 
-			titleTranslateList.stream().filter(it-> it.getPropertiesCode().equals(code)).findFirst().ifPresent(titleTranslate-> {
-				hangTagMoreLanguageVO.setCannotFindStandardColumnContent(false);
-				hangTagMoreLanguageVO.setStandardColumnContent(titleTranslate.getContent());
-			});
+			String isWarmTipsCode = standardColumnList.stream().filter(it -> YesOrNoEnum.YES.getValueStr().equals(it.getIsDefault())).max(Comparator.comparing(it -> Long.parseLong(it.getId())))
+					.map(StandardColumn::getCode).orElse("");
+			List<HangTagMoreLanguageVO> result = standardColumnList.stream().filter(it -> codeMap.containsKey(it.getCode())).map(standardColumn -> {
+				HangTagMoreLanguageVO hangTagMoreLanguageVO = new HangTagMoreLanguageVO();
+				hangTagMoreLanguageVO.setBulkStyleNo(bulkStyleNo);
 
-			// 能否找到对应的翻译
-			Pair<Function<HangTagVO, String>, Function<HangTagVO, String>> codeFunc = codeMap.get(code);
-			String propertiesCode = codeFunc.getKey().apply(hangTagVO);
-			hangTagMoreLanguageVO.setPropertiesCode(propertiesCode);
+				String code = standardColumn.getCode();
+				BeanUtil.copyProperties(standardColumn, hangTagMoreLanguageVO);
+				hangTagMoreLanguageVO.setStandardColumnId(standardColumn.getId());
+				hangTagMoreLanguageVO.setStandardColumnCode(code);
+				hangTagMoreLanguageVO.setStandardColumnName(standardColumn.getName());
+				BeanUtil.copyProperties(country, hangTagMoreLanguageVO);
 
-			boolean needFeed = propertiesCode.contains("\n");
-			List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-					.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-					.eq(StandardColumnCountryTranslate::getTitleCode, code)
-					.in(StandardColumnCountryTranslate::getPropertiesCode, Arrays.asList(propertiesCode.split("\n")))
-			);
-
-			String defaultValue = codeFunc.getValue().apply(hangTagVO);
-			hangTagMoreLanguageVO.setPropertiesName(defaultValue);
-			hangTagMoreLanguageVO.setPropertiesContent(defaultValue);
-			if (CollectionUtil.isNotEmpty(translateList)) {
-				StandardColumnCountryTranslate translate = translateList.get(0);
-				hangTagMoreLanguageVO.setCannotFindPropertiesContent(false);
-				BeanUtil.copyProperties(translate,hangTagMoreLanguageDTO);
-				String content;
-				if (needFeed) {
-					content = translateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining("\n"));
-				}else {
-					content = translate.getContent();
+				if (code.equals(isWarmTipsCode)) {
+					hangTagMoreLanguageVO.setIsWarnTips(true);
 				}
-				hangTagMoreLanguageVO.setPropertiesContent(content);
-			}
-			return hangTagMoreLanguageVO;
-		}).collect(Collectors.toList());
 
-		// 成分信息专属
-		String ingredient = hangTagVO.getIngredient();
+				titleTranslateList.stream().filter(it-> it.getPropertiesCode().equals(code)).findFirst().ifPresent(titleTranslate-> {
+					hangTagMoreLanguageVO.setCannotFindStandardColumnContent(false);
+					hangTagMoreLanguageVO.setStandardColumnContent(titleTranslate.getContent());
+				});
 
-		if (StrUtil.isNotBlank(ingredient)) {
-			HangTagMoreLanguageVO ingredientMoreLanguageVO = new HangTagMoreLanguageVO();
-			ingredientMoreLanguageVO.setStandardColumnId("1730154821870800898");
-			ingredientMoreLanguageVO.setStandardColumnCode("DP09,DP11,DP10");
-			ingredientMoreLanguageVO.setStandardColumnName("成分信息");
-			ingredientMoreLanguageVO.setStandardColumnContent("成分信息");
-			ingredientMoreLanguageVO.setIsGroup(true);
-			ingredientMoreLanguageVO.setModel(StandardColumnModel.TEXT);
-			BeanUtil.copyProperties(country, ingredientMoreLanguageVO);
-			result.add(ingredientMoreLanguageVO);
+				// 能否找到对应的翻译
+				Pair<Function<HangTagVO, String>, Function<HangTagVO, String>> codeFunc = codeMap.get(code);
+				String defaultValue = codeFunc.getValue().apply(hangTagVO);
+				hangTagMoreLanguageVO.setPropertiesName(defaultValue);
+				hangTagMoreLanguageVO.setPropertiesContent(defaultValue);
 
-
-			BaseLambdaQueryWrapper<HangTagIngredient> queryWrapper =new BaseLambdaQueryWrapper<>();
-			queryWrapper.eq(HangTagIngredient::getHangTagId,hangTagVO.getId());
-			List<HangTagIngredient> list = hangTagIngredientService.list(queryWrapper);
-
-			List<String> ingredientCodeList = list.stream().flatMap(it -> Stream.of(it.getIngredientCode(), it.getIngredientDescriptionCode(), it.getTypeCode(), it.getIngredientSecondCode()))
-					.filter(StrUtil::isNotBlank).collect(Collectors.toList());
-
-			List<StandardColumnCountryTranslate> ingredientContentList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+				String propertiesCode = codeFunc.getKey().apply(hangTagVO);
+				hangTagMoreLanguageVO.setPropertiesCode(propertiesCode);
+				if (StrUtil.isNotBlank(propertiesCode)) {
+					List<String> propertiesCodeList = Arrays.asList(propertiesCode.split("\n"));
+					if (propertiesCodeList.size() <= 1) {
+						propertiesCodeList = Arrays.asList(propertiesCode.split(","));
+					}
+					boolean needFeed = propertiesCodeList.size() > 1;
+					List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
 							.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-							.in(StandardColumnCountryTranslate::getTitleCode, Arrays.asList(ingredientMoreLanguageVO.getStandardColumnCode().split(",")))
-							.in(StandardColumnCountryTranslate::getPropertiesCode, ingredientCodeList))
-					.stream().filter(Objects::nonNull)
-					.sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList());
+							.eq(StandardColumnCountryTranslate::getTitleCode, code)
+							.in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
+					);
+					if (CollectionUtil.isNotEmpty(translateList)) {
+						StandardColumnCountryTranslate translate = translateList.get(0);
+						hangTagMoreLanguageVO.setCannotFindPropertiesContent(false);
+						BeanUtil.copyProperties(translate,hangTagMoreLanguageDTO);
+						String content;
+						if (needFeed) {
+							content = translateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining("\n"));
+						}else {
+							content = translate.getContent();
+						}
+						hangTagMoreLanguageVO.setPropertiesContent(content);
+					}
+				}else {
+					// 通过名字匹配?? TODO
+					hangTagMoreLanguageVO.setCannotFindPropertiesContent(true);
+				}
+				return hangTagMoreLanguageVO;
+			}).collect(Collectors.toList());
 
-			for (StandardColumnCountryTranslate content : ingredientContentList) {
-				ingredient = ingredient.replaceAll(content.getPropertiesName(), content.getContent());
-				BeanUtil.copyProperties(content, ingredientMoreLanguageVO);
+			// 成分信息专属
+			String ingredient = hangTagVO.getIngredient();
+
+			if (StrUtil.isNotBlank(ingredient)) {
+				HangTagMoreLanguageVO ingredientMoreLanguageVO = new HangTagMoreLanguageVO();
+				ingredientMoreLanguageVO.setBulkStyleNo(bulkStyleNo);
+				ingredientMoreLanguageVO.setStandardColumnId("1730154821870800898");
+				ingredientMoreLanguageVO.setStandardColumnCode("DP09,DP11,DP10");
+				ingredientMoreLanguageVO.setStandardColumnName("成分信息");
+				ingredientMoreLanguageVO.setStandardColumnContent("成分信息");
+				ingredientMoreLanguageVO.setIsGroup(true);
+				ingredientMoreLanguageVO.setModel(StandardColumnModel.RADIO);
+				BeanUtil.copyProperties(country, ingredientMoreLanguageVO);
+				result.add(ingredientMoreLanguageVO);
+
+
+				BaseLambdaQueryWrapper<HangTagIngredient> queryWrapper =new BaseLambdaQueryWrapper<>();
+				queryWrapper.eq(HangTagIngredient::getHangTagId,hangTagVO.getId());
+				List<HangTagIngredient> list = hangTagIngredientService.list(queryWrapper);
+
+				List<String> ingredientCodeList = list.stream().flatMap(it -> Stream.of(it.getIngredientCode(), it.getIngredientDescriptionCode(), it.getTypeCode(), it.getIngredientSecondCode()))
+						.filter(StrUtil::isNotBlank).collect(Collectors.toList());
+
+				List<StandardColumnCountryTranslate> ingredientContentList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+								.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
+								.in(StandardColumnCountryTranslate::getTitleCode, Arrays.asList(ingredientMoreLanguageVO.getStandardColumnCode().split(",")))
+								.in(StandardColumnCountryTranslate::getPropertiesCode, ingredientCodeList))
+						.stream().filter(Objects::nonNull)
+						.sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList());
+
+				for (StandardColumnCountryTranslate content : ingredientContentList) {
+					ingredient = ingredient.replaceAll(content.getPropertiesName(), content.getContent());
+					BeanUtil.copyProperties(content, ingredientMoreLanguageVO);
+				}
+				ingredientMoreLanguageVO.setPropertiesCode(null);
+				ingredientMoreLanguageVO.setPropertiesName(hangTagVO.getIngredient());
+				ingredientMoreLanguageVO.setPropertiesContent(ingredient);
+				ingredientMoreLanguageVO.setCannotFindPropertiesContent(ingredientCodeList.size() > ingredientContentList.size());
 			}
-			ingredientMoreLanguageVO.setPropertiesCode(null);
-			ingredientMoreLanguageVO.setPropertiesName(hangTagVO.getIngredient());
-			ingredientMoreLanguageVO.setPropertiesContent(ingredient);
-			ingredientMoreLanguageVO.setCannotFindPropertiesContent(ingredientCodeList.size() > ingredientContentList.size());
-		}
 
-		// 充绒量
-		HangTagMoreLanguageVO woolFillMoreLanguageVO = result.stream().filter(it -> "DP12".equals(it.getStandardColumnCode())).findFirst().get();
+			// 充绒量
+			HangTagMoreLanguageVO woolFillMoreLanguageVO = result.stream().filter(it -> "DP12".equals(it.getStandardColumnCode())).findFirst().get();
 
-		String downContent = woolFillMoreLanguageVO.getPropertiesContent();
+			String downContent = woolFillMoreLanguageVO.getPropertiesContent();
 
-		if (StrUtil.isNotBlank(downContent)) {
-			BasicsdatumModelType modelType = basicsdatumModelTypeService.getOne(new QueryWrapper<BasicsdatumModelType>().eq("code", hangTagVO.getModelType()));
-			List<String> sizeNameList = Arrays.asList(modelType.getSize().split(","));
-			List<String> sizeCodeList = Arrays.asList(modelType.getSizeCode().split(","));
+			if (StrUtil.isNotBlank(downContent)) {
+				BasicsdatumModelType modelType = basicsdatumModelTypeService.getOne(new QueryWrapper<BasicsdatumModelType>().eq("code", hangTagVO.getModelType()));
+				List<String> sizeNameList = Arrays.asList(modelType.getSize().split(","));
+				List<String> sizeCodeList = Arrays.asList(modelType.getSizeCode().split(","));
 
-			List<StandardColumnCountryTranslate> woolFillContentList = Arrays.stream(downContent.split("\n")).map(it -> it.split(":")[0]).map(it -> {
-				int sizeIndex = sizeNameList.indexOf(it);
-				String sizeCode = sizeCodeList.get(sizeIndex);
-				return standardColumnCountryTranslateService.findOne(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-						.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-						.eq(StandardColumnCountryTranslate::getTitleCode, "DP06")
-						.eq(StandardColumnCountryTranslate::getPropertiesCode, sizeCode + "-" + modelType.getCode()));
-			}).filter(Objects::nonNull).sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList());
+				List<String> woolFillSizeCodeList = Arrays.stream(downContent.split("\n")).map(it -> it.split(":")[0]).collect(Collectors.toList());
+				List<StandardColumnCountryTranslate> woolFillContentList = woolFillSizeCodeList.stream().map(it -> {
+					int sizeIndex = sizeNameList.indexOf(it);
+					String sizeCode = sizeCodeList.get(sizeIndex);
+					return standardColumnCountryTranslateService.findOne(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+							.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
+							.eq(StandardColumnCountryTranslate::getTitleCode, "DP06")
+							.eq(StandardColumnCountryTranslate::getPropertiesCode, sizeCode + "-" + modelType.getCode()));
+				}).filter(Objects::nonNull).sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList());
 
-			for (StandardColumnCountryTranslate content : woolFillContentList) {
-				downContent = downContent.replaceAll(content.getPropertiesName(), content.getContent());
-				BeanUtil.copyProperties(content, woolFillMoreLanguageVO);
+				for (StandardColumnCountryTranslate content : woolFillContentList) {
+					downContent = downContent.replaceAll(content.getPropertiesName(), content.getContent());
+					BeanUtil.copyProperties(content, woolFillMoreLanguageVO);
+				}
+
+				woolFillMoreLanguageVO.setModel(StandardColumnModel.RADIO);
+				woolFillMoreLanguageVO.setPropertiesCode(null);
+				woolFillMoreLanguageVO.setPropertiesName(hangTagVO.getDownContent());
+				woolFillMoreLanguageVO.setPropertiesContent(downContent);
+				woolFillMoreLanguageVO.setCannotFindPropertiesContent(woolFillSizeCodeList.size() > woolFillContentList.size());
 			}
+			resultList.addAll(result);
+		});
 
-			woolFillMoreLanguageVO.setPropertiesCode(null);
-			woolFillMoreLanguageVO.setPropertiesName(hangTagVO.getDownContent());
-			woolFillMoreLanguageVO.setPropertiesContent(downContent);
-			woolFillMoreLanguageVO.setCannotFindPropertiesContent(woolFillContentList.stream().anyMatch(Objects::isNull));
+		resultList.sort(Comparator.comparing(HangTagMoreLanguageVO::getStandardColumnId));
+
+		switch (source) {
+			case PDM:
+				return BeanUtil.copyToList(resultList, HangTagMoreLanguageWebVO.class);
+			case BCS:
+				List<HangTagMoreLanguageBCSVO> sourceResultList = new ArrayList<>();
+				BeanUtil.copyToList(resultList, HangTagMoreLanguageBCSVO.HangTagMoreLanguageBCSChildrenVO.class)
+						.stream().collect(Collectors.groupingBy(HangTagMoreLanguageVO::getBulkStyleNo)).forEach((bulkStyleNo, sameBulkStyleNoList)-> {
+							sourceResultList.add(new HangTagMoreLanguageBCSVO(sameBulkStyleNoList));
+						});
+				return sourceResultList;
+			case PRINT:
+				return BeanUtil.copyToList(resultList, HangTagMoreLanguagePrinterVO.class);
+			default: throw new IllegalStateException("Unexpected value: " + source);
 		}
-
-		return result.stream().sorted(Comparator.comparing(HangTagMoreLanguageVO::getStandardColumnId)).collect(Collectors.toList());
 	}
 
 // 自定义方法区 不替换的区域【other_end】

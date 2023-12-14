@@ -212,17 +212,21 @@
         <where>
             <choose>
                 <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
-                    AND tpi.design_no = #{bulkStyleNo}
+                    AND tpi.design_no in
+                    <foreach item="bulkStyleNo" collection="bulkStyleNoList" open="(" separator="," close=")">
+                        #{bulkStyleNo}
+                    </foreach>
                 </when>
                 <otherwise>
                     tssc.del_flag = 0
                     AND tssc.company_code = #{companyCode}
-                    and tssc.style_no = #{bulkStyleNo}
+                    AND tssc.style_no in
+                    <foreach item="bulkStyleNo" collection="bulkStyleNoList" open="(" separator="," close=")">
+                        #{bulkStyleNo}
+                    </foreach>
                 </otherwise>
             </choose>
         </where>
-
-        limit 1
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
