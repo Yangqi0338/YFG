@@ -150,9 +150,9 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         }
         String content = map.get("content");
         String code = Arrays.stream(baseSource.getPropertiesCode().split("-"))
-                .map(it -> map.get(baseSource.getPropertiesCode())).collect(Collectors.joining("-"));
+                .map(map::get).collect(Collectors.joining("-"));
         String name = Arrays.stream(baseSource.getPropertiesName().split("-"))
-                .map(it -> map.get(baseSource.getPropertiesName())).collect(Collectors.joining("-"));
+                .map(map::get).collect(Collectors.joining("-"));
 
         // 获取TableData,查看数据是否修改
         // 也可以使用隐藏列,缺点是会被修改移除
@@ -201,10 +201,10 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         String titleCode = baseTranslate.getTitleCode();
 
         Country country = countryService.getById(countryLanguageId);
-        if (country == null) throw new OtherException("asdas");
+        if (country == null) throw new OtherException("未找到国家");
 
         Object titleObject = standardColumnService.findByCode(titleCode);
-        if (titleObject == null) throw new OtherException("qweqwe");
+        if (titleObject == null) throw new OtherException("未找到标准列");
         StandardColumn standardColumn = (StandardColumn) titleObject;
 
         for (StandardColumnCountryTranslate it : translateList) {
@@ -225,10 +225,12 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         List<CountryModel> translateModelList = translateList.stream().filter(it -> "DP06".equals(it.getTitleCode())).map(it -> {
             CountryModel countryModel = new CountryModel();
             countryModel.setCountryLanguageId(countryLanguageId);
-            countryModel.setModelCode("");
-            countryModel.setModelName("");
-            countryModel.setBasicSizeCode("");
-            countryModel.setBasicSizeName("");
+            String propertiesCode = it.getPropertiesCode();
+            String propertiesName = it.getPropertiesName();
+            countryModel.setModelCode(propertiesCode.split("-")[1]);
+            countryModel.setModelName(propertiesName.split("-")[1]);
+            countryModel.setBasicSizeCode(propertiesCode.split("-")[0]);
+            countryModel.setBasicSizeName(propertiesName.split("-")[0]);
             countryModel.setContent(it.getContent());
             return countryModel;
         }).collect(Collectors.toList());

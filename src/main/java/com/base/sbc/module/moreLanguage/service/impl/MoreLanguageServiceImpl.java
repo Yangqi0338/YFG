@@ -145,6 +145,10 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         }).fork();
 
         return Stream.of(rootStandardColumnFuture.join(), standardColumnFuture.join()).flatMap(Collection::stream)
+                .peek(it-> {
+                    it.setTableTitleJson(JSONUtil.toJsonStr(JSONUtil.toList(it.getTableTitleJson(), MoreLanguageTableTitle.class).stream()
+                            .filter(tableTitle-> !tableTitle.isHidden()).collect(Collectors.toList())));
+                })
                 .sorted(Comparator.comparing(StandardColumnDto::getId)).collect(Collectors.toList());
     }
 
@@ -419,29 +423,38 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         // 获取翻译的表头 找差集
         String tableTitleJson = standardColumn.getTableTitleJson();
-        List<String> showFieldList = new ArrayList<>();
+        if (StrUtil.isBlank(tableTitleJson)) throw new OtherException("未设置表头,请找开发协助");
+
+        List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(tableTitleJson, MoreLanguageTableTitle.class);
         List<String> translateFieldList = Arrays.stream(StandardColumnCountryTranslate.class.getDeclaredFields())
                 .map(Field::getName).collect(Collectors.toList());
-        if (StrUtil.isNotBlank(tableTitleJson)) {
-            List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(tableTitleJson, MoreLanguageTableTitle.class);
+        
+        List<String> showFieldList = tableTitleList.stream().filter(it-> !it.isHidden())
+                .map(MoreLanguageTableTitle::getCode).collect(Collectors.toList());
 
-            showFieldList.addAll(tableTitleList.stream().map(MoreLanguageTableTitle::getCode).collect(Collectors.toList()));
-
-            // 找差集
-            translateFieldList.removeAll(CollUtil.disjunction(translateFieldList, showFieldList));
-
-            tableTitleList.removeIf(it->  translateFieldList.contains(it.getCode()));
-
-            // 剪裁掉翻译的字段
-            standardColumn.setTableTitleJson(JSONUtil.toJsonStr(tableTitleList));
+        List<MoreLanguageTableTitle> one2ManyKeyList = tableTitleList.stream().filter(it -> it.getKey() != null)
+                .sorted(Comparator.comparing(MoreLanguageTableTitle::getKey))
+                .collect(Collectors.toList());
+        List<String> keyList;
+        if (CollectionUtil.isNotEmpty(one2ManyKeyList)) {
+            keyList = one2ManyKeyList.stream().map(it-> StrUtil.toUnderlineCase(it.getCode())).collect(Collectors.toList());
+        }else {
+            keyList = Collections.singletonList(showFieldList.get(0));
         }
+
+        // 找差集
+        translateFieldList.removeAll(CollUtil.disjunction(translateFieldList, showFieldList));
+
+        tableTitleList.removeIf(it->  translateFieldList.contains(it.getCode()));
+
+        // 剪裁掉翻译的字段
+        standardColumn.setTableTitleJson(JSONUtil.toJsonStr(tableTitleList));
 
         PageInfo<Map<String, Object>> mapList = MoreLanguageTableContext.getTableData(moreLanguageQueryDto, standardColumn, reflectMap);
 
-        String key = StrUtil.toUnderlineCase(showFieldList.get(0));
-
         List<Map<String, Object>> resultList = mapList.getList();
-        List<String> propertiesCodeList = resultList.stream().map(it -> it.get(key).toString()).collect(Collectors.toList());
+        List<String> propertiesCodeList = resultList.stream()
+                .map(it -> keyList.stream().map(key-> it.get(key).toString()).collect(Collectors.joining("-"))).collect(Collectors.toList());
         // 分页.. 有顺序问题
         // 查询翻译 也可以找redis,不常修改
         translateFieldList.add("properties_code");
@@ -454,9 +467,9 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         ).getRecords();
 
         mapList.setList(resultList.stream().map(resultMap-> {
+            String propertiesKey = keyList.stream().map(key -> resultMap.getOrDefault(key, "").toString()).collect(Collectors.joining("-"));
             Map<String, Object> map = new HashMap<>();
-            Map<String, Object> translateResultMap = translateList.stream()
-                    .filter(it -> resultMap.getOrDefault(key,"").equals(it.get("properties_code"))).findFirst().orElse(new HashMap<>());
+            Map<String, Object> translateResultMap = translateList.stream().filter(it -> it.get("properties_code").equals(propertiesKey)).findFirst().orElse(new HashMap<>());
             showFieldList.forEach(field->{
                 String fieldKey = StrUtil.toUnderlineCase(field);
                 map.put(field, resultMap.getOrDefault(fieldKey, translateResultMap.getOrDefault(fieldKey, "")));

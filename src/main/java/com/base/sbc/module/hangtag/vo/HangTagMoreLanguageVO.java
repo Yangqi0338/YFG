@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.StringJoiner;
 
 /**
  * 类描述：吊牌表 实体类
@@ -125,7 +126,23 @@ public class HangTagMoreLanguageVO {
      * 不能找到数据翻译
      */
     @ApiModelProperty(value = "不能找到数据翻译")
-    private Boolean cannotFindPropertiesContent = true;
+    private Boolean cannotFindPropertiesContent = false;
+
+    public Boolean getCannotFindPropertiesContent() {
+        return cannotFindPropertiesContent && model != StandardColumnModel.TEXT;
+    }
+
+    /**
+     * 打印系统专门检查信息
+     */
+    @ApiModelProperty(value = "打印系统专门检查信息")
+    private String getPrinterCheckMessage(){
+        String messageFormat = "%s未翻译";
+        StringJoiner message = new StringJoiner("/");
+        if (cannotFindStandardColumnContent) message.add(String.format(messageFormat, message + "字段"));
+        if (getCannotFindPropertiesContent())  message.add(String.format(messageFormat, message + "内容"));
+        return message.toString();
+    };
 
     /**
      * 是组合的
