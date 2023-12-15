@@ -88,12 +88,16 @@ public class SecondIngredientController extends BaseController {
     @ApiOperation(value = "新增字典")
     public ApiResult batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts){
         List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(uniqueDictCode);
-        pd021DictList.sort(Comparator.comparing(BasicBaseDict::getId));
-        BasicBaseDict baseDict = new LinkedList<>(pd021DictList).getLast() ;
         int startIndex = pd021DictList.size();
-        if (baseDict != null) {
-            startIndex = Integer.parseInt(baseDict.getValue().replace(dictPreCode, ""));
+
+        if (startIndex != 0) {
+            pd021DictList.sort(Comparator.comparing(BasicBaseDict::getId));
+            BasicBaseDict baseDict = new LinkedList<>(pd021DictList).getLast() ;
+            if (baseDict != null) {
+                startIndex = Integer.parseInt(baseDict.getValue().replace(dictPreCode, ""));
+            }
         }
+
         AtomicInteger num = new AtomicInteger(startIndex);
         ccmService.batchInsert(basicBaseDicts.stream().peek(it-> {
             it.setValue(dictPreCode + (num.incrementAndGet() < 100 ? (num.get() < 10 ? "00" : "0") : "") + num.get());
