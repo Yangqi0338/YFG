@@ -433,6 +433,11 @@ public class StyleColorVo {
     private String infoName;
 
     /**
+     * 款式来源
+     */
+    private String styleOriginName;
+
+    /**
      * 工艺师
      */
     private String technologistName;
