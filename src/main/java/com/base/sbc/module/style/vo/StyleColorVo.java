@@ -447,5 +447,10 @@ public class StyleColorVo {
         return getAccessory1();
     }
 
+    /**
+     * 默认条形码  唯一码  wareCode  +颜色编码  colorCode  +默认尺码的尺码编号[取设计属性中的默认尺码]
+     */
+    private String defaultBarCode;
+
 
 }
