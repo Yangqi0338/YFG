@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,8 @@ public class SecondIngredientController extends BaseController {
     @ApiOperation(value = "新增字典")
     public ApiResult batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts){
         List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(uniqueDictCode);
-        BasicBaseDict baseDict = new LinkedList<>(pd021DictList).getLast();
+        pd021DictList.sort(Comparator.comparing(BasicBaseDict::getId));
+        BasicBaseDict baseDict = new LinkedList<>(pd021DictList).getLast() ;
         int startIndex = pd021DictList.size();
         if (baseDict != null) {
             startIndex = Integer.parseInt(baseDict.getValue().replace(dictPreCode, ""));
