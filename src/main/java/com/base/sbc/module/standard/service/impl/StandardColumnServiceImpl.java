@@ -65,8 +65,9 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         }else {
             // 新创建编码
             StandardColumnType type = standardColumn.getType();
-            long code = this.count(new BaseLambdaQueryWrapper<StandardColumn>()
-                    .eq(StandardColumn::getType, type)) + 1;
+            StandardColumn maxStandColumn = this.findOne(new BaseLambdaQueryWrapper<StandardColumn>()
+                    .eq(StandardColumn::getType, type).orderByDesc(StandardColumn::getId));
+            int code = Integer.parseInt(maxStandColumn.getCode().replace(type.getPreCode(), "")) + 1;
             standardColumn.setCode(type.getPreCode() + code);
         }
 //        // 无法修改系统默认数据

@@ -71,9 +71,9 @@ public class MoreLanguageController extends BaseController {
     @PostMapping("/importExcel")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "导入国家翻译", notes = "导入国家翻译")
-    public ApiResult importExcel(@RequestPart MultipartFile file, @RequestParam String moreLanguageId) {
+    public ApiResult importExcel(@RequestPart MultipartFile file, @RequestParam String countryLanguageId) {
 //        moreLanguageService.importExcel(excelQueryDto);
-        importListener.setCountryLanguageId(moreLanguageId);
+        importListener.setCountryLanguageId(countryLanguageId);
         EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAll();
 
         return selectSuccess("");
