@@ -44,7 +44,7 @@ public interface CcmService {
      * @return
      */
     @GetMapping("/ccm/api/saas/basicBaseDicts/selectDictByTypes")
-    public String getDictInfo(@RequestParam("type") String type);
+    public String getDictInfo(@RequestParam("type") String type, @RequestParam("status") String status);
 
     /**
      * 开放接口获取字典信息
