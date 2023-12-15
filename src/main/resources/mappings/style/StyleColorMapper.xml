@@ -106,14 +106,14 @@
             ts.task_level_name,
             ts.style_type,
             ts.style_type_name,
-            ts.devt_type,
-            ts.devt_type_name,
+            ts.devt_type as devtType,
+            ts.devt_type_name as devtTypeName,
             ts.size_range,
             ts.size_range_name,
             ts.merch_design_name,
             ts.pattern_design_name,
             ts.style_pic,
-            ts.design_no,
+            ts.design_no as designNo,
             ts.prod_category1st,
             ts.prod_category1st_name,
             ts.prod_category,
@@ -147,8 +147,7 @@
             tsp.product_hangtag_confirm,
             tsp.control_hangtag_confirm,
             tppst.technologist_name,
-            ts.devt_type as devtType,
-            ts.devt_type_name as devtTypeName,
+            ts.style_origin_name,
             concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode
             FROM
             t_style ts
