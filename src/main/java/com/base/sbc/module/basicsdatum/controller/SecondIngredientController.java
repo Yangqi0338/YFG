@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
@@ -69,8 +70,9 @@ public class SecondIngredientController extends BaseController {
 
     @GetMapping("/sync2scm")
     @ApiOperation(value = "同步到scm")
+    @DuplicationCheck(time = 1)
     public ApiResult sync2scm(@Valid @NotEmpty(message = "同步code列表不能为空") String[] ids){
-        List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(uniqueDictCode);
+        List<BasicBaseDict> pd021DictList = ccmFeignService.getAllDictInfoToList(uniqueDictCode);
         List<SecondIngredientSyncDto> syncDtoList = pd021DictList.stream().filter(it -> Arrays.asList(ids).contains(it.getId())).map(it -> {
             SecondIngredientSyncDto secondIngredientSyncDto = BeanUtil.copyProperties(it, SecondIngredientSyncDto.class);
             secondIngredientSyncDto.setKindCode(it.getValue());
@@ -86,8 +88,9 @@ public class SecondIngredientController extends BaseController {
 
     @PostMapping("/batchInsert")
     @ApiOperation(value = "新增字典")
+    @DuplicationCheck(time = 2)
     public ApiResult batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts){
-        List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(uniqueDictCode);
+        List<BasicBaseDict> pd021DictList = ccmFeignService.getAllDictInfoToList(uniqueDictCode);
         int startIndex = pd021DictList.size();
 
         if (startIndex != 0) {
