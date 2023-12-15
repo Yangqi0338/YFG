@@ -133,7 +133,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 }
             }else {
                 if(stylePricingList.size() >2000){
-                    throw new OtherException("带图片最多只能导出2000条");
+                    throw new OtherException("不带图片最多只能导出2000条");
                 }
             }
         }else {
