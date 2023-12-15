@@ -254,6 +254,8 @@ public class ExcelUtils {
      * @param columns 图片列名
      */
     public static void executorExportExcel(List<?> list, Class<?> pojoClass, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, String... columns){
+        long t1 = System.currentTimeMillis();
+
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
@@ -262,7 +264,7 @@ public class ExcelUtils {
             if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
                 /*导出图片*/
                 if (CollUtil.isNotEmpty(list) && list.size() > maxNumber) {
-                    throw new OtherException("带图片导出最多只能导出"+maxNumber+"条");
+                    throw new OtherException("带图片导出最多只能导出" + maxNumber + "条");
                 }
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
 
@@ -271,7 +273,7 @@ public class ExcelUtils {
                         try {
                             for (String column : columns) {
                                 final String stylePic = BeanUtil.getProperty(o, column);
-                                BeanUtil.setProperty(o, column+"1", HttpUtil.downloadBytes(stylePic));
+                                BeanUtil.setProperty(o, "styleColorPicByte", HttpUtil.downloadBytes(stylePic));
                             }
                         } catch (Exception e) {
                             logger.error(e.getMessage());
@@ -285,6 +287,7 @@ public class ExcelUtils {
                 countDownLatch.await();
             }
             ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
+
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
         } finally {
