@@ -1347,6 +1347,9 @@ public class SmpService {
                 StylePricing stylePricing = stylePricingService.getById(id);
                 PackInfo packInfo = packInfoService.getById(stylePricing.getPackId());
                 String styleNo = packInfo.getStyleNo();
+                if (StringUtils.isEmpty(styleNo)){
+                    continue;
+                }
                 if (HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode() == type) {
                     //计控成本确认
                     tagConfirmDateDto.setStyleNo(styleNo);
