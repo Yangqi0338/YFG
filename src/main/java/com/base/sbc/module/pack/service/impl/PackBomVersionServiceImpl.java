@@ -306,7 +306,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             throw new OtherException("版本不存在");
         }
         if (StrUtil.equals(byId.getLockFlag(), BaseGlobal.YES)) {
-            throw new OtherException("已锁定");
+            throw new OtherException("物料清单已锁定无法修改");
         }
         return byId;
     }
