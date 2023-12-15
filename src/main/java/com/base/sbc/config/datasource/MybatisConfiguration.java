@@ -2,7 +2,11 @@ package com.base.sbc.config.datasource;
 
 import com.alibaba.druid.support.http.WebStatFilter;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
+import com.baomidou.mybatisplus.core.injector.AbstractMethod;
+import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
+import com.baomidou.mybatisplus.extension.injector.methods.InsertBatchSomeColumn;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.base.sbc.config.AutoFillFieldValueConfig;
 import com.github.pagehelper.PageHelper;
@@ -22,12 +26,14 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 
 import javax.sql.DataSource;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -155,5 +161,17 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
         //添加忽略的格式信息.
         filterRegistrationBean.addInitParameter("exclusions", "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*");
         return filterRegistrationBean;
+    }
+
+    @Component
+    public class YFGSqlInjector extends DefaultSqlInjector {
+
+        @Override
+        public List<AbstractMethod> getMethodList(Class<?> mapperClass, TableInfo tableInfo) {
+            List<AbstractMethod> methodList = super.getMethodList(mapperClass, tableInfo);
+            methodList.add(new SaveOrUpdateBatch());
+            methodList.add(new InsertBatchSomeColumn());
+            return methodList;
+        }
     }
 }

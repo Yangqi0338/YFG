@@ -177,6 +177,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void doAfterAllAnalysed(AnalysisContext context) {
+        long timeMillis = System.currentTimeMillis();
         MoreLanguageMapExportMapping exportMapping = getMapping(context, (mapExportMapping) -> mapExportMapping);
         List<StandardColumnCountryTranslate> translateList = exportMapping.getSourceData();
         if (CollectionUtil.isEmpty(translateList)) return;
@@ -187,9 +188,11 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         Country country = countryService.getById(countryLanguageId);
         if (country == null) throw new OtherException("未找到国家");
 
+        System.out.println("asdasda----a-" + (System.currentTimeMillis() - timeMillis));
         Object titleObject = standardColumnService.findByCode(titleCode);
         if (titleObject == null) throw new OtherException("未找到标准列");
         StandardColumn standardColumn = (StandardColumn) titleObject;
+        System.out.println("asdasda----b-" + (System.currentTimeMillis() - timeMillis));
 
         for (StandardColumnCountryTranslate it : translateList) {
             it.setTitleName(standardColumn.getName());
@@ -201,11 +204,13 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 it.setTitleName(countryTranslate.getTitleName());
             }
         }
+        System.out.println("asdasda----c-" + (System.currentTimeMillis() - timeMillis));
 
         standardColumnCountryTranslateService.saveOrUpdateBatch(translateList);
-
+        System.out.println("asdasda----c1-" + translateList.size() +"-" + (System.currentTimeMillis() - timeMillis));
         // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
         countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>().eq(CountryModel::getCountryLanguageId, countryLanguageId));
+        System.out.println("asdasda----d-" + (System.currentTimeMillis() - timeMillis));
         List<CountryModel> translateModelList = translateList.stream().filter(it -> "DP06".equals(it.getTitleCode())).map(it -> {
             CountryModel countryModel = new CountryModel();
             countryModel.setCountryLanguageId(countryLanguageId);
@@ -221,6 +226,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         countryModelService.saveBatch(translateModelList);
 
         standardColumnTranslateService.remove(new BaseLambdaQueryWrapper<StandardColumnTranslate>().eq(StandardColumnTranslate::getCountryLanguageId, countryLanguageId));
+        System.out.println("asdasda----e-" + (System.currentTimeMillis() - timeMillis));
         List<StandardColumnTranslate> translateTitleList = translateList.stream().filter(it -> "DP00".equals(it.getTitleCode())).map(it -> {
             StandardColumnTranslate standardColumnTranslate = new StandardColumnTranslate();
             standardColumnTranslate.setCountryLanguageId(countryLanguageId);
@@ -232,6 +238,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         standardColumnTranslateService.saveBatch(translateTitleList);
 
         removeMapping(context);
+
+        System.out.println("asdasda----f" + (System.currentTimeMillis() - timeMillis));
     }
 
     /**
