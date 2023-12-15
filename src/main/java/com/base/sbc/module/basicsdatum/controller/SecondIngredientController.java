@@ -69,9 +69,9 @@ public class SecondIngredientController extends BaseController {
 
     @GetMapping("/sync2scm")
     @ApiOperation(value = "同步到scm")
-    public ApiResult sync2scm(@Valid @NotEmpty(message = "同步code列表不能为空") String[] codeList){
+    public ApiResult sync2scm(@Valid @NotEmpty(message = "同步code列表不能为空") String[] ids){
         List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(uniqueDictCode);
-        List<SecondIngredientSyncDto> syncDtoList = pd021DictList.stream().filter(it -> Arrays.asList(codeList).contains(it.getValue())).map(it -> {
+        List<SecondIngredientSyncDto> syncDtoList = pd021DictList.stream().filter(it -> Arrays.asList(ids).contains(it.getId())).map(it -> {
             SecondIngredientSyncDto secondIngredientSyncDto = BeanUtil.copyProperties(it, SecondIngredientSyncDto.class);
             secondIngredientSyncDto.setKindCode(it.getValue());
             secondIngredientSyncDto.setKindName(it.getName());
