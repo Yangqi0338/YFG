@@ -123,10 +123,22 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
         }
-        if(StrUtil.equals(dto.getDeriveFlag(),BaseGlobal.YES) && stylePricingList.size() >2000){
-            throw new OtherException("最多只能导出2000条");
+
+        if(StrUtil.equals(dto.getDeriveFlag(),BaseGlobal.YES) ){
+            if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES) ){
+                if(stylePricingList.size() >1000){
+                    throw new OtherException("带图片最多只能导出1000条");
+                }else {
+                    stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic", 30);
+                }
+            }else {
+                if(stylePricingList.size() >2000){
+                    throw new OtherException("带图片最多只能导出2000条");
+                }
+            }
+        }else {
+            stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
         }
-        stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic", 30);
         this.dataProcessing(stylePricingList, dto.getCompanyCode());
         return new PageInfo<>(stylePricingList);
     }
@@ -147,6 +159,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
                 .build();
+
+        try {
         CountDownLatch countDownLatch = new CountDownLatch(stylePricingList.size());
         for (StylePricingVO stylePricingVO : stylePricingList) {
             executor.submit(() -> {
@@ -235,6 +249,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             countDownLatch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
         }
         stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
     }

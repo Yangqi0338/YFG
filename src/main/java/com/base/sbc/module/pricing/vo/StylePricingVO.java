@@ -40,7 +40,7 @@ public class StylePricingVO {
     private String styleColorPic;
 
     @Excel(name = "样衣图片", type = 2, width = 20, height = 60, imageType = 2)
-    private byte[] styleColorPicByte;
+    private byte[] styleColorPic1;
     /**
      * 代码
      */

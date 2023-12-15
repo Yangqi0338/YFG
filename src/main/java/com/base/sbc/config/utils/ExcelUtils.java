@@ -273,7 +273,7 @@ public class ExcelUtils {
                         try {
                             for (String column : columns) {
                                 final String stylePic = BeanUtil.getProperty(o, column);
-                                BeanUtil.setProperty(o, "styleColorPicByte", HttpUtil.downloadBytes(stylePic));
+                                BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
                             }
                         } catch (Exception e) {
                             logger.error(e.getMessage());

@@ -93,7 +93,7 @@ public class StylePricingController extends BaseController {
         stylePricingSearchDTO.setDeriveFlag(BaseGlobal.YES);
         PageInfo<StylePricingVO> stylePricingList = stylePricingService.getStylePricingList(user, stylePricingSearchDTO);
         //导出
-        ExcelUtils.executorExportExcel(stylePricingList.getList(), StylePricingVO.class,"款式定价.xlsx","1",2000,response,"styleColorPic");
+        ExcelUtils.executorExportExcel(stylePricingList.getList(), StylePricingVO.class,"款式定价.xlsx",stylePricingSearchDTO.getImgFlag(),2000,response,"styleColorPic");
     }
 
 
