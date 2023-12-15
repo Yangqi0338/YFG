@@ -1,6 +1,7 @@
 package com.base.sbc.module.moreLanguage.controller;
 
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
@@ -41,7 +42,8 @@ public class CountryController extends BaseController {
      */
     @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
     @GetMapping("/listQuery")
-    public ApiResult  listQuery(CountryQueryDto countryQueryDto) {
+    @DuplicationCheck(time = 1)
+    public ApiResult listQuery(CountryQueryDto countryQueryDto) {
         return selectSuccess(countryService.listQuery(countryQueryDto));
     }
 

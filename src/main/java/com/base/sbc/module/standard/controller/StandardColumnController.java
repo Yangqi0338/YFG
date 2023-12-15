@@ -6,6 +6,7 @@ import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
@@ -68,6 +69,7 @@ public class StandardColumnController extends BaseController {
     @PostMapping("/save")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增标准表", notes = "新增标准表")
+    @DuplicationCheck(time = 1)
     public ApiResult save(@RequestBody StandardColumnSaveDto standardColumnSaveDto) {
         String id = standardColumnService.save(standardColumnSaveDto);
         return insertSuccess(id);

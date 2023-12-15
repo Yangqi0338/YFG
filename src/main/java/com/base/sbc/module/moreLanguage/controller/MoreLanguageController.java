@@ -9,6 +9,7 @@ import com.alibaba.excel.read.builder.ExcelReaderBuilder;
 import com.alibaba.excel.read.listener.PageReadListener;
 import com.alibaba.excel.write.ExcelBuilder;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -71,6 +72,7 @@ public class MoreLanguageController extends BaseController {
     @PostMapping("/importExcel")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "导入国家翻译", notes = "导入国家翻译")
+    @DuplicationCheck(type = 3)
     public ApiResult importExcel(@RequestPart MultipartFile file, @RequestParam String countryLanguageId) {
 //        moreLanguageService.importExcel(excelQueryDto);
         importListener.setCountryLanguageId(countryLanguageId);
@@ -84,6 +86,7 @@ public class MoreLanguageController extends BaseController {
     @GetMapping("/exportExcel")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "导出国家翻译", notes = "导出国家翻译")
+    @DuplicationCheck
     public ApiResult exportExcel(@Valid MoreLanguageExcelQueryDto excelQueryDto) {
         moreLanguageService.exportExcel(excelQueryDto);
 
@@ -96,6 +99,7 @@ public class MoreLanguageController extends BaseController {
     @GetMapping("/countryAddAndExport")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增国家", notes = "新增国家")
+    @DuplicationCheck
     public ApiResult countryAddAndExport(@Valid CountryAddDto countryAddDto) {
         String id = moreLanguageService.countryAddAndExport(countryAddDto);
         return insertSuccess(id);
