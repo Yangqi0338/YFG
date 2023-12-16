@@ -70,7 +70,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
-    public QueryWrapper<T> isNull(String column) {
+    public QueryWrapper<T> isNullstr(String column) {
         this.and(qw -> qw.isNull(column).or(qw2 -> qw2.eq(column, "")));
         return this;
     }
