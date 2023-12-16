@@ -746,6 +746,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         vo.setCreateDate(DateUtil.format(newDate, "yy/M/d"));
         vo.setCreateTime(DateUtil.format(newDate, "a HH:mm"));
         vo.setSizeList(BeanUtil.copyToList(sizeList, PackSizeVo.class));
+
+        PackTechPackaging packTechPackaging = packTechPackagingService.get(dto.getForeignId(), dto.getPackType());
+        //设置是否打印外辅工艺
+        vo.setPrintWaifuFlag(Opt.ofNullable(packTechPackaging).map(p -> StrUtil.equals(p.getPrintWaifuFlag(), BaseGlobal.YES)).orElse(false));
         return vo;
     }
 

@@ -961,5 +961,39 @@
     </table>
 </#if>
 
+<!--    外辅工艺 7-->
+<#if wfgyShow>
+    <table class="table_border mt" style="page-break-before: always;">
+        <thead>
+        <tr>
+            <th colspan="2" class="th_title">
+                <p>外辅工艺</p>
+                <hr>
+            </th>
+        </tr>
+        <tr>
+            <th class="gb item_th">工艺项目</th>
+            <th class="gb">描述</th>
+        </tr>
+        </thead>
+        <tbody>
+        <#if wfgyDataList??>
+            <#list wfgyDataList as item>
+                <tr>
+                    <td style="text-align: left;width: 12em;text-indent: 1em;box-sizing: border-box">${item.item}</td>
+                    <td>
+                        ${item.content}
+                    </td>
+                </tr>
+            </#list>
+        </#if>
+        </tbody>
+        <#--        <tfoot>-->
+        <#--        <tr>-->
+        <#--            <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>-->
+        <#--        </tr>-->
+        <#--        </tfoot>-->
+    </table>
+</#if>
 </body>
 </html>

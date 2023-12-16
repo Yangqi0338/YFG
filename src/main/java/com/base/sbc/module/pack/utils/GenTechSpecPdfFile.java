@@ -198,6 +198,11 @@ public class GenTechSpecPdfFile {
     private boolean fob;
     @ApiModelProperty(value = "基础工艺和裁剪工艺是否强制同页")
     private boolean ctBasicPage;
+    /**
+     * 外辅工艺是否打印(0不打印，1打印)
+     */
+    @ApiModelProperty(value = "外辅工艺是否打印(0不打印，1打印)")
+    private Boolean printWaifuFlag;
 
     public boolean isFob() {
         return StrUtil.equals(devtType, "FOB");
@@ -412,7 +417,8 @@ public class GenTechSpecPdfFile {
         dataModel.put("ztbzShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("ztbzDataList")));
         // 外辅工艺 是否显示
         dataModel.put("wfgyDataList", Optional.ofNullable(gyMap.get("外辅工艺")).orElse(CollUtil.newArrayList()));
-        dataModel.put("wfgyShow", isFob() && ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")));
+//        dataModel.put("wfgyShow", isFob && ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")));
+        dataModel.put("wfgyShow", printWaifuFlag);
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
         String html = writer.toString();
