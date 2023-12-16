@@ -51,4 +51,7 @@ public class TechnologyCenterTaskSearchDto extends Page {
 
     private String urgencyName;
 
+    @ApiModelProperty(value = "是否滞留款查询")
+    private String isRetentionQuery;
+
 }

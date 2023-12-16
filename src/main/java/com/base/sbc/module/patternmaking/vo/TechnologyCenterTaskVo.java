@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternmaking.vo;
 
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -193,6 +194,24 @@ public class TechnologyCenterTaskVo {
     private String node;
     @ApiModelProperty(value = "打版任务当前状态")
     private String pmStatus;
+
+    @ApiModelProperty(value = "确认收到样衣时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date receiveSampleDate;
+
+    /**
+     * 停留时间
+     * @return
+     */
+    public Integer getReceiveDay(){
+        if(receiveSampleDate != null){
+            return Math.toIntExact(DateUtil.betweenDay(receiveSampleDate, new Date(), false));
+        }
+        return null;
+    }
+
+    @ApiModelProperty(value = "打样设计师")
+    private String patternDesignerName;
 
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {

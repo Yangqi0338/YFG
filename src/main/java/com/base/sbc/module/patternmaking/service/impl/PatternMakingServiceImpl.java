@@ -444,6 +444,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         } else {
             dto.setOrderBy(dto.getOrderBy());
         }
+        if(StrUtil.isNotEmpty(dto.getIsRetentionQuery())){
+            //是否滞留款查询
+            //仅获取样衣看板内的初版样
+            qw.eq("p.sample_type_name", "初版样");
+            //没有再次下发打版指令+＞7天
+            qw.lt("p.receive_sample_date",DateUtils.getWeekAgo(new Date()));
+        }
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
