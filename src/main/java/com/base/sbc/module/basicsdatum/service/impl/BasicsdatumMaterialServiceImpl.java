@@ -435,7 +435,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Override
     public void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto)
             throws IOException {
-        BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+        /*BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
         qc.eq("company_code", this.getCompanyCode());
         qc.notEmptyEq("status", dto.getStatus());
         qc.notEmptyLike("material_code_name", dto.getMaterialCodeName());
@@ -446,8 +446,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             qc.and(Wrapper -> Wrapper.eq("category_id", dto.getCategoryId()).or().like("category_ids ",
                     dto.getCategoryId()));
         }
-        List<BasicsdatumMaterial> list = this.list(qc);
-        //List<BasicsdatumMaterialExcelVo> list = CopyUtil.copy(, BasicsdatumMaterialExcelVo.class);
+        List<BasicsdatumMaterial> list = this.list(qc);*/
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialList(dto).getList();
         ExcelUtils.exportExcel(list, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
     }
 
