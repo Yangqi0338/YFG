@@ -1398,10 +1398,17 @@ public class SmpService {
     /**
      * 修改吊牌价的时候验证(暂不需要)
      */
-    public Boolean secondIngredient(List<SecondIngredientSyncDto> secondIngredientSyncDto) {
-        String jsonString = JsonStringUtils.toJSONString(secondIngredientSyncDto);
+    public int secondIngredient(List<SecondIngredientSyncDto> secondIngredientSyncDtoList) {
+        int index = 0;
+        String jsonString = JsonStringUtils.toJSONString(secondIngredientSyncDtoList);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString);
-        return pushRecordsService.pushRecordSave(httpResp, jsonString, "smp", "成分二级分类字典下发");
+        for (SecondIngredientSyncDto secondIngredientSyncDto : secondIngredientSyncDtoList) {
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(secondIngredientSyncDto), "scm", "下发吊牌和款式定价确认信息");
+            if (aBoolean) {
+                index++;
+            }
+        }
+        return index;
     }
 }
 
