@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service.impl;
 
-import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
@@ -16,7 +15,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -31,7 +29,6 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.IFileLoaderImpl;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -43,7 +40,6 @@ import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -70,7 +66,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,8 +75,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.Principal;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -444,12 +437,21 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         } else {
             dto.setOrderBy(dto.getOrderBy());
         }
-        if(StrUtil.isNotEmpty(dto.getIsRetentionQuery())){
+        if(StrUtil.isNotBlank(dto.getIsRetentionQuery())){
             //是否滞留款查询
             //仅获取样衣看板内的初版样
             qw.eq("p.sample_type_name", "初版样");
             //没有再次下发打版指令+＞7天
             qw.lt("p.receive_sample_date",DateUtils.getWeekAgo(new Date()));
+
+            qw.like(StrUtil.isNotBlank(dto.getPatternRoom()), "p.pattern_room", dto.getPatternRoom());
+            qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+            qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
+            if (StrUtil.isNotBlank(dto.getReceiveSampleDate())) {
+                String[] split = dto.getReceiveSampleDate().split(",");
+                qw.ge("p.receive_sample_date", split[0]);
+                qw.le("p.receive_sample_date", split[1]);
+            }
         }
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
