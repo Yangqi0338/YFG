@@ -43,6 +43,7 @@ import com.base.sbc.module.style.vo.StyleColorVo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -201,7 +202,23 @@ public class PlanningProjectPlankController extends BaseController {
     @ApiOperation(value = "保存")
     @PostMapping("/save")
     public ApiResult save(@RequestBody PlanningProjectPlank planningProjectPlank) {
-        return insertSuccess( planningProjectPlankService.saveOrUpdate(planningProjectPlank));
+        if (StringUtils.isEmpty(planningProjectPlank.getId())){
+            planningProjectPlankService.save(planningProjectPlank);
+            //重新增加坑位数量
+            String planningProjectDimensionId = planningProjectPlank.getPlanningProjectDimensionId();
+
+            if (StringUtils.isNotEmpty(planningProjectDimensionId)){
+                PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectDimensionId);
+                int i = Integer.parseInt(planningProjectDimension.getNumber());
+                planningProjectDimension.setNumber(String.valueOf(i+1));
+                planningProjectDimensionService.updateById(planningProjectDimension);
+            }
+            return insertSuccess("新增成功");
+        }else {
+            planningProjectPlankService.updateById(planningProjectPlank);
+            return updateSuccess("修改成功");
+        }
+
     }
 
     /**
@@ -276,9 +293,29 @@ public class PlanningProjectPlankController extends BaseController {
      */
     @ApiOperation(value = "根据ids删除")
     @DeleteMapping("/delByIds")
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult delByIds(String ids) {
         String[] split = ids.split(",");
-        return deleteSuccess(planningProjectPlankService.removeByIds(Arrays.asList(split)));
+        QueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.in("id",Arrays.asList(split));
+        queryWrapper.select("planning_project_dimension_id");
+        List<PlanningProjectPlank> planningProjectPlanks = planningProjectPlankService.list(queryWrapper);
+        boolean b = planningProjectPlankService.removeByIds(Arrays.asList(split));
+        if (b){
+            //变更坑位数量
+
+            List<String> dimensionIds = planningProjectPlanks.stream().map(PlanningProjectPlank::getPlanningProjectDimensionId).collect(Collectors.toList());
+            if (!dimensionIds.isEmpty()){
+                List<PlanningProjectDimension> planningProjectDimensions = planningProjectDimensionService.listByIds(dimensionIds);
+                for (PlanningProjectDimension planningProjectDimension : planningProjectDimensions) {
+                    long l = planningProjectPlankService.count(new QueryWrapper<PlanningProjectPlank>().eq("planning_project_dimension_id", planningProjectDimension.getId()));
+                    planningProjectDimension.setNumber(String.valueOf(l));
+                }
+                planningProjectDimensionService.saveOrUpdateBatch(planningProjectDimensions);
+            }
+        }
+
+        return deleteSuccess(b);
     }
 
     /**
