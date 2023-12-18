@@ -40,15 +40,29 @@ public class HangTagMoreLanguageBCSVO {
     private String bulkStyleNo;
 
     /**
+     * 国家语言Id
+     */
+    @ApiModelProperty(value = "国家语言Id")
+    private String countryLanguageId;
+
+    /**
+     * 国家语言名字
+     */
+    @ApiModelProperty(value = "国家语言名字")
+    private String countryLanguageName;
+
+    /**
      * 成功列表
      */
     @ApiModelProperty(value = "成功列表")
+    @JsonIgnore
     private List<HangTagMoreLanguageBCSChildrenVO> successList;
 
     /**
      * 失败列表
      */
     @ApiModelProperty(value = "失败列表")
+    @JsonIgnore
     private List<HangTagMoreLanguageBCSChildrenVO> failureList;
 
     /**
@@ -65,7 +79,10 @@ public class HangTagMoreLanguageBCSVO {
     }
 
     public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenVO> childrenList) {
-        this.bulkStyleNo = childrenList.get(0).getBulkStyleNo();
+        HangTagMoreLanguageBCSChildrenVO groupChildrenVO = childrenList.get(0);
+        this.countryLanguageId = groupChildrenVO.getCountryLanguageId();
+        this.countryLanguageName = groupChildrenVO.getCountryName() + "-" + groupChildrenVO.getLanguageName();
+        this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageVO::getBulkStyleNo).collect(Collectors.joining(","));
         childrenList.stream().collect(Collectors.groupingBy(it-> StrUtil.isBlank(it.getPrinterCheckMessage()))).forEach((isSuccess,successFailureList)-> {
             if (isSuccess) {
                 this.successList = successFailureList;
@@ -85,7 +102,7 @@ public class HangTagMoreLanguageBCSVO {
             StringJoiner message = new StringJoiner("/");
             if (this.cannotFindStandardColumnContent) message.add(String.format(messageFormat, this.getStandardColumnName() + message + "字段"));
             if (this.getCannotFindPropertiesContent())  message.add(String.format(messageFormat, this.getStandardColumnName() + message + "内容"));
-            return message.toString();
+            return String.format(messageFormat, "款号" + this.getBulkStyleNo()) + ": " + message;
         };
     }
 
