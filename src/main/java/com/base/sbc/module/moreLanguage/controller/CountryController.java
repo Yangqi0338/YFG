@@ -42,7 +42,6 @@ public class CountryController extends BaseController {
      */
     @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
     @GetMapping("/listQuery")
-    @DuplicationCheck(time = 1)
     public ApiResult listQuery(CountryQueryDto countryQueryDto) {
         return selectSuccess(countryService.listQuery(countryQueryDto));
     }
