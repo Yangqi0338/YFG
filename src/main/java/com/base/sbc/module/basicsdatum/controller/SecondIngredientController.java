@@ -37,6 +37,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,7 +88,13 @@ public class SecondIngredientController extends BaseController {
     @ApiOperation(value = "新增字典")
     public ApiResult batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts){
         List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(uniqueDictCode);
-        AtomicInteger num = new AtomicInteger(pd021DictList.size());
+        pd021DictList.sort(Comparator.comparing(BasicBaseDict::getId));
+        BasicBaseDict baseDict = new LinkedList<>(pd021DictList).getLast() ;
+        int startIndex = pd021DictList.size();
+        if (baseDict != null) {
+            startIndex = Integer.parseInt(baseDict.getValue().replace(dictPreCode, ""));
+        }
+        AtomicInteger num = new AtomicInteger(startIndex);
         ccmService.batchInsert(basicBaseDicts.stream().peek(it-> {
             it.setValue(dictPreCode + (num.incrementAndGet() < 100 ? (num.get() < 10 ? "00" : "0") : "") + num.get());
         }).collect(Collectors.toList()));
