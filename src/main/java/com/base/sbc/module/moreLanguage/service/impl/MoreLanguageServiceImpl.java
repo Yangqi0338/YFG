@@ -264,7 +264,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     "1、如若需要删除内容信息，请删除整行信息。\n" +
                     "2、请不要删除表头信息。\n" +
                     "3、请不要删除翻译语言内自带信息。", standardColumnName, ExcelType.XSSF);
-            params.setStyle(ExcelStyleUtil.class);
+//            params.setStyle(ExcelStyleUtil.class);
             exportParam.setTitle(params);
 
             String tableTitleJson = standardColumnDto.getTableTitleJson();
@@ -272,8 +272,8 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             List<ExcelExportEntity> beanList = tableTitleList.stream().sorted(Comparator.comparing(MoreLanguageTableTitle::isHidden)).map(it -> {
                 ExcelExportEntity exportEntity = new ExcelExportEntity(it.getText(), it.getCode());
                 exportEntity.setColumnHidden(it.isHidden());
-                if (it.getWidth() != null) {
-                    exportEntity.setWidth(it.getWidth());
+                if (it.getExcelWidth() != null) {
+                    exportEntity.setWidth(it.getExcelWidth());
                 }
                 return exportEntity;
             }).collect(Collectors.toList());

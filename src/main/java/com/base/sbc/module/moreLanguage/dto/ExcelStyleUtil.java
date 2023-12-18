@@ -3,6 +3,7 @@ package com.base.sbc.module.moreLanguage.dto;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.afterturn.easypoi.excel.entity.params.ExcelForEachParams;
 import cn.afterturn.easypoi.excel.export.styler.IExcelExportStyler;
+import lombok.Data;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
 import org.apache.poi.ss.usermodel.Cell;
@@ -10,6 +11,7 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -45,7 +47,7 @@ public class ExcelStyleUtil implements IExcelExportStyler {
         this.titleStyle = initTitleStyle(workbook);
         this.styles = initStyles(workbook);
     }
- 
+
     /**
      * 大标题样式
      *
@@ -56,7 +58,7 @@ public class ExcelStyleUtil implements IExcelExportStyler {
     public CellStyle getHeaderStyle(short color) {
         return headerStyle;
     }
- 
+
     /**
      * 每列标题样式
      *
@@ -110,7 +112,9 @@ public class ExcelStyleUtil implements IExcelExportStyler {
     private CellStyle initHeaderStyle(Workbook workbook) {
         CellStyle style = getBaseCellStyle(workbook);
  
-        style.setFont(getFont(workbook, FONT_SIZE_TWELVE, true,"黑体"));
+        style.setFont(getFont(workbook, FONT_SIZE_ELEVEN, false,"黑体"));
+        style.setFillPattern(FillPatternType.LEAST_DOTS);
+        style.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
         return style;
     }
  
@@ -126,6 +130,7 @@ public class ExcelStyleUtil implements IExcelExportStyler {
         style.setFont(getFont(workbook, FONT_SIZE_ELEVEN, false,"黑体"));
         //背景色
         style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
         return style;
     }
  

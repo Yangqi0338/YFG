@@ -21,6 +21,6 @@ public class MoreLanguageTableTitle {
 
     private Integer keyName;
 
-    private Double width;
+    private Double excelWidth;
 
 }
