@@ -155,7 +155,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String countryAddAndExport(CountryAddDto countryAddDto) {
+    public String countryAdd(CountryAddDto countryAddDto) {
         String countryName = countryAddDto.getCountryName();
         String languageName = countryAddDto.getLanguageName();
         String countryCode = Pinyin4jUtil.converterToFirstSpell(countryName);
@@ -205,8 +205,8 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                 countryRelationList.stream().map(StandardColumnCountryRelation::getStandardColumnCode).collect(Collectors.toList()));
         RedisStaticFunUtils.clear();
 
-        // 使用redis作为中间通信,standardColumnCodeList参数暂时没用了
-        exportExcel(new MoreLanguageExcelQueryDto(countryId, new ArrayList<>()));
+//        // 使用redis作为中间通信,standardColumnCodeList参数暂时没用了
+//        exportExcel(new MoreLanguageExcelQueryDto(countryId, new ArrayList<>()));
 
         return countryId;
     }

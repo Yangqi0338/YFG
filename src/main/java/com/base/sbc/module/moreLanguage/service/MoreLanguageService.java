@@ -20,7 +20,7 @@ public interface MoreLanguageService {
     
     List<StandardColumnDto> queryCountryTitle(MoreLanguageQueryDto moreLanguageQueryDto);
 
-    String countryAddAndExport(CountryAddDto countryAddDto);
+    String countryAdd(CountryAddDto countryAddDto);
 
     void exportExcel(MoreLanguageExcelQueryDto excelQueryDto);
 

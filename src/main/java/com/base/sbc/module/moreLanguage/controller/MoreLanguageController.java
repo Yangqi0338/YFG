@@ -96,12 +96,12 @@ public class MoreLanguageController extends BaseController {
     /**
      * 新增国家
      */
-    @GetMapping("/countryAddAndExport")
+    @GetMapping("/countryAdd")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增国家", notes = "新增国家")
     @DuplicationCheck
-    public ApiResult countryAddAndExport(@Valid CountryAddDto countryAddDto) {
-        String id = moreLanguageService.countryAddAndExport(countryAddDto);
+    public ApiResult countryAdd(@Valid CountryAddDto countryAddDto) {
+        String id = moreLanguageService.countryAdd(countryAddDto);
         return insertSuccess(id);
     }
     /**
