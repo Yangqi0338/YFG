@@ -376,6 +376,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     void saveReceiveReason(TechnologyCenterTaskVo dto);
 
+    List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

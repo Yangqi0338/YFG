@@ -301,6 +301,12 @@ public class PatternMakingController {
         return patternMakingService.getAllPatternDesignList(vo);
     }
 
+    @ApiOperation(value = "打样设计师列表", notes = "")
+    @GetMapping("/getAllPatternDesignerList")
+    public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
+        return patternMakingService.getAllPatternDesignerList(vo);
+    }
+
     @ApiOperation(value = "所有裁剪工列表", notes = "")
     @GetMapping("/getAllCutterList")
     public List<SampleUserVo> getAllCutterList(PatternUserSearchVo vo) {

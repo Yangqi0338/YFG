@@ -225,6 +225,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
+
+        QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
+        qw.select("DISTINCT pattern_designer_id as user_id, pattern_designer_name as name");
+        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
+                .isNotNull(PatternMaking::getPatternDesignerId)
+                .isNotNull(PatternMaking::getPatternDesignerName)
+                .ne(PatternMaking::getPatternDesignerName, "")
+                .ne(PatternMaking::getPatternDesignerId, "");
+        List<Map<String, Object>> maps = listMaps(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        amcFeignService.setUserAvatarToList(list);
+        return list;
+    }
+
+    @Override
     public void saveReceiveReason(TechnologyCenterTaskVo dto) {
         LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(PatternMaking::getId, dto.getId());
