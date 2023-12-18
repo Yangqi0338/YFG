@@ -2,11 +2,9 @@ package com.base.sbc.module.sample.vo;
 
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.sample.entity.FabricBasicInformation;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
 import java.util.List;
 
 /*返回面料信息*/
@@ -20,5 +18,15 @@ public class FabricInformationVo extends FabricBasicInformation {
 
     @ApiModelProperty(value = "图片地址"  )
     private List<AttachmentVo>  attachmentVoList;
+
+    private String imageUrl1;
+
+    private String imageUrl2;
+
+    private String imageUrl3;
+
+    private String imageUrl4;
+
+    private String imageUrl5;
 
 }

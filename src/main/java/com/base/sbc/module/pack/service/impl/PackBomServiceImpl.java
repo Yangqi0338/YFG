@@ -13,11 +13,9 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
-import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -44,12 +42,13 @@ import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
+import com.base.sbc.module.pack.vo.PackBomColorVo;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.entity.StylePricing;
-import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
-import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
@@ -141,6 +140,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
+
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getBomVersionId()), "bom_version_id", dto.getBomVersionId());
@@ -154,6 +154,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         Page<PackBom> page = PageHelper.startPage(dto);
         List<PackBom> list = list(qw);
+
         minioUtils.setObjectUrlToList(list, "imageUrl");
         PageInfo<PackBom> pageInfo = page.toPageInfo();
         PageInfo<PackBomVo> voPageInfo = CopyUtil.copy(pageInfo, PackBomVo.class);

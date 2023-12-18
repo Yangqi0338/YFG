@@ -10,7 +10,6 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
@@ -24,7 +23,6 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.FilesUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -193,15 +191,14 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
     public void fabricInformationDeriveExcel(HttpServletResponse response, QueryFabricInformationDto queryFabricInformationDto) throws IOException {
         PageInfo<FabricInformationVo> pageInfo =    getFabricInformationList(queryFabricInformationDto);
         List<FabricInformationVo>  informationVoList = pageInfo.getList();
-        List<FabricInformationExcelDto> fabricInformationExcelDtoList = BeanUtil.copyToList(informationVoList, FabricInformationExcelDto.class);
-        fabricInformationExcelDtoList.forEach(f ->{
+        informationVoList.forEach(f ->{
             if(CollUtil.isNotEmpty( f.getImageUrlList())){
                 for (int i = 0; i < f.getImageUrlList().size(); i++) {
                     BeanUtil.setProperty(f,"imageUrl"+(i+1),f.getImageUrlList().get(i));
                 }
             }
         });
-        ExcelUtils.exportExcel(fabricInformationExcelDtoList,  FabricInformationExcelDto.class, "面样调样单.xlsx",new ExportParams("面样调样单", "面样调样单", ExcelType.HSSF) ,response);
+        ExcelUtils.exportExcel(informationVoList,  FabricInformationExcelDto.class, "面样调样单.xlsx",new ExportParams("面样调样单", "面样调样单", ExcelType.HSSF) ,response);
     }
 
     /**
