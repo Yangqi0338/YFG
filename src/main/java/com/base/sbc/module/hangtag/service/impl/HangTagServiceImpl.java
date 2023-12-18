@@ -953,36 +953,39 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 
 				// 充绒量
-				HangTagMoreLanguageVO woolFillMoreLanguageVO = result.stream().filter(it -> "DP12".equals(it.getStandardColumnCode())).findFirst().get();
+				HangTagMoreLanguageVO woolFillMoreLanguageVO = result.stream().filter(it -> "DP12".equals(it.getStandardColumnCode())).findFirst().orElse(null);
 
-				String downContent = woolFillMoreLanguageVO.getPropertiesContent();
+				if (woolFillMoreLanguageVO != null) {
+					String downContent = woolFillMoreLanguageVO.getPropertiesContent();
 
-				if (StrUtil.isNotBlank(downContent)) {
-					BasicsdatumModelType modelType = basicsdatumModelTypeService.getOne(new QueryWrapper<BasicsdatumModelType>().eq("code", hangTagVO.getModelType()));
-					List<String> sizeNameList = Arrays.asList(modelType.getSize().split(","));
-					List<String> sizeCodeList = Arrays.asList(modelType.getSizeCode().split(","));
+					if (StrUtil.isNotBlank(downContent)) {
+						BasicsdatumModelType modelType = basicsdatumModelTypeService.getOne(new QueryWrapper<BasicsdatumModelType>().eq("code", hangTagVO.getModelType()));
+						List<String> sizeNameList = Arrays.asList(modelType.getSize().split(","));
+						List<String> sizeCodeList = Arrays.asList(modelType.getSizeCode().split(","));
 
-					List<String> woolFillSizeCodeList = Arrays.stream(downContent.split("\n")).map(it -> it.split(":")[0]).collect(Collectors.toList());
-					List<StandardColumnCountryTranslate> woolFillContentList = woolFillSizeCodeList.stream().map(it -> {
-						int sizeIndex = sizeNameList.indexOf(it);
-						String sizeCode = sizeCodeList.get(sizeIndex);
-						return standardColumnCountryTranslateService.findOne(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-								.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-								.eq(StandardColumnCountryTranslate::getTitleCode, "DP06")
-								.eq(StandardColumnCountryTranslate::getPropertiesCode, sizeCode + "-" + modelType.getCode()));
-					}).filter(Objects::nonNull).sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList());
+						List<String> woolFillSizeCodeList = Arrays.stream(downContent.split("\n")).map(it -> it.split(":")[0]).collect(Collectors.toList());
+						List<StandardColumnCountryTranslate> woolFillContentList = woolFillSizeCodeList.stream().map(it -> {
+							int sizeIndex = sizeNameList.indexOf(it);
+							String sizeCode = sizeCodeList.get(sizeIndex);
+							return standardColumnCountryTranslateService.findOne(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+									.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
+									.eq(StandardColumnCountryTranslate::getTitleCode, "DP06")
+									.eq(StandardColumnCountryTranslate::getPropertiesCode, sizeCode + "-" + modelType.getCode()));
+						}).filter(Objects::nonNull).sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList());
 
-					for (StandardColumnCountryTranslate content : woolFillContentList) {
-						downContent = downContent.replaceAll(content.getPropertiesName(), content.getContent());
-						BeanUtil.copyProperties(content, woolFillMoreLanguageVO);
+						for (StandardColumnCountryTranslate content : woolFillContentList) {
+							downContent = downContent.replaceAll(content.getPropertiesName(), content.getContent());
+							BeanUtil.copyProperties(content, woolFillMoreLanguageVO);
+						}
+
+						woolFillMoreLanguageVO.setModel(StandardColumnModel.RADIO);
+						woolFillMoreLanguageVO.setPropertiesCode(null);
+						woolFillMoreLanguageVO.setPropertiesName(hangTagVO.getDownContent());
+						woolFillMoreLanguageVO.setPropertiesContent(downContent);
+						woolFillMoreLanguageVO.setCannotFindPropertiesContent(woolFillSizeCodeList.size() > woolFillContentList.size());
 					}
-
-					woolFillMoreLanguageVO.setModel(StandardColumnModel.RADIO);
-					woolFillMoreLanguageVO.setPropertiesCode(null);
-					woolFillMoreLanguageVO.setPropertiesName(hangTagVO.getDownContent());
-					woolFillMoreLanguageVO.setPropertiesContent(downContent);
-					woolFillMoreLanguageVO.setCannotFindPropertiesContent(woolFillSizeCodeList.size() > woolFillContentList.size());
 				}
+
 				resultList.addAll(result);
 			});
 		});
