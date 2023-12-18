@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
@@ -394,7 +392,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	private void strictCheckIngredientPercentage(List<String> hangTagIdList){
-		List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(new BaseLambdaQueryWrapper<HangTagIngredient>()
+		List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
 				.in(HangTagIngredient::getHangTagId, hangTagIdList)
 				.eq(HangTagIngredient::getStrictCheck, YesOrNoEnum.YES.getValueStr())
 		);
