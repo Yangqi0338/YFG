@@ -546,7 +546,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         //图样附件、物料清单、尺寸表、工序工价、核价信息、工艺说明、样衣评审、业务意见、吊牌洗唛
 
         //图样附件
-        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag,null);
+        attachmentService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag,"");
         //物料清单
         packBomVersionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag, flg,flag);
         //尺寸表
