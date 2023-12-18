@@ -33,8 +33,12 @@ public class FabricIngredientsInfoExcelDto {
 
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
-    @Excel(name = "图片",type = 2,orderNum ="-2")
+//    @Excel(name = "图片",type = 2,orderNum ="-2")
     private String imageUrl;
+
+    @ApiModelProperty(value = "图片"  )
+    @Excel(name = "图片1",type = 2)
+    private byte[] imageUrl1;
 
     /**
      * 完成状态

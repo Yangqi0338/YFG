@@ -14,10 +14,15 @@ import cn.afterturn.easypoi.exception.excel.ExcelExportException;
 import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
 import cn.afterturn.easypoi.util.PoiPublicUtil;
 import cn.afterturn.easypoi.util.PoiReflectorUtil;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -28,6 +33,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +46,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -47,6 +56,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExcelUtils {
 
+
+    private static Logger logger = LoggerFactory.getLogger(ExcelUtils.class);
     /**
      * excel 导出
      *
@@ -137,6 +148,11 @@ public class ExcelUtils {
                         excelExportEntity.setKey("imageUrl"+(i+1));
                         entityList.add(excelExportEntity);
                     }
+                }
+                if(columnDefine.getExportFunction().equals("imageUrl1")){
+                        ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
+                        excelExportEntity.setKey("imageUrl1");
+                        entityList.add(excelExportEntity);
                 }
             }else{
                 ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
@@ -441,6 +457,62 @@ public class ExcelUtils {
         }
 
         return excelEntity;
+    }
+
+
+
+    /**
+     * 线程导出表格
+     * @param list 导出的数据
+     * @param pojoClass class
+     * @param name 文件名称
+     * @param imgFlag 是否导出图片
+     * @param maxNumber 最大导出量
+     * @param response
+     * @param columns 图片列名
+     */
+    public static void executorExportExcel(List<?> list, Class<?> pojoClass, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, String... columns){
+        long t1 = System.currentTimeMillis();
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .build();
+        try {
+            if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > maxNumber) {
+                    throw new OtherException("带图片导出最多只能导出" + maxNumber + "条");
+                }
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+
+                for (Object o  : list) {
+//                    executor.submit(() -> {
+                        try {
+                            for (String column : columns) {
+                                final String stylePic = BeanUtil.getProperty(o, column);
+                                if(StrUtil.isNotBlank(stylePic)){
+                                    BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
+                                }
+                            }
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            logger.info(String.valueOf(countDownLatch.getCount()));
+                        }
+//                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
+
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
     }
 
 
