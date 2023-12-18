@@ -8,7 +8,6 @@ package com.base.sbc.module.sample.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -24,11 +23,9 @@ import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumModelTypeVo;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.sample.dto.AddRevampFabricIngredientsInfoDto;
-import com.base.sbc.module.sample.dto.FabricInformationExcelDto;
 import com.base.sbc.module.sample.dto.FabricIngredientsInfoExcelDto;
 import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
 import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
@@ -36,7 +33,6 @@ import com.base.sbc.module.sample.entity.FabricIngredientsSpecification;
 import com.base.sbc.module.sample.mapper.FabricIngredientsInfoMapper;
 import com.base.sbc.module.sample.service.FabricIngredientsInfoService;
 import com.base.sbc.module.sample.service.FabricIngredientsSpecificationService;
-import com.base.sbc.module.sample.vo.FabricInformationVo;
 import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -227,9 +223,8 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
     public void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws IOException {
         queryFabricIngredientsInfoDto.setDeriveFlag(BaseGlobal.NO);
         List<FabricIngredientsInfoVo> ingredientsInfoVoList = getFabricIngredientsInfoList(queryFabricIngredientsInfoDto).getList();
-        List<FabricIngredientsInfoExcelDto> list = BeanUtil.copyToList(ingredientsInfoVoList, FabricIngredientsInfoExcelDto.class);
-        minioUtils.setObjectUrlToList(list,"imageUrl");
-        ExcelUtils.exportExcel(list,  FabricIngredientsInfoExcelDto.class, "辅料调样单.xlsx",new ExportParams("辅料调样单", "辅料调样单", ExcelType.HSSF) ,response);
+        minioUtils.setObjectUrlToList(ingredientsInfoVoList,"imageUrl");
+        ExcelUtils.exportExcel(ingredientsInfoVoList,  FabricIngredientsInfoExcelDto.class, "辅料调样单.xlsx",new ExportParams("辅料调样单", "辅料调样单", ExcelType.HSSF) ,response);
     }
 
     /**

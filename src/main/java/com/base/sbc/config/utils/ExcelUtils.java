@@ -3,19 +3,43 @@ package com.base.sbc.config.utils;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.afterturn.easypoi.excel.annotation.ExcelCollection;
+import cn.afterturn.easypoi.excel.annotation.ExcelEntity;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
+import cn.afterturn.easypoi.exception.excel.ExcelExportException;
+import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
+import cn.afterturn.easypoi.util.PoiPublicUtil;
+import cn.afterturn.easypoi.util.PoiReflectorUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnUserDefineService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Excel导入导出工具类
@@ -72,7 +96,96 @@ public class ExcelUtils {
      * @param response
      */
     public static void exportExcel(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response) throws IOException {
+        ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
+        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        String tableCode = requestAttributes.getRequest().getHeader("tableCode");
+        String id = requestAttributes.getRequest().getHeader("tableCode-id");
+        if(StrUtil.isNotEmpty(tableCode)){
+            List<ColumnDefine> detail;
+            if(StrUtil.isNotEmpty(id)){
+                detail = columnUserDefineService.findDetail(tableCode, id);
+            }else {
+                detail = columnUserDefineService.findDefaultDetail(tableCode);
+            }
+            if(CollectionUtils.isNotEmpty(detail)){
+                defaultExport(list,fileName,response,exportParams,detail);
+                return;
+            }
+        }
         defaultExport(list, pojoClass, fileName, response, exportParams);
+    }
+
+    private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ColumnDefine> detail) throws IOException {
+        List<ExcelExportEntity> entityList = getExcelField(detail);
+        //把数据添加到excel表格中
+        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
+        downLoadExcel(fileName, response, workbook);
+    }
+
+
+    private static List<ExcelExportEntity> getExcelField(List<ColumnDefine> detail) {
+        List<ExcelExportEntity> entityList = new ArrayList<>();
+        for (ColumnDefine columnDefine : detail) {
+            if(BaseGlobal.NO.equals(columnDefine.getHidden()) || columnDefine.getColumnCode().equals("row-select") || columnDefine.getColumnCode().equals("operation")){
+                continue;
+            }
+
+            if(StrUtil.isNotEmpty(columnDefine.getExportFunction())){
+                if(columnDefine.getExportFunction().equals("imgList5")){
+                    for (int i = 0; i < 5; i++) {
+                        ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
+                        excelExportEntity.setKey("imageUrl"+(i+1));
+                        entityList.add(excelExportEntity);
+                    }
+                }
+            }else{
+                ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
+                entityList.add(excelExportEntity);
+            }
+        }
+        return entityList;
+    }
+
+    private static ExcelExportEntity getExcelExportEntity(ColumnDefine columnDefine) {
+        ExcelExportEntity excelExportEntity = new ExcelExportEntity();
+        excelExportEntity.setName(columnDefine.getColumnName());
+        excelExportEntity.setKey(columnDefine.getColumnCode());
+        excelExportEntity.setWidth((double) columnDefine.getColumnWidth() /10);
+        excelExportEntity.setType(1);
+        String columnType = columnDefine.getColumnType();
+        if(StrUtil.isNotEmpty(columnType)){
+            if(columnType.equals("img")){
+                excelExportEntity.setType(2);
+            }else if (columnType.equals("int") || columnType.equals("number") || columnType.equals("bigDecimal")){
+                excelExportEntity.setType(10);
+            }
+        }
+        //excelEntity.setHeight(excel.height());
+        //excelEntity.setNeedMerge(excel.needMerge());
+        //excelEntity.setMergeVertical(excel.mergeVertical());
+        //excelEntity.setMergeRely(excel.mergeRely());
+        if(StrUtil.isNotEmpty(columnDefine.getExcelReplace())){
+            String[] strings = JSONObject.parseObject(columnDefine.getExcelReplace(), String[].class);
+            excelExportEntity.setReplace(strings);
+        }
+        excelExportEntity.setOrderNum(columnDefine.getSortOrder());
+        //excelEntity.setWrap(excel.isWrap());
+        excelExportEntity.setExportImageType(1);
+        //excelExportEntity.setSuffix(excel.suffix());
+        excelExportEntity.setDatabaseFormat(columnDefine.getDataFormat());
+        excelExportEntity.setFormat(columnDefine.getDataFormat());
+        //excelExportEntity.setStatistics(excel.isStatistics());
+        //excelExportEntity.setHyperlink(excel.isHyperlink());
+        //excelExportEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
+        //excelExportEntity.setNumFormat(excel.numFormat());
+        //excelExportEntity.setColumnHidden(excel.isColumnHidden());
+        //excelExportEntity.setDict(excel.dict());
+        //excelExportEntity.setEnumExportField(excel.enumExportField());
+        //excelExportEntity.setTimezone(excel.timezone());
+        //excelExportEntity.setAddressList(excel.addressList());
+        //excelExportEntity.setDesensitizationRule(excel.desensitizationRule());
+        excelExportEntity.setGroupName(columnDefine.getGroupName());
+        return excelExportEntity;
     }
 
     /**
@@ -106,6 +219,24 @@ public class ExcelUtils {
         ExportParams exportParams = new ExportParams(title, sheetName, ExcelType.XSSF);
         exportParams.setCreateHeadRows(isCreateHeader);
         defaultExport(list, pojoClass, fileName, response, exportParams);
+    }
+
+    public static void addFixText2LastRow(Sheet sheet, String fixText) {
+        int lastRowNum = sheet.getLastRowNum() + 1;
+        AtomicInteger cellNumInt = new AtomicInteger();
+        sheet.rowIterator().forEachRemaining(row-> {
+            cellNumInt.set(row.getLastCellNum());
+        });
+        int cellNum = cellNumInt.get() - 1;
+        Row row = sheet.createRow(lastRowNum);
+        Cell rowCell = row.createCell(0);
+        rowCell.setCellValue(fixText);
+        rowCell.getCellStyle().setWrapText(true);
+        row.setHeight((short) -1);
+        for (int i = 1; i <= cellNum; i++) {
+            row.createCell(i);
+        }
+        sheet.addMergedRegion(new CellRangeAddress(lastRowNum, lastRowNum, 0, cellNum));
     }
 
 
@@ -227,4 +358,91 @@ public class ExcelUtils {
             throw new IOException(e.getMessage());
         }
     }
+
+    public static void getAllExcelField(String[] exclusions, String targetId, Field[] fields, List<ExcelExportEntity> excelParams, Class<?> pojoClass, List<Method> getMethods, ExcelEntity excelGroup) {
+        List<String> exclusionsList = exclusions != null ? Arrays.asList(exclusions) : null;
+
+        for (Field field : fields) {
+            if (!PoiPublicUtil.isNotUserExcelUserThis(exclusionsList, field, targetId)) {
+                if (field.getAnnotation(Excel.class) != null) {
+                    Excel excel = field.getAnnotation(Excel.class);
+                    String name = PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null);
+                    if (StringUtils.isNotBlank(name)) {
+                        excelParams.add(createExcelExportEntity(field, targetId, pojoClass, getMethods, excelGroup));
+                    }
+                } else if (PoiPublicUtil.isCollection(field.getType())) {
+                    ExcelCollection excel = field.getAnnotation(ExcelCollection.class);
+                    ParameterizedType pt = (ParameterizedType) field.getGenericType();
+                    Class<?> clz = (Class<?>) pt.getActualTypeArguments()[0];
+                    List<ExcelExportEntity> list = new ArrayList<>();
+                    getAllExcelField(exclusions, StringUtils.isNotEmpty(excel.id()) ? excel.id() : targetId, PoiPublicUtil.getClassFields(clz), list, clz, null, null);
+                    ExcelExportEntity excelEntity = new ExcelExportEntity();
+                    excelEntity.setName(PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null));
+
+                    excelEntity.setOrderNum(Integer.parseInt(PoiPublicUtil.getValueByTargetId(excel.orderNum(), targetId, "0")));
+                    excelEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
+                    excelEntity.setList(list);
+                    excelParams.add(excelEntity);
+                } else {
+                    List<Method> newMethods = new ArrayList<>();
+                    if (getMethods != null) {
+                        newMethods.addAll(getMethods);
+                    }
+
+                    newMethods.add(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
+                    ExcelEntity excel = field.getAnnotation(ExcelEntity.class);
+                    if (excel.show() && StringUtils.isEmpty(excel.name())) {
+                        throw new ExcelExportException("if use ExcelEntity ,name mus has value ,data: " + ReflectionToStringBuilder.toString(excel), ExcelExportEnum.PARAMETER_ERROR);
+                    }
+
+                    getAllExcelField(exclusions, StringUtils.isNotEmpty(excel.id()) ? excel.id() : targetId, PoiPublicUtil.getClassFields(field.getType()), excelParams, field.getType(), newMethods, excel.show() ? excel : null);
+                }
+            }
+        }
+    }
+
+    private static ExcelExportEntity createExcelExportEntity(Field field, String targetId, Class<?> pojoClass, List<Method> getMethods, ExcelEntity excelGroup) {
+        Excel excel = field.getAnnotation(Excel.class);
+        ExcelExportEntity excelEntity = new ExcelExportEntity();
+        excelEntity.setKey(field.getName());
+        excelEntity.setName(PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null));
+        excelEntity.setWidth(excel.width());
+        excelEntity.setHeight(excel.height());
+        excelEntity.setNeedMerge(excel.needMerge());
+        excelEntity.setMergeVertical(excel.mergeVertical());
+        excelEntity.setMergeRely(excel.mergeRely());
+        excelEntity.setReplace(excel.replace());
+        excelEntity.setOrderNum(Integer.parseInt(PoiPublicUtil.getValueByTargetId(excel.orderNum(), targetId, "0")));
+        excelEntity.setWrap(excel.isWrap());
+        excelEntity.setExportImageType(excel.imageType());
+        excelEntity.setSuffix(excel.suffix());
+        excelEntity.setDatabaseFormat(excel.databaseFormat());
+        excelEntity.setFormat(StringUtils.isNotEmpty(excel.exportFormat()) ? excel.exportFormat() : excel.format());
+        excelEntity.setStatistics(excel.isStatistics());
+        excelEntity.setHyperlink(excel.isHyperlink());
+        excelEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
+        excelEntity.setNumFormat(excel.numFormat());
+        excelEntity.setColumnHidden(excel.isColumnHidden());
+        excelEntity.setDict(excel.dict());
+        excelEntity.setEnumExportField(excel.enumExportField());
+        excelEntity.setTimezone(excel.timezone());
+        excelEntity.setAddressList(excel.addressList());
+        excelEntity.setDesensitizationRule(excel.desensitizationRule());
+        if (excelGroup != null) {
+            excelEntity.setGroupName(PoiPublicUtil.getValueByTargetId(excelGroup.name(), targetId, null));
+        } else {
+            excelEntity.setGroupName(excel.groupName());
+        }
+
+        if (getMethods != null) {
+            List<Method> newMethods = new ArrayList<>(getMethods);
+            newMethods.add(excelEntity.getMethod());
+            excelEntity.setMethods(newMethods);
+        }
+
+        return excelEntity;
+    }
+
+
+
 }

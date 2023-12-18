@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service.impl;
 
-import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
@@ -16,11 +15,9 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -31,7 +28,6 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.IFileLoaderImpl;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -43,7 +39,6 @@ import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -70,7 +65,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,11 +74,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.Principal;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
@@ -1047,8 +1038,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
         dto.setDeriveflag(BaseGlobal.YES);
-        PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
-        List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
+        PageInfo<SampleBoardVo> sampleBoardVoPageInfo = sampleBoardList(dto);
+        List<SampleBoardVo> excelList = sampleBoardVoPageInfo.getList();
         /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
@@ -1059,9 +1050,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*获取图片链接*/
                 stylePicUtils.setStylePic(excelList, "stylePic",30);
-                /*计时器*/
+                /*计时器*//*
                 CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
-                for (SampleBoardExcel sampleBoardExcel : excelList) {
+                for (SampleBoardVo sampleBoardExcel : excelList) {
                     executor.submit(() -> {
                         try {
                             final String stylePic = sampleBoardExcel.getStylePic();
@@ -1075,7 +1066,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                         }
                     });
                 }
-                countDownLatch.await();
+                countDownLatch.await();*/
             }
             ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
         } catch (Exception e) {
