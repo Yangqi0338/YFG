@@ -41,6 +41,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
@@ -188,19 +190,7 @@ public class HangTagController extends BaseController {
             hangTag1.setStatus("2");
         }
 
-        String status = hangTag1.getStatus();
-        int type;
-        switch (status){
-            case "2" :type= 0;
-                break;
-            case "3" :type= 2;
-                break;
-            case "4" :type= 3;
-                break;
-            default:type= 0;
-        }
-
-        smpService.tagConfirmDates(Collections.singletonList(hangTag.getId()),type,0);
+        smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), 0, 0);
         hangTagService.updateById(hangTag1);
         return updateSuccess("反审成功");
     }
