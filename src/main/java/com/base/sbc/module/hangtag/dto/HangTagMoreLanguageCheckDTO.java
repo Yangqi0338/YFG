@@ -7,16 +7,12 @@
 package com.base.sbc.module.hangtag.dto;
 
 import com.base.sbc.config.enums.business.SystemSource;
-import com.base.sbc.module.hangtag.entity.HangTagIngredient;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 类描述：吊牌表 实体类
@@ -29,7 +25,7 @@ import java.util.List;
  */
 @Data
 @ApiModel(value = "大货详情多语言请求")
-public class HangTagMoreLanguageDTO {
+public class HangTagMoreLanguageCheckDTO {
 
     private static final long serialVersionUID = 1L;
 
@@ -49,22 +45,6 @@ public class HangTagMoreLanguageDTO {
     @ApiModelProperty(value = "来源：PDM,BCS,PRINT(打印)")
     @NotNull(message = "来源不能为空")
     private SystemSource source;
-
-    /**
-     * 大货款号和国家语言的关联
-     */
-    @ApiModelProperty(value = "大货款号和国家语言的关联")
-    List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList;
-
-    /**
-     * 查找类型
-     */
-    @ApiModelProperty(value = "查找类型")
-    private String selectType;
-
-    /** 洗标名称 */
-    @ApiModelProperty(value = "多租户Id"  )
-    private String userCompany;
 
 
 }

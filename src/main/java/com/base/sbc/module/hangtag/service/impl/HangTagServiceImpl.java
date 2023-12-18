@@ -31,6 +31,7 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.SizeBulkStyleService;
 import com.base.sbc.module.basicsdatum.vo.SizeBulkStyleVo;
 import com.base.sbc.module.hangtag.dto.HangTagIngredientDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguagePrinterVO;
@@ -830,7 +831,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			HangTagMoreLanguageVO baseCountryLanguageVO =BeanUtil.copyProperties(country, HangTagMoreLanguageVO.class);
 			baseCountryLanguageVO.setCountryLanguageId(countryLanguageId);
 
-			bulkStyleNoList.forEach(bulkStyleNo -> {
+			List<String> countryMappingBulkStyleNoList = bulkStyleNoList;
+			List<HangTagMoreLanguageCheckDTO> mappingList = hangTagMoreLanguageDTO.getHangTagMoreLanguageCheckDTOList();
+			if (CollectionUtil.isNotEmpty(mappingList)) {
+				String mappingBulkStyleNo = mappingList.stream().filter(it -> it.getCountryLanguageId().equals(countryLanguageId))
+						.findFirst().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).orElse("");
+				countryMappingBulkStyleNoList = Arrays.asList(mappingBulkStyleNo.split(","));
+			}
+
+			countryMappingBulkStyleNoList.forEach(bulkStyleNo -> {
 				HangTagVO hangTagVO = hangTagVOList.stream().filter(it-> it.getBulkStyleNo().equals(bulkStyleNo))
 						.findFirst().orElseThrow(()-> new OtherException("大货款号:" + bulkStyleNo + " 不存在"));
 
