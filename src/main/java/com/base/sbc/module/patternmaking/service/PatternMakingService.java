@@ -16,10 +16,8 @@ import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -375,6 +373,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @return
      */
     boolean startStop(StartStopDto startStopDto);
+
+    void saveReceiveReason(TechnologyCenterTaskVo dto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

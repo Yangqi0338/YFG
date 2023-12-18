@@ -213,6 +213,9 @@ public class TechnologyCenterTaskVo {
     @ApiModelProperty(value = "打样设计师")
     private String patternDesignerName;
 
+    @ApiModelProperty(value = "停留原因")
+    private String receiveReason;
+
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {
             return ns.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> b));

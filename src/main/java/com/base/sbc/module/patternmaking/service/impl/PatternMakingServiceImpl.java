@@ -21,6 +21,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -221,6 +222,17 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateWrapper.set("disable_flag", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
+    }
+
+    @Override
+    public void saveReceiveReason(TechnologyCenterTaskVo dto) {
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId, dto.getId());
+        updateWrapper.set(PatternMaking::getUpdateId, getUserId());
+        updateWrapper.set(PatternMaking::getUpdateName, getUserName());
+        updateWrapper.set(PatternMaking::getUpdateDate, new Date());
+        updateWrapper.set(PatternMaking::getReceiveReason, dto.getReceiveReason());
+        update(updateWrapper);
     }
 
     @Override

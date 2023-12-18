@@ -478,6 +478,13 @@ public class PatternMakingController {
         return patternMakingService.startStop(startStopDto);
     }
 
+    @ApiOperation(value = "滞留款报表保存停留原因")
+    @PostMapping("/saveReceiveReason")
+    public boolean saveReceiveReason(@RequestBody TechnologyCenterTaskVo dto) {
+        patternMakingService.saveReceiveReason(dto);
+        return true;
+    }
+
 }
 
 
