@@ -1283,13 +1283,13 @@
 <!--    外辅工艺 7-->
 <#if wfgyShow>
     <#if wfgyDataList?size gt 0>
-        <#assign lastIndex = wfgyDataList?size - 1>.
+        <#assign lastIndex = wfgyDataList?size - 1>
         <#assign totalSize = wfgyDataList[lastIndex].rows + ztbzDataList?size - 1>
         <#assign maxSize = 21>
 
         <!--    基础工艺 4 3-->
         <#assign breakPointer = 0 >
-        <table class="table_border mt" style="page-break-before: always;">
+        <table class="table_border mt" style="page-break-inside: auto;">
             <thead>
             <tr>
                 <th colspan="2" class="th_title">
@@ -1318,18 +1318,20 @@
                 </#list>
             </#if>
             </tbody>
-            <#--        <tfoot>-->
-            <#--        <tr>-->
-            <#--            <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>-->
-            <#--        </tr>-->
-            <#--        </tfoot>-->
+            <#if breakPointer+1 gte wfgyDataList?size>
+                <tfoot>
+                <tr>
+                    <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>
+                </tr>
+                </tfoot>
+            </#if>
         </table>
 
         <#if breakPointer gt 0 && breakPointer+1 lt wfgyDataList?size>
-            <#assign lastItem = wfgyDataList[breakPointer+1]>
-        <#--总行数减去有数字的行数 = 不存在数字的行数-->
-            <#assign hasPageBreak = ((lastItem.numberRows+wfgyDataList?last.numberRows)/1 + ((lastItem.rows-lastItem.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))) gt 21>
-            <#if hasPageBreak>
+<#--            <#assign lastItem = wfgyDataList[breakPointer+1]>-->
+<#--            &lt;#&ndash;总行数减去有数字的行数 = 不存在数字的行数&ndash;&gt;-->
+<#--            <#assign hasPageBreak = ((lastItem.numberRows+wfgyDataList?last.numberRows)/1 + ((lastItem.rows-lastItem.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))) gt 21>-->
+<#--            <#if hasPageBreak>-->
                 <table class="table_border mt" style="page-break-before: always;">
                     <thead>
                     <tr>
@@ -1358,13 +1360,13 @@
                         </#list>
                     </#if>
                     </tbody>
-                    <#--        <tfoot>-->
-                    <#--        <tr>-->
-                    <#--            <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>-->
-                    <#--        </tr>-->
-                    <#--        </tfoot>-->
+                    <tfoot>
+                    <tr>
+                        <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>
+                    </tr>
+                    </tfoot>
                 </table>
-            </#if>
+<#--            </#if>-->
         </#if>
     </#if>
 </#if>
