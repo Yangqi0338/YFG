@@ -532,7 +532,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //2我创建的
         else if (StrUtil.equals(dto.getUserType(), StylePageDto.USER_TYPE_2)) {
-            qw.isNullstr("sender");
+            qw.isNullStr("sender");
             qw.eq("create_id", userId);
         }
         //3我负责的

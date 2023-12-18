@@ -102,7 +102,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         if (StrUtil.isNotBlank(queryDemandDimensionalityDto.getProdCategory2nd())) {
             queryWrapper.eq("prod_category2nd", queryDemandDimensionalityDto.getProdCategory2nd());
         } else {
-            queryWrapper.isNullstr("prod_category2nd");
+            queryWrapper.isNullStr("prod_category2nd");
             queryWrapper.eq("prod_category", queryDemandDimensionalityDto.getProdCategory());
         }
         queryWrapper.eq("channel", queryDemandDimensionalityDto.getChannel());
@@ -256,7 +256,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
             queryWrapper.eq("prod_category2nd", saveDelDemandDto.get(0).getProdCategory2nd());
         } else {
             queryWrapper.eq("prod_category", saveDelDemandDto.get(0).getProdCategory());
-            queryWrapper.isNullstr("prod_category2nd");
+            queryWrapper.isNullStr("prod_category2nd");
         }
         queryWrapper.eq("planning_season_id", saveDelDemandDto.get(0).getPlanningSeasonId());
         queryWrapper.eq("channel", saveDelDemandDto.get(0).getChannel());
