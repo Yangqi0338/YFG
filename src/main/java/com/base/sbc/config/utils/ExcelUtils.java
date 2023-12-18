@@ -152,6 +152,7 @@ public class ExcelUtils {
                 if(columnDefine.getExportFunction().equals("imageUrl1")){
                         ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
                         excelExportEntity.setKey("imageUrl1");
+                    excelExportEntity.setExportImageType(2);
                         entityList.add(excelExportEntity);
                 }
             }else{
