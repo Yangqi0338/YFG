@@ -1314,15 +1314,24 @@ public class SmpService {
                 HangTag hangTag = hangTagService.getById(id);
                 String bulkStyleNo = hangTag.getBulkStyleNo();
                 if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() == type) {
-                    //反审
-                    tagConfirmDateDto.setStyleNo(bulkStyleNo);
-                    tagConfirmDateDto.setTechnologistConfirm(0);
-                    tagConfirmDateDto.setTechnicalConfirm(0);
-                    tagConfirmDateDto.setQualityControlConfirm(0);
-                    tagConfirmDateDto.setTechnologistConfirmDate(null);
-                    tagConfirmDateDto.setTechnicalConfirmDate(null);
-                    tagConfirmDateDto.setQualityControlConfirmDate(null);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    //当status 等于4 待品控确认反审核只取消上一级
+                    if("4".equals(hangTag.getStatus())){
+                        //反审
+                        tagConfirmDateDto.setStyleNo(bulkStyleNo);
+                        tagConfirmDateDto.setTechnicalConfirm(0);
+                        tagConfirmDateDto.setTechnicalConfirmDate(null);
+                        tagConfirmDate.add(tagConfirmDateDto);
+                    }else{
+                        //反审
+                        tagConfirmDateDto.setStyleNo(bulkStyleNo);
+                        tagConfirmDateDto.setTechnologistConfirm(0);
+                        tagConfirmDateDto.setTechnicalConfirm(0);
+                        tagConfirmDateDto.setQualityControlConfirm(0);
+                        tagConfirmDateDto.setTechnologistConfirmDate(null);
+                        tagConfirmDateDto.setTechnicalConfirmDate(null);
+                        tagConfirmDateDto.setQualityControlConfirmDate(null);
+                        tagConfirmDate.add(tagConfirmDateDto);
+                    }
                 }
                 if (HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode() == type) {
                     //工艺员确认
