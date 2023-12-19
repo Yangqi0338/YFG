@@ -469,6 +469,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             //是否滞留款查询
             //仅获取样衣看板内的初版样
             qw.eq("p.sample_type_name", "初版样");
+            //如果相同款有后续样时则不查出
+            qw.notExists("select 1 from t_pattern_making p1 where p1.sample_type_name != '初版样' and p.style_id = p1.style_id");
             //没有再次下发打版指令+＞7天
             qw.lt("p.receive_sample_date",DateUtils.getWeekAgo(new Date()));
 
