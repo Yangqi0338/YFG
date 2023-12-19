@@ -154,7 +154,7 @@ public class CcmFeignService {
      */
     public Map<String, Map<String, String>> getDictInfoToMap(String types) {
         Map<String, Map<String, String>> result = new LinkedHashMap<>(16);
-        String dictInfo = ccmService.getDictInfo(types);
+        String dictInfo = ccmService.getDictInfo(types, null);
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             List<BasicBaseDict> data = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
@@ -297,7 +297,23 @@ public class CcmFeignService {
      */
     public List<BasicBaseDict> getDictInfoToList(String types) {
         List<BasicBaseDict> list = new ArrayList<>();
-        String dictInfo = ccmService.getDictInfo(types);
+        String dictInfo = ccmService.getDictInfo(types, null);
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            list = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+        }
+        return list;
+    }
+
+    /**
+     * ccm 查询字典
+     *
+     * @param types
+     * @return
+     */
+    public List<BasicBaseDict> getAllDictInfoToList(String types) {
+        List<BasicBaseDict> list = new ArrayList<>();
+        String dictInfo = ccmService.getDictInfo(types, "0,1");
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             list = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);

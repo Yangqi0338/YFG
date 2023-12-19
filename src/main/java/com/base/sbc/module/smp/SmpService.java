@@ -22,6 +22,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.SecondIngredientSyncDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
@@ -1388,6 +1389,23 @@ public class SmpService {
                 if (aBoolean) {
                     index++;
                 }
+            }
+        }
+        return index;
+    }
+
+
+    /**
+     * 修改吊牌价的时候验证(暂不需要)
+     */
+    public int secondIngredient(List<SecondIngredientSyncDto> secondIngredientSyncDtoList) {
+        int index = 0;
+        String jsonString = JsonStringUtils.toJSONString(secondIngredientSyncDtoList);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString);
+        for (SecondIngredientSyncDto secondIngredientSyncDto : secondIngredientSyncDtoList) {
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(secondIngredientSyncDto), "scm", "下发吊牌和款式定价确认信息");
+            if (aBoolean) {
+                index++;
             }
         }
         return index;

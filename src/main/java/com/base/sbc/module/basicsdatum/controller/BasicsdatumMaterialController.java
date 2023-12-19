@@ -7,7 +7,10 @@
 package com.base.sbc.module.basicsdatum.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -51,6 +54,7 @@ import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -89,8 +93,10 @@ public class BasicsdatumMaterialController extends BaseController {
 
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
-    Pattern pattern = Pattern.compile("^([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
-    Pattern pattern2 = Pattern.compile("(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
+    private final CcmFeignService ccmFeignService;
+
+    Pattern pattern = Pattern.compile("^(.*?)([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
+    Pattern pattern2 = Pattern.compile("(.*?)(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -111,14 +117,22 @@ public class BasicsdatumMaterialController extends BaseController {
     public List<BasicsdatumMaterialIngredient> formatToList(String str, String type, String materialCode) {
         String[] strs = str.split(",");
         List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
+        List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(SecondIngredientController.uniqueDictCode);
+
         for (String ingredients : strs) {
             Matcher matcher = pattern.matcher(ingredients.trim());
             BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
-
             if (matcher.matches()) {
-                in.setRatio(BigDecimalUtil.valueOf(matcher.group(1)));
-                String name = matcher.group(2).trim();
-                String note = matcher.group(3) == null ? "" : matcher.group(3).trim();
+                String kindName = matcher.group(1).trim();
+                BigDecimal ratio = BigDecimalUtil.valueOf(matcher.group(2));
+                String name = matcher.group(3) == null ? "" : matcher.group(3).trim();
+                String note = matcher.group(4) == null ? "" : matcher.group(4).trim();
+                in.setMaterialKindName(kindName);
+                if (StrUtil.isNotBlank(kindName)) {
+                    BasicBaseDict baseDict = pd021DictList.stream().filter(it -> it.getName().equals(kindName)).findFirst().orElseThrow(() -> new OtherException("非法的二级分类值"));
+                    in.setMaterialKindCode(baseDict.getValue());
+                }
+                in.setRatio(ratio);
                 in.setName(name);
                 in.setSay(note);
                 in.setType(type);
@@ -132,9 +146,17 @@ public class BasicsdatumMaterialController extends BaseController {
                 Matcher matcher = pattern2.matcher(str);
                 while (matcher.find()) {
                     BasicsdatumMaterialIngredient in = new BasicsdatumMaterialIngredient();
-                    String name = matcher.group(1) == null ? "" : matcher.group(1).trim();
-                    in.setSay(matcher.group(2) == null ? "" : matcher.group(2).trim());
-                    in.setRatio(BigDecimalUtil.valueOf(matcher.group(3)));
+                    String kindName = matcher.group(1).trim();
+                    String name = matcher.group(2) == null ? "" : matcher.group(2).trim();
+                    String note = matcher.group(3) == null ? "" : matcher.group(3).trim();
+                    BigDecimal ratio = BigDecimalUtil.valueOf(matcher.group(4));
+                    in.setMaterialKindName(kindName);
+                    if (StrUtil.isNotBlank(kindName)) {
+                        BasicBaseDict baseDict = pd021DictList.stream().filter(it -> it.getName().equals(kindName)).findFirst().orElseThrow(() -> new OtherException("非法的二级分类值"));
+                        in.setMaterialKindCode(baseDict.getValue());
+                    }
+                    in.setSay(note);
+                    in.setRatio(ratio);
                     in.setName(name);
                     in.setType(type);
 
