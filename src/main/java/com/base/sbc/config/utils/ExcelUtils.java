@@ -110,7 +110,7 @@ public class ExcelUtils {
     public static void exportExcel(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response) throws IOException {
         ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        String tableCode = requestAttributes.getRequest().getHeader("tableCode");
+        /*String tableCode = requestAttributes.getRequest().getHeader("tableCode");
         String id = requestAttributes.getRequest().getHeader("tableCode-id");
         if(StrUtil.isNotEmpty(tableCode)){
             List<ColumnDefine> detail;
@@ -153,7 +153,7 @@ public class ExcelUtils {
                 defaultExport(list,fileName,response,exportParams,newExcelParams);
                 return;
             }
-        }
+        }*/
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
