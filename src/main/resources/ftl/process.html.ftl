@@ -432,8 +432,8 @@
                     <td >${washingMaterialRemarksName}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">充绒量</td>
-                    <td class="gb" style="font-size: 11px">${downContent}</td>
+                    <td class="td_lt gb bold">充绒量</td>
+                    <td class="td_lt gb" style="font-size: 11px"><pre>${downContent}</pre></td>
                 </tr>
                 <tr>
                     <td class="bold">特殊规格</td>
