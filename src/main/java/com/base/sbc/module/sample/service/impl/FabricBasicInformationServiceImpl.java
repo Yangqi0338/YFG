@@ -191,14 +191,15 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
     public void fabricInformationDeriveExcel(HttpServletResponse response, QueryFabricInformationDto queryFabricInformationDto) throws IOException {
         PageInfo<FabricInformationVo> pageInfo =    getFabricInformationList(queryFabricInformationDto);
         List<FabricInformationVo>  informationVoList = pageInfo.getList();
-        informationVoList.forEach(f ->{
+        List<FabricInformationExcelDto> fabricInformationExcelDtoList = BeanUtil.copyToList(informationVoList, FabricInformationExcelDto.class);
+        fabricInformationExcelDtoList.forEach(f ->{
             if(CollUtil.isNotEmpty( f.getImageUrlList())){
                 for (int i = 0; i < f.getImageUrlList().size(); i++) {
                     BeanUtil.setProperty(f,"imageUrl"+(i+1),f.getImageUrlList().get(i));
                 }
             }
         });
-        ExcelUtils.exportExcel(informationVoList,  FabricInformationExcelDto.class, "面样调样单.xlsx",new ExportParams("面样调样单", "面样调样单", ExcelType.HSSF) ,response);
+        ExcelUtils.exportExcel(fabricInformationExcelDtoList,  FabricInformationExcelDto.class, "面样调样单.xlsx",new ExportParams("面样调样单", "面样调样单", ExcelType.HSSF) ,response);
     }
 
     /**
