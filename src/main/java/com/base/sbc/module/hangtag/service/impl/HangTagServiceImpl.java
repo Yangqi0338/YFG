@@ -932,15 +932,19 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					queryWrapper.eq(HangTagIngredient::getHangTagId,hangTagVO.getId());
 					List<HangTagIngredient> list = hangTagIngredientService.list(queryWrapper);
 
+					List<StandardColumnCountryTranslate> ingredientContentList = new ArrayList<>();
 					List<String> ingredientCodeList = list.stream().flatMap(it -> Stream.of(it.getIngredientCode(), it.getIngredientDescriptionCode(), it.getTypeCode(), it.getIngredientSecondCode()))
 							.filter(StrUtil::isNotBlank).collect(Collectors.toList());
 
-					List<StandardColumnCountryTranslate> ingredientContentList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-									.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-									.in(StandardColumnCountryTranslate::getTitleCode, Arrays.asList(ingredientMoreLanguageVO.getStandardColumnCode().split(",")))
-									.in(StandardColumnCountryTranslate::getPropertiesCode, ingredientCodeList))
-							.stream().filter(Objects::nonNull)
-							.sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList());
+					if (CollectionUtil.isNotEmpty(ingredientCodeList)) {
+						// 需要做个严格模式, 任意条件不满足直接返回空, 而不是condition删减(或者通过严格模式指定queryWrapper是emptyWhere就返回默认值) TODO
+						ingredientContentList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+										.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
+										.in(StandardColumnCountryTranslate::getTitleCode, Arrays.asList(ingredientMoreLanguageVO.getStandardColumnCode().split(",")))
+										.in(StandardColumnCountryTranslate::getPropertiesCode, ingredientCodeList))
+								.stream().filter(Objects::nonNull)
+								.sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList()));
+					}
 
 					for (StandardColumnCountryTranslate content : ingredientContentList) {
 						ingredient = ingredient.replaceAll(content.getPropertiesName(), content.getContent());

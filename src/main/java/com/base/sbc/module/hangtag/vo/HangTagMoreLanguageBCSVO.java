@@ -72,8 +72,13 @@ public class HangTagMoreLanguageBCSVO {
     public String getFailureMessage() {
         StringJoiner message = new StringJoiner("\n");
         message.setEmptyValue("");
+        String messageFormat = "%s未翻译";
         if (CollectionUtil.isNotEmpty(this.failureList)) {
-            this.failureList.forEach(it-> message.add(it.getPrinterCheckMessage()));
+            this.failureList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenVO::getBulkStyleNo))
+                    .forEach((bulkStyleNo, sameBulkStyleNoList)-> {
+                        message.add(String.format(messageFormat, "款号" + bulkStyleNo) + ": " +
+                                sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenVO::getPrinterCheckMessage).collect(Collectors.joining("/")));
+                    });
         }
         return message.toString();
     }
@@ -82,7 +87,7 @@ public class HangTagMoreLanguageBCSVO {
         HangTagMoreLanguageBCSChildrenVO groupChildrenVO = childrenList.get(0);
         this.countryLanguageId = groupChildrenVO.getCountryLanguageId();
         this.countryLanguageName = groupChildrenVO.getCountryName() + "-" + groupChildrenVO.getLanguageName();
-        this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageVO::getBulkStyleNo).collect(Collectors.joining(","));
+        this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageVO::getBulkStyleNo).distinct().collect(Collectors.joining(","));
         childrenList.stream().collect(Collectors.groupingBy(it-> StrUtil.isBlank(it.getPrinterCheckMessage()))).forEach((isSuccess,successFailureList)-> {
             if (isSuccess) {
                 this.successList = successFailureList;
@@ -102,7 +107,7 @@ public class HangTagMoreLanguageBCSVO {
             StringJoiner message = new StringJoiner("/");
             if (this.cannotFindStandardColumnContent) message.add(String.format(messageFormat, this.getStandardColumnName() + message + "字段"));
             if (this.getCannotFindPropertiesContent())  message.add(String.format(messageFormat, this.getStandardColumnName() + message + "内容"));
-            return String.format(messageFormat, "款号" + this.getBulkStyleNo()) + ": " + message;
+            return message.toString();
         };
     }
 

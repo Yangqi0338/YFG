@@ -2,7 +2,6 @@ package com.base.sbc.module.moreLanguage.dto;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -10,7 +9,14 @@ import java.util.List;
 
 
 @Data
-public class CountryAddDto {
+public class CountrySaveDto {
+
+    @ApiModelProperty(value = "国家语言id")
+    private String countryLanguageId;
+
+    @NotBlank(message = "请填写国家编码")
+    @ApiModelProperty(value = "国家编码")
+    private String countryCode;
 
     @NotBlank(message = "请填写国家")
     @ApiModelProperty(value = "国家名称")

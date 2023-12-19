@@ -14,6 +14,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 /**
  * 类描述：标准列与国家地区关联表 实体类
  * @address com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation
@@ -27,6 +29,7 @@ import lombok.EqualsAndHashCode;
 @TableName("t_standard_column_country_relation")
 @ApiModel("标准列与国家地区关联表 StandardColumnCountryRelation")
 @AllArgsConstructor
+@NoArgsConstructor
 public class StandardColumnCountryRelation extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;

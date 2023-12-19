@@ -101,7 +101,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "查询详情多语言")
     @GetMapping("/getMoreLanguageCheckByBulkStyleNo")
-    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
+    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestBody @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
         HangTagMoreLanguageDTO hangTagMoreLanguageDTO = new HangTagMoreLanguageDTO();
         hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
         hangTagMoreLanguageDTO.setHangTagMoreLanguageCheckDTOList(hangTagMoreLanguageCheckDTOList);

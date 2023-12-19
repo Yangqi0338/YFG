@@ -1,32 +1,23 @@
 package com.base.sbc.module.moreLanguage.controller;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.read.builder.ExcelReaderBuilder;
-import com.alibaba.excel.read.listener.PageReadListener;
-import com.alibaba.excel.write.ExcelBuilder;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
-import com.base.sbc.module.moreLanguage.dto.CountryAddDto;
+import com.base.sbc.module.moreLanguage.dto.CountrySaveDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.listener.MoreLanguageImportListener;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
-import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
@@ -41,8 +32,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author 孔祥基
@@ -94,16 +83,27 @@ public class MoreLanguageController extends BaseController {
     }
 
     /**
-     * 新增国家
+     * 保存国家
      */
-    @GetMapping("/countryAdd")
+    @PostMapping("/countrySave")
     @Transactional(rollbackFor = {Exception.class})
-    @ApiOperation(value = "新增国家", notes = "新增国家")
+    @ApiOperation(value = "保存国家", notes = "保存国家")
     @DuplicationCheck
-    public ApiResult countryAdd(@Valid CountryAddDto countryAddDto) {
-        String id = moreLanguageService.countryAdd(countryAddDto);
-        return insertSuccess(id);
+    public ApiResult countrySave(@Valid @RequestBody CountrySaveDto countrySaveDto) {
+        String id = moreLanguageService.countrySave(countrySaveDto);
+        return StrUtil.isNotBlank(countrySaveDto.getCountryLanguageId()) ? updateSuccess(id) : insertSuccess(id);
     }
+
+    /**
+     * 国家详情
+     */
+    @GetMapping("/countryDetail")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "国家详情", notes = "国家详情")
+    public ApiResult countryDetail(@Valid @NotBlank(message = "大货款号不可为空") String countryLanguageId) {
+        return selectSuccess(moreLanguageService.countryDetail(countryLanguageId));
+    }
+
     /**
      * 查询列表
      */

@@ -3,6 +3,7 @@ package com.base.sbc.module.common.service;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -159,6 +160,7 @@ public interface BaseService<T> extends IService<T> {
     boolean exists(Wrapper<T> wrapper);
     T findOne(QueryWrapper<T> wrapper);
     T findOne(LambdaQueryWrapper<T> wrapper);
+    <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 
     /**
      * 用于redis回查

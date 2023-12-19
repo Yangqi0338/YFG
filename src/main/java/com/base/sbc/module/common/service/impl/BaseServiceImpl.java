@@ -14,6 +14,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.annotation.QueryField;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
@@ -651,6 +652,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     @Override
     public T findOne(LambdaQueryWrapper<T> wrapper) {
         return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        return this.list(wrapper.select(function)).stream().map(function).collect(Collectors.toList());
     }
 
 

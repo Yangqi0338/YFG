@@ -16,9 +16,11 @@ import cn.afterturn.easypoi.util.PoiPublicUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.enums.business.StandardColumnModel;
@@ -28,9 +30,8 @@ import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.Pinyin4jUtil;
-import com.base.sbc.module.moreLanguage.dto.CountryAddDto;
+import com.base.sbc.module.moreLanguage.dto.CountrySaveDto;
 import com.base.sbc.module.moreLanguage.dto.EasyPoiMapExportParam;
-import com.base.sbc.module.moreLanguage.dto.ExcelStyleUtil;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
@@ -51,6 +52,7 @@ import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Function;
 import lombok.SneakyThrows;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -60,6 +62,7 @@ import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -155,38 +158,42 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String countryAdd(CountryAddDto countryAddDto) {
-        String countryName = countryAddDto.getCountryName();
-        String languageName = countryAddDto.getLanguageName();
+    public String countrySave(CountrySaveDto countrySaveDto) {
+        String countryName = countrySaveDto.getCountryName();
+        String languageName = countrySaveDto.getLanguageName();
         String countryCode = Pinyin4jUtil.converterToFirstSpell(countryName);
-        String languageCode = countryAddDto.getLanguageCode();
-
-        // 字典校验 非必要 TODO
+        String languageCode = countrySaveDto.getLanguageCode();
+        String countryLanguageId = countrySaveDto.getCountryLanguageId();
 
         // 检查是否已有国家表
         if (countryService.exists(new BaseLambdaQueryWrapper<Country>()
+                .notNullNe(Country::getId, countryLanguageId)
                 .eq(Country::getCountryCode, countryCode)
-                .eq(Country::getLanguageCode, languageCode))) {
+                .eq(Country::getLanguageCode, languageCode))
+        ) {
             throw new OtherException("已存在对应国家-语言, 修改数据请使用对应的Excel导入");
         }
 
         // 插入国家表
         Country country = new Country();
+        country.setId(countryLanguageId);
         country.setCountryCode(countryCode);
         country.setCountryName(countryName);
         country.setLanguageCode(languageCode);
         country.setLanguageName(languageName);
 
-        countryService.save(country);
+        countryService.saveOrUpdate(country);
 
         String countryId = country.getId();
+
+        removeRelation(countryId);
 
         // 查找根
         StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
         queryDto.setTypeList(CollUtil.toList(StandardColumnType.TAG_ROOT));
-        countryAddDto.getStandardColumnCodeList().addAll(standardColumnService.listQuery(queryDto).stream().map(StandardColumnDto::getCode).collect(Collectors.toList()));
+        countrySaveDto.getStandardColumnCodeList().addAll(standardColumnService.listQuery(queryDto).stream().map(StandardColumnDto::getCode).collect(Collectors.toList()));
 
-        List<StandardColumnCountryRelation> countryRelationList = countryAddDto.getStandardColumnCodeList().stream().map(standardColumnCode -> {
+        List<StandardColumnCountryRelation> countryRelationList = countrySaveDto.getStandardColumnCodeList().stream().map(standardColumnCode -> {
             // 从redis标准列数据
             RedisStaticFunUtils.setBusinessService(standardColumnService).setMessage("非法标准列code");
             StandardColumn standardColumn = (StandardColumn)
@@ -209,6 +216,12 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 //        exportExcel(new MoreLanguageExcelQueryDto(countryId, new ArrayList<>()));
 
         return countryId;
+    }
+
+    @Transactional(propagation = Propagation.NESTED, rollbackFor = Exception.class)
+    public void removeRelation(String countryId){
+        // 直接删除关联
+        relationService.physicalDeleteQWrap(new BaseQueryWrapper<StandardColumnCountryRelation>().eq("country_language_id", countryId));
     }
 
     private List<String> findStandardColumnCodeList(String countryLanguageId) {
@@ -498,6 +511,23 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             queryDto.setCodeList(Arrays.asList(code.split(COMMA)));
         }
         return standardColumnService.listQuery(queryDto);
+    }
+
+    @Override
+    public CountrySaveDto countryDetail(String countryLanguageId) {
+        Country country = countryService.getById(countryLanguageId);
+        if (country == null) throw new OtherException("未查询到国家语言");
+
+        CountrySaveDto countrySaveDto = BeanUtil.copyProperties(country, CountrySaveDto.class);
+        countrySaveDto.setCountryLanguageId(country.getId());
+
+//        SFunction<StandardColumnCountryRelation, String> getStandardColumnCode = StandardColumnCountryRelation::getStandardColumnCode;
+        List<String> standardColumnCodeList = relationService.listOneField(new LambdaQueryWrapper<StandardColumnCountryRelation>()
+                .eq(StandardColumnCountryRelation::getCountryLanguageId, countryLanguageId),
+                StandardColumnCountryRelation::getStandardColumnCode
+        );
+        countrySaveDto.setStandardColumnCodeList(standardColumnCodeList);
+        return countrySaveDto;
     }
 
 // 自定义方法区 不替换的区域【other_end】

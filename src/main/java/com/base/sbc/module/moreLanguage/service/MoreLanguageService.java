@@ -6,11 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.service;
 
-import com.base.sbc.module.moreLanguage.dto.CountryAddDto;
+import com.base.sbc.module.moreLanguage.dto.CountrySaveDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -20,7 +19,7 @@ public interface MoreLanguageService {
     
     List<StandardColumnDto> queryCountryTitle(MoreLanguageQueryDto moreLanguageQueryDto);
 
-    String countryAdd(CountryAddDto countryAddDto);
+    String countrySave(CountrySaveDto countrySaveDto);
 
     void exportExcel(MoreLanguageExcelQueryDto excelQueryDto);
 
@@ -29,6 +28,8 @@ public interface MoreLanguageService {
 
     // 不要删,通过反射调用
     List<StandardColumnDto> findStandardColumn(String code);
+
+    CountrySaveDto countryDetail(String countryLanguageId);
 
 // 自定义方法区 不替换的区域【other_start】
 
