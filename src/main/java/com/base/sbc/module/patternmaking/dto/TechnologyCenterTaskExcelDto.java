@@ -40,8 +40,10 @@ public class TechnologyCenterTaskExcelDto {
     @Excel(name = "款式")
     private String designNo;
 
-    @Excel(name = "款式图", type = 2, imageType = 2)
     private String stylePic;
+
+    @Excel(name = "款式图", type = 2, imageType = 2)
+    private byte[] stylePic1;
 
     @ApiModelProperty(value = "打样设计师")
     private String patternDesignerName;
