@@ -478,6 +478,13 @@ public class PatternMakingController {
         return patternMakingService.startStop(startStopDto);
     }
 
+
+    @ApiOperation(value = "获取款下面的初版车缝工和上次车缝工")
+    @GetMapping("/getHeadLastTimeStitcher")
+    public Map<String,String> getHeadLastTimeStitcher(PatternMakingDto dto) {
+        return patternMakingService.getHeadLastTimeStitcher(dto.getStyleId());
+    }
+
 }
 
 

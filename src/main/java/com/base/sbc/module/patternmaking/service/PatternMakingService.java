@@ -376,6 +376,13 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     boolean startStop(StartStopDto startStopDto);
 
+    /**
+     * 获取款下面的初版车缝工和上次车缝工
+     * @param styleId
+     * @return
+     */
+    Map<String,String> getHeadLastTimeStitcher(String styleId);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

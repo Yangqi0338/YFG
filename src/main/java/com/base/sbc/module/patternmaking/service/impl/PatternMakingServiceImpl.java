@@ -16,6 +16,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -219,6 +220,35 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateWrapper.set("disable_flag", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
+    }
+
+    /**
+     * 获取款下面的初版车缝工和上次车缝工
+     *
+     * @param styleId
+     * @return
+     */
+    @Override
+    public Map<String, String> getHeadLastTimeStitcher(String styleId) {
+        Map<String, String> map = new HashMap<>();
+        /*获取初版下的车缝工*/
+        BaseQueryWrapper<PatternMaking> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("style_id", styleId);
+        queryWrapper.eq("sample_type", "初版样");
+        PatternMaking patternMaking = baseMapper.selectOne(queryWrapper);
+        if (ObjectUtil.isNotEmpty(patternMaking)) {
+            map.put("headStitcher", patternMaking.getStitcher());
+        }
+        /*获取最后一次车缝工（按版的新建时间）*/
+        queryWrapper.clear();
+        queryWrapper.eq("style_id", styleId);
+        queryWrapper.isNotNullStr("stitcher");
+        queryWrapper.orderByDesc("create_date");
+        List<PatternMaking> makingList = baseMapper.selectList(queryWrapper);
+        if (CollUtil.isNotEmpty(makingList)) {
+            map.put("lastTimeStitcher", makingList.get(0).getStitcher());
+        }
+        return map;
     }
 
     @Override
