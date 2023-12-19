@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.afterturn.easypoi.excel.annotation.ExcelCollection;
 import cn.afterturn.easypoi.excel.annotation.ExcelEntity;
+import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
@@ -119,90 +120,47 @@ public class ExcelUtils {
                 detail = columnUserDefineService.findDefaultDetail(tableCode);
             }
             if(CollectionUtils.isNotEmpty(detail)){
-                defaultExport(list,fileName,response,exportParams,detail);
+                Map<String, Integer> userColumnMap = new HashMap<>();
+                for (ColumnDefine columnDefine : detail) {
+                    if(BaseGlobal.NO.equals(columnDefine.getHidden())){
+                        continue;
+                    }
+                    Integer sortOrder = columnDefine.getSortOrder();
+                    if(StrUtil.isNotBlank(columnDefine.getExportAlias())){
+                        for (String s : columnDefine.getExportAlias().split(",")) {
+                            userColumnMap.put(s,sortOrder);
+                        }
+                    }
+                    userColumnMap.put(columnDefine.getColumnCode(),sortOrder);
+                }
+                //这里是复制出来官方的导出接口
+                List<ExcelExportEntity> excelParams = new ArrayList<>();
+                Field[] fileds = PoiPublicUtil.getClassFields(pojoClass);
+                ExcelTarget etarget = pojoClass.getAnnotation(ExcelTarget.class);
+                String targetId = etarget == null ? null : etarget.value();
+                //这里是改造的官方接口
+                getAllExcelField(exportParams.getExclusions(), targetId, fileds, excelParams, pojoClass, new ArrayList<>(), null);
+
+                //根据用户配置显示的才导出，导出顺序也按照用户配置
+                List<ExcelExportEntity> newExcelParams = new ArrayList<>();
+                for (ExcelExportEntity excelParam : excelParams) {
+                    if(userColumnMap.containsKey(excelParam.getKey())){
+                        excelParam.setOrderNum(userColumnMap.get(excelParam.getKey()));
+                        newExcelParams.add(excelParam);
+                    }
+                }
+
+                defaultExport(list,fileName,response,exportParams,newExcelParams);
                 return;
             }
         }
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
-    private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ColumnDefine> detail) throws IOException {
-        List<ExcelExportEntity> entityList = getExcelField(detail);
+    private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
         //把数据添加到excel表格中
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
         downLoadExcel(fileName, response, workbook);
-    }
-
-
-    private static List<ExcelExportEntity> getExcelField(List<ColumnDefine> detail) {
-        List<ExcelExportEntity> entityList = new ArrayList<>();
-        for (ColumnDefine columnDefine : detail) {
-            if(BaseGlobal.NO.equals(columnDefine.getHidden()) || columnDefine.getColumnCode().equals("row-select") || columnDefine.getColumnCode().equals("operation")){
-                continue;
-            }
-
-            if(StrUtil.isNotEmpty(columnDefine.getExportFunction())){
-                if(columnDefine.getExportFunction().equals("imgList5")){
-                    for (int i = 0; i < 5; i++) {
-                        ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
-                        excelExportEntity.setKey("imageUrl"+(i+1));
-                        entityList.add(excelExportEntity);
-                    }
-                }
-                if(columnDefine.getExportFunction().equals("imageUrl1")){
-                        ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
-                        excelExportEntity.setKey("imageUrl1");
-                    excelExportEntity.setExportImageType(2);
-                        entityList.add(excelExportEntity);
-                }
-            }else{
-                ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
-                entityList.add(excelExportEntity);
-            }
-        }
-        return entityList;
-    }
-
-    private static ExcelExportEntity getExcelExportEntity(ColumnDefine columnDefine) {
-        ExcelExportEntity excelExportEntity = new ExcelExportEntity();
-        excelExportEntity.setName(columnDefine.getColumnName());
-        excelExportEntity.setKey(columnDefine.getColumnCode());
-        excelExportEntity.setWidth((double) columnDefine.getColumnWidth() /10);
-        excelExportEntity.setType(1);
-        String columnType = columnDefine.getColumnType();
-        if(StrUtil.isNotEmpty(columnType)){
-            if(columnType.equals("img")){
-                excelExportEntity.setType(2);
-            }else if (columnType.equals("int") || columnType.equals("number") || columnType.equals("bigDecimal")){
-                excelExportEntity.setType(10);
-            }
-        }
-        //excelEntity.setHeight(excel.height());
-        //excelEntity.setNeedMerge(excel.needMerge());
-        //excelEntity.setMergeVertical(excel.mergeVertical());
-        //excelEntity.setMergeRely(excel.mergeRely());
-        if(StrUtil.isNotEmpty(columnDefine.getExcelReplace())){
-            String[] strings = JSONObject.parseObject(columnDefine.getExcelReplace(), String[].class);
-            excelExportEntity.setReplace(strings);
-        }
-        excelExportEntity.setOrderNum(columnDefine.getSortOrder());
-        //excelEntity.setWrap(excel.isWrap());
-        excelExportEntity.setExportImageType(1);
-        //excelExportEntity.setSuffix(excel.suffix());
-        excelExportEntity.setDatabaseFormat(columnDefine.getDataFormat());
-        excelExportEntity.setFormat(columnDefine.getDataFormat());
-        //excelExportEntity.setStatistics(excel.isStatistics());
-        //excelExportEntity.setHyperlink(excel.isHyperlink());
-        //excelExportEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
-        //excelExportEntity.setNumFormat(excel.numFormat());
-        //excelExportEntity.setColumnHidden(excel.isColumnHidden());
-        //excelExportEntity.setDict(excel.dict());
-        //excelExportEntity.setEnumExportField(excel.enumExportField());
-        //excelExportEntity.setTimezone(excel.timezone());
-        //excelExportEntity.setAddressList(excel.addressList());
-        //excelExportEntity.setDesensitizationRule(excel.desensitizationRule());
-        excelExportEntity.setGroupName(columnDefine.getGroupName());
-        return excelExportEntity;
     }
 
     /**
