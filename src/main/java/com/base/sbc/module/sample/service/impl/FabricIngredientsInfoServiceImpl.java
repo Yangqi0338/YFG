@@ -8,6 +8,7 @@ package com.base.sbc.module.sample.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -223,8 +224,9 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
     public void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws IOException {
         queryFabricIngredientsInfoDto.setDeriveFlag(BaseGlobal.NO);
         List<FabricIngredientsInfoVo> ingredientsInfoVoList = getFabricIngredientsInfoList(queryFabricIngredientsInfoDto).getList();
-        minioUtils.setObjectUrlToList(ingredientsInfoVoList,"imageUrl");
-        ExcelUtils.exportExcel(ingredientsInfoVoList,  FabricIngredientsInfoExcelDto.class, "辅料调样单.xlsx",new ExportParams("辅料调样单", "辅料调样单", ExcelType.HSSF) ,response);
+        List<FabricIngredientsInfoExcelDto> list = BeanUtil.copyToList(ingredientsInfoVoList, FabricIngredientsInfoExcelDto.class);
+        minioUtils.setObjectUrlToList(list,"imageUrl");
+        ExcelUtils.exportExcel(list,  FabricIngredientsInfoExcelDto.class, "辅料调样单.xlsx",new ExportParams("辅料调样单", "辅料调样单", ExcelType.HSSF) ,response);
     }
 
     /**

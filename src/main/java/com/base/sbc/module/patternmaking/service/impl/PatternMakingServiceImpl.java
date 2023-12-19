@@ -1014,8 +1014,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public void deriveExcel(HttpServletResponse response, PatternMakingCommonPageSearchDto dto) throws IOException, InterruptedException {
         dto.setDeriveflag(BaseGlobal.YES);
-        PageInfo<SampleBoardVo> sampleBoardVoPageInfo = sampleBoardList(dto);
-        List<SampleBoardVo> excelList = sampleBoardVoPageInfo.getList();
+        PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
+        List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
         /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)

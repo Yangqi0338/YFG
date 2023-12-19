@@ -450,7 +450,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         dto.setPageNum(0);
         dto.setPageSize(0);
         List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialList(dto).getList();
-        ExcelUtils.exportExcel(list, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
+        List<BasicsdatumMaterialExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialExcelVo.class);
+        ExcelUtils.exportExcel(list1, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
     }
 
     @Override
