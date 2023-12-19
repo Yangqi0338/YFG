@@ -86,6 +86,13 @@ public class PatternMakingController {
         return patternMakingService.technologyCenterTaskList(dto);
     }
 
+    @ApiOperation(value = "/滞留款导出")
+    @GetMapping("/technologyCenterTaskListDeriveExcel")
+    @DuplicationCheck(type = 1,message = "正在导出中，请稍后...")
+    public void technologyCenterTaskListDeriveExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto) {
+        patternMakingService.technologyCenterTaskListExcel(response,dto);
+    }
+
     @ApiOperation(value = "通过款式设计id查询")
     @GetMapping("/findBySampleDesignId")
     public List<PatternMakingListVo> findBySampleDesignId(@NotBlank(message = "(styleId)款式设计id不能为空") String styleId) {

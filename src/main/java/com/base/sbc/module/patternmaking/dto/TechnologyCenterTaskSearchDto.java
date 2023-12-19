@@ -66,4 +66,7 @@ public class TechnologyCenterTaskSearchDto extends Page {
     @ApiModelProperty(value = "波段名称")
     private String bandName;
 
+    @ApiModelProperty(value = "图片标记"  )
+    private String imgFlag;
+
 }

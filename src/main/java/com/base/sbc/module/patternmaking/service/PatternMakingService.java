@@ -93,6 +93,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto);
 
+    void technologyCenterTaskListExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto);
+
     /**
      * 设置版师
      *

@@ -508,6 +508,17 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    public void technologyCenterTaskListExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto) {
+        List<TechnologyCenterTaskVo> list = technologyCenterTaskList(dto).getList();
+        if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
+            minioUtils.setObjectUrlToList(list,"stylePic");
+        }
+        List<TechnologyCenterTaskExcelDto> list1 = BeanUtil.copyToList(list, TechnologyCenterTaskExcelDto.class);
+        /*使用线程导出*/
+        ExcelUtils.executorExportExcel(list1, TechnologyCenterTaskExcelDto.class,"滞留款导出",dto.getImgFlag(),2000,response,"stylePic");
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean setPatternDesign(SetPatternDesignDto dto) {
         UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
