@@ -12,14 +12,17 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+
 /**
  * 类描述：资料包-工艺说明-包装方式和体积重量 实体类
  *
- * @author your name
+ * @author lxl
  * @version 1.0
  * @address com.base.sbc.module.pack.entity.PackTechPackaging
- * @email your email
- * @date 创建时间：2023-12-16 11:51:45
+ * @email lxl.fml@gmail.com
+ * @date 创建时间：2023-8-16 17:52:52
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -69,11 +72,35 @@ public class PackTechPackaging extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "重量")
     private String weight;
+
+    /**
+     * 长
+     */
+     @ApiModelProperty(value = "长")
+    private BigDecimal volumeLength;
+
+    /**
+     * 宽
+     */
+    @ApiModelProperty(value = "宽")
+    private BigDecimal volumeWidth;
+
+    @ApiModelProperty(value = "高")
+    private BigDecimal volumeHeight;
+
     /**
      * 体积
      */
     @ApiModelProperty(value = "体积")
     private String volume;
+
+    public String getVolume() {
+        if (volumeLength == null || volumeWidth == null || volumeHeight == null) {
+            return null;
+        }
+        return volumeLength.multiply(volumeWidth).multiply(volumeHeight).toString();
+    }
+
     /**
      * 外辅工艺是否打印(0不打印，1打印)
      */
