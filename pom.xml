@@ -371,6 +371,12 @@
             <artifactId>jsoup</artifactId>
             <version>1.13.1</version> <!-- 或者使用最新版本 -->
         </dependency>
+
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+            <version>4.0.0</version>
+        </dependency>
     </dependencies>
 
     <profiles>
