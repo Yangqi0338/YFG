@@ -60,7 +60,10 @@
         p.node,
         p.status as `pmStatus`,
         p.pattern_req_date,
-        p.revision_comments
+        p.revision_comments,
+        p.receive_sample_date,
+        p.pattern_designer_name,
+        p.receive_reason
         FROM
         t_pattern_making p,
         t_style s

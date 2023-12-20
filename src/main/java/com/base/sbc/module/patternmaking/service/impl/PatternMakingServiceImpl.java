@@ -21,6 +21,7 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -252,6 +253,33 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
+
+        QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
+        qw.select("DISTINCT pattern_designer_id as user_id, pattern_designer_name as name");
+        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
+                .isNotNull(PatternMaking::getPatternDesignerId)
+                .isNotNull(PatternMaking::getPatternDesignerName)
+                .ne(PatternMaking::getPatternDesignerName, "")
+                .ne(PatternMaking::getPatternDesignerId, "");
+        List<Map<String, Object>> maps = listMaps(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        amcFeignService.setUserAvatarToList(list);
+        return list;
+    }
+
+    @Override
+    public void saveReceiveReason(TechnologyCenterTaskVo dto) {
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId, dto.getId());
+        updateWrapper.set(PatternMaking::getUpdateId, getUserId());
+        updateWrapper.set(PatternMaking::getUpdateName, getUserName());
+        updateWrapper.set(PatternMaking::getUpdateDate, new Date());
+        updateWrapper.set(PatternMaking::getReceiveReason, dto.getReceiveReason());
+        update(updateWrapper);
+    }
+
+    @Override
     public void checkPatternNoRepeat(String id, String patternNo) {
         QueryWrapper<PatternMaking> countQw = new QueryWrapper<>();
         countQw.eq("company_code", getCompanyCode());
@@ -465,6 +493,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         } else {
             dto.setOrderBy(dto.getOrderBy());
         }
+        if(StrUtil.isNotBlank(dto.getIsRetentionQuery())){
+            //是否滞留款查询
+            //仅获取样衣看板内的初版样
+            qw.eq("p.sample_type_name", "初版样");
+            //如果相同款有后续样时则不查出
+            qw.notExists("select 1 from t_pattern_making p1 where p1.sample_type_name != '初版样' and p.style_id = p1.style_id");
+            //没有再次下发打版指令+＞7天
+            qw.lt("p.receive_sample_date",DateUtils.getWeekAgo(new Date()));
+
+            qw.like(StrUtil.isNotBlank(dto.getPatternRoom()), "p.pattern_room", dto.getPatternRoom());
+            qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+            qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
+            if (StrUtil.isNotBlank(dto.getReceiveSampleDate())) {
+                String[] split = dto.getReceiveSampleDate().split(",");
+                qw.ge("p.receive_sample_date", split[0]);
+                qw.le("p.receive_sample_date", split[1]);
+            }
+        }
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
@@ -487,6 +533,17 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         nodeStatusService.setNodeStatus(list);
         return page.toPageInfo();
+    }
+
+    @Override
+    public void technologyCenterTaskListExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto) {
+        List<TechnologyCenterTaskVo> list = technologyCenterTaskList(dto).getList();
+        if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
+            minioUtils.setObjectUrlToList(list,"stylePic");
+        }
+        List<TechnologyCenterTaskExcelDto> list1 = BeanUtil.copyToList(list, TechnologyCenterTaskExcelDto.class);
+        /*使用线程导出*/
+        ExcelUtils.executorExportExcel(list1, TechnologyCenterTaskExcelDto.class,"滞留款导出",dto.getImgFlag(),2000,response,"stylePic");
     }
 
     @Override

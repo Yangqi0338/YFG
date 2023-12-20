@@ -86,6 +86,13 @@ public class PatternMakingController {
         return patternMakingService.technologyCenterTaskList(dto);
     }
 
+    @ApiOperation(value = "/滞留款导出")
+    @GetMapping("/technologyCenterTaskListDeriveExcel")
+    @DuplicationCheck(type = 1,message = "正在导出中，请稍后...")
+    public void technologyCenterTaskListDeriveExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto) {
+        patternMakingService.technologyCenterTaskListExcel(response,dto);
+    }
+
     @ApiOperation(value = "通过款式设计id查询")
     @GetMapping("/findBySampleDesignId")
     public List<PatternMakingListVo> findBySampleDesignId(@NotBlank(message = "(styleId)款式设计id不能为空") String styleId) {
@@ -301,6 +308,12 @@ public class PatternMakingController {
         return patternMakingService.getAllPatternDesignList(vo);
     }
 
+    @ApiOperation(value = "打样设计师列表", notes = "")
+    @GetMapping("/getAllPatternDesignerList")
+    public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
+        return patternMakingService.getAllPatternDesignerList(vo);
+    }
+
     @ApiOperation(value = "所有裁剪工列表", notes = "")
     @GetMapping("/getAllCutterList")
     public List<SampleUserVo> getAllCutterList(PatternUserSearchVo vo) {
@@ -476,6 +489,13 @@ public class PatternMakingController {
     @ApiOperation(value = "停用启用")
     public boolean startStop(@Valid @RequestBody StartStopDto startStopDto) {
         return patternMakingService.startStop(startStopDto);
+    }
+
+    @ApiOperation(value = "滞留款报表保存停留原因")
+    @PostMapping("/saveReceiveReason")
+    public boolean saveReceiveReason(@RequestBody TechnologyCenterTaskVo dto) {
+        patternMakingService.saveReceiveReason(dto);
+        return true;
     }
 
 
