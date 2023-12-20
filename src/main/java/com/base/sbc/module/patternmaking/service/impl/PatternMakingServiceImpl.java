@@ -161,9 +161,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         } else {
             rQw.ne("sample_type", "初版样");
             long count = count(rQw);
-            if (count >= 5) {
+            /*去掉限制改为前端消息提醒*/
+           /* if (count >= 5) {
                 throw new OtherException("只能新建6个打版指令:1个初版样、5个其他");
-            }
+            }*/
         }
         // 校验打样顺序重复
         checkPatSeqRepeat(dto.getStyleId(), null, dto.getPatSeq());
