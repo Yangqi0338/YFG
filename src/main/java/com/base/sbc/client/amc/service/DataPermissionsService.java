@@ -16,7 +16,6 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisAmcUtils;
 import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.SpringContextHolder;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -233,19 +232,27 @@ public class DataPermissionsService {
                             }
                             isFieldFlag = true;
                             fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
-                            if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
-                                fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
-                            } else {
-                                if (fieldDataPermissionVO.getFieldValues().size() > 1) {
-                                    fieldArr.add(fieldName + " in (");
-                                    final String[] fieldValues = {""};
-                                    fieldDataPermissionVO.getFieldValues().forEach(e -> {
-                                        fieldValues[0] += (StringUtils.isNotBlank(fieldValues[0]) ? "','" : " '") + e;
-                                    });
-                                    fieldArr.add(fieldValues[0] + "') ");
-                                }
-                                if (fieldDataPermissionVO.getFieldValues().size() == 1) {
-                                    fieldArr.add(" " + fieldName + "='" + fieldDataPermissionVO.getFieldValues().get(0) + "' ");
+                            if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
+                                //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
+                                //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
+                                fieldName = tablePre + "create_id";
+                                String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
+                                fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                            }else {
+                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
+                                    fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
+                                } else {
+                                    if (fieldDataPermissionVO.getFieldValues().size() > 1) {
+                                        fieldArr.add(fieldName + " in (");
+                                        final String[] fieldValues = {""};
+                                        fieldDataPermissionVO.getFieldValues().forEach(e -> {
+                                            fieldValues[0] += (StringUtils.isNotBlank(fieldValues[0]) ? "','" : " '") + e;
+                                        });
+                                        fieldArr.add(fieldValues[0] + "') ");
+                                    }
+                                    if (fieldDataPermissionVO.getFieldValues().size() == 1) {
+                                        fieldArr.add(" " + fieldName + "='" + fieldDataPermissionVO.getFieldValues().get(0) + "' ");
+                                    }
                                 }
                             }
                         }
