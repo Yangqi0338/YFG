@@ -22,6 +22,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
@@ -666,4 +667,21 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         }
     }
 
+    @Override
+    public boolean saveOrUpdateBatch(Collection<T> entityList, int batchSize) {
+        if (baseMapper instanceof BaseEnhanceMapper) {
+            int maxSize = entityList.size();
+            int forCount = maxSize / batchSize;
+            int affectRow = 0;
+
+            TableInfo tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
+            for (int i = 0; i < forCount; i++) {
+                List<T> executeList = CollUtil.sub(entityList, i * batchSize, Math.min((i + 1) * batchSize, maxSize));
+                affectRow += ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(executeList);
+            }
+
+            return affectRow > 0;
+        }
+        return super.saveOrUpdateBatch(entityList, batchSize);
+    }
 }

@@ -1,11 +1,15 @@
 package com.base.sbc.module.hangtag.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.BigDecimalJsonSerializer;
 import com.base.sbc.config.JacksonHttpMessageConverter;
+import com.base.sbc.config.annotation.DuplicateSql;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.math.BigDecimal;
 
@@ -38,8 +42,18 @@ public class HangTagIngredient extends BaseDataEntity<String> {
     private String type;
 
     /** 百分比 */
-    @JsonSerialize(using = BigDecimalJsonSerializer.class)
+//    @JsonSerialize(using = BigDecimalJsonSerializer.class)
+    @JsonIgnore
     private BigDecimal percentage;
+
+    @JsonIgnore
+    @DuplicateSql(columnName = "percentage_str")
+    private String percentageStr;
+
+    @JsonProperty("percentage")
+    public String getPercentageStr(){
+        return StrUtil.isBlank(percentageStr) ? (percentage == null ? null : percentage.toString()) : percentageStr;
+    }
 
     /** 成分备注 */
     private String descriptionRemarks;

@@ -3,8 +3,13 @@ package com.base.sbc.open.controller;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.hangtag.entity.HangTagIngredient;
+import com.base.sbc.module.hangtag.mapper.HangTagIngredientMapper;
+import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.open.dto.DesignerDto;
 import com.base.sbc.open.dto.SmpDeptDto;
 import com.base.sbc.open.dto.SmpPostDto;
@@ -14,14 +19,19 @@ import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
 import com.base.sbc.open.entity.SmpUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -30,10 +40,14 @@ import java.util.List;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/initData")
+@RequestMapping(BaseController.OPEN_URL + "/initData")
 public class InitDataController {
 
     private final AmcService amcService;
+
+    @Autowired
+    private HangTagIngredientService hangTagIngredientService;
+
     @PostMapping("/dept")
     public void dept(MultipartFile file) throws Exception {
         ImportParams params = new ImportParams();
@@ -55,6 +69,24 @@ public class InitDataController {
             smpDeptList.add(smpDept);
         }
         amcService.dept(smpDeptList);
+    }
+
+    @GetMapping("/removeIngredientZero")
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult removeIngredientZero() {
+        List<HangTagIngredient> list = hangTagIngredientService.list();
+        list = list.stream().filter(it-> it.getPercentage() != null).collect(Collectors.toList());
+        list.stream().collect(Collectors.groupingBy(it-> it.getPercentage().intValue() == 100)).forEach((isHundred, sameList)-> {
+            sameList.forEach(it-> {
+                if (isHundred) {
+                    it.setPercentageStr("100");
+                }else {
+                    it.setPercentageStr(it.getPercentage().setScale(1).toString());
+                }
+            });
+        });
+        hangTagIngredientService.saveOrUpdateBatch(list);
+        return ApiResult.success("保存成功");
     }
 
     @PostMapping("/user")
