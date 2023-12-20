@@ -127,7 +127,7 @@ public class FabricIngredientsInfoExcelDto {
 
     /** 检查结果 0不可用 1可用 */
     @ApiModelProperty(value = "检查结果 0不可用 1可用"  )
-    @Excel(name = "检查结果", replace = {"不可用_0", "可用_1"} )
+    @Excel(name = "检查结果", replace = {"否_0", "是_1"} )
     private String testingResult;
 
     /** 设计到样时间 */
