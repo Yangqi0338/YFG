@@ -88,7 +88,7 @@ public class StylePricingVO {
     }
 
     @ApiModelProperty(value = "款式名称")
-    @Excel(name = "款式名称")
+//    @Excel(name = "款式名称")
     private String styleName;
     /**
      * 设计款号
