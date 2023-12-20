@@ -36,6 +36,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
@@ -1066,7 +1067,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean updateStyleNoBand(UpdateStyleNoBandDto updateStyleNoBandDto) {
+    public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
         StyleColor styleColor1 = new StyleColor();
@@ -1114,8 +1115,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         this.saveOperaLog("修改大货款号", "款式配色", sampleStyleColor.getColorName(), sampleStyleColor.getStyleNo(), styleColor, styleColor1);
         /*重新下发配色*/
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
+
+        //region 20231219 huangqiang 修改大货款号将老款图片下载重新上传，上传成功后删除
+        Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
+        if (!result) {
+            throw new OtherException("图片上传失败！");
+        }
+        //endregion
         return true;
     }
+
 
     /**
      * 方法描述 验证配色是否可修改
@@ -1665,4 +1674,39 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     /** 自定义方法区 不替换的区域【other_end】 **/
 
+    /**
+     * 大货款号改名先下载图片上传，然后删除原图片
+     * @param user
+     * @param updateStyleNoBandDto
+     * @param sampleStyleColor
+     * @param styleColor
+     */
+    private Boolean uploadImgAndDeleteOldImg(Principal user, UpdateStyleNoBandDto updateStyleNoBandDto, StyleColor sampleStyleColor, StyleColor styleColor) {
+        Boolean result = true;
+        String styleColorPic = sampleStyleColor.getStyleColorPic();
+        if(StringUtils.isNotBlank(updateStyleNoBandDto.getStyleNo())){
+            UploadStylePicDto uploadStylePicDto = new UploadStylePicDto();
+            uploadStylePicDto.setStyleColorId(updateStyleNoBandDto.getId());
+            MultipartFile multipartFile = null;
+            Boolean uploadStatus = false;
+            try {
+                multipartFile = uploadFileService.downloadImage(styleColorPic, updateStyleNoBandDto.getStyleNo() + ".jpg");
+                uploadStylePicDto.setFile(multipartFile);
+                uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
+            } catch (Exception e) {
+                result = false;
+                throw new RuntimeException(e);
+            }finally {
+                //上传成功后删除
+                if (uploadStatus) {
+                    DelStylePicDto delStylePicDto = new DelStylePicDto();
+                    delStylePicDto.setStyleColorId(styleColor.getId());
+                    delStylePicDto.setStyleId(sampleStyleColor.getStyleId());
+                    uploadFileService.delStyleColorImage(delStylePicDto, user,styleColorPic,"0");
+                    uploadFileService.delStyleColorImage(delStylePicDto, user,styleColorPic,"1");
+                }
+            }
+        }
+        return result;
+    }
 }
