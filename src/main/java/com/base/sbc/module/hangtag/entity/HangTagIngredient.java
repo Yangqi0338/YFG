@@ -6,10 +6,10 @@ import com.base.sbc.config.BigDecimalJsonSerializer;
 import com.base.sbc.config.JacksonHttpMessageConverter;
 import com.base.sbc.config.annotation.DuplicateSql;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.math.BigDecimal;
 

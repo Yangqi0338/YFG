@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.base.sbc.config.annotation.QueryField;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -26,8 +27,13 @@ import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionHolder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.annotation.Resource;
 import java.io.Serializable;
@@ -70,6 +76,20 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     public String getUserName() {
         return userUtils.getUserCompany().getAliasUserName();
+    }
+
+    public SqlSession getSqlSession(){
+        SqlSessionFactory sqlSessionFactory = SqlHelper.sqlSessionFactory(entityClass);
+        SqlSessionHolder sqlSessionHolder = (SqlSessionHolder) TransactionSynchronizationManager.getResource(sqlSessionFactory);
+        boolean transaction = TransactionSynchronizationManager.isSynchronizationActive();
+        SqlSession sqlSession;
+        if (sqlSessionHolder != null) {
+            sqlSession = sqlSessionHolder.getSqlSession();
+            sqlSession.commit(!transaction);
+        }
+
+        sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        return sqlSession;
     }
 
     /**

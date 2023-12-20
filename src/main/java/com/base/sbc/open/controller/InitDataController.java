@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
@@ -74,7 +75,7 @@ public class InitDataController {
     @GetMapping("/removeIngredientZero")
     @Transactional(rollbackFor = Exception.class)
     public ApiResult removeIngredientZero() {
-        List<HangTagIngredient> list = hangTagIngredientService.list();
+        List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>().isNull(HangTagIngredient::getPercentageStr).isNotNull(HangTagIngredient::getPercentage));
         list = list.stream().filter(it-> it.getPercentage() != null).collect(Collectors.toList());
         list.stream().collect(Collectors.groupingBy(it-> it.getPercentage().intValue() == 100)).forEach((isHundred, sameList)-> {
             sameList.forEach(it-> {
