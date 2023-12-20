@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.IdsDto;
@@ -69,6 +70,7 @@ public class PackPricingController {
 
     @ApiOperation(value = "保存")
     @PostMapping()
+    @DuplicationCheck
     public PackPricingVo savePackPricing(@Valid @RequestBody PackPricingDto dto) {
         return packPricingService.saveByDto(dto);
     }
