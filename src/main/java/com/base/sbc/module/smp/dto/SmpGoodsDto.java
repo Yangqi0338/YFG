@@ -163,6 +163,16 @@ public class SmpGoodsDto extends SmpBaseDto {
     private Boolean priceConfirm;
     /**成本*/
     private BigDecimal cost;
+    /**设计bom总成本*/
+    private BigDecimal designPackcost;
+    /**外协加工费*/
+    private BigDecimal outsourcingProcessingCost;
+    /**包装费*/
+    private BigDecimal packagingCost;
+    /**检测费*/
+    private BigDecimal testCost;
+    /**毛衫加工费*/
+    private BigDecimal sweaterProcessingCost;
     /**计控实际成本*/
     private BigDecimal planCost;
     /**企划实际倍率*/

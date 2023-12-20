@@ -37,6 +37,7 @@ import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
+import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -371,10 +372,25 @@ public class SmpService {
                 // 核价
                 if (packPricing != null) {
                     JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
-                    smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                    //smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                    //车缝教加工费
                     smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
+                    //物料费
                     smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
+                    //总成本
+                    smpGoodsDto.setCost(packPricingService.countTotalPrice(packInfo.getId(), null));
+                    //设计Bom总成本
+                    smpGoodsDto.setDesignPackcost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES));
+                    //外协加工费
+                    smpGoodsDto.setOutsourcingProcessingCost((jsonObject.getBigDecimal("外协加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("外协加工费")));
+                    //包装费
+                    smpGoodsDto.setPackagingCost((jsonObject.getBigDecimal("包装费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("包装费")));
+                    //检测费
+                    smpGoodsDto.setTestCost((jsonObject.getBigDecimal("检测费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("检测费")));
+                    //毛纱加工费
+                    smpGoodsDto.setSweaterProcessingCost((jsonObject.getBigDecimal("毛纱加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("毛纱加工费")));
                 }
+
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
 
