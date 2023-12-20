@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
@@ -381,14 +382,29 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(COMPANY_CODE, companyCode);
         queryWrapper.eq("del_flag", BaseGlobal.NO);
-        queryWrapper.eq("type",type);
-        queryWrapper.groupBy(field);
+        queryWrapper.eq("type", type);
+        queryWrapper.groupBy(StringUtils.toUnderScoreCase(field));
         List<ProcessDatabase> processDatabaseList = baseMapper.selectList(queryWrapper);
-        if(CollUtil.isEmpty(processDatabaseList)){
+        if (CollUtil.isEmpty(processDatabaseList)) {
             return processDatabaseList;
         }
+
+        if (StrUtil.equals(field, "categoryId")) {
+            List<ProcessDatabase> list = new ArrayList<>();
+            String collect = processDatabaseList.stream().map(ProcessDatabase::getCategoryName).collect(Collectors.joining(","));
+
+            List<String> stringList = StringUtils.convertList(collect);
+            stringList = stringList.stream().distinct().collect(Collectors.toList());
+            for (String s : stringList) {
+                ProcessDatabase p = new ProcessDatabase();
+                p.setCategoryName(s);
+                list.add(p);
+            }
+            return list;
+        }
+
         /*去掉空数据*/
-        return processDatabaseList.stream().filter(p -> StrUtil.isNotBlank(p.getComponent())).collect(Collectors.toList());
+        return processDatabaseList.stream().filter(p -> StrUtil.isNotBlank(BeanUtil.getProperty(p, field))).collect(Collectors.toList());
 
     }
 }
