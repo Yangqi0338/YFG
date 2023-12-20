@@ -8,7 +8,9 @@ package com.base.sbc.module.sample.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -116,6 +118,8 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
                     fabricIngredientsInfoVo.setIngredientsSpecificationList(list1);
                 }
             }
+        }else {
+            return copy;
         }
 
         /*转换vo*/
@@ -223,8 +227,15 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
     public void fabricIngredientsInfoDeriveExcel(HttpServletResponse response, QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) throws IOException {
         queryFabricIngredientsInfoDto.setDeriveFlag(BaseGlobal.NO);
         List<FabricIngredientsInfoVo> ingredientsInfoVoList = getFabricIngredientsInfoList(queryFabricIngredientsInfoDto).getList();
-        minioUtils.setObjectUrlToList(ingredientsInfoVoList,"imageUrl");
-        ExcelUtils.exportExcel(ingredientsInfoVoList,  FabricIngredientsInfoExcelDto.class, "辅料调样单.xlsx",new ExportParams("辅料调样单", "辅料调样单", ExcelType.HSSF) ,response);
+        List<FabricIngredientsInfoExcelDto> list = BeanUtil.copyToList(ingredientsInfoVoList, FabricIngredientsInfoExcelDto.class);
+        if(StrUtil.equals(queryFabricIngredientsInfoDto.getImgFlag(),BaseGlobal.YES)){
+            minioUtils.setObjectUrlToList(list,"imageUrl");
+        }
+        /*使用线程导出*/
+        ExcelUtils.executorExportExcel(list, FabricIngredientsInfoExcelDto.class,"辅料调样单",queryFabricIngredientsInfoDto.getImgFlag(),2000,response,"imageUrl");
+//        ExcelUtils.exportExcel(ingredientsInfoVoList,  FabricIngredientsInfoExcelDto.class, "辅料调样单.xlsx",new ExportParams("辅料调样单", "辅料调样单", ExcelType.HSSF) ,response);
+
+
     }
 
     /**

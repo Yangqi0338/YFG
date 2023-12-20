@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.afterturn.easypoi.excel.annotation.ExcelCollection;
 import cn.afterturn.easypoi.excel.annotation.ExcelEntity;
+import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
@@ -14,10 +15,15 @@ import cn.afterturn.easypoi.exception.excel.ExcelExportException;
 import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
 import cn.afterturn.easypoi.util.PoiPublicUtil;
 import cn.afterturn.easypoi.util.PoiReflectorUtil;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -28,6 +34,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +47,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -47,6 +57,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExcelUtils {
 
+
+    private static Logger logger = LoggerFactory.getLogger(ExcelUtils.class);
     /**
      * excel 导出
      *
@@ -98,7 +110,7 @@ public class ExcelUtils {
     public static void exportExcel(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response) throws IOException {
         ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        String tableCode = requestAttributes.getRequest().getHeader("tableCode");
+        /*String tableCode = requestAttributes.getRequest().getHeader("tableCode");
         String id = requestAttributes.getRequest().getHeader("tableCode-id");
         if(StrUtil.isNotEmpty(tableCode)){
             List<ColumnDefine> detail;
@@ -108,84 +120,47 @@ public class ExcelUtils {
                 detail = columnUserDefineService.findDefaultDetail(tableCode);
             }
             if(CollectionUtils.isNotEmpty(detail)){
-                defaultExport(list,fileName,response,exportParams,detail);
+                Map<String, Integer> userColumnMap = new HashMap<>();
+                for (ColumnDefine columnDefine : detail) {
+                    if(BaseGlobal.NO.equals(columnDefine.getHidden())){
+                        continue;
+                    }
+                    Integer sortOrder = columnDefine.getSortOrder();
+                    if(StrUtil.isNotBlank(columnDefine.getExportAlias())){
+                        for (String s : columnDefine.getExportAlias().split(",")) {
+                            userColumnMap.put(s,sortOrder);
+                        }
+                    }
+                    userColumnMap.put(columnDefine.getColumnCode(),sortOrder);
+                }
+                //这里是复制出来官方的导出接口
+                List<ExcelExportEntity> excelParams = new ArrayList<>();
+                Field[] fileds = PoiPublicUtil.getClassFields(pojoClass);
+                ExcelTarget etarget = pojoClass.getAnnotation(ExcelTarget.class);
+                String targetId = etarget == null ? null : etarget.value();
+                //这里是改造的官方接口
+                getAllExcelField(exportParams.getExclusions(), targetId, fileds, excelParams, pojoClass, new ArrayList<>(), null);
+
+                //根据用户配置显示的才导出，导出顺序也按照用户配置
+                List<ExcelExportEntity> newExcelParams = new ArrayList<>();
+                for (ExcelExportEntity excelParam : excelParams) {
+                    if(userColumnMap.containsKey(excelParam.getKey())){
+                        excelParam.setOrderNum(userColumnMap.get(excelParam.getKey()));
+                        newExcelParams.add(excelParam);
+                    }
+                }
+
+                defaultExport(list,fileName,response,exportParams,newExcelParams);
                 return;
             }
-        }
+        }*/
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
-    private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ColumnDefine> detail) throws IOException {
-        List<ExcelExportEntity> entityList = getExcelField(detail);
+    private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
         //把数据添加到excel表格中
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
         downLoadExcel(fileName, response, workbook);
-    }
-
-
-    private static List<ExcelExportEntity> getExcelField(List<ColumnDefine> detail) {
-        List<ExcelExportEntity> entityList = new ArrayList<>();
-        for (ColumnDefine columnDefine : detail) {
-            if(BaseGlobal.NO.equals(columnDefine.getHidden()) || columnDefine.getColumnCode().equals("row-select") || columnDefine.getColumnCode().equals("operation")){
-                continue;
-            }
-
-            if(StrUtil.isNotEmpty(columnDefine.getExportFunction())){
-                if(columnDefine.getExportFunction().equals("imgList5")){
-                    for (int i = 0; i < 5; i++) {
-                        ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
-                        excelExportEntity.setKey("imageUrl"+(i+1));
-                        entityList.add(excelExportEntity);
-                    }
-                }
-            }else{
-                ExcelExportEntity excelExportEntity = getExcelExportEntity(columnDefine);
-                entityList.add(excelExportEntity);
-            }
-        }
-        return entityList;
-    }
-
-    private static ExcelExportEntity getExcelExportEntity(ColumnDefine columnDefine) {
-        ExcelExportEntity excelExportEntity = new ExcelExportEntity();
-        excelExportEntity.setName(columnDefine.getColumnName());
-        excelExportEntity.setKey(columnDefine.getColumnCode());
-        excelExportEntity.setWidth((double) columnDefine.getColumnWidth() /10);
-        excelExportEntity.setType(1);
-        String columnType = columnDefine.getColumnType();
-        if(StrUtil.isNotEmpty(columnType)){
-            if(columnType.equals("img")){
-                excelExportEntity.setType(2);
-            }else if (columnType.equals("int") || columnType.equals("number") || columnType.equals("bigDecimal")){
-                excelExportEntity.setType(10);
-            }
-        }
-        //excelEntity.setHeight(excel.height());
-        //excelEntity.setNeedMerge(excel.needMerge());
-        //excelEntity.setMergeVertical(excel.mergeVertical());
-        //excelEntity.setMergeRely(excel.mergeRely());
-        if(StrUtil.isNotEmpty(columnDefine.getExcelReplace())){
-            String[] strings = JSONObject.parseObject(columnDefine.getExcelReplace(), String[].class);
-            excelExportEntity.setReplace(strings);
-        }
-        excelExportEntity.setOrderNum(columnDefine.getSortOrder());
-        //excelEntity.setWrap(excel.isWrap());
-        excelExportEntity.setExportImageType(1);
-        //excelExportEntity.setSuffix(excel.suffix());
-        excelExportEntity.setDatabaseFormat(columnDefine.getDataFormat());
-        excelExportEntity.setFormat(columnDefine.getDataFormat());
-        //excelExportEntity.setStatistics(excel.isStatistics());
-        //excelExportEntity.setHyperlink(excel.isHyperlink());
-        //excelExportEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
-        //excelExportEntity.setNumFormat(excel.numFormat());
-        //excelExportEntity.setColumnHidden(excel.isColumnHidden());
-        //excelExportEntity.setDict(excel.dict());
-        //excelExportEntity.setEnumExportField(excel.enumExportField());
-        //excelExportEntity.setTimezone(excel.timezone());
-        //excelExportEntity.setAddressList(excel.addressList());
-        //excelExportEntity.setDesensitizationRule(excel.desensitizationRule());
-        excelExportEntity.setGroupName(columnDefine.getGroupName());
-        return excelExportEntity;
     }
 
     /**
@@ -441,6 +416,62 @@ public class ExcelUtils {
         }
 
         return excelEntity;
+    }
+
+
+
+    /**
+     * 线程导出表格
+     * @param list 导出的数据
+     * @param pojoClass class
+     * @param name 文件名称
+     * @param imgFlag 是否导出图片
+     * @param maxNumber 最大导出量
+     * @param response
+     * @param columns 图片列名
+     */
+    public static void executorExportExcel(List<?> list, Class<?> pojoClass, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, String... columns){
+        long t1 = System.currentTimeMillis();
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .build();
+        try {
+            if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > maxNumber) {
+                    throw new OtherException("带图片导出最多只能导出" + maxNumber + "条");
+                }
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+
+                for (Object o  : list) {
+//                    executor.submit(() -> {
+                        try {
+                            for (String column : columns) {
+                                final String stylePic = BeanUtil.getProperty(o, column);
+                                if(StrUtil.isNotBlank(stylePic)){
+                                    BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
+                                }
+                            }
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            logger.info(String.valueOf(countDownLatch.getCount()));
+                        }
+//                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
+
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
     }
 
 
