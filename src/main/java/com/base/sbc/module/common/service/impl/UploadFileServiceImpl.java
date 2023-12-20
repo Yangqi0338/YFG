@@ -525,6 +525,31 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     }
 
     @Override
+    public boolean delStyleColorImage(DelStylePicDto dto, Principal user,String delFileName,String picType) {
+        GroupUser userBy = userUtils.getUserBy(user);
+        Style style = styleMapper.selectById(dto.getStyleId());
+        StylePicParamsDto params = new StylePicParamsDto();
+        try {
+            setCommonParameter(params, userBy.getUsername(), style);
+            params.setPicname(delFileName);
+            params.setFolderName(customStylePicUpload.getBigGoodsFolder());
+            params.setQuarter(style.getSeason());
+            //不传文件类型 ，默认删除当前款所有类型图片
+            params.setPictype(picType);
+            Map<String, Object> paramMap = BeanUtil.beanToMap(params, false, true);
+            System.out.println("请求参数:" + JSONObject.toJSONString(paramMap));
+            String query = URLUtil.buildQuery(paramMap, Charset.defaultCharset());
+            String delUrl = customStylePicUpload.getDeletePhotoUrl() + "?" + query;
+            System.out.println("请求地址:" + delUrl);
+            String s = HttpUtil.get(delUrl);
+            System.out.println("删除返回:" + s);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return true;
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delDesignImage(DelStylePicDto dto, Principal user) {
         GroupUser userBy = userUtils.getUserBy(user);

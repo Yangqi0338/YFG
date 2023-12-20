@@ -141,7 +141,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param updateStyleNoBandDto
          * @return
          */
-        Boolean updateStyleNoBand(UpdateStyleNoBandDto updateStyleNoBandDto);
+        Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto);
 
 
         /**
