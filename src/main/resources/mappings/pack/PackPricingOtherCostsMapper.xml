@@ -35,8 +35,8 @@
         </foreach>
         AND pack_type = 'packBigGoods'
         GROUP BY
-        foreign_id,costs_item,costs_type,update_date
-        order by update_date desc
+        foreign_id,costs_item,costs_type,id
+        order by id desc
     </select>
 
 
