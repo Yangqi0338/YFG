@@ -81,4 +81,7 @@ public class HangTagIngredient extends BaseDataEntity<String> {
 
     /** 成分说明法文 */
     private String ingredientDescriptionFr;
+
+    /** 是否迁移历史数据 */
+    private String historicalData;
 }

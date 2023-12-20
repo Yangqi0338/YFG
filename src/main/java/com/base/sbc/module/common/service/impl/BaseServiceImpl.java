@@ -2,6 +2,7 @@ package com.base.sbc.module.common.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
@@ -689,15 +690,19 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public boolean saveOrUpdateBatch(Collection<T> entityList, int batchSize) {
+        if (CollectionUtil.isEmpty(entityList)) return false;
         if (baseMapper instanceof BaseEnhanceMapper) {
             int maxSize = entityList.size();
             int forCount = maxSize / batchSize;
             int affectRow = 0;
 
             TableInfo tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
-            for (int i = 0; i < forCount; i++) {
-                List<T> executeList = CollUtil.sub(entityList, i * batchSize, Math.min((i + 1) * batchSize, maxSize));
-                affectRow += ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(executeList);
+            if (maxSize <= batchSize) affectRow = ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(entityList);
+            else {
+                for (int i = 0; i < forCount; i++) {
+                    List<T> executeList = CollUtil.sub(entityList, i * batchSize, Math.min((i + 1) * batchSize, maxSize));
+                    affectRow += ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(executeList);
+                }
             }
 
             return affectRow > 0;

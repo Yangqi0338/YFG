@@ -74,8 +74,9 @@ public class InitDataController {
 
     @GetMapping("/removeIngredientZero")
     @Transactional(rollbackFor = Exception.class)
-    public ApiResult removeIngredientZero() {
-        List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>().isNull(HangTagIngredient::getPercentageStr).isNotNull(HangTagIngredient::getPercentage));
+    public ApiResult removeIngredientZero(String historyData) {
+        List<HangTagIngredient> list = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
+                .eq(HangTagIngredient::getHistoricalData, historyData).isNull(HangTagIngredient::getPercentageStr).isNotNull(HangTagIngredient::getPercentage));
         list = list.stream().filter(it-> it.getPercentage() != null).collect(Collectors.toList());
         list.stream().collect(Collectors.groupingBy(it-> it.getPercentage().intValue() == 100)).forEach((isHundred, sameList)-> {
             sameList.forEach(it-> {
