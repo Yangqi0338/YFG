@@ -136,73 +136,73 @@ public class StylePricingVO {
      * 材料成本
      */
     @ApiModelProperty(value = "材料成本")
-    @Excel(name = "材料成本", numFormat = "#.##",type = 10,orderNum = "9")
+    @Excel(name = "材料成本", numFormat = "#.###",type = 10,orderNum = "9")
     private BigDecimal materialCost;
     /**
      * 包装费
      */
     @ApiModelProperty(value = "包装费")
-    @Excel(name = "包装费", numFormat = "#.##",type = 10,orderNum = "10")
+    @Excel(name = "包装费", numFormat = "#.###",type = 10,orderNum = "10")
     private BigDecimal packagingFee;
     /**
      * 检测费
      */
     @ApiModelProperty(value = "检测费")
-    @Excel(name = "检测费", numFormat = "#.##",type = 10,orderNum = "11")
+    @Excel(name = "检测费", numFormat = "#.###",type = 10,orderNum = "11")
     private BigDecimal testingFee;
     /**
      * 车缝加工费
      */
     @ApiModelProperty(value = "车缝加工费")
-    @Excel(name = "车缝加工费", numFormat = "#.##",type = 10,orderNum = "12")
+    @Excel(name = "车缝加工费", numFormat = "#.###",type = 10,orderNum = "12")
     private BigDecimal sewingProcessingFee;
     /**
      * 加工费
      */
     @ApiModelProperty(value = "加工费")
-//    @Excel(name = "加工费", numFormat = "#.##",type = 10)
+//    @Excel(name = "加工费", numFormat = "#.###",type = 10)
     private BigDecimal processingFee;
     /**
      * 毛纱加工费
      */
     @ApiModelProperty(value = "毛纱加工费")
-    @Excel(name = "毛纱加工费", numFormat = "#.##",type = 10,orderNum = "13")
+    @Excel(name = "毛纱加工费", numFormat = "#.###",type = 10,orderNum = "13")
     private BigDecimal woolenYarnProcessingFee;
     /**
      * 外协加工费
      */
     @ApiModelProperty(value = "外协加工费")
-    @Excel(name = "外协加工费", numFormat = "#.##",type = 10,orderNum = "14")
+    @Excel(name = "外协加工费", numFormat = "#.###",type = 10,orderNum = "14")
     private BigDecimal coordinationProcessingFee;
     /**
      * 二次加工费
      */
     @ApiModelProperty(value = "二次加工费")
-//    @Excel(name = "二次加工费", numFormat = "#.##",type = 10)
+//    @Excel(name = "二次加工费", numFormat = "#.###",type = 10)
     private BigDecimal secondaryProcessingFee;
     /**
      * 总成本
      */
     @ApiModelProperty(value = "总成本")
-    @Excel(name = "总成本", numFormat = "#.##",type = 10,orderNum = "15")
+    @Excel(name = "总成本", numFormat = "#.###",type = 10,orderNum = "15")
     private BigDecimal totalCost;
     /**
      * 企划倍率
      */
     @ApiModelProperty(value = "企划倍率")
-    @Excel(name = "企划倍率", numFormat = "#.##",type = 10,orderNum = "19")
+    @Excel(name = "企划倍率", numFormat = "#.###",type = 10,orderNum = "19")
     private BigDecimal planningRatio;
     /**
      * 预计销售价
      */
     @ApiModelProperty(value = "预计销售价")
-    @Excel(name = "预计销售价", numFormat = "#.##",type = 10,orderNum = "20")
+    @Excel(name = "预计销售价", numFormat = "#.###",type = 10,orderNum = "20")
     private BigDecimal expectedSalesPrice;
     /**
      * 计控实际成本
      */
     @ApiModelProperty(value = "计控实际成本")
-    @Excel(name = "计控实际成本", numFormat = "#.##",type = 10,orderNum = "21")
+    @Excel(name = "计控实际成本", numFormat = "#.###",type = 10,orderNum = "21")
     private BigDecimal planCost;
     /**
      * 是否计控成本确认
@@ -214,7 +214,7 @@ public class StylePricingVO {
      * 吊牌价
      */
     @ApiModelProperty(value = "吊牌价")
-    @Excel(name = "吊牌价", numFormat = "#.##",type = 10,orderNum = "23")
+    @Excel(name = "吊牌价", numFormat = "#.###",type = 10,orderNum = "23")
     private BigDecimal tagPrice;
     /**
      * 吊牌是否打印
