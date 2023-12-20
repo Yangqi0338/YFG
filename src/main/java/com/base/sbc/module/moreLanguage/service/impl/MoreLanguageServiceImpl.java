@@ -161,7 +161,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
     public String countrySave(CountrySaveDto countrySaveDto) {
         String countryName = countrySaveDto.getCountryName();
         String languageName = countrySaveDto.getLanguageName();
-        String countryCode = Pinyin4jUtil.converterToFirstSpell(countryName);
+        String countryCode = countrySaveDto.getCountryCode();
         String languageCode = countrySaveDto.getLanguageCode();
         String countryLanguageId = countrySaveDto.getCountryLanguageId();
 
@@ -523,8 +523,9 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
 //        SFunction<StandardColumnCountryRelation, String> getStandardColumnCode = StandardColumnCountryRelation::getStandardColumnCode;
         List<String> standardColumnCodeList = relationService.listOneField(new LambdaQueryWrapper<StandardColumnCountryRelation>()
-                .eq(StandardColumnCountryRelation::getCountryLanguageId, countryLanguageId),
-                StandardColumnCountryRelation::getStandardColumnCode
+                        .eq(StandardColumnCountryRelation::getCountryLanguageId, countryLanguageId)
+                        .ne(StandardColumnCountryRelation::getStandardColumnCode, "DP00")
+                , StandardColumnCountryRelation::getStandardColumnCode
         );
         countrySaveDto.setStandardColumnCodeList(standardColumnCodeList);
         return countrySaveDto;

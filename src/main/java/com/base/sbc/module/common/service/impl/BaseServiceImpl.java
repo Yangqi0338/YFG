@@ -659,6 +659,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         return this.list(wrapper.select(function)).stream().map(function).collect(Collectors.toList());
     }
 
+    @Override
+    public <R> List<R> listByIds2OneField(List<String> ids, SFunction<T, R> function) {
+        return this.list(new LambdaQueryWrapper<T>().select(function).in(T::getId, ids)).stream().map(function).collect(Collectors.toList());
+    }
+
 
     /**
      * 根据字段名称获取对象的值，包括父类的字段

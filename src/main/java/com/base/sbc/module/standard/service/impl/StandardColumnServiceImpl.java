@@ -21,6 +21,8 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.sample.entity.FabricBasicInformation;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
@@ -30,6 +32,7 @@ import com.base.sbc.module.standard.mapper.StandardColumnMapper;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,6 +51,9 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Service
 public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMapper, StandardColumn> implements StandardColumnService {
+
+    @Autowired
+    private StandardColumnCountryRelationService standardColumnCountryRelationService;
 
     private volatile ReentrantLock saveLock = new ReentrantLock();
 
@@ -100,10 +106,16 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
     @Override
     @Transactional
     public boolean delByIds(List<String> list) {
-        // 不能删除系统默认标准
-        return this.remove(new BaseLambdaQueryWrapper<StandardColumn>()
-                        .notEmptyIn(StandardColumn::getId, list)
+        List<String> standColumnCodeList = this.listByIds2OneField(list, StandardColumn::getCode);
+        boolean removeSuccess = this.remove(new BaseLambdaQueryWrapper<StandardColumn>()
+                .in(StandardColumn::getId, list)
                 .eq(StandardColumn::getIsDefault, YesOrNoEnum.NO.getValueStr()));
+        if (removeSuccess) {
+            standardColumnCountryRelationService.remove(new BaseLambdaQueryWrapper<StandardColumnCountryRelation>()
+                    .in(StandardColumnCountryRelation::getStandardColumnCode, standColumnCodeList));
+        }
+        // 不能删除系统默认标准
+        return removeSuccess;
     }
 
     @Override
