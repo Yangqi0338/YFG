@@ -4,6 +4,8 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -364,5 +366,29 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq("type", BasicNumber.SEVEN.getNumber());
         return list(qw);
+    }
+
+    /**
+     * 获取到部件中部件类别可查询的数据
+     *
+     * @param type
+     * @param companyCode
+     * @return
+     */
+    @Override
+    public List<ProcessDatabase> getQueryList(String type,String field, String companyCode) {
+
+        QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(COMPANY_CODE, companyCode);
+        queryWrapper.eq("del_flag", BaseGlobal.NO);
+        queryWrapper.eq("type",type);
+        queryWrapper.groupBy(field);
+        List<ProcessDatabase> processDatabaseList = baseMapper.selectList(queryWrapper);
+        if(CollUtil.isEmpty(processDatabaseList)){
+            return processDatabaseList;
+        }
+        /*去掉空数据*/
+        return processDatabaseList.stream().filter(p -> StrUtil.isNotBlank(p.getComponent())).collect(Collectors.toList());
+
     }
 }
