@@ -200,7 +200,7 @@ public class StylePricingController extends BaseController {
             type = 4;
         }
 
-        //是否商品吊牌确认
+        //是否计控吊牌确认
         if(StrUtil.equals(dto.getControlHangtagConfirm(),BaseGlobal.YES)){
             type = 5;
         }
@@ -212,7 +212,7 @@ public class StylePricingController extends BaseController {
         smpService.tagConfirmDates(list,type,1);
 
         /*吊牌确认下发*/
-        if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE)){
+        if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE) || StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
             String collect = packInfoList.stream().filter(f -> StrUtil.isNotBlank(f.getStyleColorId())).map(PackInfo::getStyleColorId).collect(Collectors.joining(","));
             if (StrUtil.isNotBlank(collect)) {
                 smpService.goods(collect.split(","));
