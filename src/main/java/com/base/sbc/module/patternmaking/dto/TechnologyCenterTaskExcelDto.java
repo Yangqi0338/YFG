@@ -48,7 +48,7 @@ public class TechnologyCenterTaskExcelDto {
     @ApiModelProperty(value = "打样设计师")
     private String patternDesignerName;
 
-    @Excel(name = "收到样衣日期")
+    @Excel(name = "收到样衣日期",databaseFormat = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date receiveSampleDate;
 
