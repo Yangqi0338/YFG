@@ -3,6 +3,7 @@ package com.base.sbc.config.datasource;
 import com.alibaba.druid.support.http.WebStatFilter;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
+import com.baomidou.mybatisplus.core.injector.AbstractSqlInjector;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
@@ -97,6 +98,7 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
             GlobalConfig globalConfig = GlobalConfigUtils.defaults();
             //mybatis-plus全局配置设置元数据对象处理器为自己实现的那个
             globalConfig.setMetaObjectHandler(autoFillFieldValueConfig);
+            globalConfig.setSqlInjector(sqlInjector());
             //mybatisSqlSessionFactoryBean关联设置全局配置
             sessionFactoryBean.setGlobalConfig(globalConfig);
 
@@ -163,15 +165,16 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
         return filterRegistrationBean;
     }
 
-    @Component
-    public class YFGSqlInjector extends DefaultSqlInjector {
-
-        @Override
-        public List<AbstractMethod> getMethodList(Class<?> mapperClass, TableInfo tableInfo) {
-            List<AbstractMethod> methodList = super.getMethodList(mapperClass, tableInfo);
-            methodList.add(new SaveOrUpdateBatch());
-            methodList.add(new InsertBatchSomeColumn());
-            return methodList;
-        }
+    @Bean
+    public AbstractSqlInjector sqlInjector(){
+        return new AbstractSqlInjector() {
+            @Override
+            public List<AbstractMethod> getMethodList(Class<?> mapperClass, TableInfo tableInfo) {
+                List<AbstractMethod> methodList = new DefaultSqlInjector().getMethodList(mapperClass, tableInfo);
+                methodList.add(new SaveOrUpdateBatch());
+                methodList.add(new InsertBatchSomeColumn());
+                return methodList;
+            }
+        };
     }
 }

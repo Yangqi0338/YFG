@@ -16,7 +16,11 @@ import java.lang.reflect.Field;
 public class SaveOrUpdateBatch extends AbstractMethod {
 
     protected SaveOrUpdateBatch() {
-        super(SaveOrUpdateBatch.class.getSimpleName());
+        super("saveOrUpdateBatch");
+    }
+
+    public SaveOrUpdateBatch(String methodName) {
+        super(methodName);
     }
 
     @Override
@@ -98,6 +102,7 @@ public class SaveOrUpdateBatch extends AbstractMethod {
     }
  
     private String prepareModelValuesSql(TableInfo tableInfo) {
+//        return "<foreach collection=\"list\" item=\"item\" index=\"index\" open=\"(\" separator=\"),(\" close=\")\">#{item}</foreach>";
         final StringBuilder valueSql = new StringBuilder();
         valueSql.append("<foreach collection=\"list\" item=\"item\" index=\"index\" open=\"(\" separator=\"),(\" close=\")\">");
         if (!StringUtils.isEmpty(tableInfo.getKeyProperty())) {
