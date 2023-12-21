@@ -22,11 +22,13 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.dto.SecondIngredientSyncDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -57,6 +59,7 @@ import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -695,6 +698,34 @@ public class SmpService {
             //         throw new OtherException(packBom.getMaterialName()+":主面料颜色和配色颜色不一致,无法下发");
             //     }
             // }
+
+            //校验颜色是否存在
+            BasicsdatumMaterialColorQueryDto queryDto = new BasicsdatumMaterialColorQueryDto();
+            queryDto.setMaterialCode(packBom.getMaterialCode());
+            PageInfo<BasicsdatumMaterialColorPageVo> basicsdatumMaterialColorList = basicsdatumMaterialService.getBasicsdatumMaterialColorList(queryDto);
+            if (CollUtil.isEmpty(basicsdatumMaterialColorList.getList())) {
+                throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到颜色信息");
+            } else {
+                long count = basicsdatumMaterialColorList.getList().stream().filter(o -> o.getColorCode().equals(packBom.getColorCode())).count();
+                if (count == 0) {
+                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getColorCode() + packBom.getColor() + "颜色信息");
+                }
+            }
+
+            //校验规格是否存在
+            BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
+            queryDto1.setMaterialCode(packBom.getMaterialCode());
+            PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
+            if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
+                throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
+            } else {
+                long count = basicsdatumMaterialWidthList.getList().stream().filter(o -> o.getWidthCode().equals(packBom.getTranslateCode())).count();
+                if (count == 0) {
+                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getTranslateCode() + packBom.getTranslate() + "规格信息");
+                }
+            }
+
+
             /*判断供应商报价是否停用*/
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("is_supplier",BaseGlobal.YES);
