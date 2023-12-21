@@ -6,51 +6,25 @@
  *****************************************************************************/
 package com.base.sbc.open.controller;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.client.flowable.service.FlowableService;
-import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.business.SystemSource;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.hangtag.dto.HangTagDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
-import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
-import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
-import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
-import com.base.sbc.module.hangtag.entity.HangTag;
-import com.base.sbc.module.hangtag.service.HangTagIngredientService;
-import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
-import com.base.sbc.module.hangtag.vo.HangTagListVO;
-import com.base.sbc.module.smp.SmpService;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,7 +42,7 @@ import java.util.stream.Collectors;
 @RequestMapping(value = BaseController.OPEN_URL + "/hangTag", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
 @RequiredArgsConstructor
-public class HangTagController extends BaseController {
+public class OpenHangTagController extends BaseController {
 
     @Autowired
     private HangTagService hangTagService;
