@@ -19,6 +19,7 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -78,6 +79,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
@@ -1141,9 +1143,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*获取图片链接*/
                 stylePicUtils.setStylePic(excelList, "stylePic",30);
-                /*计时器*//*
+                /*计时器*/
                 CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
-                for (SampleBoardVo sampleBoardExcel : excelList) {
+                for (SampleBoardExcel sampleBoardExcel : excelList) {
                     executor.submit(() -> {
                         try {
                             final String stylePic = sampleBoardExcel.getStylePic();
@@ -1157,7 +1159,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                         }
                     });
                 }
-                countDownLatch.await();*/
+                countDownLatch.await();
             }
             ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
         } catch (Exception e) {
