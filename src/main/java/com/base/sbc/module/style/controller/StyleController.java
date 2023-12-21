@@ -238,6 +238,16 @@ public class StyleController extends BaseController {
         return styleService.startStopStyle(startStopDto);
     }
 
+    /**
+     * 根据设计款号获取详情
+     */
+    @ApiOperation(value = "获取详情")
+    @GetMapping("/getByDesignNo")
+    public ApiResult getByDesignNo(String designNo) {
+        Style style = styleService.getByOne("design_no", designNo);
+        return selectSuccess(style);
+    }
+
 }
 
 
