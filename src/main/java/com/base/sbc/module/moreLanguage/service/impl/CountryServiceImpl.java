@@ -34,6 +34,7 @@ public class CountryServiceImpl extends BaseServiceImpl<CountryMapper, Country> 
         return this.list(new BaseLambdaQueryWrapper<Country>()
                 .notEmptyEq(Country::getCountryCode, countryQueryDto.getCountryCode())
                 .notEmptyEq(Country::getLanguageCode, countryQueryDto.getLanguageCode())
+                .notEmptyIn(Country::getCountryName, countryQueryDto.getCountryName())
         ).stream().map(list-> BeanUtil.copyProperties(list, CountryDto.class)).collect(Collectors.toList());
     }
 
