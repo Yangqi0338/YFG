@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.open.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.business.SystemSource;
@@ -15,6 +16,7 @@ import com.base.sbc.module.hangtag.service.HangTagService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -22,9 +24,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import javax.validation.Validation;
+import javax.validation.groups.Default;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,7 +61,11 @@ public class OpenHangTagController extends BaseController {
 
     @ApiOperation(value = "查询详情多语言")
     @GetMapping("/getMoreLanguageCheckByBulkStyleNo")
-    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestBody @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
+//    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
+    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotBlank(message = "检查参数不能为空") String jsonParams) {
+        List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList = JSONUtil.toList(jsonParams, HangTagMoreLanguageCheckDTO.class);
+        Validation.buildDefaultValidatorFactory().getValidator().validate(hangTagMoreLanguageCheckDTOList, Default.class);
+
         HangTagMoreLanguageDTO hangTagMoreLanguageDTO = new HangTagMoreLanguageDTO();
         hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
         hangTagMoreLanguageDTO.setHangTagMoreLanguageCheckDTOList(hangTagMoreLanguageCheckDTOList);
