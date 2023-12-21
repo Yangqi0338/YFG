@@ -93,4 +93,18 @@ public class HangTagIngredient extends BaseDataEntity<String> {
 
     /** 是否迁移历史数据 */
     private String historicalData;
+
+    public boolean checkPercentageRequired(){
+        return
+            StrUtil.isNotBlank(this.typeCode) &&
+            StrUtil.isNotBlank(this.type) &&
+            StrUtil.isNotBlank(this.percentageStr) &&
+            StrUtil.isNotBlank(this.ingredientCode) &&
+            StrUtil.isNotBlank(this.ingredientName)
+        ;
+    }
+
+    public boolean checkDescriptionRemarks(){
+        return StrUtil.isNotBlank(this.ingredientDescriptionCode) && StrUtil.isNotBlank(this.ingredientDescription);
+    }
 }

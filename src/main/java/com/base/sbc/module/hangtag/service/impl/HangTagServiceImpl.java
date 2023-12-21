@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
@@ -328,7 +329,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		String id = hangTag.getId();
 
 		// 成分检查
-		strictCheckIngredientPercentage(Collections.singletonList(id));
+		if (!"0".equals(hangTagDTO.getStatus()) && !"1".equals(hangTagDTO.getStatus())) {
+			strictCheckIngredientPercentage(Collections.singletonList(id));
+		}
 
 		if (flag){
 			smpService.goods(styleColor.getId().split(","));
@@ -396,14 +399,26 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				.in(HangTagIngredient::getHangTagId, hangTagIdList)
 				.eq(HangTagIngredient::getStrictCheck, YesOrNoEnum.YES.getValueStr())
 		);
+		if (CollectionUtil.isEmpty(hangTagIngredientList)) return;
 
-		hangTagIngredientList.stream().collect(Collectors.groupingBy(HangTagIngredient::getHangTagId)).forEach((hangTagId, sameHangTagIdList)-> {
-			sameHangTagIdList.stream().collect(Collectors.groupingBy(it-> it.getTypeCode() + "-" + it.getIngredientSecondCode())).forEach((code, list)-> {
-				String type = list.get(0).getType();
-				String ingredientSecondName = list.get(0).getIngredientSecondName();
-				if (list.stream().mapToDouble(it-> it.getPercentage().doubleValue()).sum() != 100.0)
-					throw new OtherException(type + "-" + ingredientSecondName +"百分比相加不是100,未通过校验");
-			});
+		hangTagIngredientList.stream().filter(it-> !it.checkPercentageRequired() && !it.checkDescriptionRemarks()).forEach(it-> {
+			throw new OtherException("开启成分信息校验后,(材料类型-百分比-成分名称)和(成分说明)必须二选一进行填写");
+		});
+
+		hangTagIngredientList.stream().filter(HangTagIngredient::checkPercentageRequired)
+				.collect(Collectors.groupingBy(HangTagIngredient::getHangTagId)).forEach((hangTagId, sameHangTagIdList)-> {
+					sameHangTagIdList.stream().collect(Collectors.groupingBy(it-> it.getTypeCode() + "-" + it.getIngredientSecondCode())).forEach((code, list)-> {
+						StringJoiner stringJoiner = new StringJoiner("-");
+						String type = list.get(0).getType();
+						stringJoiner.add(type);
+						String ingredientSecondName = list.get(0).getIngredientSecondName();
+						if (StrUtil.isNotBlank(ingredientSecondName)) {
+							stringJoiner.add(ingredientSecondName);
+						}
+						if (list.stream().mapToDouble(it-> it.getPercentage().doubleValue()).sum() != 100.0) {
+                            throw new OtherException(stringJoiner +"百分比相加不是100,未通过校验");
+                        }
+					});
 		});
 	}
 
