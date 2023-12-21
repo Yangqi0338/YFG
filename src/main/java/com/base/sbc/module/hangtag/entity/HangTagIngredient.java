@@ -98,7 +98,7 @@ public class HangTagIngredient extends BaseDataEntity<String> {
         return
             StrUtil.isNotBlank(this.typeCode) &&
             StrUtil.isNotBlank(this.type) &&
-            StrUtil.isNotBlank(this.percentageStr) &&
+            StrUtil.isNotBlank(this.getPercentageStr()) &&
             StrUtil.isNotBlank(this.ingredientCode) &&
             StrUtil.isNotBlank(this.ingredientName)
         ;
