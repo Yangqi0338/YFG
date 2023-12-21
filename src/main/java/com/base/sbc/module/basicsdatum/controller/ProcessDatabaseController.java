@@ -127,7 +127,11 @@ public class ProcessDatabaseController extends BaseController {
 
     @ApiOperation(value = "获取部件查询数据")
     @GetMapping("/getQueryList")
-    public List<ProcessDatabase> getQueryList(@Valid @NotBlank(message = "类型不可为空") String type,@Valid @NotBlank(message = "去重字段不能为空") String field) {
-        return processDatabaseService.getQueryList(type,field, super.getUserCompany());
+    public List<ProcessDatabase> getQueryList(@Valid @NotBlank(message = "类型不可为空") String type,
+                                              @Valid @NotBlank(message = "去重字段不能为空") String field,
+                                              @Valid @NotBlank(message = "品牌字段不能为空") String brandId,
+                                              @Valid @NotBlank(message = "品类字段不能为空") String   categoryId
+    ) {
+        return processDatabaseService.getQueryList(type, field, brandId,categoryId, super.getUserCompany());
     }
 }

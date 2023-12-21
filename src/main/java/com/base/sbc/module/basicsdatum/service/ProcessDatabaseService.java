@@ -67,6 +67,6 @@ public interface ProcessDatabaseService extends BaseService<ProcessDatabase> {
      * @param companyCode
      * @return
      */
-    List<ProcessDatabase> getQueryList(String type, String field,String companyCode);
+    List<ProcessDatabase> getQueryList(String type, String field,String brandId,String categoryId,String companyCode);
 
 }

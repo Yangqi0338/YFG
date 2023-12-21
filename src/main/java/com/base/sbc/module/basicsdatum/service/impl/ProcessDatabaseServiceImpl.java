@@ -380,12 +380,15 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
      * @return
      */
     @Override
-    public List<ProcessDatabase> getQueryList(String type,String field, String companyCode) {
+    public List<ProcessDatabase> getQueryList(String type,String field, String brandId,String categoryId,String companyCode) {
 
         QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq(COMPANY_CODE, companyCode);
         queryWrapper.eq("del_flag", BaseGlobal.NO);
         queryWrapper.eq("type", type);
+        queryWrapper.eq("status", BaseGlobal.NO);
+        queryWrapper.like("brand_id", brandId);
+        queryWrapper.like("category_id", categoryId);
         queryWrapper.groupBy(StringUtils.toUnderScoreCase(field));
         List<ProcessDatabase> processDatabaseList = baseMapper.selectList(queryWrapper);
         if (CollUtil.isEmpty(processDatabaseList)) {
