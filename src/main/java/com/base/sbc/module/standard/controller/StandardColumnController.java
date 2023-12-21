@@ -2,6 +2,7 @@ package com.base.sbc.module.standard.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
@@ -71,8 +72,9 @@ public class StandardColumnController extends BaseController {
     @ApiOperation(value = "新增标准表", notes = "新增标准表")
     @DuplicationCheck(time = 1)
     public ApiResult save(@RequestBody StandardColumnSaveDto standardColumnSaveDto) {
+        boolean isUpdate = StrUtil.isNotBlank(standardColumnSaveDto.getId());
         String id = standardColumnService.save(standardColumnSaveDto);
-        return insertSuccess(id);
+        return isUpdate ? updateSuccess(id) : insertSuccess(id);
     }
 
     /**
