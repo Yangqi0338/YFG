@@ -197,7 +197,7 @@ public class OpenSmpController extends BaseController {
             String kindCode = inspectContent.getKindCode();
             String kindName = inspectContent.getKindName();
             kindName = Optional.ofNullable(kindName).orElse(
-                    pd021DictList.stream().filter(it -> kindCode.equals(it.getValue())).findFirst().map(BasicBaseDict::getName).orElse(null)
+                    pd021DictList.stream().filter(it -> it.getValue().equals(kindCode)).findFirst().map(BasicBaseDict::getName).orElse(null)
             );
             basicsdatumMaterialIngredient.setMaterialKindCode(kindCode);
             basicsdatumMaterialIngredient.setMaterialKindName(kindName);
