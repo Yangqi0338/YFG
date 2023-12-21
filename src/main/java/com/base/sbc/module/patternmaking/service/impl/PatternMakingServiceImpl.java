@@ -484,7 +484,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
         }
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
-        Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
+        Page<TechnologyCenterTaskVo> page = null;
+        if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+            page = PageHelper.startPage(dto);
+        }
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         // 设置图片
         stylePicUtils.setStylePic(list, "stylePic");
@@ -504,7 +507,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 //            }
         }
         nodeStatusService.setNodeStatus(list);
-        return page.toPageInfo();
+        return page != null ? page.toPageInfo() : new PageInfo<>(list);
     }
 
     @Override
