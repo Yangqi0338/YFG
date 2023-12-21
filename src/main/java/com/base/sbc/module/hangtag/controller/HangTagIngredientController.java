@@ -47,7 +47,9 @@ public class HangTagIngredientController extends BaseController{
 
     @PostMapping("/save")
     public ApiResult save(@RequestBody HangTagIngredient hangTagIngredient){
-        hangTagIngredient.setPercentage(new BigDecimal(hangTagIngredient.getPercentageStr()));
+        if (hangTagIngredient.checkPercentageRequired()) {
+            hangTagIngredient.setPercentage(new BigDecimal(hangTagIngredient.getPercentageStr()));
+        }
         hangTagIngredientService.saveOrUpdate(hangTagIngredient);
         return updateSuccess("保存成功");
     }
@@ -57,7 +59,7 @@ public class HangTagIngredientController extends BaseController{
     public ApiResult saveList(@RequestBody HangTagDTO hangTagDTO){
 
         List<HangTagIngredient> hangTagIngredients = hangTagDTO.getHangTagIngredients();
-        hangTagIngredients.forEach(it-> it.setPercentage(new BigDecimal(it.getPercentageStr())));
+        hangTagIngredients.stream().filter(HangTagIngredient::checkPercentageRequired).forEach(it-> it.setPercentage(new BigDecimal(it.getPercentageStr())));
         HangTag hangTag =BeanUtil.copyProperties(hangTagDTO, HangTag.class);
 
         if (StringUtils.isEmpty(hangTag.getId())){
