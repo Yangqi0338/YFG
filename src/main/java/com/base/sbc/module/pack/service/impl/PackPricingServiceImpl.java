@@ -11,18 +11,13 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
-import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.entity.PackPricing;
-import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -195,6 +190,23 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         packPricingCraftCostsService.copy(foreignId,PackUtils.PACK_TYPE_DESIGN,foreignId,PackUtils.PACK_TYPE_BIG_GOODS,BaseGlobal.YES);
 
 
+    }
+
+    /**
+     * 生成核价信息
+     *
+     * @param stylrId
+     * @param foreignId
+     * @return
+     */
+    @Override
+    public boolean createPackPricing(String stylrId, String foreignId) {
+        /*获取dao*/
+
+
+
+
+        return false;
     }
 
     @Override

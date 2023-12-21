@@ -48,6 +48,14 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
     void asyncCost(String foreignId);
 
 
+    /**
+     * 生成核价信息
+     * @param stylrId
+     * @param foreignId
+     * @return
+     */
+   boolean createPackPricing( String stylrId,String foreignId);
+
 // 自定义方法区 不替换的区域【other_end】
 
 
