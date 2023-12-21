@@ -92,6 +92,7 @@ import org.springframework.util.ObjectUtils;
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -792,6 +793,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (packInfo == null) {
             throw new OtherException("无数据");
         }
+        /*计算当前的成本价*/
+        BigDecimal totalCost = packPricingService.countTotalPrice(dto.getTargetForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
         /*目标原版本*/
         PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
         PackInfoStatus targetStatus = packInfoStatusService.get(dto.getTargetForeignId(), dto.getTargetPackType());
@@ -934,6 +937,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 packBomVersionService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), dto.getOverlayFlag(), "0",null);
                 vo.setBomCount(packBomService.count(dto.getSourceForeignId(), dto.getSourcePackType()));
             }
+
+            /*查看成本价是否有变动*/
+            packBomService.costUpdate(dto.getTargetForeignId(),totalCost);
+
             /*核价信息*/
             // 基础
             packPricingService.copy(dto.getSourceForeignId(), dto.getSourcePackType(), dto.getTargetForeignId(), dto.getTargetPackType(), "1");

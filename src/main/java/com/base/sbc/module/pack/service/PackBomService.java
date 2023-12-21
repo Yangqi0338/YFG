@@ -164,4 +164,13 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @return
      */
     Long countByVersion(String id);
+
+    /**
+     * 用于物料修改替换删除时计算成本是否改变
+     * 如果改变判断款式定价的状态都通过，发送消息，修改款式定价的状态未为未通过
+     *
+     * @param packInfoId
+     * @param cost
+     */
+    void costUpdate(String packInfoId, BigDecimal cost);
 }

@@ -38,7 +38,7 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
     /**
      * 计算总价格
-     * 默认查大货 flag=1 资料包什么阶段就查什么阶段
+     * 默认查大货 flag=1 查询设计  flag=2 当前阶段
      * @param packInfoId
      * @param flag
      * @return

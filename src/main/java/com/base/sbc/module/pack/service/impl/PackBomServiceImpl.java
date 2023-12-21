@@ -241,7 +241,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             db.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             db.setBulkUnitUse(dto.getBulkUnitUse());
             db.setDesignUnitUse(dto.getDesignUnitUse());
-            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),null);
+            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
             updateById(db);
             packBom = db;
 
@@ -325,7 +325,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         /*查询款式定价是否通过*/
         /*比较成本价是否有改动*/
         /*核价信息总成本*/
-        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId,null);
+        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId,BaseGlobal.STOCK_STATUS_CHECKED);
         /*判断价格是否相等*/
         if(totalCost.compareTo(cost) != 0){
             PackInfo packInfo = packInfoService.getById(packInfoId);
@@ -337,7 +337,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                         StrUtil.equals(stylePricing.getControlHangtagConfirm(), BaseGlobal.YES)
                 ) {
                     //发送消息
-                    messageUtils.sendMessage("M计控,商企", "", packInfo.getStyleNo() + "大货款号，总成本加改动请注意", "/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods", packInfo.getPlanningSeasonId(), baseController.getUser());
+                    messageUtils.sendMessage("计控,商企", "", packInfo.getStyleNo() + "大货款号，总成本加改动请注意", "/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods", packInfo.getPlanningSeasonId(), baseController.getUser());
                     stylePricing.setControlConfirm(BaseGlobal.NO);
                     stylePricing.setProductHangtagConfirm(BaseGlobal.NO);
                     stylePricing.setControlHangtagConfirm(BaseGlobal.NO);
@@ -532,7 +532,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public boolean unusableChange(String id, String unusableFlag) {
         List<String> split = StrUtil.split(id, CharUtil.COMMA);
         PackBom byId = getById(split.get(0));
-        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),null);
+        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
         // 校验版本
         packBomVersionService.checkVersion(byId.getBomVersionId());
         UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
@@ -738,7 +738,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 throw new OtherException("物料中存在已下发数据");
             }
         }
-        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId(),null);
+        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
         baseMapper.deleteBatchIds(StrUtil.split(id, ','));
         if(StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.IN_READY)){
             costUpdate(packBomList.get(0).getForeignId(),totalCost);
