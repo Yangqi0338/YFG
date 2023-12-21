@@ -164,7 +164,7 @@ public class SmpGoodsDto extends SmpBaseDto {
     /**成本*/
     private BigDecimal cost;
     /**设计bom总成本*/
-    private BigDecimal designPackcost;
+    private BigDecimal designPackCost;
     /**外协加工费*/
     private BigDecimal outsourcingProcessingCost;
     /**包装费*/

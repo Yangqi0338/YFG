@@ -37,7 +37,6 @@ import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
-import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -380,7 +379,7 @@ public class SmpService {
                     //总成本
                     smpGoodsDto.setCost(packPricingService.countTotalPrice(packInfo.getId(), null));
                     //设计Bom总成本
-                    smpGoodsDto.setDesignPackcost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES));
+                    smpGoodsDto.setDesignPackCost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES));
                     //外协加工费
                     smpGoodsDto.setOutsourcingProcessingCost((jsonObject.getBigDecimal("外协加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("外协加工费")));
                     //包装费
