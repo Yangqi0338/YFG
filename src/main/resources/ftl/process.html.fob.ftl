@@ -374,45 +374,49 @@
                     <td class="gb bold" style="width:40%;">外辅工艺</td>
                     <td class="gb" style="width:60%;">${extAuxiliaryTechnics}</td>
                 </tr>
-                <tr>
-                    <td class="bold">★★注意事项</td>
-                    <td>${mattersAttention}</td>
+                <tr style="width: 100%;">
+                    <td class="bold" style="width:40%;">外发工厂</td>
+                    <td class="" style="width:60%;">${outFactory}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">洗唛材质备注</td>
-                    <td class="gb">${washingMaterialRemarksName}</td>
+                    <td class="gb bold">★★注意事项</td>
+                    <td class="gb">${mattersAttention}</td>
+                </tr>
+                <tr>
+                    <td class="bold">洗唛材质备注</td>
+                    <td class="">${washingMaterialRemarksName}</td>
                 </tr>
                 <tr>
                     <td class="td_lt gb bold">充绒量</td>
                     <td class="td_lt gb" style="font-size: 11px"><pre>${downContent}</pre></td>
                 </tr>
                 <tr>
-                    <td class="gb bold">特殊规格</td>
-                    <td class="gb" style="font-size: 11px">${specialSpec}</td>
+                    <td class="bold">特殊规格</td>
+                    <td class="" style="font-size: 11px">${specialSpec}</td>
                 </tr>
                 <tr>
-                    <td class="bold">面料详情</td>
-                    <td class="" style="font-size: 11px"><pre>${fabricDetails}</pre></td>
+                    <td class="gb bold">面料详情</td>
+                    <td class="gb" style="font-size: 11px"><pre>${fabricDetails}</pre></td>
                 </tr>
                 <tr>
-                    <td class="gb bold">描述</td>
-                    <td class="gb">${remarks}</td>
+                    <td class="bold">描述</td>
+                    <td class="">${remarks}</td>
                 </tr>
                 <tr>
-                    <td class=" bold">号型类型*</td>
-                    <td>${sizeRangeName}</td>
+                    <td class="gb bold">号型类型*</td>
+                    <td class="gb">${sizeRangeName}</td>
                 </tr>
                 <tr>
-                    <td class=" gb bold">模板部件</td>
-                    <td class="gb">${templatePart}</td>
+                    <td class="bold">模板部件</td>
+                    <td class="">${templatePart}</td>
                 </tr>
                 <tr>
-                    <td class="bold">后技术下单员</td>
-                    <td>${placeOrderStaffName}</td>
+                    <td class="gb bold">后技术下单员</td>
+                    <td class="gb">${placeOrderStaffName}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">下单时间</td>
-                    <td class="gb">${placeOrderDateStr}</td>
+                    <td class="bold">下单时间</td>
+                    <td class="">${placeOrderDateStr}</td>
                 </tr>
 
             </table>
