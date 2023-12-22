@@ -796,7 +796,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             throw new OtherException("无数据");
         }
         /*计算当前的成本价*/
-        BigDecimal totalCost = packPricingService.countTotalPrice(dto.getTargetForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
+//        BigDecimal totalCost = packPricingService.countTotalPrice(dto.getTargetForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
         /*目标原版本*/
         PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
         PackInfoStatus targetStatus = packInfoStatusService.get(dto.getTargetForeignId(), dto.getTargetPackType());
@@ -941,7 +941,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             }
 
             /*查看成本价是否有变动*/
-            packBomService.costUpdate(dto.getTargetForeignId(),totalCost);
+//            packBomService.costUpdate(dto.getTargetForeignId(),totalCost);
 
             /*核价信息*/
             // 基础
