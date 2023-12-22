@@ -7,10 +7,13 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
@@ -22,8 +25,13 @@ import com.base.sbc.module.pack.mapper.PackPricingMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackPricingVo;
+import com.base.sbc.module.pricing.entity.PricingTemplate;
+import com.base.sbc.module.pricing.entity.PricingTemplateItem;
+import com.base.sbc.module.pricing.service.PricingTemplateItemService;
 import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
 import org.apache.commons.lang3.StringUtils;
 import org.nfunk.jep.JEP;
 import org.springframework.stereotype.Service;
@@ -67,9 +75,12 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     BaseController baseController;
     @Resource
     PackInfoStatusService packInfoStatusService;
-    @Resource
-    PackInfoService packInfoService;
 
+    @Resource
+    StyleService styleService;
+
+    @Resource
+    PricingTemplateItemService pricingTemplateItemService;
 
     @Override
     public PackPricingVo getDetail(PackCommonSearchDto dto) {
@@ -195,16 +206,43 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     /**
      * 生成核价信息
      *
-     * @param stylrId
+     * @param styleId
      * @param foreignId
      * @return
      */
     @Override
-    public boolean createPackPricing(String stylrId, String foreignId) {
-        /*获取dao*/
+    public boolean createPackPricing(String styleId, String foreignId) {
+        /*获取到款式的生产类型再去查询核价模板新增核价信息*/
+        Style style = styleService.getById(styleId);
+        if (ObjectUtil.isEmpty(style)) {
+            throw new OtherException("没有款式信息");
+        }
+//        查询核价模板
+        QueryWrapper<PricingTemplate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("devt_type", style.getDevtType());
+        queryWrapper.eq("default_flag", BaseGlobal.YES);
+        List<PricingTemplate> list = pricingTemplateService.list(queryWrapper);
+        if (!CollUtil.isEmpty(list)) {
+            PricingTemplate pricingTemplate = list.get(0);
+            Map<String, Object> map = new HashMap<>();
+            /*获取核价的字段*/
+            List<PricingTemplateItem> itemServiceByList = pricingTemplateItemService.list(new QueryWrapper<PricingTemplateItem>().eq("pricing_template_id", pricingTemplate.getId()));
+            itemServiceByList.forEach(f ->{
+                map.put(f.getName(),StrUtil.isNotBlank(f.getDefaultNum())?f.getDefaultNum():0);
 
+            });
+            map.put("currencyCode", "");
+            map.put("pricingTemplateId", pricingTemplate.getId());
+            map.put("pricingTemplateName", pricingTemplate.getTemplateName());
+            map.put("costPrice", 0);
 
-
+            PackPricing packPricing = new PackPricing();
+            packPricing.setCalcItemVal(JSON.toJSONString(map));
+            packPricing.setForeignId(foreignId);
+            packPricing.setPricingTemplateId(pricingTemplate.getId());
+            packPricing.setPackType(PackUtils.PACK_TYPE_DESIGN);
+            baseMapper.insert(packPricing);
+        }
 
         return false;
     }

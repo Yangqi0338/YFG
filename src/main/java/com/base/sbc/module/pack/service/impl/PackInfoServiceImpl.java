@@ -321,11 +321,13 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
         //新建尺码表配置
         packSizeConfigService.createByStyle(newId, PackUtils.PACK_TYPE_DESIGN, style);
-
-        /*新建初始化核价消息的数据*/
-        packPricingOtherCostsService.createCostDetail("costOtherPrice,outsource", packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
-//packPricingService.createPackPricing()
-
+        /*复制不进来*/
+        if(!StrUtil.equals(dto.getCopyFlag(),BaseGlobal.YES)){
+            /*新建初始化核价消息的数据*/
+            packPricingOtherCostsService.createCostDetail("costOtherPrice,outsource", packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
+            /*初始话核价信息*/
+            packPricingService.createPackPricing(style.getId(), packInfo.getId());
+        }
 
         try {
             // 保存款式设计详情颜色
