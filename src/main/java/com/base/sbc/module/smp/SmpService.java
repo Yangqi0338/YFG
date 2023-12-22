@@ -1394,8 +1394,8 @@ public class SmpService {
                 if (HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode() == type) {
                     //计控成本确认
                     tagConfirmDateDto.setStyleNo(styleNo);
-                    tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
-                    tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
+                    tagConfirmDateDto.setPlanCostConfirm(confirmStatus);
+                    tagConfirmDateDto.setPlanCostConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM.getCode() == type) {
                     //商品吊牌确认
@@ -1406,8 +1406,8 @@ public class SmpService {
                 } else if (HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM.getCode() == type) {
                     //计控吊牌确认
                     tagConfirmDateDto.setStyleNo(styleNo);
-                    tagConfirmDateDto.setPlanCostConfirm(confirmStatus);
-                    tagConfirmDateDto.setPlanCostConfirmDate(date);
+                    tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
+                    tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
