@@ -1,5 +1,6 @@
 package com.base.sbc.open.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -191,7 +192,11 @@ public class OpenSmpController extends BaseController {
                  say = inspectContent.getRemark().replace("（", "(").replace("）", ")");
                 basicsdatumMaterialIngredient.setSay(say);
             }
-            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(inspectContent.getContentProportion().replace("%",""))));
+            String contentProportion = inspectContent.getContentProportion().replace("%", "");
+            if (StrUtil.isNotBlank(contentProportion)) {
+                basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(contentProportion)));
+            }
+
             basicsdatumMaterialIngredient.setType("0");
             basicsdatumMaterialIngredient.setName(inspectContent.getInspectContent());
             String kindCode = inspectContent.getKindCode();
