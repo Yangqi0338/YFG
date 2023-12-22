@@ -67,7 +67,7 @@ public class BasicsdatumIngredientServiceImpl extends BaseServiceImpl<Basicsdatu
             if(StringUtils.isNotBlank(queryDto.getOrder())){
                 queryDto.setOrderBy(queryDto.getOrder());
             }else {
-                queryWrapper.orderByDesc("create_date");
+                queryWrapper.orderByAsc("sort");
             }
             /*分页*/
             PageHelper.startPage(queryDto);
