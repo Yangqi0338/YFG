@@ -255,6 +255,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return map;
     }
 
+    /**
+     * 获取到设计款下面的样衣
+     *
+     * @param styleId
+     * @return
+     */
+    @Override
+    public List<PatternMakingVo> getSampleDressBydesignNo(String styleId) {
+        QueryWrapper<PatternMaking> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("style_id",styleId);
+        queryWrapper.eq("node","样衣任务");
+        List<PatternMaking> makingList = baseMapper.selectList(queryWrapper);
+        List<PatternMakingVo> list = CopyUtil.copy(makingList,PatternMakingVo.class);
+        return list;
+    }
+
     @Override
     public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
 
