@@ -53,6 +53,6 @@ public class BasicsdatumIngredient extends BaseDataEntity<String> {
 
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    private Integer status;
+    private String status;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
