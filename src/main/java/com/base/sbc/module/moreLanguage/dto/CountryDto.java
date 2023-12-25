@@ -15,6 +15,8 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 public class CountryDto extends Country {
 
-
+    public String getName(){
+        return getCountryName() + "-" + getLanguageName();
+    }
 
 }
