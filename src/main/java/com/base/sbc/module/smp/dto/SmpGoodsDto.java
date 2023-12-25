@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
+import com.base.sbc.module.style.entity.StyleSpecFabric;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -260,4 +261,9 @@ public class SmpGoodsDto extends SmpBaseDto {
     @ApiModelProperty(value = "技术下工艺部正确样")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date processDepartmentDate;
+
+    /**
+     * 指定面料集合
+     */
+    private List<StyleSpecFabric> styleSpecFabricList;
 }
