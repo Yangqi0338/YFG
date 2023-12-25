@@ -11,6 +11,7 @@ import com.base.sbc.module.standard.entity.StandardColumn;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class StandardColumnSaveDto {
 
     /** 属性名称 */
     @ApiModelProperty(value = "吊牌属性名称"  )
+    @NotBlank(message = "请输入吊牌属性名称")
     private String name;
 
     /** 属性模式 */

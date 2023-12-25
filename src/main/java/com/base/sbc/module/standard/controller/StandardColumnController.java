@@ -39,6 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +72,7 @@ public class StandardColumnController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "新增标准表", notes = "新增标准表")
     @DuplicationCheck(time = 1)
-    public ApiResult save(@RequestBody StandardColumnSaveDto standardColumnSaveDto) {
+    public ApiResult save(@Valid @RequestBody StandardColumnSaveDto standardColumnSaveDto) {
         boolean isUpdate = StrUtil.isNotBlank(standardColumnSaveDto.getId());
         String id = standardColumnService.save(standardColumnSaveDto);
         return isUpdate ? updateSuccess(id) : insertSuccess(id);
