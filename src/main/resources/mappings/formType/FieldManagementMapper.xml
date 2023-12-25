@@ -27,6 +27,7 @@
         <result column="sequence" property="sequence"/>
         <result column="field_explain" property="fieldExplain"/>
         <result column="is_compile" property="isCompile"/>
+        <result column="structure_tier" property="structureTier"/>
         <association property="optionList"  javaType="arraylist"  column="id"    select="getOptionList"> </association>
     </resultMap>
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
@@ -57,7 +58,8 @@
         tfm.is_compile,
         tfm.form_object_id formObjectId,
         tfm.brand,
-        tfm.brand_name
+        tfm.brand_name,
+        tfm.structure_tier
         from t_field_management tfm
         left join t_form_type tft on tfm.form_type_id = tft.id
         where tfm.company_code=#{companyCode}
