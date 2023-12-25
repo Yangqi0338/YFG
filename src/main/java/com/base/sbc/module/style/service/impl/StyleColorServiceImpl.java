@@ -696,7 +696,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
-
+            /*颜色修改*/
+            if(!StrUtil.equals(styleColor.getColorCode(),addRevampStyleColorDto.getColorCode())){
+                PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
+                if(!ObjectUtils.isEmpty(packInfo)){
+                    packInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
+                    packInfo.setColor(basicsdatumColourLibrary.getColourName());
+                    packInfoService.updateById(packInfo);
+                }
+            }
             /*修改*/
            boolean b = !StringUtils.equals(styleColor.getScmSendFlag(), BaseGlobal.IN_READY)&&StrUtil.isBlank(styleColor.getHisStyleNo());
 
@@ -931,6 +939,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleColor.setColorName(basicsdatumColourLibrary.getColourName());
         styleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
         baseMapper.updateById(styleColor);
+        PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
+        if(!ObjectUtils.isEmpty(packInfo)){
+            packInfo.setColorCode(styleColor.getColorCode());
+            packInfo.setColor(styleColor.getColorName());
+            packInfoService.updateById(packInfo);
+        }
         /*重新下发配色*/
         dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
         return true;
