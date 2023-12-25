@@ -25,6 +25,7 @@ import org.hibernate.validator.constraints.NotBlank;
 public class StyleSpecFabricDto extends BaseDataEntity<String> {
 
     /** 配色表t_style_color 主键id */
+    @NotBlank(message = "配色主键必填")
     private String styleColorId;
     /** 指定面料厂家 */
     @NotBlank(message = "指定面料厂家必填")
