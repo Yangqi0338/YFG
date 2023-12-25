@@ -196,7 +196,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
 
     @Override
     public ApiResult getFormDemand(QueryDemandDto queryDemandDimensionalityDto) {
-        Map<String, List> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         /*查询表单的数据*/
         QueryWrapper<FormType> formTypeQueryWrapper = new QueryWrapper<>();
         formTypeQueryWrapper.eq("code", queryDemandDimensionalityDto.getFormCode());
@@ -221,6 +221,18 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
          * 查询需求占比中依赖于字段id
          */
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectBatchIds(fieldManagementIdList);
+
+        /*维度系数穿梭框*/
+        if(StrUtil.equals(queryDemandDimensionalityDto.getCoefficientFlag(),BaseGlobal.YES)) {
+            Map<String, List<FieldManagement>> map1 = fieldManagementList.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
+            /*获取*/
+            map.put("fieldManagement", map1);
+
+
+
+
+
+        }
         /*可选的数据，配置所有数据*/
         map.put("fieldManagement", fieldManagementList);
         QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();
