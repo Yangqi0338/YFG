@@ -26,6 +26,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -988,6 +989,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (bigDecimal.compareTo(BigDecimal.ZERO) == 0) {
                     throw new OtherException(styleColor.getStyleNo() + "的开发成本为0,请联系设计工艺员添加材料到BOM");
                 }
+            }
+            // 检查rfid标识
+            if (YesOrNoEnum.YES.getValueStr().equals(styleColor.getRfidFlag()) && styleColor.getRfidType() == null) {
+                throw new OtherException(styleColor.getStyleNo() + "的物料清单缺少RFID物料分类的物料");
             }
         }
         int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
