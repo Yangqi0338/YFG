@@ -35,6 +35,7 @@ public class CountryServiceImpl extends BaseServiceImpl<CountryMapper, Country> 
                 .notEmptyEq(Country::getCountryCode, countryQueryDto.getCountryCode())
                 .notEmptyEq(Country::getLanguageCode, countryQueryDto.getLanguageCode())
                 .notEmptyIn(Country::getCountryName, countryQueryDto.getCountryName())
+                .notEmptyIn(Country::getLanguageName, countryQueryDto.getLanguageName())
         ).stream().map(list-> BeanUtil.copyProperties(list, CountryDto.class)).collect(Collectors.toList());
     }
 

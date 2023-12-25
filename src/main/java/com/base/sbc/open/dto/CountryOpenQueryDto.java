@@ -16,8 +16,12 @@ import org.hibernate.validator.constraints.NotBlank;
 public class CountryOpenQueryDto extends Page {
 
     @NotBlank(message = "国家名不能为空")
-    @ApiModelProperty(value = "查询条件标签id")
+    @ApiModelProperty(value = "国家名")
     private String countryName;
+
+    @NotBlank(message = "语种名不能为空")
+    @ApiModelProperty(value = "语种名")
+    private String languageName;
 
     @NotBlank(message = "语言不能为空")
     @ApiModelProperty(value = "查询条件标签id集合")

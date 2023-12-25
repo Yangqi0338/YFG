@@ -43,6 +43,7 @@ public class OpenCountryController extends BaseController {
     public ApiResult listQuery(CountryOpenQueryDto countryOpenQueryDto) {
         CountryQueryDto countryQueryDto = new CountryQueryDto();
         countryQueryDto.setCountryName(countryOpenQueryDto.getCountryName());
+        countryQueryDto.setLanguageName(countryOpenQueryDto.getLanguageName());
         List<String> countryNameList = Arrays.asList(countryOpenQueryDto.getCountryName().split(COMMA));
         List<CountryDto> countryList = countryService.listQuery(countryQueryDto);
         List<String> notMatchCountryNameList = countryNameList.stream()
