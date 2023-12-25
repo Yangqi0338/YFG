@@ -48,6 +48,9 @@ public class FieldManagementVo {
     /** 选项（0手动，1外部' */
     @ApiModelProperty(value = "选项"  )
     private String isOption;
+    /** 结构管理层级 */
+    @ApiModelProperty(value = "结构管理层级"  )
+    private String structureTier;
     /** 是否必填(0是，1否) */
     @ApiModelProperty(value = "是否必填(0是，1否)"  )
     private String isMustFill;
