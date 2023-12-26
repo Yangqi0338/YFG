@@ -60,4 +60,13 @@ public interface ProcessDatabaseService extends BaseService<ProcessDatabase> {
     List<ProcessDatabaseSelectVO> selectProcessDatabase(String type, String categoryName, String companyCode);
 
     List<ProcessDatabase> getAll();
+
+    /**
+     * 获取到部件中部件类别可查询的数据
+     * @param type
+     * @param companyCode
+     * @return
+     */
+    List<ProcessDatabase> getQueryList(String type, String field,String brandId,String categoryId,String companyCode);
+
 }
