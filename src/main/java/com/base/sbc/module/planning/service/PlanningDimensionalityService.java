@@ -58,6 +58,8 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
      */
     Boolean regulateSort(QueryFieldManagementDto queryFieldManagementDto);
 
+    List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto);
+
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

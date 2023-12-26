@@ -83,4 +83,9 @@ public class DimensionLabelsSearchDto {
      */
     @ApiModelProperty(value = "配置页面")
     private String configPageFlag;
+
+    /**
+     * 引用的产品季id
+     */
+    private String refPlanningSeasonId;
 }

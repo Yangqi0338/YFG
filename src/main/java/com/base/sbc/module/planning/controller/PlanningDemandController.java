@@ -150,6 +150,16 @@ public class PlanningDemandController {
 	}
 
 
+	/**
+	 *  复制,引用维度标签
+	 */
+	@ApiOperation(value = "复制,引用维度标签")
+	@PostMapping("/copyDimensionality")
+	public List<PlanningDimensionality> copyDimensionality(@Valid @RequestBody DimensionLabelsSearchDto dto) {
+		return  planningDimensionalityService.copyDimensionality(dto);
+	}
+
+
 	@ApiOperation(value = "保存/编辑维度标签")
 	@PostMapping("/batchSaveDimensionality")
 	public List<PlanningDimensionality> batchSaveDimensionality(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {

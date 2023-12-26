@@ -13,7 +13,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -25,7 +24,6 @@ import com.base.sbc.module.formtype.mapper.FormTypeMapper;
 import com.base.sbc.module.planning.dto.CheckMutexDto;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
-import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.service.PlanningDemandService;
@@ -35,7 +33,6 @@ import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -214,6 +211,27 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         fieldManagement1.updateInit();
         baseMapper.updateById(fieldManagement1);
         return true;
+    }
+
+    @Override
+    public List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto) {
+        String planningSeasonId = dimensionLabelsSearchDto.getPlanningSeasonId();
+        DimensionalityListVo dimensionalityList = this.getDimensionalityList(dimensionLabelsSearchDto);
+        List<PlanningDimensionality> planningDimensionalities = dimensionalityList.getPlanningDimensionalities();
+        if (!planningDimensionalities.isEmpty()) {
+            List<String> ids = planningDimensionalities.stream().map(PlanningDimensionality::getId).collect(Collectors.toList());
+            this.removeByIds(ids);
+        }
+
+        dimensionLabelsSearchDto.setPlanningSeasonId(dimensionLabelsSearchDto.getRefPlanningSeasonId());
+
+        DimensionalityListVo dimensionalityList1 = this.getDimensionalityList(dimensionLabelsSearchDto);
+        for (PlanningDimensionality planningDimensionality : dimensionalityList1.getPlanningDimensionalities()) {
+            planningDimensionality.setId(null);
+            planningDimensionality.setPlanningSeasonId(planningSeasonId);
+        }
+        List<UpdateDimensionalityDto> updateDimensionalityDtos = BeanUtil.copyToList(dimensionalityList1.getPlanningDimensionalities(), UpdateDimensionalityDto.class);
+        return  this.batchSaveDimensionality(updateDimensionalityDtos);
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/
