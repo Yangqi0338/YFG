@@ -38,7 +38,7 @@ public class StyleColorCorrectInfo extends BaseDataEntity<String> {
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 关联ID */
     @ApiModelProperty(value = "关联ID"  )
-    private String styleId;
+    private String styleColorId;
     /** 款式(大货款号) */
     @ApiModelProperty(value = "款式(大货款号)"  )
     private String styleNo;

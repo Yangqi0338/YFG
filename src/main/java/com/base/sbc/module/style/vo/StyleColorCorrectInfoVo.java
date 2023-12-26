@@ -495,4 +495,6 @@ public class StyleColorCorrectInfoVo {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date auxiliaryDate;
 
+    private String styleColorId;
+
 }
