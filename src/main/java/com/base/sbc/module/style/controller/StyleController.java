@@ -47,6 +47,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：款式设计 Controller类
@@ -149,6 +150,18 @@ public class StyleController extends BaseController {
         dto.setForeignId(dto.getId());
         return styleService.queryDimensionLabelsByStyle(dto);
     }
+
+
+    @ApiOperation(value = "查询款式设计围度系数", notes = "")
+    @GetMapping("/queryCoefficientByStyle")
+    public Map<String,List<FieldManagementVo>> queryCoefficientByStyle(DimensionLabelsSearchDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        dto.setForeignId(dto.getId());
+        return styleService.queryCoefficientByStyle(dto);
+    }
+
 
     @ApiOperation(value = "设计师列表", notes = "")
     @GetMapping("/getDesignerList")

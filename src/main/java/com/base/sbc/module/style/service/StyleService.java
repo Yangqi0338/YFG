@@ -126,6 +126,25 @@ public interface StyleService extends BaseService<Style> {
      */
     List<FieldManagementVo> queryDimensionLabelsByStyle(DimensionLabelsSearchDto dto);
 
+
+    /**
+     * 查询维度标签
+     *
+     * @param dto
+     * @return
+     */
+    Map<String,List<FieldManagementVo>> queryCoefficient(DimensionLabelsSearchDto dto);
+
+
+    /**
+     * 查询围度系数
+     *
+     * @param dto@return
+     */
+    Map<String,List<FieldManagementVo>> queryCoefficientByStyle(DimensionLabelsSearchDto dto);
+
+
+
     List<SampleUserVo> getDesignerList(String companyCode);
 
     /**

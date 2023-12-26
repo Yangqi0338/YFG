@@ -28,6 +28,7 @@ import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -204,21 +205,19 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      */
     @Override
     public Map getCoefficient(DimensionLabelsSearchDto dto) {
-
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("tpd.channel",dto.getChannel());
+        queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
+        queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
+        queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
+        queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
 
-        queryWrapper.eq("channel",dto.getChannel());
-        queryWrapper.eq("category_id",dto.getProdCategory());
-        queryWrapper.eq("planning_season_id",dto.getPlanningSeasonId());
-        queryWrapper.eq("coefficient_flag",BaseGlobal.YES);
-
-        List<PlanningDimensionality> dimensionalityList = baseMapper.selectList(queryWrapper);
+        List<PlanningDimensionalityVo> dimensionalityList = baseMapper.getCoefficientList(queryWrapper);
 
         if(CollUtil.isEmpty(dimensionalityList)){
             return new HashMap();
         }
-
-        return new HashMap();
+        return dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/

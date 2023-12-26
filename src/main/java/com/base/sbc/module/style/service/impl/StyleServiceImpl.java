@@ -96,6 +96,7 @@ import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.ApiModelProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -185,9 +186,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private StyleInfoColorService styleInfoColorService;
     @Resource
     private StyleInfoSkuService styleInfoSkuService;
-    @Resource
-    @Lazy
-    private HangTagService hangTagService;
     @Autowired
     private CcmService ccmService;
 
@@ -814,6 +812,132 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         //新增时
         else if (StrUtil.isAllNotBlank(dto.getPlanningSeasonId(), dto.getChannel(), dto.getProdCategory())) {
             return queryDimensionLabels(dto);
+        }
+        return null;
+    }
+
+    /**
+     * 查询维度标签
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public Map<String,List<FieldManagementVo>> queryCoefficient(DimensionLabelsSearchDto dto) {
+        dto.setCoefficientFlag(BaseGlobal.YES);
+        Map<String, List<FieldManagementVo>> result = new HashMap<>();
+        List<String> stringList2 = new ArrayList<>();
+        //1 查询企划需求管理
+        DimensionLabelsSearchDto pdqw = new DimensionLabelsSearchDto();
+        BeanUtil.copyProperties(dto, pdqw);
+        // 获取围度系数
+        DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
+        List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
+        List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
+        if (CollUtil.isNotEmpty(pdList)) {
+            List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+            if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
+                /*用于查询字段配置数据*/
+                stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
+                Map<String, Integer> sortMap = pdList.stream().collect(Collectors.toMap(PlanningDimensionality::getFieldId, PlanningDimensionality::getSort, (a, b) -> b));
+                CollUtil.sort(fieldManagementListByIds, (a, b) -> {
+                    int n1 = MapUtil.getInt(sortMap, a.getId(), 0);
+                    int n2 = MapUtil.getInt(sortMap, b.getId(), 0);
+                    return NumberUtil.compare(n1, n2);
+                });
+                QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
+                if (BaseGlobal.YES.equals(listVo.getCategoryFlag())) {
+                    queryFieldOptionConfigDto.setProdCategory2nd(dto.getProdCategory2nd());
+                } else {
+                    queryFieldOptionConfigDto.setCategoryCode(dto.getProdCategory());
+                }
+                /*查询每个字段下的配置选项*/
+                queryFieldOptionConfigDto.setBrand(dto.getBrand());
+                queryFieldOptionConfigDto.setSeason(dto.getSeason());
+                queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
+                Map<String, List<FieldOptionConfig>> listMap = fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
+
+                Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
+                /*查询字段的字典和结构管理*/
+                /*查询字典*/
+                List<FieldManagementVo> managementVoList = fieldManagementListByIds.stream().filter(f -> StrUtil.equals(f.getIsOption(), BaseGlobal.YES)).collect(Collectors.toList());
+                if (CollUtil.isNotEmpty(managementVoList)) {
+                    /*获取查询的字典*/
+                    String collect = managementVoList.stream().map(FieldManagementVo::getOptionDictKey).distinct().collect(Collectors.joining(","));
+                    if (StrUtil.isNotBlank(collect)) {
+                        dictInfoToMap = ccmFeignService.getDictInfoToMap(collect);
+                    }
+                }
+
+                /*赋值*/
+                for (FieldManagementVo i : fieldManagementListByIds) {
+
+                    List<FieldOptionConfig> configList = listMap.get(i.getId());
+                    if (CollUtil.isNotEmpty(configList)) {
+                        i.setConfigVoList(BeanUtil.copyToList(configList, FieldOptionConfigVo.class));
+                    } else {
+                        /*当是字典时的数据*/
+                        if (StrUtil.equals(i.getIsOption(), BaseGlobal.YES)) {
+                            if (CollUtil.isNotEmpty(dictInfoToMap)) {
+                                Map<String, String> map = dictInfoToMap.get(i.getOptionDictKey());
+                                if(CollUtil.isNotEmpty(map)){
+                                    /*赋值选的数据*/
+                                    List<FieldOptionConfigVo> list = new ArrayList<>();
+                                    for (Object key : map.keySet()) {
+                                        FieldOptionConfigVo fieldOptionConfigVo = new FieldOptionConfigVo();
+                                        fieldOptionConfigVo.setOptionCode(key.toString());
+                                        fieldOptionConfigVo.setOptionName(map.get(key));
+                                        list.add(fieldOptionConfigVo);
+                                    }
+                                    i.setConfigVoList(list);
+                                }
+                            }
+                        }else if(StrUtil.equals(i.getIsOption(), BaseGlobal.STOCK_STATUS_CHECKED)){
+                            /*结构管理*/
+
+
+
+
+
+
+
+
+
+                        }
+                    }
+                }
+                ;
+            }
+            // [3].查询字段值
+            if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getForeignId())) {
+                fieldManagementService.conversion(fieldManagementListByIds, fvList);
+                result = fieldManagementListByIds.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
+            }
+        }
+        return result;
+
+    }
+
+    /**
+     * 查询围度系数
+     *
+     * @param dto @return
+     */
+    @Override
+    public Map<String,List<FieldManagementVo>> queryCoefficientByStyle(DimensionLabelsSearchDto dto) {
+        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        //修改时
+        if (StrUtil.isNotBlank(dto.getForeignId()) && !CommonUtils.isInitId(dto.getForeignId())) {
+            Style style = getById(dto.getForeignId());
+            if (style != null) {
+                BeanUtil.copyProperties(style, dto);
+                return queryCoefficient(dto);
+            }
+        }
+        //新增时
+        else if (StrUtil.isAllNotBlank(dto.getPlanningSeasonId(), dto.getChannel(), dto.getProdCategory())) {
+            return queryCoefficient(dto);
         }
         return null;
     }
