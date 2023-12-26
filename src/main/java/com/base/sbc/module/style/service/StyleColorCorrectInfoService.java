@@ -22,4 +22,6 @@ import com.github.pagehelper.PageInfo;
 public interface StyleColorCorrectInfoService extends BaseService<StyleColorCorrectInfo>{
 
     PageInfo<StyleColorCorrectInfoVo> findList(QueryStyleColorCorrectDto page);
+
+    void saveMain(StyleColorCorrectInfo styleColorCorrectInfo);
 }

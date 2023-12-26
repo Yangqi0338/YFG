@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.style.dto.QueryStyleColorCorrectDto;
 import com.base.sbc.module.style.entity.StyleColorCorrectInfo;
@@ -50,10 +51,10 @@ public class StyleColorCorrectInfoController {
     }
 
     @ApiOperation(value = "保存")
-    @PostMapping
-    public StyleColorCorrectInfo save(@RequestBody StyleColorCorrectInfo styleColorCorrectInfo) {
-        styleColorCorrectInfoService.save(styleColorCorrectInfo);
-        return styleColorCorrectInfo;
+    @PostMapping("/save")
+    public ApiResult save(@RequestBody StyleColorCorrectInfo styleColorCorrectInfo) {
+        styleColorCorrectInfoService.saveMain(styleColorCorrectInfo);
+        return ApiResult.success();
     }
 
 

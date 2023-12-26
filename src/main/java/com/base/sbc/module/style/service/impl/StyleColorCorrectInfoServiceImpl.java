@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -19,6 +20,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -48,13 +50,26 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         queryWrapper.notEmptyEq("ts.devt_type_name", page.getDevtTypeName());
         queryWrapper.notEmptyEq("ts.designer", page.getDesigner());
         queryWrapper.notEmptyEq("ts.task_level_name", page.getTaskLevelName());
-
-
         List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);
 
         /*查询款式图*/
         stylePicUtils.setStylePic(infoVoList, "stylePic");
 
         return new PageInfo<>(infoVoList);
+    }
+
+    @Override
+    @Transactional
+    public void saveMain(StyleColorCorrectInfo styleColorCorrectInfo) {
+        if(StrUtil.isNotBlank(styleColorCorrectInfo.getId())){
+            styleColorCorrectInfo.updateInit();
+        }else{
+            styleColorCorrectInfo.insertInit();
+        }
+        //不保存这个三个字段，分别保存在原始表中，关联查询
+        styleColorCorrectInfo.setDesignCorrectDate(null);
+        styleColorCorrectInfo.setDesignDetailDate(null);
+        styleColorCorrectInfo.setTechnicsDate(null);
+        saveOrUpdate(styleColorCorrectInfo);
     }
 }
