@@ -224,14 +224,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
 
         /*维度系数穿梭框*/
         if(StrUtil.equals(queryDemandDimensionalityDto.getCoefficientFlag(),BaseGlobal.YES)) {
-            Map<String, List<FieldManagement>> map1 = fieldManagementList.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
-            /*获取*/
-            map.put("fieldManagement", map1);
-
-
-
-
-
+            return ApiResult.success("查询成功", fieldManagementList);
         }
         /*可选的数据，配置所有数据*/
         map.put("fieldManagement", fieldManagementList);

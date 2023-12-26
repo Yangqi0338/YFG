@@ -29,6 +29,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：企划-需求管理相关接口
@@ -174,4 +175,12 @@ public class PlanningDemandController {
 	public boolean setImportantFlag(@RequestBody PlanningDemand planningDemand) {
 		return planningDemandService.setImportantFlag(planningDemand);
 	}
+
+
+	@ApiOperation(value = "获取围度系数数据")
+	@GetMapping("/getCoefficient")
+	public Map getCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+		return planningDimensionalityService.getCoefficient(queryDemandDimensionalityDto);
+	}
+
 }

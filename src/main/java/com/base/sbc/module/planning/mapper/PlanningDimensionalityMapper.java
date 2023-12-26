@@ -9,7 +9,10 @@ package com.base.sbc.module.planning.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import org.apache.ibatis.annotations.Mapper;
-/** 
+
+import java.util.List;
+
+/**
  * 类描述：企划-维度表 dao类
  * @address com.base.sbc.module.planning.dao.PlanningDimensionalityDao
  * @author lxl  
@@ -20,6 +23,8 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface PlanningDimensionalityMapper extends BaseMapper<PlanningDimensionality> {
 /** 自定义方法区 不替换的区域【other_start】 **/
+
+
 
 
 

@@ -105,6 +105,12 @@ public class PlanningDimensionality extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否检查")
     private String isExamine;
+
+    /**
+     * 围度系数标识(0微度数据1围度系数)
+     */
+    @ApiModelProperty(value = "围度系数标识(0微度数据1围度系数)")
+    private String  coefficientFlag;
     /**
      * 排序
      */

@@ -196,6 +196,31 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         return true;
     }
 
+    /**
+     * 获取围度系数数据
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public Map getCoefficient(DimensionLabelsSearchDto dto) {
+
+        BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+
+        queryWrapper.eq("channel",dto.getChannel());
+        queryWrapper.eq("category_id",dto.getProdCategory());
+        queryWrapper.eq("planning_season_id",dto.getPlanningSeasonId());
+        queryWrapper.eq("coefficient_flag",BaseGlobal.YES);
+
+        List<PlanningDimensionality> dimensionalityList = baseMapper.selectList(queryWrapper);
+
+        if(CollUtil.isEmpty(dimensionalityList)){
+            return new HashMap();
+        }
+
+        return new HashMap();
+    }
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 
