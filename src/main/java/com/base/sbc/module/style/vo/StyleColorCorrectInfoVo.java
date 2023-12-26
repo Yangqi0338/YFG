@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -116,6 +117,10 @@ public class StyleColorCorrectInfoVo {
     /** 季节名称 */
     @ApiModelProperty(value = "季节名称"  )
     private String seasonName;
+
+    public String getPlanningSeason() {
+        return StrUtil.join(" ", yearName, seasonName, brandName);
+    }
 
     /**
      * 历史款

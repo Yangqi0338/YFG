@@ -24,11 +24,12 @@ import java.util.List;
 
 /**
  * 类描述：正确样管理 service类
- * @address com.base.sbc.module.style.service.StyleColorCorrectInfoService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.style.service.StyleColorCorrectInfoService
  * @email your email
  * @date 创建时间：2023-12-26 10:13:31
- * @version 1.0  
  */
 @Service
 public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColorCorrectInfoMapper, StyleColorCorrectInfo> implements StyleColorCorrectInfoService {
@@ -41,6 +42,13 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         /*分页*/
         Page<StyleColorCorrectInfoVo> objects = PageHelper.startPage(page);
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.andLike(page.getSearch(), "ts.design_no", "tsc.style_no");
+        queryWrapper.notEmptyEq("ts.planning_season_id", page.getPlanningSeasonId());
+        queryWrapper.notEmptyEq("ts.prod_category", page.getProdCategory());
+        queryWrapper.notEmptyEq("ts.devt_type_name", page.getDevtTypeName());
+        queryWrapper.notEmptyEq("ts.designer", page.getDesigner());
+        queryWrapper.notEmptyEq("ts.task_level_name", page.getTaskLevelName());
+
 
         List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);
 
