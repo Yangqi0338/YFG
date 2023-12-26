@@ -1,8 +1,15 @@
 package com.base.sbc.module.hangtag.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.BigDecimalJsonSerializer;
+import com.base.sbc.config.JacksonHttpMessageConverter;
+import com.base.sbc.config.annotation.DuplicateSql;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 import java.math.BigDecimal;
 
@@ -22,11 +29,20 @@ public class HangTagIngredient extends BaseDataEntity<String> {
     /** 物料名称 */
     private String materialName;
 
+    /** 严格性校验 */
+    private String strictCheck;
+
     /** 成分名称 */
     private String ingredientName;
 
     /** 成分编码 */
     private String ingredientCode;
+
+    /** 成分二级名称 */
+    private String ingredientSecondName;
+
+    /** 成分二级编码 */
+    private String ingredientSecondCode;
 
     /** 类型编码 */
     private String typeCode;
@@ -35,7 +51,18 @@ public class HangTagIngredient extends BaseDataEntity<String> {
     private String type;
 
     /** 百分比 */
+//    @JsonSerialize(using = BigDecimalJsonSerializer.class)
+    @JsonIgnore
     private BigDecimal percentage;
+
+    @JsonIgnore
+    @DuplicateSql(columnName = "percentage_str")
+    private String percentageStr;
+
+    @JsonProperty("percentage")
+    public String getPercentageStr(){
+        return StrUtil.isBlank(percentageStr) ? (percentage == null ? null : percentage.toString()) : percentageStr;
+    }
 
     /** 成分备注 */
     private String descriptionRemarks;
@@ -63,4 +90,21 @@ public class HangTagIngredient extends BaseDataEntity<String> {
 
     /** 成分说明法文 */
     private String ingredientDescriptionFr;
+
+    /** 是否迁移历史数据 */
+    private String historicalData;
+
+    public boolean checkPercentageRequired(){
+        return
+            StrUtil.isNotBlank(this.typeCode) &&
+            StrUtil.isNotBlank(this.type) &&
+            StrUtil.isNotBlank(this.getPercentageStr()) &&
+            StrUtil.isNotBlank(this.ingredientCode) &&
+            StrUtil.isNotBlank(this.ingredientName)
+        ;
+    }
+
+    public boolean checkDescriptionRemarks(){
+        return StrUtil.isNotBlank(this.ingredientDescriptionCode) && StrUtil.isNotBlank(this.ingredientDescription);
+    }
 }

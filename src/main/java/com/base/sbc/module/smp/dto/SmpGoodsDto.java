@@ -82,6 +82,8 @@ public class SmpGoodsDto extends SmpBaseDto {
     private Boolean mainPush;
     /** 生产类型 */
     private String productionType;
+    /** 生产类型名称 */
+    private String productionTypeName;
     /** 区域 */
     private String region;
     /** 销售分组 */

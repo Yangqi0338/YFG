@@ -34,4 +34,7 @@ public class CreatePackInfoByStyleDto {
     private Boolean isWithBom;
 
     private String modelName;
+
+    @ApiModelProperty(value = "复制标记 1：复制")
+    private String copyFlag;
 }

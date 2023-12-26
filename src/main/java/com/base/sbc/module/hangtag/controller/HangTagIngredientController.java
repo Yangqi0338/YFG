@@ -17,8 +17,10 @@ import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,15 +47,30 @@ public class HangTagIngredientController extends BaseController{
 
     @PostMapping("/save")
     public ApiResult save(@RequestBody HangTagIngredient hangTagIngredient){
+        if (hangTagIngredient.checkPercentageRequired()) {
+            hangTagIngredient.setPercentage(new BigDecimal(hangTagIngredient.getPercentageStr()));
+        }
         hangTagIngredientService.saveOrUpdate(hangTagIngredient);
         return updateSuccess("保存成功");
     }
 
     @PostMapping("/saveList")
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult saveList(@RequestBody HangTagDTO hangTagDTO){
 
         List<HangTagIngredient> hangTagIngredients = hangTagDTO.getHangTagIngredients();
+        hangTagIngredients.stream().filter(HangTagIngredient::checkPercentageRequired).forEach(it-> it.setPercentage(new BigDecimal(it.getPercentageStr())));
         HangTag hangTag =BeanUtil.copyProperties(hangTagDTO, HangTag.class);
+
+        if (StringUtils.isEmpty(hangTag.getId())){
+            QueryWrapper<HangTag> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.eq("bulk_style_no",hangTag.getBulkStyleNo());
+            HangTag one = hangTagService.getOne(queryWrapper);
+            if (one!=null){
+                hangTag = one;
+            }
+        }
+
         String id = hangTag.getId();
         if (StringUtils.isEmpty(id)){
             hangTag.setStatus("1");

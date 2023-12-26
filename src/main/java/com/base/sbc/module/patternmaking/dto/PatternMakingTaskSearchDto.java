@@ -95,4 +95,6 @@ public class PatternMakingTaskSearchDto extends Page {
     /*打板类型*/
     private String sampleType;
 
+    private String userType;
+
 }

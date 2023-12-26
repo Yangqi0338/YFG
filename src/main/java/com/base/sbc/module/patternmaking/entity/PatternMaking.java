@@ -400,6 +400,9 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 是否是迁移历史数据 */
     @ApiModelProperty(value = "是否是迁移历史数据"  )
     private String historicalData;
+    /** 停留原因 */
+    @ApiModelProperty(value = "停留原因"  )
+    private String receiveReason;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

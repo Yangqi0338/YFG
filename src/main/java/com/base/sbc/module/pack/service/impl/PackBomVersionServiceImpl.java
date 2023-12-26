@@ -23,6 +23,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -305,7 +306,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             throw new OtherException("版本不存在");
         }
         if (StrUtil.equals(byId.getLockFlag(), BaseGlobal.YES)) {
-            throw new OtherException("已锁定");
+            throw new OtherException("物料清单已锁定，请解锁");
         }
         return byId;
     }
@@ -321,7 +322,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
      * @return
      */
     @Override
-    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg) {
+    public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg,String flag) {
         if (StrUtil.equals(sourceForeignId, targetForeignId) && StrUtil.equals(sourcePackType, targetPackType)) {
             return true;
         }
@@ -342,8 +343,6 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         PackBomVersionVo newVersion = null;
         //正常拷贝 保存版本
         if (StrUtil.equals(BasicNumber.ZERO.getNumber(), flg)) {
-
-
             //1获取源启用版本
             PackBomVersion enableVersion = getEnableVersion(sourceForeignId, sourcePackType);
             //获取源版本数据
@@ -356,14 +355,23 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                     for (PackBomVo packBomVo : bomList) {
                         bomIds.add(packBomVo.getId());
                         packBomVo.setScmSendFlag(BaseGlobal.NO);
-                        packBomVo.setStageFlag(targetPackType);
+                        if(!StrUtil.equals(flag,BaseGlobal.YES)){
+                            packBomVo.setStageFlag(targetPackType);
+                        }else {
+                            /*大货添加的数据不改变状态用于报次款转大货时要下发的数据*/
+                            if(StrUtil.equals(packBomVo.getStageFlag(),PackUtils.PACK_TYPE_BIG_GOODS)){
+                                packBomVo.setScmSendFlag(BaseGlobal.IN_READY);
+                            }
+                        }
+                        /*如果数据源是大货阶段的数据当设计单件用量空时取大货当前用量*/
+                        if(StrUtil.equals(PackUtils.PACK_TYPE_BIG_GOODS,sourcePackType) && packBomVo.getDesignUnitUse() == null){
+                            packBomVo.setDesignUnitUse(packBomVo.getBulkUnitUse());
+                        }
                     }
                 }
             }
-
             bomSizeList = packBomSizeService.getByBomIds(bomIds);
             packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
-
             // 1获取目标启用版本
             newVersion = BeanUtil.copyProperties(getEnableVersion(targetForeignId, targetPackType), PackBomVersionVo.class);
             if (newVersion == null) {
@@ -520,7 +528,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag) {
-        return copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag, BasicNumber.ZERO.getNumber());
+        return copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag, BasicNumber.ZERO.getNumber(),null);
     }
 
     @Override

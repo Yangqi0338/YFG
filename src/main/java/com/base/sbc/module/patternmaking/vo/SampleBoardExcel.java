@@ -35,9 +35,6 @@ public class SampleBoardExcel {
     @Excel(name = "款式")
     private String designNo;
 
-    @Excel(name = "品类")
-    private String prodCategoryName;
-
     @Excel(name = "波段")
     private String bandName;
 
@@ -51,7 +48,7 @@ public class SampleBoardExcel {
 
     @ApiModelProperty(value = "确认收到样衣时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "设计收到时间" , exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "设计收到时间" , exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date receiveSampleDate;
 
     @ApiModelProperty(value = "打版类型")
@@ -82,24 +79,28 @@ public class SampleBoardExcel {
      */
     @ApiModelProperty(value = "工艺员确认齐套时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "设计确认齐套时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "设计确认齐套时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date technicianKittingDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "纸样需求完成日期")
-    @Excel(name = "纸样需求完成日期",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "纸样需求完成日期",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date patternReqDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "样衣需求完成日期")
-    @Excel(name = "样衣需求完成日期",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "样衣需求完成日期",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date demandFinishDate;
 
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty(value = "技术收到日期")
-    @Excel(name = "技术收到日期",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "技术收到日期",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date jssdrq;
+
+    @ApiModelProperty(value = "备注")
+    @Excel(name = "备注")
+    private String shortageRemarks;
 
     /**
      * 改版意见
@@ -116,7 +117,7 @@ public class SampleBoardExcel {
     private String revisionReason;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "版房主管下发时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "版房主管下发时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date bfzgxfsj;
 
     /**
@@ -128,19 +129,19 @@ public class SampleBoardExcel {
 
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "版师接收时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "版师接收时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date bsjssj;
 
 
     @ApiModelProperty(value = "需求数")
-    @Excel(name = "需求数")
+    @Excel(name = "需求数",type = 10)
     private BigDecimal requirementNum;
 
 
 
     @ApiModelProperty(value = "纸样完成时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "纸样完成时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "纸样完成时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date zywcsj;
 
     @Excel(name = "延迟打版原因")
@@ -150,7 +151,7 @@ public class SampleBoardExcel {
      * 版师工作量评分
      */
     @ApiModelProperty(value = "版师工作量评分")
-    @Excel(name = "版师工作量评分")
+    @Excel(name = "版师工作量评分",type = 10)
     private BigDecimal patternMakingScore;
 
     @ApiModelProperty(value = "裁剪工")
@@ -159,16 +160,16 @@ public class SampleBoardExcel {
 
     @ApiModelProperty(value = "裁剪开始时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "裁剪开始时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "裁剪开始时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date cjkssj;
 
     @ApiModelProperty(value = "裁剪完成时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "裁剪完成时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "裁剪完成时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date cjwcsj;
 
     @ApiModelProperty(value = "裁剪完成数量")
-    @Excel(name = "裁剪完成数量")
+    @Excel(name = "裁剪完成数量",type = 10)
     private BigDecimal cutterFinishNum;
 
     /**
@@ -190,19 +191,19 @@ public class SampleBoardExcel {
 
     @ApiModelProperty(value = "车缝开始时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "车缝开始时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "车缝开始时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date cfkssj;
 
 
     @ApiModelProperty(value = "车缝完成时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "车缝完成时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "车缝完成时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date cfwcsj;
 
 
     @ApiModelProperty(value = "样衣完成时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "样衣完成时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "样衣完成时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date yywcsj;
 
     /**
@@ -235,8 +236,25 @@ public class SampleBoardExcel {
     @Excel(name = "审版设计师")
     private String      reviewedDesignName;
 
+    @Excel(name = "品类")
+    private String prodCategoryName;
+    /**
+     * 中类名称
+     */
+    @ApiModelProperty(value = "中类名称")
+    @Excel(name = "中类")
+    private String prodCategory2ndName;
+
+    /**
+     * 小类名称
+     */
+    @ApiModelProperty(value = "小类名称")
+    @Excel(name = "小类")
+    private String prodCategory3rdName;
+
+
     @ApiModelProperty(value = "纸样完成数量")
-    @Excel(name = "纸样完成数量")
+    @Excel(name = "纸样完成数量",type = 10)
     private BigDecimal patternFinishNum;
 
     @ApiModelProperty(value = "尺码")
@@ -244,19 +262,19 @@ public class SampleBoardExcel {
     private String  defaultSize;
 
 
-    @Excel(name = "创建指令时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "创建指令时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date      pmCreateDate;
 
     @Excel(name = "部件编码")
     private String  patternParts;
 
-    @Excel(name = "完成件数")
+    @Excel(name = "完成件数",type = 10)
     private BigDecimal sampleFinishNum;
 
-    @Excel(name = "样衣工作量评分")
+    @Excel(name = "样衣工作量评分",type = 10)
     private BigDecimal sampleMakingScore;
 
-    @Excel(name = "样衣工质量评分")
+    @Excel(name = "样衣工质量评分",type = 10)
     private BigDecimal sampleMakingQualityScore;
 
 
@@ -272,7 +290,7 @@ public class SampleBoardExcel {
     @Excel(name = "状态")
     private String pmStatus;
 
-    @Excel(name = "下发给样衣组长时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "下发给样衣组长时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date  prmSendDate;
 
     @Excel(name = "下发给样衣组长状态", replace = {"已发送_1", "未发送_0"})
@@ -281,7 +299,7 @@ public class SampleBoardExcel {
     @Excel(name = "放码师")
     private String gradingName;
 
-    @Excel(name = "放码时间",exportFormat = "yyyy年MM月dd日 HH:mm:ss")
+    @Excel(name = "放码时间",exportFormat = "yyyy-MM-dd HH:mm:ss")
     private Date  gradingDate;
 
 

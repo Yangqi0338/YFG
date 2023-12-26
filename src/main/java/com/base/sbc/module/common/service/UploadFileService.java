@@ -114,6 +114,17 @@ public interface UploadFileService extends BaseService<UploadFile> {
 
     boolean delStyleImage(DelStylePicDto dto, Principal user);
 
+    /**
+     * 删除款式配色图片接口
+     * @param dto 参数
+     * @param user 用户信息
+     * @param delFileName 删除图片名称
+     * @return
+     */
+    boolean delStyleColorImage(DelStylePicDto dto, Principal user,String delFileName,String picType);
+
+
+
     boolean delDesignImage(DelStylePicDto dto, Principal user);
 
 

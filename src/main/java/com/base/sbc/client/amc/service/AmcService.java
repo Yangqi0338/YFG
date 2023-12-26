@@ -227,4 +227,10 @@ public interface AmcService {
     @GetMapping("/amc/api/token/group/getJobByUserId")
     public List<Job> getByUserId(@RequestParam("userId") String userId);
 
+    /**
+     * 根据用户Id查询用户组id集合
+     */
+    @GetMapping("/amc/api/token/group/list")
+    ApiResult getUserGroupByUserId(@RequestParam("userId") String userId);
+
 }

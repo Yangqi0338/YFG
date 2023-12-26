@@ -374,45 +374,49 @@
                     <td class="gb bold" style="width:40%;">外辅工艺</td>
                     <td class="gb" style="width:60%;">${extAuxiliaryTechnics}</td>
                 </tr>
-                <tr>
-                    <td class="bold">★★注意事项</td>
-                    <td>${mattersAttention}</td>
+                <tr style="width: 100%;">
+                    <td class="bold" style="width:40%;">外发工厂</td>
+                    <td class="" style="width:60%;">${outFactory}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">洗唛材质备注</td>
-                    <td class="gb">${washingMaterialRemarksName}</td>
+                    <td class="gb bold">★★注意事项</td>
+                    <td class="gb">${mattersAttention}</td>
                 </tr>
                 <tr>
-                    <td class="bold">充绒量</td>
-                    <td style="font-size: 11px">${downContent}</td>
+                    <td class="bold">洗唛材质备注</td>
+                    <td class="">${washingMaterialRemarksName}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">特殊规格</td>
-                    <td class="gb" style="font-size: 11px">${specialSpec}</td>
+                    <td class="td_lt gb bold">充绒量</td>
+                    <td class="td_lt gb" style="font-size: 11px"><pre>${downContent}</pre></td>
                 </tr>
                 <tr>
-                    <td class="bold">面料详情</td>
-                    <td class="" style="font-size: 11px"><pre>${fabricDetails}</pre></td>
+                    <td class="bold">特殊规格</td>
+                    <td class="" style="font-size: 11px">${specialSpec}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">描述</td>
-                    <td class="gb">${remarks}</td>
+                    <td class="gb bold">面料详情</td>
+                    <td class="gb" style="font-size: 11px"><pre>${fabricDetails}</pre></td>
                 </tr>
                 <tr>
-                    <td class=" bold">号型类型*</td>
-                    <td>${sizeRangeName}</td>
+                    <td class="bold">描述</td>
+                    <td class="">${remarks}</td>
                 </tr>
                 <tr>
-                    <td class=" gb bold">模板部件</td>
-                    <td class="gb">${templatePart}</td>
+                    <td class="gb bold">号型类型*</td>
+                    <td class="gb">${sizeRangeName}</td>
                 </tr>
                 <tr>
-                    <td class="bold">后技术下单员</td>
-                    <td>${placeOrderStaffName}</td>
+                    <td class="bold">模板部件</td>
+                    <td class="">${templatePart}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">下单时间</td>
-                    <td class="gb">${placeOrderDateStr}</td>
+                    <td class="gb bold">后技术下单员</td>
+                    <td class="gb">${placeOrderStaffName}</td>
+                </tr>
+                <tr>
+                    <td class="bold">下单时间</td>
+                    <td class="">${placeOrderDateStr}</td>
                 </tr>
 
             </table>
@@ -961,5 +965,95 @@
     </table>
 </#if>
 
+<!--    外辅工艺 7-->
+<#if wfgyShow>
+    <#if wfgyDataList?size gt 0>
+        <#assign lastIndex = wfgyDataList?size - 1>
+        <#assign totalSize = wfgyDataList[lastIndex].rows + ztbzDataList?size - 1>
+        <#assign maxSize = 21>
+
+        <!--    基础工艺 4 3-->
+        <#assign breakPointer = 0 >
+        <table class="table_border mt" style="page-break-before: auto;">
+            <thead>
+            <tr>
+                <th colspan="2" class="th_title">
+                    <p>外辅工艺</p>
+                    <hr>
+                </th>
+            </tr>
+            <tr>
+                <th class="gb item_th">工艺项目</th>
+                <th class="gb">描述</th>
+            </tr>
+            </thead>
+            <tbody>
+            <#if wfgyDataList??>
+                <#list wfgyDataList as item>
+                    <#assign curRows = (item.numberRows+wfgyDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))>
+                    <#if curRows lt maxSize>
+                        <tr>
+                            <td style="text-align: left;width: 12em;text-indent: 1em;box-sizing: border-box">${item.item}</td>
+                            <td>
+                                ${item.content}
+                            </td>
+                        </tr>
+                        <#assign breakPointer = item_index >
+                    </#if>
+                </#list>
+            </#if>
+            </tbody>
+            <#if breakPointer+1 gte wfgyDataList?size>
+                <tfoot>
+                <tr>
+                    <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>
+                </tr>
+                </tfoot>
+            </#if>
+        </table>
+
+        <#if breakPointer gt 0 && breakPointer+1 lt wfgyDataList?size>
+<#--            <#assign lastItem = wfgyDataList[breakPointer+1]>-->
+<#--        &lt;#&ndash;总行数减去有数字的行数 = 不存在数字的行数&ndash;&gt;-->
+<#--            <#assign hasPageBreak = ((lastItem.numberRows+wfgyDataList?last.numberRows)/1 + ((lastItem.rows-lastItem.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))) gt 21>-->
+<#--            <#if hasPageBreak>-->
+                <table class="table_border mt" style="page-break-before: always;">
+                    <thead>
+                    <tr>
+                        <th colspan="2" class="th_title">
+                            <p>外辅工艺</p>
+                            <hr>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="gb item_th">工艺项目</th>
+                        <th class="gb">描述</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <#if wfgyDataList??>
+                        <#list wfgyDataList as item>
+                            <#assign curRows = (item.numberRows+wfgyDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))>
+                            <#if curRows gt maxSize || curRows == maxSize>
+                                <tr>
+                                    <td style="text-align: left;width: 12em;text-indent: 1em;box-sizing: border-box">${item.item}</td>
+                                    <td>
+                                        ${item.content}
+                                    </td>
+                                </tr>
+                            </#if>
+                        </#list>
+                    </#if>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>
+                    </tr>
+                    </tfoot>
+                </table>
+<#--            </#if>-->
+        </#if>
+    </#if>
+</#if>
 </body>
 </html>

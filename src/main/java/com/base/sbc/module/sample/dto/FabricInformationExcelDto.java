@@ -111,7 +111,7 @@ public class FabricInformationExcelDto {
     private String gramWeight;
     /** 胚布情况 */
     @ApiModelProperty(value = "胚布情况"  )
-    @Excel(name = "胚布情况")
+    @Excel(name = "胚布情况", replace = {"否_0", "是_1","否_null"})
     private String germinalCondition;
 
     /** 发送供应商标记(1是0否 */

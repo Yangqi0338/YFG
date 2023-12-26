@@ -135,9 +135,10 @@ public interface PackBomVersionService extends PackBaseService<PackBomVersion> {
      * @param targetForeignId
      * @param targetPackType
      * @param flg             0 正常拷贝,  1 转大货 ,2 反审
+     * @param flag
      * @return
      */
-    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg);
+    boolean copy(String sourceForeignId, String sourcePackType, String targetForeignId, String targetPackType, String overlayFlag, String flg,String flag);
 
     void checkBomDataEmptyThrowException(Collection<? extends PackBom> bomList, Collection<? extends PackBomSize> bomSizeList);
 

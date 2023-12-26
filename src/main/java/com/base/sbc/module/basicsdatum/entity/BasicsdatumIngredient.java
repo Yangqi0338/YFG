@@ -48,6 +48,9 @@ public class BasicsdatumIngredient extends BaseDataEntity<String> {
     @ApiModelProperty(value = "SCM下发状态:0未发送,1发送成功，2发送失败,3可编辑"  )
     private String scmSendFlag;
 
+    @ApiModelProperty(value = "成分排序")
+    private Integer sort;
+
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;

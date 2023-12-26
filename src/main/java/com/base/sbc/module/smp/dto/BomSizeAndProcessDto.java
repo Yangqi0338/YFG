@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -11,9 +12,11 @@ import java.util.List;
 @Data
 public class BomSizeAndProcessDto {
 
+    private String styleNo;
+
     private List<BomSize> bomSizeList;
 
-    private List<BomProcess> bomBomProcessList;
+    private List<BomProcess> bomProcessList;
 
     /**
      * 外辅工艺数据
@@ -29,7 +32,7 @@ public class BomSizeAndProcessDto {
         /**描述 */
         private String content;
         /**排序-*/
-        private int sort;
+        private BigDecimal sort;
     }
 
     /**
@@ -46,7 +49,7 @@ public class BomSizeAndProcessDto {
         private String method;
         /**标准值*/
         private String standard;
-        /**标准值*/
+        /**尺寸信息*/
         private String size;
         /**正公差+*/
         private String positive;

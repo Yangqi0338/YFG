@@ -18,6 +18,7 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.IdDto;
@@ -83,6 +84,13 @@ public class PatternMakingController {
     @GetMapping("/technologyCenterTaskList")
     public PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto) {
         return patternMakingService.technologyCenterTaskList(dto);
+    }
+
+    @ApiOperation(value = "/滞留款导出")
+    @GetMapping("/technologyCenterTaskListDeriveExcel")
+    @DuplicationCheck(type = 1,message = "正在导出中，请稍后...")
+    public void technologyCenterTaskListDeriveExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto) {
+        patternMakingService.technologyCenterTaskListExcel(response,dto);
     }
 
     @ApiOperation(value = "通过款式设计id查询")
@@ -300,6 +308,12 @@ public class PatternMakingController {
         return patternMakingService.getAllPatternDesignList(vo);
     }
 
+    @ApiOperation(value = "打样设计师列表", notes = "")
+    @GetMapping("/getAllPatternDesignerList")
+    public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
+        return patternMakingService.getAllPatternDesignerList(vo);
+    }
+
     @ApiOperation(value = "所有裁剪工列表", notes = "")
     @GetMapping("/getAllCutterList")
     public List<SampleUserVo> getAllCutterList(PatternUserSearchVo vo) {
@@ -429,6 +443,12 @@ public class PatternMakingController {
         return patternMakingService.sampleMakingQualityScore(user, dto.getId(), dto.getScore());
     }
 
+    @ApiOperation(value = "样衣工编辑", notes = "")
+    @PostMapping("/sampleMakingEdit")
+    public boolean sampleMakingEdit(Principal user, @Validated @RequestBody PatternMakingDto dto) {
+        return patternMakingService.sampleMakingEdit(user, dto);
+    }
+
     @ApiOperation(value = "设置样衣条码", notes = "")
     @PostMapping("/setSampleBarCode")
     public boolean setSampleBarCode(@Validated @RequestBody SetSampleBarCodeDto dto, @RequestHeader(BaseConstant.ENV) String env) {
@@ -460,6 +480,7 @@ public class PatternMakingController {
     @PostMapping("/updateGrading")
     @ApiOperation(value = "修改放码师")
     public boolean updateGrading(@Validated @RequestBody PatternMaking patternMaking) {
+        CommonUtils.removeQuery(patternMaking, "samplePic");
         return patternMakingService.updateById(patternMaking);
     }
 
@@ -468,6 +489,20 @@ public class PatternMakingController {
     @ApiOperation(value = "停用启用")
     public boolean startStop(@Valid @RequestBody StartStopDto startStopDto) {
         return patternMakingService.startStop(startStopDto);
+    }
+
+    @ApiOperation(value = "滞留款报表保存停留原因")
+    @PostMapping("/saveReceiveReason")
+    public boolean saveReceiveReason(@RequestBody TechnologyCenterTaskVo dto) {
+        patternMakingService.saveReceiveReason(dto);
+        return true;
+    }
+
+
+    @ApiOperation(value = "获取款下面的初版车缝工和上次车缝工")
+    @GetMapping("/getHeadLastTimeStitcher")
+    public Map<String,String> getHeadLastTimeStitcher(PatternMakingDto dto) {
+        return patternMakingService.getHeadLastTimeStitcher(dto.getStyleId());
     }
 
 }
