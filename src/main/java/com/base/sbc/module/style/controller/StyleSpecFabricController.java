@@ -58,7 +58,7 @@ public class StyleSpecFabricController{
 	}
 
 	@ApiOperation(value = "批量保存")
-	@PostMapping
+	@PostMapping("/batchSave")
 	public Boolean batchSave(@Valid @RequestBody List<StyleSpecFabricDto> styleSpecFabricDtoList) {
 		return styleSpecFabricService.batchSaveAndClearHistoryData(styleSpecFabricDtoList);
 	}

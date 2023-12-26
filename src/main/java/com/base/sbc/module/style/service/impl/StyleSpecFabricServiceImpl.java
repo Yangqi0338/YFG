@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.dto.StyleSpecFabricDto;
@@ -48,14 +49,18 @@ public class StyleSpecFabricServiceImpl extends BaseServiceImpl<StyleSpecFabricM
             styleColorId = styleSpecFabricDtoList.get(0).getStyleColorId();
             removeQueryWrapper.eq("style_color_id", styleColorId);
             //批量删除
-            this.remove(removeQueryWrapper);
+            super.physicalDeleteQWrap(removeQueryWrapper);
             //批量保存
-            this.saveBatch(styleSpecFabricList);
+            super.saveBatch(styleSpecFabricList);
         }
 
         //下发配色到下游
         if (StrUtil.isNotEmpty(styleColorId)) {
-            smpService.goods(new String[]{styleColorId});
+            try {
+                smpService.goods(new String[]{styleColorId});
+            }catch (Exception e){
+
+            }
         }
         return true;
     }
