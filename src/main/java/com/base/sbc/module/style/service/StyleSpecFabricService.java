@@ -5,25 +5,25 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.style.service;
+
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.style.dto.StyleSpecFabricDto;
 import com.base.sbc.module.style.entity.StyleSpecFabric;
 
-/** 
+import java.util.List;
+
+/**
  * 类描述：款式BOM指定面料表 service类
- * @address com.base.sbc.module.style.service.StyleSpecFabricService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.style.service.StyleSpecFabricService
  * @email your email
  * @date 创建时间：2023-12-25 16:04:37
- * @version 1.0  
  */
-public interface StyleSpecFabricService extends BaseService<StyleSpecFabric>{
+public interface StyleSpecFabricService extends BaseService<StyleSpecFabric> {
 
-// 自定义方法区 不替换的区域【other_start】
+    Boolean batchSaveAndClearHistoryData(List<StyleSpecFabricDto> styleSpecFabricDtoList);
 
-
-
-// 自定义方法区 不替换的区域【other_end】
-
-	
 }
 

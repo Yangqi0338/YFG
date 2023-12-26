@@ -5,12 +5,10 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
-import cn.hutool.core.bean.BeanUtil;
+
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.style.dto.StyleSpecFabricDto;
-import com.base.sbc.module.style.entity.StyleInfoColor;
 import com.base.sbc.module.style.entity.StyleSpecFabric;
 import com.base.sbc.module.style.service.StyleSpecFabricService;
 import com.github.pagehelper.PageHelper;
@@ -50,12 +48,6 @@ public class StyleSpecFabricController{
 		return new PageInfo<>(list);
 	}
 
-	@ApiOperation(value = "明细-通过id查询")
-	@GetMapping("/{id}")
-	public StyleSpecFabric getById(@PathVariable("id") String id) {
-		return styleSpecFabricService.getById(id);
-	}
-
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping("/{id}")
 	public Boolean removeById(@PathVariable("id") String id) {
@@ -65,22 +57,11 @@ public class StyleSpecFabricController{
 		return styleSpecFabricService.updateById(styleSpecFabric);
 	}
 
-	@ApiOperation(value = "保存")
+	@ApiOperation(value = "批量保存")
 	@PostMapping
-	public StyleSpecFabric save(@Valid @RequestBody StyleSpecFabricDto styleSpecFabricDto) {
-		StyleSpecFabric styleSpecFabric = BeanUtil.copyProperties(styleSpecFabricDto, StyleSpecFabric.class);
-		styleSpecFabricService.save(styleSpecFabric);
-		return styleSpecFabric;
+	public Boolean batchSave(@Valid @RequestBody List<StyleSpecFabricDto> styleSpecFabricDtoList) {
+		return styleSpecFabricService.batchSaveAndClearHistoryData(styleSpecFabricDtoList);
 	}
-
-	@ApiOperation(value = "修改")
-	@PutMapping
-	public StyleSpecFabric update(@Valid @RequestBody StyleSpecFabricDto styleSpecFabricDto) {
-		StyleSpecFabric styleSpecFabric = BeanUtil.copyProperties(styleSpecFabricDto, StyleSpecFabric.class);
-		styleSpecFabricService.updateById(styleSpecFabric);
-		return styleSpecFabric;
-	}
-
 }
 
 
