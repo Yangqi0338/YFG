@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -31,7 +32,8 @@ public class StyleColorCorrectInfo extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
-
+    @TableField(exist = false)
+    private String productionSampleId;
 
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 

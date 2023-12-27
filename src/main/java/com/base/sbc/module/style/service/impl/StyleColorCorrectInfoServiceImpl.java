@@ -10,10 +10,14 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
+import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
+import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
 import com.base.sbc.module.style.dto.QueryStyleColorCorrectDto;
 import com.base.sbc.module.style.entity.StyleColorCorrectInfo;
 import com.base.sbc.module.style.mapper.StyleColorCorrectInfoMapper;
 import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorCorrectInfoVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -38,6 +42,12 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
     @Autowired
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private StyleColorService styleColorService;
+
+    @Autowired
+    private PreProductionSampleTaskService preProductionSampleTaskService;
 
     @Override
     public PageInfo<StyleColorCorrectInfoVo> findList(QueryStyleColorCorrectDto page) {
@@ -70,6 +80,22 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         }else{
             styleColorCorrectInfo.insertInit();
         }
+
+        //修改产前样看板的工艺确认时间
+        if(StrUtil.isNotBlank(styleColorCorrectInfo.getProductionSampleId())){
+            PreProductionSampleTaskDto task = new PreProductionSampleTaskDto();
+            task.setId(styleColorCorrectInfo.getProductionSampleId());
+            task.setTechReceiveDate(styleColorCorrectInfo.getTechnicsDate());
+            preProductionSampleTaskService.saveTechReceiveDate(task);
+        }
+
+        //修改款式配色的设计 时间
+        AddRevampStyleColorDto styleColor = new AddRevampStyleColorDto();
+        styleColor.setId(styleColorCorrectInfo.getStyleColorId());
+        styleColor.setDesignCorrectDate(styleColorCorrectInfo.getDesignCorrectDate());
+        styleColor.setDesignDetailDate(styleColorCorrectInfo.getDesignDetailDate());
+        styleColorService.saveDesignDate(styleColor);
+
         //不保存这个三个字段，分别保存在原始表中，关联查询
         styleColorCorrectInfo.setDesignCorrectDate(null);
         styleColorCorrectInfo.setDesignDetailDate(null);
