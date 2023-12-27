@@ -6,8 +6,11 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.style.dto.StyleSpecFabricDto;
 import com.base.sbc.module.style.entity.StyleSpecFabric;
 import com.base.sbc.module.style.service.StyleSpecFabricService;
@@ -40,12 +43,16 @@ public class StyleSpecFabricController{
 	@Autowired
 	private StyleSpecFabricService styleSpecFabricService;
 
-	@ApiOperation(value = "分页查询")
-	@GetMapping
-	public PageInfo<StyleSpecFabric> page(Page page) {
-		PageHelper.startPage(page);
-		List<StyleSpecFabric> list = styleSpecFabricService.list();
-		return new PageInfo<>(list);
+	@ApiOperation(value = "根据配色id得到指定面料列表")
+	@GetMapping("/list")
+	public List<StyleSpecFabric> list(String styleColorId) {
+		if (StrUtil.isNotEmpty(styleColorId)) {
+			throw new OtherException("配色id不能为空");
+		}
+		QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper<>();
+		queryWrapper.eq("style_color_id",styleColorId);
+		List<StyleSpecFabric> list = styleSpecFabricService.list(queryWrapper);
+		return list;
 	}
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
