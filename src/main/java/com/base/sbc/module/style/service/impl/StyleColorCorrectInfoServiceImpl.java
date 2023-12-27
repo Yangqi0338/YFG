@@ -87,6 +87,8 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             task.setId(styleColorCorrectInfo.getProductionSampleId());
             task.setTechReceiveDate(styleColorCorrectInfo.getTechnicsDate());
             preProductionSampleTaskService.saveTechReceiveDate(task);
+            //如果没有关联到  则保存在原始表中
+            styleColorCorrectInfo.setTechnicsDate(null);
         }
 
         //修改款式配色的设计 时间
@@ -96,10 +98,9 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         styleColor.setDesignDetailDate(styleColorCorrectInfo.getDesignDetailDate());
         styleColorService.saveDesignDate(styleColor);
 
-        //不保存这个三个字段，分别保存在原始表中，关联查询
+        //不保存 字段，分别保存在原始表中，关联查询
         styleColorCorrectInfo.setDesignCorrectDate(null);
         styleColorCorrectInfo.setDesignDetailDate(null);
-        styleColorCorrectInfo.setTechnicsDate(null);
         saveOrUpdate(styleColorCorrectInfo);
         //修改记录
         /*OperaLogEntity operaLogEntity = new OperaLogEntity();
