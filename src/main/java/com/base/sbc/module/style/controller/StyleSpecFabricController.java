@@ -46,7 +46,7 @@ public class StyleSpecFabricController{
 	@ApiOperation(value = "根据配色id得到指定面料列表")
 	@GetMapping("/list")
 	public List<StyleSpecFabric> list(String styleColorId) {
-		if (StrUtil.isNotEmpty(styleColorId)) {
+		if (StrUtil.isEmpty(styleColorId)) {
 			throw new OtherException("配色id不能为空");
 		}
 		QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper<>();
