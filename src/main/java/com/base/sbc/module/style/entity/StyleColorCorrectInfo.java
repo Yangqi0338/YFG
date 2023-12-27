@@ -77,7 +77,7 @@ public class StyleColorCorrectInfo extends BaseDataEntity<String> {
     private Date planControlDate;
     /** 采购需求日期-明细单 */
     @ApiModelProperty(value = "采购需求日期-明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-ddx", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date purchaseNeedDate;
     /** 采购回复货期-明细单 */
     @ApiModelProperty(value = "采购回复货期-明细单"  )
