@@ -457,5 +457,11 @@ public class StyleColorVo {
      */
     private String defaultBarCode;
 
+    /**
+     * 正确样样衣码
+     */
+    @ApiModelProperty(value = "正确样样衣码")
+    private String correctBarCode;
+
 
 }
