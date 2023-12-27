@@ -9,6 +9,8 @@ public class QueryStyleColorCorrectDto extends Page {
 
     @ApiModelProperty(value = "id")
     private String id;
+
+    private String styleColorId;
     /**
      * 样衣id
      */

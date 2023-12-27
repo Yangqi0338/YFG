@@ -50,6 +50,8 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         queryWrapper.notEmptyEq("ts.devt_type_name", page.getDevtTypeName());
         queryWrapper.notEmptyEq("ts.designer", page.getDesigner());
         queryWrapper.notEmptyEq("ts.task_level_name", page.getTaskLevelName());
+        queryWrapper.notEmptyEq("tsc.id", page.getStyleColorId());
+        queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
         List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);
 
         /*查询款式图*/
@@ -61,8 +63,10 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
     @Override
     @Transactional
     public void saveMain(StyleColorCorrectInfo styleColorCorrectInfo) {
+        StyleColorCorrectInfo oldDto = new StyleColorCorrectInfo();
         if(StrUtil.isNotBlank(styleColorCorrectInfo.getId())){
             styleColorCorrectInfo.updateInit();
+            oldDto = getById(styleColorCorrectInfo.getId());
         }else{
             styleColorCorrectInfo.insertInit();
         }
@@ -71,5 +75,14 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         styleColorCorrectInfo.setDesignDetailDate(null);
         styleColorCorrectInfo.setTechnicsDate(null);
         saveOrUpdate(styleColorCorrectInfo);
+        //修改记录
+        /*OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName("物料档案-颜色");
+        operaLogEntity.setType(type);
+        operaLogEntity.setDocumentId(entity.getId());
+        operaLogEntity.setDocumentCode(entity.getColorCode());
+        operaLogEntity.setDocumentName(entity.getColorName());
+        operaLogEntity.setParentId(dto.getParentId());
+        saveOrUpdateOperaLog();*/
     }
 }

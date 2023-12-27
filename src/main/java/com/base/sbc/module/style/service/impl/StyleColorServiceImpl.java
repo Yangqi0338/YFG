@@ -14,6 +14,7 @@ import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -1612,6 +1613,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         } finally {
             executor.shutdown();
         }
+    }
+
+    @Override
+    public void saveCorrectBarCode(StyleColor styleColor) {
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getCorrectBarCode, styleColor.getCorrectBarCode());
+        updateWrapper.set(StyleColor::getUpdateId, getUserId());
+        updateWrapper.set(StyleColor::getUpdateName, getUserName());
+        updateWrapper.set(StyleColor::getUpdateDate, new Date());
+        updateWrapper.eq(StyleColor::getId, styleColor.getId());
     }
 
     /**
