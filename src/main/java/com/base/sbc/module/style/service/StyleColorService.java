@@ -241,6 +241,8 @@ public interface StyleColorService extends BaseService<StyleColor> {
 
     void saveCorrectBarCode(StyleColor styleColor);
 
+    void saveDesignDate(AddRevampStyleColorDto styleColor);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

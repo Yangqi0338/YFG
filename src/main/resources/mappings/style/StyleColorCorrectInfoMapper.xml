@@ -5,6 +5,7 @@
     <select id="findList" resultType="com.base.sbc.module.style.vo.StyleColorCorrectInfoVo">
         select tcci.id,
                tsc.id                  styleColorId,
+               tppst.id                productionSampleId,
                tcci.technology_correct_date,
                tcci.technology_check_date,
                tppst.tech_receive_date technicsDate,
@@ -29,6 +30,8 @@
                ts.season_name,
                ts.prod_category,
                ts.prod_category_name,
+               ts.task_level,
+               ts.task_level_name,
                ts.devt_type      as    devtType,
                ts.devt_type_name as    devtTypeName,
                ts.designer_id,

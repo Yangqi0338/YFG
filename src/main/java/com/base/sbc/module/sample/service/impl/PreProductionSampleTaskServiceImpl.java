@@ -19,6 +19,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -42,20 +43,17 @@ import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
 import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
-import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
-import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -528,6 +526,17 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         preProductionSampleTask.setSamplePic(CommonUtils.removeQuery(dto.getSamplePic()));
         baseMapper.updateById(preProductionSampleTask);
         return true;
+    }
+
+    @Override
+    public void saveTechReceiveDate(PreProductionSampleTaskDto task) {
+        LambdaUpdateWrapper<PreProductionSampleTask> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(PreProductionSampleTask::getTechReceiveDate, task.getTechReceiveDate());
+        updateWrapper.set(PreProductionSampleTask::getUpdateId, getUserId());
+        updateWrapper.set(PreProductionSampleTask::getUpdateName, getUserName());
+        updateWrapper.set(PreProductionSampleTask::getUpdateDate, new Date());
+        updateWrapper.eq(PreProductionSampleTask::getId, task.getId());
+        update(updateWrapper);
     }
 
 // 自定义方法区 不替换的区域【other_end】

@@ -18,8 +18,6 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.github.pagehelper.PageInfo;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -80,6 +78,8 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
      * @return
      */
     boolean samplePicUpload( SamplePicUploadDto dto);
+
+    void saveTechReceiveDate(PreProductionSampleTaskDto task);
 // 自定义方法区 不替换的区域【other_end】
 
 

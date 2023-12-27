@@ -226,5 +226,12 @@ public class StyleColorController {
 		styleColorService.saveCorrectBarCode(styleColor);
 		return ApiResult.success();
 	}
+
+	@ApiOperation(value = "保存设计时间")
+	@PostMapping("/saveDesignDate")
+	public ApiResult saveDesignDate( @Valid @RequestBody AddRevampStyleColorDto styleColor) {
+		styleColorService.saveDesignDate(styleColor);
+		return ApiResult.success();
+	}
 }
 

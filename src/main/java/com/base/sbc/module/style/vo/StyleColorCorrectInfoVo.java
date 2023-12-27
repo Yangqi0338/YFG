@@ -497,4 +497,6 @@ public class StyleColorCorrectInfoVo {
 
     private String styleColorId;
 
+    private String productionSampleId;
+
 }

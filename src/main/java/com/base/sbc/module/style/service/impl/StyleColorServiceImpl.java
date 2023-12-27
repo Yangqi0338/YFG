@@ -98,10 +98,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -1619,6 +1616,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void saveCorrectBarCode(StyleColor styleColor) {
         LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.set(StyleColor::getCorrectBarCode, styleColor.getCorrectBarCode());
+        updateWrapper.set(StyleColor::getUpdateId, getUserId());
+        updateWrapper.set(StyleColor::getUpdateName, getUserName());
+        updateWrapper.set(StyleColor::getUpdateDate, new Date());
+        updateWrapper.eq(StyleColor::getId, styleColor.getId());
+        update(updateWrapper);
+    }
+
+    @Override
+    public void saveDesignDate(AddRevampStyleColorDto styleColor) {
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getDesignDetailDate, styleColor.getDesignDetailDate());
+        updateWrapper.set(StyleColor::getDesignCorrectDate, styleColor.getDesignCorrectDate());
         updateWrapper.set(StyleColor::getUpdateId, getUserId());
         updateWrapper.set(StyleColor::getUpdateName, getUserName());
         updateWrapper.set(StyleColor::getUpdateDate, new Date());
