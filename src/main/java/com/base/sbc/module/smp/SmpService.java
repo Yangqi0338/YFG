@@ -802,7 +802,7 @@ public class SmpService {
                     .eq(BasicsdatumMaterial::getMaterialCode, smpBomDto.getMaterialCode()), BasicsdatumMaterial::getCategory3Code);
             RFIDProperties.categoryRfidMapping.forEach((categoryCode, RFIDType)-> {
                 if (categoryCode.equals(category3Code)) {
-                    smpBomDto.setRfidType(RFIDType);
+                    smpBomDto.setRfidType(RFIDType.ordinal() + "");
                 }
             });
 

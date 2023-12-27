@@ -63,5 +63,5 @@ public class SmpBomDto extends SmpBaseDto {
      * washing("洗唛RFID"),
      * hangTag("吊牌RFID"),
      * */
-    private RFIDType rfidType;
+    private String rfidType = "0";
 }
