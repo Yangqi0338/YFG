@@ -24,7 +24,6 @@
         p.style_no,
         p.color,
         p.prod_category_name,
-        techReceiveDate
         s.style_pic,
         s.pattern_design_name,
         s.pattern_design_id,
