@@ -1623,6 +1623,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         updateWrapper.set(StyleColor::getUpdateName, getUserName());
         updateWrapper.set(StyleColor::getUpdateDate, new Date());
         updateWrapper.eq(StyleColor::getId, styleColor.getId());
+        update(updateWrapper);
     }
 
     /**
