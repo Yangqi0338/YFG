@@ -877,12 +877,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     if (CollUtil.isNotEmpty(configList)) {
                         i.setConfigVoList(BeanUtil.copyToList(configList, FieldOptionConfigVo.class));
                     } else {
-                        /*当是字典时的数据*/
+  /*                      *//*当是字典时的数据*//*
                         if (StrUtil.equals(i.getIsOption(), BaseGlobal.YES)) {
                             if (CollUtil.isNotEmpty(dictInfoToMap)) {
                                 Map<String, String> map = dictInfoToMap.get(i.getOptionDictKey());
                                 if(CollUtil.isNotEmpty(map)){
-                                    /*赋值选的数据*/
+                                    *//*赋值选的数据*//*
                                     List<FieldOptionConfigVo> list = new ArrayList<>();
                                     for (Object key : map.keySet()) {
                                         FieldOptionConfigVo fieldOptionConfigVo = new FieldOptionConfigVo();
@@ -893,21 +893,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                                     i.setConfigVoList(list);
                                 }
                             }
-                        }else if(StrUtil.equals(i.getIsOption(), BaseGlobal.STOCK_STATUS_CHECKED)){
-                            /*结构管理*/
-
-
-
-
-
-
-
-
-
-                        }
+                        }*/
                     }
                 }
-                ;
             }
             // [3].查询字段值
             if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getForeignId())) {
