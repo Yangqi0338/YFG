@@ -72,7 +72,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
     @Override
     @Transactional
-    public void saveMain(StyleColorCorrectInfo styleColorCorrectInfo) {
+    public String saveMain(StyleColorCorrectInfo styleColorCorrectInfo) {
         StyleColorCorrectInfo oldDto = new StyleColorCorrectInfo();
         if(StrUtil.isNotBlank(styleColorCorrectInfo.getId())){
             styleColorCorrectInfo.updateInit();
@@ -102,6 +102,8 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         styleColorCorrectInfo.setDesignCorrectDate(null);
         styleColorCorrectInfo.setDesignDetailDate(null);
         saveOrUpdate(styleColorCorrectInfo);
+
+        return styleColorCorrectInfo.getId();
         //修改记录
         /*OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setName("物料档案-颜色");
@@ -111,5 +113,12 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         operaLogEntity.setDocumentName(entity.getColorName());
         operaLogEntity.setParentId(dto.getParentId());
         saveOrUpdateOperaLog();*/
+    }
+
+    @Override
+    @Transactional
+    public void deleteMain(StyleColorCorrectInfo styleColorCorrectInfo) {
+        String id = saveMain(styleColorCorrectInfo);
+        removeById(id);
     }
 }

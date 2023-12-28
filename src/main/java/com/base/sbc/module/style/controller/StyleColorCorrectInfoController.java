@@ -45,16 +45,17 @@ public class StyleColorCorrectInfoController {
     }
 
     @ApiOperation(value = "删除-通过id查询")
-    @DeleteMapping("/{id}")
-    public Boolean removeById(@PathVariable("id") String id) {
-        return styleColorCorrectInfoService.removeById(id);
+    @PostMapping("/delete")
+    public ApiResult removeById(@RequestBody StyleColorCorrectInfo styleColorCorrectInfo) {
+        styleColorCorrectInfoService.deleteMain(styleColorCorrectInfo);
+        return ApiResult.success();
     }
 
     @ApiOperation(value = "保存")
     @PostMapping("/save")
     public ApiResult save(@RequestBody StyleColorCorrectInfo styleColorCorrectInfo) {
-        styleColorCorrectInfoService.saveMain(styleColorCorrectInfo);
-        return ApiResult.success();
+        String id = styleColorCorrectInfoService.saveMain(styleColorCorrectInfo);
+        return ApiResult.success("成功",id);
     }
 
 

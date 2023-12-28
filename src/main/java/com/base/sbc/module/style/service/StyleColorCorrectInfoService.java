@@ -23,5 +23,7 @@ public interface StyleColorCorrectInfoService extends BaseService<StyleColorCorr
 
     PageInfo<StyleColorCorrectInfoVo> findList(QueryStyleColorCorrectDto page);
 
-    void saveMain(StyleColorCorrectInfo styleColorCorrectInfo);
+    String saveMain(StyleColorCorrectInfo styleColorCorrectInfo);
+
+    void deleteMain(StyleColorCorrectInfo styleColorCorrectInfo);
 }
