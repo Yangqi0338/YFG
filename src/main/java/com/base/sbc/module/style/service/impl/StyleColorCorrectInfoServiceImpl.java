@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -71,13 +72,22 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         return new PageInfo<>(infoVoList);
     }
 
+    public StyleColorCorrectInfo findById(String id){
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("tcci.id", id);
+        queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
+        List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);
+        StyleColorCorrectInfoVo styleColorCorrectInfoVo = infoVoList.get(0);
+        return BeanUtil.copyProperties(styleColorCorrectInfoVo,StyleColorCorrectInfo.class);
+    }
+
     @Override
     @Transactional
     public String saveMain(StyleColorCorrectInfo styleColorCorrectInfo) {
         StyleColorCorrectInfo oldDto = new StyleColorCorrectInfo();
         if(StrUtil.isNotBlank(styleColorCorrectInfo.getId())){
             styleColorCorrectInfo.updateInit();
-            oldDto = getById(styleColorCorrectInfo.getId());
+            oldDto = findById(styleColorCorrectInfo.getId());
         }else{
             styleColorCorrectInfo.insertInit();
         }
@@ -99,11 +109,6 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         styleColor.setDesignDetailDate(styleColorCorrectInfo.getDesignDetailDate());
         styleColorService.saveDesignDate(styleColor);
 
-        //不保存 字段，分别保存在原始表中，关联查询
-        styleColorCorrectInfo.setDesignCorrectDate(null);
-        styleColorCorrectInfo.setDesignDetailDate(null);
-        saveOrUpdate(styleColorCorrectInfo);
-
         //修改记录
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setName("正确样");
@@ -113,6 +118,12 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         operaLogEntity.setDocumentName("");
         operaLogEntity.setParentId(styleColorCorrectInfo.getId());
         saveOrUpdateOperaLog(styleColorCorrectInfo,oldDto,operaLogEntity);
+
+        //不保存 字段，分别保存在原始表中，关联查询
+        styleColorCorrectInfo.setDesignCorrectDate(null);
+        styleColorCorrectInfo.setDesignDetailDate(null);
+        saveOrUpdate(styleColorCorrectInfo);
+
         return styleColorCorrectInfo.getId();
     }
 
