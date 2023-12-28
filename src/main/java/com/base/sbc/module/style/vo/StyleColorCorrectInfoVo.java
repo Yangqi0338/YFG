@@ -334,11 +334,11 @@ public class StyleColorCorrectInfoVo {
     private Date sendSingleDate;
     /** 设计下明细单 */
     @ApiModelProperty(value = "设计下明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designDetailDate;
     /** 设计下正确样 */
     @ApiModelProperty(value = "设计下正确样"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designCorrectDate;
 
     /** 供应商 */
@@ -464,35 +464,35 @@ public class StyleColorCorrectInfoVo {
 
     /** 技术接受正确样日期-正确样 */
     @ApiModelProperty(value = "技术接受正确样日期-正确样"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date technologyCorrectDate;
     /** 技术部查版完成日期-正确样 */
     @ApiModelProperty(value = "技术部查版完成日期-正确样"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date technologyCheckDate;
     /** 工艺部接收日期-正确样 */
     @ApiModelProperty(value = "工艺部接收日期-正确样"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date technicsDate;
     /** GST接收-正确样 */
     @ApiModelProperty(value = "GST接收-正确样"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date gstDate;
     /** 计控接明细单日期-明细单 */
     @ApiModelProperty(value = "计控接明细单日期-明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planControlDate;
     /** 采购需求日期-明细单 */
     @ApiModelProperty(value = "采购需求日期-明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date purchaseNeedDate;
     /** 采购回复货期-明细单 */
     @ApiModelProperty(value = "采购回复货期-明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date purchaseRecoverDate;
     /** 辅仓接收日期-明细单 */
     @ApiModelProperty(value = "辅仓接收日期-明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date auxiliaryDate;
 
     private String styleColorId;
