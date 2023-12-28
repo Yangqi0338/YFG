@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
@@ -103,16 +104,16 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         styleColorCorrectInfo.setDesignDetailDate(null);
         saveOrUpdate(styleColorCorrectInfo);
 
-        return styleColorCorrectInfo.getId();
         //修改记录
-        /*OperaLogEntity operaLogEntity = new OperaLogEntity();
-        operaLogEntity.setName("物料档案-颜色");
-        operaLogEntity.setType(type);
-        operaLogEntity.setDocumentId(entity.getId());
-        operaLogEntity.setDocumentCode(entity.getColorCode());
-        operaLogEntity.setDocumentName(entity.getColorName());
-        operaLogEntity.setParentId(dto.getParentId());
-        saveOrUpdateOperaLog();*/
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName("正确样");
+        operaLogEntity.setType("修改");
+        operaLogEntity.setDocumentId(styleColorCorrectInfo.getId());
+        operaLogEntity.setDocumentCode(styleColorCorrectInfo.getStyleNo());
+        operaLogEntity.setDocumentName("");
+        operaLogEntity.setParentId(styleColorCorrectInfo.getId());
+        saveOrUpdateOperaLog(styleColorCorrectInfo,oldDto,operaLogEntity);
+        return styleColorCorrectInfo.getId();
     }
 
     @Override
