@@ -119,6 +119,12 @@ public class StyleColorExcel {
     @Excel(name = "号型类型")
     private String sizeRangeName;
 
+    /**
+     * 默认条形码  唯一码  wareCode  +颜色编码  colorCode  +默认尺码的尺码编号[取设计属性中的默认尺码]
+     */
+    @Excel(name = "默认条形码")
+    private String defaultBarCode;
+
     @Excel(name = "生产类型")
     private String devtTypeName;
 
