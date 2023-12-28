@@ -7,6 +7,8 @@
 package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -82,8 +84,38 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public String saveMain(StyleColorCorrectInfo styleColorCorrectInfo) {
+        //时间有效性判断
+        //技术接受正确样日期校验-设计下正确样时间不为空时，要晚于其1分钟
+        if(styleColorCorrectInfo.getDesignCorrectDate() != null && styleColorCorrectInfo.getTechnologyCorrectDate() != null){
+            if(DateUtil.between(styleColorCorrectInfo.getDesignCorrectDate(),styleColorCorrectInfo.getTechnologyCorrectDate(), DateUnit.MINUTE,false) < 1){
+                throw new RuntimeException("技术接受正确样日期 应该晚于 设计下正确样时间 1分钟以上");
+            }
+        }
+        //技术部查版完成日期校验-技术接受正确样日期不为空时，要晚于其1分钟
+        if(styleColorCorrectInfo.getTechnologyCorrectDate() != null && styleColorCorrectInfo.getTechnologyCheckDate() != null){
+            if(DateUtil.between(styleColorCorrectInfo.getTechnologyCorrectDate(),styleColorCorrectInfo.getTechnologyCheckDate(), DateUnit.MINUTE,false) < 1){
+                throw new RuntimeException("技术部查版完成日期 应该晚于 技术接受正确样日期 1分钟以上");
+            }
+        }
+        //工艺部接收日期校验-1.如果技术部查版完成日期部位空，要晚于其1分钟 2.如果前一个为空，设计下明细单不为空时，要晚于其1分钟
+        if(styleColorCorrectInfo.getTechnologyCheckDate() != null && styleColorCorrectInfo.getTechnicsDate() != null){
+            if(DateUtil.between(styleColorCorrectInfo.getTechnologyCheckDate(),styleColorCorrectInfo.getTechnicsDate(), DateUnit.MINUTE,false) < 1){
+                throw new RuntimeException("工艺部接收日期 应该晚于 技术部查版完成日期 1分钟以上");
+            }
+        }else if(styleColorCorrectInfo.getDesignDetailDate() != null && styleColorCorrectInfo.getTechnicsDate() != null){
+            if(DateUtil.between(styleColorCorrectInfo.getDesignDetailDate(),styleColorCorrectInfo.getTechnicsDate(), DateUnit.MINUTE,false) < 1){
+                throw new RuntimeException("工艺部接收日期 应该晚于 设计下明细单 1分钟以上");
+            }
+        }
+        //计控接明细单日期校验-设计下明细单不为空时，要晚于其1分钟
+        if(styleColorCorrectInfo.getDesignDetailDate() != null && styleColorCorrectInfo.getPlanControlDate() != null){
+            if(DateUtil.between(styleColorCorrectInfo.getDesignDetailDate(),styleColorCorrectInfo.getPlanControlDate(), DateUnit.MINUTE,false) < 1){
+                throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
+            }
+        }
+
         StyleColorCorrectInfo oldDto = new StyleColorCorrectInfo();
         if(StrUtil.isNotBlank(styleColorCorrectInfo.getId())){
             styleColorCorrectInfo.updateInit();
