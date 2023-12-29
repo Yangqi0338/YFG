@@ -202,11 +202,12 @@ public class SmpService {
             PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
             if (packInfo!=null){
-                //产前样
-                PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
-                if (preProductionSampleTask!=null){
-                    smpGoodsDto.setTechReceiveDate(preProductionSampleTask.getTechReceiveDate());
-                    smpGoodsDto.setProcessDepartmentDate(preProductionSampleTask.getProcessDepartmentDate());
+                //产前样查询 拿最早的工艺部接收正确样时间
+                List<PreProductionSampleTask> sampleTaskList = preProductionSampleTaskService.list(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()).orderByDesc("tech_receive_date"));
+//                PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
+                if (CollUtil.isNotEmpty(sampleTaskList)){
+                    smpGoodsDto.setTechReceiveDate(sampleTaskList.get(0).getTechReceiveDate());
+                    smpGoodsDto.setProcessDepartmentDate(sampleTaskList.get(0).getProcessDepartmentDate());
                 }
                 style = styleService.getById(packInfo.getStyleId());
                 if (style==null){
