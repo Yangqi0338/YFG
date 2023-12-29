@@ -3,16 +3,16 @@ package com.base.sbc.open.controller;
 import cn.hutool.core.collection.CollectionUtil;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.moreLanguage.dto.CountryDto;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
-import com.base.sbc.module.moreLanguage.service.CountryService;
+import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryPrintRecordService;
 import com.base.sbc.open.dto.CountryOpenQueryDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,7 +33,9 @@ import static com.base.sbc.config.constant.Constants.COMMA;
 @RequestMapping(value = BaseController.OPEN_URL + "/country", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class OpenCountryController extends BaseController {
 
-    private final CountryService countryService;
+    private final CountryLanguageService countryLanguageService;
+
+    private final StyleCountryPrintRecordService styleCountryPrintRecordService;
 
     /**
      * 查询列表
@@ -45,7 +47,7 @@ public class OpenCountryController extends BaseController {
         countryQueryDto.setCountryName(countryOpenQueryDto.getCountryName());
         countryQueryDto.setLanguageName(countryOpenQueryDto.getLanguageName());
         List<String> countryNameList = Arrays.asList(countryOpenQueryDto.getCountryName().split(COMMA));
-        List<CountryDto> countryList = countryService.listQuery(countryQueryDto);
+        List<CountryLanguageDto> countryList = countryLanguageService.listQuery(countryQueryDto);
         List<String> notMatchCountryNameList = countryNameList.stream()
                 .filter(countryName -> countryList.stream().noneMatch(it -> it.getCountryName().equals(countryName)))
                 .collect(Collectors.toList());

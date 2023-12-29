@@ -4,46 +4,36 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
-import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
-import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.moreLanguage.dto.DataVerifyResultVO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageMapExportMapping;
-import com.base.sbc.module.moreLanguage.entity.Country;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.CountryModel;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
 import com.base.sbc.module.moreLanguage.service.CountryModelService;
-import com.base.sbc.module.moreLanguage.service.CountryService;
+import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService;
-import com.base.sbc.module.moreLanguage.service.impl.CountryModelServiceImpl;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 
@@ -76,7 +66,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
 
     @Autowired
-    private CountryService countryService;
+    private CountryLanguageService countryLanguageService;
 
     @Autowired
     private StandardColumnService standardColumnService;
@@ -185,8 +175,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         String countryLanguageId = baseTranslate.getCountryLanguageId();
         String titleCode = baseTranslate.getTitleCode();
 
-        Country country = countryService.getById(countryLanguageId);
-        if (country == null) throw new OtherException("未找到国家");
+        CountryLanguage countryLanguage = countryLanguageService.getById(countryLanguageId);
+        if (countryLanguage == null) throw new OtherException("未找到国家");
 
         System.out.println("asdasda----a-" + (System.currentTimeMillis() - timeMillis));
         Object titleObject = standardColumnService.findByCode(titleCode);

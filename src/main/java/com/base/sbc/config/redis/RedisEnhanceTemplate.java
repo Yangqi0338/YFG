@@ -65,12 +65,13 @@ public class RedisEnhanceTemplate extends RedisTemplate<String, Object> {
 		// 使用scan
 		return this.execute((RedisCallback<Set<String>>) connection -> {
 			Set<String> keysTmp = new HashSet<>();
-			try (Cursor<byte[]> cursor = connection.scan(new ScanOptions.ScanOptionsBuilder()
-					.match(pattern)
-					.count(10000).build())) {
+			try {
+				Cursor<byte[]> cursor = connection.scan(new ScanOptions.ScanOptionsBuilder()
+						.match(pattern)
+						.count(10000).build());
 
 				while (cursor.hasNext()) {
-					keysTmp.add(new String(cursor.next(), "Utf-8"));
+ 					keysTmp.add(new String(cursor.next(), "Utf-8"));
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);

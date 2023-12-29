@@ -5,14 +5,18 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.StandardColumnType;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 /**
  * 类描述：国家地区表 实体类
  * @address com.base.sbc.module.moreLanguage.entity.Country
@@ -25,7 +29,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_country_language")
 @ApiModel("国家地区表 Country")
-public class Country extends BaseDataEntity<String> {
+public class CountryLanguage extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -34,6 +38,12 @@ public class Country extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
+    /** 国家编码 */
+    @ApiModelProperty(value = "编码"  )
+    private String code;
+    /** 编码索引 */
+    @ApiModelProperty(value = "编码索引"  )
+    private Integer codeIndex;
     /** 国家编码 */
     @ApiModelProperty(value = "国家编码"  )
     private String countryCode;
@@ -52,12 +62,18 @@ public class Country extends BaseDataEntity<String> {
     /** 国家名称 */
     @ApiModelProperty(value = "币种名称"  )
     private String coinName;
+    /** 国家名称 */
+    @ApiModelProperty(value = "启用状态"  )
+    private YesOrNoEnum enableFlag;
+    /** 标准类型 */
+    @ApiModelProperty(value = "标准类型"  )
+    private CountryLanguageType type;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
     public String getUniqueName(){
-        return this.countryName + "-" + this.languageName;
+        return this.countryName + "-" + this.languageName+ this.getType().getText();
     }
 }

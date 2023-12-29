@@ -15,9 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class MoreLanguageExcelQueryDto {
 
-    @NotBlank(message = "缺少国家语言")
+    @NotBlank(message = "缺少国家语言编码")
     @ApiModelProperty(value = "国家语言")
-    private String countryLanguageId;
+    private String code;
 
     @ApiModelProperty(value = "选择的标准列")
     private List<String> standardColumnCodeList;

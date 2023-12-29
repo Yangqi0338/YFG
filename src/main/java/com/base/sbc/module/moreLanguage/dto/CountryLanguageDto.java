@@ -1,11 +1,8 @@
 package com.base.sbc.module.moreLanguage.dto;
 
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.module.moreLanguage.entity.Country;
-import io.swagger.annotations.ApiModelProperty;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * @author 卞康
@@ -13,7 +10,11 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class CountryDto extends Country {
+public class CountryLanguageDto extends CountryLanguage {
+
+    public String getTypeName(){
+        return this.getType() != null ? this.getType().getText() : null;
+    }
 
     public String getName(){
         return getCountryName() + "-" + getLanguageName();

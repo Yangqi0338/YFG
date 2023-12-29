@@ -8,7 +8,7 @@ package com.base.sbc.module.moreLanguage.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.moreLanguage.entity.Country;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 /** 
  * 类描述：国家地区表 dao类
  * @address com.base.sbc.module.moreLanguage.dao.CountryDao
@@ -18,7 +18,7 @@ import com.base.sbc.module.moreLanguage.entity.Country;
  * @version 1.0  
  */
 @Mapper
-public interface CountryMapper extends BaseMapper<Country> {
+public interface CountryLanguageMapper extends BaseMapper<CountryLanguage> {
 // 自定义方法区 不替换的区域【other_start】
 
 

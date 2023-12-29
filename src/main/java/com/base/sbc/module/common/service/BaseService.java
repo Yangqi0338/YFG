@@ -2,6 +2,7 @@ package com.base.sbc.module.common.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -170,4 +171,5 @@ public interface BaseService<T> extends IService<T> {
     default Object findByCode(String code) {
         return null;
     }
+    <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 }

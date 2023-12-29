@@ -10,8 +10,6 @@ import com.base.sbc.config.enums.business.StandardColumnModel;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,28 +17,24 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.SystemSource;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.SizeBulkStyleService;
-import com.base.sbc.module.basicsdatum.vo.SizeBulkStyleVo;
-import com.base.sbc.module.hangtag.dto.HangTagIngredientDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguagePrinterVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebVO;
-import com.base.sbc.module.moreLanguage.entity.Country;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
-import com.base.sbc.module.moreLanguage.service.CountryService;
+import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.smp.SmpService;
@@ -48,7 +42,6 @@ import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
-import org.apache.poi.ss.formula.functions.Count;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +59,6 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
-import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
@@ -109,7 +101,6 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -175,7 +166,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private final MinioUtils minioUtils;
 
 	@Autowired
-	private CountryService countryService;
+	private CountryLanguageService countryLanguageService;
 
 	@Autowired
 	private StandardColumnService standardColumnService;
@@ -785,8 +776,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		SystemSource source = hangTagMoreLanguageDTO.getSource();
 
 		// 查询国家语言
-		List<Country> countryList = countryService.listByIds(countryLanguageIdList);
-		if (CollectionUtil.isEmpty(countryList)) return new ArrayList<>();
+		List<CountryLanguage> countryLanguageList = countryLanguageService.listByIds(countryLanguageIdList);
+		if (CollectionUtil.isEmpty(countryLanguageList)) return new ArrayList<>();
 
 		// 查询国家语言对应的关联
 		List<StandardColumnCountryRelation> relationList = standardColumnCountryRelationService.list(new BaseLambdaQueryWrapper<StandardColumnCountryRelation>()
@@ -826,10 +817,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		StringJoiner mergeWarnMsgJoiner = new StringJoiner("/");
 		// 根据款号分组
 		countryLanguageIdList.forEach(countryLanguageId-> {
-			Country country = countryList.stream().filter(it -> it.getId().equals(countryLanguageId))
+			CountryLanguage countryLanguage = countryLanguageList.stream().filter(it -> it.getId().equals(countryLanguageId))
 					.findFirst().orElseThrow(() -> new OtherException("国家语言:" + countryLanguageId + " 不存在"));
 
-			HangTagMoreLanguageVO baseCountryLanguageVO =BeanUtil.copyProperties(country, HangTagMoreLanguageVO.class);
+			HangTagMoreLanguageVO baseCountryLanguageVO =BeanUtil.copyProperties(countryLanguage, HangTagMoreLanguageVO.class);
 			baseCountryLanguageVO.setCountryLanguageId(countryLanguageId);
 
 			List<String> countryMappingBulkStyleNoList = bulkStyleNoList;
@@ -936,7 +927,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                     ingredientMoreLanguageVO.setStandardColumnContent("成分信息");
                     ingredientMoreLanguageVO.setIsGroup(true);
                     ingredientMoreLanguageVO.setModel(StandardColumnModel.RADIO);
-                    BeanUtil.copyProperties(country, ingredientMoreLanguageVO);
+                    BeanUtil.copyProperties(countryLanguage, ingredientMoreLanguageVO);
                     result.add(ingredientMoreLanguageVO);
 
 

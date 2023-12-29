@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import static com.base.sbc.config.redis.RedisKeyBuilder.*;
+
 
 /**
  *
@@ -20,10 +22,8 @@ import java.util.concurrent.TimeUnit;
  * 针对所有的List 都是以l开头的方法
  */
 public interface RedisKeyConstant {
-
-	String BUSINESS = "businessData";
-	String COMMA = ":";
-	String STANDARD_COLUMN_LIST = BUSINESS + COMMA + "standard_column_list" + COMMA;
-	String STANDARD_COLUMN_COUNTRY_RELATION = BUSINESS + COMMA + "standard_column_country_relation" + COMMA;
+	String STANDARD_COLUMN_CACHE_TOPIC = "standard_column_";
+	RedisKeyBuilder STANDARD_COLUMN_LIST = init(STANDARD_COLUMN_CACHE_TOPIC + "list");
+	RedisKeyBuilder STANDARD_COLUMN_COUNTRY_RELATION = init(STANDARD_COLUMN_CACHE_TOPIC + "country_relation");
 
 }

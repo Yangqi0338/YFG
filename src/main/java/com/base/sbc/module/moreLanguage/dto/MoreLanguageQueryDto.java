@@ -1,6 +1,11 @@
 package com.base.sbc.module.moreLanguage.dto;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.StandardColumnType;
+import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,13 +27,21 @@ import java.util.List;
 @NoArgsConstructor
 public class MoreLanguageQueryDto extends Page {
 
-    /** 可能为空字符串,表示中国 */
-    @NotNull(message = "国家语言不能为空")
+    @NotBlank(message = "国家语言码不能为空")
     @ApiModelProperty(value = "查询国家语言条件标签Id")
-    private String countryLanguageId;
+    private String code;
 
+    @NotNull(message = "国家语言类型不能为空", groups = {CountryLanguageService.class})
+    @ApiModelProperty(value = "查询国家语言条件标签Id")
+    private CountryLanguageType type;
+
+    @ApiModelProperty(value = "是否缓存")
+    private String cache;
 
     @ApiModelProperty(value = "标准列码条件标签Code")
     private String standardColumnCode;
 
+    public boolean isCache() {
+        return StrUtil.equals(YesOrNoEnum.YES.getValueStr(), cache);
+    }
 }

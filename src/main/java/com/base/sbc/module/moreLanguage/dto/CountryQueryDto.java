@@ -28,4 +28,7 @@ public class CountryQueryDto extends Page {
     @ApiModelProperty(value = "语种名")
     private String languageName;
 
+    @ApiModelProperty(value = "停用标识")
+    private String enableFlag;
+
 }

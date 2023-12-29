@@ -3,6 +3,7 @@ package com.base.sbc.module.standard.dto;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.base.sbc.config.enums.business.StandardColumnModel;
+import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.entity.MaterialColor;
 import com.base.sbc.module.material.entity.MaterialLabel;
@@ -29,6 +30,10 @@ public class StandardColumnSaveDto {
     @ApiModelProperty(value = "吊牌属性名称"  )
     @NotBlank(message = "请输入吊牌属性名称")
     private String name;
+
+    /** 属性模式 */
+    @ApiModelProperty(value = "属性模式"  )
+    private StandardColumnType type;
 
     /** 属性模式 */
     @ApiModelProperty(value = "属性模式"  )
