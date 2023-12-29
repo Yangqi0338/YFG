@@ -208,14 +208,21 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
     }
 
     @Override
-    public List<FieldManagementVo> getFieldManagementListByIds(List<String> ids) {
+    public List<FieldManagementVo> getFieldManagementListByIds(List<String> ids,String planningSeasonId) {
         if (CollUtil.isEmpty(ids)) {
             return null;
         }
         QueryFieldManagementDto dto = new QueryFieldManagementDto();
         dto.setIds(ids);
         dto.setCompanyCode(getCompanyCode());
-        List<FieldManagementVo> list = baseMapper.getFieldManagementList(dto);
+        List<FieldManagementVo> list = new ArrayList<>();
+        if(StrUtil.isEmpty(planningSeasonId)){
+            list = baseMapper.getFieldManagementList(dto);
+        }else {
+            dto.setPlanningSeasonId(planningSeasonId);
+            list = baseMapper.getFieldManagementList1(dto);
+        }
+
         return list;
     }
 
@@ -237,7 +244,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         fmQw.select("id");
         List<Object> objectList = this.listObjs(fmQw);
         List<String> ids = objectList.stream().map(Object::toString).collect(Collectors.toList());
-        return getFieldManagementListByIds(ids);
+        return getFieldManagementListByIds(ids,null);
     }
 
     @Override

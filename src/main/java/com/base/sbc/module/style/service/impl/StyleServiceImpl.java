@@ -760,7 +760,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,null);
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
@@ -836,7 +836,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,dto.getPlanningSeasonId());
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
@@ -852,37 +852,37 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 } else {
                     queryFieldOptionConfigDto.setCategoryCode(dto.getProdCategory());
                 }
-                /*查询每个字段下的配置选项*/
+               //*查询每个字段下的配置选项*//*
                 queryFieldOptionConfigDto.setBrand(dto.getBrand());
                 queryFieldOptionConfigDto.setSeason(dto.getSeason());
                 queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
                 Map<String, List<FieldOptionConfig>> listMap = fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
 
-                Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
-                /*查询字段的字典和结构管理*/
-                /*查询字典*/
+       /*         Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
+                *//*查询字段的字典和结构管理*//*
+                *//*查询字典*//*
                 List<FieldManagementVo> managementVoList = fieldManagementListByIds.stream().filter(f -> StrUtil.equals(f.getIsOption(), BaseGlobal.YES)).collect(Collectors.toList());
                 if (CollUtil.isNotEmpty(managementVoList)) {
-                    /*获取查询的字典*/
+                    *//*获取查询的字典*//*
                     String collect = managementVoList.stream().map(FieldManagementVo::getOptionDictKey).distinct().collect(Collectors.joining(","));
                     if (StrUtil.isNotBlank(collect)) {
                         dictInfoToMap = ccmFeignService.getDictInfoToMap(collect);
                     }
-                }
+                }*/
 
-                /*赋值*/
+                //*赋值*//*
                 for (FieldManagementVo i : fieldManagementListByIds) {
 
                     List<FieldOptionConfig> configList = listMap.get(i.getId());
                     if (CollUtil.isNotEmpty(configList)) {
                         i.setConfigVoList(BeanUtil.copyToList(configList, FieldOptionConfigVo.class));
                     } else {
-  /*                      *//*当是字典时的数据*//*
+    /*                   当是字典时的数据
                         if (StrUtil.equals(i.getIsOption(), BaseGlobal.YES)) {
                             if (CollUtil.isNotEmpty(dictInfoToMap)) {
                                 Map<String, String> map = dictInfoToMap.get(i.getOptionDictKey());
                                 if(CollUtil.isNotEmpty(map)){
-                                    *//*赋值选的数据*//*
+//                                    赋值选的数据
                                     List<FieldOptionConfigVo> list = new ArrayList<>();
                                     for (Object key : map.keySet()) {
                                         FieldOptionConfigVo fieldOptionConfigVo = new FieldOptionConfigVo();

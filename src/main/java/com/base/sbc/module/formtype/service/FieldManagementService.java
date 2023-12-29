@@ -45,7 +45,7 @@ public interface FieldManagementService extends BaseService<FieldManagement> {
 
     ApiResult adjustmentOrder(QueryFieldManagementDto queryFieldManagementDto);
 
-    List<FieldManagementVo> getFieldManagementListByIds(List<String> ids);
+    List<FieldManagementVo> getFieldManagementListByIds(List<String> ids,String planningSeasonId);
 
     /**
      * 通过表名，品类，季节查询

@@ -47,4 +47,7 @@ public class QueryFieldManagementDto  extends Page {
 
     @ApiModelProperty(value = "字段说明")
     private String     fieldExplain;
+
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
 }
