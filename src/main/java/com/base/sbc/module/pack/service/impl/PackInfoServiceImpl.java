@@ -474,7 +474,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 /*判断是否使用rfid*/
                 if (StrUtil.equals(styleColor.getRfidFlag(), YesOrNoEnum.YES.getValueStr())) {
                     /*查询有没有RFID*/
-                    List<PackBomVo> packBomVoList2 = packBomVoList.stream().filter(p -> p.getMaterialName().contains(RFIDProperties.materialName)).collect(Collectors.toList());
+                    List<PackBomVo> packBomVoList2 = packBomVoList.stream().filter(p -> p.getUnusableFlag().equals(YesOrNoEnum.NO.getValueStr()) &&
+                            p.getMaterialName().contains(RFIDProperties.materialName)).collect(Collectors.toList());
                     if (CollUtil.isEmpty(packBomVoList2)) {
                         throw new OtherException("物料清单不存在RFID有关物料");
                     }else {
