@@ -115,6 +115,24 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
                 throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
             }
         }
+        //采购需求日期校验-计控接明细单不为空时，要晚于其1分钟
+        if(styleColorCorrectInfo.getPlanControlDate() != null && styleColorCorrectInfo.getPurchaseNeedDate() != null){
+            if(DateUtil.between(styleColorCorrectInfo.getPlanControlDate(),styleColorCorrectInfo.getPurchaseNeedDate(), DateUnit.MINUTE,false) < 1){
+                throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
+            }
+        }
+        //采购回复货期校验-采购需求不为空时，要晚于其1分钟
+        if(styleColorCorrectInfo.getPurchaseNeedDate() != null && styleColorCorrectInfo.getPurchaseRecoverDate() != null){
+            if(DateUtil.between(styleColorCorrectInfo.getPurchaseNeedDate(),styleColorCorrectInfo.getPurchaseRecoverDate(), DateUnit.MINUTE,false) < 1){
+                throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
+            }
+        }
+        //辅仓接收日期校验-采购回复货期不为空时，要晚于其1分钟
+        if(styleColorCorrectInfo.getPurchaseRecoverDate() != null && styleColorCorrectInfo.getAuxiliaryDate() != null){
+            if(DateUtil.between(styleColorCorrectInfo.getPurchaseRecoverDate(),styleColorCorrectInfo.getAuxiliaryDate(), DateUnit.MINUTE,false) < 1){
+                throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
+            }
+        }
 
         StyleColorCorrectInfo oldDto = new StyleColorCorrectInfo();
         if(StrUtil.isNotBlank(styleColorCorrectInfo.getId())){
