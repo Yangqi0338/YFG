@@ -326,15 +326,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         /*比较成本价是否有改动*/
         /*核价信息总成本*/
         BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId,BaseGlobal.STOCK_STATUS_CHECKED);
-        /*判断价格是否相等*/
-        if(totalCost.compareTo(cost) != 0){
+        /*判断价格是否相等 如果等于空时代表新增的物料*/
+        if( ObjectUtils.isEmpty(cost) || totalCost.compareTo(cost) != 0){
             PackInfo packInfo = packInfoService.getById(packInfoId);
             StylePricing stylePricing = stylePricingService.getByOne("pack_id", packInfoId);
             if (!ObjectUtils.isEmpty(stylePricing)) {
-                /*判断款式定价是否都通过*/
-                if (StrUtil.equals(stylePricing.getControlConfirm(), BaseGlobal.YES) &&
-                        StrUtil.equals(stylePricing.getProductHangtagConfirm(), BaseGlobal.YES) &&
-                        StrUtil.equals(stylePricing.getControlHangtagConfirm(), BaseGlobal.YES)
+                /*判断款式定价的计控是否确认*/
+                if (StrUtil.equals(stylePricing.getControlConfirm(), BaseGlobal.YES)
                 ) {
                     //发送消息
                     messageUtils.sendMessage("计控,商企", "", packInfo.getStyleNo() + "大货款号，总成本加改动请注意", "/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods", packInfo.getPlanningSeasonId(), baseController.getUser());

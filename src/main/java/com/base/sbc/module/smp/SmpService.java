@@ -764,6 +764,10 @@ public class SmpService {
 
             }
             smpBomDto.setSizeQtyList(sizeQtyList);
+            /*如果物料是未下发状态或者是发送失败 就是新增的物料*/
+            if (StrUtil.equals(packBom.getScmSendFlag(), BaseGlobal.NO) || StrUtil.equals(packBom.getScmSendFlag(), BaseGlobal.STOCK_STATUS_CHECKED)) {
+                packBomService.costUpdate(list.get(0).getForeignId(), null);
+            }
 
 
             String jsonString = JsonStringUtils.toJSONString(smpBomDto);
