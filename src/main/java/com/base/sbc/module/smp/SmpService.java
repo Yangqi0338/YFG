@@ -203,7 +203,7 @@ public class SmpService {
             Style style = new Style();
             if (packInfo!=null){
                 //产前样查询 拿最早的工艺部接收正确样时间
-                List<PreProductionSampleTask> sampleTaskList = preProductionSampleTaskService.list(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()).orderByDesc("tech_receive_date"));
+                List<PreProductionSampleTask> sampleTaskList = preProductionSampleTaskService.list(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()).orderByAsc("tech_receive_date"));
 //                PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
                 if (CollUtil.isNotEmpty(sampleTaskList)){
                     smpGoodsDto.setTechReceiveDate(sampleTaskList.get(0).getTechReceiveDate());
