@@ -28,8 +28,8 @@ public class RFIDProperties {
 
     public static List<RFIDFilter> filterList = CollUtil.list(false,new RFIDFilter());
     public static Map<String, RFIDType> categoryRfidMapping = MapUtil.ofEntries(
-            MapUtil.entry("FBS",RFIDType.WASHING),
-            MapUtil.entry("FBD", RFIDType.HANG_TAG)
+            MapUtil.entry("FBF",RFIDType.WASHING),
+            MapUtil.entry("FBE", RFIDType.HANG_TAG)
     );
 
     public void setMaterialName(String materialName) {
