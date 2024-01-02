@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -86,53 +87,90 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String saveMain(StyleColorCorrectInfo styleColorCorrectInfo) {
+        //改为前端提示时间准确性
         //时间有效性判断
+        /*Date A = styleColorCorrectInfo.getDesignCorrectDate();
+        Date B = styleColorCorrectInfo.getDesignDetailDate();
+        Date C = styleColorCorrectInfo.getTechnologyCorrectDate();
+        Date D = styleColorCorrectInfo.getTechnologyCheckDate();
+        Date E = styleColorCorrectInfo.getTechnicsDate();
+        Date F = styleColorCorrectInfo.getGstDate();
+        Date G = styleColorCorrectInfo.getPlanControlDate();
+        Date H = styleColorCorrectInfo.getPurchaseNeedDate();
+        Date I = styleColorCorrectInfo.getPurchaseRecoverDate();
+        Date J = styleColorCorrectInfo.getAuxiliaryDate();
+
+        //AB取最晚时间
+        Date AB = null;
+        if (B != null) {
+            if (A != null) {
+                AB = A.before(B) ? B : A;
+            } else {
+                AB = B;
+            }
+            if(C == null && D == null && E != null){
+                //此时E要晚于B 1小时
+
+            }
+
+            if(G != null){
+                //此时G要晚于B 1小时
+            }
+        }else if (A != null){
+            AB = A;
+        }
+        //C要晚于 AB 1小时
+        if(getBetweenHour(AB, C) < 1){
+
+        }
+        //G要晚于 AB 1小时
+        if(getBetweenHour(AB, C) < 1){
+
+        }
+        if(C != null && D == null && E != null){
+            //此时E要晚于C 2小时
+        }
+        if(D != null && E != null){
+            //此时E要晚于D 1小时
+        }
+        if(G != null && H == null && I == null && J == null){
+            //此时J要晚于G 3小时
+        }
+
+
         //技术接受正确样日期校验-设计下正确样时间不为空时，要晚于其1分钟
-        if(styleColorCorrectInfo.getDesignCorrectDate() != null && styleColorCorrectInfo.getTechnologyCorrectDate() != null){
-            if(DateUtil.between(styleColorCorrectInfo.getDesignCorrectDate(),styleColorCorrectInfo.getTechnologyCorrectDate(), DateUnit.MINUTE,false) < 1){
-                throw new RuntimeException("技术接受正确样日期 应该晚于 设计下正确样时间 1分钟以上");
+        if(getBetweenHour(A,C) < 1){
+            throw new RuntimeException("技术接受正确样日期 应该晚于 设计下正确样时间 1小时以上");
+        }
+        //技术部查版完成日期校验-技术接受正确样日期不为空时，要晚于其1小时
+        if(getBetweenHour(C,D) < 1){
+            throw new RuntimeException("技术部查版完成日期 应该晚于 技术接受正确样日期 1小时以上");
+        }
+        //工艺部接收日期校验-1.如果技术部查版完成日期部位空，要晚于其1小时 2.如果前一个为空，设计下明细单不为空时，要晚于其1小时
+        if(getBetweenHour(D,E) < 1){
+            throw new RuntimeException("工艺部接收日期 应该晚于 技术部查版完成日期 1小时以上");
+        }
+        if(D == null){
+            if(getBetweenHour(B,E) < 1){
+                throw new RuntimeException("工艺部接收日期 应该晚于 设计下明细单 1小时以上");
             }
         }
-        //技术部查版完成日期校验-技术接受正确样日期不为空时，要晚于其1分钟
-        if(styleColorCorrectInfo.getTechnologyCorrectDate() != null && styleColorCorrectInfo.getTechnologyCheckDate() != null){
-            if(DateUtil.between(styleColorCorrectInfo.getTechnologyCorrectDate(),styleColorCorrectInfo.getTechnologyCheckDate(), DateUnit.MINUTE,false) < 1){
-                throw new RuntimeException("技术部查版完成日期 应该晚于 技术接受正确样日期 1分钟以上");
-            }
+        //计控接明细单日期校验-设计下明细单不为空时，要晚于其1小时
+        if(getBetweenHour(B,G) < 1){
+            throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1小时以上");
         }
-        //工艺部接收日期校验-1.如果技术部查版完成日期部位空，要晚于其1分钟 2.如果前一个为空，设计下明细单不为空时，要晚于其1分钟
-        if(styleColorCorrectInfo.getTechnologyCheckDate() != null && styleColorCorrectInfo.getTechnicsDate() != null){
-            if(DateUtil.between(styleColorCorrectInfo.getTechnologyCheckDate(),styleColorCorrectInfo.getTechnicsDate(), DateUnit.MINUTE,false) < 1){
-                throw new RuntimeException("工艺部接收日期 应该晚于 技术部查版完成日期 1分钟以上");
-            }
-        }else if(styleColorCorrectInfo.getDesignDetailDate() != null && styleColorCorrectInfo.getTechnicsDate() != null){
-            if(DateUtil.between(styleColorCorrectInfo.getDesignDetailDate(),styleColorCorrectInfo.getTechnicsDate(), DateUnit.MINUTE,false) < 1){
-                throw new RuntimeException("工艺部接收日期 应该晚于 设计下明细单 1分钟以上");
-            }
+        //采购需求日期校验-计控接明细单不为空时，要晚于其1小时
+        if(getBetweenHour(G,H) < 1){
+            throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1小时以上");
         }
-        //计控接明细单日期校验-设计下明细单不为空时，要晚于其1分钟
-        if(styleColorCorrectInfo.getDesignDetailDate() != null && styleColorCorrectInfo.getPlanControlDate() != null){
-            if(DateUtil.between(styleColorCorrectInfo.getDesignDetailDate(),styleColorCorrectInfo.getPlanControlDate(), DateUnit.MINUTE,false) < 1){
-                throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
-            }
+        //采购回复货期校验-采购需求不为空时，要晚于其1小时
+        if(getBetweenHour(H,I) < 1){
+            throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1小时以上");
         }
-        //采购需求日期校验-计控接明细单不为空时，要晚于其1分钟
-        if(styleColorCorrectInfo.getPlanControlDate() != null && styleColorCorrectInfo.getPurchaseNeedDate() != null){
-            if(DateUtil.between(styleColorCorrectInfo.getPlanControlDate(),styleColorCorrectInfo.getPurchaseNeedDate(), DateUnit.MINUTE,false) < 1){
-                throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
-            }
-        }
-        //采购回复货期校验-采购需求不为空时，要晚于其1分钟
-        if(styleColorCorrectInfo.getPurchaseNeedDate() != null && styleColorCorrectInfo.getPurchaseRecoverDate() != null){
-            if(DateUtil.between(styleColorCorrectInfo.getPurchaseNeedDate(),styleColorCorrectInfo.getPurchaseRecoverDate(), DateUnit.MINUTE,false) < 1){
-                throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
-            }
-        }
-        //辅仓接收日期校验-采购回复货期不为空时，要晚于其1分钟
-        if(styleColorCorrectInfo.getPurchaseRecoverDate() != null && styleColorCorrectInfo.getAuxiliaryDate() != null){
-            if(DateUtil.between(styleColorCorrectInfo.getPurchaseRecoverDate(),styleColorCorrectInfo.getAuxiliaryDate(), DateUnit.MINUTE,false) < 1){
-                throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1分钟以上");
-            }
-        }
+        //辅仓接收日期校验-采购回复货期不为空时，要晚于其1小时
+        if(getBetweenHour(I,J) < 1){
+            throw new RuntimeException("计控接明细单日期 应该晚于 设计下明细单 1小时以上");
+        }*/
 
         StyleColorCorrectInfo oldDto = new StyleColorCorrectInfo();
         if(StrUtil.isNotBlank(styleColorCorrectInfo.getId())){
@@ -175,6 +213,13 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         saveOrUpdate(styleColorCorrectInfo);
 
         return styleColorCorrectInfo.getId();
+    }
+
+    private static long getBetweenHour(Date x, Date y) {
+        if(x == null || y == null){
+            return 1;
+        }
+        return DateUtil.between(x, y, DateUnit.HOUR, false);
     }
 
     @Override
