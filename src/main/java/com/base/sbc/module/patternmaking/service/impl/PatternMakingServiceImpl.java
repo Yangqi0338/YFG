@@ -971,6 +971,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    public PageInfo<StyleResearchProcessVo> researchProcessList(NodestatusPageSearchDto dto, String userCompany) {
+        return new PageInfo<>(null);
+    }
+
+    @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, List<NodeStatusChangeDto> list, GroupUser groupUser) {
         for (NodeStatusChangeDto dto : list) {

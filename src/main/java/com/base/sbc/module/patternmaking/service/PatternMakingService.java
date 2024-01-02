@@ -223,6 +223,14 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @version 1.0
      */
     PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, String userCompany);
+
+    /**
+     * 研发总进度看板
+     * @param dto
+     * @param userCompany
+     * @return
+     */
+    PageInfo<StyleResearchProcessVo> researchProcessList(NodestatusPageSearchDto dto, String userCompany);
     /**
      * 类描述：打版进度列表，工作台上面的
      *

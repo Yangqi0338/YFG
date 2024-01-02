@@ -274,6 +274,12 @@ public class PatternMakingController {
         return patternMakingService.allProgressSteps(dto, userCompany);
     }
 
+    @ApiOperation(value = "研发总进度", notes = "研发总进度new")
+    @GetMapping("/researchProcessList")
+    public PageInfo<StyleResearchProcessVo> researchProcessList(NodestatusPageSearchDto dto, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return patternMakingService.researchProcessList(dto, userCompany);
+    }
+
     @ApiOperation(value = "工作台使用的打版进度列表", notes = "")
     @GetMapping("/work/patternMakingSteps")
     public Map patternMakingSteps0(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
