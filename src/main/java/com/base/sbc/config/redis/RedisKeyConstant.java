@@ -22,8 +22,8 @@ import static com.base.sbc.config.redis.RedisKeyBuilder.*;
  * 针对所有的List 都是以l开头的方法
  */
 public interface RedisKeyConstant {
-	String STANDARD_COLUMN_CACHE_TOPIC = "standard_column_";
-	RedisKeyBuilder STANDARD_COLUMN_LIST = init(STANDARD_COLUMN_CACHE_TOPIC + "list");
-	RedisKeyBuilder STANDARD_COLUMN_COUNTRY_RELATION = init(STANDARD_COLUMN_CACHE_TOPIC + "country_relation");
+	String STANDARD_COLUMN_CACHE_TOPIC = "standardColumn";
+	RedisKeyBuilder STANDARD_COLUMN_LIST = init("standard_column_list");
+	RedisKeyBuilder STANDARD_COLUMN_COUNTRY_RELATION = init("standard_column_country_relation");
 
 }
