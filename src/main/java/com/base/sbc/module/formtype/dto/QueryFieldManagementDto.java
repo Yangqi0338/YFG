@@ -50,4 +50,7 @@ public class QueryFieldManagementDto  extends Page {
 
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
+
+    @ApiModelProperty(value = "品类")
+    private String  prodCategory;
 }

@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @JsonIgnoreProperties(value = {"handler"})
@@ -98,7 +99,6 @@ public class FieldManagementVo {
     private String valName;
     @ApiModelProperty(value = "选中")
     private boolean selected = true;
-
     List<FieldManagementVo> list;
 
     List<FieldOptionConfigVo> configVoList;

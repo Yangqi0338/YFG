@@ -760,7 +760,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,null);
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,null,null);
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
@@ -836,7 +836,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,dto.getPlanningSeasonId());
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,dto.getPlanningSeasonId(),dto.getProdCategory());
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());

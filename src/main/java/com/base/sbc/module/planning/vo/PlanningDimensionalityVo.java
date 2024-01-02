@@ -11,4 +11,11 @@ public class PlanningDimensionalityVo extends PlanningDimensionality {
 
     @ApiModelProperty(value = "分组名称")
     private String groupName;
+
+    @ApiModelProperty(value = "编辑")
+    private boolean readonly;
+
+    public boolean getReadonly() {
+        return true;
+    }
 }
