@@ -42,4 +42,7 @@ public class ProcessDatabasePageDto extends BaseDto {
 
     private String categoryId;
 
+    @ApiModelProperty(value = "工艺要求")
+    private String  processRequire;
+
 }

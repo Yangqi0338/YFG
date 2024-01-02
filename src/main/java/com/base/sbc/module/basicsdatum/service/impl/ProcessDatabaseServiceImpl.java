@@ -321,6 +321,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryId()), "category_id", pageDto.getCategoryId());
         queryWrapper.in(StringUtils.isNotEmpty(pageDto.getComponent()), "component", StringUtils.convertList(pageDto.getComponent()));
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryName()), "category_name", pageDto.getCategoryName());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessRequire()), "process_require", pageDto.getProcessRequire());
+
+
 
         queryWrapper.andLike(pageDto.getSearch(), "code", "process_name");
         if (pageDto.getCreateDate() != null) {
@@ -387,8 +390,8 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.eq("del_flag", BaseGlobal.NO);
         queryWrapper.eq("type", type);
         queryWrapper.eq("status", BaseGlobal.NO);
-        queryWrapper.like("brand_id", brandId);
-        queryWrapper.like("category_id", categoryId);
+        queryWrapper.like(StringUtils.isNotBlank(brandId),"brand_id", brandId);
+        queryWrapper.like(StringUtils.isNotBlank(categoryId),"category_id", categoryId);
         queryWrapper.groupBy(StringUtils.toUnderScoreCase(field));
         List<ProcessDatabase> processDatabaseList = baseMapper.selectList(queryWrapper);
         if (CollUtil.isEmpty(processDatabaseList)) {
