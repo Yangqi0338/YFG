@@ -16,7 +16,11 @@
     <select id="getCoefficientList" resultType="com.base.sbc.module.planning.vo.PlanningDimensionalityVo">
 
 
-        select tpd.* ,tfm.group_name
+        select
+        tpd.* ,
+        tfm.group_name,
+        tfm.field_name,
+        tfm.field_explain
          from t_planning_dimensionality tpd
          LEFT JOIN  t_field_management tfm on (tpd.field_id = tfm.id and tfm.del_flag = '0')
          ${ ew.customSqlSegment}
