@@ -19,6 +19,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.mapper.PackPricingMapper;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URLDecoder;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +80,9 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
     @Resource
     StyleService styleService;
+
+    @Resource
+    PackInfoService packInfoService;
 
     @Resource
     PricingTemplateItemService pricingTemplateItemService;
@@ -204,6 +209,32 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
     }
 
     /**
+     * 获取核价信息中的路由信息
+     *
+     * @param visitParam
+     * @return
+     */
+    @Override
+    public Map getPricingRoute(String styleNo) {
+        if (StrUtil.isEmpty(styleNo)) {
+            throw new OtherException("参数为空");
+        }
+        styleNo= com.base.sbc.config.utils.StringUtils.convertList(URLDecoder.decode(styleNo)).get(1);
+        Map<String, String> stringMap = new HashMap<>();
+        QueryWrapper<PackInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("style_no", styleNo);
+        PackInfo packInfo = packInfoService.getOne(queryWrapper);
+        if (ObjectUtil.isEmpty(packInfo)) {
+            throw new OtherException(styleNo + "无资料包信息");
+        }
+        stringMap.put("id", packInfo.getId());
+        stringMap.put("styleId", packInfo.getStyleId());
+        stringMap.put("style", packInfo.getStyleNo());
+        stringMap.put("packType", PackUtils.PACK_TYPE_DESIGN);
+        return stringMap;
+    }
+
+    /**
      * 生成核价信息
      *
      * @param styleId
@@ -246,6 +277,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
         return false;
     }
+
 
     @Override
     public Map<String, BigDecimal>  calculateCosts(PackCommonSearchDto dto) {

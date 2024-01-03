@@ -42,4 +42,6 @@ public class BasicsdatumIngredientVo extends BaseDataEntity<String>{
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+    @ApiModelProperty(value = "成分排序")
+    private Integer sort;
 }

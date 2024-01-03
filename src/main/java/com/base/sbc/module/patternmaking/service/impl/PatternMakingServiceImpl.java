@@ -19,6 +19,7 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -78,6 +79,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
@@ -513,7 +515,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
         }
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
-        Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
+        Page<TechnologyCenterTaskVo> page = null;
+        if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+            page = PageHelper.startPage(dto);
+        }
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         // 设置图片
         stylePicUtils.setStylePic(list, "stylePic");
@@ -533,7 +538,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 //            }
         }
         nodeStatusService.setNodeStatus(list);
-        return page.toPageInfo();
+        return page != null ? page.toPageInfo() : new PageInfo<>(list);
     }
 
     @Override
@@ -544,7 +549,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         List<TechnologyCenterTaskExcelDto> list1 = BeanUtil.copyToList(list, TechnologyCenterTaskExcelDto.class);
         /*使用线程导出*/
-        //ExcelUtils.executorExportExcel(list1, TechnologyCenterTaskExcelDto.class,"滞留款导出",dto.getImgFlag(),2000,response,"stylePic");
+        ExcelUtils.executorExportExcel(list1, TechnologyCenterTaskExcelDto.class,"滞留款导出",dto.getImgFlag(),2000,response,"stylePic");
     }
 
     @Override
@@ -1138,9 +1143,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                 /*获取图片链接*/
                 stylePicUtils.setStylePic(excelList, "stylePic",30);
-                /*计时器*//*
+                /*计时器*/
                 CountDownLatch countDownLatch = new CountDownLatch(excelList.size());
-                for (SampleBoardVo sampleBoardExcel : excelList) {
+                for (SampleBoardExcel sampleBoardExcel : excelList) {
                     executor.submit(() -> {
                         try {
                             final String stylePic = sampleBoardExcel.getStylePic();
@@ -1154,7 +1159,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                         }
                     });
                 }
-                countDownLatch.await();*/
+                countDownLatch.await();
             }
             ExcelUtils.exportExcel(excelList, SampleBoardExcel.class, "样衣看板.xlsx", new ExportParams("样衣看板", "样衣看板", ExcelType.HSSF), response);
         } catch (Exception e) {

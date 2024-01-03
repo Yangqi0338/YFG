@@ -627,7 +627,7 @@
 
         </if>
     </select>
-    <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
+    <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
 
         SELECT
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '版房主管下发' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bfzgxfsj',
