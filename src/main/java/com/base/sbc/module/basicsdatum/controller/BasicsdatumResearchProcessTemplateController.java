@@ -5,6 +5,7 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
@@ -20,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -41,20 +43,18 @@ public class BasicsdatumResearchProcessTemplateController{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping
-	public PageInfo<BasicsdatumResearchProcessTemplate> page(Page page) {
-		PageHelper.startPage(page);
-		List<BasicsdatumResearchProcessTemplate> list = basicsdatumResearchProcessTemplateService.list();
-		return new PageInfo<>(list);
+	public PageInfo<BasicsdatumResearchProcessTemplate> page(BasicsdatumResearchProcessTemplateDto templateDto) {
+		return basicsdatumResearchProcessTemplateService.getTemplatePageInfo(templateDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
 	@GetMapping("/{id}")
 	public BasicsdatumResearchProcessTemplate getById(@PathVariable("id") String id) {
-		return basicsdatumResearchProcessTemplateService.getById(id);
+		return basicsdatumResearchProcessTemplateService.getTemplateById(id);
 	}
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
-	@DeleteMapping("/{id}")
+	@DeleteMapping("updateStatus/{id}")
 	public Boolean removeById(@PathVariable("id") String id) {
 		List<String> ids = StringUtils.convertList(id);
 		return basicsdatumResearchProcessTemplateService.removeByIds(ids);
@@ -68,7 +68,7 @@ public class BasicsdatumResearchProcessTemplateController{
 	}
 
 	@ApiOperation(value = "修改")
-	@PutMapping
+	@PostMapping("update")
 	public BasicsdatumResearchProcessTemplate update(@RequestBody BasicsdatumResearchProcessTemplate basicsdatumResearchProcessTemplate) {
 		boolean b = basicsdatumResearchProcessTemplateService.updateById(basicsdatumResearchProcessTemplate);
 		if (!b) {

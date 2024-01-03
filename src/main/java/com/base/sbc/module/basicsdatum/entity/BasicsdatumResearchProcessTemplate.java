@@ -42,10 +42,13 @@ public class BasicsdatumResearchProcessTemplate extends BaseDataEntity<String> {
     private String brandCode;
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
-    private String brand;
+    private String brandName;
     /** 生产类型 */
     @ApiModelProperty(value = "生产类型"  )
     private String productType;
+
+    @ApiModelProperty(value = "推送方式 0:代表正推 ， 1 代表倒推"  )
+    private String type;
     /** 生产类型名称 */
     @ApiModelProperty(value = "生产类型名称"  )
     private String productName;

@@ -6,8 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumResearchProcessTemplateDto;
+import com.base.sbc.module.basicsdatum.dto.QueryDto;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumResearchProcessTemplateVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessTemplate;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：款式研发进度模板 service类
@@ -21,6 +24,9 @@ public interface BasicsdatumResearchProcessTemplateService extends BaseService<B
 
 // 自定义方法区 不替换的区域【other_start】
 
+
+    PageInfo getTemplatePageInfo(BasicsdatumResearchProcessTemplateDto templateDto);
+
     /**
      * 保存研发总进度模板
      * @param templateDto
@@ -32,7 +38,7 @@ public interface BasicsdatumResearchProcessTemplateService extends BaseService<B
      * @param id
      * @return
      */
-    BasicsdatumResearchProcessTemplateDto getTemplateById(String id);
+    BasicsdatumResearchProcessTemplateVo getTemplateById(String id);
 // 自定义方法区 不替换的区域【other_end】
 
 	
