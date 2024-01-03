@@ -142,6 +142,14 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
             PageHelper.startPage(queryFieldManagementDto);
         }
         queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
+        /*当formTypeId为空时使用编码查询出formTypeId*/
+        if(StrUtil.isEmpty(queryFieldManagementDto.getFormTypeId())){
+            FormType formType = formTypeService.getByOne("code", queryFieldManagementDto.getFormTypeCode());
+            if(ObjectUtil.isEmpty(formType)){
+                throw new OtherException("表单id和编码不能同时为空");
+            }
+            queryFieldManagementDto.setFormTypeId(formType.getId());
+        }
         List<FieldManagementVo> list = baseMapper.getFieldManagementList(queryFieldManagementDto);
         /*
         * 判断字段是否是对象 是对象获取到对象里面的所有字段

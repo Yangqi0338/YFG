@@ -211,7 +211,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
         queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
         queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
-
+        queryWrapper.orderByAsc("tpd.sort");
         List<PlanningDimensionalityVo> dimensionalityList = baseMapper.getCoefficientList(queryWrapper);
 
         if(CollUtil.isEmpty(dimensionalityList)){
