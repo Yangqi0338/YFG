@@ -6,7 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumResearchProcessNodeDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumResearchProcessTemplateDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessNodeService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumBomTemplateMaterialVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumResearchProcessTemplateMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessTemplate;
@@ -14,6 +19,9 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessTemplat
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 类描述：款式研发进度模板 service类
@@ -25,12 +33,20 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class BasicsdatumResearchProcessTemplateServiceImpl extends BaseServiceImpl<BasicsdatumResearchProcessTemplateMapper, BasicsdatumResearchProcessTemplate> implements BasicsdatumResearchProcessTemplateService {
+
+    @Resource
+    private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
+
     @Transactional
     @Override
     public BasicsdatumResearchProcessTemplate saveTemplate(BasicsdatumResearchProcessTemplateDto templateDto) {
         BasicsdatumResearchProcessTemplate basicsdatumResearchProcessTemplate = new BasicsdatumResearchProcessTemplate();
         BeanUtils.copyProperties(templateDto, basicsdatumResearchProcessTemplate);
         this.save(basicsdatumResearchProcessTemplate);
+
+        List<BasicsdatumResearchProcessNodeDto> nodeDtoList = templateDto.getNodeDtoList();
+        List<BasicsdatumResearchProcessNode> basicsdatumResearchProcessNodes = BeanUtil.copyToList(nodeDtoList, BasicsdatumResearchProcessNode.class);
+        basicsdatumResearchProcessNodeService.saveBatch(basicsdatumResearchProcessNodes);
         return basicsdatumResearchProcessTemplate;
     }
 
