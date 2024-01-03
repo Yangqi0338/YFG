@@ -340,7 +340,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     stylePricing.setProductHangtagConfirm(BaseGlobal.NO);
                     stylePricing.setControlHangtagConfirm(BaseGlobal.NO);
                     /*重置状态*/
-                    stylePricingService.updateById(stylePricing);
+//                    stylePricingService.updateById(stylePricing);
                 }
             }
         }
