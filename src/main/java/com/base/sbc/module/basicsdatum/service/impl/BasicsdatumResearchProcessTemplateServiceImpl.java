@@ -6,12 +6,16 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumResearchProcessTemplateDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumResearchProcessTemplateMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessTemplate;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessTemplateService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-/** 
+import org.springframework.transaction.annotation.Transactional;
+
+/**
  * 类描述：款式研发进度模板 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessTemplateService
  * @author your name
@@ -21,6 +25,19 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class BasicsdatumResearchProcessTemplateServiceImpl extends BaseServiceImpl<BasicsdatumResearchProcessTemplateMapper, BasicsdatumResearchProcessTemplate> implements BasicsdatumResearchProcessTemplateService {
+    @Transactional
+    @Override
+    public BasicsdatumResearchProcessTemplate saveTemplate(BasicsdatumResearchProcessTemplateDto templateDto) {
+        BasicsdatumResearchProcessTemplate basicsdatumResearchProcessTemplate = new BasicsdatumResearchProcessTemplate();
+        BeanUtils.copyProperties(templateDto, basicsdatumResearchProcessTemplate);
+        this.save(basicsdatumResearchProcessTemplate);
+        return basicsdatumResearchProcessTemplate;
+    }
+
+    @Override
+    public BasicsdatumResearchProcessTemplateDto getTemplateById(String id) {
+        return null;
+    }
 
 // 自定义方法区 不替换的区域【other_start】
 

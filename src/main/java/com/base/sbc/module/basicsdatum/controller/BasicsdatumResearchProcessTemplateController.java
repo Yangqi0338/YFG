@@ -8,6 +8,7 @@ package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumResearchProcessTemplateDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessTemplate;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessTemplateService;
 import com.github.pagehelper.PageHelper;
@@ -60,9 +61,9 @@ public class BasicsdatumResearchProcessTemplateController{
 	}
 
 	@ApiOperation(value = "保存")
-	@PostMapping
-	public BasicsdatumResearchProcessTemplate save(@RequestBody BasicsdatumResearchProcessTemplate basicsdatumResearchProcessTemplate) {
-		basicsdatumResearchProcessTemplateService.save(basicsdatumResearchProcessTemplate);
+	@PostMapping("save")
+	public BasicsdatumResearchProcessTemplate save(@RequestBody BasicsdatumResearchProcessTemplateDto processTemplateDto) {
+		BasicsdatumResearchProcessTemplate basicsdatumResearchProcessTemplate = basicsdatumResearchProcessTemplateService.saveTemplate(processTemplateDto);
 		return basicsdatumResearchProcessTemplate;
 	}
 

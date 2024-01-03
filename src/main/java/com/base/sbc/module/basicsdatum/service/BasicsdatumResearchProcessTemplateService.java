@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumResearchProcessTemplateDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessTemplate;
 
@@ -20,8 +21,18 @@ public interface BasicsdatumResearchProcessTemplateService extends BaseService<B
 
 // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 保存研发总进度模板
+     * @param templateDto
+     */
+    BasicsdatumResearchProcessTemplate saveTemplate(BasicsdatumResearchProcessTemplateDto templateDto);
 
-
+    /**
+     * 查看研发总进度模板详情
+     * @param id
+     * @return
+     */
+    BasicsdatumResearchProcessTemplateDto getTemplateById(String id);
 // 自定义方法区 不替换的区域【other_end】
 
 	
