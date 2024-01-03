@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
 import com.base.sbc.module.style.entity.StyleSpecFabric;
@@ -242,6 +243,14 @@ public class SmpGoodsDto extends SmpBaseDto {
     private List<SmpSize> itemList;
     /**图片地址集合*/
     private List<String> imgList;
+    /** rfid标识 0 否 1 是 */
+    private String rfidFlag;
+    /** rfid属性
+     * all("洗唛&吊牌RFID"),
+     * washing("洗唛RFID"),
+     * hangTag("吊牌RFID"),
+     * */
+    private RFIDType rfidType;
 
 
     //新加字段

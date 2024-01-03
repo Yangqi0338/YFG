@@ -6,10 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -19,8 +18,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：款式设计 实体类
@@ -560,6 +557,12 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "套版款号"  )
     private String registeringNo;
+
+    /**
+     * RFID标准
+     */
+    @ApiModelProperty(value = "RFID标准"  )
+    private String rfidFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

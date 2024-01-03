@@ -18,6 +18,7 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -31,16 +32,20 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.entity.UploadFile;
@@ -93,6 +98,7 @@ import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
@@ -203,6 +209,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
     @Autowired
     private TransactionDefinition transactionDefinition;
+
+    @Autowired
+    private BasicsdatumMaterialService basicsdatumMaterialService;
 
     @Autowired
     @Lazy
@@ -463,11 +472,29 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 List<PackBomVo> packBomVoList = packBomService.list(version.getForeignId(), PackUtils.PACK_TYPE_DESIGN, version.getId());
                 StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
                 /*判断是否使用rfid*/
-                if (StrUtil.equals(styleColor.getRfidFlag(), BaseGlobal.STATUS_CLOSE)) {
+                if (StrUtil.equals(styleColor.getRfidFlag(), YesOrNoEnum.YES.getValueStr())) {
                     /*查询有没有RFID*/
-                    List<PackBomVo> packBomVoList2 = packBomVoList.stream().filter(p -> p.getMaterialName().contains("RFID")).collect(Collectors.toList());
+                    List<PackBomVo> packBomVoList2 = packBomVoList.stream().filter(p -> p.getUnusableFlag().equals(YesOrNoEnum.NO.getValueStr()) &&
+                            p.getMaterialName().contains(RFIDProperties.materialName)).collect(Collectors.toList());
                     if (CollUtil.isEmpty(packBomVoList2)) {
                         throw new OtherException("物料清单不存在RFID有关物料");
+                    }else {
+                        long haveRfidTypeListSize = packBomVoList2.stream().map(packBomVo -> basicsdatumMaterialService.findOneField(new LambdaQueryWrapper<BasicsdatumMaterial>()
+                                .eq(BasicsdatumMaterial::getMaterialCode, packBomVo.getMaterialCode()), BasicsdatumMaterial::getCategory3Code))
+                                .filter(category3Code -> {
+                                    for (Map.Entry<String, RFIDType> entry : RFIDProperties.categoryRfidMapping.entrySet()) {
+                                        String categoryCode = entry.getKey();
+                                        RFIDType rfidType = entry.getValue();
+                                        if (categoryCode.equals(category3Code)) {
+                                            styleColor.setRfidType(rfidType);
+                                            break;
+                                        }
+                                    }
+                                    return styleColor.getRfidType() != null;
+                                }).count();
+                        if (haveRfidTypeListSize != 1) {
+                            throw new OtherException("物料清单中的物料至少且只能存在一个RFID分类");
+                        }
                     }
                 }
                 List<String> scmSendFlagList = StringUtils.convertList("0,2,3");
