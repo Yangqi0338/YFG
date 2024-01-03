@@ -56,9 +56,11 @@ import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
+import com.base.sbc.module.style.entity.StyleSpecFabric;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.service.StyleSpecFabricService;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,6 +111,10 @@ public class SmpService {
     @Resource
     @Lazy
     private final PackTechSpecService packTechSpecService;
+
+    @Resource
+    @Lazy
+    private StyleSpecFabricService styleSpecFabricService;
 
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
@@ -473,6 +479,15 @@ public class SmpService {
                 smpSizes.add(smpSize);
             }
             smpGoodsDto.setItemList(smpSizes);
+
+            //region 添加配色指定面料下发 huangqiang
+            QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("style_color_id",styleColor.getId());
+            queryWrapper.eq("del_flag","0");
+            List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
+            smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
+            //endregion
+
             // if (true){
             //     return null;
             // }
