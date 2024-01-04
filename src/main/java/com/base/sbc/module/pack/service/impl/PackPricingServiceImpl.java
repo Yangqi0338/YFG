@@ -230,7 +230,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         stringMap.put("id", packInfo.getId());
         stringMap.put("styleId", packInfo.getStyleId());
         stringMap.put("style", packInfo.getStyleNo());
-        stringMap.put("packType", PackUtils.PACK_TYPE_DESIGN);
+        stringMap.put("packType", PackUtils.PACK_TYPE_BIG_GOODS);
         return stringMap;
     }
 
