@@ -827,6 +827,12 @@ public class SmpService {
                 }
 
             }
+            if (sizeQtyList.isEmpty()){
+                throw new OtherException("尺码信息为空");
+            }
+            if (StringUtils.isEmpty(smpBomDto.getColorName()) || StringUtils.isEmpty(smpBomDto.getColorCode())){
+                throw new OtherException("颜色信息为空");
+            }
             smpBomDto.setSizeQtyList(sizeQtyList);
             smpBomDto.setRfidFlag(styleColor.getRfidFlag());
             String category3Code = basicsdatumMaterialService.findOneField(new LambdaQueryWrapper<BasicsdatumMaterial>()
