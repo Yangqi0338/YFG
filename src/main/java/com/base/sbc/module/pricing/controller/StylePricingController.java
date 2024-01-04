@@ -89,6 +89,7 @@ public class StylePricingController extends BaseController {
      */
     @ApiOperation(value = "导出款式定价列表")
     @GetMapping("/exportStylePricingList")
+    @DuplicationCheck(type = 1,time = 200,message = "正在导出中，请稍后...")
     public void exportStylePricingList(Principal user, StylePricingSearchDTO stylePricingSearchDTO, HttpServletResponse response) throws IOException {
         stylePricingSearchDTO.setDeriveFlag(BaseGlobal.YES);
         PageInfo<StylePricingVO> stylePricingList = stylePricingService.getStylePricingList(user, stylePricingSearchDTO);
