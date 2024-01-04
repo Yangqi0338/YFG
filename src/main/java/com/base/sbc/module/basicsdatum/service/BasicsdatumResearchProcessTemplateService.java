@@ -39,6 +39,12 @@ public interface BasicsdatumResearchProcessTemplateService extends BaseService<B
      * @return
      */
     BasicsdatumResearchProcessTemplateVo getTemplateById(String id);
+
+    /**
+     * 模板启用/停用
+     * @param templateDto
+     */
+    Boolean updateEnableFlagById(BasicsdatumResearchProcessTemplateDto templateDto);
 // 自定义方法区 不替换的区域【other_end】
 
 	

@@ -67,7 +67,7 @@ public class BasicsdatumResearchProcessNodeController{
 	}
 
 	@ApiOperation(value = "修改")
-	@PutMapping
+	@PostMapping("update")
 	public BasicsdatumResearchProcessNode update(@RequestBody BasicsdatumResearchProcessNode basicsdatumResearchProcessNode) {
 		boolean b = basicsdatumResearchProcessNodeService.updateById(basicsdatumResearchProcessNode);
 		if (!b) {

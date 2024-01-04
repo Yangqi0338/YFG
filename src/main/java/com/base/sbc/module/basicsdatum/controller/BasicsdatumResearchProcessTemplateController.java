@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Arrays;
 import java.util.List;
 
@@ -53,16 +54,22 @@ public class BasicsdatumResearchProcessTemplateController{
 		return basicsdatumResearchProcessTemplateService.getTemplateById(id);
 	}
 
+	@ApiOperation(value = "启用停用")
+	@PostMapping("updateStatus")
+	public Boolean updateStatus(@RequestBody BasicsdatumResearchProcessTemplateDto processTemplateDto) {
+		return basicsdatumResearchProcessTemplateService.updateEnableFlagById(processTemplateDto);
+	}
+
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
-	@DeleteMapping("updateStatus/{id}")
-	public Boolean removeById(@PathVariable("id") String id) {
+	@DeleteMapping("delete/{id}")
+	public Boolean updateStatus(@PathVariable("id") String id) {
 		List<String> ids = StringUtils.convertList(id);
 		return basicsdatumResearchProcessTemplateService.removeByIds(ids);
 	}
 
 	@ApiOperation(value = "保存")
 	@PostMapping("save")
-	public BasicsdatumResearchProcessTemplate save(@RequestBody BasicsdatumResearchProcessTemplateDto processTemplateDto) {
+	public BasicsdatumResearchProcessTemplate save(@Valid @RequestBody  BasicsdatumResearchProcessTemplateDto processTemplateDto) {
 		BasicsdatumResearchProcessTemplate basicsdatumResearchProcessTemplate = basicsdatumResearchProcessTemplateService.saveTemplate(processTemplateDto);
 		return basicsdatumResearchProcessTemplate;
 	}

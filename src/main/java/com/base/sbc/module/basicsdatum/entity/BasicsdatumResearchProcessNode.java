@@ -46,6 +46,9 @@ public class BasicsdatumResearchProcessNode extends BaseDataEntity<String> {
     /** 天数 */
     @ApiModelProperty(value = "天数"  )
     private Integer numberDay;
+    /** 顺延星期几 */
+    @ApiModelProperty(value = "顺延星期几"  )
+    private Integer weekDay;
     /** 排序 */
     @ApiModelProperty(value = "排序"  )
     private Integer sort;
