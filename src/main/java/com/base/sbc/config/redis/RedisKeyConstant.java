@@ -24,6 +24,7 @@ import static com.base.sbc.config.redis.RedisKeyBuilder.*;
 public interface RedisKeyConstant {
 	String STANDARD_COLUMN_CACHE_TOPIC = "standardColumn";
 	RedisKeyBuilder STANDARD_COLUMN_LIST = init("standard_column_list");
+	RedisKeyBuilder COUNTRY_LANGUAGE = init("country_language");
 	RedisKeyBuilder STANDARD_COLUMN_COUNTRY_RELATION = init("standard_column_country_relation");
 
 }

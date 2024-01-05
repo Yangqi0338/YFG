@@ -70,7 +70,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
-    public BaseLambdaQueryWrapper<T> between(SFunction<T, String> column, String[] dates) {
+    public <R> BaseLambdaQueryWrapper<T> between(SFunction<T, R> column, String[] dates) {
         if (!Arrays.isNullOrEmpty(dates)) {
             this.and(i-> {
                 i.ge(!StringUtils.isEmpty(dates[0]), column, dates[0]);

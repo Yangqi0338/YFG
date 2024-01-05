@@ -68,11 +68,16 @@ public class Page implements Serializable {
         return false;
     }
 
-    public com.baomidou.mybatisplus.extension.plugins.pagination.Page<?> toMPPage(){
-        return new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(this.pageNum, this.pageSize);
+    public void reset2QueryList() {
+        this.setPageNum(1);
+        this.setPageSize(Integer.MAX_VALUE);
+    }
+
+    public <T> com.baomidou.mybatisplus.extension.plugins.pagination.Page<T> toMPPage(Class<T> clazz){
+        return new com.baomidou.mybatisplus.extension.plugins.pagination.Page<T>(this.getPageNum(), this.getPageSize());
     }
     public com.baomidou.mybatisplus.extension.plugins.pagination.Page<Map<String,Object>> toMPPageMap(){
-        return new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(this.pageNum, this.pageSize);
+        return new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(this.getPageNum(), this.getPageSize());
     }
 
     public <E> com.github.pagehelper.Page<E> startPage(){

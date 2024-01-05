@@ -62,8 +62,7 @@ public class RedisKeyBuilder {
 	}
 
 	public RedisKeyBuilder add(String... keys){
-		addEnd(keys);
-		return this;
+		return add(false, keys);
 	}
 
 	public String addEnd(String... keys){
@@ -71,16 +70,16 @@ public class RedisKeyBuilder {
 	}
 
 	public String addEnd(boolean cache, String... keys){
+		return add(cache, keys).build();
+	}
+
+	public RedisKeyBuilder add(boolean cache, String... keys){
 		String oldValue = this.cache(cache).build();
 		List<String> newKeys = CollUtil.toList(oldValue);
 		newKeys.addAll(CollUtil.toList(keys));
 		this.setKeys(newKeys);
 		this.setKeyJoiner(new StringJoiner(COMMA));
-		return this.build();
-	}
-
-	public RedisKeyBuilder add(boolean cache, String... keys){
-		return this.cache(cache).add(keys);
+		return this;
 	}
 
 	public RedisKeyBuilder cache(boolean cache){

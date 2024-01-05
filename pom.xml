@@ -250,6 +250,12 @@
             <groupId>cn.afterturn</groupId>
             <artifactId>easypoi-spring-boot-starter</artifactId>
             <version>4.4.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>hutool-all</artifactId>
+                    <groupId>cn.hutool</groupId>
+                </exclusion>
+            </exclusions>
 
         </dependency>
         <!--		<dependency>-->
@@ -282,7 +288,7 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-all</artifactId>
-            <version>5.8.12</version>
+            <version>5.8.24</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>

@@ -3,16 +3,23 @@ package com.base.sbc.config.redis;
 
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.common.service.BaseService;
+import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.Cursor;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 
 
@@ -152,6 +159,37 @@ public class RedisStaticFunUtils {
 			}
 		}
 	}
+
+	public static String decorateKey(String key){
+		return decorateKey(key, RedisKeyBuilder.COMMA);
+	}
+
+	public static String decorateKey(String key, String separator){
+		return key + (key.endsWith(separator) ? "" : separator);
+	}
+
+	/**
+	 * 扫描
+	 * @param key
+	 */
+	public static Set<String> keys(String key,String... indexList) {
+		StringBuilder pattern = new StringBuilder(decorateKey(key));
+		if (!Arrays.isNullOrEmpty(indexList)) {
+			for (String index : indexList) {
+				pattern.append(decorateKey(index));
+			}
+		}
+
+		return getRedisTemplate().keys(decorateKey(pattern.toString(),"*"));
+	}
+
+	/**
+	 * 取string的长度
+	 * @param key
+	 */
+	public static Long size(String key) {
+		return getRedisTemplate().opsForList().size(key);
+	}
 	/**
 	 * 批量删除key 根据前缀与中间值删除
 	 * @param pattern
@@ -228,7 +266,7 @@ public class RedisStaticFunUtils {
 		if(delta<0){
 			throw new RuntimeException("递增因子必须大于0");
 		}
-		
+
 		return getRedisTemplate().opsForValue().increment(key, delta);
 	}
 

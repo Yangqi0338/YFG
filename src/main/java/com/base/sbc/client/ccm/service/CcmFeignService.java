@@ -11,6 +11,8 @@ import com.base.sbc.client.ccm.entity.*;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,30 @@ public class CcmFeignService {
 
     @Autowired
     private CcmService ccmService;
+
+    public static final ThreadLocal<Page<BasicBaseDict>> pageLocal = new ThreadLocal<>();
+
+    public void setPage(Page<BasicBaseDict> page) {
+        pageLocal.set(page);
+    }
+
+    public PageInfo<BasicBaseDict> clearPage(List<BasicBaseDict> baseDictList) {
+        Page<BasicBaseDict> page = pageLocal.get();
+        if (page != null) {
+            PageInfo<BasicBaseDict> pageInfo = page.toPageInfo();
+            int pageNum = pageInfo.getPageNum();
+            int pageSize = pageInfo.getPageSize();
+            int maxSize = baseDictList.size();
+            int formPage = Math.max(pageNum - 1, 0);
+            int fromIndex = formPage * pageSize;
+            int toIndex = Math.min((formPage + 1) * pageSize, maxSize);
+            pageInfo.setList(baseDictList.subList(fromIndex, toIndex));
+            pageInfo.setTotal(maxSize);
+            pageLocal.remove();
+            return pageInfo;
+        }
+        return new PageInfo<>();
+    }
 
     public List<BasicStructureTreeVo> findStructureTreeByCategoryIds(String categoryIds) {
         String str = ccmService.findStructureTreeByCategoryIds(categoryIds);
