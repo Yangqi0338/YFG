@@ -27,25 +27,25 @@ public class PreTaskAssignmentDto {
      * 工艺师名称
      */
     @ApiModelProperty(value = "工艺师名称")
-//    @NotBlank(message = "工艺师不能为空")
+    @NotBlank(message = "工艺师不能为空")
     private String technologistName;
     /**
      * 工艺师id
      */
     @ApiModelProperty(value = "工艺师id")
-//    @NotBlank(message = "工艺师不能为空")
+    @NotBlank(message = "工艺师不能为空")
     private String technologistId;
     /**
      * 放码师id
      */
     @ApiModelProperty(value = "放码师id")
-//    @NotBlank(message = "放码师不能为空")
+    @NotBlank(message = "放码师不能为空")
     private String gradingId;
     /**
      * 放码师名称
      */
     @ApiModelProperty(value = "放码师名称")
-//    @NotBlank(message = "放码师不能为空")
+    @NotBlank(message = "放码师不能为空")
     private String gradingName;
     /**
      * 裁剪工
