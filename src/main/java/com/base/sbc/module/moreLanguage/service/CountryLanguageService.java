@@ -38,7 +38,7 @@ public interface CountryLanguageService extends BaseService<CountryLanguage>{
 
     List<String> findStandardColumnCodeList(String code, CountryLanguageType type, boolean cache);
 
-    String cancelSave(CountryQueryDto countryQueryDto);
+    String cancelSave(String code);
 
     void initLanguage(List<BasicBaseDict> dictList);
 

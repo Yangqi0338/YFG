@@ -177,6 +177,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         // 做语言判断
         MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.setBooleanParam(singleLanguageFlag);
+        MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.setParam(moreLanguageQueryDto.getCache());
         MoreLanguageTableContext.setParam(MapUtil.of(
                 MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(), JSONUtil.toJsonStr(countryLanguageList)
         ));
@@ -485,6 +486,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         // 装饰输出表头
         MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.setBooleanParam(singleLanguageFlag);
+        MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.setParam(moreLanguageQueryDto.getCache());
         MoreLanguageTableContext.setParam(MapUtil.of(
                 MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(), JSONUtil.toJsonStr(countryLanguageList)
         ));

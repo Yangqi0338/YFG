@@ -15,7 +15,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.StringJoiner;
 
 /**
@@ -64,12 +66,12 @@ public class HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "仅model为radio时使用")
     protected String tableName;
 
-    /**
-     * 国家语言Id
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "国家语言Id")
-    protected String countryLanguageId;
+//    /**
+//     * 国家语言Id
+//     */
+//    @JsonIgnore
+//    @ApiModelProperty(value = "国家语言Id")
+//    protected String countryLanguageId;
 
     /**
      * 国家编码
@@ -78,12 +80,12 @@ public class HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "国家编码")
     protected String countryCode;
 
-    /**
-     * 语言码
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "语言码")
-    protected String languageCode;
+//    /**
+//     * 语言码
+//     */
+//    @JsonIgnore
+//    @ApiModelProperty(value = "语言码")
+//    protected String languageCode;
 
     /**
      * 具体数据的编码
@@ -100,11 +102,24 @@ public class HangTagMoreLanguageSupportVO {
     protected Boolean isGroup = false;
 
     /**
-     * 是否是温馨提示
+     * 语言编码列表
      */
-    @JsonIgnore
-    @ApiModelProperty(value = "是否是温馨提示")
-    protected Boolean isWarnTips = false;
+    @ApiModelProperty(value = "语言编码列表")
+    private List<String> languageCodeList = new ArrayList<>();
+
+//    /**
+//     * 是否是温馨提示
+//     */
+//    @JsonIgnore
+//    @ApiModelProperty(value = "是否是温馨提示")
+//    protected Boolean isWarnTips = false;
+//
+//    /**
+//     * 是否是洗标
+//     */
+//    @JsonIgnore
+//    @ApiModelProperty(value = "是否是洗标")
+//    protected Boolean isWashingMark = false;
 
     @JsonIgnore
     protected String createId;

@@ -101,6 +101,7 @@ public class CountryLanguageController extends BaseController {
     @PostMapping("/review")
     public ApiResult review(@Valid @RequestBody CountryTypeLanguageSaveDto countryTypeLanguageSaveDto) {
         try {
+            cancelSave(countryTypeLanguageSaveDto.getCode());
             String code = countryLanguageService.review(countryTypeLanguageSaveDto);
             return selectSuccess(code);
         }catch (RightException e) { return selectSuccess(e.getMessage()); }
@@ -133,8 +134,8 @@ public class CountryLanguageController extends BaseController {
      */
     @ApiOperation(value = "取消保存", notes = "取消保存")
     @GetMapping("/cancelSave")
-    public ApiResult cancelSave(CountryQueryDto countryQueryDto) {
-        return updateSuccess(countryLanguageService.cancelSave(countryQueryDto));
+    public ApiResult cancelSave(String code) {
+        return updateSuccess(countryLanguageService.cancelSave(code));
     }
 
 }

@@ -31,8 +31,8 @@ public class OperaLogController extends BaseController {
     private final OperaLogService operaLogService;
 
     @GetMapping("/listPage")
-    public ApiResult<PageInfo<OperaLogEntity>> listPage(OperaLogDto operaLogDto , @RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
-        operaLogDto.setUserCompany(userCompany);
+    public ApiResult<PageInfo<OperaLogEntity>> listPage(OperaLogDto operaLogDto) {
+        operaLogDto.setUserCompany(super.getUserCompany());
         return selectSuccess(operaLogService.listPage(operaLogDto));
     }
 

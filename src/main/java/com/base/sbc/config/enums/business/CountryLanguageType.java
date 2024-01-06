@@ -45,7 +45,7 @@ public enum CountryLanguageType {
     }
 
     public static CountryLanguageType findByStandardColumnType(StandardColumnType type){
-        return Arrays.stream(CountryLanguageType.values()).filter(it-> it.standardColumnType.equals(type)).findFirst().orElse(null);
+        return Arrays.stream(CountryLanguageType.values()).filter(it-> it.standardColumnType.equals(type) || it.standardColumnType.getChildrenTypeList().contains(type)).findFirst().orElse(null);
     }
 
     public static CountryLanguageType findByCode(String code){

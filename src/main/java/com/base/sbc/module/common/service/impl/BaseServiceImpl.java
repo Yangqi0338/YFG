@@ -604,7 +604,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
             log.setDocumentCode(this.getFieldValueByName(log.getDocumentCodeField(), ne));
             operaLogEntityList.add(log);
         }
-        operaLogService.saveBatch(operaLogEntityList);
+        operaLogService.saveOrUpdateBatch(operaLogEntityList);
     }
 
     @Override

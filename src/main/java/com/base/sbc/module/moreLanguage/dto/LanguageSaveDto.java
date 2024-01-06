@@ -26,4 +26,8 @@ public class LanguageSaveDto {
     @ApiModelProperty(value = "语言名称")
     private String languageName;
 
+    @NotBlank(message = "请填写语言")
+    @ApiModelProperty(value = "语言名称")
+    private CountryLanguageType countryLanguageType;
+
 }

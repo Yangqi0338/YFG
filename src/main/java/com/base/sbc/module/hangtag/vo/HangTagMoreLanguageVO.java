@@ -7,15 +7,9 @@
 package com.base.sbc.module.hangtag.vo;
 
 import com.base.sbc.config.enums.business.StandardColumnModel;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-import java.util.Date;
-import java.util.StringJoiner;
 
 /**
  * 类描述：吊牌表 实体类
@@ -26,21 +20,26 @@ import java.util.StringJoiner;
  * @email ch.183.g1114@gmail.com
  * @date 创建时间：2023-6-26 17:15:52
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class HangTagMoreLanguageVO extends HangTagMoreLanguageSupportVO {
+public class HangTagMoreLanguageVO {
 
     /**
-     * 大货款号
+     * 国家语言Id
      */
-    @ApiModelProperty(value = "大货款号")
-    private String bulkStyleNo;
+    @ApiModelProperty(value = "国家语言Id")
+    protected String countryLanguageId;
 
     /**
-     * 标准列名
+     * 语言码
      */
-    @ApiModelProperty(value = "标准列名")
-    private String standardColumnName;
+    @ApiModelProperty(value = "语言码")
+    protected String languageCode;
+
+    /**
+     * 语言名
+     */
+    @ApiModelProperty(value = "语言名")
+    private String languageName;
 
     /**
      * 标准列翻译
@@ -59,24 +58,6 @@ public class HangTagMoreLanguageVO extends HangTagMoreLanguageSupportVO {
     }
 
     /**
-     * 国家名
-     */
-    @ApiModelProperty(value = "国家名")
-    private String countryName;
-
-    /**
-     * 语言名
-     */
-    @ApiModelProperty(value = "语言名")
-    private String languageName;
-
-    /**
-     * 具体数据
-     */
-    @ApiModelProperty(value = "具体数据")
-    private String propertiesName;
-
-    /**
      * 具体数据的翻译
      */
     @ApiModelProperty(value = "具体数据的翻译")
@@ -89,16 +70,16 @@ public class HangTagMoreLanguageVO extends HangTagMoreLanguageSupportVO {
     private Boolean cannotFindPropertiesContent = false;
 
     public Boolean getCannotFindPropertiesContent() {
-        return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
+//        return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
+        return this.cannotFindPropertiesContent;
     }
 
     /**
-     * 全量数据
+     * 是组合的
      */
-    @ApiModelProperty(value = "全量数据")
-    public String getSourceContent() {
-        return String.format("%s:%s %s", this.standardColumnName, this.isGroup ? "\n" : "", this.propertiesName);
-    }
+    @JsonIgnore
+    @ApiModelProperty(value = "是组合的")
+    protected Boolean isGroup = false;
 
     /**
      * 全量数据翻译

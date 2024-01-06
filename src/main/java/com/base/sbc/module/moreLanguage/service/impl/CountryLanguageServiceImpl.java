@@ -96,15 +96,15 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             countryLanguageList = keys.stream().map(key->  (CountryLanguage) RedisStaticFunUtils.get(key)).collect(Collectors.toList());
         }else {
             countryLanguageList = this.list(new BaseLambdaQueryWrapper<CountryLanguage>()
-                    .notEmptyEq(CountryLanguage::getCode, countryQueryDto.getCode())
+                    .notEmptyIn(CountryLanguage::getCode, countryQueryDto.getCode())
                     .notNullEq(CountryLanguage::getType, countryQueryDto.getType())
                     .notEmptyEq(CountryLanguage::getCountryCode, countryQueryDto.getCountryCode())
-                    .notEmptyEq(CountryLanguage::getLanguageCode, countryQueryDto.getLanguageCode())
+                    .notEmptyIn(CountryLanguage::getLanguageCode, countryQueryDto.getLanguageCode())
                     .notEmptyIn(CountryLanguage::getCountryName, countryQueryDto.getCountryName())
                     .notEmptyIn(CountryLanguage::getLanguageName, countryQueryDto.getLanguageName())
                     .notEmptyEq(CountryLanguage::getEnableFlag, countryQueryDto.getEnableFlag())
                     .eq(CountryLanguage::getSingleLanguageFlag, countryQueryDto.isSingleLanguage() ? YesOrNoEnum.YES : YesOrNoEnum.NO)
-                    .orderByAsc(Arrays.asList(CountryLanguage::getCodeIndex, CountryLanguage::getId))
+                    .orderByAsc(Arrays.asList(CountryLanguage::getCodeIndex, CountryLanguage::getType))
             );
         }
 
@@ -144,6 +144,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             code = "GY" + fill + maxCountryLanguageCode;
         }else {
             code = countryTypeLanguageSaveDto.getCode();
+            baseCountryLanguage.setCodeIndex(Integer.parseInt(code.replace("GY","")));
         }
         baseCountryLanguage.setCode(code);
 
@@ -163,9 +164,8 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                 // 查找根
                 String rootStandardColumnCode = standardColumnService.findOneField(new LambdaQueryWrapper<StandardColumn>()
                         .eq(StandardColumn::getType, type.getStandardColumnType()), StandardColumn::getCode);
-                if (!standardColumnCodeList.contains(rootStandardColumnCode)) {
-                    standardColumnCodeList.add(rootStandardColumnCode);
-                }
+                standardColumnCodeList.add(rootStandardColumnCode);
+                standardColumnCodeList = standardColumnCodeList.stream().distinct().collect(Collectors.toList());
 
                 LambdaQueryWrapper<CountryLanguage> queryWrapper = new LambdaQueryWrapper<CountryLanguage>()
                         .eq(CountryLanguage::getCode, code)
@@ -257,7 +257,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
             List<CountryLanguageDto> sameTypeCountryLanguageList = countryLanguageList.stream().filter(it -> it.getType().equals(type)).collect(Collectors.toList());
             if (CollectionUtil.isNotEmpty(sameTypeCountryLanguageList)) {
-                typeLanguageSaveDto.setLanguageCodeList(sameTypeCountryLanguageList.stream().map(CountryLanguageDto::getLanguageCode).collect(Collectors.toList()));
+                typeLanguageSaveDto.setLanguageCodeList(sameTypeCountryLanguageList.stream().map(CountryLanguageDto::getLanguageCode).distinct().collect(Collectors.toList()));
             }
             return typeLanguageSaveDto;
         }).collect(Collectors.toList()));
@@ -298,11 +298,14 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     }
 
     @Override
-    public String cancelSave(CountryQueryDto countryQueryDto) {
+    public String cancelSave(String code) {
+        if (StrUtil.isBlank(code)) return "";
+
         // 删除缓存 countryLanguage
-        RedisStaticFunUtils.del();
+        RedisStaticFunUtils.removePattern(RedisKeyConstant.COUNTRY_LANGUAGE.addEnd(true, code));
 
         // 删除缓存 standardColumnRelation
+        RedisStaticFunUtils.removePattern(RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.addEnd(true, code));
         return null;
     }
 

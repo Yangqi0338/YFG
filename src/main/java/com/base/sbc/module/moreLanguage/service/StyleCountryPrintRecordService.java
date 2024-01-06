@@ -6,7 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.service;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.moreLanguage.dto.StyleCountryPrintRecordDto;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryPrintRecord;
+
+import java.util.Map;
 
 /** 
  * 类描述：款式国家打印表 service类
@@ -17,6 +21,7 @@ import com.base.sbc.module.moreLanguage.entity.StyleCountryPrintRecord;
  * @version 1.0  
  */
 public interface StyleCountryPrintRecordService extends BaseService<StyleCountryPrintRecord>{
+    StyleCountryPrintRecordDto findPrintRecordByStyleNo(HangTagMoreLanguageDTO languageDTO);
 
 // 自定义方法区 不替换的区域【other_start】
 

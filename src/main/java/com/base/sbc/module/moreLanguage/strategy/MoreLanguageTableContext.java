@@ -120,6 +120,7 @@ public class MoreLanguageTableContext {
         NO_DECORATE("noDecorate", MoreLanguageCopyLanguageTableTitle.class),
         IN_EXCEL("inExcel", MoreLanguageCopyLanguageTableTitle.class),
         OWNER_TAG_CODE("ownerTagCode", MoreLanguageCopyLanguageTableTitle.class),
+        IN_CACHE("inCache", MoreLanguageCopyLanguageTableTitle.class),
 
         ;
         private final String paramKey;

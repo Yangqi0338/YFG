@@ -33,7 +33,8 @@ public class MoreLanguageTableTitle {
     private Double excelWidth;
 
     public boolean hiddenRemove(){
-        return MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_EXCEL.isTrue() ? isExcelRemove() : isWebRemove();
+        return MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_EXCEL.isTrue() ? isExcelRemove() :
+                (MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.isTrue() || isWebRemove());
     }
 
     public boolean isExcelHidden(){

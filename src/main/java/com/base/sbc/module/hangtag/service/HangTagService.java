@@ -13,7 +13,6 @@ import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.github.pagehelper.PageInfo;
@@ -21,7 +20,6 @@ import com.github.pagehelper.PageInfo;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：吊牌表 service类

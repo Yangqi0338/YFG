@@ -108,18 +108,6 @@ public class HangTagController extends BaseController {
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, false));
     }
 
-    @ApiOperation(value = "查询详情多语言")
-    @GetMapping("/getMoreLanguageCheckByBulkStyleNo")
-    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestBody @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
-        HangTagMoreLanguageDTO hangTagMoreLanguageDTO = new HangTagMoreLanguageDTO();
-        hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
-        hangTagMoreLanguageDTO.setHangTagMoreLanguageCheckDTOList(hangTagMoreLanguageCheckDTOList);
-        hangTagMoreLanguageDTO.setBulkStyleNo(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).collect(Collectors.joining(",")));
-        hangTagMoreLanguageDTO.setCountryLanguageId(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getCountryLanguageId).collect(Collectors.joining(",")));
-        hangTagMoreLanguageDTO.setSource(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getSource).findFirst().orElse(SystemSource.BCS));
-        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, false));
-    }
-
     @ApiOperation(value = "保存")
     @PostMapping("/save")
     @DuplicationCheck

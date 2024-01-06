@@ -8,15 +8,10 @@ package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.business.StandardColumnModel;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
-import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -56,14 +51,14 @@ public class HangTagMoreLanguageBCSVO {
      */
     @ApiModelProperty(value = "成功列表")
     @JsonIgnore
-    private List<HangTagMoreLanguageBCSChildrenVO> successList;
+    private List<HangTagMoreLanguageBCSChildrenBaseVO> successList;
 
     /**
      * 失败列表
      */
     @ApiModelProperty(value = "失败列表")
     @JsonIgnore
-    private List<HangTagMoreLanguageBCSChildrenVO> failureList;
+    private List<HangTagMoreLanguageBCSChildrenBaseVO> failureList;
 
     /**
      * 错误信息
@@ -74,20 +69,20 @@ public class HangTagMoreLanguageBCSVO {
         message.setEmptyValue("");
         String messageFormat = "%s未翻译";
         if (CollectionUtil.isNotEmpty(this.failureList)) {
-            this.failureList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenVO::getBulkStyleNo))
+            this.failureList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo))
                     .forEach((bulkStyleNo, sameBulkStyleNoList)-> {
                         message.add(String.format(messageFormat, "款号" + bulkStyleNo) + ": " +
-                                sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenVO::getPrinterCheckMessage).collect(Collectors.joining("/")));
+                                sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage).collect(Collectors.joining("/")));
                     });
         }
         return message.toString();
     }
 
-    public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenVO> childrenList) {
-        HangTagMoreLanguageBCSChildrenVO groupChildrenVO = childrenList.get(0);
-        this.countryLanguageId = groupChildrenVO.getCountryLanguageId();
-        this.countryLanguageName = groupChildrenVO.getCountryName() + "-" + groupChildrenVO.getLanguageName();
-        this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageVO::getBulkStyleNo).distinct().collect(Collectors.joining(","));
+    public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList) {
+        HangTagMoreLanguageBCSChildrenBaseVO groupChildrenVO = childrenList.get(0);
+        this.countryLanguageId = groupChildrenVO.getCode();
+        this.countryLanguageName = groupChildrenVO.getCountryName() + "-" + groupChildrenVO.getCountryName();
+        this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageBaseVO::getBulkStyleNo).distinct().collect(Collectors.joining(","));
         childrenList.stream().collect(Collectors.groupingBy(it-> StrUtil.isBlank(it.getPrinterCheckMessage()))).forEach((isSuccess,successFailureList)-> {
             if (isSuccess) {
                 this.successList = successFailureList;
@@ -97,7 +92,7 @@ public class HangTagMoreLanguageBCSVO {
         });
     }
 
-    public class HangTagMoreLanguageBCSChildrenVO extends HangTagMoreLanguageVO {
+    public class HangTagMoreLanguageBCSChildrenBaseVO extends HangTagMoreLanguageBaseVO {
         /**
          * 打印系统专门检查信息
          */
@@ -105,8 +100,8 @@ public class HangTagMoreLanguageBCSVO {
         public String getPrinterCheckMessage(){
             String messageFormat = "%s未翻译";
             StringJoiner message = new StringJoiner("/");
-            if (this.cannotFindStandardColumnContent) message.add(String.format(messageFormat, this.getStandardColumnName() + message + "字段"));
-            if (this.getCannotFindPropertiesContent())  message.add(String.format(messageFormat, this.getStandardColumnName() + message + "内容"));
+//            if (this.cannotFindStandardColumnContent) message.add(String.format(messageFormat, this.getStandardColumnName() + message + "字段"));
+//            if (this.getCannotFindPropertiesContent())  message.add(String.format(messageFormat, this.getStandardColumnName() + message + "内容"));
             return message.toString();
         };
     }

@@ -28,6 +28,7 @@ public class OperaLogServiceImpl extends BaseServiceImpl<OperaLogMapper, OperaLo
                 .notEmptyLike(OperaLogEntity::getDocumentId,operaLogDto.getDocumentId())
                 .notEmptyLike(OperaLogEntity::getDocumentName,operaLogDto.getDocumentName())
                 .notEmptyLike(OperaLogEntity::getDocumentCode,operaLogDto.getDocumentCode())
+                .notEmptyIn(OperaLogEntity::getDocumentCode,operaLogDto.getDocumentCodeList())
                 .notEmptyLike(OperaLogEntity::getParentId,operaLogDto.getParentId())
                 .notEmptyLike(OperaLogEntity::getType,operaLogDto.getType())
                 .notEmptyLike(OperaLogEntity::getPath,operaLogDto.getPath())

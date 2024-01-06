@@ -6,12 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
-import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 import java.util.StringJoiner;
@@ -25,13 +22,26 @@ import java.util.StringJoiner;
  * @email ch.183.g1114@gmail.com
  * @date 创建时间：2023-6-26 17:15:52
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class HangTagMoreLanguageWebVO extends HangTagMoreLanguageVO {
+public class HangTagMoreLanguagePrinterBaseVO extends HangTagMoreLanguageBaseVO {
 
     /**
-     * 是否是温馨提示
+     * 打印系统专门检查信息
      */
-    public Boolean isWarnTips = super.isWarnTips;
+    @ApiModelProperty(value = "打印系统专门检查信息")
+    public String getPrinterCheckMessage(){
+        String messageFormat = "%s未翻译";
+        StringJoiner message = new StringJoiner("/");
+//        if (this.cannotFindStandardColumnContent) message.add(String.format(messageFormat, this.getStandardColumnName() + message + "字段"));
+//        if (this.getCannotFindPropertiesContent())  message.add(String.format(messageFormat, this.getStandardColumnName() + message + "内容"));
+        return message.toString();
+    };
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date createTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date updateTime;
+
 
 }

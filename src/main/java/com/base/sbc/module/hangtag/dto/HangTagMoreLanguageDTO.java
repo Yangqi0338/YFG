@@ -40,9 +40,9 @@ public class HangTagMoreLanguageDTO {
     /**
      * 国家语言Id
      */
-    @ApiModelProperty(value = "国家语言Id")
-    @NotBlank(message = "国家语言不能为空")
-    private String countryLanguageId;
+    @ApiModelProperty(value = "国家语言编码")
+    @NotBlank(message = "国家语言编码不能为空")
+    private String code;
     /**
      * 来源：PDM,BCS,PRINT(打印)
      */
