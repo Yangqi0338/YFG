@@ -1023,6 +1023,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public Date getNodeFinashTime(String nodeCode) {
         String code = BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode();
+       /* switch (expression) {
+            case BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode():
+                break;
+            case value2:
+                break;
+            case valueN:
+                break;
+            default:
+        }*/
         return null;
     }
 
