@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
@@ -42,11 +43,15 @@ import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
+import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessNodeService;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
+import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -125,6 +130,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private StylePicUtils stylePicUtils;
     @Autowired
     private ScoreConfigService scoreConfigService;
+
+    @Autowired
+    private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -970,9 +978,52 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return new PageInfo<>(list);
     }
 
+
+
     @Override
-    public PageInfo<StyleResearchProcessVo> researchProcessList(NodestatusPageSearchDto dto, String userCompany) {
-        return new PageInfo<>(null);
+    public PageInfo<StyleResearchProcessVo> researchProcessList(ResearchProgressPageDto dto, String userCompany) {
+        dto.setCompanyCode(userCompany);
+        PageHelper.startPage(dto);
+        List<StyleResearchProcessVo> list = this.getBaseMapper().getResearchProcessList(dto);
+        //region 节点明细数据
+        StyleResearchNodeVo styleResearchNodeVo = null;
+        List<StyleResearchNodeVo> nodeList = null;
+        Date tempDate = null;
+
+        for (StyleResearchProcessVo styleResearchProcessVo : list) {
+            String templateId = styleResearchProcessVo.getTemplateId();
+            if (styleResearchProcessVo.getNodeStartTime() != null) {
+                tempDate = styleResearchProcessVo.getNodeStartTime();
+            }else{
+                tempDate = new Date();
+            }
+
+            QueryWrapper<BasicsdatumResearchProcessNode> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("template_id", templateId);
+            queryWrapper.orderByAsc("sort");
+            List<BasicsdatumResearchProcessNode> templateList = basicsdatumResearchProcessNodeService.list(queryWrapper);
+
+            nodeList = new ArrayList<>();
+            for (BasicsdatumResearchProcessNode basicsdatumResearchProcessNode : templateList) {
+                //偏移天数
+                tempDate = DateUtil.offset(tempDate, DateField.DAY_OF_MONTH, basicsdatumResearchProcessNode.getNumberDay());
+                styleResearchNodeVo = new StyleResearchNodeVo();
+                styleResearchNodeVo.setNodeCode(basicsdatumResearchProcessNode.getCode());
+                styleResearchNodeVo.setNodeName(basicsdatumResearchProcessNode.getName());
+                styleResearchNodeVo.setNumberDay(basicsdatumResearchProcessNode.getNumberDay());
+                styleResearchNodeVo.setPlanTime(tempDate);
+                nodeList.add(styleResearchNodeVo);
+            }
+            styleResearchProcessVo.setNodeList(nodeList);
+        }
+        //endregion
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public Date getNodeFinashTime(String nodeCode) {
+        String code = BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode();
+        return null;
     }
 
     @Override

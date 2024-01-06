@@ -1,7 +1,9 @@
 package com.base.sbc.module.patternmaking.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -21,12 +23,32 @@ public class StyleResearchProcessVo {
     /**
      * 版师名称
      */
-    private String sampleName;
+    private String patternDesignName;
+    /**
+     * 生产类型code
+     */
+    private String devtType;
+    /**
+     * 生产类型
+     */
+    private String devtTypeName;
+    /**
+     * 品牌code
+     */
+    private String brandCode;
+    /**
+     * 品牌
+     */
+    private String brandName;
     /**
      * 图片
      */
     private String picture;
 
+    /**
+     * 研发总进度模板id
+     */
+    private String templateId;
     /**
      * 当前节点名称
      */
@@ -38,9 +60,14 @@ public class StyleResearchProcessVo {
     private String presentNodeStatus;
 
     /**
-     * 当前节点状态
+     * 当前节点状态名称
      */
     private String presentNodeStatusName;
+    /**
+     * 当前节点状态名称
+     */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    private Date nodeStartTime;
 
     /**
      * 节点集合

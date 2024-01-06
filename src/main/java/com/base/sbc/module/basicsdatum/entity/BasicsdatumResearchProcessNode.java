@@ -40,6 +40,8 @@ public class BasicsdatumResearchProcessNode extends BaseDataEntity<String> {
     /** 节点编码 */
     @ApiModelProperty(value = "节点编码"  )
     private String code;
+    @ApiModelProperty(value = "节点名称"  )
+    private String name;
     /** 日期类型(0:工作日，1：自然日) */
     @ApiModelProperty(value = "日期类型(0:工作日，1：自然日)"  )
     private Integer dateType;

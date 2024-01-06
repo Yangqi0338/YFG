@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.Date;
@@ -17,6 +18,7 @@ public class StyleResearchNodeVo {
     /**
      * 计划时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private Date planTime;
     /**
      * 完成时间

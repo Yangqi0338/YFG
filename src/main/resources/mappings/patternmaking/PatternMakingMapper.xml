@@ -627,6 +627,64 @@
 
         </if>
     </select>
+
+    <select id="getResearchProcessList" resultType="com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo">
+        SELECT
+        t.design_no as designNo,
+        t1.style_no as bulkStyleNo,
+        t.pattern_design_name as patternDesignName,
+        t.designer as designerName,
+        t.devt_type_name as devtTypeName,
+        t.devt_type as devtType,
+        t.brand as brandCode,
+        t.brand_name as brandName,
+        template.id as templateId,
+        tpci.send_date as nodeStartTime
+        FROM t_style t
+        INNER JOIN t_style_color t1 ON t.id = t1.style_id
+        INNER JOIN t_basicsdatum_research_process_template template ON t.brand = template.brand_code AND t.devt_type = template.product_type and template.del_flag = '0' and template.enable_flag = '0'
+        LEFT JOIN t_planning_category_item as tpci on tpci.id = t.planning_category_item_id and t.del_flag = '0'
+
+        WHERE
+        t.del_flag = '0'
+        AND t1.del_flag = '0'
+        <if test="search != '' and search != null">
+            AND (t.design_no like concat('%',#{search},'%')  or t1.style_no like like concat('%',#{search},'%'))
+        </if>
+        <if test="null != devtTypes and devtTypes.size() > 0">
+            AND t1.devt_type IN
+            <foreach collection="devtTypes" item="devtType" separator="," open="(" close=")">
+                #{devtType}
+            </foreach>
+        </if>
+        <if test="null != designerIds and designerIds.size() > 0">
+            AND t.designer_id IN
+            <foreach collection="designerIds" item="designerId" separator="," open="(" close=")">
+                #{designerId}
+            </foreach>
+        </if>
+        <if test="null != patternDesignIds and patternDesignIds.size() > 0">
+            AND t.pattern_design_id IN
+            <foreach collection="patternDesignIds" item="patternDesignId" separator="," open="(" close=")">
+                #{patternDesignId}
+            </foreach>
+        </if>
+        <if test="null != brandIds and brandIds.size() > 0">
+            AND t.brand IN
+            <foreach collection="brandIds" item="brandId" separator="," open="(" close=")">
+                #{brandId}
+            </foreach>
+        </if>
+
+        <if test="startDate != null and startDate != ''">
+            and t1.create_date &gt;=#{startTime}
+        </if>
+
+        <if test="endDate != null and endDate != '' ">
+            and t1.create_date &lt;=#{endTime}
+        </if>
+        ORDER BY t1.create_date DESC
+    </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
 
         SELECT

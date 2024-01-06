@@ -11,6 +11,7 @@ import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
+import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -225,12 +227,19 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, String userCompany);
 
     /**
-     * 研发总进度看板
+     * 研发总进度看板 new
      * @param dto
      * @param userCompany
      * @return
      */
-    PageInfo<StyleResearchProcessVo> researchProcessList(NodestatusPageSearchDto dto, String userCompany);
+    PageInfo<StyleResearchProcessVo> researchProcessList(ResearchProgressPageDto dto, String userCompany);
+
+    /**
+     * 获取各个节点的完成时间
+     * @param nodeCode
+     * @return
+     */
+    Date getNodeFinashTime(String nodeCode);
     /**
      * 类描述：打版进度列表，工作台上面的
      *

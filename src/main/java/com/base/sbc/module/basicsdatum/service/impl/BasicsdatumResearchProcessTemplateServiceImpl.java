@@ -80,8 +80,8 @@ public class BasicsdatumResearchProcessTemplateServiceImpl extends BaseServiceIm
 
             List<BasicsdatumResearchProcessNodeDto> nodeDtoList = templateDto.getNodeDtoList();
 
-            List<String> repetitionCount = nodeDtoList.stream().map(BasicsdatumResearchProcessNodeDto::getNodeName).distinct().collect(Collectors.toList());
-            if (CollUtil.isNotEmpty(repetitionCount)) {
+            List<String> repetitionCount = nodeDtoList.stream().map(BasicsdatumResearchProcessNodeDto::getCode).distinct().collect(Collectors.toList());
+            if (repetitionCount.size() != nodeDtoList.size()) {
                 throw new OtherException("存在重复节点，请检查数据！");
             }
         }
@@ -125,7 +125,7 @@ public class BasicsdatumResearchProcessTemplateServiceImpl extends BaseServiceIm
             validQueryWrapper.eq("enable_flag", templateDto.getEnableFlag());
             List<BasicsdatumResearchProcessTemplate> validExsitList = this.list(validQueryWrapper);
             if (CollUtil.isNotEmpty(validExsitList)) {
-                throw new OtherException("该品牌:{" + templateDto.getBrandName() + "}，以及生产类型:{" + templateDto.getProductType() + "} 已存在启用数据！");
+                throw new OtherException("该品牌:{" + validExsitList.get(0).getBrandName() + "}，以及生产类型:{" + templateDto.getProductType() + "} 已存在启用数据！");
             }
         }
 
