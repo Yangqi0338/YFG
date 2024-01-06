@@ -68,12 +68,12 @@ public class CountryLanguage extends BaseDataEntity<String> {
     /** 标准类型 */
     @ApiModelProperty(value = "标准类型"  )
     private CountryLanguageType type;
+    /** 单条状态 */
+    @ApiModelProperty(value = "单条状态"  )
+    private YesOrNoEnum singleLanguageFlag = YesOrNoEnum.NO;
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
-    public String getUniqueName(){
-        return this.countryName + "-" + this.languageName+ this.getType().getText();
-    }
 }

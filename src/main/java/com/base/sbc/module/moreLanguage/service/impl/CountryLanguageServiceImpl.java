@@ -5,6 +5,11 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.service.impl;
+import java.util.Date;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.module.standard.dto.StandardColumnDto;
+import com.google.common.collect.Maps;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -31,6 +36,7 @@ import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.CountryTypeLanguageSaveDto;
 import com.base.sbc.module.moreLanguage.dto.LanguageSaveDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.dto.TypeLanguageSaveDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
@@ -49,6 +55,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -78,15 +86,29 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
     @Override
     public List<CountryLanguageDto> listQuery(CountryQueryDto countryQueryDto) {
-        return this.list(new BaseLambdaQueryWrapper<CountryLanguage>()
-                        .notEmptyEq(CountryLanguage::getCountryCode, countryQueryDto.getCountryCode())
-                        .notEmptyEq(CountryLanguage::getLanguageCode, countryQueryDto.getLanguageCode())
-                        .notEmptyIn(CountryLanguage::getCountryName, countryQueryDto.getCountryName())
-                        .notEmptyIn(CountryLanguage::getLanguageName, countryQueryDto.getLanguageName())
-                        .notEmptyEq(CountryLanguage::getEnableFlag, countryQueryDto.getEnableFlag())
-                        .orderByAsc(Arrays.asList(CountryLanguage::getCodeIndex,CountryLanguage::getId))
-                ).stream().map(list-> BeanUtil.copyProperties(list, CountryLanguageDto.class))
-//                .peek(it-> it.setCountryLanguageCode(it.getCode() < 10 ? ("GY" + "0" + it.getCode()) : ("GY" + it.getCode())))
+        List<CountryLanguage> countryLanguageList;
+        if (countryQueryDto.isCache()) {
+            RedisKeyBuilder parentKeyBuilder = RedisKeyConstant.COUNTRY_LANGUAGE.add(true, countryQueryDto.getCode());
+            if (countryQueryDto.getType() != null) {
+                parentKeyBuilder.add(countryQueryDto.getType().getCode() );
+            }
+            Set<String> keys = RedisStaticFunUtils.keys(parentKeyBuilder.build());
+            countryLanguageList = keys.stream().map(key->  (CountryLanguage) RedisStaticFunUtils.get(key)).collect(Collectors.toList());
+        }else {
+            countryLanguageList = this.list(new BaseLambdaQueryWrapper<CountryLanguage>()
+                    .notEmptyEq(CountryLanguage::getCode, countryQueryDto.getCode())
+                    .notNullEq(CountryLanguage::getType, countryQueryDto.getType())
+                    .notEmptyEq(CountryLanguage::getCountryCode, countryQueryDto.getCountryCode())
+                    .notEmptyEq(CountryLanguage::getLanguageCode, countryQueryDto.getLanguageCode())
+                    .notEmptyIn(CountryLanguage::getCountryName, countryQueryDto.getCountryName())
+                    .notEmptyIn(CountryLanguage::getLanguageName, countryQueryDto.getLanguageName())
+                    .notEmptyEq(CountryLanguage::getEnableFlag, countryQueryDto.getEnableFlag())
+                    .eq(CountryLanguage::getSingleLanguageFlag, countryQueryDto.isSingleLanguage() ? YesOrNoEnum.YES : YesOrNoEnum.NO)
+                    .orderByAsc(Arrays.asList(CountryLanguage::getCodeIndex, CountryLanguage::getId))
+            );
+        }
+
+        return countryLanguageList.stream().map(list-> BeanUtil.copyProperties(list, CountryLanguageDto.class))
                 .collect(Collectors.toList());
     }
 
@@ -103,22 +125,27 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         baseCountryLanguage.setCountryCode(countryCode);
         baseCountryLanguage.setCountryName(countryName);
         baseCountryLanguage.setEnableFlag(YesOrNoEnum.YES);
+        baseCountryLanguage.setSingleLanguageFlag(YesOrNoEnum.NO);
 
         String code;
         boolean isNew = countryTypeLanguageSaveDto.getCode() == null;
         if (isNew) {
-            Integer maxCountryLanguageCode = this.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
-                    .orderByDesc(CountryLanguage::getCodeIndex), CountryLanguage::getCodeIndex);
-            int codeIndex = maxCountryLanguageCode + 1;
-            baseCountryLanguage.setCodeIndex(codeIndex);
-            String fill = codeIndex < 10 ? "0" : "";
-            code = "GY" + fill + codeIndex;
+            // 如果走缓存,返回缓存的最大,否则为数据库最大
+            int maxCountryLanguageCode;
+            if (cache) {
+                maxCountryLanguageCode = (int) RedisStaticFunUtils.incr(RedisKeyConstant.COUNTRY_LANGUAGE.addEnd(cache,"size"), 1);
+            } else {
+                maxCountryLanguageCode = this.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
+                        .orderByDesc(CountryLanguage::getCodeIndex), CountryLanguage::getCodeIndex) + 1;
+            }
+            baseCountryLanguage.setCodeIndex(maxCountryLanguageCode);
+            // 还要检查是否存在预览数据
+            String fill = maxCountryLanguageCode < 10 ? "0" : "";
+            code = "GY" + fill + maxCountryLanguageCode;
         }else {
             code = countryTypeLanguageSaveDto.getCode();
         }
         baseCountryLanguage.setCode(code);
-
-        List<String> countryIdList = new ArrayList<>();
 
         // 查名字
         List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList(DictBusinessConstant.LANGUAGE);
@@ -133,58 +160,58 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                 CountryLanguage countryTypeLanguage = BeanUtil.copyProperties(baseCountryLanguage, CountryLanguage.class);
                 countryTypeLanguage.setType(type);
 
+                // 查找根
+                String rootStandardColumnCode = standardColumnService.findOneField(new LambdaQueryWrapper<StandardColumn>()
+                        .eq(StandardColumn::getType, type.getStandardColumnType()), StandardColumn::getCode);
+                if (!standardColumnCodeList.contains(rootStandardColumnCode)) {
+                    standardColumnCodeList.add(rootStandardColumnCode);
+                }
+
                 LambdaQueryWrapper<CountryLanguage> queryWrapper = new LambdaQueryWrapper<CountryLanguage>()
                         .eq(CountryLanguage::getCode, code)
                         .eq(CountryLanguage::getType, type);
 
                 // 检查是否已有国家表
-                if (isNew && this.exists(queryWrapper)) {
+                if (isNew && !cache && this.exists(queryWrapper)) {
                     throw new OtherException("已存在对应国家");
                 }
+
+                String redisKey = RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.addEnd(cache, code, type.getCode());
+                RedisStaticFunUtils.del(redisKey);
 
                 if (CollectionUtil.isNotEmpty(languageCodeList)) {
                     List<CountryLanguage> oldCountryLanguageList = this.list(queryWrapper.clone().in(CountryLanguage::getLanguageCode, languageCodeList));
 
                     this.remove(queryWrapper.clone().notIn(CountryLanguage::getLanguageCode, languageCodeList));
 
-                    // 查找根
-                    standardColumnCodeList.add(standardColumnService.findOneField(new LambdaQueryWrapper<StandardColumn>()
-                            .eq(StandardColumn::getType, type.getStandardColumnType()), StandardColumn::getCode));
-
                     for (String languageCode : languageCodeList) {
-                        CountryLanguage oldCountryLanguage = oldCountryLanguageList.stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst().orElse(null);
+                        CountryLanguage countryLanguage = oldCountryLanguageList.stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst().orElse(null);
 
-                        if (oldCountryLanguage == null) {
-                            oldCountryLanguage = BeanUtil.copyProperties(countryTypeLanguage, CountryLanguage.class);
-                            oldCountryLanguage.setLanguageCode(languageCode);
-                            oldCountryLanguage.setLanguageName(dictInfoToList.stream().filter(dict-> dict.getValue().equals(languageCode)).findFirst().map(BasicBaseDict::getName).orElse(null));
-                            this.save(oldCountryLanguage);
+                        if (countryLanguage == null) {
+                            countryLanguage = BeanUtil.copyProperties(countryTypeLanguage, CountryLanguage.class);
+                            countryLanguage.setLanguageCode(languageCode);
+                            countryLanguage.setLanguageName(dictInfoToList.stream().filter(dict-> dict.getValue().equals(languageCode)).findFirst().map(BasicBaseDict::getName).orElse(null));
+                            this.save(countryLanguage);
                         }
 
-                        String countryId = oldCountryLanguage.getId();
+                        String countryId = countryLanguage.getId();
+
+                        RedisStaticFunUtils.set(RedisKeyConstant.COUNTRY_LANGUAGE.addEnd(cache, code, type.getCode(), countryId), countryLanguage);
 
                         removeRelation(countryId);
 
-                        List<StandardColumnCountryRelation> countryRelationList = standardColumnCodeList.stream().map(standardColumnCode -> {
+                        List<StandardColumnCountryRelation> countryRelationList = standardColumnCodeList.stream().skip(1).map(standardColumnCode -> {
                             // 从redis标准列数据
                             RedisStaticFunUtils.setBusinessService(standardColumnService).setMessage("非法标准列code");
                             StandardColumn standardColumn = (StandardColumn)
                                     RedisStaticFunUtils.hget(RedisKeyConstant.STANDARD_COLUMN_LIST.build(), type.getCode() + RedisKeyBuilder.COMMA + standardColumnCode);
-                            return new StandardColumnCountryRelation(
-                                    countryId,
-                                    standardColumn.getCode(),
-                                    standardColumn.getName(),
-                                    ""
-                            );
+                            return new StandardColumnCountryRelation(countryId, standardColumn);
                         }).collect(Collectors.toList());
 
                         relationService.saveBatch(countryRelationList);
-
-                        // 关联关系存到redis
-                        countryIdList.add(countryId);
                     }
 
-                    standardColumnCodeList.forEach(it-> RedisStaticFunUtils.lSet(RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.addEnd(cache, code, type.getCode()),it));
+                    standardColumnCodeList.forEach(it-> RedisStaticFunUtils.lSet(redisKey,it));
                 }
             });
         }finally {
@@ -215,8 +242,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     }
 
     @Override
-    public CountryTypeLanguageSaveDto detail(String code, boolean cache) {
-        List<CountryLanguage> countryLanguageList = this.list(new LambdaQueryWrapper<CountryLanguage>().eq(CountryLanguage::getCode, code));
+    public CountryTypeLanguageSaveDto detail(MoreLanguageQueryDto queryDto) {
+        CountryQueryDto countryQueryDto = BeanUtil.copyProperties(queryDto, CountryQueryDto.class);
+        List<CountryLanguageDto> countryLanguageList = this.listQuery(countryQueryDto);
         if (CollectionUtil.isEmpty(countryLanguageList)) throw new OtherException("未查询到国家语言");
 
         CountryLanguage baseCountryLanguage = countryLanguageList.get(0);
@@ -225,11 +253,11 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         countryTypeLanguageSaveDto.setTypeLanguage(Arrays.stream(CountryLanguageType.values()).map(type-> {
             TypeLanguageSaveDto typeLanguageSaveDto = new TypeLanguageSaveDto();
             typeLanguageSaveDto.setType(type);
-            typeLanguageSaveDto.setStandardColumnCodeList(this.findStandardColumnCodeList(code, type, cache));
+            typeLanguageSaveDto.setStandardColumnCodeList(this.findStandardColumnCodeList(queryDto.getCode(), type, queryDto.isCache()));
 
-            List<CountryLanguage> sameTypeCountryLanguageList = countryLanguageList.stream().filter(it -> it.getType().equals(type)).collect(Collectors.toList());
+            List<CountryLanguageDto> sameTypeCountryLanguageList = countryLanguageList.stream().filter(it -> it.getType().equals(type)).collect(Collectors.toList());
             if (CollectionUtil.isNotEmpty(sameTypeCountryLanguageList)) {
-                typeLanguageSaveDto.setLanguageCodeList(sameTypeCountryLanguageList.stream().map(CountryLanguage::getLanguageCode).collect(Collectors.toList()));
+                typeLanguageSaveDto.setLanguageCodeList(sameTypeCountryLanguageList.stream().map(CountryLanguageDto::getLanguageCode).collect(Collectors.toList()));
             }
             return typeLanguageSaveDto;
         }).collect(Collectors.toList()));
@@ -254,9 +282,6 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         String redisKey = RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.addEnd(cache, code, type.getCode());
         List<Object> tempStandardColumnCodeList = RedisStaticFunUtils.lGet(redisKey);
         if (CollectionUtil.isEmpty(tempStandardColumnCodeList)) {
-            if (!NumberUtil.isNumber(code)) {
-                code = Integer.parseInt(code.replace("GY","")) + "";
-            }
             String countryLanguageId = this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                     .eq(CountryLanguage::getCode, code)
                     .eq(CountryLanguage::getType, type), CountryLanguage::getId
@@ -270,6 +295,73 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         } else {
             return tempStandardColumnCodeList.stream().map(Object::toString).collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public String cancelSave(CountryQueryDto countryQueryDto) {
+        // 删除缓存 countryLanguage
+        RedisStaticFunUtils.del();
+
+        // 删除缓存 standardColumnRelation
+        return null;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void initLanguage(List<BasicBaseDict> dictList) {
+        // 创建语言, type分组
+        List<CountryLanguage> countryLanguageList = Arrays.stream(CountryLanguageType.values()).flatMap(type -> {
+            AtomicInteger index = new AtomicInteger();
+            return dictList.stream().map(dict -> {
+                CountryLanguage countryLanguage = new CountryLanguage();
+                countryLanguage.setCodeIndex(index.incrementAndGet());
+                countryLanguage.setCode("Y" + (countryLanguage.getCodeIndex() < 10 ? "0" + countryLanguage.getCodeIndex() : countryLanguage.getCodeIndex()));
+                countryLanguage.setLanguageCode(dict.getValue());
+                countryLanguage.setLanguageName(dict.getName());
+                countryLanguage.setEnableFlag(YesOrNoEnum.YES);
+                countryLanguage.setSingleLanguageFlag(YesOrNoEnum.YES);
+                countryLanguage.setType(type);
+                countryLanguage.setId(this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
+                        .eq(CountryLanguage::getCode,countryLanguage.getCode())
+                        .eq(CountryLanguage::getType,countryLanguage.getType())
+                        .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES), CountryLanguage::getId
+                ));
+                return countryLanguage;
+            });
+        }).collect(Collectors.toList());
+
+        this.saveOrUpdateBatch(countryLanguageList);
+
+        countryLanguageList.stream().filter(it-> StrUtil.isNotBlank(it.getId())).forEach(it->
+                relationService.physicalDeleteQWrap(new QueryWrapper<StandardColumnCountryRelation>()
+                        .eq("country_language_id", it.getId()))
+        );
+        // 创建配置
+        List<StandardColumnCountryRelation> relationList = new ArrayList<>();
+        countryLanguageList.stream().collect(Collectors.groupingBy(CountryLanguage::getType)).forEach((type,sameTypeList)-> {
+            // 获取这个type下的所有属性
+            StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
+            List<StandardColumnType> childrenTypeList = new ArrayList<>(type.getStandardColumnType().getChildrenTypeList());
+            childrenTypeList.add(type.getStandardColumnType());
+            queryDto.setTypeList(childrenTypeList);
+            List<StandardColumnDto> standardColumnDtoList = standardColumnService.listQuery(queryDto);
+            standardColumnDtoList.forEach(standardColumnDto -> {
+                sameTypeList.forEach(countryLanguage -> {
+                    StandardColumnCountryRelation relation = new StandardColumnCountryRelation();
+                    relation.setCountryLanguageId(countryLanguage.getId());
+                    relation.setStandardColumnCode(standardColumnDto.getCode());
+                    relation.setStandardColumnName(standardColumnDto.getName());
+                    relationList.add(relation);
+                });
+            });
+
+        });
+
+        relationService.saveOrUpdateBatch(relationList);
+
+        // 要清除Redis? TODO
+
+        // 创建翻译(使用翻译软件做基础翻译? TODO)
     }
 
 // 自定义方法区 不替换的区域【other_start】

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +57,11 @@ public class MoreLanguageReflectTableStrategy implements MoreLanguageTableStrate
                 com.github.pagehelper.Page startPage = page.startPage();
                 List<Object> returnValue = (List<Object>) invokeMethod.invoke(moreLanguageService, param);
                 PageInfo<Map<String,Object>> pageInfo = startPage.toPageInfo();
-                pageInfo.setList(returnValue.stream().map(BeanUtil::beanToMap).collect(Collectors.toList()));
+                // 或者改成对tableField的解析
+                List<Map<String, Object>> mapList = returnValue.stream()
+                        .map(it-> BeanUtil.beanToMap(it, true, true))
+                        .collect(Collectors.toList());
+                pageInfo.setList(mapList);
                 return pageInfo;
             }
         }catch (Exception e){

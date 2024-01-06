@@ -63,6 +63,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
     @Transactional(rollbackFor = Exception.class)
     public String save(StandardColumnSaveDto standardColumnSaveDto) {
         String rightOperationValue = YesOrNoEnum.NO.getValueStr();
+        StandardColumnType type = standardColumnSaveDto.getType();
 
         String id = standardColumnSaveDto.getId();
 
@@ -74,13 +75,14 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         saveLock.lock();
         try {
             // 构建code唯一qw
-            LambdaQueryWrapper<StandardColumn> queryWrapper = new LambdaQueryWrapper<StandardColumn>().eq(StandardColumn::getName, standardColumnSaveDto.getName());
+            LambdaQueryWrapper<StandardColumn> queryWrapper = new LambdaQueryWrapper<StandardColumn>()
+                    .eq(StandardColumn::getName, standardColumnSaveDto.getName())
+                    .eq(StandardColumn::getType, type);
             if (StrUtil.isNotBlank(id)) {
                 standardColumn = this.getById(id);
                 queryWrapper.ne(StandardColumn::getId, id);
             }else {
                 // 新创建编码
-                StandardColumnType type = standardColumn.getType();
                 StandardColumn maxStandColumn = this.findOne(new BaseLambdaQueryWrapper<StandardColumn>()
                         .eq(StandardColumn::getType, type).orderByDesc(StandardColumn::getId));
                 int code = Integer.parseInt(maxStandColumn.getCode().replace(type.getPreCode(), "")) + 1;
@@ -146,7 +148,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
     @Override
     public StandardColumn findByCode(String code) {
         String[] codes = code.split(RedisKeyBuilder.COMMA);
-        return this.findOne(new BaseLambdaQueryWrapper<StandardColumn>().eq(StandardColumn::getType, codes[0]).eq(StandardColumn::getCode, codes.length > 1 ? codes[1] : ""));
+        return this.findOne(new BaseLambdaQueryWrapper<StandardColumn>().like(StandardColumn::getType, codes[0]).eq(StandardColumn::getCode, codes.length > 1 ? codes[1] : ""));
     }
 
 

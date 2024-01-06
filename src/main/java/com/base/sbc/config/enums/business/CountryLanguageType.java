@@ -48,4 +48,8 @@ public enum CountryLanguageType {
         return Arrays.stream(CountryLanguageType.values()).filter(it-> it.standardColumnType.equals(type)).findFirst().orElse(null);
     }
 
+    public static CountryLanguageType findByCode(String code){
+        return Arrays.stream(CountryLanguageType.values()).filter(it-> it.code.equals(code)).findFirst().orElse(null);
+    }
+
 }

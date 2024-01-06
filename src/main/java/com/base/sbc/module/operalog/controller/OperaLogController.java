@@ -7,6 +7,7 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.operalog.dto.OperaLogDto;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -30,21 +31,9 @@ public class OperaLogController extends BaseController {
     private final OperaLogService operaLogService;
 
     @GetMapping("/listPage")
-    public ApiResult listPage(OperaLogDto operaLogDto ,@RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
-        BaseQueryWrapper<OperaLogEntity> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.notEmptyLike("document_id",operaLogDto.getDocumentId());
-        queryWrapper.notEmptyLike("document_name",operaLogDto.getDocumentName());
-        queryWrapper.notEmptyLike("document_code",operaLogDto.getDocumentCode());
-        queryWrapper.notEmptyLike("parent_id",operaLogDto.getParentId());
-        queryWrapper.notEmptyLike("type",operaLogDto.getType());
-        queryWrapper.notEmptyLike("name",operaLogDto.getName());
-        queryWrapper.notEmptyLike("create_name",operaLogDto.getCreateName());
-        queryWrapper.eq("company_code",userCompany);
-        queryWrapper.between("create_date",operaLogDto.getCreateDate());
-        queryWrapper.orderByDesc("create_date");
-        PageHelper.startPage(operaLogDto);
-        List<OperaLogEntity> list = operaLogService.list(queryWrapper);
-        return selectSuccess(new PageInfo<>(list));
+    public ApiResult<PageInfo<OperaLogEntity>> listPage(OperaLogDto operaLogDto , @RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        operaLogDto.setUserCompany(userCompany);
+        return selectSuccess(operaLogService.listPage(operaLogDto));
     }
 
     @PostMapping("/save")

@@ -1,5 +1,6 @@
 package com.base.sbc.module.moreLanguage.dto;
 
+import com.base.sbc.config.enums.YesOrNoEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,12 +16,20 @@ import java.util.List;
 @NoArgsConstructor
 public class MoreLanguageExcelQueryDto {
 
-    @NotBlank(message = "缺少国家语言编码")
     @ApiModelProperty(value = "国家语言")
     private String code;
 
+    @ApiModelProperty(value = "语言编码")
+    private String languageCode;
+
+    @ApiModelProperty(value = "是否单语言")
+    private YesOrNoEnum singleLanguageFlag;
+
     @ApiModelProperty(value = "选择的标准列")
     private List<String> standardColumnCodeList;
+
+    @ApiModelProperty(value = "是否修正缺失")
+    private YesOrNoEnum showLack;
 
 //    @NotEmpty(message = "请至少选择一个币种")
 //    @ApiModelProperty(value = "选择的币种")

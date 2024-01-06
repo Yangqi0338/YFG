@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.entity;
 import java.util.Date;
+
+import com.base.sbc.module.standard.entity.StandardColumn;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -52,4 +54,10 @@ public class StandardColumnCountryRelation extends BaseDataEntity<String> {
     @ApiModelProperty(value = "备注"  )
     private String remarks;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public StandardColumnCountryRelation(String countryLanguageId, StandardColumn standardColumn) {
+        this.countryLanguageId = countryLanguageId;
+        this.standardColumnCode = standardColumn.getCode();
+        this.standardColumnName = standardColumn.getName();
+    }
 }

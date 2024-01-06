@@ -1,6 +1,9 @@
 package com.base.sbc.module.moreLanguage.dto;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,14 +17,18 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 public class CountryQueryDto extends Page {
 
-    @NotBlank(message = "国家不能为空")
+    @ApiModelProperty(value = "编码")
+    private String code;
+
+    @ApiModelProperty(value = "编码")
+    private CountryLanguageType type;
+
     @ApiModelProperty(value = "国家编码")
     private String countryCode;
 
     @ApiModelProperty(value = "国家名")
     private String countryName;
 
-    @NotBlank(message = "语言不能为空")
     @ApiModelProperty(value = "语种编码")
     private String languageCode;
 
@@ -29,6 +36,22 @@ public class CountryQueryDto extends Page {
     private String languageName;
 
     @ApiModelProperty(value = "停用标识")
-    private String enableFlag;
+    private YesOrNoEnum enableFlag;
+
+    @ApiModelProperty(value = "根据编码分组")
+    private String codeGroup;
+
+    @ApiModelProperty(value = "根据编码分组")
+    private YesOrNoEnum singleLanguageFlag;
+
+    @ApiModelProperty(value = "是否缓存")
+    private String cache;
+
+    public boolean isCache() {
+        return StrUtil.equals(YesOrNoEnum.YES.getValueStr(), cache);
+    }
+    public boolean isSingleLanguage() {
+        return singleLanguageFlag == YesOrNoEnum.YES;
+    }
 
 }

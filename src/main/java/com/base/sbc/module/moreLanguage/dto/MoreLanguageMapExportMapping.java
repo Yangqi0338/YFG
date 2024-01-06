@@ -4,7 +4,9 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import lombok.Data;
 import org.apache.poi.ss.formula.functions.T;
@@ -26,9 +28,12 @@ public class MoreLanguageMapExportMapping {
     private Map<Integer, String> codeMap = new HashMap<>();
     private Map<String, String> mappingJson;
 
-    private List<StandardColumnCountryTranslate> sourceData;
+    private List<StandardColumnCountryTranslate> sourceData = new ArrayList<>();
 
     private StandardColumnCountryTranslate baseSourceData;
+
+    private List<CountryLanguageDto> countryLanguageList;
+    private CountryLanguageType type;
 
     private boolean isInit = false;
 
@@ -47,14 +52,17 @@ public class MoreLanguageMapExportMapping {
     public <T> T initByFirstRow(Map<Integer, String> firstRow, Class<T> clazz) {
         if (isInit) return null;
 
-        Map<String, String> firstRowMap = new HashMap<>();
+        Map<String, String> firstRowMap = new HashMap<>(headMap.size());
 
         Integer lastCell = firstRow.keySet().stream().max(Comparator.naturalOrder()).get();
 
         Map<String,String> keyNameMap = JSONUtil.toBean(firstRow.get(lastCell), HashMap.class);
+        if (keyNameMap.isEmpty()) {
+            throw new OtherException("隐藏列的关键映射值被修改,请重新导入");
+        }
         mappingJson = keyNameMap;
         headMap.forEach((key,value)->{
-            if (!keyNameMap.containsKey(value)) throw new OtherException("312312");
+            if (!keyNameMap.containsKey(value)) throw new OtherException("请勿整列删除(包括隐藏列),请重新导出一份");
             String code = keyNameMap.get(value);
             codeMap.put(key,code);
             firstRowMap.put(code, firstRow.get(key));
@@ -66,9 +74,9 @@ public class MoreLanguageMapExportMapping {
     }
 
     public Map<String, String> buildMap(Map<Integer, String> row) {
-        if (!isInit) throw new OtherException("2132132");
+        if (!isInit) throw new OtherException("系统错误");
 
-        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, String> map = new HashMap<>(row.size());
         row.forEach((key,value)->{
             map.put(codeMap.get(key), value);
         });

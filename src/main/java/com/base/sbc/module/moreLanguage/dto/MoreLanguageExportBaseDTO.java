@@ -1,6 +1,7 @@
 package com.base.sbc.module.moreLanguage.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.afterturn.easypoi.excel.annotation.ExcelCollection;
 import com.alibaba.excel.annotation.ExcelProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,12 +13,6 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class MoreLanguageExportBaseDTO {
-
-    @Excel(name = "翻译内容", width = 80.0)
-    private String content;
-
-    @Excel(name = "翻译语言", width = 20.0, mergeVertical = true)
-    private String languageName;
 
     @Excel(name = "标准列Code", isColumnHidden = true)
     private String standardColumnCode;

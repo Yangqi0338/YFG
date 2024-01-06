@@ -5,11 +5,13 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.service;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.CountryTypeLanguageSaveDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.standard.entity.StandardColumn;
 
@@ -30,11 +32,15 @@ public interface CountryLanguageService extends BaseService<CountryLanguage>{
 
     String review(CountryTypeLanguageSaveDto countryTypeLanguageSaveDto);
 
-    CountryTypeLanguageSaveDto detail(String code, boolean cache);
+    CountryTypeLanguageSaveDto detail(MoreLanguageQueryDto queryDto);
 
     List<StandardColumn> findStandardColumnList(String code, CountryLanguageType type, boolean cache);
 
     List<String> findStandardColumnCodeList(String code, CountryLanguageType type, boolean cache);
+
+    String cancelSave(CountryQueryDto countryQueryDto);
+
+    void initLanguage(List<BasicBaseDict> dictList);
 
 // 自定义方法区 不替换的区域【other_start】
 
