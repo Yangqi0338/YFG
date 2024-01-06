@@ -27,6 +27,7 @@ import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
+import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageInfo;
@@ -36,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +45,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,6 +76,10 @@ public class HangTagController extends BaseController {
     private HangTagIngredientService hangTagIngredientService;
     private final StyleColorService styleColorService;
     private final FlowableService flowableService;
+
+    @Autowired
+    @Lazy
+    private SmpService smpService;
 
     @ApiOperation(value = "分页查询")
     @PostMapping("/queryPageInfo")
@@ -207,6 +216,7 @@ public class HangTagController extends BaseController {
             hangTag1.setStatus("2");
         }
 
+        smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), 0, 0);
         hangTagService.updateById(hangTag1);
         return updateSuccess("反审成功");
     }

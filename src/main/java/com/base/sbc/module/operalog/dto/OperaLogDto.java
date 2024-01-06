@@ -4,6 +4,8 @@ import com.base.sbc.module.common.dto.BaseDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author 卞康
  * @date 2023/6/19 16:55:50
@@ -17,6 +19,8 @@ public class OperaLogDto extends BaseDto {
     private String documentId;
 
     private String documentCode;
+
+    private List<String> documentCodeList;
 
     private String documentName;
 

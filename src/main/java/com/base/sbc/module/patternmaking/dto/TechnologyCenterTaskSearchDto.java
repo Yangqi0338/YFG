@@ -51,4 +51,22 @@ public class TechnologyCenterTaskSearchDto extends Page {
 
     private String urgencyName;
 
+    @ApiModelProperty(value = "是否滞留款查询")
+    private String isRetentionQuery;
+
+    @ApiModelProperty(value = "版房")
+    private String patternRoom;
+
+    @ApiModelProperty(value = "打样设计师")
+    private String patternDesignerName;
+
+    @ApiModelProperty(value = "确认收到样衣时间")
+    private String receiveSampleDate;
+
+    @ApiModelProperty(value = "波段名称")
+    private String bandName;
+
+    @ApiModelProperty(value = "图片标记"  )
+    private String imgFlag;
+
 }

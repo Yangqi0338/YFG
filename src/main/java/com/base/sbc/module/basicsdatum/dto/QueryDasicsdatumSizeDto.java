@@ -26,6 +26,9 @@ public class QueryDasicsdatumSizeDto  extends Page {
 
     private String all;
 
+    @ApiModelProperty(value = "号型类型编码"  )
+    private String   modelTypeCode;
+
     /*1导出，0模板导出*/
     private String  isDerive;
 

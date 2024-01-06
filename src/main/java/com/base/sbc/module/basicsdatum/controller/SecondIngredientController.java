@@ -25,7 +25,6 @@ import org.apache.commons.lang.math.IntRange;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -72,7 +71,7 @@ public class SecondIngredientController extends BaseController {
     @GetMapping("/sync2scm")
     @ApiOperation(value = "同步到scm")
     @DuplicationCheck(time = 1)
-    public ApiResult sync2scm(@Valid @NotEmpty(message = "同步id列表不能为空") String[] ids){
+    public ApiResult sync2scm(@Valid @NotEmpty(message = "同步code列表不能为空") String[] ids){
         List<BasicBaseDict> pd021DictList = ccmFeignService.getAllDictInfoToList(uniqueDictCode);
         List<SecondIngredientSyncDto> syncDtoList = pd021DictList.stream().filter(it -> Arrays.asList(ids).contains(it.getId())).map(it -> {
             SecondIngredientSyncDto secondIngredientSyncDto = BeanUtil.copyProperties(it, SecondIngredientSyncDto.class);

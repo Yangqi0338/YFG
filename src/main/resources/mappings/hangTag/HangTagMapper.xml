@@ -37,6 +37,7 @@
         tbmt.model_Type AS modelType,
         ht.product_name AS productName,
         ht.product_code AS productCode,
+        tsd.prod_category_name,
         ht.*,
         tsp.control_confirm as planCostConfirm,
         tsp.product_hangtag_confirm as productTagPriceConfirm,
@@ -81,6 +82,22 @@
             <if test="dto.ingredient != null and dto.ingredient != ''">
                 AND ht.ingredient like concat('%',#{dto.ingredient},'%')
             </if>
+
+
+            <if test="null != dto.productCodes and dto.productCodes.length > 0">
+                AND  ht.product_code IN
+                <foreach collection="dto.productCodes" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
+            </if>
+
+            <if test="null != dto.prodCategorys and dto.prodCategorys.length > 0">
+                AND  tsd.prod_category IN
+                <foreach collection="dto.prodCategorys" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
+            </if>
+
             <if test="dto.status != null and dto.status != ''">
                 <choose>
                     <when test="dto.status == 0">
@@ -122,7 +139,16 @@
             <if test="authSql != null and authSql != ''">
                 and (${authSql})
             </if>
+            <choose>
+                <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
+                    ORDER BY  tpi.create_date DESC
+                </when>
+                <otherwise>
+                    ORDER BY   tssc.create_date DESC
+                </otherwise>
+            </choose>
         </where>
+
 
     </select>
 

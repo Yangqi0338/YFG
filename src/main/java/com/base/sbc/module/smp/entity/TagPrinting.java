@@ -1,8 +1,10 @@
 package com.base.sbc.module.smp.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -195,7 +197,8 @@ public class TagPrinting {
     /**
      * 入库时间
      */
-    private String C8_APPBOM_StorageTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date c8_APPBOM_StorageTime;
 
     /**
      * 英文成分

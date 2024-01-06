@@ -13,11 +13,9 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
-import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -44,12 +42,13 @@ import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
+import com.base.sbc.module.pack.vo.PackBomColorVo;
+import com.base.sbc.module.pack.vo.PackBomSizeVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.entity.StylePricing;
-import com.base.sbc.module.pricing.service.PricingTemplateService;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
-import com.base.sbc.module.pricing.vo.PricingTemplateItemVO;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
@@ -141,6 +140,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
+
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getBomVersionId()), "bom_version_id", dto.getBomVersionId());
@@ -154,6 +154,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         Page<PackBom> page = PageHelper.startPage(dto);
         List<PackBom> list = list(qw);
+
         minioUtils.setObjectUrlToList(list, "imageUrl");
         PageInfo<PackBom> pageInfo = page.toPageInfo();
         PageInfo<PackBomVo> voPageInfo = CopyUtil.copy(pageInfo, PackBomVo.class);
@@ -240,7 +241,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             db.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             db.setBulkUnitUse(dto.getBulkUnitUse());
             db.setDesignUnitUse(dto.getDesignUnitUse());
-            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),null);
+            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
             updateById(db);
             packBom = db;
 
@@ -324,24 +325,22 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         /*查询款式定价是否通过*/
         /*比较成本价是否有改动*/
         /*核价信息总成本*/
-        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId,null);
-        /*判断价格是否相等*/
-        if(totalCost.compareTo(cost) != 0){
+        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId,BaseGlobal.STOCK_STATUS_CHECKED);
+        /*判断价格是否相等 如果等于空时代表新增的物料*/
+        if( ObjectUtils.isEmpty(cost) || totalCost.compareTo(cost) != 0){
             PackInfo packInfo = packInfoService.getById(packInfoId);
             StylePricing stylePricing = stylePricingService.getByOne("pack_id", packInfoId);
             if (!ObjectUtils.isEmpty(stylePricing)) {
-                /*判断款式定价是否都通过*/
-                if (StrUtil.equals(stylePricing.getControlConfirm(), BaseGlobal.YES) &&
-                        StrUtil.equals(stylePricing.getProductHangtagConfirm(), BaseGlobal.YES) &&
-                        StrUtil.equals(stylePricing.getControlHangtagConfirm(), BaseGlobal.YES)
+                /*判断款式定价的计控是否确认*/
+                if (StrUtil.equals(stylePricing.getControlConfirm(), BaseGlobal.YES)
                 ) {
                     //发送消息
-                    messageUtils.sendMessage("M计控,商企", "", packInfo.getStyleNo() + "大货款号，总成本加改动请注意", "/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods", packInfo.getPlanningSeasonId(), baseController.getUser());
+                    messageUtils.sendMessage("计控,商企", "", packInfo.getStyleNo() + "大货款号，总成本加改动请注意", "/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods", packInfo.getPlanningSeasonId(), baseController.getUser());
                     stylePricing.setControlConfirm(BaseGlobal.NO);
                     stylePricing.setProductHangtagConfirm(BaseGlobal.NO);
                     stylePricing.setControlHangtagConfirm(BaseGlobal.NO);
                     /*重置状态*/
-                    stylePricingService.updateById(stylePricing);
+//                    stylePricingService.updateById(stylePricing);
                 }
             }
         }
@@ -531,7 +530,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public boolean unusableChange(String id, String unusableFlag) {
         List<String> split = StrUtil.split(id, CharUtil.COMMA);
         PackBom byId = getById(split.get(0));
-        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),null);
+        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
         // 校验版本
         packBomVersionService.checkVersion(byId.getBomVersionId());
         UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
@@ -737,7 +736,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 throw new OtherException("物料中存在已下发数据");
             }
         }
-        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId(),null);
+        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
         baseMapper.deleteBatchIds(StrUtil.split(id, ','));
         if(StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.IN_READY)){
             costUpdate(packBomList.get(0).getForeignId(),totalCost);

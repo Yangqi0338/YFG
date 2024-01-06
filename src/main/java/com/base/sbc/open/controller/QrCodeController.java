@@ -33,18 +33,20 @@ public class QrCodeController {
         @GetMapping
         public void getQrCode(HttpServletResponse response, String content){
             try {
-                String qrCodeContent = Opt.ofBlankAble(content).orElse("无内容");
-                QrConfig qrConfig = new QrConfig(128, 128);
-                qrConfig.setMargin(0);
-                BufferedImage image = QrCodeUtil.generate(qrCodeContent, qrConfig);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(image, "png", baos);
-                byte[] bytes = baos.toByteArray();
-                response.setContentType("image/png");
-                OutputStream outputStream = response.getOutputStream();
-                outputStream.write(bytes);
-                outputStream.flush();
-                outputStream.close();
+                synchronized (this){
+                    String qrCodeContent = Opt.ofBlankAble(content).orElse("无内容");
+                    QrConfig qrConfig = new QrConfig(128, 128);
+                    qrConfig.setMargin(0);
+                    BufferedImage image = QrCodeUtil.generate(qrCodeContent, qrConfig);
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ImageIO.write(image, "png", baos);
+                    byte[] bytes = baos.toByteArray();
+                    response.setContentType("image/png");
+                    OutputStream outputStream = response.getOutputStream();
+                    outputStream.write(bytes);
+                    outputStream.flush();
+                    outputStream.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
