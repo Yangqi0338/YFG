@@ -1125,9 +1125,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
 
         //region 20231219 huangqiang 修改大货款号将老款图片下载重新上传，上传成功后删除
-        Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
-        if (!result) {
-            throw new OtherException("图片上传失败！");
+        if(StrUtil.isNotBlank(styleColor.getStyleColorPic())){
+            Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
+            if (!result) {
+                throw new OtherException("图片上传失败！");
+            }
         }
         //endregion
         return true;
@@ -1703,7 +1705,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
             } catch (Exception e) {
                 result = false;
-                throw new RuntimeException(e);
+                log.info(e.getMessage());
+//                throw new RuntimeException(e);
             }finally {
                 //上传成功后删除
                 if (uploadStatus) {
