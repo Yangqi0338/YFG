@@ -507,7 +507,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         List<StandardColumnCountryTranslate> translateList = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
             LambdaQueryWrapper<StandardColumnCountryTranslate> translateQueryWrapper = new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-                    .select(StandardColumnCountryTranslate::getCountryLanguageId, StandardColumnCountryTranslate::getPropertiesCode, StandardColumnCountryTranslate::getContent)
                     .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
                     .in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList);
 
@@ -536,25 +535,24 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             Map<String, Object> map = new HashMap<>(showFieldList.size());
             List<StandardColumnCountryTranslate> translatePropertiesResultMap = translateList.stream().filter(it -> it.getPropertiesCode().equals(propertiesKey)).collect(Collectors.toList());
             showFieldList.forEach(field->{
-                String fieldKey = StrUtil.toUnderlineCase(field);
-                Object fieldValue = "";
-                if (!resultMap.containsKey(fieldKey)) {
-                    for (CountryLanguageDto countryLanguage : countryLanguageList) {
-                        Map<String, Object> translateResultMap = translatePropertiesResultMap.stream()
-                                .filter(it -> it.getCountryLanguageId().equals(countryLanguage.getId())).findFirst().map(BeanUtil::beanToMap).orElse(new HashMap<>());
-                        for (Map.Entry<String, Object> entry : translateResultMap.entrySet()) {
-                            String key = entry.getKey();
-                            Object value = entry.getValue();
-                            if (singleLanguageFlag == YesOrNoEnum.NO) {
-                                key = (countryLanguage.getLanguageCode() + "-" + key);
-                            }
-                            if (fieldKey.equals(key)) {
-                                fieldValue = value;
-                                break;
-                            }
+                Object fieldValue = null;
+                for (CountryLanguageDto countryLanguage : countryLanguageList) {
+                    Map<String, Object> translateResultMap = translatePropertiesResultMap.stream()
+                            .filter(it -> it.getCountryLanguageId().equals(countryLanguage.getId())).findFirst().map(BeanUtil::beanToMap).orElse(new HashMap<>());
+                    for (Map.Entry<String, Object> entry : translateResultMap.entrySet()) {
+                        String key = entry.getKey();
+                        Object value = entry.getValue();
+                        if (!field.equals(key) && singleLanguageFlag == YesOrNoEnum.NO) {
+                            key = (countryLanguage.getLanguageCode() + "-" + key);
+                        }
+                        if (field.equals(key)) {
+                            fieldValue = value;
+                            break;
                         }
                     }
-                }else {
+                }
+                String fieldKey = StrUtil.toUnderlineCase(field);
+                if (fieldValue == null && resultMap.containsKey(fieldKey)) {
                     fieldValue = resultMap.get(fieldKey);
                 }
                 if (fieldValue instanceof Date) {

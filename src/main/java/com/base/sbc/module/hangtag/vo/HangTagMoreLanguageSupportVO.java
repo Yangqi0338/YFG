@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.vo;
 
 import com.base.sbc.config.enums.business.StandardColumnModel;
+import com.base.sbc.config.enums.business.StandardColumnType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -51,6 +52,13 @@ public class HangTagMoreLanguageSupportVO {
     @JsonIgnore
     @ApiModelProperty(value = "标准列模型")
     protected StandardColumnModel model;
+
+    /**
+     * 标准列模型
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "标准列模型")
+    protected StandardColumnType type;
 
     /**
      * 查数据库的编码

@@ -100,6 +100,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
      * 分类列表
      */
     @ApiModelProperty(value = "分类列表")
+    @JsonIgnore
     private List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
 
     /**

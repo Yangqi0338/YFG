@@ -103,7 +103,7 @@ public interface HangTagService extends BaseService<HangTag> {
      */
     Boolean copyPack(String styleNo, String newStyleNo);
 
-    List<?> getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO, boolean needHandle, boolean mergeWarnMsg);
+    Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO, boolean needHandle, boolean mergeWarnMsg);
 
 // 自定义方法区 不替换的区域【other_end】
 

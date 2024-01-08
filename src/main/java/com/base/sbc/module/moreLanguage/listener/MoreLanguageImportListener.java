@@ -284,7 +284,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 translate.setId(countryTranslate.getId());
                 translate.setPropertiesName(countryTranslate.getPropertiesName());
                 translate.setTitleName(countryTranslate.getTitleName());
-                updateNewTranslateList.add(translate);
+                if (!translate.getContent().trim().equals(countryTranslate.getContent().trim())) { updateNewTranslateList.add(translate);}
             }else {
                 addTranslateList.add(translate);
             }
@@ -298,7 +298,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         standardColumnCountryTranslateService.saveBatchOperaLog(addTranslateList, baseEntity);
         baseEntity.setType("修改");
         standardColumnCountryTranslateService.updateBatchOperaLog(updateOldTranslateList, updateNewTranslateList, baseEntity);
-        standardColumnCountryTranslateService.saveOrUpdateBatch(translateList);
+        updateNewTranslateList.addAll(addTranslateList);
+        standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
 
         // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
         countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>().in(CountryModel::getCountryLanguageId, countryLanguageIdList));

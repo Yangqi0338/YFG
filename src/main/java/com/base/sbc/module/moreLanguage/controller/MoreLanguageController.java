@@ -73,7 +73,6 @@ public class MoreLanguageController extends BaseController {
      */
     @SneakyThrows
     @PostMapping("/importExcel")
-    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "导入国家翻译", notes = "导入国家翻译")
     @DuplicationCheck(type = 3, time = 999)
     public ApiResult importExcel(@RequestPart MultipartFile file, MoreLanguageExcelQueryDto excelQueryDto) {

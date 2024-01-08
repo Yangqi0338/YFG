@@ -14,6 +14,7 @@ import lombok.EqualsAndHashCode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 
 /**
  * 类描述：吊牌表 实体类
@@ -41,6 +42,36 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
             });
         }
         return map;
+    }
+
+    public String getMergedContent() {
+        StringJoiner joiner = new StringJoiner("\n");
+        if (CollUtil.isNotEmpty(this.getLanguageCodeList())) {
+            this.getLanguageCodeList().forEach(languageCode-> {
+                Optional<HangTagMoreLanguageVO> voOpt = this.getLanguageList().stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst();
+                if (voOpt.isPresent()) {
+                    HangTagMoreLanguageVO languageVO = voOpt.get();
+                    joiner.add(languageVO.getContent() + "（" + languageVO.getLanguageName() + "）");
+                }
+            });
+            joiner.add(this.getSourceContent());
+        }
+        return joiner.toString();
+    }
+
+    public String getMergedContentWithoutPrefix() {
+        StringJoiner joiner = new StringJoiner("\n");
+        if (CollUtil.isNotEmpty(this.getLanguageCodeList())) {
+            this.getLanguageCodeList().forEach(languageCode-> {
+                Optional<HangTagMoreLanguageVO> voOpt = this.getLanguageList().stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst();
+                if (voOpt.isPresent()) {
+                    HangTagMoreLanguageVO languageVO = voOpt.get();
+                    joiner.add(languageVO.getPropertiesContent() + "（" + languageVO.getLanguageName() + "）");
+                }
+            });
+            joiner.add(this.getPropertiesName());
+        }
+        return joiner.toString();
     }
 
 //    /**
