@@ -45,7 +45,7 @@ public class TechnologyCenterTaskExcelDto {
     @Excel(name = "款式图", type = 2, imageType = 2)
     private byte[] stylePic1;
 
-    @ApiModelProperty(value = "打样设计师")
+    @Excel(name = "打样设计师")
     private String patternDesignerName;
 
     @Excel(name = "收到样衣日期",exportFormat = "yyyy-MM-dd HH:mm:ss")
