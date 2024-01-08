@@ -23,6 +23,7 @@ public class StyleResearchNodeVo {
     /**
      * 完成时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private Date finishTime;
     /**
      * 节点状态

@@ -13,6 +13,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.Week;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
@@ -56,6 +57,7 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
@@ -133,6 +135,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Autowired
     private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
+
+    @Autowired
+    private PatternMakingService patternMakingService;
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -1004,14 +1009,27 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             List<BasicsdatumResearchProcessNode> templateList = basicsdatumResearchProcessNodeService.list(queryWrapper);
 
             nodeList = new ArrayList<>();
-            for (BasicsdatumResearchProcessNode basicsdatumResearchProcessNode : templateList) {
+            for (BasicsdatumResearchProcessNode node : templateList) {
                 //偏移天数
-                tempDate = DateUtil.offset(tempDate, DateField.DAY_OF_MONTH, basicsdatumResearchProcessNode.getNumberDay());
+                tempDate = DateUtil.offset(tempDate, DateField.DAY_OF_YEAR, node.getNumberDay());
+                // 订货本 周二 如果超过星期二顺延到下周二
+                tempDate = getDate(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION, node.getCode(), Week.TUESDAY.getValue(), tempDate);
+                // 老板看样 周三 如果超过星期三顺延到下周三
+                tempDate = getDate(BasicsdatumProcessNodeEnum.BOSS_STYLE, node.getCode(), Week.WEDNESDAY.getValue(), tempDate);
+
                 styleResearchNodeVo = new StyleResearchNodeVo();
-                styleResearchNodeVo.setNodeCode(basicsdatumResearchProcessNode.getCode());
-                styleResearchNodeVo.setNodeName(basicsdatumResearchProcessNode.getName());
-                styleResearchNodeVo.setNumberDay(basicsdatumResearchProcessNode.getNumberDay());
+                styleResearchNodeVo.setNodeCode(node.getCode());
+                styleResearchNodeVo.setNodeName(node.getName());
+                styleResearchNodeVo.setNumberDay(node.getNumberDay());
                 styleResearchNodeVo.setPlanTime(tempDate);
+                //获取节点完成日期
+                BasicsdatumProcessNodeEnum value = BasicsdatumProcessNodeEnum.getBycode(node.getCode());
+                Date nodeFinashTime = getNodeFinashTime(styleResearchProcessVo.getStyleId(), styleResearchProcessVo.getStyleColorId(), value, styleResearchNodeVo,tempDate);
+                if (nodeFinashTime != null) {
+                    tempDate = nodeFinashTime;
+                }
+                styleResearchNodeVo.setFinishTime(nodeFinashTime);
+                //
                 nodeList.add(styleResearchNodeVo);
             }
             styleResearchProcessVo.setNodeList(nodeList);
@@ -1020,19 +1038,155 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return new PageInfo<>(list);
     }
 
+    /**
+     * 特殊逻辑，顺延周几
+     * @param orderBookProduction
+     * @param node
+     * @param weekDay
+     * @param tempDate
+     * @param offset
+     * @return
+     */
+    private static Date getDate(BasicsdatumProcessNodeEnum orderBookProduction, String node, Integer weekDay, Date tempDate) {
+        if (orderBookProduction.getCode().equals(node) && weekDay != null) {
+            int orderDay = DateUtil.dayOfWeek(tempDate);
+
+            if (weekDay == Week.TUESDAY.getValue()) {
+                if (orderDay == Week.SUNDAY.getValue()) {
+                    tempDate = DateUtil.offsetDay(tempDate, 2);
+                }else if(orderDay == Week.MONDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 1);
+                }else if(orderDay == Week.WEDNESDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 6);
+                }else if(orderDay == Week.THURSDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 5);
+                }else if(orderDay == Week.FRIDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 4);
+                }else if(orderDay == Week.SATURDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 3);
+                }
+            }else if(weekDay == Week.WEDNESDAY.getValue()){
+                if (orderDay == Week.SUNDAY.getValue()) {
+                    tempDate = DateUtil.offsetDay(tempDate, 3);
+                }else if(orderDay == Week.MONDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 2);
+                }else if(orderDay == Week.MONDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 1);
+                }else if(orderDay == Week.THURSDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 6);
+                }else if(orderDay == Week.FRIDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 5);
+                }else if(orderDay == Week.SATURDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 4);
+                }
+            }
+        }
+        return tempDate;
+    }
+
     @Override
-    public Date getNodeFinashTime(String nodeCode) {
-        String code = BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode();
-       /* switch (expression) {
-            case BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode():
+    public Date getNodeFinashTime(String stylelId, String styleColorId, BasicsdatumProcessNodeEnum basicsdatumProcessNodeEnum,StyleResearchNodeVo styleResearchNodeVo,Date preFinishDate) {
+        Date resutDate = null;
+        String patternMakeId = null;
+        QueryWrapper<PatternMaking> patternMakingQueryWrapper = new QueryWrapper<>();
+        patternMakingQueryWrapper.eq("style_id",stylelId);
+        patternMakingQueryWrapper.last(" limit 1 ");
+        patternMakingQueryWrapper.orderByDesc("create_date");
+        PatternMaking patternMaking = patternMakingService.getOne(patternMakingQueryWrapper);
+        if (patternMaking != null) {
+            patternMakeId = patternMaking.getId();
+        }
+
+        switch (basicsdatumProcessNodeEnum) {
+            case NO_NEXT_DRAFT:
+                //resutDate = getStyleRelationNodeDate(stylelId, resutDate,"create_date");
                 break;
-            case value2:
+            case REVIEWED_DRAFT:
+                resutDate = getStyleRelationNodeDate(stylelId,"check_start_time");
                 break;
-            case valueN:
+            case NEXT_DRAFT:
+                resutDate = getStyleRelationNodeDate(stylelId,"check_end_time");
+                break;
+            case PUNCHING_COMPLETED:
+                QueryWrapper<NodeStatus> plateMakeStatusQueryWrapper = new QueryWrapper<>();
+                plateMakeStatusQueryWrapper.select("end_date");
+                plateMakeStatusQueryWrapper.eq("data_id",patternMakeId);
+                plateMakeStatusQueryWrapper.eq("node","打版任务");
+                plateMakeStatusQueryWrapper.eq("status","打版完成");
+                NodeStatus plateMakeNodeStatus = nodeStatusService.getOne(plateMakeStatusQueryWrapper);
+                if (plateMakeNodeStatus != null) {
+                    resutDate = plateMakeNodeStatus.getEndDate();
+                }
+                break;
+            case SAMPLE_CLOTHING_COMPLETED:
+                QueryWrapper<NodeStatus> sampleNodeStatusQueryWrapper = new QueryWrapper<>();
+                sampleNodeStatusQueryWrapper.select("end_date");
+                sampleNodeStatusQueryWrapper.eq("data_id",patternMakeId);
+                sampleNodeStatusQueryWrapper.eq("node","样衣任务");
+                sampleNodeStatusQueryWrapper.eq("status","车缝完成");
+                NodeStatus sampleNodeStatus = nodeStatusService.getOne(sampleNodeStatusQueryWrapper);
+                if (sampleNodeStatus != null) {
+                    resutDate = sampleNodeStatus.getEndDate();
+                }
+                break;
+            case SAMPLE_SELECTION:
+                break;
+            case ORDER_BOOK_PRODUCTION:
+                //订货本
+                resutDate = getDate(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION, styleResearchNodeVo.getNodeCode(), Week.TUESDAY.getValue(), preFinishDate);
+                break;
+            case BOSS_STYLE:
+                //老板看样
+                resutDate = getDate(BasicsdatumProcessNodeEnum.BOSS_STYLE, styleResearchNodeVo.getNodeCode(), Week.WEDNESDAY.getValue(), preFinishDate);
+                break;
+            case RISK_ASSESSMENT:
+                break;
+            case BUSINESS_ENTERPRISES:
+                break;
+            case SEND_MAIN_FABRIC:
+                break;
+            case DESIGN_DETAIL_DATE:
+                break;
+            case DESIGN_CORRECT_DATE:
+                break;
+            case VERSION_ROOM_CHECK_VERSION:
+                break;
+            case PURCHASE_REQUEST:
+                break;
+            case REPLY_DELIVERY_TIME:
+                break;
+            case SURFACE_AUXILIARY_MATERIAL_TESTING:
+                break;
+            case TECHNICAL_TABLE:
+                break;
+            case PRE_PRODUCTION_SAMPLE_PRODUCTION:
+                break;
+            case PRICING:
+                break;
+            case ORDER_PLACEMENT_BY_ACCOUNTING_CONTROL:
                 break;
             default:
-        }*/
-        return null;
+                break;
+        }
+        return resutDate;
+    }
+
+    private Date getStyleRelationNodeDate(String stylelId, String returnKey) {
+        Date resutDate = null;
+        QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select(returnKey);
+        queryWrapper.eq("id", stylelId);
+        Style style = styleService.getOne(queryWrapper);
+        if (style != null) {
+            if ("create_date".equals(returnKey)) {
+                resutDate = style.getCreateDate();
+            }else if("check_start_time".equals(returnKey)){
+                resutDate = style.getCheckStartTime();
+            }else if("check_end_time".equals(returnKey)) {
+                resutDate = style.getCheckEndTime();
+            }
+        }
+        return resutDate;
     }
 
     @Override

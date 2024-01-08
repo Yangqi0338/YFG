@@ -1,5 +1,7 @@
 package com.base.sbc.module.basicsdatum.enums;
 
+import java.util.Objects;
+
 public enum BasicsdatumProcessNodeEnum {
     NO_NEXT_DRAFT("noNextDraft", "未下稿"),
     REVIEWED_DRAFT("reviewedDraft", "审稿中"),
@@ -38,5 +40,17 @@ public enum BasicsdatumProcessNodeEnum {
 
     public String getName() {
         return name;
+    }
+
+    public static BasicsdatumProcessNodeEnum getBycode(String code) {
+        if (Objects.isNull(code)) {
+            return null;
+        }
+        for (BasicsdatumProcessNodeEnum value : values()) {
+            if (value.getCode().equals(code)) {
+                return value;
+            }
+        }
+        return null;
     }
 }

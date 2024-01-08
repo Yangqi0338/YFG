@@ -8,6 +8,15 @@ import java.util.List;
 
 @Data
 public class StyleResearchProcessVo {
+
+    /**
+     * 设计款号id
+     */
+    private String styleId;
+    /**
+     * 配色id
+     */
+    private String styleColorId;
     /**
      * 设计款号
      */

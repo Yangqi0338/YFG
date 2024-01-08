@@ -9,6 +9,7 @@ package com.base.sbc.module.patternmaking.service;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
 import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
@@ -236,10 +237,12 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
 
     /**
      * 获取各个节点的完成时间
-     * @param nodeCode
+     * @param stylelId
+     * @param styleColorId
+     * @param basicsdatumProcessNodeEnum
      * @return
      */
-    Date getNodeFinashTime(String nodeCode);
+    Date getNodeFinashTime(String stylelId,String styleColorId,BasicsdatumProcessNodeEnum basicsdatumProcessNodeEnum,StyleResearchNodeVo styleResearchNodeVo,Date preFinishDate);
     /**
      * 类描述：打版进度列表，工作台上面的
      *
