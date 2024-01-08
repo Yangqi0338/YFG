@@ -432,7 +432,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     public PageInfo<OperaLogEntity> operationLog(PackCommonPageSearchDto pageDto) {
         QueryWrapper<OperaLogEntity> qw = new QueryWrapper<>();
         qw.eq("parent_id", pageDto.getForeignId());
-        qw.eq("path", pageDto.getPackType());
+        qw.and(wq -> wq.eq("path", pageDto.getPackType())
+                .or().likeRight("name",pageDto.getPackType()));
+//        qw.eq("path", pageDto.getPackType()).or().likeRight("name",pageDto.getPackType());
         qw.orderByDesc("id");
         Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
         operaLogService.list(qw);
