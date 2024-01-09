@@ -58,11 +58,11 @@ public class MoreLanguageMapExportMapping {
 
         Map<String,String> keyNameMap = JSONUtil.toBean(firstRow.get(lastCell), HashMap.class);
         if (keyNameMap.isEmpty()) {
-            throw new OtherException("隐藏列的关键映射值被修改,请重新导入");
+            throw new OtherException(sheetName + "隐藏列的关键映射值被修改,请重新导入");
         }
         mappingJson = keyNameMap;
         headMap.forEach((key,value)->{
-            if (!keyNameMap.containsKey(value)) throw new OtherException("请勿整列删除(包括隐藏列),请重新导出一份");
+            if (!keyNameMap.containsKey(value)) throw new OtherException("请勿删除导出模板" + sheetName + "的首行数据,请重新导出一份");
             String code = keyNameMap.get(value);
             codeMap.put(key,code);
             firstRowMap.put(code, firstRow.get(key));

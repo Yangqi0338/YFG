@@ -79,7 +79,7 @@ public class MoreLanguageController extends BaseController {
 //        moreLanguageService.importExcel(excelQueryDto);
         importListener.setExcelQueryDto(excelQueryDto);
         try {
-            EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAll();
+            EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAllSync();
             return selectSuccess("您的吊牌信息已经导入成功. " + importListener.dataVerifyHandler());
         }catch (Exception e){
             return ApiResult.error("导入失败, 请你根据导入规则进行导入\n" + e.getMessage(), 0);

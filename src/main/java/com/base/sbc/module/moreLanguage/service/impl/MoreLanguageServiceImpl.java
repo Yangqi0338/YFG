@@ -26,6 +26,7 @@ import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnModel;
@@ -62,6 +63,7 @@ import lombok.SneakyThrows;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
@@ -288,6 +290,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     exportBaseDTO.setStandardColumnCode(type.getCode() + RedisKeyBuilder.COMMA + standardColumnCode);
                     exportBaseDTO.setKey(key);
                     exportBaseDTO.setKeyName(keyName);
+                    exportBaseDTO.setExcelCode(singleLanguageFlag == YesOrNoEnum.YES ? baseCountryLanguage.getLanguageCode() : code);
 
                     // 添加map默认表头,否则无法支持导入
                     // 直接在ExcelExportService拷出来的
@@ -316,6 +319,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     // 获取列表数据
                     MoreLanguageQueryDto moreLanguageQueryDto = BeanUtil.copyProperties(languageQueryDto, MoreLanguageQueryDto.class);
                     moreLanguageQueryDto.setStandardColumnCode(standardColumnCode);
+                    MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_EXCEL.setBooleanParam(YesOrNoEnum.YES);
                     List<Map<String, Object>> mapList = listQuery(moreLanguageQueryDto).getList();
 
                     if (CollectionUtil.isNotEmpty(mapList)) {
@@ -384,9 +388,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 //                    rowStyle.setFont(font);
                     titleRow.setRowStyle(titleStyle);
 
-                    CellStyle cellStyle = workbook.createCellStyle();
-                    cellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
-                    cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
                     // 修正每一行的样式
                     if (lackHandler) {
                         List<Integer> lackCheckCellNumList = sheetBlankCellNumMap.get(sheet.getSheetName());
@@ -402,6 +403,11 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                                     for (int j = 0; j < cellCount; j++) {
                                         if (needHandlerLack) {
                                             Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                                            CellStyle cellStyle = workbook.createCellStyle();
+                                            cellStyle.cloneStyleFrom(cell.getCellStyle());
+                                            Font font = workbook.createFont();
+                                            font.setColor(IndexedColors.RED.getIndex());
+                                            cellStyle.setFont(font);
                                             cell.setCellStyle(cellStyle);
                                         }
                                     }
@@ -445,7 +451,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         String code = baseCountryLanguage.getCode();
         CountryLanguageType type = baseCountryLanguage.getType();
         YesOrNoEnum singleLanguageFlag = baseCountryLanguage.getSingleLanguageFlag();
-        String languageCode = baseCountryLanguage.getLanguageCode();
 
         // 查redis
         RedisStaticFunUtils.setBusinessService(standardColumnService).setMessage("无效的标准列" + type.getCode() + RedisKeyBuilder.COMMA + standardColumnCode);
@@ -518,27 +523,32 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             // 如果为空, 查找单语言翻译
             if(CollectionUtil.isEmpty(translateList)) {
                 CountryQueryDto languageDto = new CountryQueryDto();
-                languageDto.setLanguageCode(languageCode);
-                languageDto.setType(type);
+                languageDto.setLanguageCode(countryLanguageList.stream().map(CountryLanguage::getLanguageCode).distinct().collect(Collectors.joining(COMMA)));
                 languageDto.setSingleLanguageFlag(YesOrNoEnum.YES);
                 List<CountryLanguageDto> countryLanguageDtoList = countryLanguageService.listQuery(languageDto);
+                countryLanguageList.addAll(countryLanguageDtoList);
 
                 translateList.addAll(standardColumnCountryTranslateService.page(moreLanguageQueryDto.toMPPage(StandardColumnCountryTranslate.class),
                         translateQueryWrapper.clone()
                                 .in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageDtoList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
-                ).getRecords());
+                ).getRecords().stream().filter(it-> StrUtil.isNotBlank(it.getContent())).collect(Collectors.toList()));
             }
         }
 
+        List<String> baseEntityFieldNameList = Arrays.stream(BaseDataEntity.class.getDeclaredFields()).map(Field::getName).collect(Collectors.toList());
         mapList.setList(resultList.stream().map(resultMap-> {
             String propertiesKey = keyList.stream().map(key -> resultMap.getOrDefault(key, "").toString()).collect(Collectors.joining("-"));
             Map<String, Object> map = new HashMap<>(showFieldList.size());
-            List<StandardColumnCountryTranslate> translatePropertiesResultMap = translateList.stream().filter(it -> it.getPropertiesCode().equals(propertiesKey)).collect(Collectors.toList());
+            List<StandardColumnCountryTranslate> translatePropertiesList = translateList.stream()
+                    .filter(it -> it.getPropertiesCode().equals(propertiesKey))
+                    .sorted(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate)).collect(Collectors.toList());
             showFieldList.forEach(field->{
                 Object fieldValue = null;
-                for (CountryLanguageDto countryLanguage : countryLanguageList) {
-                    Map<String, Object> translateResultMap = translatePropertiesResultMap.stream()
-                            .filter(it -> it.getCountryLanguageId().equals(countryLanguage.getId())).findFirst().map(BeanUtil::beanToMap).orElse(new HashMap<>());
+                for (StandardColumnCountryTranslate translate : translatePropertiesList) {
+                    CountryLanguageDto countryLanguage = countryLanguageList.stream()
+                            .filter(it -> it.getId().equals(translate.getCountryLanguageId())).findFirst()
+                            .orElse(new CountryLanguageDto());
+                    Map<String, Object> translateResultMap = BeanUtil.beanToMap(translate);
                     for (Map.Entry<String, Object> entry : translateResultMap.entrySet()) {
                         String key = entry.getKey();
                         Object value = entry.getValue();
@@ -552,7 +562,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     }
                 }
                 String fieldKey = StrUtil.toUnderlineCase(field);
-                if (fieldValue == null && resultMap.containsKey(fieldKey)) {
+                if (fieldValue == null && !baseEntityFieldNameList.contains(field) && resultMap.containsKey(fieldKey)) {
                     fieldValue = resultMap.get(fieldKey);
                 }
                 if (fieldValue instanceof Date) {

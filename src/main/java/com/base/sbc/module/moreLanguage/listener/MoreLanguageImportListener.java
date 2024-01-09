@@ -8,6 +8,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.ttl.TransmittableThreadLocal;
+import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -38,16 +40,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -72,12 +82,12 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     /**
      * 数据合法性校验结果
      */
-    private static ThreadLocal<List<DataVerifyResultVO>> dataVerifyResults = new ThreadLocal<>();
+    private static ThreadLocal<List<DataVerifyResultVO>> dataVerifyResults = new TransmittableThreadLocal<>();
     /**
      * 导入数据批次编号
      */
-    public static ThreadLocal<String> importBatchNo = new ThreadLocal<>();
-    public static ThreadLocal<Map<String, MoreLanguageMapExportMapping>> sheetExportMapping = new ThreadLocal<>();
+    public static ThreadLocal<String> importBatchNo = new TransmittableThreadLocal<>();
+    public static ThreadLocal<Map<String, MoreLanguageMapExportMapping>> sheetExportMapping = new TransmittableThreadLocal<>();
 
     private final StandardColumnTranslateService standardColumnTranslateService;
 
@@ -91,6 +101,24 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
 
     @Setter
     private MoreLanguageExcelQueryDto excelQueryDto;
+
+    private ThreadPoolExecutor threadPoolExecutor;
+
+    @PostConstruct
+    public void initThread(){
+        threadPoolExecutor = new ThreadPoolExecutor(8, 8,
+                0L, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(16), r -> {
+                    Thread thread = new Thread(r,"多语言导入");
+                    thread.setUncaughtExceptionHandler((Thread t,Throwable e) -> {
+                        if(e != null){
+                            e.printStackTrace();
+                            throw new OtherException(e.getMessage());
+                        }
+                    });
+                    return thread;
+                });
+    }
 
     /**
      * headRowNumber() 通过这个方法来解析对应的行, 不指定为1, 即第一行数据会进到invokeHeadMap方法
@@ -135,12 +163,19 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
      * */
     @Override
     public void invoke(Map<Integer, String> value, AnalysisContext context) {
+        YesOrNoEnum singleLanguageFlag = excelQueryDto.getSingleLanguageFlag();
         Pair<MoreLanguageMapExportMapping, MoreLanguageExportBaseDTO> exportPair = getMapping(context, (mapExportMapping)-> {
             MoreLanguageExportBaseDTO tempBaseDTO = mapExportMapping.initByFirstRow(value, MoreLanguageExportBaseDTO.class);
+            if (StrUtil.isBlank(tempBaseDTO.getExcelCode()) ||
+                    !tempBaseDTO.getExcelCode().equals(singleLanguageFlag == YesOrNoEnum.YES ? excelQueryDto.getLanguageCode() : excelQueryDto.getCode())) {
+                throw new OtherException("导入的国家或语言与该导出模版的国家或语言不对应\n请选择正确的导入国家");
+            }
             return Pair.of(mapExportMapping, tempBaseDTO);
         });
+        Integer rowIndex = context.readRowHolder().getRowIndex();
         MoreLanguageMapExportMapping exportMapping = exportPair.getKey();
         MoreLanguageExportBaseDTO exportBaseDTO = exportPair.getValue();
+        String sheetName = exportMapping.getSheetName();
 
         Map<String, String> map = exportMapping.buildMap(value);
         List<CountryLanguageDto> countryLanguageList = exportMapping.getCountryLanguageList();
@@ -155,7 +190,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
 
             String[] uniqueCodeArray = uniqueCode.split(RedisKeyBuilder.COMMA);
             if (uniqueCodeArray.length <= 1) {
-                throw new OtherException("隐藏的关键唯一标识值不正确,请重新导入");
+                throw new OtherException(String.format("%s第%s行隐藏的关键唯一标识值不正确,请重新导入", sheetName, rowIndex));
             }
             CountryLanguageType type = CountryLanguageType.findByCode(uniqueCodeArray[0]);
             exportMapping.setType(type);
@@ -180,15 +215,18 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             exportMapping.setCountryLanguageList(countryLanguageList);
         }
 
-        String code = Arrays.stream(baseSource.getPropertiesCode().split("-"))
-                .map(map::remove).collect(Collectors.joining("-"));
-        String name = Arrays.stream(baseSource.getPropertiesName().split("-"))
-                .map(map::get).collect(Collectors.joining("-"));
-
-        // 获取TableData,查看数据是否修改
-        // 也可以使用隐藏列,缺点是会被修改移除
-
-        if (StrUtil.isBlank(code)) return;
+        StringJoiner codeJoiner = new StringJoiner("-");
+        for (String code : baseSource.getPropertiesCode().split("-")) {
+            if (!map.containsKey(code)) throw new OtherException(String.format("%s第%s行未获取到编码", sheetName, rowIndex));
+            codeJoiner.add(map.remove(code));
+        }
+        StringJoiner nameJoiner = new StringJoiner("-");
+        for (String name : baseSource.getPropertiesName().split("-")) {
+            if (!map.containsKey(name)) throw new OtherException(String.format("%s第%s行未获取到编码", sheetName, rowIndex));
+            nameJoiner.add(map.remove(name));
+        }
+        String code = codeJoiner.toString();
+        String name = nameJoiner.toString();
 
         StandardColumnCountryTranslate baseCountryTranslate = BeanUtil.copyProperties(baseSource, StandardColumnCountryTranslate.class);
         baseCountryTranslate.setPropertiesCode(code);
@@ -199,8 +237,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         countryLanguageList.forEach(countryLanguage -> {
             StandardColumnCountryTranslate countryTranslate = BeanUtil.copyProperties(baseCountryTranslate, StandardColumnCountryTranslate.class);
             countryTranslate.setCountryLanguageId(countryLanguage.getId());
-            StringJoiner joiner = new StringJoiner("-");
-            if (excelQueryDto.getSingleLanguageFlag() != YesOrNoEnum.YES) {
+            StringJoiner joiner = codeJoiner;
+            if (singleLanguageFlag != YesOrNoEnum.YES) {
                 joiner.add(countryLanguage.getLanguageCode());
             }
             joiner.add("content");
@@ -218,117 +256,135 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void doAfterAllAnalysed(AnalysisContext context) {
-        MoreLanguageMapExportMapping exportMapping = getMapping(context, (mapExportMapping) -> mapExportMapping);
-        List<StandardColumnCountryTranslate> translateList = exportMapping.getSourceData();
-        if (CollectionUtil.isEmpty(translateList)) {
-            addDataVerifyResult(context, null,"成功0条","未解析到数据");
-            return;
-        }
-        CountryLanguageType type = exportMapping.getType();
-        StandardColumnCountryTranslate baseTranslate = exportMapping.getBaseSourceData();
-
-        StringJoiner uniqueCodeJoiner = new StringJoiner(RedisKeyBuilder.COMMA);
-        uniqueCodeJoiner.add(type.getCode());
-        uniqueCodeJoiner.add(baseTranslate.getTitleCode());
-
-        // 保存起来 减少查询? TODO
-        List<CountryLanguageDto> countryLanguageList = exportMapping.getCountryLanguageList();
-
-        Object titleObject = standardColumnService.findByCode(uniqueCodeJoiner.toString());
-        if (titleObject == null) {
-            addDataVerifyResult(context, null,"未找到对应的吊牌字段","检查是否修改了隐藏列或者该吊牌字段已被删除");
-            return;
-        }
-        StandardColumn standardColumn = (StandardColumn) titleObject;
-        String standardColumnName = standardColumn.getName();
-        String standardColumnCode = standardColumn.getCode();
-
-        OperaLogEntity baseEntity = new OperaLogEntity();
-        baseEntity.setDocumentName(standardColumnName);
-        baseEntity.setDocumentCode(standardColumnCode);
-        String code = excelQueryDto.getCode();
-        String codeName = countryLanguageList.get(0).getName();
-        String name = "多语言翻译";
-        if (excelQueryDto.getSingleLanguageFlag() == YesOrNoEnum.YES) {
-            name = "单语言翻译";
-            code = excelQueryDto.getLanguageCode();
-            codeName = countryLanguageList.get(0).getLanguageName();
-        };
-        baseEntity.setName(name);
-        baseEntity.setPath(code + "-" + type.getCode());
-        baseEntity.setContent(codeName + "-" + type.getText());
-        List<StandardColumnCountryTranslate> updateNewTranslateList = new ArrayList<>();
-        List<StandardColumnCountryTranslate> addTranslateList = new ArrayList<>();
-
-        List<String> countryLanguageIdList = countryLanguageList.stream().map(CountryLanguage::getId).collect(Collectors.toList());
-        List<StandardColumnCountryTranslate> updateOldTranslateList = standardColumnCountryTranslateService.list(
-                new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-                        .in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageIdList)
-                        .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
-        );
-
-        for (int i = 0; i < translateList.size(); i++) {
-            StandardColumnCountryTranslate translate = translateList.get(i);
-            CountryLanguageDto countryLanguageDto = countryLanguageList.stream().filter(it -> it.getId().equals(translate.getCountryLanguageId())).findFirst().orElse(null);
-            if (countryLanguageDto == null) {
-                addDataVerifyResult(context, i,"国家语言","未找到");
+//        Runnable task = ()-> {
+            MoreLanguageMapExportMapping exportMapping = getMapping(context, (mapExportMapping) -> mapExportMapping);
+            List<StandardColumnCountryTranslate> translateList = exportMapping.getSourceData();
+            if (CollectionUtil.isEmpty(translateList)) {
+                addDataVerifyResult(context, null,"成功0条","未解析到数据");
                 return;
             }
-            translate.setTitleName(standardColumnName);
+            CountryLanguageType type = exportMapping.getType();
+            StandardColumnCountryTranslate baseTranslate = exportMapping.getBaseSourceData();
 
-            Optional<StandardColumnCountryTranslate> countryTranslateOpt = updateOldTranslateList.stream()
-                    .filter(it -> it.getCountryLanguageId().equals(countryLanguageDto.getId()) && it.getPropertiesCode().equals(translate.getPropertiesCode()))
-                    .findFirst();
-            if (countryTranslateOpt.isPresent()) {
-                StandardColumnCountryTranslate countryTranslate = countryTranslateOpt.get();
-                translate.setId(countryTranslate.getId());
-                translate.setPropertiesName(countryTranslate.getPropertiesName());
-                translate.setTitleName(countryTranslate.getTitleName());
-                if (!translate.getContent().trim().equals(countryTranslate.getContent().trim())) { updateNewTranslateList.add(translate);}
-            }else {
-                addTranslateList.add(translate);
+            StringJoiner uniqueCodeJoiner = new StringJoiner(RedisKeyBuilder.COMMA);
+            uniqueCodeJoiner.add(type.getCode());
+            uniqueCodeJoiner.add(baseTranslate.getTitleCode());
+
+            // 保存起来 减少查询? TODO
+            List<CountryLanguageDto> countryLanguageList = exportMapping.getCountryLanguageList();
+
+            Object titleObject = standardColumnService.findByCode(uniqueCodeJoiner.toString());
+            if (titleObject == null) {
+                addDataVerifyResult(context, null,"未找到对应的吊牌字段","检查是否修改了隐藏列或者该吊牌字段已被删除");
+                return;
+            }
+            StandardColumn standardColumn = (StandardColumn) titleObject;
+            String standardColumnName = standardColumn.getName();
+            String standardColumnCode = standardColumn.getCode();
+
+            OperaLogEntity baseEntity = new OperaLogEntity();
+            baseEntity.setDocumentName(standardColumnName);
+            baseEntity.setDocumentCode(standardColumnCode);
+            String code = excelQueryDto.getCode();
+            String codeName = countryLanguageList.get(0).getName();
+            String name = "多语言翻译";
+            if (excelQueryDto.getSingleLanguageFlag() == YesOrNoEnum.YES) {
+                name = "单语言翻译";
+                code = excelQueryDto.getLanguageCode();
+                codeName = countryLanguageList.get(0).getLanguageName();
+            };
+            baseEntity.setName(name);
+            baseEntity.setPath(code + "-" + type.getCode());
+            baseEntity.setContent(codeName + "-" + type.getText());
+            List<StandardColumnCountryTranslate> updateNewTranslateList = new ArrayList<>();
+            List<StandardColumnCountryTranslate> addTranslateList = new ArrayList<>();
+
+            List<String> countryLanguageIdList = countryLanguageList.stream().map(CountryLanguage::getId).collect(Collectors.toList());
+            List<StandardColumnCountryTranslate> updateOldTranslateList = standardColumnCountryTranslateService.list(
+                    new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                            .in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageIdList)
+                            .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
+            );
+
+            for (int i = 0; i < translateList.size(); i++) {
+                StandardColumnCountryTranslate translate = translateList.get(i);
+                CountryLanguageDto countryLanguageDto = countryLanguageList.stream().filter(it -> it.getId().equals(translate.getCountryLanguageId())).findFirst().orElse(null);
+                if (countryLanguageDto == null) {
+                    addDataVerifyResult(context, i,"国家语言","未找到");
+                    return;
+                }
+                translate.setTitleName(standardColumnName);
+
+                Optional<StandardColumnCountryTranslate> countryTranslateOpt = updateOldTranslateList.stream()
+                        .filter(it -> it.getCountryLanguageId().equals(countryLanguageDto.getId()) && it.getPropertiesCode().equals(translate.getPropertiesCode()))
+                        .findFirst();
+                if (countryTranslateOpt.isPresent()) {
+                    StandardColumnCountryTranslate countryTranslate = countryTranslateOpt.get();
+                    translate.setId(countryTranslate.getId());
+                    translate.setPropertiesName(countryTranslate.getPropertiesName());
+                    translate.setTitleName(countryTranslate.getTitleName());
+                    if (StrUtil.equals(Opt.ofNullable(translate.getContent()).map(String::trim).orElse(null),
+                            Opt.ofNullable(countryTranslate.getContent()).map(String::trim).orElse(null)
+                    )) { updateNewTranslateList.add(translate);}
+                }else {
+                    addTranslateList.add(translate);
+                }
+
+                // 检查数据其他数据正确性(重新查询一遍数据) TODO
+                if (StrUtil.isBlank(translate.getContent())) {
+                    addDataVerifyResult(context, i,translate.getPropertiesName() + "的" + countryLanguageDto.getLanguageName()+"翻译内容","未输入");
+                }
+            }
+            Runnable task = ()-> {
+                if (CollectionUtil.isNotEmpty(addTranslateList)) {
+                    baseEntity.setType("新增");
+                    standardColumnCountryTranslateService.saveBatchOperaLog(addTranslateList, baseEntity);
+                }
+                if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
+                    baseEntity.setType("修改");
+                    standardColumnCountryTranslateService.updateBatchOperaLog(updateOldTranslateList, updateNewTranslateList, baseEntity);
+                }
+            };
+
+            updateNewTranslateList.addAll(addTranslateList);
+            if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
+                standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
             }
 
-            // 检查数据其他数据正确性(重新查询一遍数据) TODO
-            if (StrUtil.isBlank(translate.getContent())) {
-                addDataVerifyResult(context, i,translate.getPropertiesName() + "的" + countryLanguageDto.getLanguageName()+"翻译内容","未输入");
-            }
-        }
-        baseEntity.setType("新增");
-        standardColumnCountryTranslateService.saveBatchOperaLog(addTranslateList, baseEntity);
-        baseEntity.setType("修改");
-        standardColumnCountryTranslateService.updateBatchOperaLog(updateOldTranslateList, updateNewTranslateList, baseEntity);
-        updateNewTranslateList.addAll(addTranslateList);
-        standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
 
-        // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
-        countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>().in(CountryModel::getCountryLanguageId, countryLanguageIdList));
-        List<CountryModel> translateModelList = translateList.stream().filter(it -> "DP06".equals(it.getTitleCode())).map(it -> {
-            CountryModel countryModel = new CountryModel();
-            countryModel.setCountryLanguageId(it.getCountryLanguageId());
-            String propertiesCode = it.getPropertiesCode();
-            String propertiesName = it.getPropertiesName();
-            countryModel.setModelCode(propertiesCode.split("-")[1]);
-            countryModel.setModelName(propertiesName.split("-")[1]);
-            countryModel.setBasicSizeCode(propertiesCode.split("-")[0]);
-            countryModel.setBasicSizeName(propertiesName.split("-")[0]);
-            countryModel.setContent(it.getContent());
-            return countryModel;
-        }).collect(Collectors.toList());
-        countryModelService.saveOrUpdateBatch(translateModelList);
+            // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
+//            countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>().in(CountryModel::getCountryLanguageId, countryLanguageIdList));
+//            List<CountryModel> translateModelList = updateNewTranslateList.stream().filter(it -> "DP06".equals(it.getTitleCode())).map(it -> {
+//                CountryModel countryModel = new CountryModel();
+//                countryModel.setCountryLanguageId(it.getCountryLanguageId());
+//                String propertiesCode = it.getPropertiesCode();
+//                String propertiesName = it.getPropertiesName();
+//                countryModel.setModelCode(propertiesCode.split("-")[1]);
+//                countryModel.setModelName(propertiesName.split("-")[1]);
+//                countryModel.setBasicSizeCode(propertiesCode.split("-")[0]);
+//                countryModel.setBasicSizeName(propertiesName.split("-")[0]);
+//                countryModel.setContent(it.getContent());
+//                return countryModel;
+//            }).collect(Collectors.toList());
+//            countryModelService.saveOrUpdateBatch(translateModelList);
+//
+//            standardColumnTranslateService.remove(new BaseLambdaQueryWrapper<StandardColumnTranslate>().eq(StandardColumnTranslate::getCountryLanguageId, countryLanguageIdList));
+//            List<StandardColumnTranslate> translateTitleList = updateNewTranslateList.stream().filter(it -> "DP00".equals(it.getTitleCode())).map(it -> {
+//                StandardColumnTranslate standardColumnTranslate = new StandardColumnTranslate();
+//                standardColumnTranslate.setCountryLanguageId(it.getCountryLanguageId());
+//                standardColumnTranslate.setStandardColumnCode(it.getPropertiesCode());
+//                standardColumnTranslate.setStandardColumnName(it.getPropertiesName());
+//                standardColumnTranslate.setContent(it.getContent());
+//                return standardColumnTranslate;
+//            }).collect(Collectors.toList());
+//            standardColumnTranslateService.saveOrUpdateBatch(translateTitleList);
 
-        standardColumnTranslateService.remove(new BaseLambdaQueryWrapper<StandardColumnTranslate>().eq(StandardColumnTranslate::getCountryLanguageId, countryLanguageIdList));
-        List<StandardColumnTranslate> translateTitleList = translateList.stream().filter(it -> "DP00".equals(it.getTitleCode())).map(it -> {
-            StandardColumnTranslate standardColumnTranslate = new StandardColumnTranslate();
-            standardColumnTranslate.setCountryLanguageId(it.getCountryLanguageId());
-            standardColumnTranslate.setStandardColumnCode(it.getPropertiesCode());
-            standardColumnTranslate.setStandardColumnName(it.getPropertiesName());
-            standardColumnTranslate.setContent(it.getContent());
-            return standardColumnTranslate;
-        }).collect(Collectors.toList());
-        standardColumnTranslateService.saveOrUpdateBatch(translateTitleList);
-
-        removeMapping(context);
+            removeMapping(context);
+//        };
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        RequestContextHolder.setRequestAttributes(servletRequestAttributes,true);
+        Runnable ttlRunnable = TtlRunnable.get(task);
+        threadPoolExecutor.execute(ttlRunnable);
     }
 
     /**

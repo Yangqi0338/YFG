@@ -136,6 +136,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                 maxCountryLanguageCode = (int) RedisStaticFunUtils.incr(RedisKeyConstant.COUNTRY_LANGUAGE.addEnd(cache,"size"), 1);
             } else {
                 maxCountryLanguageCode = this.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
+                        .eq(CountryLanguage::getSingleLanguageFlag, baseCountryLanguage.getSingleLanguageFlag())
                         .orderByDesc(CountryLanguage::getCodeIndex), CountryLanguage::getCodeIndex) + 1;
             }
             baseCountryLanguage.setCodeIndex(maxCountryLanguageCode);

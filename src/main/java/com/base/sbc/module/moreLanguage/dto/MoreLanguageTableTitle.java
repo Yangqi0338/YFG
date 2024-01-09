@@ -33,12 +33,15 @@ public class MoreLanguageTableTitle {
     private Double excelWidth;
 
     public boolean hiddenRemove(){
-        return MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_EXCEL.isTrue() ? isExcelRemove() :
-                (MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.isTrue() || isWebRemove());
+        if (MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_EXCEL.isTrue()) {
+            return isExcelRemove();
+        }else {
+            return MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.isTrue() || isWebRemove();
+        }
     }
 
     public boolean isExcelHidden(){
-        return "1".equals(hidden);
+        return "1".equals(hidden) || "3".equals(hidden);
     }
 
     public boolean isExcelRemove(){
