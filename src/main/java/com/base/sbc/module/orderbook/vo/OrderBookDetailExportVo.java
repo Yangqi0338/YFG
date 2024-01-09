@@ -139,7 +139,7 @@ public class OrderBookDetailExportVo {
     private String unitFabricDosage;
 
     @Excel(name = "单件用量/里")
-    private BigDecimal unitDosage;
+    private String unitDosage;
 
     @Excel(name = "面料状态")
     private String fabricState;
@@ -160,7 +160,7 @@ public class OrderBookDetailExportVo {
     private String fabricType;
 
     @Excel(name = "含税单价/米")
-    private BigDecimal unitPrice;
+    private String unitPrice;
 
     @Excel(name = "货期")
     private String deliveryTime;
@@ -187,4 +187,10 @@ public class OrderBookDetailExportVo {
     @Excel(name = "中类名称"  )
     private String prodCategory2ndName;
 
+
+    /**
+     * 面料编号
+     */
+    @ApiModelProperty(value = "面料编号")
+    private String companyFabricNumber;
 }

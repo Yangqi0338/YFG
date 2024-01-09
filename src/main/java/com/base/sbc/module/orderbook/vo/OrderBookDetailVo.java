@@ -108,11 +108,7 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "FOB色号")
     private String supplierColor;
-    /**
-     * 单件面料用量/米
-     */
-    @ApiModelProperty(value = "单件面料用量/米")
-    private BigDecimal unitFabricDosage;
+
     /**
      * 设计款号
      */

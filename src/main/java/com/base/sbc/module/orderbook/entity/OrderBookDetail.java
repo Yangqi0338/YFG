@@ -137,7 +137,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 单件用量/里
      */
     @ApiModelProperty(value = "单件用量/里")
-    private BigDecimal unitDosage;
+    private String unitDosage;
     /**
      * 面料状态
      */
@@ -178,7 +178,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 含税单价/米
      */
     @ApiModelProperty(value = "含税单价/米")
-    private BigDecimal unitPrice;
+    private String unitPrice;
     /**
      * 货期
      */
@@ -280,6 +280,18 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "原款号")
     private String originalNo;
+
+    /**
+     * 面料编号
+     */
+    @ApiModelProperty(value = "面料编号")
+    private String companyFabricNumber;
+
+    /**
+     * 单件面料用量/米
+     */
+    @ApiModelProperty(value = "单件面料用量/米")
+    private BigDecimal unitFabricDosage;
 
 }
 
