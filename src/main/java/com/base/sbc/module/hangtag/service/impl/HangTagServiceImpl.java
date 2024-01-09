@@ -315,7 +315,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				("style_no", hangTag.getBulkStyleNo()).eq("company_code", userCompany).select("id"));
 */
 
-		boolean flag = false;
+		/*boolean flag = false;
 		if(StringUtils.isEmpty(hangTagDTO.getId())){
 			flag = true;
 		}else {
@@ -323,7 +323,23 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			if(!hangTag1.getProductName().equals(hangTag.getProductName())){
 				flag = true;
 			}
+		}*/
+
+
+		//region 当修改了二检包装形式，下发配色接口
+		HangTag hangTagById = null;
+		if (StrUtil.isNotEmpty(hangTagDTO.getId())) {
+			hangTagById = this.getById(hangTagDTO.getId());
+			if (hangTagById != null) {
+				String secondPackagingFormCode = hangTagById.getSecondPackagingFormCode();
+				StyleColor styleColor = styleColorService.getByOne("style_no",hangTag.getBulkStyleNo());
+				if (!secondPackagingFormCode.equals(hangTagDTO.getSecondPackagingFormCode())) {
+					smpService.goods(styleColor.getId().split(","));
+				}
+			}
 		}
+		//endregion
+
 
 		super.saveOrUpdate(hangTag, "吊牌管理");
 		String id = hangTag.getId();
@@ -372,6 +388,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 			}
 		}
+
 
 		if ("2".equals(hangTag.getStatus()) && "2".equals(hangTagDTO.getCheckType())) {
 			hangTag = this.getById(hangTag.getId());
