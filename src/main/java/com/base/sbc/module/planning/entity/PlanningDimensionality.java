@@ -121,6 +121,8 @@ public class PlanningDimensionality extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态(0正常,1停用)")
     private String status;
+    @ApiModelProperty(value = "显示配置，为空是全部场景显示，不为空时根据传入条件取交集")
+    private String showConfig;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
