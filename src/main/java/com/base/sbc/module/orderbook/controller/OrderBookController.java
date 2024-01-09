@@ -1,5 +1,7 @@
 package com.base.sbc.module.orderbook.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -48,6 +51,25 @@ public class OrderBookController extends BaseController {
     @DuplicationCheck
     public boolean save(@RequestBody OrderBookSaveDto dto) {
         return orderBookService.saveOrderBook(dto);
+    }
+
+    /**
+     * 订货本下单
+     * @param dtos
+     * @return
+     */
+    @ApiOperation(value = "订货本-下单")
+    @PostMapping("/saveOrder")
+    public ApiResult saveOrder(@RequestBody List<OrderBookSaveDto> dtos) {
+        if (dtos==null || dtos.isEmpty()){
+            throw new RuntimeException("数据不能为空");
+        }
+        List<String> ids = dtos.stream().map(OrderBookSaveDto::getId).collect(Collectors.toList());
+        UpdateWrapper<OrderBook> updateWrapper =new UpdateWrapper<>();
+        updateWrapper.in("id",ids);
+        updateWrapper.set("status", "3");
+        orderBookService.update(updateWrapper);
+        return updateSuccess("下单成功");
     }
 
     @ApiOperation(value = "订货本-保存")
