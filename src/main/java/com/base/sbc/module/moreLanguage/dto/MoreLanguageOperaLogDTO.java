@@ -2,6 +2,7 @@ package com.base.sbc.module.moreLanguage.dto;
 
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.operalog.dto.OperaLogDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -48,7 +49,9 @@ public class MoreLanguageOperaLogDTO extends OperaLogDto {
             joiner.add(countryLanguageType.getCode());
         }
         this.setPath(joiner.toString());
-        this.setName("多语言翻译");
+        if (StrUtil.isBlank(this.getName())) {
+            throw new OtherException("缺少日志类型");
+        }
         super.init();
     }
 }

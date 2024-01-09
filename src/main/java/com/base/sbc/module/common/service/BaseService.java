@@ -101,6 +101,8 @@ public interface BaseService<T> extends IService<T> {
      */
     void saveOperaLog( String type, String name, T newObject, T oldObject);
 
+    void saveOperaLog(OperaLogEntity operaLogEntity);
+
      void saveOperaLog(String type, String name,String documentName,String documentCode, T newObject, T oldObject);
 
     public void saveOperaLog(String type, String name, String documentName, String documentCode, Map<String,String> data);

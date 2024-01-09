@@ -480,6 +480,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         this.saveOperaLog(type, name, documentName, documentCode, newObject, oldObject);
     }
 
+    @Override
+    public void saveOperaLog(OperaLogEntity operaLogEntity) {
+        operaLogService.save(operaLogEntity);
+    }
+
     /**
      * 保存操作日志
      *

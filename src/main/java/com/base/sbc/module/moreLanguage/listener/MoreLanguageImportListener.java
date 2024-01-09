@@ -31,6 +31,7 @@ import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService;
+import com.base.sbc.module.operalog.dto.OperaLogJsonDto;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
@@ -166,10 +167,6 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         YesOrNoEnum singleLanguageFlag = excelQueryDto.getSingleLanguageFlag();
         Pair<MoreLanguageMapExportMapping, MoreLanguageExportBaseDTO> exportPair = getMapping(context, (mapExportMapping)-> {
             MoreLanguageExportBaseDTO tempBaseDTO = mapExportMapping.initByFirstRow(value, MoreLanguageExportBaseDTO.class);
-            if (StrUtil.isBlank(tempBaseDTO.getExcelCode()) ||
-                    !tempBaseDTO.getExcelCode().equals(singleLanguageFlag == YesOrNoEnum.YES ? excelQueryDto.getLanguageCode() : excelQueryDto.getCode())) {
-                throw new OtherException("导入的国家或语言与该导出模版的国家或语言不对应\n请选择正确的导入国家");
-            }
             return Pair.of(mapExportMapping, tempBaseDTO);
         });
         Integer rowIndex = context.readRowHolder().getRowIndex();
@@ -183,6 +180,10 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         StandardColumnCountryTranslate baseSource;
         // 设置值
         if (exportBaseDTO != null) {
+            if (StrUtil.isBlank(exportBaseDTO.getExcelCode()) ||
+                    !exportBaseDTO.getExcelCode().equals(singleLanguageFlag == YesOrNoEnum.YES ? excelQueryDto.getLanguageCode() : excelQueryDto.getCode())) {
+                throw new OtherException("导入的国家或语言与该导出模版的国家或语言不对应\n请选择正确的导入国家");
+            }
             // 初始化
             String key = exportBaseDTO.getKey();
             String keyName = exportBaseDTO.getKeyName();
@@ -286,7 +287,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             baseEntity.setDocumentName(standardColumnName);
             baseEntity.setDocumentCode(standardColumnCode);
             String code = excelQueryDto.getCode();
-            String codeName = countryLanguageList.get(0).getName();
+            String codeName = countryLanguageList.get(0).getCountryName();
             String name = "多语言翻译";
             if (excelQueryDto.getSingleLanguageFlag() == YesOrNoEnum.YES) {
                 name = "单语言翻译";
@@ -294,8 +295,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 codeName = countryLanguageList.get(0).getLanguageName();
             };
             baseEntity.setName(name);
-            baseEntity.setPath(code + "-" + type.getCode());
-            baseEntity.setContent(codeName + "-" + type.getText());
+            baseEntity.setPath(code + ":" + type.getCode());
+            baseEntity.setContent(codeName + ":" + type.getText());
             List<StandardColumnCountryTranslate> updateNewTranslateList = new ArrayList<>();
             List<StandardColumnCountryTranslate> addTranslateList = new ArrayList<>();
 
@@ -338,11 +339,23 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             Runnable task = ()-> {
                 if (CollectionUtil.isNotEmpty(addTranslateList)) {
                     baseEntity.setType("新增");
-                    standardColumnCountryTranslateService.saveBatchOperaLog(addTranslateList, baseEntity);
+                    List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
+                    addTranslateList.stream().sorted(Comparator.comparing(StandardColumnCountryTranslate::getPropertiesCode)).forEach(translate-> {
+                        operaLogJsonList.add(new OperaLogJsonDto(translate.getPropertiesName(), "" , translate.getContent()));
+                    });
+                    baseEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
+                    standardColumnCountryTranslateService.saveOperaLog(baseEntity);
                 }
                 if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
                     baseEntity.setType("修改");
-                    standardColumnCountryTranslateService.updateBatchOperaLog(updateOldTranslateList, updateNewTranslateList, baseEntity);
+                    List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
+                    addTranslateList.stream().sorted(Comparator.comparing(StandardColumnCountryTranslate::getPropertiesCode)).forEach(translate-> {
+                        updateOldTranslateList.stream().filter(it-> it.getId().equals(translate.getId())).findFirst().ifPresent(oldTranslate-> {
+                            operaLogJsonList.add(new OperaLogJsonDto(translate.getPropertiesName(), oldTranslate.getContent() , translate.getContent()));
+                        });
+                    });
+                    baseEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
+                    standardColumnCountryTranslateService.saveOperaLog(baseEntity);
                 }
             };
 
@@ -350,7 +363,6 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
                 standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
             }
-
 
             // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
 //            countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>().in(CountryModel::getCountryLanguageId, countryLanguageIdList));
