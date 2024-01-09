@@ -236,4 +236,7 @@ public class QueryStyleColorDto extends Page {
      * 工艺师
      */
     private String technologistName;
+
+    @ApiModelProperty(value = "打标下单标记")
+    private String markingOrderFlag;
 }
