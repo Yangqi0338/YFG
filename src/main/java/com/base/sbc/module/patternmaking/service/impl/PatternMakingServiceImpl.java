@@ -58,7 +58,6 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
-import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
@@ -996,6 +995,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         StyleResearchNodeVo styleResearchNodeVo = null;
         List<StyleResearchNodeVo> nodeList = null;
         Date tempDate = null;
+        String presentName = null;
 
         for (StyleResearchProcessVo styleResearchProcessVo : list) {
             String templateId = styleResearchProcessVo.getTemplateId();
@@ -1024,6 +1024,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 styleResearchNodeVo.setNodeName(node.getName());
                 styleResearchNodeVo.setNumberDay(node.getNumberDay());
                 styleResearchNodeVo.setPlanTime(tempDate);
+                //未下稿 计划开始时间制空
                 if (BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode().equals(node.getCode())) {
                     styleResearchNodeVo.setPlanTime(null);
                 }
@@ -1033,8 +1034,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 if (nodeFinashTime != null) {
                     tempDate = nodeFinashTime;
                 }
+
                 styleResearchNodeVo.setFinishTime(nodeFinashTime);
 
+                //region 当前节点确认
+                if (nodeFinashTime != null) {
+                    presentName = node.getName();
+                }
+                //endregion
 
                 if (styleResearchNodeVo.getFinishTime() != null && styleResearchNodeVo.getPlanTime() != null) {
                     int compare = DateUtil.compare(styleResearchNodeVo.getFinishTime(), styleResearchNodeVo.getPlanTime());
@@ -1056,20 +1063,27 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             }
 
             // 设置图片
-            String styleColorPic = styleResearchProcessVo.getStyleColorPic();
-            String stylePic = styleResearchProcessVo.getStylePic();
-            styleResearchProcessVo.setPictrue(stylePicUtils.getStyleUrl(styleColorPic));
-            if (StrUtil.isEmpty(styleColorPic)) {
-                styleResearchProcessVo.setPictrue(stylePicUtils.getStyleUrl(stylePic));
-            }else{
-                styleResearchProcessVo.setPictrue(stylePicUtils.getStyleUrl(styleColorPic));
-            }
-
-
+            getImg(styleResearchProcessVo);
+            styleResearchProcessVo.setPresentNodeName(presentName);
             styleResearchProcessVo.setNodeList(nodeList);
         }
         //endregion
         return new PageInfo<>(list);
+    }
+
+    /**
+     * 获取图片
+     * @param styleResearchProcessVo
+     */
+    private void getImg(StyleResearchProcessVo styleResearchProcessVo) {
+        String styleColorPic = styleResearchProcessVo.getStyleColorPic();
+        String stylePic = styleResearchProcessVo.getStylePic();
+        styleResearchProcessVo.setPicture(stylePicUtils.getStyleUrl(styleColorPic));
+        if (StrUtil.isEmpty(styleColorPic)) {
+            styleResearchProcessVo.setPicture(stylePicUtils.getStyleUrl(stylePic));
+        }else{
+            styleResearchProcessVo.setPicture(stylePicUtils.getStyleUrl(styleColorPic));
+        }
     }
 
     /**

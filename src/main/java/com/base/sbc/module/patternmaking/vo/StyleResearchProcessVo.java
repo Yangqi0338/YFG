@@ -17,7 +17,6 @@ public class StyleResearchProcessVo {
      * 配色id
      */
     private String styleColorId;
-
     /**
      * 设计款号
      */
@@ -26,7 +25,6 @@ public class StyleResearchProcessVo {
      * 大货款号
      */
     private String bulkStyleNo;
-
     /**
      * 设计款号图
      */
@@ -62,8 +60,7 @@ public class StyleResearchProcessVo {
     /**
      * 图片
      */
-    private String pictrue;
-
+    private String picture;
     /**
      * 研发总进度模板id
      */
@@ -72,12 +69,10 @@ public class StyleResearchProcessVo {
      * 当前节点名称
      */
     private String presentNodeName;
-
     /**
      * 当前节点状态
      */
     private String presentNodeStatus;
-
     /**
      * 当前节点状态名称
      */
