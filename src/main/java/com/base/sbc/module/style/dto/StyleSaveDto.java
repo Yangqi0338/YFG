@@ -39,5 +39,8 @@ public class StyleSaveDto extends Style {
     @ApiModelProperty(value = "关联的素材库")
     private List<MaterialVo> materialList;
 
+    @ApiModelProperty(value = "打标类型")
+    private String markingType;
+
 
 }

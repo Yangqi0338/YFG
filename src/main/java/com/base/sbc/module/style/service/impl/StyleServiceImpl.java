@@ -59,7 +59,6 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
-import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
@@ -96,7 +95,6 @@ import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.ApiModelProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -248,8 +246,33 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             baseMapper.changeDevtType(style.getId(), style.getDevtType(), style.getDevtTypeName());
 
         }
-        // 保存工艺信息
-        fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
+        //添加打标逻辑 - markingType 默认为空时和设计阶段，打标逻辑一致，如果维度数据全部填写则全部打标，否则部分打标，全部未填写时为未打标
+        if(StrUtil.isEmpty(dto.getMarkingType())){
+            // 保存工艺信息
+            //判断打标状态 TODO
+
+            //审批状态设置为未审批
+            if(StrUtil.isEmpty(dto.getDesignAuditStatus())){
+                dto.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+            } else if (!BaseGlobal.STOCK_STATUS_WAIT_CHECK.equals(dto.getDesignAuditStatus())) {
+                //待审核时不处理
+                dto.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+            }
+            fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
+        }else{
+            //如果 markingType 为order时表示下单阶段，此时 工艺信息另存一份，不修改原始数据 其他逻辑一致
+            // 保存工艺信息
+            //判断打标状态 TODO
+
+            //审批状态设置为未审批
+            if(StrUtil.isEmpty(dto.getOrderAuditStatus())){
+                dto.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+            } else if (!BaseGlobal.STOCK_STATUS_WAIT_CHECK.equals(dto.getOrderAuditStatus())) {
+                //待审核时不处理
+                dto.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+            }
+            fieldValService.save(style.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER, dto.getTechnologyInfo());
+        }
         // 附件信息
         saveFiles(style.getId(), dto.getAttachmentList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
 
