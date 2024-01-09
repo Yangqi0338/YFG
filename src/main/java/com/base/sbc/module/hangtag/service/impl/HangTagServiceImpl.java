@@ -311,9 +311,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		BeanUtil.copyProperties(hangTagDTO, hangTag);
 		//如果品名修改则下发scm
-		StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq
+	/*	StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq
 				("style_no", hangTag.getBulkStyleNo()).eq("company_code", userCompany).select("id"));
-
+*/
 
 		boolean flag = false;
 		if(StringUtils.isEmpty(hangTagDTO.getId())){
@@ -333,9 +333,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			strictCheckIngredientPercentage(Collections.singletonList(id));
 		}
 
-		if (flag){
+	/*	if (flag){
 			smpService.goods(styleColor.getId().split(","));
-		}
+		}*/
 
 		// List<BasicsdatumMaterialIngredient> materialIngredientList =
 		// basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0",
@@ -360,11 +360,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		 * 当存在品名时同步到配色
 		 */
 		if (!StringUtils.isEmpty(hangTag.getProductCode()) && !StringUtils.isEmpty(hangTag.getProductName())) {
+			StyleColor styleColor = styleColorService.getByOne("style_no",hangTag.getBulkStyleNo());
 			/* 同步配色品名 */
 			if (!ObjectUtils.isEmpty(styleColor)) {
 				styleColor.setProductCode(hangTag.getProductCode());
 				styleColor.setProductName(hangTag.getProductName());
 				styleColorMapper.updateById(styleColor);
+				/*修改品名是下发配色前提配色已下发*/
+				if(StrUtil.equals(styleColor.getScmSendFlag(),BaseGlobal.YES) || StrUtil.equals(styleColor.getScmSendFlag(),BaseGlobal.IN_READY)){
+					smpService.goods(styleColor.getId().split(","));
+				}
 			}
 		}
 

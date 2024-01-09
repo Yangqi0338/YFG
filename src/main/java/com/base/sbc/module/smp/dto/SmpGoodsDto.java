@@ -1,7 +1,9 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
+import com.base.sbc.module.style.entity.StyleSpecFabric;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -163,6 +165,16 @@ public class SmpGoodsDto extends SmpBaseDto {
     private Boolean priceConfirm;
     /**成本*/
     private BigDecimal cost;
+    /**设计bom总成本*/
+    private BigDecimal designPackCost;
+    /**外协加工费*/
+    private BigDecimal outsourcingProcessingCost;
+    /**包装费*/
+    private BigDecimal packagingCost;
+    /**检测费*/
+    private BigDecimal testCost;
+    /**毛衫加工费*/
+    private BigDecimal sweaterProcessingCost;
     /**计控实际成本*/
     private BigDecimal planCost;
     /**企划实际倍率*/
@@ -231,6 +243,14 @@ public class SmpGoodsDto extends SmpBaseDto {
     private List<SmpSize> itemList;
     /**图片地址集合*/
     private List<String> imgList;
+    /** rfid标识 0 否 1 是 */
+    private String rfidFlag;
+    /** rfid属性
+     * all("洗唛&吊牌RFID"),
+     * washing("洗唛RFID"),
+     * hangTag("吊牌RFID"),
+     * */
+    private RFIDType rfidType;
 
 
     //新加字段
@@ -260,4 +280,9 @@ public class SmpGoodsDto extends SmpBaseDto {
     @ApiModelProperty(value = "技术下工艺部正确样")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date processDepartmentDate;
+
+    /**
+     * 指定面料集合
+     */
+    private List<StyleSpecFabric> styleSpecFabricList;
 }

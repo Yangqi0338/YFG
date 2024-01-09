@@ -1,6 +1,8 @@
 package com.base.sbc.module.common.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
@@ -157,4 +159,5 @@ public interface BaseService<T> extends IService<T> {
      * 启用与停用并且记录日志
      */
     void startStopLog(StartStopDto startStopDto);
+    <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 }

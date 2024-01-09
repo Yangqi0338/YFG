@@ -15,6 +15,7 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
@@ -73,6 +74,8 @@ public class StyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setActive("0".equals(status));
         smpGoodsDto.setDesignCorrectDate(designCorrectDate);
         smpGoodsDto.setDesignDetailDate(designDetailDate);
+        smpGoodsDto.setRfidFlag(this.rfidFlag);
+        smpGoodsDto.setRfidType(this.rfidType);
         return smpGoodsDto;
     }
     /**********************************实体存放的其他字段区 【other_end】******************************************/
@@ -276,6 +279,11 @@ public class StyleColor extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "rfid标记(0否 1是)")
     private String rfidFlag;
+    /**
+     * rfid标记(0否 1是)
+     */
+    @ApiModelProperty(value = "rfid类型")
+    private RFIDType rfidType;
     /**
      * 备注
      */

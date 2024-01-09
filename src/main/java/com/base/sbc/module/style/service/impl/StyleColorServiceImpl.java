@@ -699,7 +699,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
-
+            /*颜色修改*/
+            if(!StrUtil.equals(styleColor.getColorCode(),addRevampStyleColorDto.getColorCode())){
+                PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
+                if(!ObjectUtils.isEmpty(packInfo)){
+                    packInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
+                    packInfo.setColor(basicsdatumColourLibrary.getColourName());
+                    packInfoService.updateById(packInfo);
+                }
+            }
             /*修改*/
            boolean b = !StringUtils.equals(styleColor.getScmSendFlag(), BaseGlobal.IN_READY)&&StrUtil.isBlank(styleColor.getHisStyleNo());
 
@@ -934,6 +942,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleColor.setColorName(basicsdatumColourLibrary.getColourName());
         styleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
         baseMapper.updateById(styleColor);
+        PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
+        if(!ObjectUtils.isEmpty(packInfo)){
+            packInfo.setColorCode(styleColor.getColorCode());
+            packInfo.setColor(styleColor.getColorName());
+            packInfoService.updateById(packInfo);
+        }
         /*重新下发配色*/
         dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
         return true;
@@ -1114,9 +1128,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
 
         //region 20231219 huangqiang 修改大货款号将老款图片下载重新上传，上传成功后删除
-        Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
-        if (!result) {
-            throw new OtherException("图片上传失败！");
+        if(StrUtil.isNotBlank(styleColor.getStyleColorPic())){
+            Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
+            if (!result) {
+                throw new OtherException("图片上传失败！");
+            }
         }
         //endregion
         return true;
@@ -1692,7 +1708,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
             } catch (Exception e) {
                 result = false;
-                throw new RuntimeException(e);
+                log.info(e.getMessage());
+//                throw new RuntimeException(e);
             }finally {
                 //上传成功后删除
                 if (uploadStatus) {

@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
@@ -15,6 +16,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.CommonUtils;
@@ -56,9 +58,11 @@ import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
+import com.base.sbc.module.style.entity.StyleSpecFabric;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.service.StyleSpecFabricService;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,6 +113,10 @@ public class SmpService {
     @Resource
     @Lazy
     private final PackTechSpecService packTechSpecService;
+
+    @Resource
+    @Lazy
+    private StyleSpecFabricService styleSpecFabricService;
 
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
@@ -202,11 +210,12 @@ public class SmpService {
             PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
             if (packInfo!=null){
-                //产前样
-                PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
-                if (preProductionSampleTask!=null){
-                    smpGoodsDto.setTechReceiveDate(preProductionSampleTask.getTechReceiveDate());
-                    smpGoodsDto.setProcessDepartmentDate(preProductionSampleTask.getProcessDepartmentDate());
+                //产前样查询 拿最早的工艺部接收正确样时间
+                List<PreProductionSampleTask> sampleTaskList = preProductionSampleTaskService.list(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()).orderByAsc("tech_receive_date"));
+//                PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
+                if (CollUtil.isNotEmpty(sampleTaskList)){
+                    smpGoodsDto.setTechReceiveDate(sampleTaskList.get(0).getTechReceiveDate());
+                    smpGoodsDto.setProcessDepartmentDate(sampleTaskList.get(0).getProcessDepartmentDate());
                 }
                 style = styleService.getById(packInfo.getStyleId());
                 if (style==null){
@@ -374,10 +383,25 @@ public class SmpService {
                 // 核价
                 if (packPricing != null) {
                     JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
-                    smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                    //smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                    //车缝教加工费
                     smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
+                    //物料费
                     smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
+                    //总成本
+                    smpGoodsDto.setCost(packPricingService.countTotalPrice(packInfo.getId(), null));
+                    //设计Bom总成本
+                    smpGoodsDto.setDesignPackCost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES));
+                    //外协加工费
+                    smpGoodsDto.setOutsourcingProcessingCost((jsonObject.getBigDecimal("外协加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("外协加工费")));
+                    //包装费
+                    smpGoodsDto.setPackagingCost((jsonObject.getBigDecimal("包装费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("包装费")));
+                    //检测费
+                    smpGoodsDto.setTestCost((jsonObject.getBigDecimal("检测费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("检测费")));
+                    //毛纱加工费
+                    smpGoodsDto.setSweaterProcessingCost((jsonObject.getBigDecimal("毛纱加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("毛纱加工费")));
                 }
+
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
 
@@ -457,6 +481,15 @@ public class SmpService {
                 smpSizes.add(smpSize);
             }
             smpGoodsDto.setItemList(smpSizes);
+
+            //region 添加配色指定面料下发 huangqiang
+            QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("style_color_id",styleColor.getId());
+            queryWrapper.eq("del_flag","0");
+            List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
+            smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
+            //endregion
+
             // if (true){
             //     return null;
             // }
@@ -794,8 +827,26 @@ public class SmpService {
                 }
 
             }
+            if (sizeQtyList.isEmpty()){
+                throw new OtherException("尺码信息为空");
+            }
+            if (StringUtils.isEmpty(smpBomDto.getColorName()) || StringUtils.isEmpty(smpBomDto.getColorCode())){
+                throw new OtherException("颜色信息为空");
+            }
             smpBomDto.setSizeQtyList(sizeQtyList);
+            smpBomDto.setRfidFlag(styleColor.getRfidFlag());
+            String category3Code = basicsdatumMaterialService.findOneField(new LambdaQueryWrapper<BasicsdatumMaterial>()
+                    .eq(BasicsdatumMaterial::getMaterialCode, smpBomDto.getMaterialCode()), BasicsdatumMaterial::getCategory3Code);
+            RFIDProperties.categoryRfidMapping.forEach((categoryCode, RFIDType)-> {
+                if (categoryCode.equals(category3Code)) {
+                    smpBomDto.setRfidType(RFIDType.ordinal() + "");
+                }
+            });
 
+            /*如果物料是未下发状态或者是发送失败 就是新增的物料*/
+            if (StrUtil.equals(packBom.getScmSendFlag(), BaseGlobal.NO) || StrUtil.equals(packBom.getScmSendFlag(), BaseGlobal.STOCK_STATUS_CHECKED)) {
+                packBomService.costUpdate(list.get(0).getForeignId(), null);
+            }
 
             String jsonString = JsonStringUtils.toJSONString(smpBomDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", jsonString);

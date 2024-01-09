@@ -38,7 +38,7 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
     /**
      * 计算总价格
-     * 默认查大货 flag=1 资料包什么阶段就查什么阶段
+     * 默认查大货 flag=1 查询设计  flag=2 当前阶段
      * @param packInfoId
      * @param flag
      * @return
@@ -47,6 +47,20 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
     void asyncCost(String foreignId);
 
+    /**
+     * 获取核价信息中的路由信息
+     * @param styleNo
+     * @return
+     */
+    Map getPricingRoute(String styleNo);
+
+    /**
+     * 生成核价信息
+     * @param styleId
+     * @param foreignId
+     * @return
+     */
+   boolean createPackPricing( String styleId,String foreignId);
 
 // 自定义方法区 不替换的区域【other_end】
 
