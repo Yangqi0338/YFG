@@ -251,6 +251,44 @@ public class StyleController extends BaseController {
         return styleService.startStopStyle(startStopDto);
     }
 
+    @ApiOperation(value = "发起审批-款式打标-设计阶段")
+    @GetMapping("/startMarkingApproval")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true, paramType = "query")})
+    public boolean startMarkingApproval(@NotBlank(message = "编号不能为空") String id) {
+        return styleService.startMarkingApproval(id);
+    }
+
+    /**
+     * 处理审批-款式打标-设计阶段
+     *
+     * @param dto
+     * @return
+     */
+    @ApiIgnore
+    @PostMapping("/approvalMarking")
+    public boolean approvalMarking(@RequestBody AnswerDto dto) {
+        return styleService.approvalMarking(dto);
+    }
+
+    @ApiOperation(value = "发起审批-款式打标-下单阶段")
+    @GetMapping("/startMarkingOrderApproval")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true, paramType = "query")})
+    public boolean startMarkingOrderApproval(@NotBlank(message = "编号不能为空") String id) {
+        return styleService.startMarkingOrderApproval(id);
+    }
+
+    /**
+     * 处理审批-款式打标-下单阶段
+     *
+     * @param dto
+     * @return
+     */
+    @ApiIgnore
+    @PostMapping("/approvalMarkingOrder")
+    public boolean approvalMarkingOrder(@RequestBody AnswerDto dto) {
+        return styleService.approvalMarkingOrder(dto);
+    }
+
 }
 
 

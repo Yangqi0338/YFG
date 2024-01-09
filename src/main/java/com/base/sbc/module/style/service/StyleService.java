@@ -261,5 +261,13 @@ public interface StyleService extends BaseService<Style> {
     boolean setMainPic(StyleSaveDto dto);
 
     String selectMaxOldDesignNo(QueryWrapper qc);
+
+    boolean startMarkingApproval(String id);
+
+    boolean approvalMarking(AnswerDto dto);
+
+    boolean startMarkingOrderApproval(String id);
+
+    boolean approvalMarkingOrder(AnswerDto dto);
 }
 

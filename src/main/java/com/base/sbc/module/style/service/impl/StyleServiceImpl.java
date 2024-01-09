@@ -1973,5 +1973,101 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return baseMapper.selectMaxOldDesignNo(qc);
     }
 
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean startMarkingApproval(String id) {
+        Style style = getById(id);
+        if (style == null) {
+            throw new OtherException("样衣数据不存在,请先保存");
+        }
+        if(StrUtil.isBlank(style.getDesignAuditStatus())){
+            style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+        }
+        if (StrUtil.equals(style.getDesignAuditStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
+            throw new OtherException("当前数据已在审批中");
+        }
+        style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        updateById(style);
+        Map<String, Object> variables = BeanUtil.beanToMap(style);
+        return flowableService.start(FlowableService.DESIGN_MARKING + "[" + style.getDesignNo() + "]", FlowableService.DESIGN_MARKING, id,
+                "/pdm/api/saas/style/approvalMarking",
+                "/pdm/api/saas/style/approvalMarking",
+                "/pdm/api/saas/style/approvalMarking",
+                "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean approvalMarking(AnswerDto dto) {
+        Style style = getById(dto.getBusinessKey());
+        logger.info("————————————————款式打标-设计阶段审批 回调方法————————————————", JSON.toJSONString(style));
+        logger.info("————————————————回调类型————————————————", dto.getApprovalType());
+        if (style != null) {
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                //设置样衣未开款状态为 已开款
+                if (style.getStatus().equals(BaseGlobal.STOCK_STATUS_DRAFT)) {
+                    style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                }
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            } else {
+                style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+            }
+            updateById(style);
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean startMarkingOrderApproval(String id) {
+        Style style = getById(id);
+        if (style == null) {
+            throw new OtherException("样衣数据不存在,请先保存");
+        }
+        if(StrUtil.isBlank(style.getOrderAuditStatus())){
+            style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+        }
+        if (StrUtil.equals(style.getOrderAuditStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
+            throw new OtherException("当前数据已在审批中");
+        }
+        style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        updateById(style);
+        Map<String, Object> variables = BeanUtil.beanToMap(style);
+        return flowableService.start(FlowableService.ORDER_MARKING + "[" + style.getDesignNo() + "]", FlowableService.ORDER_MARKING, id,
+                "/pdm/api/saas/style/approvalMarkingOrder",
+                "/pdm/api/saas/style/approvalMarkingOrder",
+                "/pdm/api/saas/style/approvalMarkingOrder",
+                "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean approvalMarkingOrder(AnswerDto dto) {
+        Style style = getById(dto.getBusinessKey());
+        logger.info("————————————————款式打标-下单阶段审批 回调方法————————————————", JSON.toJSONString(style));
+        logger.info("————————————————回调类型————————————————", dto.getApprovalType());
+        if (style != null) {
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                //设置样衣未开款状态为 已开款
+                if (style.getStatus().equals(BaseGlobal.STOCK_STATUS_DRAFT)) {
+                    style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+                }
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            } else {
+                style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+            }
+            updateById(style);
+        }
+        return true;
+    }
+
 }
 
