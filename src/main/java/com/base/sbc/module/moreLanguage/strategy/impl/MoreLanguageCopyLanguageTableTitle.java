@@ -28,7 +28,7 @@ public class MoreLanguageCopyLanguageTableTitle extends MoreLanguageTableTitleHa
 
     @Override
     public boolean needHandler(MoreLanguageTableTitle tableTitle) {
-        if (MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.isTrue()) return false;
+//        if (MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.isTrue()) return false;
         return MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.checkKey(tableTitle.getHandler(), this.getClass());
     }
 

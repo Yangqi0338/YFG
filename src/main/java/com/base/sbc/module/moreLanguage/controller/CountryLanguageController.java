@@ -16,7 +16,9 @@ import com.base.sbc.module.moreLanguage.dto.LanguageQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.SqlUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -120,13 +122,15 @@ public class CountryLanguageController extends BaseController {
             dictList = dictList.stream().filter(it-> it.getValue().contains(code)).collect(Collectors.toList());
         }
 
-        if (languageQueryDto.isInit()) {
-            countryLanguageService.initLanguage(dictList);
-        }
-
         Page<BasicBaseDict> startPage = languageQueryDto.startPage();
         ccmFeignService.setPage(startPage);
-        return CollectionUtil.isNotEmpty(dictList) ? selectSuccess(ccmFeignService.clearPage(dictList)) : selectNotFound();
+        PageInfo<BasicBaseDict> pageInfo = ccmFeignService.clearPage(dictList);
+        List<BasicBaseDict> subDictList = pageInfo.getList();
+
+        SqlUtil.clearLocalPage();
+        countryLanguageService.initLanguage(subDictList);
+
+        return CollectionUtil.isNotEmpty(subDictList) ? selectSuccess(pageInfo) : selectNotFound();
     }
 
     /**

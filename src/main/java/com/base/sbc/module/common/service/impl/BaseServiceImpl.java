@@ -33,6 +33,7 @@ import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
+import com.github.pagehelper.SqlUtil;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -720,6 +721,9 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        // 先清掉PageHelper,以免报错
+        // https://blog.csdn.net/qq_42696265/article/details/131944397
+        SqlUtil.clearLocalPage();
         return this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function).orElse(null);
     }
 

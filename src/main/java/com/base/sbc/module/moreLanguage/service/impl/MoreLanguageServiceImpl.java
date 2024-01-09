@@ -178,7 +178,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         List<StandardColumn> standardColumnList = countryLanguageService.findStandardColumnList(code, type ,moreLanguageQueryDto.isCache());
 
         // 做语言判断
-        MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.setBooleanParam(singleLanguageFlag);
+//        MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.setBooleanParam(singleLanguageFlag);
         MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.setParam(moreLanguageQueryDto.getCache());
         MoreLanguageTableContext.setParam(MapUtil.of(
                 MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(), JSONUtil.toJsonStr(countryLanguageList)
@@ -490,7 +490,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         tableTitleList.removeIf(tableTitle -> translateFieldList.contains(tableTitle.getCode()));
 
         // 装饰输出表头
-        MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.setBooleanParam(singleLanguageFlag);
+//        MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.setBooleanParam(singleLanguageFlag);
         MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.setParam(moreLanguageQueryDto.getCache());
         MoreLanguageTableContext.setParam(MapUtil.of(
                 MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(), JSONUtil.toJsonStr(countryLanguageList)
@@ -513,7 +513,8 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
             LambdaQueryWrapper<StandardColumnCountryTranslate> translateQueryWrapper = new LambdaQueryWrapper<StandardColumnCountryTranslate>()
                     .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
-                    .in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList);
+                    .in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
+                    .and(qw-> qw.isNotNull(StandardColumnCountryTranslate::getContent).ne(StandardColumnCountryTranslate::getContent,""));
 
             translateList.addAll(standardColumnCountryTranslateService.page(moreLanguageQueryDto.toMPPage(StandardColumnCountryTranslate.class),
                     translateQueryWrapper.clone()
@@ -531,7 +532,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                 translateList.addAll(standardColumnCountryTranslateService.page(moreLanguageQueryDto.toMPPage(StandardColumnCountryTranslate.class),
                         translateQueryWrapper.clone()
                                 .in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageDtoList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
-                ).getRecords().stream().filter(it-> StrUtil.isNotBlank(it.getContent())).collect(Collectors.toList()));
+                ).getRecords());
             }
         }
 
@@ -552,7 +553,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     for (Map.Entry<String, Object> entry : translateResultMap.entrySet()) {
                         String key = entry.getKey();
                         Object value = entry.getValue();
-                        if (!field.equals(key) && singleLanguageFlag == YesOrNoEnum.NO) {
+                        if (!field.equals(key)) {
                             key = (countryLanguage.getLanguageCode() + "-" + key);
                         }
                         if (field.equals(key)) {
