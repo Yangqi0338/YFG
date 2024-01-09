@@ -1510,6 +1510,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleColor.setScmSendFlag(null);
         styleColor.setBom(null);
         styleColor.setBomStatus(BaseGlobal.NO);
+        styleColor.setStyleColorPic("");
 //        查询款式
         Style style = styleService.getById(styleColor.getStyleId());
         styleColor.setStyleNo(getNextCode(style, StringUtils.isNotEmpty(styleColor.getBandName()) ? styleColor.getBandName() : style.getBandName(),  StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,styleColor.getIsLuxury(),  1));
