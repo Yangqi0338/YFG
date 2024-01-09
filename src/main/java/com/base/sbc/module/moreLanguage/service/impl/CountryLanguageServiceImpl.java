@@ -48,6 +48,9 @@ import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -189,9 +192,11 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                         CountryLanguage countryLanguage = oldCountryLanguageList.stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst().orElse(null);
 
                         if (countryLanguage == null) {
+                            BasicBaseDict basicBaseDict = dictInfoToList.stream().filter(dict -> dict.getValue().equals(languageCode)).findFirst().orElse(new BasicBaseDict());
+                            initLanguage(Arrays.asList(basicBaseDict));
                             countryLanguage = BeanUtil.copyProperties(countryTypeLanguage, CountryLanguage.class);
                             countryLanguage.setLanguageCode(languageCode);
-                            countryLanguage.setLanguageName(dictInfoToList.stream().filter(dict-> dict.getValue().equals(languageCode)).findFirst().map(BasicBaseDict::getName).orElse(null));
+                            countryLanguage.setLanguageName(basicBaseDict.getName());
                             this.save(countryLanguage);
                         }
 
@@ -310,59 +315,83 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         return null;
     }
 
+    @Autowired
+    private PlatformTransactionManager platformTransactionManager;
+
+
+    @Autowired
+    private TransactionDefinition transactionDefinition;
+
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void initLanguage(List<BasicBaseDict> dictList) {
-        // 创建语言, type分组
-        List<CountryLanguage> countryLanguageList = Arrays.stream(CountryLanguageType.values()).flatMap(type -> {
-            AtomicInteger index = new AtomicInteger();
-            return dictList.stream().map(dict -> {
-                CountryLanguage countryLanguage = new CountryLanguage();
-                countryLanguage.setCodeIndex(index.incrementAndGet());
-                countryLanguage.setCode("Y" + (countryLanguage.getCodeIndex() < 10 ? "0" + countryLanguage.getCodeIndex() : countryLanguage.getCodeIndex()));
-                countryLanguage.setLanguageCode(dict.getValue());
-                countryLanguage.setLanguageName(dict.getName());
-                countryLanguage.setEnableFlag(YesOrNoEnum.YES);
-                countryLanguage.setSingleLanguageFlag(YesOrNoEnum.YES);
-                countryLanguage.setType(type);
-                countryLanguage.setId(this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
-                        .eq(CountryLanguage::getCode,countryLanguage.getCode())
-                        .eq(CountryLanguage::getType,countryLanguage.getType())
-                        .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES), CountryLanguage::getId
-                ));
-                return countryLanguage;
-            });
-        }).collect(Collectors.toList());
+        TransactionStatus transaction = platformTransactionManager.getTransaction(transactionDefinition);
+        try {
+            // 创建语言, type分组
+            List<CountryLanguage> languageList = this.list(new LambdaQueryWrapper<CountryLanguage>()
+                    .in(CountryLanguage::getLanguageCode, dictList.stream().map(BasicBaseDict::getValue).distinct().collect(Collectors.toList()))
+                    .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES)
+                    .eq(CountryLanguage::getEnableFlag, YesOrNoEnum.YES)
+            );
 
-        this.saveOrUpdateBatch(countryLanguageList);
+            List<CountryLanguage> countryLanguageList = Arrays.stream(CountryLanguageType.values()).flatMap(type -> {
+                Integer maxCode = this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
+                        .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES)
+                        .eq(CountryLanguage::getType, type)
+                        .orderByDesc(CountryLanguage::getCodeIndex), CountryLanguage::getCodeIndex
+                );
 
-        countryLanguageList.stream().filter(it-> StrUtil.isNotBlank(it.getId())).forEach(it->
-                relationService.physicalDeleteQWrap(new QueryWrapper<StandardColumnCountryRelation>()
-                        .eq("country_language_id", it.getId()))
-        );
-        // 创建配置
-        List<StandardColumnCountryRelation> relationList = new ArrayList<>();
-        countryLanguageList.stream().collect(Collectors.groupingBy(CountryLanguage::getType)).forEach((type,sameTypeList)-> {
-            // 获取这个type下的所有属性
-            StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
-            List<StandardColumnType> childrenTypeList = new ArrayList<>(type.getStandardColumnType().getChildrenTypeList());
-            childrenTypeList.add(type.getStandardColumnType());
-            queryDto.setTypeList(childrenTypeList);
-            List<StandardColumnDto> standardColumnDtoList = standardColumnService.listQuery(queryDto);
-            standardColumnDtoList.forEach(standardColumnDto -> {
-                sameTypeList.forEach(countryLanguage -> {
-                    StandardColumnCountryRelation relation = new StandardColumnCountryRelation();
-                    relation.setCountryLanguageId(countryLanguage.getId());
-                    relation.setStandardColumnCode(standardColumnDto.getCode());
-                    relation.setStandardColumnName(standardColumnDto.getName());
-                    relationList.add(relation);
+                AtomicInteger index = new AtomicInteger(maxCode == null ? 0 : maxCode);
+                return dictList.stream().map(dict -> {
+                    int codeIndex = index.incrementAndGet();
+                    CountryLanguage countryLanguage = languageList.stream().filter(it -> it.getType().equals(type) && it.getLanguageCode().equals(dict.getValue()))
+                            .findFirst().orElse(new CountryLanguage());
+                    if (countryLanguage.getId() == null) {
+                        countryLanguage.setCodeIndex(codeIndex);
+                        countryLanguage.setCode("Y" + (countryLanguage.getCodeIndex() < 10 ? "0" + countryLanguage.getCodeIndex() : countryLanguage.getCodeIndex()));
+                        countryLanguage.setLanguageCode(dict.getValue());
+                        countryLanguage.setLanguageName(dict.getName());
+                        countryLanguage.setEnableFlag(YesOrNoEnum.YES);
+                        countryLanguage.setSingleLanguageFlag(YesOrNoEnum.YES);
+                        countryLanguage.setType(type);
+                    }
+                    return countryLanguage;
                 });
-            });
+            }).collect(Collectors.toList());
 
-        });
+            countryLanguageList.removeIf(countryLanguage -> languageList.stream().anyMatch(it-> it.getId().equals(countryLanguage.getId())));
 
-        relationService.saveOrUpdateBatch(relationList);
+            if (CollectionUtil.isNotEmpty(countryLanguageList)) {
+                this.saveOrUpdateBatch(countryLanguageList);
 
+                // 创建配置
+                List<StandardColumnCountryRelation> relationList = new ArrayList<>();
+                countryLanguageList.stream().collect(Collectors.groupingBy(CountryLanguage::getType)).forEach((type,sameTypeList)-> {
+                    // 获取这个type下的所有属性
+                    StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
+                    List<StandardColumnType> childrenTypeList = new ArrayList<>(type.getStandardColumnType().getChildrenTypeList());
+                    childrenTypeList.add(type.getStandardColumnType());
+                    queryDto.setTypeList(childrenTypeList);
+                    List<StandardColumnDto> standardColumnDtoList = standardColumnService.listQuery(queryDto);
+                    standardColumnDtoList.forEach(standardColumnDto -> {
+                        sameTypeList.forEach(countryLanguage -> {
+                            StandardColumnCountryRelation relation = new StandardColumnCountryRelation();
+                            relation.setCountryLanguageId(countryLanguage.getId());
+                            relation.setStandardColumnCode(standardColumnDto.getCode());
+                            relation.setStandardColumnName(standardColumnDto.getName());
+                            relationList.add(relation);
+                        });
+                    });
+
+                });
+
+                relationService.saveOrUpdateBatch(relationList);
+            }
+
+            platformTransactionManager.commit(transaction);
+        }catch (Exception e) {
+            platformTransactionManager.rollback(transaction);
+            throw e;
+        }
         // 要清除Redis? TODO
 
         // 创建翻译(使用翻译软件做基础翻译? TODO)
