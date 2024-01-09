@@ -12,6 +12,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.Week;
 import cn.hutool.core.lang.Opt;
@@ -1022,6 +1023,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 styleResearchNodeVo.setNodeName(node.getName());
                 styleResearchNodeVo.setNumberDay(node.getNumberDay());
                 styleResearchNodeVo.setPlanTime(tempDate);
+                if (BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode().equals(node.getCode())) {
+                    styleResearchNodeVo.setPlanTime(null);
+                }
                 //获取节点完成日期
                 BasicsdatumProcessNodeEnum value = BasicsdatumProcessNodeEnum.getBycode(node.getCode());
                 Date nodeFinashTime = getNodeFinashTime(styleResearchProcessVo.getStyleId(), styleResearchProcessVo.getStyleColorId(), value, styleResearchNodeVo,tempDate);
@@ -1029,7 +1033,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     tempDate = nodeFinashTime;
                 }
                 styleResearchNodeVo.setFinishTime(nodeFinashTime);
-                //
+
+
+                if (styleResearchNodeVo.getFinishTime() != null && styleResearchNodeVo.getPlanTime() != null) {
+                    int compare = DateUtil.compare(styleResearchNodeVo.getFinishTime(), styleResearchNodeVo.getPlanTime());
+
+                    long betweenDay = DateUtil.between(styleResearchNodeVo.getFinishTime(), styleResearchNodeVo.getPlanTime(), DateUnit.DAY);
+                    styleResearchNodeVo.setBetweenDay(betweenDay);
+                    if (compare == 1) {
+                        styleResearchNodeVo.setDescription("延期" + betweenDay + "天");
+                        styleResearchNodeVo.setNodeStatus(1);
+                    } else if (compare == 0) {
+                        styleResearchNodeVo.setDescription("");
+                        styleResearchNodeVo.setNodeStatus(0);
+                    } else if (compare == -1) {
+                        styleResearchNodeVo.setDescription("提前" + betweenDay + "天");
+                        styleResearchNodeVo.setNodeStatus(-1);
+                    }
+                }
                 nodeList.add(styleResearchNodeVo);
             }
             styleResearchProcessVo.setNodeList(nodeList);
@@ -1099,7 +1120,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         switch (basicsdatumProcessNodeEnum) {
             case NO_NEXT_DRAFT:
-                //resutDate = getStyleRelationNodeDate(stylelId, resutDate,"create_date");
+                resutDate = preFinishDate;
                 break;
             case REVIEWED_DRAFT:
                 resutDate = getStyleRelationNodeDate(stylelId,"check_start_time");

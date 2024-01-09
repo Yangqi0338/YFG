@@ -33,4 +33,12 @@ public class StyleResearchNodeVo {
      * 天数
      */
     private Integer numberDay;
+    /**
+     * 相差天数
+     */
+    private Long betweenDay;
+    /**
+     * 描述
+     */
+    private String description;
 }
