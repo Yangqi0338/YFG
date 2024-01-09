@@ -1,9 +1,12 @@
 package com.base.sbc.config.common;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import lombok.Data;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
@@ -14,6 +17,7 @@ import java.util.List;
  * @date 2023/6/12 19:36:07
  * @mail 247967116@qq.com
  */
+@Data
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     public QueryWrapper<T> notEmptyEq(String column, Object val) {
         return this.eq(!StringUtils.isEmpty(val), column, val);
@@ -43,6 +47,8 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             this.ge(!StringUtils.isEmpty(strings[0]), column, strings[0]);
             if (strings.length > 1) {
                 return this.and(i -> i.le(!StringUtils.isEmpty(strings[1]), column, strings[1]));
+            }else {
+                return this.and(i -> i.le(!StringUtils.isEmpty(strings[0]), column, strings[0]));
             }
         }
         return this;
@@ -68,8 +74,13 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
-    public QueryWrapper<T> isNull(String column) {
+    public QueryWrapper<T> isNullStr(String column) {
         this.and(qw -> qw.isNull(column).or(qw2 -> qw2.eq(column, "")));
+        return this;
+    }
+
+    public QueryWrapper<T> isNotNullStr(String column) {
+        this.and(qw -> qw.isNotNull(column).and(qw2 -> qw2.ne(column, "")));
         return this;
     }
 
@@ -104,7 +115,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
      * @param val
      * @return
      */
-    public QueryWrapper<T> likeList(String columns, List<Object> val) {
+    public QueryWrapper<T> likeList(String columns, List<String> val) {
         if (CollUtil.isEmpty(val)) {
             return this;
         }
@@ -116,6 +127,19 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             });
         });
         return this;
+    }
+
+    /**
+     * 模糊搜索一个字段为集合
+     * @param columns
+     * @param val
+     * @return
+     */
+    public QueryWrapper<T> likeList(String columns, String val) {
+       if (StringUtils.isEmpty(val)){
+           return this;
+       }
+       return this.likeList(columns, StrUtil.split(val, CharUtil.COMMA));
     }
 
     /**
@@ -141,4 +165,8 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
+//    @Override
+//    public BaseLambdaQueryWrapper<T> lambda() {
+//        return BeanUtil.copyProperties(super.lambda(), BaseLambdaQueryWrapper.class );
+//    }
 }

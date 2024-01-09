@@ -29,11 +29,10 @@ import org.apache.ibatis.annotations.Param;
 public interface StyleOrderBookMapper extends BaseMapper<StyleOrderBook> {
 	/**
 	 * 订货本列表页面查询
-	 * 
-	 * @param companyCode
+	 *
 	 * @param dto
 	 * @return
 	 */
-	List<StyleOrderBookPageVo> getStyleOrderBookList(@Param("dto") StyleOrderBookQueryDto dto,
+	List<StyleOrderBookPageVo> getStyleOrderBookDetail(@Param("dto") StyleOrderBookQueryDto dto,
 													 @Param(Constants.WRAPPER) QueryWrapper qw);
 }

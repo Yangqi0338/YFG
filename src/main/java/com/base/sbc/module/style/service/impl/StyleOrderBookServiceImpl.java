@@ -84,8 +84,8 @@ public class StyleOrderBookServiceImpl extends BaseServiceImpl<StyleOrderBookMap
 		QueryWrapper qw = new QueryWrapper();
 		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "t2.");
 
-		List<StyleOrderBookPageVo> list = this.baseMapper.getStyleOrderBookList(dto, qw);
-		return new PageInfo<>(list);
+		// List<StyleOrderBookPageVo> list = this.baseMapper.getStyleOrderBookList(dto, qw);
+		return new PageInfo<>(null);
 	}
 
 	@Override

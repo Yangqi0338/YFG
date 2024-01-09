@@ -125,7 +125,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
      * @param stylePricingList
      * @param companyCode
      */
-    private void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode) {
+    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode) {
         List<String> packId = stylePricingList.stream()
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
