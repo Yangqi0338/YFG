@@ -140,6 +140,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Autowired
     private PatternMakingService patternMakingService;
 
+
     private final ReentrantLock lock = new ReentrantLock();
 
     @Override
@@ -1053,6 +1054,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 }
                 nodeList.add(styleResearchNodeVo);
             }
+
+            // 设置图片
+            String styleColorPic = styleResearchProcessVo.getStyleColorPic();
+            String stylePic = styleResearchProcessVo.getStylePic();
+            styleResearchProcessVo.setPictrue(stylePicUtils.getStyleUrl(styleColorPic));
+            if (StrUtil.isEmpty(styleColorPic)) {
+                styleResearchProcessVo.setPictrue(stylePicUtils.getStyleUrl(stylePic));
+            }else{
+                styleResearchProcessVo.setPictrue(stylePicUtils.getStyleUrl(styleColorPic));
+            }
+
+
             styleResearchProcessVo.setNodeList(nodeList);
         }
         //endregion

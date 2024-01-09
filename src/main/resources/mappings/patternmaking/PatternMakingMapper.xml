@@ -632,6 +632,8 @@
         SELECT
         t.id as styleId,
         t.design_no as designNo,
+        t.style_pic as stylePic,
+        t1.style_color_pic as styleColorPic,
         t1.style_no as bulkStyleNo,
         t.pattern_design_name as patternDesignName,
         t.designer as designerName,
