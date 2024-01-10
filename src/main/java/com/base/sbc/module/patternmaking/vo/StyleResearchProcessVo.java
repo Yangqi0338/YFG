@@ -81,7 +81,7 @@ public class StyleResearchProcessVo {
      * 当前节点状态名称
      */
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
-    private Date nodeStartTime;
+    private Date noNextDraft;
 
     /**
      * 节点集合

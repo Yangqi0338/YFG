@@ -990,7 +990,23 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PageInfo<StyleResearchProcessVo> researchProcessList(ResearchProgressPageDto dto, String userCompany) {
         dto.setCompanyCode(userCompany);
         PageHelper.startPage(dto);
+        String nodeCode = dto.getNodeCode();
+
+        if (StrUtil.isNotBlank(nodeCode)) {
+            if ("noNextDraft".equals(nodeCode) || "reviewedDraft".equals(nodeCode) || "nextDraft".equals(nodeCode) ||
+                    "punchingCompleted".equals(nodeCode) || "sampleClothingCompleted".equals(nodeCode) ||
+                    "orderBookProduction".equals(nodeCode) || "bossStyle".equals(nodeCode)) {
+
+            } else {
+                return new PageInfo<>(null);
+            }
+        }
         List<StyleResearchProcessVo> list = this.getBaseMapper().getResearchProcessList(dto);
+
+
+
+
+
         //region 节点明细数据
         StyleResearchNodeVo styleResearchNodeVo = null;
         List<StyleResearchNodeVo> nodeList = null;
@@ -1000,8 +1016,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         for (StyleResearchProcessVo styleResearchProcessVo : list) {
             String templateId = styleResearchProcessVo.getTemplateId();
-            if (styleResearchProcessVo.getNodeStartTime() != null) {
-                tempDate = styleResearchProcessVo.getNodeStartTime();
+            if (styleResearchProcessVo.getNoNextDraft() != null) {
+                tempDate = styleResearchProcessVo.getNoNextDraft();
             }else{
                 tempDate = new Date();
             }
@@ -1100,7 +1116,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     private static Date getDate(BasicsdatumProcessNodeEnum orderBookProduction, String node, Integer weekDay, Date tempDate) {
         if (orderBookProduction.getCode().equals(node) && weekDay != null) {
             int orderDay = DateUtil.dayOfWeek(tempDate);
-
             if (weekDay == Week.TUESDAY.getValue()) {
                 if (orderDay == Week.SUNDAY.getValue()) {
                     tempDate = DateUtil.offsetDay(tempDate, 2);
@@ -1141,7 +1156,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         QueryWrapper<PatternMaking> patternMakingQueryWrapper = new QueryWrapper<>();
         patternMakingQueryWrapper.eq("style_id",stylelId);
         patternMakingQueryWrapper.last(" limit 1 ");
-        patternMakingQueryWrapper.orderByDesc("create_date");
+        patternMakingQueryWrapper.orderByAsc("create_date");
         PatternMaking patternMaking = patternMakingService.getOne(patternMakingQueryWrapper);
         if (patternMaking != null) {
             patternMakeId = patternMaking.getId();
