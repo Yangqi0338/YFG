@@ -57,4 +57,9 @@ public class OrderBookDetailQueryDto extends Page {
 
     @ApiModelProperty(value = "产品季id"  )
     private String  planningSeasonId;
+
+    /**
+     * 是否有权限查询全部 0否，1是
+     */
+    private String isAll;
 }

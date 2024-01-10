@@ -234,10 +234,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.likeList("tobl.designer_id", dto.getDesignerId());
         queryWrapper.likeList("tsc.style_no", dto.getBulkStyleNo());
         queryWrapper.eq("tobl.company_code", dto.getCompanyCode());
+        //有权限则查询全部数据
+        if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
+            queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
+                    or().eq("tobl.business_id", dto.getUserId())
+                    .or().eq("tobl.create_id", dto.getUserId()));
+        }
 
-        queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
-                or().eq("tobl.business_id", dto.getUserId())
-                .or().eq("tobl.create_id", dto.getUserId()));
         if(StrUtil.isNotBlank(dto.getPlanningSeasonId())){
             BaseQueryWrapper<OrderBook> baseQueryWrapper = new BaseQueryWrapper();
             baseQueryWrapper.eq("season_id",dto.getPlanningSeasonId());
