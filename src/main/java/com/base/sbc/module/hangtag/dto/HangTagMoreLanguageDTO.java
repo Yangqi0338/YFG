@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.dto;
 
+    import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -43,6 +44,11 @@ public class HangTagMoreLanguageDTO {
     @ApiModelProperty(value = "国家语言编码")
     @NotBlank(message = "国家语言编码不能为空")
     private String code;
+    /**
+     * 吊牌类型
+     */
+    @ApiModelProperty(value = "吊牌类型")
+    private CountryLanguageType type;
     /**
      * 来源：PDM,BCS,PRINT(打印)
      */

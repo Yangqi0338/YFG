@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.SetOperations;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -467,11 +468,25 @@ public class RedisStaticFunUtils {
 	 * @param values 值 可以是多个
 	 * @return 成功个数
 	 */
+	public static long sSet(String key, List<Object> values) {
+		return sSet(key, values.toArray(new Object[]{}));
+	}
+
+	/**
+	 * 将数据放入set缓存
+	 * @param key 键
+	 * @param values 值 可以是多个
+	 * @return 成功个数
+	 */
 	public static long sSet(String key, Object...values) {
 		try {
 			
 			expire(key, RedisStaticFunUtils.DEFAULT_EXPIRE);
-			return getRedisTemplate().opsForSet().add(key, values);
+			SetOperations<String, Object> opsForSet = getRedisTemplate().opsForSet();
+			for (Object value : values) {
+				opsForSet.add(key, value);
+			}
+			return values.length;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return 0;

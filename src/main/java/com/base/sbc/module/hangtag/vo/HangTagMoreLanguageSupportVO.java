@@ -110,10 +110,11 @@ public class HangTagMoreLanguageSupportVO {
     protected Boolean isGroup = false;
 
     /**
-     * 语言编码列表
+     * 分类列表
      */
-    @ApiModelProperty(value = "语言编码列表")
-    private List<String> languageCodeList = new ArrayList<>();
+    @ApiModelProperty(value = "分类列表")
+    @JsonIgnore
+    private List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
 
 //    /**
 //     * 是否是温馨提示

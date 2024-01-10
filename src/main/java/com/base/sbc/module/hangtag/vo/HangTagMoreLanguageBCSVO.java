@@ -92,7 +92,7 @@ public class HangTagMoreLanguageBCSVO {
         });
     }
 
-    public class HangTagMoreLanguageBCSChildrenBaseVO extends HangTagMoreLanguageBaseVO {
+    public static class HangTagMoreLanguageBCSChildrenBaseVO extends HangTagMoreLanguageBaseVO {
         /**
          * 打印系统专门检查信息
          */

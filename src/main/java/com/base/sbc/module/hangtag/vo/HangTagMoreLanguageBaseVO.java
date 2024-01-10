@@ -46,33 +46,11 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "标准列名")
     private String standardColumnName;
 
-//    /**
-//     * 标准列翻译
-//     */
-//    @ApiModelProperty(value = "标准列翻译")
-//    private String standardColumnContent;
-//
-//    /**
-//     * 不能找到标准列翻译
-//     */
-//    @ApiModelProperty(value = "不能找到标准列翻译")
-//    protected Boolean cannotFindStandardColumnContent = true;
-//
-//    public Boolean getCannotFindStandardColumnContent() {
-//        return this.cannotFindStandardColumnContent && !isGroup;
-//    }
-
     /**
      * 国家名
      */
     @ApiModelProperty(value = "国家名")
     private String countryName;
-
-//    /**
-//     * 语言名
-//     */
-//    @ApiModelProperty(value = "语言名")
-//    private String languageName;
 
     /**
      * 具体数据
@@ -80,28 +58,11 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "具体数据")
     private String propertiesName;
 
-//    /**
-//     * 具体数据的翻译
-//     */
-//    @ApiModelProperty(value = "具体数据的翻译")
-//    private String propertiesContent;
-//
-//    /**
-//     * 不能找到数据翻译
-//     */
-//    @ApiModelProperty(value = "不能找到数据翻译")
-//    private Boolean cannotFindPropertiesContent = false;
-//
-//    public Boolean getCannotFindPropertiesContent() {
-//        return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
-//    }
-
     /**
-     * 分类列表
+     * 语言编码列表
      */
-    @ApiModelProperty(value = "分类列表")
-    @JsonIgnore
-    private List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
+    @ApiModelProperty(value = "语言编码列表")
+    private List<String> languageCodeList = new ArrayList<>();
 
     /**
      * 全量数据

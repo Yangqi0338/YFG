@@ -169,7 +169,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                 String rootStandardColumnCode = standardColumnService.findOneField(new LambdaQueryWrapper<StandardColumn>()
                         .eq(StandardColumn::getType, type.getStandardColumnType()), StandardColumn::getCode);
                 standardColumnCodeList.add(rootStandardColumnCode);
-                standardColumnCodeList = standardColumnCodeList.stream().distinct().collect(Collectors.toList());
+                standardColumnCodeList = CollUtil.distinct(standardColumnCodeList);
 
                 LambdaQueryWrapper<CountryLanguage> queryWrapper = new LambdaQueryWrapper<CountryLanguage>()
                         .eq(CountryLanguage::getCode, code)
@@ -217,14 +217,14 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                         relationService.saveBatch(countryRelationList);
                     }
 
-                    standardColumnCodeList.forEach(it-> RedisStaticFunUtils.lSet(redisKey,it));
+                    RedisStaticFunUtils.sSet(redisKey, standardColumnCodeList.stream().collect(Collectors.toList()));
                 }
             });
         }finally {
             saveLock.unlock();
         }
         if (!cache) {
-            RedisStaticFunUtils.removePattern(RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.addEnd(cache, code));
+            cancelSave(code);
         }
 //        // 使用redis作为中间通信,standardColumnCodeList参数暂时没用了
 //        exportExcel(new MoreLanguageExcelQueryDto(countryId, new ArrayList<>()));
@@ -286,7 +286,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     public List<String> findStandardColumnCodeList(String code, CountryLanguageType type, boolean cache) {
         // 查询关联关系
         String redisKey = RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.addEnd(cache, code, type.getCode());
-        List<Object> tempStandardColumnCodeList = RedisStaticFunUtils.lGet(redisKey);
+        Set<Object> tempStandardColumnCodeList = RedisStaticFunUtils.sGet(redisKey);
         if (CollectionUtil.isEmpty(tempStandardColumnCodeList)) {
             String countryLanguageId = this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                     .eq(CountryLanguage::getCode, code)
@@ -296,7 +296,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             List<String> standardColumnCodeList = relationService.listOneField(new BaseLambdaQueryWrapper<StandardColumnCountryRelation>()
                     .eq(StandardColumnCountryRelation::getCountryLanguageId, countryLanguageId), StandardColumnCountryRelation::getStandardColumnCode
             );
-            RedisStaticFunUtils.lSet(redisKey, standardColumnCodeList.stream().collect(Collectors.toList()));
+            RedisStaticFunUtils.sSet(redisKey, standardColumnCodeList.stream().collect(Collectors.toList()));
             return standardColumnCodeList;
         } else {
             return tempStandardColumnCodeList.stream().map(Object::toString).collect(Collectors.toList());

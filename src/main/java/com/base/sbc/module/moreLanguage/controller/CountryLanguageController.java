@@ -1,5 +1,6 @@
 package com.base.sbc.module.moreLanguage.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
@@ -10,10 +11,12 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.RightException;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageGroupDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.CountryTypeLanguageSaveDto;
 import com.base.sbc.module.moreLanguage.dto.LanguageQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -32,7 +35,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -54,24 +59,27 @@ public class CountryLanguageController extends BaseController {
      */
     @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
     @GetMapping("/listQuery")
-    public ApiResult<PageInfo<CountryLanguageDto>> listQuery(CountryQueryDto countryQueryDto) {
+    public ApiResult<?> listQuery(CountryQueryDto countryQueryDto) {
 
         countryQueryDto.setCache(YesOrNoEnum.NO.getValueStr());
-        Page<CountryLanguageDto> startPage;
-        List<CountryLanguageDto> list;
         if (YesOrNoEnum.YES.getValueStr().equals(countryQueryDto.getCodeGroup())) {
-            countryQueryDto.setPageSize(Integer.MAX_VALUE);
-            startPage = countryQueryDto.startPage();
-            list = countryLanguageService.listQuery(countryQueryDto).stream()
-                    .collect(Collectors.groupingBy(CountryLanguageDto::getCode))
-                    .values().stream().map(it-> it.get(0)).collect(Collectors.toList());
+            List<CountryLanguageGroupDto> list = new ArrayList<>();
+            countryLanguageService.listQuery(countryQueryDto).stream().map(it-> BeanUtil.copyProperties(it, CountryLanguageGroupDto.class))
+                    .collect(Collectors.groupingBy(CountryLanguageGroupDto::getCode)).forEach((code, sameCodeList)-> {
+                        CountryLanguageGroupDto countryLanguageDto = BeanUtil.copyProperties(sameCodeList.get(0), CountryLanguageGroupDto.class);
+                        countryLanguageDto.setLanguageCode(null);
+                        countryLanguageDto.setLanguageName(null);
+                        countryLanguageDto.setLanguageList(sameCodeList);
+                        list.add(countryLanguageDto);
+                    });
+            return selectSuccess(list);
         }else {
-            startPage = countryQueryDto.startPage();
-            list = countryLanguageService.listQuery(countryQueryDto);
+            Page<CountryLanguageDto> startPage = countryQueryDto.startPage();
+            List<CountryLanguageDto> list = countryLanguageService.listQuery(countryQueryDto);
+            PageInfo<CountryLanguageDto> pageInfo = startPage.toPageInfo();
+            pageInfo.setList(list);
+            return selectSuccess(pageInfo);
         }
-        PageInfo<CountryLanguageDto> pageInfo = startPage.toPageInfo();
-        pageInfo.setList(list);
-        return selectSuccess(pageInfo);
     }
 
     /**

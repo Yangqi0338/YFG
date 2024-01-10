@@ -10,6 +10,7 @@ import cn.hutool.json.JSONUtil;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.business.SystemSource;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.service.HangTagService;
@@ -56,6 +57,7 @@ public class OpenHangTagController extends BaseController {
     @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
     public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
         hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
+        if (hangTagMoreLanguageDTO.getType() == null) throw new OtherException("吊牌类型不能为空");
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, true));
     }
 

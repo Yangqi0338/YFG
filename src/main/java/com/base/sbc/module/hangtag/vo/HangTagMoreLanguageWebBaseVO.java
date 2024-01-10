@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * 类描述：吊牌表 实体类
@@ -29,59 +31,39 @@ import java.util.StringJoiner;
 @Data
 public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
-    public Map<String, String> getContent() {
-        Map<String, String> map = new HashMap<>(this.getLanguageCodeList().size());
+    private void buildContent(Consumer<HangTagMoreLanguageVO> function){
         if (CollUtil.isNotEmpty(this.getLanguageCodeList())) {
             this.getLanguageCodeList().forEach(languageCode-> {
-                Optional<HangTagMoreLanguageVO> voOpt = this.getLanguageList().stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst();
-                String value;
-                if (voOpt.isPresent()) {
-                    value = voOpt.get().getContent();
-                }else value= "";
-                map.put(languageCode, value);
+                HangTagMoreLanguageVO languageVO = this.getLanguageList().stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst().orElse(new HangTagMoreLanguageVO());
+                function.accept(languageVO);
             });
         }
+    }
+
+    public Map<String, String> getContent() {
+        Map<String, String> map = new HashMap<>(this.getLanguageCodeList().size());
+        buildContent((languageVO)-> {
+            map.put(languageVO.getLanguageCode(), languageVO.getContent());
+        });
         return map;
     }
 
     public String getMergedContent() {
         StringJoiner joiner = new StringJoiner("\n");
-        if (CollUtil.isNotEmpty(this.getLanguageCodeList())) {
-            this.getLanguageCodeList().forEach(languageCode-> {
-                Optional<HangTagMoreLanguageVO> voOpt = this.getLanguageList().stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst();
-                if (voOpt.isPresent()) {
-                    HangTagMoreLanguageVO languageVO = voOpt.get();
-                    joiner.add(languageVO.getContent() + "（" + languageVO.getLanguageName() + "）");
-                }
-            });
-            joiner.add(this.getSourceContent());
-        }
+        buildContent((languageVO)-> {
+            joiner.add(languageVO.getContent() + "（" + languageVO.getLanguageName() + "）");
+        });
+        joiner.add(this.getSourceContent());
         return joiner.toString();
     }
 
     public String getMergedContentWithoutPrefix() {
         StringJoiner joiner = new StringJoiner("\n");
-        if (CollUtil.isNotEmpty(this.getLanguageCodeList())) {
-            this.getLanguageCodeList().forEach(languageCode-> {
-                Optional<HangTagMoreLanguageVO> voOpt = this.getLanguageList().stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst();
-                if (voOpt.isPresent()) {
-                    HangTagMoreLanguageVO languageVO = voOpt.get();
-                    joiner.add(languageVO.getPropertiesContent() + "（" + languageVO.getLanguageName() + "）");
-                }
-            });
-            joiner.add(this.getPropertiesName());
-        }
+        buildContent((languageVO)-> {
+            joiner.add(languageVO.getPropertiesContent() + "（" + languageVO.getLanguageName() + "）");
+        });
+        joiner.add(this.getPropertiesName());
         return joiner.toString();
     }
-
-//    /**
-//     * 是否是温馨提示
-//     */
-//    public Boolean isWarnTips = super.isWarnTips;
-//
-//    /**
-//     * 是否是洗标
-//     */
-//    public Boolean isWashingMark = super.isWashingMark;
 
 }
