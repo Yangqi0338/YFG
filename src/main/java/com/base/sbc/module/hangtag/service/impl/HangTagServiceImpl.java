@@ -170,6 +170,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if(StrUtil.isNotBlank(hangTagDTO.getProdCategory())){
 			hangTagDTO.setProdCategorys(StringUtils.split(hangTagDTO.getProdCategory(),","));
 		}
+
+		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
+			hangTagDTO.setBandNames(StringUtils.split(hangTagDTO.getBandName(),","));
+		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
 		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
 		if (hangTagListVOS.isEmpty()) {

@@ -75,8 +75,11 @@
                 AND tsd.design_no like concat('%',#{dto.style},'%')
             </if>
 
-            <if test="dto.bandName != null and dto.bandName != ''">
-                AND tssc.band_name = #{dto.bandName}
+            <if test="null != dto.bandNames and dto.bandNames.length > 0">
+                AND  tssc.band_code IN
+                <foreach collection="dto.bandNames" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
             </if>
 
             <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">

@@ -80,6 +80,8 @@ public class HangTagSearchDTO extends Page {
     @ApiModelProperty(value = "波段名称"  )
     private String bandName;
 
+    private String[] bandNames;
+
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
 }
