@@ -1772,7 +1772,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     try {
                         if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
                             final String stylePic = styleColorVo.getStylePic();
-                            dataMap.put("stylePic",HttpUtil.downloadBytes(stylePic));
+                            dataMap.put("stylePic1",HttpUtil.downloadBytes(stylePic));
                         }
                     } catch (Exception e) {
                         log.error(e.getMessage());
