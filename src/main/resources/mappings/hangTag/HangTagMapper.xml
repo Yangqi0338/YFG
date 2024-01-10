@@ -23,6 +23,9 @@
         tsd.style_type_name AS styleTypeName,
         tsd.size_range_name AS modelTypeName,
         tsd.design_no AS designNo,
+        tsd.brand AS brand,
+        tsd.year AS year,
+        tsd.season AS season,
         <choose>
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
@@ -31,6 +34,7 @@
                 tssc.style_no AS bulkStyleNo,
                 tssc.color_name AS color,
                 tssc.tag_price AS tagPrice,
+                tssc.band_name AS bandName,
                 tssc.is_trim,
             </otherwise>
         </choose>
@@ -70,6 +74,18 @@
             <if test="dto.style != null and dto.style != ''">
                 AND tsd.design_no like concat('%',#{dto.style},'%')
             </if>
+
+            <if test="null != dto.bandNames and dto.bandNames.length > 0">
+                AND  tssc.band_code IN
+                <foreach collection="dto.bandNames" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
+            </if>
+
+            <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                AND tsd.planning_season_id = #{dto.planningSeasonId}
+            </if>
+
             <if test="dto.bulkStyleNos != null and dto.bulkStyleNos.length > 0 ">
 
                 AND
