@@ -130,7 +130,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
         Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode);
-        Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
+        // Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
         stylePricingList.forEach(stylePricingVO -> {
             // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
             PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();

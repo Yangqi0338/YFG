@@ -36,5 +36,5 @@ public interface OrderBookService extends BaseService<OrderBook> {
      * @param dto
      * @return
      */
-    boolean saveOrderBook(OrderBookSaveDto dto);
+    OrderBook saveOrderBook(OrderBookSaveDto dto);
 }

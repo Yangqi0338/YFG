@@ -11,6 +11,8 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.orderbook.dto.OrderBookQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +37,7 @@ import java.util.stream.Collectors;
 @Api(tags = "订货本")
 public class OrderBookController extends BaseController {
     private final OrderBookService orderBookService;
+    private final OrderBookDetailService orderBookDetailService;
     /**
      * 分页条件查询
      */
@@ -49,8 +53,8 @@ public class OrderBookController extends BaseController {
     @ApiOperation(value = "新建订货本")
     @PostMapping("/save")
     @DuplicationCheck
-    public boolean save(@RequestBody OrderBookSaveDto dto) {
-        return orderBookService.saveOrderBook(dto);
+    public ApiResult save(@RequestBody OrderBookSaveDto dto) {
+        return insertSuccess(orderBookService.saveOrderBook(dto));
     }
 
     /**
@@ -115,6 +119,10 @@ public class OrderBookController extends BaseController {
     @ApiOperation(value = "订货本-根据ids删除")
     @DeleteMapping("/delByIds")
     public ApiResult delByIds(RemoveDto removeDto) {
+        long l = orderBookDetailService.count(new QueryWrapper<OrderBookDetail>().in("order_book_id", Arrays.asList(removeDto.getIds().split(","))));
+        if (l > 0) {
+            throw new RuntimeException("该订货本下已存在大货款，不能删除");
+        }
         boolean b = orderBookService.removeByIds(removeDto);
         return deleteSuccess(b);
     }

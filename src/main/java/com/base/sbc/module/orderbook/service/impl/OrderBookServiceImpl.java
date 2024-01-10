@@ -81,7 +81,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
      * @return
      */
     @Override
-    public boolean saveOrderBook(OrderBookSaveDto dto) {
+    public OrderBook saveOrderBook(OrderBookSaveDto dto) {
         /*校验订货本名称*/
         OrderBook byOne = getByOne("name", dto.getName());
         if (!ObjectUtil.isEmpty(byOne)) {
@@ -103,7 +103,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         orderBook.setSeasonName(planningSeason.getSeasonName());
         orderBook.setName(dto.getName());
         baseMapper.insert(orderBook);
-        return true;
+        return orderBook;
     }
 
     /**
