@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -275,6 +276,7 @@ public class StyleColor extends BaseDataEntity<String> {
     /**
      * rfid标记(0否 1是)
      */
+
     @ApiModelProperty(value = "rfid类型")
     private RFIDType rfidType;
     /**

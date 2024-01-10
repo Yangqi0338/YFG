@@ -102,7 +102,7 @@ public class HangTagController extends BaseController {
         return ApiResult.success("保存成功", id);
     }
 
-    @ApiOperation(value = "保存")
+    @ApiOperation(value = "修改二检包装形式")
     @PostMapping("/updateSecondPackagingFormById")
     @DuplicationCheck
     public ApiResult updateSecondPackagingFormById(@RequestBody HangTagDTO hangTagDTO) {
