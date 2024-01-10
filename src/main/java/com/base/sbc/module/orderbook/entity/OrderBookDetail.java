@@ -293,5 +293,11 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "单件面料用量/米")
     private BigDecimal unitFabricDosage;
 
+    /**
+     * 公司面料备注
+     */
+    @ApiModelProperty(value = "公司面料备注")
+    private String companyFabricRemarks;
+
 }
 
