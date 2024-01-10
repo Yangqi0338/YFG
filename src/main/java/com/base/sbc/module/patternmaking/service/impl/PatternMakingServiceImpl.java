@@ -996,6 +996,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         List<StyleResearchNodeVo> nodeList = null;
         Date tempDate = null;
         String presentName = null;
+        String presentStatus = null;
 
         for (StyleResearchProcessVo styleResearchProcessVo : list) {
             String templateId = styleResearchProcessVo.getTemplateId();
@@ -1037,12 +1038,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
                 styleResearchNodeVo.setFinishTime(nodeFinashTime);
 
-                //region 当前节点确认
-                if (nodeFinashTime != null) {
-                    presentName = node.getName();
-                }
-                //endregion
-
                 if (styleResearchNodeVo.getFinishTime() != null && styleResearchNodeVo.getPlanTime() != null) {
                     int compare = DateUtil.compare(styleResearchNodeVo.getFinishTime(), styleResearchNodeVo.getPlanTime());
 
@@ -1059,11 +1054,19 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                         styleResearchNodeVo.setNodeStatus(-1);
                     }
                 }
+
+                //region 当前节点确认
+                if (nodeFinashTime != null) {
+                    presentName = node.getName();
+                    presentStatus = String.valueOf(styleResearchNodeVo.getNodeStatus());
+                }
+                //endregion
                 nodeList.add(styleResearchNodeVo);
             }
 
             // 设置图片
             getImg(styleResearchProcessVo);
+            styleResearchProcessVo.setPresentNodeStatus(presentStatus);
             styleResearchProcessVo.setPresentNodeName(presentName);
             styleResearchProcessVo.setNodeList(nodeList);
         }
@@ -1092,7 +1095,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
      * @param node
      * @param weekDay
      * @param tempDate
-     * @param offset
      * @return
      */
     private static Date getDate(BasicsdatumProcessNodeEnum orderBookProduction, String node, Integer weekDay, Date tempDate) {
