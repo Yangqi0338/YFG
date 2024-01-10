@@ -68,6 +68,8 @@ public class OpenHangTagController extends BaseController {
         List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList = JSONUtil.toList(jsonParams, HangTagMoreLanguageCheckDTO.class);
         Validation.buildDefaultValidatorFactory().getValidator().validate(hangTagMoreLanguageCheckDTOList, Default.class);
 
+        // 通过名字获取编码
+
         HangTagMoreLanguageDTO hangTagMoreLanguageDTO = new HangTagMoreLanguageDTO();
         hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
         hangTagMoreLanguageDTO.setHangTagMoreLanguageCheckDTOList(hangTagMoreLanguageCheckDTOList);

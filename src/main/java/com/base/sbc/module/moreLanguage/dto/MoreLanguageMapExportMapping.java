@@ -33,6 +33,7 @@ public class MoreLanguageMapExportMapping {
     private StandardColumnCountryTranslate baseSourceData;
 
     private List<CountryLanguageDto> countryLanguageList;
+    private List<CountryLanguageDto> singleLanguageList;
     private CountryLanguageType type;
 
     private boolean isInit = false;

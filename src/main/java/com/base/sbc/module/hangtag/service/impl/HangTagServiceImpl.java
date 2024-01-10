@@ -870,15 +870,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				.in(StandardColumnCountryTranslate::getPropertiesCode,standardColumnCodeList)
 		);
 
+		CountryQueryDto languageDto = new CountryQueryDto();
+		languageDto.setLanguageCode(String.join(COMMA, languageCodeList));
+		languageDto.setSingleLanguageFlag(YesOrNoEnum.YES);
+		List<CountryLanguageDto> singleLanguageDtoList = countryLanguageService.listQuery(languageDto);
 		// 如果为空, 查找单语言翻译
 		if(CollectionUtil.isEmpty(titleTranslateList)) {
-			CountryQueryDto languageDto = new CountryQueryDto();
-			languageDto.setLanguageCode(String.join(COMMA, languageCodeList));
-			languageDto.setSingleLanguageFlag(YesOrNoEnum.YES);
-			List<CountryLanguageDto> countryLanguageDtoList = countryLanguageService.listQuery(languageDto);
-
 			titleTranslateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-					.in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList()))
+					.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList()))
 					.in(StandardColumnCountryTranslate::getPropertiesCode,standardColumnCodeList)
 			));
 		}
@@ -959,7 +958,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 					List<CountryLanguageDto> countryLanguageDtoList = sameCodeList.stream()
 							.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
-					hangTagMoreLanguageBaseVO.setLanguageCodeList(countryLanguageDtoList.stream().map(CountryLanguageDto::getLanguageCode).collect(Collectors.toList()));
 
 					if (StrUtil.isBlank(propertiesCode)) return hangTagMoreLanguageBaseVO;
 
@@ -972,28 +970,43 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
 					hangTagMoreLanguageBaseVO.setLanguageList(languageList);
 
-					List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+					LambdaQueryWrapper<StandardColumnCountryTranslate> translateQueryWrapper = new LambdaQueryWrapper<StandardColumnCountryTranslate>()
 							.eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
-							.in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
+							.in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList);
+
+					List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(translateQueryWrapper.clone()
 							.in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageDtoList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
 					);
+
+					List<CountryLanguageDto> singleLanguageTypeList = singleLanguageDtoList.stream()
+							.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
+					if (CollectionUtil.isEmpty(translateList)) {
+						translateList.addAll(standardColumnCountryTranslateService.list(translateQueryWrapper.clone()
+								.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageTypeList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
+						));
+					}
 					countryLanguageDtoList.forEach(countryLanguageDto -> {
 						String countryLanguageId = countryLanguageDto.getId();
+						// 获取单语言的id
+						String singleLanguageId = singleLanguageTypeList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode()))
+								.findFirst().map(CountryLanguage::getId).orElse("");
+						List<String> languageIdList = Arrays.asList(countryLanguageId, singleLanguageId);
 						HangTagMoreLanguageVO languageVO = HANG_TAG_CONVERT.copy2MoreLanguageVO(countryLanguageDto);
-						languageVO.setStandardColumnContent(standardColumnName);
-						languageVO.setPropertiesContent(defaultValue);
 						// 获取标题名翻译
 						titleTranslateList.stream().filter(it->
-								it.getCountryLanguageId().equals(countryLanguageId)
+								languageIdList.contains(it.getCountryLanguageId())
 										&&
-										it.getPropertiesCode().equals(standardColumnCode)
+								it.getPropertiesCode().equals(standardColumnCode)
+										&&
+								StrUtil.isNotBlank(it.getContent())
 						).findFirst().ifPresent(titleTranslate -> {
 							languageVO.setCannotFindStandardColumnContent(false);
 							languageVO.setStandardColumnContent(titleTranslate.getContent());
 						});
 
 						List<StandardColumnCountryTranslate> countryTranslateList = translateList.stream()
-								.filter(it -> it.getCountryLanguageId().equals(countryLanguageId)).collect(Collectors.toList());
+								.filter(it -> languageIdList.contains(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
+								.collect(Collectors.toList());
 						countryTranslateList.stream().findFirst().ifPresent(translate-> {
 							languageVO.setCannotFindPropertiesContent(false);
 							HANG_TAG_CONVERT.countryTranslate2MoreLanguageVO(translate, languageVO);
@@ -1003,9 +1016,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							} else {
 								content = translate.getContent();
 							}
-							if (StrUtil.isNotBlank(content)) {
-								languageVO.setPropertiesContent(content);
-							}
+							languageVO.setPropertiesContent(content);
 						});
 						languageList.add(languageVO);
 					});

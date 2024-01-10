@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：吊牌表 实体类
@@ -31,26 +32,17 @@ import java.util.function.Function;
 @Data
 public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
-    private void buildContent(Consumer<HangTagMoreLanguageVO> function){
-        if (CollUtil.isNotEmpty(this.getLanguageCodeList())) {
-            this.getLanguageCodeList().forEach(languageCode-> {
-                HangTagMoreLanguageVO languageVO = this.getLanguageList().stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst().orElse(new HangTagMoreLanguageVO());
-                function.accept(languageVO);
-            });
-        }
-    }
-
     public Map<String, String> getContent() {
-        Map<String, String> map = new HashMap<>(this.getLanguageCodeList().size());
-        buildContent((languageVO)-> {
-            map.put(languageVO.getLanguageCode(), languageVO.getContent());
+        Map<String, String> map = new HashMap<>(this.getLanguageList().size() + 1);
+        this.getLanguageList().forEach(languageVo-> {
+            map.put(languageVo.getLanguageCode(), languageVo.getContent());
         });
         return map;
     }
 
     public String getMergedContent() {
         StringJoiner joiner = new StringJoiner("\n");
-        buildContent((languageVO)-> {
+        this.getLanguageList().forEach(languageVO-> {
             joiner.add(languageVO.getContent() + "（" + languageVO.getLanguageName() + "）");
         });
         joiner.add(this.getSourceContent());
@@ -59,7 +51,7 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
     public String getMergedContentWithoutPrefix() {
         StringJoiner joiner = new StringJoiner("\n");
-        buildContent((languageVO)-> {
+        this.getLanguageList().forEach(languageVO-> {
             joiner.add(languageVO.getPropertiesContent() + "（" + languageVO.getLanguageName() + "）");
         });
         joiner.add(this.getPropertiesName());

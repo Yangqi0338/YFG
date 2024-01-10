@@ -176,13 +176,14 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         String sheetName = exportMapping.getSheetName();
 
         Map<String, String> map = exportMapping.buildMap(value);
-        List<CountryLanguageDto> countryLanguageList = exportMapping.getCountryLanguageList();
+
 
         StandardColumnCountryTranslate baseSource;
         // 设置值
         if (exportBaseDTO != null) {
+            boolean isSingleLanguageFlag = singleLanguageFlag == YesOrNoEnum.YES;
             if (StrUtil.isBlank(exportBaseDTO.getExcelCode()) ||
-                    !exportBaseDTO.getExcelCode().equals(singleLanguageFlag == YesOrNoEnum.YES ? excelQueryDto.getLanguageCode() : excelQueryDto.getCode())) {
+                    !exportBaseDTO.getExcelCode().equals(isSingleLanguageFlag ? excelQueryDto.getLanguageCode() : excelQueryDto.getCode())) {
                 throw new OtherException("导入的国家或语言与该导出模版的国家或语言不对应\n请选择正确的导入国家");
             }
             // 初始化
@@ -197,6 +198,27 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             CountryLanguageType type = CountryLanguageType.findByCode(uniqueCodeArray[0]);
             exportMapping.setType(type);
 
+            CountryQueryDto countryQueryDto = BeanUtil.copyProperties(excelQueryDto, CountryQueryDto.class);
+            countryQueryDto.setType(exportMapping.getType());
+            List<CountryLanguageDto> countryLanguageList = countryLanguageService.listQuery(countryQueryDto);
+            if (CollectionUtil.isEmpty(countryLanguageList)) {
+                throw new OtherException("未找到对应的国家语言数据");
+            }
+            exportMapping.setCountryLanguageList(countryLanguageList);
+
+            List<CountryLanguageDto> singleLanguageList = new ArrayList<>();
+            if (isSingleLanguageFlag) {
+                CountryQueryDto queryDto = new CountryQueryDto();
+                queryDto.setLanguageCode(countryLanguageList.stream().map(CountryLanguage::getLanguageCode).collect(Collectors.joining(",")));
+                countryQueryDto.setType(exportMapping.getType());
+                queryDto.setSingleLanguageFlag(YesOrNoEnum.YES);
+                singleLanguageList.addAll(countryLanguageService.listQuery(queryDto));
+                if (CollectionUtil.isEmpty(singleLanguageList)) {
+                    throw new OtherException("未找到对应的语言数据");
+                }
+            }
+            exportMapping.setSingleLanguageList(singleLanguageList);
+
             baseSource = new StandardColumnCountryTranslate();
             baseSource.setTitleCode(uniqueCodeArray[1]);
             baseSource.setPropertiesCode(key);
@@ -207,15 +229,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             baseSource = exportMapping.getBaseSourceData();
         }
 
-        if (CollectionUtil.isEmpty(countryLanguageList)) {
-            CountryQueryDto countryQueryDto = BeanUtil.copyProperties(excelQueryDto, CountryQueryDto.class);
-            countryQueryDto.setType(exportMapping.getType());
-            countryLanguageList = new ArrayList<>(countryLanguageService.listQuery(countryQueryDto));
-            if (CollectionUtil.isEmpty(countryLanguageList)) {
-                throw new OtherException("未找到对应的国家语言数据");
-            }
-            exportMapping.setCountryLanguageList(countryLanguageList);
-        }
+        List<CountryLanguageDto> countryLanguageList = exportMapping.getCountryLanguageList();
 
         StringJoiner codeJoiner = new StringJoiner("-");
         for (String code : baseSource.getPropertiesCode().split("-")) {
@@ -307,6 +321,16 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                             .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
             );
 
+            List<CountryLanguageDto> singleLanguageList = exportMapping.getSingleLanguageList();
+            if (CollectionUtil.isNotEmpty(singleLanguageList)) {
+                List<String> singleLanguageIdList = singleLanguageList.stream().map(CountryLanguage::getId).collect(Collectors.toList());
+                updateOldTranslateList.addAll(standardColumnCountryTranslateService.list(
+                        new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                                .in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageIdList)
+                                .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
+                ));
+            }
+
             for (int i = 0; i < translateList.size(); i++) {
                 StandardColumnCountryTranslate translate = translateList.get(i);
                 CountryLanguageDto countryLanguageDto = countryLanguageList.stream().filter(it -> it.getId().equals(translate.getCountryLanguageId())).findFirst().orElse(null);
@@ -316,8 +340,18 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 }
                 translate.setTitleName(standardColumnName);
 
+                CountryLanguageDto languageDto = singleLanguageList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode())).findFirst().orElse(null);
+                if (languageDto == null) {
+                    addDataVerifyResult(context, i,"国家语言","未找到");
+                    return;
+                }
+
                 Optional<StandardColumnCountryTranslate> countryTranslateOpt = updateOldTranslateList.stream()
-                        .filter(it -> it.getCountryLanguageId().equals(countryLanguageDto.getId()) && it.getPropertiesCode().equals(translate.getPropertiesCode()))
+                        .filter(it ->
+                                (it.getCountryLanguageId().equals(countryLanguageDto.getId())
+                                        ||
+                                it.getCountryLanguageId().equals(languageDto.getId())
+                                ) && it.getPropertiesCode().equals(translate.getPropertiesCode()))
                         .findFirst();
                 if (countryTranslateOpt.isPresent()) {
                     StandardColumnCountryTranslate countryTranslate = countryTranslateOpt.get();
@@ -361,6 +395,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             updateNewTranslateList.addAll(addTranslateList);
             if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
                 standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
+                // 修改其他同语种的翻译,多线程 TODO
 
                 taskList.add(()-> {
                     if (CollectionUtil.isNotEmpty(addTranslateList)) {

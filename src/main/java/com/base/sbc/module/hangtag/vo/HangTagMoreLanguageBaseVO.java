@@ -59,12 +59,6 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     private String propertiesName;
 
     /**
-     * 语言编码列表
-     */
-    @ApiModelProperty(value = "语言编码列表")
-    private List<String> languageCodeList = new ArrayList<>();
-
-    /**
      * 全量数据
      */
     @ApiModelProperty(value = "全量数据")
