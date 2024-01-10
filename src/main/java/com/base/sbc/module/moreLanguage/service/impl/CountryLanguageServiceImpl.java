@@ -172,7 +172,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                 standardColumnCodeList = CollUtil.distinct(standardColumnCodeList);
 
                 LambdaQueryWrapper<CountryLanguage> queryWrapper = new LambdaQueryWrapper<CountryLanguage>()
-                        .eq(CountryLanguage::getCode, code)
+                        .eq(CountryLanguage::getCountryCode, countryCode)
                         .eq(CountryLanguage::getType, type);
 
                 // 检查是否已有国家表

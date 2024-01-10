@@ -12,6 +12,7 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.exception.OtherException;
@@ -238,10 +239,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         countryLanguageList.forEach(countryLanguage -> {
             StandardColumnCountryTranslate countryTranslate = BeanUtil.copyProperties(baseCountryTranslate, StandardColumnCountryTranslate.class);
             countryTranslate.setCountryLanguageId(countryLanguage.getId());
-            StringJoiner joiner = codeJoiner;
-            if (singleLanguageFlag != YesOrNoEnum.YES) {
-                joiner.add(countryLanguage.getLanguageCode());
-            }
+            StringJoiner joiner = new StringJoiner("-");
+            joiner.add(countryLanguage.getLanguageCode());
             joiner.add("content");
             String content = map.getOrDefault(joiner.toString(), "");
             countryTranslate.setContent(content);
@@ -257,6 +256,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void doAfterAllAnalysed(AnalysisContext context) {
+        List<Runnable> taskList = new ArrayList<>();
 //        Runnable task = ()-> {
             MoreLanguageMapExportMapping exportMapping = getMapping(context, (mapExportMapping) -> mapExportMapping);
             List<StandardColumnCountryTranslate> translateList = exportMapping.getSourceData();
@@ -324,7 +324,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     translate.setId(countryTranslate.getId());
                     translate.setPropertiesName(countryTranslate.getPropertiesName());
                     translate.setTitleName(countryTranslate.getTitleName());
-                    if (StrUtil.equals(Opt.ofNullable(translate.getContent()).map(String::trim).orElse(null),
+                    if (!StrUtil.equals(Opt.ofNullable(translate.getContent()).map(String::trim).orElse(null),
                             Opt.ofNullable(countryTranslate.getContent()).map(String::trim).orElse(null)
                     )) { updateNewTranslateList.add(translate);}
                 }else {
@@ -336,7 +336,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     addDataVerifyResult(context, i,translate.getPropertiesName() + "的" + countryLanguageDto.getLanguageName()+"翻译内容","未输入");
                 }
             }
-            Runnable task = ()-> {
+            taskList.add(()-> {
                 if (CollectionUtil.isNotEmpty(addTranslateList)) {
                     baseEntity.setType("新增");
                     List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
@@ -357,46 +357,80 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     baseEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
                     standardColumnCountryTranslateService.saveOperaLog(baseEntity);
                 }
-            };
-
+            });
             updateNewTranslateList.addAll(addTranslateList);
             if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
                 standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
-            }
 
-            // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
-//            countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>().in(CountryModel::getCountryLanguageId, countryLanguageIdList));
-//            List<CountryModel> translateModelList = updateNewTranslateList.stream().filter(it -> "DP06".equals(it.getTitleCode())).map(it -> {
-//                CountryModel countryModel = new CountryModel();
-//                countryModel.setCountryLanguageId(it.getCountryLanguageId());
-//                String propertiesCode = it.getPropertiesCode();
-//                String propertiesName = it.getPropertiesName();
-//                countryModel.setModelCode(propertiesCode.split("-")[1]);
-//                countryModel.setModelName(propertiesName.split("-")[1]);
-//                countryModel.setBasicSizeCode(propertiesCode.split("-")[0]);
-//                countryModel.setBasicSizeName(propertiesName.split("-")[0]);
-//                countryModel.setContent(it.getContent());
-//                return countryModel;
-//            }).collect(Collectors.toList());
-//            countryModelService.saveOrUpdateBatch(translateModelList);
-//
-//            standardColumnTranslateService.remove(new BaseLambdaQueryWrapper<StandardColumnTranslate>().eq(StandardColumnTranslate::getCountryLanguageId, countryLanguageIdList));
-//            List<StandardColumnTranslate> translateTitleList = updateNewTranslateList.stream().filter(it -> "DP00".equals(it.getTitleCode())).map(it -> {
-//                StandardColumnTranslate standardColumnTranslate = new StandardColumnTranslate();
-//                standardColumnTranslate.setCountryLanguageId(it.getCountryLanguageId());
-//                standardColumnTranslate.setStandardColumnCode(it.getPropertiesCode());
-//                standardColumnTranslate.setStandardColumnName(it.getPropertiesName());
-//                standardColumnTranslate.setContent(it.getContent());
-//                return standardColumnTranslate;
-//            }).collect(Collectors.toList());
-//            standardColumnTranslateService.saveOrUpdateBatch(translateTitleList);
+                taskList.add(()-> {
+                    if (CollectionUtil.isNotEmpty(addTranslateList)) {
+                        OperaLogEntity addLogEntity = BeanUtil.copyProperties(baseEntity, OperaLogEntity.class);
+                        addLogEntity.setType("新增");
+                        List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
+                        addTranslateList.stream().sorted(Comparator.comparing(StandardColumnCountryTranslate::getPropertiesCode)).forEach(translate-> {
+                            operaLogJsonList.add(new OperaLogJsonDto(translate.getPropertiesName(), "" , translate.getContent()));
+                        });
+                        addLogEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
+                        standardColumnCountryTranslateService.saveOperaLog(addLogEntity);
+                    }
+                    if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
+                        OperaLogEntity updateLogEntity = BeanUtil.copyProperties(baseEntity, OperaLogEntity.class);
+                        updateLogEntity.setType("修改");
+                        List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
+                        addTranslateList.stream().sorted(Comparator.comparing(StandardColumnCountryTranslate::getPropertiesCode)).forEach(translate-> {
+                            updateOldTranslateList.stream().filter(it-> it.getId().equals(translate.getId())).findFirst().ifPresent(oldTranslate-> {
+                                operaLogJsonList.add(new OperaLogJsonDto(translate.getPropertiesName(), oldTranslate.getContent() , translate.getContent()));
+                            });
+                        });
+                        updateLogEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
+                        standardColumnCountryTranslateService.saveOperaLog(updateLogEntity);
+                    }
+                });
+                // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
+                countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>()
+                        .in(CountryModel::getCountryLanguageId, countryLanguageIdList)
+                        .eq(CountryModel::getType, type)
+                );
+                List<String> modelStandardCodeList = Arrays.asList("DP06", "XM08");
+                List<CountryModel> translateModelList = updateNewTranslateList.stream().filter(it -> modelStandardCodeList.contains(it.getTitleCode())).map(it -> {
+                    CountryModel countryModel = new CountryModel();
+                    countryModel.setCountryLanguageId(it.getCountryLanguageId());
+                    String propertiesCode = it.getPropertiesCode();
+                    String propertiesName = it.getPropertiesName();
+                    countryModel.setModelCode(propertiesCode.split("-")[1]);
+                    countryModel.setModelName(propertiesName.split("-")[1]);
+                    countryModel.setBasicSizeCode(propertiesCode.split("-")[0]);
+                    countryModel.setBasicSizeName(propertiesName.split("-")[0]);
+                    countryModel.setContent(it.getContent());
+                    countryModel.setType(type);
+                    return countryModel;
+                }).collect(Collectors.toList());
+                countryModelService.saveOrUpdateBatch(translateModelList);
+
+                List<String> titleStandardCodeList = Arrays.asList("DP00", "XM00");
+                standardColumnTranslateService.remove(new BaseLambdaQueryWrapper<StandardColumnTranslate>()
+                        .eq(StandardColumnTranslate::getCountryLanguageId, countryLanguageIdList)
+                        .eq(StandardColumnTranslate::getType, type)
+                );
+                List<StandardColumnTranslate> translateTitleList = updateNewTranslateList.stream().filter(it -> titleStandardCodeList.contains(it.getTitleCode())).map(it -> {
+                    StandardColumnTranslate standardColumnTranslate = new StandardColumnTranslate();
+                    standardColumnTranslate.setCountryLanguageId(it.getCountryLanguageId());
+                    standardColumnTranslate.setStandardColumnCode(it.getPropertiesCode());
+                    standardColumnTranslate.setStandardColumnName(it.getPropertiesName());
+                    standardColumnTranslate.setContent(it.getContent());
+                    standardColumnTranslate.setType(type);
+                    return standardColumnTranslate;
+                }).collect(Collectors.toList());
+                standardColumnTranslateService.saveOrUpdateBatch(translateTitleList);
+            }
 
             removeMapping(context);
 //        };
         ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
         RequestContextHolder.setRequestAttributes(servletRequestAttributes,true);
-        Runnable ttlRunnable = TtlRunnable.get(task);
-        threadPoolExecutor.execute(ttlRunnable);
+        taskList.forEach(task-> {
+            threadPoolExecutor.execute(TtlRunnable.get(task));
+        });
     }
 
     /**

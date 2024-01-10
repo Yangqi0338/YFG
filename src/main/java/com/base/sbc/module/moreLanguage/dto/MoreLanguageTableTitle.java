@@ -32,6 +32,8 @@ public class MoreLanguageTableTitle {
 
     private Double excelWidth;
 
+    private MoreLanguageTableTitle source;
+
     public boolean hiddenRemove(){
         if (MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_EXCEL.isTrue()) {
             return isExcelRemove();

@@ -8,12 +8,12 @@ import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageTableTitle;
-import com.base.sbc.module.moreLanguage.strategy.impl.MoreLanguageCopyLanguageTableTitle;
+import com.base.sbc.module.moreLanguage.strategy.impl.MoreLanguageCopyTableTitle;
 import com.base.sbc.module.moreLanguage.strategy.impl.MoreLanguageEndTableTitle;
+import com.base.sbc.module.moreLanguage.strategy.impl.MoreLanguageMirrorTableTitle;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.github.pagehelper.PageInfo;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * {@code 描述：多语言子表数据策略上下文}
@@ -102,7 +101,8 @@ public class MoreLanguageTableContext {
     @AllArgsConstructor
     @Getter
     public enum MoreLanguageTableTitleHandlerEnum {
-        COPY("copy", MoreLanguageCopyLanguageTableTitle.class),
+        COPY("copy", MoreLanguageCopyTableTitle.class),
+        MIRROR("mirror", MoreLanguageMirrorTableTitle.class),
 
         ;
         private final String handlerKey;
@@ -117,10 +117,10 @@ public class MoreLanguageTableContext {
     @AllArgsConstructor
     @Getter
     public enum MoreLanguageTableParamEnum {
-        NO_DECORATE("noDecorate", MoreLanguageCopyLanguageTableTitle.class),
-        IN_EXCEL("inExcel", MoreLanguageCopyLanguageTableTitle.class),
-        OWNER_TAG_CODE("ownerTagCode", MoreLanguageCopyLanguageTableTitle.class),
-        IN_CACHE("inCache", MoreLanguageCopyLanguageTableTitle.class),
+        NO_DECORATE("noDecorate", MoreLanguageCopyTableTitle.class),
+        IN_EXCEL("inExcel", MoreLanguageCopyTableTitle.class),
+        OWNER_TAG_CODE("ownerTagCode", MoreLanguageCopyTableTitle.class),
+        IN_CACHE("inCache", MoreLanguageCopyTableTitle.class),
 
         ;
         private final String paramKey;

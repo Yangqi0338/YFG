@@ -37,7 +37,7 @@ public class CountryLanguageGroupDto implements Serializable {
     private String languageName;
 
     public String getName(){
-        return StrUtil.isBlank(getCountryName()) ? getLanguageName() : getCountryName();
+        return StrUtil.isBlank(getLanguageName()) ? getCountryName() : getLanguageName();
     }
 
     private List<CountryLanguageGroupDto> languageList;

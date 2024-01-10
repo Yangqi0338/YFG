@@ -848,7 +848,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<CountryLanguageDto> countryLanguageList = countryLanguageService.listQuery(countryQueryDto);
 		if (CollectionUtil.isEmpty(countryLanguageList)) throw new OtherException("未查询到国家语言");
 
-		List<CountryLanguageType> typeList = searchType == null ? Collections.singletonList(searchType) : countryLanguageList.stream().map(CountryLanguageDto::getType).distinct().collect(Collectors.toList());
+		List<CountryLanguageType> typeList = searchType != null ? Collections.singletonList(searchType) : countryLanguageList.stream().map(CountryLanguageDto::getType).distinct().collect(Collectors.toList());
 		List<String> countryLanguageIdList = countryLanguageList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList());
 		List<String> languageCodeList = countryLanguageList.stream().map(CountryLanguageDto::getLanguageCode).distinct().collect(Collectors.toList());
 

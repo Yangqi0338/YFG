@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.entity;
 import java.util.Date;
+
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -43,6 +45,9 @@ public class StandardColumnTranslate extends BaseDataEntity<String> {
     /** 属性名称 */
     @ApiModelProperty(value = "属性名称"  )
     private String standardColumnName;
+    /** 吊牌类型 */
+    @ApiModelProperty(value = "吊牌类型"  )
+    private CountryLanguageType type;
     /** 翻译文本 */
     @ApiModelProperty(value = "翻译文本"  )
     private String content;

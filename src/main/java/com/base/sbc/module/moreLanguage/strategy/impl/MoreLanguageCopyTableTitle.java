@@ -3,16 +3,13 @@ package com.base.sbc.module.moreLanguage.strategy.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.json.JSONUtil;
-import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageTableTitle;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext;
 import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableTitleHandler;
-import com.base.sbc.module.standard.entity.StandardColumn;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,7 +21,7 @@ import java.util.List;
  */
 @Order(0)
 @Component
-public class MoreLanguageCopyLanguageTableTitle extends MoreLanguageTableTitleHandler {
+public class MoreLanguageCopyTableTitle extends MoreLanguageTableTitleHandler {
 
     @Override
     public boolean needHandler(MoreLanguageTableTitle tableTitle) {
