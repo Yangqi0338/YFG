@@ -335,29 +335,33 @@
                     <td class="gb">${packagingForm}</td>
                 </tr>
                 <tr>
-                    <td class="bold">包装袋标准*</td>
-                    <td>${packagingBagStandard}</td>
+                    <td class="bold">二检包装形式</td>
+                    <td class="">${secondPackagingForm}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">后技术工艺师</td>
-                    <td class="gb">${technologistName}</td>
+                    <td class="gb bold">包装袋标准*</td>
+                    <td class="gb">${packagingBagStandard}</td>
                 </tr>
                 <tr>
-                    <td class="bold">后技术放码师</td>
-                    <td>${gradingName}</td>
+                    <td class=" bold">后技术工艺师</td>
+                    <td class="">${technologistName}</td>
+                </tr>
+                <tr>
+                    <td class="gb bold">后技术放码师</td>
+                    <td class="gb">${gradingName}</td>
                 </tr>
                 <tr>
 
-                    <td class="gb bold">后技术样衣工</td>
-                    <td class="gb">${sampleMakerName}</td>
+                    <td class=" bold">后技术样衣工</td>
+                    <td class="">${sampleMakerName}</td>
                 </tr>
                 <tr>
-                    <td class="bold">设计师*</td>
-                    <td>${designer}</td>
+                    <td class="gb bold">设计师*</td>
+                    <td class="gb">${designer}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">版师*</td>
-                    <td class="gb">${patternDesignName}</td>
+                    <td class=" bold">版师*</td>
+                    <td class="">${patternDesignName}</td>
                 </tr>
                 <tr>
                     <td class="td_lt bold">成分信息*</td>

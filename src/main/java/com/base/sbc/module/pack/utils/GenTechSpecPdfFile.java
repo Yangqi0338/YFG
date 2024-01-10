@@ -133,6 +133,8 @@ public class GenTechSpecPdfFile {
 
     @ApiModelProperty(value = "包装形式")
     private String packagingForm;
+    @ApiModelProperty(value = "二检包装形式")
+    private String secondPackagingForm;
     @ApiModelProperty(value = "特殊规格")
     private String specialSpec;
 
