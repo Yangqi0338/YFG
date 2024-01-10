@@ -237,7 +237,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             baseQueryWrapper.eq("season_id",dto.getPlanningSeasonId());
             List<OrderBook> list = orderBookService.list(baseQueryWrapper);
             List<String> stringList = list.stream().map(OrderBook::getId).collect(Collectors.toList());
-            queryWrapper.in("tobl.order_book_id",stringList);
+            if (!stringList.isEmpty()){
+                queryWrapper.in("tobl.order_book_id",stringList);
+            }else {
+                ArrayList<Object> arr = new ArrayList<>();
+                arr.add("0");
+                queryWrapper.in("tobl.order_book_id",arr);
+            }
+
         }
 
 
