@@ -120,11 +120,8 @@ public class OrderBookDetailController extends BaseController {
         }
 
         //相同产品季下不能有同样的大货款
-        String seasonId = orderBook.getSeasonId();
-        List<OrderBook> list1 = orderBookService.list(new QueryWrapper<OrderBook>().eq("season_id", seasonId).select("id"));
-        List<String> ids = list1.stream().map(OrderBook::getId).collect(Collectors.toList());
         QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("order_book_id",ids);
+        queryWrapper.eq("order_book_id",orderBookDetailSaveDto.getOrderBookId());
         queryWrapper.in("style_color_id", orderBookDetailSaveDto.getStyleColorIds());
 
         long l = orderBookDetailService.count(queryWrapper);
