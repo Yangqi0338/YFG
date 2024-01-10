@@ -326,21 +326,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}*/
 
 
-		//region 当修改了二检包装形式，下发配色接口
-		HangTag hangTagById = null;
-		if (StrUtil.isNotEmpty(hangTagDTO.getId())) {
-			hangTagById = this.getById(hangTagDTO.getId());
-			if (hangTagById != null) {
-				String secondPackagingFormCode = hangTagById.getSecondPackagingFormCode();
-				StyleColor styleColor = styleColorService.getByOne("style_no",hangTag.getBulkStyleNo());
-				if (!secondPackagingFormCode.equals(hangTagDTO.getSecondPackagingFormCode())) {
-					smpService.goods(styleColor.getId().split(","));
-				}
-			}
-		}
-		//endregion
-
-
 		super.saveOrUpdate(hangTag, "吊牌管理");
 		String id = hangTag.getId();
 
@@ -414,6 +399,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}catch (Exception ignored){
 		}
         return id;
+	}
+
+	@Override
+	public void updateSecondPackagingFormById(HangTagDTO hangTagDTO) {
+		if (StrUtil.isNotEmpty(hangTagDTO.getId())) {
+			HangTag hangTag = this.getById(hangTagDTO.getId());
+			if (hangTag != null) {
+				String secondPackagingFormCode = hangTag.getSecondPackagingFormCode();
+				StyleColor styleColor = styleColorService.getByOne("style_no",hangTag.getBulkStyleNo());
+				if (!secondPackagingFormCode.equals(hangTagDTO.getSecondPackagingFormCode())) {
+					smpService.goods(styleColor.getId().split(","));
+				}
+			}
+		}
 	}
 
 	private void strictCheckIngredientPercentage(List<String> hangTagIdList){
