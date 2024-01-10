@@ -204,6 +204,12 @@ public class StylePricingVO {
     @ApiModelProperty(value = "计控实际成本")
     @Excel(name = "计控实际成本", numFormat = "#.###",type = 10,orderNum = "21")
     private BigDecimal planCost;
+
+    /**
+     * 计控实际成本
+     */
+    @ApiModelProperty(value = "计控实际成本")
+    private BigDecimal controlPlanCost;
     /**
      * 是否计控成本确认
      */

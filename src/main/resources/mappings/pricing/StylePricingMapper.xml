@@ -44,6 +44,7 @@
         sp.series_name,
         sp.product_style,
         sp.product_style_name,
+        sp.control_plan_cost as controlPlanCost,
         ps.bom_status as bomStage,
         ht.down_content as downContent,
         ht.print_or_not as tagPrintFlag,
