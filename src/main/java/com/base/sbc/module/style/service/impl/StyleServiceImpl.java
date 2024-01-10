@@ -868,6 +868,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         if (CollUtil.isNotEmpty(pdList)) {
+            // showConfig 为空时，表示所有场景都展示，否则只有入参showConfig = 数据中showConfig时才展示
+            // 展示数据根据显示配置传参进行过滤
+            pdList = pdList.stream().filter(
+                    o->o.getShowConfig() == null
+                            || (StrUtil.isNotBlank(dto.getShowConfig())
+                            && StrUtil.isNotBlank(o.getShowConfig())
+                            && dto.getShowConfig().equals(o.getShowConfig()))).collect(Collectors.toList());
+            if (CollUtil.isEmpty(pdList)) {
+                return result;
+            }
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,dto.getPlanningSeasonId(),dto.getProdCategory());
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
