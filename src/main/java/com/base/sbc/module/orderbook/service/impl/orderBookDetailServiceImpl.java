@@ -17,7 +17,9 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
@@ -65,11 +67,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final PackInfoService packInfoService;
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
-    private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
 
     private final OrderBookService orderBookService;
 
     private final FieldValService fieldValService;
+
+    private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
     @Override
     public PageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
@@ -186,8 +189,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                                 orderBookDetailVo.setFabricFactoryCode(packBom.getSupplierId());
                                 orderBookDetailVo.setUnitFabricDosage(packBom.getUnitUse());
                                 orderBookDetailVo.setFabricFactoryName(packBom.getSupplierName());
-                                BasicsdatumColourLibrary colourCode = basicsdatumColourLibraryService.getByOne("colour_code", packBom.getColorCode());
-                                orderBookDetailVo.setFabricFactoryColorNumber(colourCode.getColor16());
+                                QueryWrapper<BasicsdatumMaterialColor> basicsdatumMaterialColorQueryWrapper = new QueryWrapper<>();
+                                basicsdatumMaterialColorQueryWrapper.eq("material_code", packBom.getMaterialCode());
+                                basicsdatumMaterialColorQueryWrapper.eq("color_code", packBom.getColorCode());
+                                BasicsdatumMaterialColor basicsdatumMaterialColor = basicsdatumMaterialColorService.getOne(basicsdatumMaterialColorQueryWrapper);
+                                orderBookDetailVo.setFabricFactoryColorNumber(basicsdatumMaterialColor.getSupplierColorCode());
                                 orderBookDetailVo.setFabricCode(packBom.getMaterialCode());
                                 orderBookDetailVo.setFabricComposition(packBom.getIngredient());
                             }
