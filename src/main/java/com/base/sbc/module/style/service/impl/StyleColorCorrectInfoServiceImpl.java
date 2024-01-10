@@ -11,6 +11,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -63,7 +64,9 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         queryWrapper.notEmptyEq("ts.planning_season_id", page.getPlanningSeasonId());
         queryWrapper.notEmptyEq("ts.prod_category", page.getProdCategory());
         queryWrapper.notEmptyEq("ts.devt_type_name", page.getDevtTypeName());
-        queryWrapper.notEmptyEq("ts.designer", page.getDesigner());
+        if(StrUtil.isNotBlank(page.getDesigner())){
+            queryWrapper.in("ts.designer", StringUtils.convertList(page.getDesigner()));
+        }
         queryWrapper.notEmptyEq("ts.task_level_name", page.getTaskLevelName());
         queryWrapper.notEmptyEq("tsc.id", page.getStyleColorId());
         queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
