@@ -8,11 +8,15 @@ package com.base.sbc.module.style.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -34,6 +38,8 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -90,6 +96,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -1723,4 +1731,98 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         return result;
     }
+
+    @Override
+    public void markingDeriveExcel(Principal user, HttpServletResponse response, QueryStyleColorDto dto) {
+        dto.setExcelFlag(BaseGlobal.YES);
+        PageInfo<StyleColorVo> pageInfo = getSampleStyleColorList(user, dto);
+        List<StyleColorVo> styleColorVoList = pageInfo.getList();
+
+        //根据查询出维度系数数据
+        LambdaQueryWrapper<FieldVal> fieldValQueryWrapper = new LambdaQueryWrapper<>();
+        List<String> styleIdList = styleColorVoList.stream().map(StyleColorVo::getStyleId).distinct().collect(Collectors.toList());
+        fieldValQueryWrapper.in(FieldVal::getForeignId,styleIdList);
+        if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
+            fieldValQueryWrapper.eq(FieldVal::getDataGroup,FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+        }else{
+            fieldValQueryWrapper.eq(FieldVal::getDataGroup,FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        }
+        List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
+        Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(styleColorVoList.size()))
+                .build();
+
+        try {
+            List<Map<String,Object>> dataList = new ArrayList<>();
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                stylePicUtils.setStylePic(styleColorVoList, "stylePic",30);
+            }
+            CountDownLatch countDownLatch = new CountDownLatch(styleColorVoList.size());
+            for (StyleColorVo styleColorVo : styleColorVoList) {
+                executor.submit(() -> {
+                    Map<String,Object> dataMap = JSONObject.parseObject(JSONObject.toJSONString(styleColorVo), Map.class);
+                    try {
+                        if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                            final String stylePic = styleColorVo.getStylePic();
+                            dataMap.put("stylePic",HttpUtil.downloadBytes(stylePic));
+                        }
+                    } catch (Exception e) {
+                        log.error(e.getMessage());
+                    } finally {
+                        //每次减一
+                        countDownLatch.countDown();
+                        log.info(String.valueOf(countDownLatch.getCount()));
+                    }
+
+                    if(fieldValMap.containsKey(styleColorVo.getStyleId())){
+                        List<FieldVal> fieldValList1 = fieldValMap.get(styleColorVo.getStyleId());
+                        for (FieldVal fieldVal : fieldValList1) {
+                            String fieldName = fieldVal.getFieldName();
+                            String val = StrUtil.isNotBlank(fieldVal.getValName()) ? fieldVal.getValName() : fieldVal.getVal();
+                            dataMap.put(fieldName,val);
+                        }
+                    }
+                    dataList.add(dataMap);
+                });
+            }
+            countDownLatch.await();
+            String type = "款式打标设计阶段";
+            if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
+                type = "款式打标下单阶段";
+            }
+
+            //组装excel头部
+            List<ExcelExportEntity> entityList = new ArrayList<>();
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            String tableCode = requestAttributes.getRequest().getHeader("tableCode");
+            List<ColumnDefine> defaultDetail = SpringUtil.getBean(ColumnUserDefineService.class).findDefaultDetail(tableCode);
+            for (ColumnDefine columnDefine : defaultDetail) {
+                ExcelExportEntity entity = new ExcelExportEntity();
+                entity.setKey(columnDefine.getColumnCode());
+                entity.setName(columnDefine.getColumnName());
+                if(StrUtil.equals("img",columnDefine.getColumnType())){
+                    entity.setExportImageType(2);
+                    entity.setType(2);
+                }
+                entity.setOrderNum(columnDefine.getSortOrder());
+                entityList.add(entity);
+            }
+
+            ExcelUtils.defaultExport(dataList, type+".xlsx", response,new ExportParams(type, type, ExcelType.HSSF),entityList);
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+
 }

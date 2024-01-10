@@ -14,7 +14,12 @@ import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.mapper.ColumnDefineMapper;
 import com.base.sbc.module.column.service.ColumnDefineService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
+import com.base.sbc.module.formtype.service.FieldManagementService;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +39,10 @@ import java.util.stream.Collectors;
  */
 @Service
 public class ColumnDefineServiceImpl extends BaseServiceImpl<ColumnDefineMapper, ColumnDefine> implements ColumnDefineService {
+
+    @Autowired
+    private FieldManagementService fieldManagementService;
+
     @Override
     public List<ColumnDefine> getByTableCode(String tableCode, boolean isSys) {
         LambdaQueryWrapper<ColumnDefine> queryWrapper = new LambdaQueryWrapper<>();
@@ -43,7 +52,35 @@ public class ColumnDefineServiceImpl extends BaseServiceImpl<ColumnDefineMapper,
             queryWrapper.eq(ColumnDefine::getHidden, BaseGlobal.YES);
         }
         queryWrapper.orderByAsc(ColumnDefine::getSortOrder);
-        return list(queryWrapper);
+        List<ColumnDefine> list = list(queryWrapper);
+        if("styleMarking".equals(tableCode)){
+            //款式打标导出专用，动态添加表单字段管理中 维度系数的字段
+            styleMarkingColumnAdd(list);
+        }
+        return list;
+    }
+
+    private void styleMarkingColumnAdd(List<ColumnDefine> list) {
+        List<String> codeList = list.stream().map(ColumnDefine::getColumnCode).distinct().collect(Collectors.toList());
+        QueryFieldManagementDto dto = new QueryFieldManagementDto();
+        dto.setFormTypeCode("dimensionalCoefficient");
+        PageInfo<FieldManagementVo> fieldManagementList = fieldManagementService.getFieldManagementList(dto);
+        int index = list.size();
+        for (FieldManagementVo fieldManagementVo : fieldManagementList.getList()) {
+            if(!codeList.contains(fieldManagementVo.getFieldName())){
+                ColumnDefine columnDefine = new ColumnDefine();
+                columnDefine.setId(fieldManagementVo.getId());
+                columnDefine.setColumnCode(fieldManagementVo.getFieldName());
+                columnDefine.setColumnName(fieldManagementVo.getFieldExplain());
+                columnDefine.setColumnNameI18nKey(fieldManagementVo.getFieldExplain());
+                columnDefine.setColumnType(fieldManagementVo.getFieldType());
+                columnDefine.setHidden("1");
+                columnDefine.setSortOrder(++index);
+                columnDefine.insertInit();
+                list.add(columnDefine);
+                codeList.add(fieldManagementVo.getFieldName());
+            }
+        }
     }
 
     @Override
