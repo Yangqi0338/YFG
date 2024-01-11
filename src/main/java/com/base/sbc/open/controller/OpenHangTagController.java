@@ -6,14 +6,21 @@
  *****************************************************************************/
 package com.base.sbc.open.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.moreLanguage.dto.StyleCountryPrintRecordDto;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
+import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryPrintRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -50,33 +58,56 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OpenHangTagController extends BaseController {
 
-    @Autowired
-    private HangTagService hangTagService;
+    private final HangTagService hangTagService;
+
+    private final StyleCountryPrintRecordService printRecordService;
+
+    private final CountryLanguageService countryLanguageService;
 
     @ApiOperation(value = "查询详情多语言")
     @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
-    public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
-        hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
+    public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageSystemDTO hangTagMoreLanguageDTO) {
         if (hangTagMoreLanguageDTO.getType() == null) throw new OtherException("吊牌类型不能为空");
-        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, true));
+        HangTagMoreLanguageDTO languageDTO = BeanUtil.copyProperties(hangTagMoreLanguageDTO, HangTagMoreLanguageDTO.class);
+        languageDTO.setCode(countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
+                .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageDTO.getCountryCode()), CountryLanguage::getCode));
+        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO, false, true));
     }
 
     @ApiOperation(value = "查询详情多语言")
     @GetMapping("/getMoreLanguageCheckByBulkStyleNo")
 //    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
     public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotBlank(message = "检查参数不能为空") String jsonParams) {
-        List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList = JSONUtil.toList(jsonParams, HangTagMoreLanguageCheckDTO.class);
-        Validation.buildDefaultValidatorFactory().getValidator().validate(hangTagMoreLanguageCheckDTOList, Default.class);
+        List<HangTagMoreLanguageSystemDTO> hangTagMoreLanguageSystemDTOList = JSONUtil.toList(jsonParams, HangTagMoreLanguageSystemDTO.class);
+        Validation.buildDefaultValidatorFactory().getValidator().validate(hangTagMoreLanguageSystemDTOList, Default.class);
 
         // 通过名字获取编码
+        List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList = hangTagMoreLanguageSystemDTOList.stream().map(hangTagMoreLanguageSystemDTO-> {
+            HangTagMoreLanguageCheckDTO languageCheckDTO = BeanUtil.copyProperties(hangTagMoreLanguageSystemDTO, HangTagMoreLanguageCheckDTO.class);
+            languageCheckDTO.setType(hangTagMoreLanguageSystemDTO.getPdmType());
+            languageCheckDTO.setCode(countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
+                    .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageSystemDTO.getCountryCode()), CountryLanguage::getCode));
+            return languageCheckDTO;
+        }).collect(Collectors.toList());
 
         HangTagMoreLanguageDTO hangTagMoreLanguageDTO = new HangTagMoreLanguageDTO();
         hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
         hangTagMoreLanguageDTO.setHangTagMoreLanguageCheckDTOList(hangTagMoreLanguageCheckDTOList);
         hangTagMoreLanguageDTO.setBulkStyleNo(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).collect(Collectors.joining(",")));
         hangTagMoreLanguageDTO.setCode(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getCode).collect(Collectors.joining(",")));
+        hangTagMoreLanguageDTO.setLanguageCode(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getLanguageCode).collect(Collectors.joining(",")));
         hangTagMoreLanguageDTO.setSource(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getSource).findFirst().orElse(SystemSource.BCS));
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, true));
+    }
+
+    /**
+     * 保存打印记录
+     */
+    @ApiOperation(value = "保存打印记录", notes = "保存打印记录")
+    @PostMapping("/savePrintRecord")
+    public ApiResult savePrintRecord(@Valid HangTagMoreLanguageSystemDTO languageDTO) {
+        printRecordService.savePrintRecord(languageDTO);
+        return updateSuccess(true);
     }
 
 }

@@ -41,9 +41,6 @@ public class StyleCountryPrintRecord extends BaseDataEntity<String> {
     /** 国家名称 */
     @ApiModelProperty(value = "国家名称"  )
     private String countryLanguageId;
-    /** 标准类型 */
-    @ApiModelProperty(value = "标准类型"  )
-    private StandardColumnType type;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
 }

@@ -13,5 +13,6 @@ public interface ConvertContext {
 
     HangTagConvert HANG_TAG_CONVERT = HangTagConvert.INSTANCE;
     BaseConvert BASE_CONVERT = BaseConvert.INSTANCE;
+    MoreLanguageConvert MORE_LANGUAGE_CONVERT = MoreLanguageConvert.INSTANCE;
 
 }

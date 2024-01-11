@@ -107,7 +107,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                     .notEmptyIn(CountryLanguage::getLanguageName, countryQueryDto.getLanguageName())
                     .notEmptyEq(CountryLanguage::getEnableFlag, countryQueryDto.getEnableFlag())
                     .eq(CountryLanguage::getSingleLanguageFlag, countryQueryDto.isSingleLanguage() ? YesOrNoEnum.YES : YesOrNoEnum.NO)
-                    .orderByAsc(Arrays.asList(CountryLanguage::getCodeIndex, CountryLanguage::getType))
+                    .orderByDesc(CountryLanguage::getCodeIndex).orderByAsc(CountryLanguage::getType)
             );
         }
 
@@ -149,6 +149,11 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         }else {
             code = countryTypeLanguageSaveDto.getCode();
             baseCountryLanguage.setCodeIndex(Integer.parseInt(code.replace("GY","")));
+            // 判断国家是否正确
+            LambdaQueryWrapper<CountryLanguage> queryWrapper = new LambdaQueryWrapper<CountryLanguage>()
+                    .eq(CountryLanguage::getCode, code)
+                    .eq(CountryLanguage::getCountryCode, countryCode);
+            if (!this.exists(queryWrapper)) throw new OtherException("国家对应不上,请清理缓存");
         }
         baseCountryLanguage.setCode(code);
 

@@ -1,5 +1,6 @@
 package com.base.sbc.module.moreLanguage.dto;
 
+import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,6 +9,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 import java.util.List;
 
 
@@ -29,5 +31,8 @@ public class LanguageSaveDto {
     @NotBlank(message = "请填写语言")
     @ApiModelProperty(value = "语言名称")
     private CountryLanguageType countryLanguageType;
+
+    @DateTimeFormat("yyyy/MM/dd hh:mm:ss")
+    private Date printTime;
 
 }

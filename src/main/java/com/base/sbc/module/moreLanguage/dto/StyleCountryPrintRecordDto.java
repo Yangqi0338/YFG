@@ -25,9 +25,6 @@ public class StyleCountryPrintRecordDto {
 
     private String bulkStyleNo;
 
-    @DateTimeFormat("yyyy/MM/dd hh:mm:ss")
-    private Date printTime;
-
     private String code;
 
     private String countryCode;
@@ -40,9 +37,9 @@ public class StyleCountryPrintRecordDto {
         return typeLanguageDtoList.stream().map(typeLanguageDto->
                 typeLanguageDto.getTypeName() + "：" +
                         typeLanguageDto.getLanguageList().stream().map(LanguageSaveDto::getLanguageName).collect(Collectors.joining("；"))
-        ).collect(Collectors.joining("\n"))
-                + "\n" +
-        "时间："+ Opt.ofNullable(DateUtil.format(printTime,"yyyy/MM/dd hh:mm:ss")).orElse("");
+                +"\n" +
+                typeLanguageDto.getPrintTime()
+        ).collect(Collectors.joining("\n"));
     }
 
 }

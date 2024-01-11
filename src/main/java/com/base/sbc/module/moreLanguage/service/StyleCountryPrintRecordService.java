@@ -7,6 +7,7 @@
 package com.base.sbc.module.moreLanguage.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
 import com.base.sbc.module.moreLanguage.dto.StyleCountryPrintRecordDto;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryPrintRecord;
 
@@ -22,6 +23,8 @@ import java.util.Map;
  */
 public interface StyleCountryPrintRecordService extends BaseService<StyleCountryPrintRecord>{
     StyleCountryPrintRecordDto findPrintRecordByStyleNo(HangTagMoreLanguageDTO languageDTO);
+
+    void savePrintRecord(HangTagMoreLanguageSystemDTO languageDTO);
 
 // 自定义方法区 不替换的区域【other_start】
 

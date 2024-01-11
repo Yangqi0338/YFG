@@ -7,6 +7,7 @@
 package com.base.sbc.module.moreLanguage.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryPrintRecord;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -19,7 +20,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @version 1.0  
  */
 @Mapper
-public interface StyleCountryPrintRecordMapper extends BaseMapper<StyleCountryPrintRecord> {
+public interface StyleCountryPrintRecordMapper extends BaseEnhanceMapper<StyleCountryPrintRecord> {
 // 自定义方法区 不替换的区域【other_start】
 
 

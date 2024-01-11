@@ -10,6 +10,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.RightException;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.CountryTypeLanguageSaveDto;
@@ -42,7 +43,7 @@ import java.util.stream.Collectors;
 @RestController
 @Api(value = "与款式国家打印记录相关的所有接口信息", tags = {"款式国家打印记录"})
 @RequiredArgsConstructor
-@RequestMapping(value = BaseController.SAAS_URL + "/printRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = BaseController.OPEN_URL + "/printRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class StyleCountryPrintRecordController extends BaseController {
 
     private final StyleCountryPrintRecordService printRecordService;
