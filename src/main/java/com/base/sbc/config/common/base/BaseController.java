@@ -1,7 +1,9 @@
 package com.base.sbc.config.common.base;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.i18n.LocaleMessages;
 import com.base.sbc.config.utils.DateUtils;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -60,7 +63,14 @@ public class BaseController {
 	public static final String DEL_FLAG="del_flag";
 
 	public String getUserCompany(){
-		return request.getHeader(USER_COMPANY);
+		String header = request.getHeader(USER_COMPANY);
+		if (StrUtil.isBlank(header)) {
+			RequestMapping requestMapping = this.getClass().getAnnotation(RequestMapping.class);
+			if (requestMapping != null && requestMapping.value()[0].startsWith(BaseController.OPEN_URL)) {
+				return BaseConstant.DEF_COMPANY_CODE;
+			}
+		}
+		return header;
 	}
 	public String getUserId(){
 		return request.getHeader(USER_ID);
