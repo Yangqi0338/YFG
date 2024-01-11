@@ -116,7 +116,7 @@ import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CONVERT;
+import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
 
 /**
  * 类描述：吊牌表 service类
@@ -847,7 +847,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		SystemSource source = hangTagMoreLanguageDTO.getSource();
 
 		// 查询国家语言
-		CountryQueryDto countryQueryDto = HANG_TAG_CONVERT.copy2CountryQuery(hangTagMoreLanguageDTO);
+		CountryQueryDto countryQueryDto = HANG_TAG_CV.copy2CountryQuery(hangTagMoreLanguageDTO);
 		List<CountryLanguageDto> countryLanguageList = countryLanguageService.listQuery(countryQueryDto);
 		if (CollectionUtil.isEmpty(countryLanguageList)) throw new OtherException("未查询到国家语言");
 
@@ -903,11 +903,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		codeMap.put("XM06", Pair.of(HangTagVO::getWashingLabelName, HangTagVO::getWashingLabelName));
 		codeMap.put("XM07", Pair.of(HangTagVO::getStorageDemand, HangTagVO::getStorageDemandName));
 
-		StringJoiner mergeWarnMsgJoiner = new StringJoiner("/");
+		List<String> mergeWarnMsgList = new ArrayList<>();
 
 		// 根据款号分组
 		countryLanguageList.stream().collect(Collectors.groupingBy(CountryLanguage::getCode)).forEach((code, sameCodeList)-> {
-			HangTagMoreLanguageBaseVO baseCountryLanguageVO = HANG_TAG_CONVERT.copy2MoreLanguageBaseVO(sameCodeList.get(0));
+			HangTagMoreLanguageBaseVO baseCountryLanguageVO = HANG_TAG_CV.copy2MoreLanguageBaseVO(sameCodeList.get(0));
 
 			List<String> countryMappingBulkStyleNoList = bulkStyleNoList;
 			List<HangTagMoreLanguageCheckDTO> mappingList = hangTagMoreLanguageDTO.getHangTagMoreLanguageCheckDTOList();
@@ -930,7 +930,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						if (!mergeWarnMsg) {
 							throw new OtherException(msg);
 						}else {
-							mergeWarnMsgJoiner.add(msg);
+							mergeWarnMsgList.add(msg);
 							continue;
 						}
 					}
@@ -945,12 +945,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					List<CountryLanguageDto> finalSameCodeList = sameCodeList;
 					List<HangTagMoreLanguageBaseVO> result = standardColumnList.stream().filter(it -> codeMap.containsKey(it.getCode())).map(standardColumn -> {
 
-						HangTagMoreLanguageBaseVO hangTagMoreLanguageBaseVO = HANG_TAG_CONVERT.copyMyself(baseCountryLanguageVO);
+						HangTagMoreLanguageBaseVO hangTagMoreLanguageBaseVO = HANG_TAG_CV.copyMyself(baseCountryLanguageVO);
 						hangTagMoreLanguageBaseVO.setBulkStyleNo(bulkStyleNo);
 
 						String standardColumnCode = standardColumn.getCode();
 						String standardColumnName = standardColumn.getName();
-						HANG_TAG_CONVERT.standardColumn2MoreLanguageBaseVO(standardColumn, hangTagMoreLanguageBaseVO);
+						HANG_TAG_CV.standardColumn2MoreLanguageBaseVO(standardColumn, hangTagMoreLanguageBaseVO);
 						hangTagMoreLanguageBaseVO.setStandardColumnId(standardColumn.getId());
 						hangTagMoreLanguageBaseVO.setStandardColumnCode(standardColumnCode);
 						hangTagMoreLanguageBaseVO.setStandardColumnName(standardColumnName);
@@ -998,7 +998,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							String singleLanguageId = singleLanguageTypeList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode()))
 									.findFirst().map(CountryLanguage::getId).orElse("");
 							List<String> languageIdList = Arrays.asList(countryLanguageId, singleLanguageId);
-							HangTagMoreLanguageVO languageVO = HANG_TAG_CONVERT.copy2MoreLanguageVO(countryLanguageDto);
+							HangTagMoreLanguageVO languageVO = HANG_TAG_CV.copy2MoreLanguageVO(countryLanguageDto);
 							// 获取标题名翻译
 							titleTranslateList.stream().filter(it->
 									languageIdList.contains(it.getCountryLanguageId())
@@ -1016,7 +1016,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									.collect(Collectors.toList());
 							countryTranslateList.stream().findFirst().ifPresent(translate-> {
 								languageVO.setCannotFindPropertiesContent(false);
-								HANG_TAG_CONVERT.countryTranslate2MoreLanguageVO(translate, languageVO);
+								HANG_TAG_CV.countryTranslate2MoreLanguageVO(translate, languageVO);
 								String content;
 								if (needFeed) {
 									content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining("\n"));
@@ -1114,24 +1114,26 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		});
 
-		if (mergeWarnMsgJoiner.length() > 0) {
+		if (!mergeWarnMsgList.isEmpty()) {
+			StringJoiner mergeWarnMsgJoiner = new StringJoiner(" / ");
+			mergeWarnMsgList.stream().distinct().forEach(msg-> mergeWarnMsgJoiner.add(msg));
 			throw new OtherException(mergeWarnMsgJoiner.toString());
 		}
 
 		resultList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getStandardColumnId));
 		switch (source) {
 			case PDM:
-                return HANG_TAG_CONVERT.copyList2Web(resultList)
+                return HANG_TAG_CV.copyList2Web(resultList)
 						.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getType));
 			case BCS:
 				List<HangTagMoreLanguageBCSVO> sourceResultList = new ArrayList<>();
-				HANG_TAG_CONVERT.copyList2Bcs(resultList).stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode))
+				HANG_TAG_CV.copyList2Bcs(resultList).stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode))
 						.forEach((bulkStyleNo, sameBulkStyleNoList)-> {
 							sourceResultList.add(new HangTagMoreLanguageBCSVO(sameBulkStyleNoList));
 						});
 				return sourceResultList;
 			case PRINT:
-				return HANG_TAG_CONVERT.copyList2Print(resultList);
+				return HANG_TAG_CV.copyList2Print(resultList);
 			default: throw new IllegalStateException("Unexpected value: " + source);
 		}
 	}

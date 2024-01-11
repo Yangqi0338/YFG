@@ -76,7 +76,7 @@ public class StyleCountryPrintRecordServiceImpl extends BaseServiceImpl<StyleCou
             TypeLanguageDto typeLanguageDto = new TypeLanguageDto();
             typeLanguageDto.setType(type);
             typeLanguageDto.setLanguageList( sameTypeList.stream().map(languageSaveDto -> {
-                LanguageSaveDto saveDto = ConvertContext.MORE_LANGUAGE_CONVERT.copy2Save(languageSaveDto);
+                LanguageSaveDto saveDto = ConvertContext.MORE_LANGUAGE_CV.copy2Save(languageSaveDto);
                 Date printTime = printRecordList.stream().filter(it -> it.getCountryLanguageId().equals(languageSaveDto.getId()))
                         .findFirst().map(StyleCountryPrintRecord::getUpdateDate).orElse(null);
                 saveDto.setPrintTime(printTime);

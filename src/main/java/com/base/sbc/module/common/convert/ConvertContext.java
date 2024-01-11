@@ -11,8 +11,9 @@ import org.mapstruct.Mapper;
 
 public interface ConvertContext {
 
-    HangTagConvert HANG_TAG_CONVERT = HangTagConvert.INSTANCE;
-    BaseConvert BASE_CONVERT = BaseConvert.INSTANCE;
-    MoreLanguageConvert MORE_LANGUAGE_CONVERT = MoreLanguageConvert.INSTANCE;
+    HangTagConvert HANG_TAG_CV = HangTagConvert.INSTANCE;
+    BaseConvert BASE_CV = BaseConvert.INSTANCE;
+    MoreLanguageConvert MORE_LANGUAGE_CV = MoreLanguageConvert.INSTANCE;
+    OpenConvert OPEN_CV = OpenConvert.INSTANCE;
 
 }

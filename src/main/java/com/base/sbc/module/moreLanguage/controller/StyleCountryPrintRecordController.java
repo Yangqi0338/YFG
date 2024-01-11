@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 @RestController
 @Api(value = "与款式国家打印记录相关的所有接口信息", tags = {"款式国家打印记录"})
 @RequiredArgsConstructor
-@RequestMapping(value = BaseController.OPEN_URL + "/printRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = BaseController.SAAS_URL + "/printRecord", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class StyleCountryPrintRecordController extends BaseController {
 
     private final StyleCountryPrintRecordService printRecordService;

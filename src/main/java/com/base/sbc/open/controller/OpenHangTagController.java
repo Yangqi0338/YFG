@@ -13,6 +13,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.ValidationUtil;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
@@ -28,6 +29,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,11 +38,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.Valid;
 import javax.validation.Validation;
 import javax.validation.groups.Default;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.module.common.convert.ConvertContext.OPEN_CV;
 
 /**
  * 类描述：吊牌表 Controller类
@@ -79,12 +85,11 @@ public class OpenHangTagController extends BaseController {
 //    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
     public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotBlank(message = "检查参数不能为空") String jsonParams) {
         List<HangTagMoreLanguageSystemDTO> hangTagMoreLanguageSystemDTOList = JSONUtil.toList(jsonParams, HangTagMoreLanguageSystemDTO.class);
-        Validation.buildDefaultValidatorFactory().getValidator().validate(hangTagMoreLanguageSystemDTOList, Default.class);
+        ValidationUtil.validate(hangTagMoreLanguageSystemDTOList);
 
         // 通过名字获取编码
         List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList = hangTagMoreLanguageSystemDTOList.stream().map(hangTagMoreLanguageSystemDTO-> {
-            HangTagMoreLanguageCheckDTO languageCheckDTO = BeanUtil.copyProperties(hangTagMoreLanguageSystemDTO, HangTagMoreLanguageCheckDTO.class);
-            languageCheckDTO.setType(hangTagMoreLanguageSystemDTO.getPdmType());
+            HangTagMoreLanguageCheckDTO languageCheckDTO = OPEN_CV.copy2Check(hangTagMoreLanguageSystemDTO);
             languageCheckDTO.setCode(countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                     .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageSystemDTO.getCountryCode()), CountryLanguage::getCode));
             return languageCheckDTO;
