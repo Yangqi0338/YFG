@@ -76,6 +76,11 @@ public class BasicsdatumResearchProcessNodeController{
 		}
 		return basicsdatumResearchProcessNode;
 	}
+	@ApiOperation(value = "批量修改")
+	@PostMapping("batchUpdate")
+	public Boolean batchUpdate(@RequestBody List<BasicsdatumResearchProcessNode> basicsdatumResearchProcessNode) {
+		return basicsdatumResearchProcessNodeService.saveOrUpdateBatch(basicsdatumResearchProcessNode);
+	}
 
 }
 
