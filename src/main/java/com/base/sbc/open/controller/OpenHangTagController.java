@@ -13,6 +13,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ValidationUtil;
@@ -80,7 +81,7 @@ public class OpenHangTagController extends BaseController {
         languageDTO.setCode(countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                 .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageDTO.getCountryCode()), CountryLanguage::getCode));
         if (StrUtil.isBlank(languageDTO.getCode())) throw new OtherException("PDM未创建" + Opt.ofNullable(hangTagMoreLanguageDTO.getCountryName()).orElse("") + "国家语言翻译");
-        languageDTO.setUserCompany(super.getUserCompany());
+        languageDTO.setUserCompany(BaseConstant.DEF_COMPANY_CODE);
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO, false, true));
     }
 
@@ -101,7 +102,7 @@ public class OpenHangTagController extends BaseController {
         }).collect(Collectors.toList());
 
         HangTagMoreLanguageDTO hangTagMoreLanguageDTO = new HangTagMoreLanguageDTO();
-        hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
+        hangTagMoreLanguageDTO.setUserCompany(BaseConstant.DEF_COMPANY_CODE);
         hangTagMoreLanguageDTO.setHangTagMoreLanguageCheckDTOList(hangTagMoreLanguageCheckDTOList);
         hangTagMoreLanguageDTO.setBulkStyleNo(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).collect(Collectors.joining(",")));
         hangTagMoreLanguageDTO.setCode(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getCode).collect(Collectors.joining(",")));
