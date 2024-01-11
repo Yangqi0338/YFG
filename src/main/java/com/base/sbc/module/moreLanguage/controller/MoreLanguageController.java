@@ -82,6 +82,7 @@ public class MoreLanguageController extends BaseController {
             EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAllSync();
             return selectSuccess("您的吊牌信息已经导入成功. " + importListener.dataVerifyHandler());
         }catch (Exception e){
+            e.printStackTrace();
             return ApiResult.error("导入失败, 请你根据导入规则进行导入\n" + e.getMessage(), 0);
         }
     }
@@ -126,9 +127,8 @@ public class MoreLanguageController extends BaseController {
 
     @ApiOperation(value = "变更日志")
     @GetMapping("/operationLog")
-    public ApiResult<PageInfo<? extends OperaLogEntity>> operationLog(@Valid MoreLanguageOperaLogDTO moreLanguageOperaLogDTO,
-                                                                        @RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
-        moreLanguageOperaLogDTO.setUserCompany(userCompany);
+    public ApiResult<PageInfo<? extends OperaLogEntity>> operationLog(@Valid MoreLanguageOperaLogDTO moreLanguageOperaLogDTO) {
+        moreLanguageOperaLogDTO.setUserCompany(super.getUserCompany());
         moreLanguageOperaLogDTO.init();
         PageInfo<OperaLogEntity> page = operaLogService.listPage(moreLanguageOperaLogDTO);
         page.setList(page.getList().stream().map(it-> BeanUtil.copyProperties(it, MoreLanguageOperaLogEntity.class)).collect(Collectors.toList()));

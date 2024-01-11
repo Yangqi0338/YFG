@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -63,7 +64,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
      */
     @ApiModelProperty(value = "全量数据")
     public String getSourceContent() {
-        return String.format("%s:%s %s", this.standardColumnName, this.isGroup ? "\n" : "", this.propertiesName);
+        return String.format("%s:%s %s", this.standardColumnName, this.isGroup ? "\n" : "", Opt.ofNullable(this.propertiesName).orElse(""));
     }
 
 }
