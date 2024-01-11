@@ -86,7 +86,7 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      */
     List<StyleColor> getStyleMainAccessories(@Param("ids") List<String> ids);
 
-    List<StyleMarkingCheckVo> markingCheckPage(BaseQueryWrapper queryWrapper);
+    List<StyleMarkingCheckVo> markingCheckPage(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }

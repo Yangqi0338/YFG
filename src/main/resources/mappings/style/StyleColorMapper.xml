@@ -280,7 +280,7 @@
                 ts.devt_type,
                 ts.devt_type_name,
                 ts.sales_type,
-                ts.sales_type_name,
+                ts.sales_type_name
     </select>
 
 </mapper>
