@@ -16,6 +16,7 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -240,6 +241,8 @@ public interface StyleColorService extends BaseService<StyleColor> {
         void styleColorListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws IOException;
 
     void markingDeriveExcel(Principal user, HttpServletResponse response, QueryStyleColorDto dto);
+
+    PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

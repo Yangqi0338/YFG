@@ -872,7 +872,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             // 展示数据根据显示配置传参进行过滤
             pdList = pdList.stream().filter(
                     o->o.getShowConfig() == null
-                            || (StrUtil.isNotBlank(dto.getShowConfig())
+                            || (StrUtil.isNotEmpty(dto.getShowConfig())
                             && StrUtil.isNotBlank(o.getShowConfig())
                             && dto.getShowConfig().equals(o.getShowConfig()))).collect(Collectors.toList());
             if (CollUtil.isEmpty(pdList)) {

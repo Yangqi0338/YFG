@@ -8,7 +8,6 @@ package com.base.sbc.module.style.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -584,6 +583,17 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
     private String orderMarkingStatus;
+
+    /**
+     * 销售类型
+     */
+    @ApiModelProperty(value = "销售类型"  )
+    private String salesType;
+    /**
+     * 销售类型名称
+     */
+    @ApiModelProperty(value = "销售类型名称"  )
+    private String salesTypeName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

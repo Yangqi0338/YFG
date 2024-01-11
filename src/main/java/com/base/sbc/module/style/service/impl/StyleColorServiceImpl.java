@@ -83,6 +83,7 @@ import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleColorListExcel;
 import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -233,6 +234,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getHisDesignNo()), "ts.his_design_no", queryDto.getHisDesignNo());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getSizeRangeName()), "ts.size_range_name", queryDto.getSizeRangeName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getBandCode()), "ts.band_code", queryDto.getBandCode());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getBrandName()), "ts.brand_name", queryDto.getBrandName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getBandName()), "tsc.band_name", queryDto.getBandName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()), "ts.designer", queryDto.getDesigner());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()), "ts.technician_name", queryDto.getTechnicianName());
@@ -290,6 +292,20 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()), "tsc.order_flag", queryDto.getOrderFlag());
         if(StringUtils.isNotBlank(queryDto.getMarkingOrderFlag())){
             queryWrapper.inSql("tsc.id","select style_color_id from t_order_book_detail where order_book_id in (select id from t_order_book where `status` = '3')");
+        }
+        if(StrUtil.isNotBlank(queryDto.getDesignMarkingStatus())){
+            if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getDesignMarkingStatus())) {
+                queryWrapper.isNullStrEq("ts.design_marking_status", queryDto.getDesignMarkingStatus());
+            } else {
+                queryWrapper.eq("ts.design_marking_status", queryDto.getDesignMarkingStatus());
+            }
+        }
+        if(StrUtil.isNotBlank(queryDto.getOrderMarkingStatus())){
+            if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getOrderMarkingStatus())) {
+                queryWrapper.isNullStrEq("ts.order_marking_status", queryDto.getOrderMarkingStatus());
+            } else {
+                queryWrapper.eq("ts.order_marking_status", queryDto.getOrderMarkingStatus());
+            }
         }
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.styleColor.getK(), "ts.");
         /*获取配色数据*/
@@ -1822,6 +1838,20 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         } finally {
             executor.shutdown();
         }
+    }
+
+    @Override
+    public PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto queryDto) {
+        /*分页*/
+        Page<Object> objects = PageHelper.startPage(queryDto);
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
+        if(StringUtils.isNotBlank(queryDto.getMarkingOrderFlag())){
+            queryWrapper.inSql("tsc.id","select style_color_id from t_order_book_detail where order_book_id in (select id from t_order_book where `status` = '3')");
+        }
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.styleColor.getK(), "ts.");
+
+        List<StyleMarkingCheckVo> styleMarkingCheckVos = baseMapper.markingCheckPage(queryWrapper);
+        return new PageInfo<>(styleMarkingCheckVos);
     }
 
 

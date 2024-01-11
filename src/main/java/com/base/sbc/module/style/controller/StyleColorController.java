@@ -18,6 +18,7 @@ import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -225,6 +226,12 @@ public class StyleColorController {
 	@DuplicationCheck(type = 1,message = "服务已存在导出，请稍后...")
 	public void markingDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws Exception {
 		styleColorService.markingDeriveExcel(user,response,dto);
+	}
+
+	@ApiOperation(value = "/打标检查列表查询")
+	@GetMapping("/markingCheckPage")
+	public PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto) throws Exception {
+		return styleColorService.markingCheckPage(dto);
 	}
 
 }
