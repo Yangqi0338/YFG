@@ -68,6 +68,9 @@ public interface HangTagService extends BaseService<HangTag> {
     String save(HangTagDTO hangTagDTO, String userCompany);
 
 
+    void updateSecondPackagingFormById(HangTagDTO hangTagDTO);
+
+
 
     /**
      * 更新状态

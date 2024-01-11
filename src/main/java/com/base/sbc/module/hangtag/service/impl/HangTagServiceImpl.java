@@ -319,7 +319,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				("style_no", hangTag.getBulkStyleNo()).eq("company_code", userCompany).select("id"));
 */
 
-		boolean flag = false;
+		/*boolean flag = false;
 		if(StringUtils.isEmpty(hangTagDTO.getId())){
 			flag = true;
 		}else {
@@ -327,7 +327,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			if(!hangTag1.getProductName().equals(hangTag.getProductName())){
 				flag = true;
 			}
-		}
+		}*/
+
 
 		super.saveOrUpdate(hangTag, "吊牌管理");
 		String id = hangTag.getId();
@@ -377,6 +378,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		}
 
+
 		if ("2".equals(hangTag.getStatus()) && "2".equals(hangTagDTO.getCheckType())) {
 			hangTag = this.getById(hangTag.getId());
 			// 发起审批
@@ -401,6 +403,26 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}catch (Exception ignored){
 		}
         return id;
+	}
+
+	@Transactional
+	@Override
+	public void updateSecondPackagingFormById(HangTagDTO hangTagDTO) {
+		if (StrUtil.isNotEmpty(hangTagDTO.getId())) {
+			HangTag hangTag = this.getById(hangTagDTO.getId());
+			if (hangTag != null) {
+				String code = hangTag.getSecondPackagingFormCode();
+
+				hangTag.setSecondPackagingForm(hangTagDTO.getSecondPackagingForm());
+				hangTag.setSecondPackagingFormCode(hangTagDTO.getSecondPackagingFormCode());
+				this.updateById(hangTag);
+
+				StyleColor styleColor = styleColorService.getByOne("style_no", hangTag.getBulkStyleNo());
+				if (!code.equals(hangTagDTO.getSecondPackagingFormCode())) {
+					smpService.goods(styleColor.getId().split(","));
+				}
+			}
+		}
 	}
 
 	private void strictCheckIngredientPercentage(List<String> hangTagIdList){

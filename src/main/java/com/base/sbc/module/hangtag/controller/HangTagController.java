@@ -102,6 +102,14 @@ public class HangTagController extends BaseController {
         return ApiResult.success("保存成功", id);
     }
 
+    @ApiOperation(value = "修改二检包装形式")
+    @PostMapping("/updateSecondPackagingFormById")
+    @DuplicationCheck
+    public ApiResult updateSecondPackagingFormById(@RequestBody HangTagDTO hangTagDTO) {
+        hangTagService.updateSecondPackagingFormById(hangTagDTO);
+        return ApiResult.success("修改成功");
+    }
+
     /**
      * 修改吊牌价
      */

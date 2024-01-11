@@ -252,6 +252,15 @@ public class SmpGoodsDto extends SmpBaseDto {
      * */
     private RFIDType rfidType;
 
+    /**
+     * 二检包装形式编码
+     */
+    private String secondPackagingFormCode;
+    /**
+     * 二检包装形式
+     */
+    private String secondPackagingForm;
+
 
     //新加字段
     /**
