@@ -1049,7 +1049,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 BasicsdatumProcessNodeEnum value = BasicsdatumProcessNodeEnum.getBycode(node.getCode());
                 //Date nodeFinashTime = getNodeFinashTime(styleResearchProcessVo.getStyleId(), styleResearchProcessVo.getStyleColorId(), value, styleResearchNodeVo,tempDate);
                 Date nodeFinashTime = null;
-                if (BasicsdatumProcessNodeEnum.REVIEWED_DRAFT.getCode().equals(node.getCode())) {
+                if (BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode().equals(node.getCode())) {
+                    nodeFinashTime = styleResearchProcessVo.getNoNextDraft();
+                }else if (BasicsdatumProcessNodeEnum.REVIEWED_DRAFT.getCode().equals(node.getCode())) {
                     nodeFinashTime = styleResearchProcessVo.getReviewedDraft();
                 }else if(BasicsdatumProcessNodeEnum.NEXT_DRAFT.getCode().equals(node.getCode())){
                     nodeFinashTime = styleResearchProcessVo.getNextDraft();
