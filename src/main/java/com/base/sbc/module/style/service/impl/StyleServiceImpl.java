@@ -871,7 +871,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             // showConfig 为空时，表示所有场景都展示，否则只有入参showConfig = 数据中showConfig时才展示
             // 展示数据根据显示配置传参进行过滤
             pdList = pdList.stream().filter(
-                    o->o.getShowConfig() == null
+                    o-> StrUtil.isEmpty(o.getShowConfig())
                             || (StrUtil.isNotEmpty(dto.getShowConfig())
                             && StrUtil.isNotBlank(o.getShowConfig())
                             && dto.getShowConfig().equals(o.getShowConfig()))).collect(Collectors.toList());
