@@ -29,6 +29,17 @@ public class OrderBook extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季节名称")
     private String seasonName;
 
+    /**
+     * 渠道
+     */
+    @ApiModelProperty(value = "渠道")
+    private String channel;
+    /**
+     * 渠道名称
+     */
+    @ApiModelProperty(value = "渠道名称")
+    private String channelName;
+
     @ApiModelProperty(value = "状态:1待确认,2:已确认,3:已下单,4:已驳回")
     private String status;
 

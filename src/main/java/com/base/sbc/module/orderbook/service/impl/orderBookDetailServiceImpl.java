@@ -91,54 +91,18 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             throw new RuntimeException("没有数据");
         }
         List<OrderBookDetailExportVo> orderBookDetailExportVos = BeanUtil.copyToList(orderBookDetailVos, OrderBookDetailExportVo.class);
-        ExecutorService executor = ExecutorBuilder.create()
-                .setCorePoolSize(8)
-                .setMaxPoolSize(10)
-                .setWorkQueue(new LinkedBlockingQueue<>(orderBookDetailExportVos.size()))
-                .build();
+        //导出
+        ExcelUtils.executorExportExcel(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",dto.getImgFlag(),3000,response,"stylePic");
 
-        try {
-            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
-                /*导出图片*/
-                if (CollUtil.isNotEmpty(orderBookDetailExportVos) && orderBookDetailExportVos.size() > 1500) {
-                    throw new OtherException("带图片导出最多只能导出1500条");
-                }
-                // stylePicUtils.setStylePic(orderBookDetailExportVos, "stylePic",30);
-                // stylePicUtils.setStylePic(orderBookDetailExportVos, "styleColorPic",30);
-                CountDownLatch countDownLatch = new CountDownLatch(orderBookDetailExportVos.size());
-                for (OrderBookDetailExportVo orderBookDetailExportVo : orderBookDetailExportVos) {
-                    executor.submit(() -> {
-                        try {
-                            final String stylePic = orderBookDetailExportVo.getStylePic();
-                            // final String styleColorPic = orderBookDetailExportVo.getStyleColorPic();
-                            orderBookDetailExportVo.setStylePic1(HttpUtil.downloadBytes(stylePic));
-                            // orderBookDetailExportVo.setStyleColorPic1(HttpUtil.downloadBytes(styleColorPic));
-                        } catch (Exception e) {
-                            log.error(e.getMessage());
-                        } finally {
-                            //每次减一
-                            countDownLatch.countDown();
-
-                        }
-                    });
-                }
-                countDownLatch.await();
-            }
-            ExcelUtils.exportExcel(orderBookDetailExportVos, OrderBookDetailExportVo.class, "订货本详情.xlsx", new ExportParams("款式配色", "款式配色", ExcelType.HSSF), response);
-        } catch (Exception e) {
-            throw new OtherException(e.getMessage());
-        } finally {
-            executor.shutdown();
-        }
-
-        // ExcelUtils.exportExcel(orderBookDetailExportVos, OrderBookDetailExportVo.class, "订货本详情.xls", new ExportParams(), response);
     }
 
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper) {
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
-        stylePicUtils.setStylePic(orderBookDetailVos, "stylePic");
-        stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic");
+        /*设置图片分辨路*/
+        stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
+        stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
+        /*款式定价相关参数*/
         this.queryStylePrice(orderBookDetailVos);
         /*按配色id获取到里面的围度数据*/
         Map<String, FieldVal> map = new HashMap<>();
@@ -158,6 +122,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
 
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
+            /*系数取款式定价中的产品风格 没有值时是D*/
+            if(StrUtil.isEmpty(orderBookDetailVo.getCoefficientCode())){
+                orderBookDetailVo.setCoefficientCode("D");
+            }
+
             /*版型定位字段*/
             FieldVal fieldValList = map.get(orderBookDetailVo.getStyleColorId());
             if(!ObjectUtil.isEmpty(fieldValList)){
@@ -288,6 +257,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     orderBookDetailVo.setFobCost(stylePricingVO.getTotalCost());
                     orderBookDetailVo.setRate(stylePricingVO.getPlanActualMagnification());
                     orderBookDetailVo.setHonest(stylePricingVO.getPackagingFee());
+                    /*产品风格*/
+                    orderBookDetailVo.setCoefficientCode(stylePricingVO.getProductStyle());
                 }
 
             }

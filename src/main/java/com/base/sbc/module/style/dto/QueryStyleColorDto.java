@@ -237,5 +237,4 @@ public class QueryStyleColorDto extends Page {
      */
     private String technologistName;
 
-    private String bandCode;
 }

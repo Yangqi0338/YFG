@@ -1,7 +1,6 @@
 package com.base.sbc.module.orderbook.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -27,7 +26,7 @@ public class OrderBookDetailExportVo {
     @Excel(name = "款式图",type = 2,imageType = 2)
     private byte[] stylePic1;
 
-    @Excel(name = "投产日期")
+    @Excel(name = "投产日期", format = "yyyy-MM-dd HH:mm:ss")
     private Date commissioningDate;
 
     @Excel(name = "是否延续")
@@ -103,7 +102,7 @@ public class OrderBookDetailExportVo {
     private String rate;
 
     @Excel(name = "系数")
-    private String coefficientName;
+    private String productStyle;
 
     @Excel(name = "CMT成本")
     private String cmtCost;

@@ -3,6 +3,7 @@ package com.base.sbc.module.orderbook.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -82,23 +83,29 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
      */
     @Override
     public OrderBook saveOrderBook(OrderBookSaveDto dto) {
+        if(StrUtil.isEmpty(dto.getSeasonId())){
+            throw new OtherException("产品季id不能为空");
+        }
         /*校验订货本名称*/
         OrderBook byOne = getByOne("name", dto.getName());
         if (!ObjectUtil.isEmpty(byOne)) {
             throw new OtherException("订货本名称重复");
         }
-        /*查询产品季*/
-        QueryWrapper<PlanningSeason> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("brand", dto.getBrand());
-        queryWrapper.eq("year", dto.getYear());
-        queryWrapper.eq("season", dto.getSeason());
-        queryWrapper.eq("status", BaseGlobal.NO);
-        /*查询产品季*/
-        PlanningSeason planningSeason = planningSeasonService.getOne(queryWrapper);
-        if (ObjectUtil.isEmpty(planningSeason)) {
-            throw new OtherException("该年份季节品牌下没有产品季");
-        }
         OrderBook orderBook = new OrderBook();
+        /*修改订货本名称*/
+        if(StrUtil.isNotBlank(dto.getId())) {
+            orderBook = baseMapper.selectById(dto.getId());
+            /*只编辑名称*/
+            orderBook.setName(dto.getName());
+            baseMapper.updateById(orderBook);
+            return orderBook;
+        }
+        /*查询产品季*/
+        PlanningSeason planningSeason = planningSeasonService.getById(dto.getSeasonId());
+        if (ObjectUtil.isEmpty(planningSeason)) {
+            throw new OtherException("产品季id错误，没有产品季");
+        }
+        /*做新增*/
         orderBook.setSeasonId(planningSeason.getId());
         orderBook.setSeasonName(planningSeason.getSeasonName());
         orderBook.setName(dto.getName());
