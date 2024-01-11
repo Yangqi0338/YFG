@@ -46,6 +46,11 @@ public class HangTagMoreLanguageSystemDTO {
     @NotBlank(message = "国家编码不能为空")
     private String countryCode;
     /**
+     * 国家名字
+     */
+    @ApiModelProperty(value = "国家名字")
+    private String countryName;
+    /**
      * 语言编码
      */
     @ApiModelProperty(value = "语言编码")

@@ -942,6 +942,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 					List<CountryLanguageDto> finalSameCodeList = sameCodeList;
 					List<HangTagMoreLanguageBaseVO> result = standardColumnList.stream().filter(it -> codeMap.containsKey(it.getCode())).map(standardColumn -> {
+						List<CountryLanguageDto> countryLanguageDtoList = finalSameCodeList.stream()
+								.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
+						if (CollectionUtil.isEmpty(countryLanguageDtoList)) return null;
 
 						HangTagMoreLanguageBaseVO hangTagMoreLanguageBaseVO = HANG_TAG_CV.copyMyself(baseCountryLanguageVO);
 						hangTagMoreLanguageBaseVO.setBulkStyleNo(bulkStyleNo);
@@ -960,9 +963,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						hangTagMoreLanguageBaseVO.setPropertiesName(defaultValue);
 						String propertiesCode = codeFunc.getKey().apply(hangTagVO);
 						hangTagMoreLanguageBaseVO.setPropertiesCode(propertiesCode);
-
-						List<CountryLanguageDto> countryLanguageDtoList = finalSameCodeList.stream()
-								.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
 
 						if (StrUtil.isBlank(propertiesCode)) return hangTagMoreLanguageBaseVO;
 
@@ -1028,7 +1028,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						});
 
 						return hangTagMoreLanguageBaseVO;
-					}).collect(Collectors.toList());
+					}).filter(Objects::nonNull).collect(Collectors.toList());
 
 //					// 成分信息专属
 //					String ingredient = hangTagVO.getIngredient();
@@ -1125,7 +1125,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case BCS:
 				List<HangTagMoreLanguageBCSVO> sourceResultList = new ArrayList<>();
 				HANG_TAG_CV.copyList2Bcs(resultList).stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode))
-						.forEach((bulkStyleNo, sameBulkStyleNoList)-> {
+						.forEach((code, sameBulkStyleNoList)-> {
 							sourceResultList.add(new HangTagMoreLanguageBCSVO(sameBulkStyleNoList));
 						});
 				return sourceResultList;

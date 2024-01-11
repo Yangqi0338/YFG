@@ -7,6 +7,8 @@
 package com.base.sbc.open.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
@@ -77,6 +79,7 @@ public class OpenHangTagController extends BaseController {
         HangTagMoreLanguageDTO languageDTO = OPEN_CV.copy2MoreLanguageDTO(hangTagMoreLanguageDTO);
         languageDTO.setCode(countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                 .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageDTO.getCountryCode()), CountryLanguage::getCode));
+        if (StrUtil.isBlank(languageDTO.getCode())) throw new OtherException("PDM未创建" + Opt.ofNullable(hangTagMoreLanguageDTO.getCountryName()).orElse("") + "国家语言翻译");
         languageDTO.setUserCompany(super.getUserCompany());
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO, false, true));
     }
@@ -93,6 +96,7 @@ public class OpenHangTagController extends BaseController {
             HangTagMoreLanguageCheckDTO languageCheckDTO = OPEN_CV.copy2Check(hangTagMoreLanguageSystemDTO);
             languageCheckDTO.setCode(countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                     .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageSystemDTO.getCountryCode()), CountryLanguage::getCode));
+            if (StrUtil.isBlank(languageCheckDTO.getCode())) throw new OtherException("PDM未创建" + Opt.ofNullable(hangTagMoreLanguageSystemDTO.getCountryName()).orElse("") + "国家语言翻译");
             return languageCheckDTO;
         }).collect(Collectors.toList());
 

@@ -15,6 +15,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.Mappings;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -34,6 +35,9 @@ public interface HangTagConvert {
     List<HangTagMoreLanguagePrinterBaseVO> copyList2Print(List<HangTagMoreLanguageBaseVO> source);
     List<HangTagMoreLanguageVO> copyList2MoreLanguageVO(List<CountryLanguage> source);
     HangTagMoreLanguageVO copy2MoreLanguageVO(CountryLanguage source);
+    @Mappings({
+            @Mapping(target = "code", ignore = true)
+    })
     void standardColumn2MoreLanguageBaseVO(StandardColumn source, @MappingTarget HangTagMoreLanguageBaseVO target);
     HangTagMoreLanguageBaseVO copyMyself(HangTagMoreLanguageBaseVO source);
     CountryQueryDto copy2CountryQuery(HangTagMoreLanguageDTO source);
