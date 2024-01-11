@@ -63,15 +63,5 @@ public class HangTagMoreLanguageSystemDTO {
     @NotNull(message = "来源不能为空")
     private SystemSource source;
 
-    public CountryLanguageType getPdmType() {
-         if (type == 1) {
-             return CountryLanguageType.WASHING;
-         }else if (type == 2) {
-             return CountryLanguageType.TAG;
-         }else {
-             throw new OtherException("非法类型");
-         }
-    }
-
 }
 

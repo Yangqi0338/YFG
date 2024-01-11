@@ -74,9 +74,10 @@ public class OpenHangTagController extends BaseController {
     @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
     public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageSystemDTO hangTagMoreLanguageDTO) {
         if (hangTagMoreLanguageDTO.getType() == null) throw new OtherException("吊牌类型不能为空");
-        HangTagMoreLanguageDTO languageDTO = BeanUtil.copyProperties(hangTagMoreLanguageDTO, HangTagMoreLanguageDTO.class);
+        HangTagMoreLanguageDTO languageDTO = OPEN_CV.copy2MoreLanguageDTO(hangTagMoreLanguageDTO);
         languageDTO.setCode(countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                 .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageDTO.getCountryCode()), CountryLanguage::getCode));
+        languageDTO.setUserCompany(super.getUserCompany());
         return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO, false, true));
     }
 

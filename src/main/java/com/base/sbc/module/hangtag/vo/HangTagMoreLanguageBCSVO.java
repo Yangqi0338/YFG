@@ -72,7 +72,7 @@ public class HangTagMoreLanguageBCSVO {
             this.failureList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo))
                     .forEach((bulkStyleNo, sameBulkStyleNoList)-> {
                         message.add(String.format(messageFormat, "款号" + bulkStyleNo) + ": " +
-                                sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage).collect(Collectors.joining("\n")));
+                                sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage).distinct().collect(Collectors.joining("\n")));
                     });
         }
         return message.toString();
@@ -104,9 +104,14 @@ public class HangTagMoreLanguageBCSVO {
                 StringJoiner languageMsg = new StringJoiner("、");
                 if (language.getCannotFindStandardColumnContent()) languageMsg.add(String.format(messageFormat, "字段"));
                 if (language.getCannotFindPropertiesContent())  languageMsg.add(String.format(messageFormat, "内容"));
-                message.add(language.getLanguageName() + languageMsg);
+                if (languageMsg.length() > 0) {
+                    message.add(language.getLanguageName() + languageMsg);
+                }
             });
-            return this.getStandardColumnName() + message;
+            if (message.length() > 0) {
+                return this.getStandardColumnName() + message;
+            }
+            return "";
         };
     }
 

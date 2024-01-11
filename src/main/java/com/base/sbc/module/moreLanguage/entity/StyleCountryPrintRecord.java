@@ -35,11 +35,11 @@ public class StyleCountryPrintRecord extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 国家编码 */
-    @ApiModelProperty(value = "国家编码"  )
+    /** 款式编码 */
+    @ApiModelProperty(value = "款式编码"  )
     private String bulkStyleNo;
-    /** 国家名称 */
-    @ApiModelProperty(value = "国家名称"  )
+    /** 国家语言id */
+    @ApiModelProperty(value = "国家语言id"  )
     private String countryLanguageId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 

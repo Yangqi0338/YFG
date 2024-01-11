@@ -885,8 +885,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			));
 		}
 
-		if (CollectionUtil.isEmpty(titleTranslateList)) return new ArrayList<>();
-
 		// 查询多吊牌数据 可以优化成只差翻译部分的数据 TODO
 		List<HangTagVO> hangTagVOList = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNoList, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType());
 
