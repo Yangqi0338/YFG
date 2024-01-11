@@ -650,7 +650,7 @@
         t1.id as styleColorId,
         template.id as templateId,
         t.design_no,
-        t1.style_no
+        t1.style_no,
         t1.devt_type,
         t.designer_id,
         t.pattern_design_id,
@@ -678,6 +678,7 @@
         t.del_flag = '0'
         AND t1.del_flag = '0'
         ) t
+        WHERE 1=1
         <if test="search != '' and search != null">
             AND (t.design_no like concat('%',#{search},'%')  or t.style_no  like concat('%',#{search},'%'))
         </if>
@@ -707,42 +708,42 @@
         </if>
 
         <if test=" nodeCode == 'noNextDraft' ">
-            AND t.noNextDraft != null
-            AND t.reviewedDraft == null
-            AND t.nextDraft == null
-            AND t.punchingCompleted == null
-            AND t.sampleClothingCompleted == null
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is null
+            AND t.nextDraft is null
+            AND t.punchingCompleted is null
+            AND t.sampleClothingCompleted is null
         </if>
         <if test=" nodeCode == 'reviewedDraft' ">
-            AND t.noNextDraft != null
-            AND t.reviewedDraft != null
-            AND t.nextDraft == null
-            AND t.punchingCompleted == null
-            AND t.sampleClothingCompleted == null
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is not null
+            AND t.nextDraft is null
+            AND t.punchingCompleted is null
+            AND t.sampleClothingCompleted is null
         </if>
 
         <if test=" nodeCode == 'nextDraft' ">
-            AND t.noNextDraft != null
-            AND t.reviewedDraft != null
-            AND t.nextDraft != null
-            AND t.punchingCompleted == null
-            AND t.sampleClothingCompleted == null
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is not null
+            AND t.nextDraft is not null
+            AND t.punchingCompleted is null
+            AND t.sampleClothingCompleted is null
         </if>
 
         <if test=" nodeCode == 'punchingCompleted' ">
-            AND t.noNextDraft != null
-            AND t.reviewedDraft != null
-            AND t.nextDraft != null
-            AND t.punchingCompleted != null
-            AND t.sampleClothingCompleted == null
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is not null
+            AND t.nextDraft is not null
+            AND t.punchingCompleted is not null
+            AND t.sampleClothingCompleted is null
         </if>
 
         <if test=" nodeCode == 'sampleClothingCompleted' ">
-            AND t.noNextDraft != null
-            AND t.reviewedDraft != null
-            AND t.nextDraft != null
-            AND t.punchingCompleted != null
-            AND t.sampleClothingCompleted != null
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is not null
+            AND t.nextDraft is not null
+            AND t.punchingCompleted is not null
+            AND t.sampleClothingCompleted is not null
         </if>
 
         ORDER BY t.create_date DESC

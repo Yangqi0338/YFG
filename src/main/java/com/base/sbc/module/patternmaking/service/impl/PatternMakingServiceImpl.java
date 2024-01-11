@@ -1047,7 +1047,21 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 }
                 //获取节点完成日期
                 BasicsdatumProcessNodeEnum value = BasicsdatumProcessNodeEnum.getBycode(node.getCode());
-                Date nodeFinashTime = getNodeFinashTime(styleResearchProcessVo.getStyleId(), styleResearchProcessVo.getStyleColorId(), value, styleResearchNodeVo,tempDate);
+                //Date nodeFinashTime = getNodeFinashTime(styleResearchProcessVo.getStyleId(), styleResearchProcessVo.getStyleColorId(), value, styleResearchNodeVo,tempDate);
+                Date nodeFinashTime = null;
+                if (BasicsdatumProcessNodeEnum.REVIEWED_DRAFT.getCode().equals(node.getCode())) {
+                    nodeFinashTime = styleResearchProcessVo.getReviewedDraft();
+                }else if(BasicsdatumProcessNodeEnum.NEXT_DRAFT.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getNextDraft();
+                }else if(BasicsdatumProcessNodeEnum.PUNCHING_COMPLETED.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getPunchingCompleted();
+                }else if(BasicsdatumProcessNodeEnum.SAMPLE_CLOTHING_COMPLETED.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getSampleClothingCompleted();
+                }else if(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getOrderBookProduction();
+                }else if(BasicsdatumProcessNodeEnum.BOSS_STYLE.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getBossStyle();
+                }
                 if (nodeFinashTime != null) {
                     tempDate = nodeFinashTime;
                 }

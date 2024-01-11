@@ -78,10 +78,40 @@ public class StyleResearchProcessVo {
      */
     private String presentNodeStatusName;
     /**
-     * 当前节点状态名称
+     * 未下稿
      */
     @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private Date noNextDraft;
+    /**
+     * 审稿中
+     */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    private Date reviewedDraft;
+    /**
+     * 已下稿
+     */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    private Date nextDraft;
+    /**
+     * 打版完成
+     */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    private Date punchingCompleted;
+    /**
+     * 样衣完成
+     */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    private Date sampleClothingCompleted;
+    /**
+     * 订货本制作
+     */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    private Date orderBookProduction;
+    /**
+     * 老板过款
+     */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
+    private Date bossStyle;
 
     /**
      * 节点集合
