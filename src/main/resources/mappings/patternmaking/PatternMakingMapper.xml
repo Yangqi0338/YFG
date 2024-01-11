@@ -711,39 +711,37 @@
             AND t.noNextDraft is not null
             AND t.reviewedDraft is null
             AND t.nextDraft is null
-            AND t.punchingCompleted is null
-            AND t.sampleClothingCompleted is null
         </if>
         <if test=" nodeCode == 'reviewedDraft' ">
             AND t.noNextDraft is not null
             AND t.reviewedDraft is not null
             AND t.nextDraft is null
             AND t.punchingCompleted is null
-            AND t.sampleClothingCompleted is null
         </if>
 
         <if test=" nodeCode == 'nextDraft' ">
-            AND t.noNextDraft is not null
-            AND t.reviewedDraft is not null
             AND t.nextDraft is not null
             AND t.punchingCompleted is null
             AND t.sampleClothingCompleted is null
         </if>
 
         <if test=" nodeCode == 'punchingCompleted' ">
-            AND t.noNextDraft is not null
-            AND t.reviewedDraft is not null
-            AND t.nextDraft is not null
             AND t.punchingCompleted is not null
             AND t.sampleClothingCompleted is null
         </if>
 
         <if test=" nodeCode == 'sampleClothingCompleted' ">
-            AND t.noNextDraft is not null
-            AND t.reviewedDraft is not null
-            AND t.nextDraft is not null
-            AND t.punchingCompleted is not null
             AND t.sampleClothingCompleted is not null
+            AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is  null
+        </if>
+
+        <if test=" nodeCode == 'orderBookProduction' ">
+            AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is not null
+            AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null)  is  null
+        </if>
+
+        <if test=" nodeCode == 'bossStyle' ">
+            AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
         </if>
 
         ORDER BY t.create_date DESC
