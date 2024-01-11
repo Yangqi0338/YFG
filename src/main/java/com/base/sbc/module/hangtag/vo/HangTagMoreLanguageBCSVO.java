@@ -38,13 +38,13 @@ public class HangTagMoreLanguageBCSVO {
      * 国家语言Id
      */
     @ApiModelProperty(value = "国家语言Id")
-    private String countryLanguageId;
+    private String countryCode;
 
     /**
      * 国家语言名字
      */
     @ApiModelProperty(value = "国家语言名字")
-    private String countryLanguageName;
+    private String countryName;
 
     /**
      * 成功列表
@@ -72,7 +72,7 @@ public class HangTagMoreLanguageBCSVO {
             this.failureList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo))
                     .forEach((bulkStyleNo, sameBulkStyleNoList)-> {
                         message.add(String.format(messageFormat, "款号" + bulkStyleNo) + ": " +
-                                sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage).collect(Collectors.joining("/")));
+                                sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage).collect(Collectors.joining("\n")));
                     });
         }
         return message.toString();
@@ -80,8 +80,8 @@ public class HangTagMoreLanguageBCSVO {
 
     public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList) {
         HangTagMoreLanguageBCSChildrenBaseVO groupChildrenVO = childrenList.get(0);
-        this.countryLanguageId = groupChildrenVO.getCode();
-        this.countryLanguageName = groupChildrenVO.getCountryName() + "-" + groupChildrenVO.getCountryName();
+        this.countryCode = groupChildrenVO.getCountryCode();
+        this.countryName = groupChildrenVO.getCountryName();
         this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageBaseVO::getBulkStyleNo).distinct().collect(Collectors.joining(","));
         childrenList.stream().collect(Collectors.groupingBy(it-> StrUtil.isBlank(it.getPrinterCheckMessage()))).forEach((isSuccess,successFailureList)-> {
             if (isSuccess) {
@@ -100,9 +100,13 @@ public class HangTagMoreLanguageBCSVO {
         public String getPrinterCheckMessage(){
             String messageFormat = "%s未翻译";
             StringJoiner message = new StringJoiner("/");
-//            if (this.cannotFindStandardColumnContent) message.add(String.format(messageFormat, this.getStandardColumnName() + message + "字段"));
-//            if (this.getCannotFindPropertiesContent())  message.add(String.format(messageFormat, this.getStandardColumnName() + message + "内容"));
-            return message.toString();
+            this.getLanguageList().forEach(language-> {
+                StringJoiner languageMsg = new StringJoiner("、");
+                if (language.getCannotFindStandardColumnContent()) languageMsg.add(String.format(messageFormat, "字段"));
+                if (language.getCannotFindPropertiesContent())  languageMsg.add(String.format(messageFormat, "内容"));
+                message.add(language.getLanguageName() + languageMsg);
+            });
+            return this.getStandardColumnName() + message;
         };
     }
 

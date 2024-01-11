@@ -207,7 +207,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             exportMapping.setCountryLanguageList(countryLanguageList);
 
             List<CountryLanguageDto> singleLanguageList = new ArrayList<>();
-            if (isSingleLanguageFlag) {
+            if (!isSingleLanguageFlag) {
                 CountryQueryDto queryDto = new CountryQueryDto();
                 queryDto.setLanguageCode(countryLanguageList.stream().map(CountryLanguage::getLanguageCode).collect(Collectors.joining(",")));
                 countryQueryDto.setType(exportMapping.getType());
@@ -340,11 +340,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 }
                 translate.setTitleName(standardColumnName);
 
-                CountryLanguageDto languageDto = singleLanguageList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode())).findFirst().orElse(null);
-                if (languageDto == null) {
-                    addDataVerifyResult(context, i,"国家语言","未找到");
-                    return;
-                }
+                CountryLanguageDto languageDto = singleLanguageList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode())).findFirst().orElse(new CountryLanguageDto());
 
                 Optional<StandardColumnCountryTranslate> countryTranslateOpt = updateOldTranslateList.stream()
                         .filter(it ->
@@ -372,24 +368,26 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             }
             taskList.add(()-> {
                 if (CollectionUtil.isNotEmpty(addTranslateList)) {
-                    baseEntity.setType("新增");
+                    OperaLogEntity addLogEntity = BeanUtil.copyProperties(baseEntity, OperaLogEntity.class);
+                    addLogEntity.setType("新增");
                     List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
                     addTranslateList.stream().sorted(Comparator.comparing(StandardColumnCountryTranslate::getPropertiesCode)).forEach(translate-> {
                         operaLogJsonList.add(new OperaLogJsonDto(translate.getPropertiesName(), "" , translate.getContent()));
                     });
-                    baseEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
-                    standardColumnCountryTranslateService.saveOperaLog(baseEntity);
+                    addLogEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
+                    standardColumnCountryTranslateService.saveOperaLog(addLogEntity);
                 }
                 if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
-                    baseEntity.setType("修改");
+                    OperaLogEntity updateLogEntity = BeanUtil.copyProperties(baseEntity, OperaLogEntity.class);
+                    updateLogEntity.setType("修改");
                     List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
                     addTranslateList.stream().sorted(Comparator.comparing(StandardColumnCountryTranslate::getPropertiesCode)).forEach(translate-> {
                         updateOldTranslateList.stream().filter(it-> it.getId().equals(translate.getId())).findFirst().ifPresent(oldTranslate-> {
                             operaLogJsonList.add(new OperaLogJsonDto(translate.getPropertiesName(), oldTranslate.getContent() , translate.getContent()));
                         });
                     });
-                    baseEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
-                    standardColumnCountryTranslateService.saveOperaLog(baseEntity);
+                    updateLogEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
+                    standardColumnCountryTranslateService.saveOperaLog(updateLogEntity);
                 }
             });
             updateNewTranslateList.addAll(addTranslateList);
@@ -397,30 +395,6 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
                 // 修改其他同语种的翻译,多线程 TODO
 
-                taskList.add(()-> {
-                    if (CollectionUtil.isNotEmpty(addTranslateList)) {
-                        OperaLogEntity addLogEntity = BeanUtil.copyProperties(baseEntity, OperaLogEntity.class);
-                        addLogEntity.setType("新增");
-                        List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
-                        addTranslateList.stream().sorted(Comparator.comparing(StandardColumnCountryTranslate::getPropertiesCode)).forEach(translate-> {
-                            operaLogJsonList.add(new OperaLogJsonDto(translate.getPropertiesName(), "" , translate.getContent()));
-                        });
-                        addLogEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
-                        standardColumnCountryTranslateService.saveOperaLog(addLogEntity);
-                    }
-                    if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
-                        OperaLogEntity updateLogEntity = BeanUtil.copyProperties(baseEntity, OperaLogEntity.class);
-                        updateLogEntity.setType("修改");
-                        List<OperaLogJsonDto> operaLogJsonList = new ArrayList<>();
-                        addTranslateList.stream().sorted(Comparator.comparing(StandardColumnCountryTranslate::getPropertiesCode)).forEach(translate-> {
-                            updateOldTranslateList.stream().filter(it-> it.getId().equals(translate.getId())).findFirst().ifPresent(oldTranslate-> {
-                                operaLogJsonList.add(new OperaLogJsonDto(translate.getPropertiesName(), oldTranslate.getContent() , translate.getContent()));
-                            });
-                        });
-                        updateLogEntity.setJsonContent(JSONUtil.toJsonStr(operaLogJsonList));
-                        standardColumnCountryTranslateService.saveOperaLog(updateLogEntity);
-                    }
-                });
                 // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
                 countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>()
                         .in(CountryModel::getCountryLanguageId, countryLanguageIdList)

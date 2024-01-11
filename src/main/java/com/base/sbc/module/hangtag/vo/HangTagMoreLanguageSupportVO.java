@@ -74,26 +74,12 @@ public class HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "仅model为radio时使用")
     protected String tableName;
 
-//    /**
-//     * 国家语言Id
-//     */
-//    @JsonIgnore
-//    @ApiModelProperty(value = "国家语言Id")
-//    protected String countryLanguageId;
-
     /**
      * 国家编码
      */
     @JsonIgnore
     @ApiModelProperty(value = "国家编码")
     protected String countryCode;
-
-//    /**
-//     * 语言码
-//     */
-//    @JsonIgnore
-//    @ApiModelProperty(value = "语言码")
-//    protected String languageCode;
 
     /**
      * 具体数据的编码
@@ -115,28 +101,5 @@ public class HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "分类列表")
     @JsonIgnore
     private List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
-
-//    /**
-//     * 是否是温馨提示
-//     */
-//    @JsonIgnore
-//    @ApiModelProperty(value = "是否是温馨提示")
-//    protected Boolean isWarnTips = false;
-//
-//    /**
-//     * 是否是洗标
-//     */
-//    @JsonIgnore
-//    @ApiModelProperty(value = "是否是洗标")
-//    protected Boolean isWashingMark = false;
-
-    @JsonIgnore
-    protected String createId;
-    @JsonIgnore
-    protected String createName;
-    @JsonIgnore
-    protected String updateId;
-    @JsonIgnore
-    protected String updateName;
 
 }

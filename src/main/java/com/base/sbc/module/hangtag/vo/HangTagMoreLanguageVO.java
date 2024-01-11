@@ -12,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * 类描述：吊牌表 实体类
  *
@@ -71,9 +73,15 @@ public class HangTagMoreLanguageVO {
     private Boolean cannotFindPropertiesContent = false;
 
     public Boolean getCannotFindPropertiesContent() {
-//        return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
-        return this.cannotFindPropertiesContent;
+        return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
     }
+
+    /**
+     * 标准列模型
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "标准列模型")
+    protected StandardColumnModel model;
 
     /**
      * 是组合的
@@ -87,7 +95,14 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        return String.format("%s%s %s", StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":": this.standardColumnContent, this.isGroup ? "\n" : "", this.propertiesContent);
+        return String.format("%s%s %s",
+                StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":": this.standardColumnContent,
+                this.isGroup ? "\n" : "", this.propertiesContent);
     }
+
+    @JsonIgnore
+    protected Date createTime;
+    @JsonIgnore
+    protected Date updateTime;
 
 }

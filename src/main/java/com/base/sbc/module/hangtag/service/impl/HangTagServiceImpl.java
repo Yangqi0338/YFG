@@ -916,7 +916,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				countryMappingBulkStyleNoList = codeMappingList.stream().flatMap(it-> Arrays.stream(it.getBulkStyleNo().split(","))).collect(Collectors.toList());
 				sameCodeList = sameCodeList.stream().filter(it-> codeMappingList.stream().anyMatch(codeMapping->
 						it.getType().equals(codeMapping.getType()) &&
-								(StrUtil.isBlank(it.getLanguageCode()) || it.getLanguageCode().equals(codeMapping.getLanguageCode())))).collect(Collectors.toList());
+								(StrUtil.isBlank(codeMapping.getLanguageCode()) || it.getLanguageCode().equals(codeMapping.getLanguageCode())))).collect(Collectors.toList());
 			}
 			if (CollectionUtil.isNotEmpty(sameCodeList)) {
 				// 再查一遍国家对应的所有标准列
@@ -999,6 +999,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									.findFirst().map(CountryLanguage::getId).orElse("");
 							List<String> languageIdList = Arrays.asList(countryLanguageId, singleLanguageId);
 							HangTagMoreLanguageVO languageVO = HANG_TAG_CV.copy2MoreLanguageVO(countryLanguageDto);
+							languageVO.setModel(standardColumn.getModel());
 							// 获取标题名翻译
 							titleTranslateList.stream().filter(it->
 									languageIdList.contains(it.getCountryLanguageId())
@@ -1040,10 +1041,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 //						ingredientMoreLanguageVO.setStandardColumnId("1730154821870800898");
 //						ingredientMoreLanguageVO.setStandardColumnCode("DP09,DP11,DP10");
 //						ingredientMoreLanguageVO.setStandardColumnName("成分信息");
-//						ingredientMoreLanguageVO.setStandardColumnContent("成分信息");
 //						ingredientMoreLanguageVO.setIsGroup(true);
 //						ingredientMoreLanguageVO.setModel(StandardColumnModel.RADIO);
-//						BeanUtil.copyProperties(countryLanguage, ingredientMoreLanguageVO);
 //						result.add(ingredientMoreLanguageVO);
 //
 //
