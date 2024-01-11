@@ -127,9 +127,7 @@
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
                 AND  DATE_FORMAT(ht.confirm_date,'%Y-%m-%d')  = #{dto.confirmDate}
             </if>
-            <if test="dto.designNo != null and dto.designNo != ''">
-                AND tsd.design_no like concat('%',#{dto.designNo},'%')
-            </if>
+
             <if test="dto.styleNo != null and dto.styleNo != ''">
                 <choose>
                     <when test='dto.likeQueryFlag == "1"'>
@@ -146,9 +144,9 @@
             <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 and tsd.design_no is not null
             </if>
-            <if test="dto.designNos !=null and dto.designNos.size() !=0 ">
+            <if test="dto.designNos !=null and dto.designNos.length !=0 ">
                 and
-                <foreach item="designNo" collection="designNos" open="(" separator="or" close=")">
+                <foreach item="designNo" collection="dto.designNos" open="(" separator="or" close=")">
                     tsd.design_no like concat('%',#{designNo},'%')
                 </foreach>
             </if>
