@@ -20,14 +20,12 @@ public class MoreLanguageHiddenTableTitle extends MoreLanguageTableTitleHandler 
 
     @Override
     public boolean needHandler(MoreLanguageTableTitle tableTitle) {
-        return StrUtil.isNotBlank(tableTitle.getHidden());
+        return StrUtil.isNotBlank(tableTitle.getHidden()) && tableTitle.hiddenRemove();
     }
 
     @Override
-    public MoreLanguageTableTitleHandler handler(MoreLanguageTableTitle tableTitle) {
-        if (needHandler(tableTitle) && tableTitle.hiddenRemove()) {
-            tableTitleList.remove(tableTitle);
-        }
-        return this.next.setTableTitleList(tableTitleList).handler(tableTitle);
+    public MoreLanguageTableTitleHandler doHandler(MoreLanguageTableTitle tableTitle) {
+        tableTitleList.remove(tableTitle);
+        return this;
     }
 }

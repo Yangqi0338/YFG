@@ -109,8 +109,11 @@ public class MoreLanguageTableContext {
         private final Class<? extends MoreLanguageTableTitleHandler> handlerClass;
 
         public static boolean checkKey(String handlerKey, Class<? extends MoreLanguageTableTitleHandler> clazz) {
-            if (StrUtil.isBlank(handlerKey)) return false;
-            return Arrays.stream(MoreLanguageTableTitleHandlerEnum.values()).anyMatch(it-> handlerKey.equals(it.handlerKey) && it.handlerClass == clazz);
+            return findHandler(handlerKey, clazz) != null;
+        }
+
+        public static MoreLanguageTableTitleHandlerEnum findHandler(String handlerKey, Class<? extends MoreLanguageTableTitleHandler> clazz) {
+            return Arrays.stream(MoreLanguageTableTitleHandlerEnum.values()).filter(it-> it.handlerKey.equals(handlerKey) && it.handlerClass == clazz).findFirst().orElse(null);
         }
     }
 

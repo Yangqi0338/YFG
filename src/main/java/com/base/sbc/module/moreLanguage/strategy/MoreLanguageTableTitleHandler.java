@@ -1,7 +1,10 @@
 package com.base.sbc.module.moreLanguage.strategy;
 
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageTableTitle;
+import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -26,9 +29,25 @@ public abstract class MoreLanguageTableTitleHandler {
     }
 
     public boolean needHandler(MoreLanguageTableTitle tableTitle) {
-        return true;
+        return MoreLanguageTableTitleHandlerEnum.checkKey(tableTitle.getHandler(), this.getClass());
     }
 
-    public abstract MoreLanguageTableTitleHandler handler(MoreLanguageTableTitle tableTitle);
+    public MoreLanguageTableTitleHandler handler(MoreLanguageTableTitle tableTitle) {
+        if (needHandler(tableTitle)) {
+            doHandler(tableTitle);
+            String handler = tableTitle.getHandler();
+            if (StrUtil.isNotBlank(handler)) {
+                MoreLanguageTableTitleHandlerEnum handlerEnum = MoreLanguageTableTitleHandlerEnum.findHandler(handler, this.getClass());
+                List<String> handlerKeyList = CollUtil.toList(handler.split(","));
+                handlerKeyList.remove(handlerEnum.getHandlerKey());
+                tableTitle.setHandler(String.join(",",handlerKeyList));
+            }
+        }
+        if (this.next == null) return this;
+        return this.next.setTableTitleList(tableTitleList).handler(tableTitle);
+    }
+    public MoreLanguageTableTitleHandler doHandler(MoreLanguageTableTitle tableTitle) {
+        return this;
+    };
 
 }

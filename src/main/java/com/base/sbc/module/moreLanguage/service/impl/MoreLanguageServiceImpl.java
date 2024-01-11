@@ -54,6 +54,7 @@ import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationSer
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService;
 import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext;
+import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
@@ -91,6 +92,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -181,7 +183,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 //        MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.setBooleanParam(singleLanguageFlag);
         MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.setParam(moreLanguageQueryDto.getCache());
         MoreLanguageTableContext.setParam(MapUtil.of(
-                MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(), JSONUtil.toJsonStr(countryLanguageList)
+                MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(), JSONUtil.toJsonStr(countryLanguageList)
         ));
 
         // 只查询可配置的
@@ -493,7 +495,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 //        MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.setBooleanParam(singleLanguageFlag);
         MoreLanguageTableContext.MoreLanguageTableParamEnum.IN_CACHE.setParam(moreLanguageQueryDto.getCache());
         MoreLanguageTableContext.setParam(MapUtil.of(
-                MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(), JSONUtil.toJsonStr(countryLanguageList)
+                MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(), JSONUtil.toJsonStr(countryLanguageList)
         ));
         List<String> showFieldList = JSONUtil.toList(MoreLanguageTableContext.decorateTitleJson(standardColumn), MoreLanguageTableTitle.class).stream()
                 .map(MoreLanguageTableTitle::getCode).collect(Collectors.toList());
@@ -544,7 +546,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     .filter(it -> it.getPropertiesCode().equals(propertiesKey))
                     .sorted(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate)).collect(Collectors.toList());
             showFieldList.forEach(field->{
-                Object fieldValue = null;
+                List<Object> fieldValueList = new ArrayList<>();
                 for (StandardColumnCountryTranslate translate : translatePropertiesList) {
                     CountryLanguageDto countryLanguage = countryLanguageList.stream()
                             .filter(it -> it.getId().equals(translate.getCountryLanguageId())).findFirst()
@@ -553,21 +555,37 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     for (Map.Entry<String, Object> entry : translateResultMap.entrySet()) {
                         String key = entry.getKey();
                         Object value = entry.getValue();
-                        if (!field.equals(key)) {
+                        if (!field.contains(key)) {
                             key = (countryLanguage.getLanguageCode() + "-" + key);
                         }
-                        if (field.equals(key)) {
-                            fieldValue = value;
+                        if (field.contains(key)) {
+                            fieldValueList.add(value);
                             break;
                         }
                     }
                 }
                 String fieldKey = StrUtil.toUnderlineCase(field);
-                if (fieldValue == null && !baseEntityFieldNameList.contains(field) && resultMap.containsKey(fieldKey)) {
-                    fieldValue = resultMap.get(fieldKey);
+                if (CollectionUtil.isEmpty(fieldValueList) && !baseEntityFieldNameList.contains(field) && resultMap.containsKey(fieldKey)) {
+                    fieldValueList.add(resultMap.get(fieldKey));
                 }
-                if (fieldValue instanceof Date) {
-                    fieldValue = DateUtil.format((Date)fieldValue, "yyyy-MM-dd HH:mm:ss");
+
+                String fieldValue = "";
+                fieldValueList = fieldValueList.stream().filter(Objects::nonNull).collect(Collectors.toList());
+                if (CollectionUtil.isNotEmpty(fieldValueList)) {
+                    // 对日期进行处理, 封装字符串列表
+                    List<String> fieldValueStrList = fieldValueList.stream().map(it -> {
+                        if (it instanceof Date) {
+                            return DateUtil.format((Date) it, "yyyy-MM-dd HH:mm:ss");
+                        }
+                        return it.toString();
+                    }).collect(Collectors.toList());
+                    // 进行去重
+                    List<String> distinctFieldValue = fieldValueStrList.stream().distinct().collect(Collectors.toList());
+                    // 若去重后大于一个数值,就直接使用拼接
+                    fieldValue = fieldValueStrList.get(0);
+                    if (distinctFieldValue.size() > 1){
+                        fieldValue = String.join(",", distinctFieldValue);
+                    }
                 }
                 map.put(field, fieldValue);
             });

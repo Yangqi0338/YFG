@@ -10,6 +10,7 @@ import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableTitleHandler;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,32 +23,35 @@ import java.util.List;
 @Order(0)
 @Component
 public class MoreLanguageManyKeyTableTitle extends MoreLanguageTableTitleHandler {
+    private List<CountryLanguage> countryLanguageList = new ArrayList<>();
 
     @Override
     public boolean needHandler(MoreLanguageTableTitle tableTitle) {
-        return MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.checkKey(tableTitle.getHandler(), this.getClass());
+        String param = MoreLanguageTableContext.findParam(tableTitle.getHandler());
+        countryLanguageList = JSONUtil.toList(param, CountryLanguage.class);
+        return super.needHandler(tableTitle) && CollectionUtil.isNotEmpty(countryLanguageList);
     }
 
     @Override
-    public MoreLanguageTableTitleHandler handler(MoreLanguageTableTitle tableTitle) {
-        if (needHandler(tableTitle)) {
-            String param = MoreLanguageTableContext.findParam(tableTitle.getHandler());
-            List<CountryLanguage> countryLanguageList = JSONUtil.toList(param, CountryLanguage.class);
-            if (CollectionUtil.isNotEmpty(countryLanguageList))  {
-                tableTitle.setHandler(tableTitle.getHandler().replace(MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(),""));
-                int baseIndex = tableTitleList.indexOf(tableTitle);
-                tableTitleList.remove(tableTitle);
+    public MoreLanguageTableTitleHandler doHandler(MoreLanguageTableTitle tableTitle) {
 
-                for (int i = 0; i < countryLanguageList.size(); i++) {
-                    CountryLanguage countryLanguage = countryLanguageList.get(i);
-                    MoreLanguageTableTitle countryLanguageTableTitle = BeanUtil.copyProperties(tableTitle, MoreLanguageTableTitle.class);
-                    countryLanguageTableTitle.setText(countryLanguage.getLanguageName() + tableTitle.getText());
-                    countryLanguageTableTitle.setCode(countryLanguage.getLanguageCode() + "-" + tableTitle.getCode());
-                    tableTitleList.add(baseIndex+i, countryLanguageTableTitle);
-                }
+        String param = MoreLanguageTableContext.findParam(tableTitle.getHandler());
+        List<CountryLanguage> countryLanguageList = JSONUtil.toList(param, CountryLanguage.class);
+        if (CollectionUtil.isNotEmpty(countryLanguageList))  {
+            tableTitle.setHandler(tableTitle.getHandler().replace(MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey(),""));
+            int baseIndex = tableTitleList.indexOf(tableTitle);
+            tableTitleList.remove(tableTitle);
+
+            for (int i = 0; i < countryLanguageList.size(); i++) {
+                CountryLanguage countryLanguage = countryLanguageList.get(i);
+                MoreLanguageTableTitle countryLanguageTableTitle = BeanUtil.copyProperties(tableTitle, MoreLanguageTableTitle.class);
+                countryLanguageTableTitle.setText(countryLanguage.getLanguageName() + tableTitle.getText());
+                countryLanguageTableTitle.setCode(countryLanguage.getLanguageCode() + "-" + tableTitle.getCode());
+                tableTitleList.add(baseIndex+i, countryLanguageTableTitle);
             }
         }
-        return this.next.setTableTitleList(tableTitleList).handler(tableTitle);
+
+        return this;
     }
 
 

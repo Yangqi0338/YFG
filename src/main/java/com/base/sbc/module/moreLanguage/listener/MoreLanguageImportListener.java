@@ -253,11 +253,13 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         countryLanguageList.forEach(countryLanguage -> {
             StandardColumnCountryTranslate countryTranslate = BeanUtil.copyProperties(baseCountryTranslate, StandardColumnCountryTranslate.class);
             countryTranslate.setCountryLanguageId(countryLanguage.getId());
-            StringJoiner joiner = new StringJoiner("-");
-            joiner.add(countryLanguage.getLanguageCode());
-            joiner.add("content");
-            String content = map.getOrDefault(joiner.toString(), "");
-            countryTranslate.setContent(content);
+            String contentKey = countryLanguage.getLanguageCode() + "-" + "content";
+            map.keySet().stream().filter(it-> it.contains(contentKey)).findFirst().ifPresent(key-> {
+                List<String> keyList = Arrays.asList(key.split(","));
+                int i = keyList.indexOf(contentKey);
+                String[] valueList = map.get(key).split(",");
+                countryTranslate.setContent(valueList[Math.min(valueList.length - 1, i)]);
+            });
             translateList.add(countryTranslate);
         });
 

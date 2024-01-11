@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MoreLanguageEndTableTitle extends MoreLanguageTableTitleHandler {
     @Override
-    public MoreLanguageTableTitleHandler handler(MoreLanguageTableTitle tableTitle) {
-        return this;
+    public boolean needHandler(MoreLanguageTableTitle tableTitle) {
+        return false;
     }
 }
