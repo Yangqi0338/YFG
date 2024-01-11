@@ -100,6 +100,7 @@ public class MaterialController extends BaseController {
         //    materialSaveDto.setStatus(BasicNumber.ONE.getNumber());
         //
         // }
+        CommonUtils.removeQuery(materialSaveDto, "picUrl");
 
         //修改关联标签
         QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();

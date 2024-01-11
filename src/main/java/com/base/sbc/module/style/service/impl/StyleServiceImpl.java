@@ -31,7 +31,9 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
@@ -532,7 +534,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //2我创建的
         else if (StrUtil.equals(dto.getUserType(), StylePageDto.USER_TYPE_2)) {
-            qw.isNull("sender");
+            qw.isNullStr("sender");
             qw.eq("create_id", userId);
         }
         //3我负责的
@@ -722,6 +724,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<StyleInfoColor> styleInfoColorList = styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().eq("foreign_id", id));
         if (CollectionUtil.isNotEmpty(styleInfoColorList)) {
             sampleVo.setStyleInfoColorVoList(BeanUtil.copyToList(styleInfoColorList, StyleInfoColorVo.class));
+        }
+
+        // RFID标识
+        if (StrUtil.isBlank(sampleVo.getRfidFlag())) {
+            sampleVo.setRfidFlag(YesOrNoEnum.NO.getValueStr());
+            if (RFIDProperties.filterList.stream().anyMatch(filter-> filter.check(sampleVo.getYear(), sampleVo.getBrandName(), sampleVo.getProdCategory()))) {
+                sampleVo.setRfidFlag(YesOrNoEnum.YES.getValueStr());
+            }
         }
 
         return sampleVo;

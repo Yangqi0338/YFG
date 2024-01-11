@@ -35,6 +35,7 @@ public class OperaLogController extends BaseController {
         queryWrapper.notEmptyLike("document_id",operaLogDto.getDocumentId());
         queryWrapper.notEmptyLike("document_name",operaLogDto.getDocumentName());
         queryWrapper.notEmptyLike("document_code",operaLogDto.getDocumentCode());
+        queryWrapper.notEmptyIn("document_code",operaLogDto.getDocumentCodeList());
         queryWrapper.notEmptyLike("parent_id",operaLogDto.getParentId());
         queryWrapper.notEmptyLike("type",operaLogDto.getType());
         queryWrapper.notEmptyLike("name",operaLogDto.getName());

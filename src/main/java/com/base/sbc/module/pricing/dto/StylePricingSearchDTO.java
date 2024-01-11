@@ -43,4 +43,9 @@ public class StylePricingSearchDTO extends Page {
     @ApiModelProperty(value = "设计款号")
     private String designNo;
 
+    @ApiModelProperty(value = "图片标记")
+    private String  imgFlag;
+
+    @ApiModelProperty(value = "导出标记")
+    private String deriveFlag;
 }

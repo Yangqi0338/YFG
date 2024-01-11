@@ -362,14 +362,16 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         }
 
         // 判断是否重复
-        BaseQueryWrapper<PreProductionSampleTask> queryWrapper = new BaseQueryWrapper<>();
+        //region 20231226-hq-禅道4530编号 一个资料包下可以有多个产前样任务
+        /*BaseQueryWrapper<PreProductionSampleTask> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("style_id", style.getId());
         queryWrapper.eq("pack_info_id", packInfo.getId());
 
         List<PreProductionSampleTask> list = this.list(queryWrapper);
         if (!list.isEmpty()) {
             throw new OtherException("该资料包已经生成产前样任务");
-        }
+        }*/
+        //endregion
 
         PreProductionSampleTask task = new PreProductionSampleTask();
         task.setStyleId(style.getId());

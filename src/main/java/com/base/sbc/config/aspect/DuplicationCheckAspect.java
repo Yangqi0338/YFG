@@ -1,5 +1,6 @@
 package com.base.sbc.config.aspect;
 
+import com.alibaba.fastjson.JSON;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.exception.OtherException;
 
@@ -47,7 +48,10 @@ public class DuplicationCheckAspect {
             }
             return joinPoint.proceed();
         } finally {
-            redisUtils.del(generateKey(joinPoint,duplicationCheck));
+            if (duplicationCheck.time()>3){
+                redisUtils.del(generateKey(joinPoint,duplicationCheck));
+            }
+
         }
     }
 
@@ -67,7 +71,7 @@ public class DuplicationCheckAspect {
         if (duplicationCheck.type()==2 || duplicationCheck.type()==4) {
             Object[] args = joinPoint.getArgs();
             for (Object arg : args) {
-                sb.append(arg.toString());
+                sb.append(JSON.toJSONString(arg));
             }
         }
 

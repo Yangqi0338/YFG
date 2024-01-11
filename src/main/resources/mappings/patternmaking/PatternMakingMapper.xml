@@ -60,7 +60,10 @@
         p.node,
         p.status as `pmStatus`,
         p.pattern_req_date,
-        p.revision_comments
+        p.revision_comments,
+        p.receive_sample_date,
+        p.pattern_designer_name,
+        p.receive_reason
         FROM
         t_pattern_making p,
         t_style s
@@ -624,9 +627,9 @@
 
         </if>
     </select>
-    <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
+    <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
 
-                SELECT
+        SELECT
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '版房主管下发' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bfzgxfsj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '已接收' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bsjssj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '已接收' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'jssdrq',
@@ -648,7 +651,7 @@
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id and p.del_flag = '0' )
-				LEFT JOIN t_node_status ns ON (ns.data_id = p.id and ns.del_flag = '0' )
+        LEFT JOIN t_node_status ns ON (ns.data_id = p.id and ns.del_flag = '0' )
         where  s.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

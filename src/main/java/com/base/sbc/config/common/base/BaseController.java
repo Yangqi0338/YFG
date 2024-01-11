@@ -207,6 +207,9 @@ public class BaseController {
 
 	/****************************************公用************************************************/
 
+	protected ApiResult success(String baseErrorEnumMessage) {
+		return ApiResult.success(getMessage(baseErrorEnumMessage));
+	}
 	protected ApiResult success(String baseErrorEnumMessage,Object object) {
 		return ApiResult.success(getMessage(baseErrorEnumMessage),object);
 	}

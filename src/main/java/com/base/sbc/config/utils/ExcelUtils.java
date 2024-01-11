@@ -10,24 +10,41 @@ import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.afterturn.easypoi.exception.excel.ExcelExportException;
 import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
 import cn.afterturn.easypoi.util.PoiPublicUtil;
 import cn.afterturn.easypoi.util.PoiReflectorUtil;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
@@ -38,7 +55,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -46,6 +70,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 
 public class ExcelUtils {
+
+    private static final Log logger = LogFactory.getLog(ExcelUtils.class);
+
+
 
     /**
      * excel 导出
@@ -98,7 +126,7 @@ public class ExcelUtils {
     public static void exportExcel(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response) throws IOException {
         ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        String tableCode = requestAttributes.getRequest().getHeader("tableCode");
+        /*String tableCode = requestAttributes.getRequest().getHeader("tableCode");
         String id = requestAttributes.getRequest().getHeader("tableCode-id");
         if(StrUtil.isNotEmpty(tableCode)){
             List<ColumnDefine> detail;
@@ -141,7 +169,7 @@ public class ExcelUtils {
                 defaultExport(list,fileName,response,exportParams,newExcelParams);
                 return;
             }
-        }
+        }*/
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
@@ -322,90 +350,56 @@ public class ExcelUtils {
         }
     }
 
-    public static void getAllExcelField(String[] exclusions, String targetId, Field[] fields, List<ExcelExportEntity> excelParams, Class<?> pojoClass, List<Method> getMethods, ExcelEntity excelGroup) {
-        List<String> exclusionsList = exclusions != null ? Arrays.asList(exclusions) : null;
+    /**
+     * 线程导出表格
+     * @param list 导出的数据
+     * @param pojoClass class
+     * @param name 文件名称
+     * @param imgFlag 是否导出图片
+     * @param maxNumber 最大导出量
+     * @param response
+     * @param columns 图片列名
+     */
+    public static void executorExportExcel(List<?> list, Class<?> pojoClass, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, String... columns){
+        long t1 = System.currentTimeMillis();
 
-        for (Field field : fields) {
-            if (!PoiPublicUtil.isNotUserExcelUserThis(exclusionsList, field, targetId)) {
-                if (field.getAnnotation(Excel.class) != null) {
-                    Excel excel = field.getAnnotation(Excel.class);
-                    String name = PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null);
-                    if (StringUtils.isNotBlank(name)) {
-                        excelParams.add(createExcelExportEntity(field, targetId, pojoClass, getMethods, excelGroup));
-                    }
-                } else if (PoiPublicUtil.isCollection(field.getType())) {
-                    ExcelCollection excel = field.getAnnotation(ExcelCollection.class);
-                    ParameterizedType pt = (ParameterizedType) field.getGenericType();
-                    Class<?> clz = (Class<?>) pt.getActualTypeArguments()[0];
-                    List<ExcelExportEntity> list = new ArrayList<>();
-                    getAllExcelField(exclusions, StringUtils.isNotEmpty(excel.id()) ? excel.id() : targetId, PoiPublicUtil.getClassFields(clz), list, clz, null, null);
-                    ExcelExportEntity excelEntity = new ExcelExportEntity();
-                    excelEntity.setName(PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null));
-
-                    excelEntity.setOrderNum(Integer.parseInt(PoiPublicUtil.getValueByTargetId(excel.orderNum(), targetId, "0")));
-                    excelEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
-                    excelEntity.setList(list);
-                    excelParams.add(excelEntity);
-                } else {
-                    List<Method> newMethods = new ArrayList<>();
-                    if (getMethods != null) {
-                        newMethods.addAll(getMethods);
-                    }
-
-                    newMethods.add(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
-                    ExcelEntity excel = field.getAnnotation(ExcelEntity.class);
-                    if (excel.show() && StringUtils.isEmpty(excel.name())) {
-                        throw new ExcelExportException("if use ExcelEntity ,name mus has value ,data: " + ReflectionToStringBuilder.toString(excel), ExcelExportEnum.PARAMETER_ERROR);
-                    }
-
-                    getAllExcelField(exclusions, StringUtils.isNotEmpty(excel.id()) ? excel.id() : targetId, PoiPublicUtil.getClassFields(field.getType()), excelParams, field.getType(), newMethods, excel.show() ? excel : null);
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .build();
+        try {
+            if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > maxNumber) {
+                    throw new OtherException("带图片导出最多只能导出" + maxNumber + "条");
                 }
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+
+                for (Object o  : list) {
+                    executor.submit(() -> {
+                        try {
+                            for (String column : columns) {
+                                final String stylePic = BeanUtil.getProperty(o, column);
+                                BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
+                            }
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            logger.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
             }
+            ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
+
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
         }
     }
-
-    private static ExcelExportEntity createExcelExportEntity(Field field, String targetId, Class<?> pojoClass, List<Method> getMethods, ExcelEntity excelGroup) {
-        Excel excel = field.getAnnotation(Excel.class);
-        ExcelExportEntity excelEntity = new ExcelExportEntity();
-        excelEntity.setKey(field.getName());
-        excelEntity.setName(PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null));
-        excelEntity.setWidth(excel.width());
-        excelEntity.setHeight(excel.height());
-        excelEntity.setNeedMerge(excel.needMerge());
-        excelEntity.setMergeVertical(excel.mergeVertical());
-        excelEntity.setMergeRely(excel.mergeRely());
-        excelEntity.setReplace(excel.replace());
-        excelEntity.setOrderNum(Integer.parseInt(PoiPublicUtil.getValueByTargetId(excel.orderNum(), targetId, "0")));
-        excelEntity.setWrap(excel.isWrap());
-        excelEntity.setExportImageType(excel.imageType());
-        excelEntity.setSuffix(excel.suffix());
-        excelEntity.setDatabaseFormat(excel.databaseFormat());
-        excelEntity.setFormat(StringUtils.isNotEmpty(excel.exportFormat()) ? excel.exportFormat() : excel.format());
-        excelEntity.setStatistics(excel.isStatistics());
-        excelEntity.setHyperlink(excel.isHyperlink());
-        excelEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
-        excelEntity.setNumFormat(excel.numFormat());
-        excelEntity.setColumnHidden(excel.isColumnHidden());
-        excelEntity.setDict(excel.dict());
-        excelEntity.setEnumExportField(excel.enumExportField());
-        excelEntity.setTimezone(excel.timezone());
-        excelEntity.setAddressList(excel.addressList());
-        excelEntity.setDesensitizationRule(excel.desensitizationRule());
-        if (excelGroup != null) {
-            excelEntity.setGroupName(PoiPublicUtil.getValueByTargetId(excelGroup.name(), targetId, null));
-        } else {
-            excelEntity.setGroupName(excel.groupName());
-        }
-
-        if (getMethods != null) {
-            List<Method> newMethods = new ArrayList<>(getMethods);
-            newMethods.add(excelEntity.getMethod());
-            excelEntity.setMethods(newMethods);
-        }
-
-        return excelEntity;
-    }
-
-
 
 }

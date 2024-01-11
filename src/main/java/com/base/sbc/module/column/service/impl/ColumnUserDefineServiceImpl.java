@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,9 +78,10 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
     @Override
     public List<ColumnDefine> findDetail(String tableCode, String id) {
         //查询用户组级配置，如果没有用户组配置则返回的系统级配置
-        ApiResult jobList = amcService.getUserGroupByUserId(getUserId());
+        /*ApiResult jobList = amcService.getUserGroupByUserId(getUserId());
         List<LinkedHashMap> list1 = (List<LinkedHashMap>) (((LinkedHashMap) jobList.getData()).get("list"));
-        List<String> jobs = list1.stream().map(o->o.get("id").toString()).collect(Collectors.toList());
+        List<String> jobs = list1.stream().map(o->o.get("id").toString()).collect(Collectors.toList());*/
+        List<String> jobs = new ArrayList<>();
         List<ColumnDefine> byTableCode = columnGroupDefineService.findDetailByJoblist(tableCode, jobs);
 
         //查询用户配置

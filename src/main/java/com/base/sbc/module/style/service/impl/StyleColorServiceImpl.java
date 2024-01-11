@@ -6,7 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
-import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
@@ -20,7 +19,6 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.IFileLoaderImpl;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
@@ -36,6 +34,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
@@ -57,10 +56,11 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.DataUpdateScmService;
@@ -132,6 +132,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     private final DataUpdateScmService dataUpdateScmService;
 
     private final StylePricingMapper stylePricingMapper;
+
+    @Resource
+    @Lazy
+    private PlanningProjectPlankService planningProjectPlankService;
 
 
     @Autowired
@@ -222,7 +226,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getHisDesignNo()), "ts.his_design_no", queryDto.getHisDesignNo());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getSizeRangeName()), "ts.size_range_name", queryDto.getSizeRangeName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getBandCode()), "ts.band_code", queryDto.getBandCode());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getBandName()), "ts.band_name", queryDto.getBandName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getBandName()), "tsc.band_name", queryDto.getBandName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()), "ts.designer", queryDto.getDesigner());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()), "ts.technician_name", queryDto.getTechnicianName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()), "tsc.status", queryDto.getStatus());
@@ -693,7 +697,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor = baseMapper.selectById(addRevampStyleColorDto.getId());
             StyleColor old = new StyleColor();
             BeanUtil.copyProperties(styleColor, old);
-
+            /*颜色修改*/
+            if(!StrUtil.equals(styleColor.getColorCode(),addRevampStyleColorDto.getColorCode())){
+                PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
+                if(!ObjectUtils.isEmpty(packInfo)){
+                    packInfo.setColorCode(basicsdatumColourLibrary.getColourCode());
+                    packInfo.setColor(basicsdatumColourLibrary.getColourName());
+                    packInfoService.updateById(packInfo);
+                }
+            }
             /*修改*/
            boolean b = !StringUtils.equals(styleColor.getScmSendFlag(), BaseGlobal.IN_READY)&&StrUtil.isBlank(styleColor.getHisStyleNo());
 
@@ -812,6 +824,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColor.setPrincipalStyle("");
             styleColor.setPrincipalStyleNo("");
             this.updateById(styleColor);
+
+            UpdateWrapper<StyleColor> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.lambda().set(StyleColor::getSendBatchingDate1, styleColor.getSendBatchingDate1())
+                    .set(StyleColor::getSendBatchingDate2, styleColor.getSendBatchingDate2())
+                    .set(StyleColor::getSendBatchingDate3, styleColor.getSendBatchingDate3())
+                    .set(StyleColor::getSendSingleDate, styleColor.getSendSingleDate())
+                    .set(StyleColor::getDesignDetailDate, styleColor.getDesignDetailDate())
+                    .set(StyleColor::getDesignCorrectDate, styleColor.getDesignCorrectDate())
+                    .eq(StyleColor::getId, styleColor.getId());
+            this.update(null, updateWrapper);
+
             StyleColor styleColor1 = this.getById(styleColor.getId());
 
             this.saveOperaLog("修改", "款式配色", styleColor.getColorName(), styleColor.getStyleNo(), styleColor1, old);
@@ -917,6 +940,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleColor.setColorName(basicsdatumColourLibrary.getColourName());
         styleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
         baseMapper.updateById(styleColor);
+        PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
+        if(!ObjectUtils.isEmpty(packInfo)){
+            packInfo.setColorCode(styleColor.getColorCode());
+            packInfo.setColor(styleColor.getColorName());
+            packInfoService.updateById(packInfo);
+        }
         /*重新下发配色*/
         dataUpdateScmService.updateStyleColorSendById(styleColor.getId());
         return true;
@@ -1047,7 +1076,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean updateStyleNoBand(UpdateStyleNoBandDto updateStyleNoBandDto) {
+    public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
         StyleColor styleColor1 = new StyleColor();
@@ -1095,8 +1124,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         this.saveOperaLog("修改大货款号", "款式配色", sampleStyleColor.getColorName(), sampleStyleColor.getStyleNo(), styleColor, styleColor1);
         /*重新下发配色*/
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
+
+        //region 20231219 huangqiang 修改大货款号将老款图片下载重新上传，上传成功后删除
+        if(StrUtil.isNotBlank(styleColor.getStyleColorPic())){
+            Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
+            if (!result) {
+                throw new OtherException("图片上传失败！");
+            }
+        }
+        //endregion
         return true;
     }
+
 
     /**
      * 方法描述 验证配色是否可修改
@@ -1252,9 +1291,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PackInfoStatus packInfoStatus = packInfoStatusService.get(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
 
         /*复制资料包里面的数据*/
-        packInfoService.copyPack(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES, BasicNumber.ZERO.getNumber());
+        packInfoService.copyPack(packInfo.getId(),packType , copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES, BasicNumber.ZERO.getNumber(),BaseGlobal.YES);
         /*复制状态*/
-        packInfoStatusService.copy(packInfo.getId(), packInfoStatus.getPackType(), copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES);
+        packInfoStatusService.copy(packInfo.getId(), packType, copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES);
         /*查询BOM状态，BOM阶段修改未为样品 BOM里面物料也修改为样品*/
         /*复制出来的BOM*/
         PackInfoStatus copyPackInfoStatus = packInfoStatusService.get(copyPackInfo.getId(), packInfoStatus.getPackType());
@@ -1473,6 +1512,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleColor.setScmSendFlag(null);
         styleColor.setBom(null);
         styleColor.setBomStatus(BaseGlobal.NO);
+        styleColor.setStyleColorPic("");
 //        查询款式
         Style style = styleService.getById(styleColor.getStyleId());
         styleColor.setStyleNo(getNextCode(style, StringUtils.isNotEmpty(styleColor.getBandName()) ? styleColor.getBandName() : style.getBandName(),  StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,styleColor.getIsLuxury(),  1));
@@ -1592,6 +1632,94 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
     }
 
+    /**
+     * 复制配色
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public  PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto) {
+        FieldManagement fieldManagement = fieldManagementService.getById(dto.getDimensionLabelId());
+        if (fieldManagement == null){
+            throw  new OtherException("维度信息为空");
+        }
+        // 查询坑位所有已经匹配的大货款号
+        QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.select("bulk_style_no");
+        queryWrapper1.isNotNull("bulk_style_no");
+        queryWrapper1.last("and bulk_style_no != ''");
+        List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
+
+
+        QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
+        queryWrapper.eq("field_name",fieldManagement.getFieldName());
+        queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
+        queryWrapper.select("foreign_id");
+
+        List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
+        List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
+//        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
+
+
+//        List<StyleColor> list1 = styleColorService.list(styleColorBaseQueryWrapper);
+//        List<String> styleColorIds1 = list1.stream().map(StyleColor::getId).collect(Collectors.toList());
+//        styleColorIds1.addAll(styleColorIds);
+
+        BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
+        styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
+        styleQueryWrapper.eq("ts.prod_category1st",dto.getProdCategory1st());
+        styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
+        styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
+        styleQueryWrapper.eq("tsc.order_flag", "1");
+        styleQueryWrapper.in("tsc.id",styleColorIds);
+        if (!list.isEmpty()) {
+            List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
+            styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
+        }
+        PageHelper.startPage(dto);
+        List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper);
+
+
+        return new PageInfo<>(styleList);
+    }
+
     /** 自定义方法区 不替换的区域【other_end】 **/
 
+    /**
+     * 大货款号改名先下载图片上传，然后删除原图片
+     * @param user
+     * @param updateStyleNoBandDto
+     * @param sampleStyleColor
+     * @param styleColor
+     */
+    private Boolean uploadImgAndDeleteOldImg(Principal user, UpdateStyleNoBandDto updateStyleNoBandDto, StyleColor sampleStyleColor, StyleColor styleColor) {
+        Boolean result = true;
+        String styleColorPic = sampleStyleColor.getStyleColorPic();
+        if(StringUtils.isNotBlank(updateStyleNoBandDto.getStyleNo())){
+            UploadStylePicDto uploadStylePicDto = new UploadStylePicDto();
+            uploadStylePicDto.setStyleColorId(updateStyleNoBandDto.getId());
+            MultipartFile multipartFile = null;
+            Boolean uploadStatus = false;
+            try {
+                multipartFile = uploadFileService.downloadImage(styleColorPic, updateStyleNoBandDto.getStyleNo() + ".jpg");
+                uploadStylePicDto.setFile(multipartFile);
+                uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
+            } catch (Exception e) {
+                result = false;
+                log.info(e.getMessage());
+//                throw new RuntimeException(e);
+            }finally {
+                //上传成功后删除
+                if (uploadStatus) {
+                    DelStylePicDto delStylePicDto = new DelStylePicDto();
+                    delStylePicDto.setStyleColorId(styleColor.getId());
+                    delStylePicDto.setStyleId(sampleStyleColor.getStyleId());
+                    uploadFileService.delStyleColorImage(delStylePicDto, user,styleColorPic,"0");
+                    uploadFileService.delStyleColorImage(delStylePicDto, user,styleColorPic,"1");
+                }
+            }
+        }
+        return result;
+    }
 }

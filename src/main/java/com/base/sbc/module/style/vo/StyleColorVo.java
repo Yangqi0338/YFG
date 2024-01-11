@@ -433,6 +433,11 @@ public class StyleColorVo {
     private String infoName;
 
     /**
+     * 款式来源
+     */
+    private String styleOriginName;
+
+    /**
      * 工艺师
      */
     private String technologistName;
@@ -446,6 +451,11 @@ public class StyleColorVo {
     public String   getAccessory(){
         return getAccessory1();
     }
+
+    /**
+     * 默认条形码  唯一码  wareCode  +颜色编码  colorCode  +默认尺码的尺码编号[取设计属性中的默认尺码]
+     */
+    private String defaultBarCode;
 
 
 }

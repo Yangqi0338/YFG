@@ -12,10 +12,15 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.style.entity.StyleMainAccessories;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,6 +146,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	private final MinioUtils minioUtils;
 
+	private final StyleMainAccessoriesService styleMainAccessoriesService;
+
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
@@ -153,15 +160,19 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
-			hangTagDTO.setDesignNos(StringUtils.split(hangTagDTO.getDesignNo(),","));
+			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
 		}
 
 		if(StrUtil.isNotBlank(hangTagDTO.getProductCode())){
-			hangTagDTO.setProductCodes(StringUtils.split(hangTagDTO.getProductCode(),","));
+			hangTagDTO.setProductCodes(hangTagDTO.getProductCode().split(","));
 		}
 
 		if(StrUtil.isNotBlank(hangTagDTO.getProdCategory())){
-			hangTagDTO.setProdCategorys(StringUtils.split(hangTagDTO.getProdCategory(),","));
+			hangTagDTO.setProdCategorys(hangTagDTO.getProdCategory().split(","));
+		}
+
+		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
+			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
 		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
@@ -304,9 +315,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		BeanUtil.copyProperties(hangTagDTO, hangTag);
 		//如果品名修改则下发scm
-		StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq
+	/*	StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq
 				("style_no", hangTag.getBulkStyleNo()).eq("company_code", userCompany).select("id"));
-
+*/
 
 		boolean flag = false;
 		if(StringUtils.isEmpty(hangTagDTO.getId())){
@@ -319,17 +330,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
 		super.saveOrUpdate(hangTag, "吊牌管理");
-
-		if (flag){
-			smpService.goods(styleColor.getId().split(","));
-		}
-
 		String id = hangTag.getId();
 
+		// 成分检查
+		if (!"0".equals(hangTagDTO.getStatus()) && !"1".equals(hangTagDTO.getStatus())) {
+			strictCheckIngredientPercentage(Collections.singletonList(id));
+		}
 
-
-
-
+	/*	if (flag){
+			smpService.goods(styleColor.getId().split(","));
+		}*/
 
 		// List<BasicsdatumMaterialIngredient> materialIngredientList =
 		// basicsdatumMaterialController.formatToList(hangTagDTO.getIngredient(), "0",
@@ -354,11 +364,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		 * 当存在品名时同步到配色
 		 */
 		if (!StringUtils.isEmpty(hangTag.getProductCode()) && !StringUtils.isEmpty(hangTag.getProductName())) {
+			StyleColor styleColor = styleColorService.getByOne("style_no",hangTag.getBulkStyleNo());
 			/* 同步配色品名 */
 			if (!ObjectUtils.isEmpty(styleColor)) {
 				styleColor.setProductCode(hangTag.getProductCode());
 				styleColor.setProductName(hangTag.getProductName());
 				styleColorMapper.updateById(styleColor);
+				/*修改品名是下发配色前提配色已下发*/
+				if(StrUtil.equals(styleColor.getScmSendFlag(),BaseGlobal.YES) || StrUtil.equals(styleColor.getScmSendFlag(),BaseGlobal.IN_READY)){
+					smpService.goods(styleColor.getId().split(","));
+				}
 			}
 		}
 
@@ -378,9 +393,42 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		try {
 			//下发成分
 			smpService.sendTageComposition(Collections.singletonList(id));
+
+			//region 2023-12-06 吊牌保存需要修改工艺员确认状态
+			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode(), 1);
+			//endregion
+
 		}catch (Exception ignored){
 		}
         return id;
+	}
+
+	private void strictCheckIngredientPercentage(List<String> hangTagIdList){
+		List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
+				.in(HangTagIngredient::getHangTagId, hangTagIdList)
+				.eq(HangTagIngredient::getStrictCheck, YesOrNoEnum.YES.getValueStr())
+		);
+		if (CollectionUtil.isEmpty(hangTagIngredientList)) return;
+
+		hangTagIngredientList.stream().filter(it-> !it.checkPercentageRequired() && !it.checkDescriptionRemarks()).forEach(it-> {
+			throw new OtherException("开启成分信息校验后,(材料类型-百分比-成分名称)和(成分说明)必须二选一进行填写");
+		});
+
+		hangTagIngredientList.stream().filter(HangTagIngredient::checkPercentageRequired)
+				.collect(Collectors.groupingBy(HangTagIngredient::getHangTagId)).forEach((hangTagId, sameHangTagIdList)-> {
+					sameHangTagIdList.stream().collect(Collectors.groupingBy(it-> it.getTypeCode() + "-" + it.getIngredientSecondCode())).forEach((code, list)-> {
+						StringJoiner stringJoiner = new StringJoiner("-");
+						String type = list.get(0).getType();
+						stringJoiner.add(type);
+						String ingredientSecondName = list.get(0).getIngredientSecondName();
+						if (StrUtil.isNotBlank(ingredientSecondName)) {
+							stringJoiner.add(ingredientSecondName);
+						}
+						if (list.stream().mapToDouble(it-> it.getPercentage().doubleValue()).sum() != 100.0) {
+                            throw new OtherException(stringJoiner +"百分比相加不是100,未通过校验");
+                        }
+					});
+		});
 	}
 
 	@Override
@@ -394,6 +442,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (CollectionUtils.isEmpty(hangTags)) {
 			throw new OtherException("存在未填写数据，请先填写");
 		}
+		// 检查
+		strictCheckIngredientPercentage(hangTags.stream().map(HangTag::getId).collect(Collectors.toList()));
+
 		ArrayList<HangTag> updateHangTags = Lists.newArrayList();
 		hangTags.forEach(e -> {
 			if (!HangTagStatusEnum.NOT_SUBMIT.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
@@ -439,12 +490,28 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTag.setConfirmDate(null);
 			}
 			updateHangTags.add(hangTag);
-
 		});
 		super.updateBatchById(updateHangTags);
 		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(),
 				OperationDescriptionEnum.getV(hangTagUpdateStatusDTO.getStatus()), userCompany);
 
+		String status = hangTagUpdateStatusDTO.getStatus();
+		int type;
+		switch (status) {
+			case "3":
+				type = 1;
+				break;
+			case "4":
+				type = 2;
+				break;
+			case "5":
+				type = 3;
+				break;
+			default:
+				type = 3;
+		}
+
+		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
 		if ("2".equals(hangTagUpdateStatusDTO.getCheckType())) {
 			// 发送审批
 			List<HangTag> hangTags1 = this.listByIds(hangTagUpdateStatusDTO.getIds());
@@ -514,14 +581,23 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 				if (styleColor != null) {
 
-					// 配饰款号
-					tagPrinting.setSecCode(styleColor.getAccessoryNo());
-					// 主款款号
-					tagPrinting.setMainCode(styleColor.getPrincipalStyleNo());
+// 是否内配饰
+					tagPrinting.setIsAccessories("1".equals(styleColor.getIsTrim()));
+					List<StyleMainAccessories> styleMainAccessories = styleMainAccessoriesService.list(new QueryWrapper<StyleMainAccessories>().eq("style_color_id", styleColor.getId()));
+					if (!styleMainAccessories.isEmpty()){
+						List<String> collect = styleMainAccessories.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.toList());
+						if ("1".equals(styleColor.getIsTrim())){
+							// 主款款号
+							tagPrinting.setMainCode(String.join(",",collect));
+						}else {
+							// 配饰款号
+							tagPrinting.setSecCode(String.join(",",collect));
+						}
+					}
+
 					// 吊牌价
 					tagPrinting.setC8_Colorway_SalesPrice(styleColor.getTagPrice());
-					// 是否内配饰
-					tagPrinting.setIsAccessories(!StringUtils.isEmpty(styleColor.getAccessoryNo()));
+
 					// 大货款号是否激活
 					tagPrinting.setActive("0".equals(styleColor.getStatus()));
 					// 销售类型
@@ -606,7 +682,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 产地
 				tagPrinting.setC8_APPBOM_MadeIn(hangTag.getProducer());
 				// 入库时间
-				tagPrinting.setC8_APPBOM_StorageTime(null);
+				tagPrinting.setC8_APPBOM_StorageTime(hangTag.getProduceDate());
 				// 英文成分
 				tagPrinting.setCompsitionMix(null);
 				// 英文温馨提示
@@ -614,50 +690,51 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 英文贮藏要求
 				tagPrinting.setStorageReqEN(null);
 				List<TagPrinting.Size> size = new ArrayList<>();
-
-				String sizeIds = style.getSizeIds();
-				if (!StringUtils.isEmpty(sizeIds)) {
-					for (BasicsdatumSize basicsdatumSize : basicsdatumSizeService
-							.listByIds(Arrays.asList(sizeIds.split(",")))) {
-						TagPrinting.Size size1 = new TagPrinting.Size();
-						size1.setSIZECODE(basicsdatumSize.getInternalSize());
-						size1.setSORTCODE(basicsdatumSize.getSort());
-						size1.setSIZENAME(basicsdatumSize.getModel());
-						size1.setSizeID(basicsdatumSize.getCode());
-						size1.setEXTSIZECODE(basicsdatumSize.getExtSizeCode());
-						size1.setShowIntSize("1".equals(basicsdatumSize.getHangTagShowSizeStatus()));
-						size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
-						String downContent = hangTag.getDownContent();
-						if (!StringUtils.isEmpty(downContent)) {
-							for (String s : downContent.split("\n")) {
-								if (!StringUtils.isEmpty(s)) {
-									String[] split = s.split(":");
-									if (split.length > 1) {
-										if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
-											size1.setSKUFiller(split[1]);
+				if (style!= null) {
+					String sizeIds = style.getSizeIds();
+					if (!StringUtils.isEmpty(sizeIds)) {
+						for (BasicsdatumSize basicsdatumSize : basicsdatumSizeService
+								.listByIds(Arrays.asList(sizeIds.split(",")))) {
+							TagPrinting.Size size1 = new TagPrinting.Size();
+							size1.setSIZECODE(basicsdatumSize.getInternalSize());
+							size1.setSORTCODE(basicsdatumSize.getSort());
+							size1.setSIZENAME(basicsdatumSize.getModel());
+							size1.setSizeID(basicsdatumSize.getCode());
+							size1.setEXTSIZECODE(basicsdatumSize.getExtSizeCode());
+							size1.setShowIntSize("1".equals(basicsdatumSize.getHangTagShowSizeStatus()));
+							size1.setEuropeCode(basicsdatumSize.getEuropeanSize());
+							String downContent = hangTag.getDownContent();
+							if (!StringUtils.isEmpty(downContent)) {
+								for (String s : downContent.split("\n")) {
+									if (!StringUtils.isEmpty(s)) {
+										String[] split = s.split(":",2);
+										if (split.length > 1) {
+											if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
+												size1.setSKUFiller(split[1]);
+											}
 										}
 									}
 								}
-							}
 
-						}
-						String specialSpec = hangTag.getSpecialSpec();
-						if (!StringUtils.isEmpty(specialSpec)) {
-							for (String s : specialSpec.split("\n")) {
-								if (!StringUtils.isEmpty(s)) {
-									String[] split = s.split(":");
-									if (split.length > 1) {
-										if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
-											size1.setSpecialSpec(split[1]);
+							}
+							String specialSpec = hangTag.getSpecialSpec();
+							if (!StringUtils.isEmpty(specialSpec)) {
+								for (String s : specialSpec.split("\n")) {
+									if (!StringUtils.isEmpty(s)) {
+										String[] split = s.split(":",2);
+										if (split.length > 1) {
+											if (split[0].equals(size1.getSIZENAME()+"("+size1.getSIZECODE()+")")) {
+												size1.setSpecialSpec(split[1]);
+											}
 										}
 									}
 								}
-							}
 
+							}
+							size.add(size1);
 						}
-						size.add(size1);
+
 					}
-
 				}
 				// 款式尺码明细
 				tagPrinting.setSize(size);

@@ -16,4 +16,5 @@ public class FabricCompositionDto {
 
     /** 面料成分（丙纶，亚麻，兔毛） */
     private String ingredient;
+    private String status;
 }

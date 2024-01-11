@@ -16,10 +16,8 @@ import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -94,6 +92,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @return
      */
     PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto);
+
+    void technologyCenterTaskListExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto);
 
     /**
      * 设置版师
@@ -375,6 +375,17 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @return
      */
     boolean startStop(StartStopDto startStopDto);
+
+    void saveReceiveReason(TechnologyCenterTaskVo dto);
+
+    List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo);
+
+    /**
+     * 获取款下面的初版车缝工和上次车缝工
+     * @param styleId
+     * @return
+     */
+    Map<String,String> getHeadLastTimeStitcher(String styleId);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
