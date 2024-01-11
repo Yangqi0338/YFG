@@ -57,8 +57,10 @@ select tsc.style_no                                                             
        tsc.send_main_fabric_date                                                                           as 下主面料单,
        tsc.send_single_date                                                                                as 下里布单,
        tsc.create_date                                                                                     as 创建时间,
-       GREATEST(tsc.update_date, ts.update_date, tpi.update_date, tsp.update_date, tpb.update_date, pbv.update_date,
-                tht.update_date, tuf.update_date, tpts.update_date)                                        as 修改时间,
+       GREATEST(IFNULL(tsc.update_date, 0), IFNULL(ts.update_date, 0), IFNULL(tpi.update_date, 0),
+                IFNULL(tsp.update_date, 0), IFNULL(tpb.update_date, 0), IFNULL(pbv.update_date, 0),
+                IFNULL(tht.update_date, 0), IFNULL(tuf.update_date, 0), IFNULL(tpts.update_date, 0)
+       )                                                                                                   as 修改时间,
        tsc.sales_type_name                                                                                 as 销售类型,
        tsc.sales_type                                                                                      as 销售类型编码,
        tsc.principal_style_no                                                                              as 主款款号,
