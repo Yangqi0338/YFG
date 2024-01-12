@@ -164,16 +164,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                         for (PackBom packBom : packBoms) {
                             if ("1".equals(packBom.getMainFlag())) {
                                 orderBookDetailVo.setFabricState(packBom.getStatus());
-                                orderBookDetailVo.setFabricFactoryCode(packBom.getSupplierId());
-                                orderBookDetailVo.setUnitFabricDosage(packBom.getUnitUse());
-                                orderBookDetailVo.setFabricFactoryName(packBom.getSupplierName());
+                                // orderBookDetailVo.setFabricFactoryCode(packBom.getSupplierId());
+                                // orderBookDetailVo.setFabricFactoryName(packBom.getSupplierName());
                                 QueryWrapper<BasicsdatumMaterialColor> basicsdatumMaterialColorQueryWrapper = new QueryWrapper<>();
                                 basicsdatumMaterialColorQueryWrapper.eq("material_code", packBom.getMaterialCode());
                                 basicsdatumMaterialColorQueryWrapper.eq("color_code", packBom.getColorCode());
                                 BasicsdatumMaterialColor basicsdatumMaterialColor = basicsdatumMaterialColorService.getOne(basicsdatumMaterialColorQueryWrapper);
                                 orderBookDetailVo.setFabricFactoryColorNumber(basicsdatumMaterialColor.getSupplierColorCode());
-                                orderBookDetailVo.setFabricCode(packBom.getMaterialCode());
-                                orderBookDetailVo.setFabricComposition(packBom.getIngredient());
+                                // orderBookDetailVo.setFabricCode(packBom.getMaterialCode());
+                                // orderBookDetailVo.setFabricComposition(packBom.getIngredient());
                             }
                         }
                     }
