@@ -42,7 +42,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     }
 
     public QueryWrapper<T> notEmptyLikeOrIsNull(String column, Object val) {
-        if(!StringUtils.isEmpty(val) && BaseGlobal.NULL_KEY.equals(column)){
+        if(!StringUtils.isEmpty(val) && BaseGlobal.NULL_KEY.equals(val)){
             return this.isNullStr(column);
         }else{
             return this.like(!StringUtils.isEmpty(val), column, val);
@@ -50,7 +50,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     }
 
     public QueryWrapper<T> notEmptyEqOrIsNull(String column, Object val) {
-        if(!StringUtils.isEmpty(val) && BaseGlobal.NULL_KEY.equals(column)){
+        if(!StringUtils.isEmpty(val) && BaseGlobal.NULL_KEY.equals(val)){
             return this.isNullStr(column);
         }else{
             return this.eq(!StringUtils.isEmpty(val), column, val);
