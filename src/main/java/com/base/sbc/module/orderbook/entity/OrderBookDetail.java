@@ -299,5 +299,11 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "公司面料备注")
     private String companyFabricRemarks;
 
+    /**
+     * 面料类型
+     */
+    @ApiModelProperty(value = "fabricType")
+    private String fabricType;
+
 }
 

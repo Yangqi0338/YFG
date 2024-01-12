@@ -99,6 +99,19 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper) {
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
+        //查询BOM版本
+        for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
+            QueryWrapper<PackBomVersion> queryWrapper1 =new BaseQueryWrapper<>();
+            queryWrapper1.eq("foreign_id",orderBookDetailVo.getPackInfoId());
+            queryWrapper1.eq("pack_type","0".equals(orderBookDetailVo.getBomStatus())?"packDesign":"packBigGoods");
+            queryWrapper1.eq("status","1");
+            queryWrapper1.orderByDesc("version");
+            queryWrapper1.last("limit 1");
+            PackBomVersion packBomVersion = packBomVersionService.getOne(queryWrapper1);
+            orderBookDetailVo.setBomVersionId(packBomVersion.getId());
+        }
+
+
         /*设置图片分辨路*/
         stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
         stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
@@ -200,12 +213,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.likeList("tobl.designer_id", dto.getDesignerId());
         queryWrapper.likeList("tsc.style_no", dto.getBulkStyleNo());
         queryWrapper.eq("tobl.company_code", dto.getCompanyCode());
-        //有权限则查询全部数据
-        if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
-            queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
-                    or().eq("tobl.business_id", dto.getUserId())
-                    .or().eq("tobl.create_id", dto.getUserId()));
-        }
+        // //有权限则查询全部数据
+        // if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
+        //     queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
+        //             or().eq("tobl.business_id", dto.getUserId())
+        //             .or().eq("tobl.create_id", dto.getUserId()));
+        // }
 
         if(StrUtil.isNotBlank(dto.getPlanningSeasonId())){
             BaseQueryWrapper<OrderBook> baseQueryWrapper = new BaseQueryWrapper();
