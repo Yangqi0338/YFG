@@ -90,6 +90,6 @@ public class DimensionLabelsSearchDto {
     @ApiModelProperty(value = "围度系数标识")
     private String coefficientFlag;
 
-    @ApiModelProperty(value = "显示表示")
+    @ApiModelProperty(value = "显示标识")
     private String showConfig;
 }
