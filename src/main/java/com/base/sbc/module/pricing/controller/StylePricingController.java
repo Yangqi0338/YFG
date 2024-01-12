@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -136,6 +137,8 @@ public class StylePricingController extends BaseController {
                 StylePricing stylePricing =new StylePricing();
                 stylePricing.setPackId(packInfoId);
                 stylePricing.setCompanyCode(super.getUserCompany());
+                /*企划倍率默认为4*/
+                stylePricing.setPlanningRate(new BigDecimal(4));
                 stylePricingService.save(stylePricing);
                 s=stylePricing.getId();
             }
