@@ -170,6 +170,7 @@ public class ExcelUtils {
                 return;
             }
         }*/
+        exportParams.setStyle(ExcelExportTitleStyle.class);
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
