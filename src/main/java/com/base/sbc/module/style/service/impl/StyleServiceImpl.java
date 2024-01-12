@@ -2015,10 +2015,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (style != null) {
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
-                //设置样衣未开款状态为 已开款
-                if (style.getStatus().equals(BaseGlobal.STOCK_STATUS_DRAFT)) {
-                    style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_CHECKED);
-                }
+                style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_CHECKED);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
@@ -2051,7 +2048,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 "/pdm/api/saas/style/approvalMarkingOrder",
                 "/pdm/api/saas/style/approvalMarkingOrder",
                 "/pdm/api/saas/style/approvalMarkingOrder",
-                "/styleAnalysis/styleMarkingDetails?sampleDesignId="+ id +"&isEdit=0&panelValue=design", variables);
+                "/styleAnalysis/styleMarkingDetails?sampleDesignId="+ id +"&isEdit=0&panelValue=order", variables);
     }
 
     @Override
@@ -2063,10 +2060,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (style != null) {
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
-                //设置样衣未开款状态为 已开款
-                if (style.getStatus().equals(BaseGlobal.STOCK_STATUS_DRAFT)) {
-                    style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_CHECKED);
-                }
+                style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_CHECKED);
             }
             //驳回
             else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
