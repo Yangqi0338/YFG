@@ -25,6 +25,11 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @ApiModelProperty(value = "款式设计师")
     private String styleDesignerName;
     /**
+     * 款式设计师id
+     */
+    @ApiModelProperty(value = "款式设计师id")
+    private String styleDesignerId;
+    /**
      * 大货款号
      */
     @ApiModelProperty(value = "大货款号")

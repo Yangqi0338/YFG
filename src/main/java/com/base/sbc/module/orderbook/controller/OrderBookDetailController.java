@@ -167,6 +167,13 @@ public class OrderBookDetailController extends BaseController {
         return updateSuccess(b);
     }
 
+    @ApiOperation(value = "订货本详情-设计师分配")
+    @PostMapping("/assignmentDesigner")
+    @DuplicationCheck
+    public boolean assignmentDesigner(@Valid @RequestBody List<OrderBookDetailSaveDto> dto) {
+        return  orderBookDetailService.assignmentDesigner(dto);
+    }
+
 
     @ApiOperation(value = "订货本详情-导出")
     @GetMapping("/importExcel")

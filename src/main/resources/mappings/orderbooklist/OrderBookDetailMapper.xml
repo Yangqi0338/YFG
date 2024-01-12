@@ -17,6 +17,7 @@
         if(ts.brand_name ='PM',ts.positioning,null) as positioning,
         if(ts.brand_name ='PM',ts.positioning_name,null) as positioningName,
         ts.designer as styleDesignerName,
+        ts.designer_id as styleDesignerId,
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
         ts.devt_type_name,

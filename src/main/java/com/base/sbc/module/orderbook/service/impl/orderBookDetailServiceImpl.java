@@ -7,7 +7,9 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
@@ -68,6 +70,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
     private final StyleColorService styleColorService;
+
+    private final MessageUtils messageUtils;
 
     @Override
     public PageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
@@ -270,6 +274,36 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         /*xiu*/
         styleColorService.updateById(styleColor);
         baseMapper.updateById(dto);
+        return true;
+    }
+
+    /**
+     * 订货本详情-设计师分配
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public boolean assignmentDesigner(List<OrderBookDetailSaveDto> dto) {
+        List<String> ids = dto.stream().map(OrderBookDetailSaveDto::getId).collect(Collectors.toList());
+        /*id分组*/
+        Map<String, OrderBookDetailSaveDto> map = Optional.ofNullable(dto).orElse(new ArrayList<>()).stream().collect(Collectors.toMap(OrderBookDetailSaveDto::getId, v -> v, (a, b) -> b));
+        List<OrderBookDetail> orderBookDetails = baseMapper.selectBatchIds(ids);
+        /*设置设计师*/
+        orderBookDetails.forEach(o -> {
+            OrderBookDetailSaveDto orderBookDetailSaveDto = map.get(o.getId());
+            if (ObjectUtil.isNotEmpty(orderBookDetailSaveDto)) {
+                o.setDesignerId(orderBookDetailSaveDto.getDesignerId());
+                o.setDesignerName(orderBookDetailSaveDto.getDesignerName());
+                o.setDesignerCode(orderBookDetailSaveDto.getDesignerName().split(",")[1]);
+                o.setStatus(BaseGlobal.YES);
+            }
+        });
+        /*保存*/
+        saveOrUpdateBatch(orderBookDetails);
+        String userIds = orderBookDetails.stream().map(OrderBookDetail::getDesignerId).collect(Collectors.joining(","));
+        // 发送通知消息给对应的人员
+        messageUtils.sendCommonMessage(userIds, "您有新的订货本消息待处理", "/styleManagement/orderBook", stylePicUtils.getGroupUser());
         return true;
     }
 

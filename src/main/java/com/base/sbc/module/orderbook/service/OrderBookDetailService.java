@@ -57,4 +57,10 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      */
     boolean designConfirm( OrderBookDetailSaveDto dto);
 
+    /**
+     * 订货本详情-设计师分配
+     * @param dto
+     * @return
+     */
+    boolean assignmentDesigner(List<OrderBookDetailSaveDto> dto);
 }
