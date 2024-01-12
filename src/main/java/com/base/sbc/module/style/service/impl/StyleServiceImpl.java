@@ -2003,7 +2003,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 "/pdm/api/saas/style/approvalMarking",
                 "/pdm/api/saas/style/approvalMarking",
                 "/pdm/api/saas/style/approvalMarking",
-                "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
+                "/styleAnalysis/styleMarkingDetails?sampleDesignId="+ id +"&isEdit=0&panelValue=design", variables);
     }
 
     @Override
@@ -2051,7 +2051,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 "/pdm/api/saas/style/approvalMarkingOrder",
                 "/pdm/api/saas/style/approvalMarkingOrder",
                 "/pdm/api/saas/style/approvalMarkingOrder",
-                "/sampleClothesDesign/sampleClothingInfo?sampleDesignId=" + id, variables);
+                "/styleAnalysis/styleMarkingDetails?sampleDesignId="+ id +"&isEdit=0&panelValue=design", variables);
     }
 
     @Override
