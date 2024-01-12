@@ -1,30 +1,23 @@
 package com.base.sbc.module.orderbook.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
+import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
@@ -43,18 +36,18 @@ import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,6 +66,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final FieldValService fieldValService;
 
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
+
+    private final StyleColorService styleColorService;
 
     @Override
     public PageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
@@ -237,6 +232,42 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
 
         return queryWrapper;
+    }
+
+    /**
+     * 设计师补充数据
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public boolean designConfirm(OrderBookDetailSaveDto dto) {
+        if(StrUtil.isEmpty(dto.getStyleColorId())){
+            throw new RuntimeException("配色id为空");
+        }
+        dto.setDesignerConfirm("1");
+        //修改厂家
+        /*查询配色数据*/
+        StyleColor styleColor =  styleColorService.getById(dto.getStyleColorId());
+        styleColor.setSupplierAbbreviation(dto.getFobClothingFactoryName());
+        styleColor.setSupplierCode(dto.getFobClothingFactoryCode());
+        styleColor.setSupplier(dto.getFobSupplier());
+        /*当颜色修改时同时修改配色和bom的颜色*/
+        if(!StrUtil.equals(styleColor.getColorCode(),dto.getColorCode())){
+            styleColor.setColorName(dto.getColorName());
+            styleColor.setColorCode(dto.getColorCode());
+            /*修改bom的颜色*/
+            PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
+            if(!ObjectUtils.isEmpty(packInfo)){
+                packInfo.setColorCode(styleColor.getColorCode());
+                packInfo.setColor(styleColor.getColorName());
+                packInfoService.updateById(packInfo);
+            }
+        }
+        /*xiu*/
+        styleColorService.updateById(styleColor);
+        baseMapper.updateById(dto);
+        return true;
     }
 
     /**
