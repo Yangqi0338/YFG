@@ -408,6 +408,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			HangTag hangTag = this.getById(hangTagDTO.getId());
 			if (hangTag != null) {
 				String code = hangTag.getSecondPackagingFormCode();
+				if (StrUtil.isBlank(code)) {
+					code = "-1";
+				}
 
 				hangTag.setSecondPackagingForm(hangTagDTO.getSecondPackagingForm());
 				hangTag.setSecondPackagingFormCode(hangTagDTO.getSecondPackagingFormCode());
@@ -415,7 +418,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 				StyleColor styleColor = styleColorService.getByOne("style_no", hangTag.getBulkStyleNo());
 				if (styleColor != null) {
-					smpService.goods(styleColor.getId().split(","));
+					String secondPackagingFormCode = hangTagDTO.getSecondPackagingFormCode();
+					if (StrUtil.isBlank(code)) {
+						secondPackagingFormCode = "-1";
+					}
+					if (!code.equals(secondPackagingFormCode)) {
+						smpService.goods(styleColor.getId().split(","));
+					}
 				}
 			}
 		}
