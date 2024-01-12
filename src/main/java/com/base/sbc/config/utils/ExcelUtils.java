@@ -379,6 +379,7 @@ public class ExcelUtils {
                     executor.submit(() -> {
                         try {
                             for (String column : columns) {
+                                // column =  com.base.sbc.config.utils.StringUtils.toCamelCase(column);
                                 final String stylePic = BeanUtil.getProperty(o, column);
                                 BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
                             }

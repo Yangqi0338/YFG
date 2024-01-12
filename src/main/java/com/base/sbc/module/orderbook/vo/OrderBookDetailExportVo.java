@@ -26,6 +26,12 @@ public class OrderBookDetailExportVo {
     @Excel(name = "款式图",type = 2,imageType = 2)
     private byte[] stylePic1;
 
+    // @Excel(name = "配色图",type = 2,imageType = 2)
+    private String styleColorPic;
+
+    @Excel(name = "配色图",type = 2,imageType = 2)
+    private byte[] styleColorPic1;
+
     @Excel(name = "投产日期", format = "yyyy-MM-dd HH:mm:ss")
     private Date commissioningDate;
 
@@ -113,6 +119,13 @@ public class OrderBookDetailExportVo {
     @Excel(name = "4倍价")
     private String multiplePrice;
 
+    public String getMultiplePrice() {
+        if (cmtCost==null){
+            return "";
+        }
+       return new BigDecimal(cmtCost).multiply(new BigDecimal(4)).toString();
+    }
+
     @Excel(name = "目标入仓日期")
     private String targetTime;
 
@@ -143,14 +156,17 @@ public class OrderBookDetailExportVo {
     @Excel(name = "面料状态")
     private String fabricState;
 
-    @Excel(name = "公司面料编号")
-    private String companyFabricCode;
+    /**
+     * 面料编号
+     */
+    @Excel(name = "面料编号")
+    private String companyFabricNumber;
 
     @Excel(name = "供应商名称")
-    private String supplierName;
+    private String fabricFactoryName;
 
     @Excel(name = "供应商编号")
-    private String supplierCode;
+    private String fabricFactoryCode;
 
     @Excel(name = "面料厂家色号")
     private String fabricFactoryColorNumber;
@@ -174,7 +190,7 @@ public class OrderBookDetailExportVo {
     private String fabricRemarks;
 
     @Excel(name = "设计款号"  )
-    private String designNo;
+    private String style;
 
     @Excel(name = "旧设计款号"  )
     private String oldDesignNo;
@@ -187,9 +203,4 @@ public class OrderBookDetailExportVo {
     private String prodCategory2ndName;
 
 
-    /**
-     * 面料编号
-     */
-    @ApiModelProperty(value = "面料编号")
-    private String companyFabricNumber;
 }

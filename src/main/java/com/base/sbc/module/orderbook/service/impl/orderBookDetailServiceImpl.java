@@ -87,7 +87,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         List<OrderBookDetailExportVo> orderBookDetailExportVos = BeanUtil.copyToList(orderBookDetailVos, OrderBookDetailExportVo.class);
         //导出
-        ExcelUtils.executorExportExcel(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",dto.getImgFlag(),3000,response,"stylePic");
+        ExcelUtils.executorExportExcel(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",dto.getImgFlag(),3000,response,"stylePic","styleColorPic");
 
     }
 
@@ -144,12 +144,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
 
             if ("CMT".equals(orderBookDetailVo.getDevtTypeName())){
-                orderBookDetailVo.setSupplierNo("");
-                orderBookDetailVo.setSupplierColor("");
-                orderBookDetailVo.setSupplierAbbreviation("");
-                /*"FOB取配色 cmt设置为空*/
-                orderBookDetailVo.setFobClothingFactoryName("");
-                orderBookDetailVo.setFobClothingFactoryCode("");
+                // orderBookDetailVo.setSupplierNo("");
+                // orderBookDetailVo.setSupplierColor("");
+                // orderBookDetailVo.setSupplierAbbreviation("");
+                // /*"FOB取配色 cmt设置为空*/
+                // orderBookDetailVo.setFobClothingFactoryName("");
+                // orderBookDetailVo.setFobClothingFactoryCode("");
 
 //                orderBookDetailVo.setCost("")
 

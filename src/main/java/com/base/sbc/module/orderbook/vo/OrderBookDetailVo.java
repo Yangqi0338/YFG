@@ -205,4 +205,6 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     @ApiModelProperty(value = "配色下发标记")
     private String   scmSendFlag;
+
+    private String oldDesignNo;
 }
