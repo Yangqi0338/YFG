@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -38,6 +39,22 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
 
     public QueryWrapper<T> notEmptyLike(String column, Object val) {
         return this.like(!StringUtils.isEmpty(val), column, val);
+    }
+
+    public QueryWrapper<T> notEmptyLikeOrIsNull(String column, Object val) {
+        if(!StringUtils.isEmpty(val) && BaseGlobal.NULL_KEY.equals(column)){
+            return this.isNullStr(column);
+        }else{
+            return this.like(!StringUtils.isEmpty(val), column, val);
+        }
+    }
+
+    public QueryWrapper<T> notEmptyEqOrIsNull(String column, Object val) {
+        if(!StringUtils.isEmpty(val) && BaseGlobal.NULL_KEY.equals(column)){
+            return this.isNullStr(column);
+        }else{
+            return this.eq(!StringUtils.isEmpty(val), column, val);
+        }
     }
 
     public QueryWrapper<T> between(String column, String[] strings) {
