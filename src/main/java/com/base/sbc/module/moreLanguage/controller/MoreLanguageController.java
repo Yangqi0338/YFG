@@ -74,7 +74,7 @@ public class MoreLanguageController extends BaseController {
     @SneakyThrows
     @PostMapping("/importExcel")
     @ApiOperation(value = "导入国家翻译", notes = "导入国家翻译")
-    @DuplicationCheck(type = 3, time = 999)
+    @DuplicationCheck(type = 1, time = 999)
     public ApiResult importExcel(@RequestPart MultipartFile file, MoreLanguageExcelQueryDto excelQueryDto) {
 //        moreLanguageService.importExcel(excelQueryDto);
         importListener.setExcelQueryDto(excelQueryDto);
@@ -92,7 +92,7 @@ public class MoreLanguageController extends BaseController {
     @GetMapping("/exportExcel")
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "导出国家翻译", notes = "导出国家翻译")
-    @DuplicationCheck(time = 999)
+    @DuplicationCheck(type = 1,time = 999)
     public ApiResult exportExcel(@Valid MoreLanguageExcelQueryDto excelQueryDto) {
         moreLanguageService.exportExcel(excelQueryDto);
 
