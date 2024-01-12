@@ -65,18 +65,8 @@ public class OrderBookDetailController extends BaseController {
     @PostMapping("/designConfirm")
     @DuplicationCheck(time = 10)
     @Transactional(rollbackFor = Exception.class)
-    public ApiResult designConfirm(@RequestBody OrderBookDetailSaveDto dto) {
-        dto.setDesignerConfirm("1");
-        //修改厂家
-
-        StyleColor styleColor = new StyleColor();
-        styleColor.setId(dto.getStyleColorId());
-        styleColor.setSupplierAbbreviation(dto.getFobClothingFactoryName());
-        styleColor.setSupplierCode(dto.getFobClothingFactoryCode());
-        styleColor.setSupplier(dto.getFobSupplier());
-        styleColorService.updateById(styleColor);
-
-        return insertSuccess(orderBookDetailService.updateById(dto));
+    public boolean designConfirm(@RequestBody OrderBookDetailSaveDto dto) {
+        return orderBookDetailService.designConfirm(dto);
     }
 
 

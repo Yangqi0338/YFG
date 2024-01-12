@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
+import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.github.pagehelper.PageInfo;
@@ -11,7 +12,6 @@ import com.github.pagehelper.PageInfo;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     /**
@@ -48,5 +48,13 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      * @return
      */
     BaseQueryWrapper<OrderBookDetail> buildQueryWrapper(OrderBookDetailQueryDto dto);
+
+
+    /**
+     * 设计师补充数据
+     * @param dto
+     * @return
+     */
+    boolean designConfirm( OrderBookDetailSaveDto dto);
 
 }

@@ -40,5 +40,14 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
      */
     @ApiModelProperty(value = "FOB成衣厂家名称")
     private String fobSupplier;
-
+    /**
+     * 颜色编码
+     */
+    @ApiModelProperty(value = "颜色编码")
+    private String  colorCode;
+    /**
+     * 颜色名称
+     */
+    @ApiModelProperty(value = "颜色名称")
+    private String  colorName;
 }
