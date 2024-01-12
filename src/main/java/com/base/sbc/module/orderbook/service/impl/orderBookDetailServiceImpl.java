@@ -98,12 +98,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
             QueryWrapper<PackBomVersion> queryWrapper1 =new BaseQueryWrapper<>();
             queryWrapper1.eq("foreign_id",orderBookDetailVo.getPackInfoId());
-            queryWrapper1.eq("pack_type","0".equals(orderBookDetailVo.getBomStatus())?"packDesign":"packBigGoods");
+            orderBookDetailVo.setPackType("0".equals(orderBookDetailVo.getBomStatus())?"packDesign":"packBigGoods");
+            queryWrapper1.eq("pack_type",orderBookDetailVo.getPackType());
             queryWrapper1.eq("status","1");
             queryWrapper1.orderByDesc("version");
             queryWrapper1.last("limit 1");
             PackBomVersion packBomVersion = packBomVersionService.getOne(queryWrapper1);
-            orderBookDetailVo.setBomVersionId(packBomVersion.getId());
+            if (packBomVersion!=null){
+                orderBookDetailVo.setBomVersionId(packBomVersion.getId());
+            }
+
         }
 
 
