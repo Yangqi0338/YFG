@@ -415,11 +415,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 				StyleColor styleColor = styleColorService.getByOne("style_no", hangTag.getBulkStyleNo());
 				if (styleColor != null) {
-					if (StrUtil.isNotBlank(code) || StrUtil.isNotBlank(hangTagDTO.getSecondPackagingFormCode())) {
-						if (!code.equals(hangTagDTO.getSecondPackagingFormCode())) {
-							smpService.goods(styleColor.getId().split(","));
-						}
-					}
+					smpService.goods(styleColor.getId().split(","));
 				}
 			}
 		}
