@@ -1041,16 +1041,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 styleResearchNodeVo.setNodeName(node.getName());
                 styleResearchNodeVo.setNumberDay(node.getNumberDay());
                 styleResearchNodeVo.setPlanTime(tempDate);
-                //未下稿 计划开始时间制空
-                if (BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode().equals(node.getCode())) {
-                    styleResearchNodeVo.setPlanTime(null);
-                }
                 //获取节点完成日期
                 BasicsdatumProcessNodeEnum value = BasicsdatumProcessNodeEnum.getBycode(node.getCode());
                 //Date nodeFinashTime = getNodeFinashTime(styleResearchProcessVo.getStyleId(), styleResearchProcessVo.getStyleColorId(), value, styleResearchNodeVo,tempDate);
                 Date nodeFinashTime = null;
                 if (BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode().equals(node.getCode())) {
                     nodeFinashTime = styleResearchProcessVo.getNoNextDraft();
+                    styleResearchNodeVo.setPlanTime(nodeFinashTime);
                 }else if (BasicsdatumProcessNodeEnum.REVIEWED_DRAFT.getCode().equals(node.getCode())) {
                     nodeFinashTime = styleResearchProcessVo.getReviewedDraft();
                 }else if(BasicsdatumProcessNodeEnum.NEXT_DRAFT.getCode().equals(node.getCode())){
