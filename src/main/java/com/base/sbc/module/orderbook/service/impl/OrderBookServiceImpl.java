@@ -23,6 +23,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -82,35 +83,48 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public OrderBook saveOrderBook(OrderBookSaveDto dto) {
         if(StrUtil.isEmpty(dto.getSeasonId())){
             throw new OtherException("产品季id不能为空");
         }
         /*校验订货本名称*/
-        OrderBook byOne = getByOne("name", dto.getName());
-        if (!ObjectUtil.isEmpty(byOne)) {
-            throw new OtherException("订货本名称重复");
+        QueryWrapper<OrderBook> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("name", dto.getName());
+        queryWrapper.ne(!StrUtil.isEmpty(dto.getId()),"id",dto.getId());
+        queryWrapper.eq("season_id",dto.getSeasonId());
+
+        long l = this.count(queryWrapper);
+        if (l > 0){
+             throw new OtherException("订货本名称已存在");
         }
-        OrderBook orderBook = new OrderBook();
+        // OrderBook orderBook = new OrderBook();
         /*修改订货本名称*/
-        if(StrUtil.isNotBlank(dto.getId())) {
-            orderBook = baseMapper.selectById(dto.getId());
-            /*只编辑名称*/
-            orderBook.setName(dto.getName());
-            baseMapper.updateById(orderBook);
-            return orderBook;
-        }
+        // if(StrUtil.isNotBlank(dto.getId())) {
+        //     orderBook = baseMapper.selectById(dto.getId());
+        //     /*只编辑名称*/
+        //     orderBook.setName(dto.getName());
+        //     baseMapper.updateById(orderBook);
+        //     return orderBook;
+        // }
         /*查询产品季*/
         PlanningSeason planningSeason = planningSeasonService.getById(dto.getSeasonId());
         if (ObjectUtil.isEmpty(planningSeason)) {
             throw new OtherException("产品季id错误，没有产品季");
         }
+
+        if (StrUtil.isNotBlank(dto.getId())){
+            this.updateById(dto);
+        }else {
+            this.save(dto);
+        }
+        return dto;
         /*做新增*/
-        orderBook.setSeasonId(planningSeason.getId());
-        orderBook.setSeasonName(planningSeason.getSeasonName());
-        orderBook.setName(dto.getName());
-        baseMapper.insert(orderBook);
-        return orderBook;
+        // orderBook.setSeasonId(planningSeason.getId());
+        // orderBook.setSeasonName(planningSeason.getSeasonName());
+        // orderBook.setName(dto.getName());
+        // baseMapper.insert(orderBook);
+        // return orderBook;
     }
 
     /**
