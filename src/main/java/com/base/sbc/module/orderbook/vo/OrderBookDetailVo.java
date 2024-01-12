@@ -201,4 +201,8 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     private String packType;
     private String foreignId;
+
+
+    @ApiModelProperty(value = "配色下发标记")
+    private String   scmSendFlag;
 }

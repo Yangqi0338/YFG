@@ -122,10 +122,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
 
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
-            /*系数取款式定价中的产品风格 没有值时是D*/
-            if(StrUtil.isEmpty(orderBookDetailVo.getCoefficientCode())){
-                orderBookDetailVo.setCoefficientCode("D");
-            }
+
 
             /*版型定位字段*/
             FieldVal fieldValList = map.get(orderBookDetailVo.getStyleColorId());
@@ -258,7 +255,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     orderBookDetailVo.setRate(stylePricingVO.getPlanActualMagnification());
                     orderBookDetailVo.setHonest(stylePricingVO.getPackagingFee());
                     /*产品风格*/
-                    orderBookDetailVo.setCoefficientCode(stylePricingVO.getProductStyle());
+                    /*系数取款式定价中的产品风格 没有值时是D*/
+                    orderBookDetailVo.setCoefficientCode(StrUtil.isEmpty(stylePricingVO.getProductStyle())?"D":stylePricingVO.getProductStyle());
                 }
 
             }

@@ -29,6 +29,7 @@
         tsc.tag_price,
         tsc.bom,
         tsc.bom_status,
+        tsc.scm_send_flag,
         tbcl.colour_code as supplierColor,
         tpi.id as packInfoId,
         tpbv.id as bomVersionId,
