@@ -212,4 +212,10 @@ public class OrderBookDetailVo extends OrderBookDetail {
     private String   scmSendFlag;
 
     private String oldDesignNo;
+
+    private String stylePricingId;
+
+    private String productStyle;
+
+    private String productStyleName;
 }

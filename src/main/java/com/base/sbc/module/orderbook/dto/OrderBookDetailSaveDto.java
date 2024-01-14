@@ -50,4 +50,12 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
      */
     @ApiModelProperty(value = "颜色名称")
     private String  colorName;
+
+    private String stylePricingId;
+
+    private String packInfoId;
+
+    private String productStyle;
+
+    private String productStyleName;
 }

@@ -16,6 +16,8 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
+import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import io.swagger.annotations.Api;
@@ -43,6 +45,7 @@ public class OrderBookDetailController extends BaseController {
     private final MessageUtils messageUtils;
     private final StylePicUtils stylePicUtils;
     private final OrderBookService orderBookService;
+    private final StylePricingService stylePricingService;
 
     @ApiOperation(value = "订货本详情-分页条件查询")
     @GetMapping("/queryPage")
@@ -82,6 +85,15 @@ public class OrderBookDetailController extends BaseController {
         dto.setBusinessConfirm("1");
         //修改吊牌价
         styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
+
+        //修改倍率和系数
+        StylePricingSaveDTO stylePricingSaveDTO =new StylePricingSaveDTO();
+        stylePricingSaveDTO.setId(dto.getStylePricingId());
+        stylePricingSaveDTO.setPackId(dto.getPackInfoId());
+        stylePricingSaveDTO.setPlanningRate(dto.getRate());
+        stylePricingSaveDTO.setProductStyle(dto.getProductStyleName());
+        stylePricingService.insertOrUpdate(stylePricingSaveDTO,null);
+
         return insertSuccess(orderBookDetailService.updateById(dto));
     }
 

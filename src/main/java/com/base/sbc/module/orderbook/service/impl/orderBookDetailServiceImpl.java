@@ -35,7 +35,9 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
+import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -49,6 +51,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -329,11 +332,17 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 /*获取款式定价的数据*/
                 StylePricingVO stylePricingVO = map.get(orderBookDetailVo.getBulkStyleNo());
                 if (!ObjectUtil.isEmpty(stylePricingVO)) {
+                    orderBookDetailVo.setStylePricingId(stylePricingVO.getId());
+
                     orderBookDetailVo.setCmtCost(stylePricingVO.getTotalCost());
                     orderBookDetailVo.setCmtCarpetCost(stylePricingVO.getSewingProcessingFee());
                     orderBookDetailVo.setCmtTotalCost(stylePricingVO.getTotalCost());
                     orderBookDetailVo.setFobCost(stylePricingVO.getTotalCost());
-                    orderBookDetailVo.setRate(stylePricingVO.getPlanActualMagnification());
+                    orderBookDetailVo.setRate(stylePricingVO.getPlanningRatio());
+
+                    if (orderBookDetailVo.getRate() == null){
+                        orderBookDetailVo.setRate(new BigDecimal(4));
+                    }
                     orderBookDetailVo.setHonest(stylePricingVO.getPackagingFee());
                     /*产品风格*/
                     /*系数取款式定价中的产品风格 没有值时是D*/
