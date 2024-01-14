@@ -52,6 +52,7 @@ import org.springframework.util.ObjectUtils;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -150,21 +151,36 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 orderBookDetailVo.setPatternPositioningName(fieldValList.getValName());
             }
             String unitFabricDosageIds = orderBookDetailVo.getUnitFabricDosageIds();
-
             if (StringUtil.isNotEmpty(unitFabricDosageIds)){
-
                 StringBuilder names=new StringBuilder();
                 List<PackBom> packBoms = packBomService.listByIds(Arrays.asList(unitFabricDosageIds.split(",")));
 
                 for (int i = 0; i < packBoms.size(); i++) {
                     StringBuilder unitFabricDosage= new StringBuilder();
-                    unitFabricDosage.append(packBoms.get(i).getCollocationName()).append(":").append(Objects.equals(packBoms.get(i).getPackType(), "packDesign") ? packBoms.get(i).getDesignUnitUse() : packBoms.get(i).getBulkUnitUse());
+                    unitFabricDosage.append(packBoms.get(i).getCollocationName()).append(":").append(Objects.equals(packBoms.get(i).getPackType(), "packDesign") ? packBoms.get(i).getDesignUnitUse().setScale(2, RoundingMode.HALF_UP) : packBoms.get(i).getBulkUnitUse().setScale(2, RoundingMode.HALF_UP));
+                    unitFabricDosage.append(packBoms.get(i).getStockUnitName());
                     if (i != 0) {
                         unitFabricDosage.insert(0,"\n");
                     }
                     names.append(unitFabricDosage);
                 }
                 orderBookDetailVo.setUnitFabricDosage(names.toString());
+            }
+
+            String unitDosageIds = orderBookDetailVo.getUnitDosageIds();
+            if (StringUtil.isNotEmpty(unitDosageIds)){
+                StringBuilder names=new StringBuilder();
+                List<PackBom> packBoms = packBomService.listByIds(Arrays.asList(unitDosageIds.split(",")));
+                for (int i = 0; i < packBoms.size(); i++) {
+                    StringBuilder unitDosage= new StringBuilder();
+                    unitDosage.append(packBoms.get(i).getCollocationName()).append(":").append(Objects.equals(packBoms.get(i).getPackType(), "packDesign") ? packBoms.get(i).getDesignUnitUse().setScale(2, RoundingMode.HALF_UP): packBoms.get(i).getBulkUnitUse().setScale(2, RoundingMode.HALF_UP));
+                    unitDosage.append(packBoms.get(i).getStockUnitName());
+                    if (i != 0) {
+                        unitDosage.insert(0,"\n");
+                    }
+                    names.append(unitDosage);
+                }
+                orderBookDetailVo.setUnitDosage(names.toString());
             }
 
 

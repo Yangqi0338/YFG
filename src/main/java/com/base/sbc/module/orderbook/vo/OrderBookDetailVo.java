@@ -225,4 +225,10 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "单件面料用量/米 " )
     private String unitFabricDosage;
+
+    /**
+     * 单件用量/里
+     */
+    @ApiModelProperty(value = "单件用量/里")
+    private String unitDosage;
 }

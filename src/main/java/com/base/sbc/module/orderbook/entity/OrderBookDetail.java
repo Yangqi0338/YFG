@@ -133,11 +133,14 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "其他")
     private String other;
 
+
+
     /**
-     * 单件用量/里
+     * 单件用量/里 关联bomid
      */
-    @ApiModelProperty(value = "单件用量/里")
-    private String unitDosage;
+    @ApiModelProperty(value = "单件用量/里 关联bomid")
+    private String unitDosageIds;
+
     /**
      * 面料状态
      */
