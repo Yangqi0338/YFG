@@ -288,10 +288,10 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     private String companyFabricNumber;
 
     /**
-     * 单件面料用量/米
+     * 单件面料用量/米 关联bom
      */
-    @ApiModelProperty(value = "单件面料用量/米")
-    private String unitFabricDosage;
+    @ApiModelProperty(value = "单件面料用量/米  关联bom" )
+    private String unitFabricDosageIds;
 
     /**
      * 公司面料备注

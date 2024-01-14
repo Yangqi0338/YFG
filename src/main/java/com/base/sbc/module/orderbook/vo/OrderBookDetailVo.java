@@ -218,4 +218,11 @@ public class OrderBookDetailVo extends OrderBookDetail {
     private String productStyle;
 
     private String productStyleName;
+
+
+    /**
+     * 单件面料用量/米
+     */
+    @ApiModelProperty(value = "单件面料用量/米 " )
+    private String unitFabricDosage;
 }

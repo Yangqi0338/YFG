@@ -149,6 +149,24 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 orderBookDetailVo.setPatternPositioningCode(fieldValList.getVal());
                 orderBookDetailVo.setPatternPositioningName(fieldValList.getValName());
             }
+            String unitFabricDosageIds = orderBookDetailVo.getUnitFabricDosageIds();
+
+            if (StringUtil.isNotEmpty(unitFabricDosageIds)){
+
+                StringBuilder names=new StringBuilder();
+                List<PackBom> packBoms = packBomService.listByIds(Arrays.asList(unitFabricDosageIds.split(",")));
+
+                for (int i = 0; i < packBoms.size(); i++) {
+                    StringBuilder unitFabricDosage= new StringBuilder();
+                    unitFabricDosage.append(packBoms.get(i).getCollocationName()).append(":").append(Objects.equals(packBoms.get(i).getPackType(), "packDesign") ? packBoms.get(i).getDesignUnitUse() : packBoms.get(i).getBulkUnitUse());
+                    if (i != 0) {
+                        unitFabricDosage.insert(0,"\n");
+                    }
+                    names.append(unitFabricDosage);
+                }
+                orderBookDetailVo.setUnitFabricDosage(names.toString());
+            }
+
 
             if ("CMT".equals(orderBookDetailVo.getDevtTypeName())){
                 // orderBookDetailVo.setSupplierNo("");
