@@ -33,7 +33,10 @@
         <foreach collection="foreignIds" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
-        AND pack_type = 'packBigGoods'
+        <if test="packType != null and packType != ''">
+        AND pack_type = #{packType}
+        </if>
+#         AND pack_type = 'packBigGoods'
         GROUP BY
         foreign_id,costs_item,costs_type,id
         order by id desc

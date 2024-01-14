@@ -153,7 +153,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         List<String> packId = stylePricingList.stream()
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
-        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode);
+        String packType="";
+        if (isPackType){
+            packType ="packBigGoods";
+        }
+        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode,packType);
 //        Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
@@ -484,8 +488,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
      * @param companyCode
      * @return
      */
-    private Map<String, BigDecimal> getOtherCosts(List<String> packId, String companyCode) {
-        List<PackPricingOtherCosts> packPricingOtherCosts = packPricingOtherCostsService.getPriceSumByForeignIds(packId, companyCode);
+    private Map<String, BigDecimal> getOtherCosts(List<String> packId, String companyCode, String packType) {
+        List<PackPricingOtherCosts> packPricingOtherCosts = packPricingOtherCostsService.getPriceSumByForeignIds(packId, companyCode,packType);
         if (CollectionUtils.isEmpty(packPricingOtherCosts)) {
             return new HashMap<>();
         }
