@@ -389,9 +389,9 @@ public class SmpService {
                     //物料费
                     smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
                     //总成本
-                    smpGoodsDto.setCost(packPricingService.countTotalPrice(packInfo.getId(), null));
+                    smpGoodsDto.setCost(packPricingService.countTotalPrice(packInfo.getId(), null,2));
                     //设计Bom总成本
-                    smpGoodsDto.setDesignPackCost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES));
+                    smpGoodsDto.setDesignPackCost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES,2));
                     //外协加工费
                     smpGoodsDto.setOutsourcingProcessingCost((jsonObject.getBigDecimal("外协加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("外协加工费")));
                     //包装费

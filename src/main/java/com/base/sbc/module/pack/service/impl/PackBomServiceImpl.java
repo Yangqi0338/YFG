@@ -241,7 +241,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             db.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             db.setBulkUnitUse(dto.getBulkUnitUse());
             db.setDesignUnitUse(dto.getDesignUnitUse());
-            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
+            BigDecimal totalCost = packPricingService.countTotalPrice(db.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
             updateById(db);
             packBom = db;
 
@@ -325,7 +325,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         /*查询款式定价是否通过*/
         /*比较成本价是否有改动*/
         /*核价信息总成本*/
-        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId,BaseGlobal.STOCK_STATUS_CHECKED);
+        BigDecimal totalCost = packPricingService.countTotalPrice(packInfoId,BaseGlobal.STOCK_STATUS_CHECKED,2);
         /*判断价格是否相等 如果等于空时代表新增的物料*/
         if( ObjectUtils.isEmpty(cost) || totalCost.compareTo(cost) != 0){
             PackInfo packInfo = packInfoService.getById(packInfoId);
@@ -530,7 +530,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public boolean unusableChange(String id, String unusableFlag) {
         List<String> split = StrUtil.split(id, CharUtil.COMMA);
         PackBom byId = getById(split.get(0));
-        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
+        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
         // 校验版本
         packBomVersionService.checkVersion(byId.getBomVersionId());
         UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
@@ -736,7 +736,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 throw new OtherException("物料中存在已下发数据");
             }
         }
-        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
+        BigDecimal totalCost = packPricingService.countTotalPrice(packBomList.get(0).getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
         baseMapper.deleteBatchIds(StrUtil.split(id, ','));
         if(StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.YES)|| StrUtil.equals(packBomList.get(0).getScmSendFlag(),BaseGlobal.IN_READY)){
             costUpdate(packBomList.get(0).getForeignId(),totalCost);

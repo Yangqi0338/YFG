@@ -998,7 +998,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 //            物料成本为0时查询核价信息的总成本
             if (packBomCost.compareTo(BigDecimal.ZERO) == 0) {
 //                核价信息总成本
-                BigDecimal bigDecimal = packPricingService.countTotalPrice(packInfo.getId(), "1");
+                BigDecimal bigDecimal = packPricingService.countTotalPrice(packInfo.getId(), "1",2);
                 if (bigDecimal.compareTo(BigDecimal.ZERO) == 0) {
                     throw new OtherException(styleColor.getStyleNo() + "的开发成本为0,请联系设计工艺员添加材料到BOM");
                 }
