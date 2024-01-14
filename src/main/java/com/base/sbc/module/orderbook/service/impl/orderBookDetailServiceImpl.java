@@ -369,6 +369,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     orderBookDetailVo.setStylePricingId(stylePricingVO.getId());
 
                     orderBookDetailVo.setCmtCost(stylePricingVO.getTotalCost());
+                    orderBookDetailVo.setCost(stylePricingVO.getTotalCost());
                     orderBookDetailVo.setCmtCarpetCost(stylePricingVO.getSewingProcessingFee());
                     orderBookDetailVo.setCmtTotalCost(stylePricingVO.getTotalCost());
                     orderBookDetailVo.setFobCost(stylePricingVO.getCoordinationProcessingFee());
