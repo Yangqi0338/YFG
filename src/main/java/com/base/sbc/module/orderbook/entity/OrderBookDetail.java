@@ -203,11 +203,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "面料备注")
     private String fabricRemarks;
-    /**
-     * 面料吊牌
-     */
-    @ApiModelProperty(value = "面料吊牌")
-    private String fabricDrop;
+
 
     /**
      * 设计师编码
