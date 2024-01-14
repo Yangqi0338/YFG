@@ -368,11 +368,23 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 if (!ObjectUtil.isEmpty(stylePricingVO)) {
                     orderBookDetailVo.setStylePricingId(stylePricingVO.getId());
 
-                    orderBookDetailVo.setCmtCost(stylePricingVO.getTotalCost());
+                    if ("CMT".equals(orderBookDetailVo.getDevtTypeName())){
+                        orderBookDetailVo.setCmtCost(stylePricingVO.getTotalCost());
+                        orderBookDetailVo.setCmtCarpetCost(stylePricingVO.getSewingProcessingFee());
+                        orderBookDetailVo.setCmtTotalCost(stylePricingVO.getTotalCost());
+
+
+                        orderBookDetailVo.setFobCost(new BigDecimal(0));
+                    }else {
+                        orderBookDetailVo.setFobCost(stylePricingVO.getCoordinationProcessingFee());
+
+
+                        orderBookDetailVo.setCmtCost(new BigDecimal(0));
+                        orderBookDetailVo.setCmtCarpetCost(new BigDecimal(0));
+                        orderBookDetailVo.setCmtTotalCost(new BigDecimal(0));
+                    }
                     orderBookDetailVo.setCost(stylePricingVO.getTotalCost());
-                    orderBookDetailVo.setCmtCarpetCost(stylePricingVO.getSewingProcessingFee());
-                    orderBookDetailVo.setCmtTotalCost(stylePricingVO.getTotalCost());
-                    orderBookDetailVo.setFobCost(stylePricingVO.getCoordinationProcessingFee());
+
                     orderBookDetailVo.setRate(stylePricingVO.getPlanningRatio());
 
                     if (orderBookDetailVo.getRate() == null){
