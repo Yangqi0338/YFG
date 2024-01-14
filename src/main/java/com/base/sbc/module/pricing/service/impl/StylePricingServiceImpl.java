@@ -139,7 +139,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }else {
             stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
         }
-        this.dataProcessing(stylePricingList, dto.getCompanyCode());
+        this.dataProcessing(stylePricingList, dto.getCompanyCode(),true);
         return new PageInfo<>(stylePricingList);
     }
 
@@ -149,7 +149,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
      * @param stylePricingList
      * @param companyCode
      */
-    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode) {
+    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode,boolean isPackType) {
         List<String> packId = stylePricingList.stream()
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
@@ -166,7 +166,12 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             executor.submit(() -> {
                 // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
                 PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
-                packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+                if (isPackType){
+                    packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+                }else {
+                    packCommonSearchDto.setPackType(stylePricingVO.getPackType());
+                }
+
                 packCommonSearchDto.setForeignId(stylePricingVO.getId());
                 //材料成本,如果fob,则不计算
                 if ("CMT".equals(stylePricingVO.getProductionType())) {
@@ -270,7 +275,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return null;
         }
-        this.dataProcessing(stylePricingList, companyCode);
+        this.dataProcessing(stylePricingList, companyCode,true);
         return stylePricingList.get(0);
     }
 
