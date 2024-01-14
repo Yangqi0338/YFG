@@ -294,7 +294,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         /*查询配色数据*/
         StyleColor styleColor =  styleColorService.getById(dto.getStyleColorId());
         styleColor.setSupplierAbbreviation(dto.getFobClothingFactoryName());
-        styleColor.setSupplierCode(dto.getFobClothingFactoryCode());
+        styleColor.setSupplierNo(dto.getFobClothingFactoryCode());
         styleColor.setSupplier(dto.getFobSupplier());
         /*当颜色修改时同时修改配色和bom的颜色*/
         if(!StrUtil.equals(styleColor.getColorCode(),dto.getColorCode())){
