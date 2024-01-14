@@ -319,11 +319,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
             /*获取款式定价的列表*/
             List<StylePricingVO> stylePricingList = stylePricingServiceimpl.getBaseMapper().getStylePricingList(new StylePricingSearchDTO(), qw);
-            List<StylePricingVO> stylePricingVOS = BeanUtil.copyToList(stylePricingList, StylePricingVO.class);
+            // List<StylePricingVO> stylePricingVOS = BeanUtil.copyToList(stylePricingList, StylePricingVO.class);
             /*款式定价数据组装处理*/
-            stylePricingServiceimpl.dataProcessing(stylePricingVOS, orderBookDetailVos.get(0).getCompanyCode());
+            stylePricingServiceimpl.dataProcessing(stylePricingList, orderBookDetailVos.get(0).getCompanyCode());
             /*按大货款号分类*/
-            Map<String, StylePricingVO> map = Optional.ofNullable(stylePricingVOS).orElse(new ArrayList<>()).stream().collect(Collectors.toMap(StylePricingVO::getBulkStyleNo, v -> v, (a, b) -> b));
+            Map<String, StylePricingVO> map = Optional.of(stylePricingList).orElse(new ArrayList<>()).stream().collect(Collectors.toMap(StylePricingVO::getBulkStyleNo, v -> v, (a, b) -> b));
 
             for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
                 /*获取款式定价的数据*/
