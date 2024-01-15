@@ -1,6 +1,7 @@
 package com.base.sbc.module.moreLanguage.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.Opt;
 import com.alibaba.excel.EasyExcel;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -80,7 +81,10 @@ public class MoreLanguageController extends BaseController {
         importListener.setExcelQueryDto(excelQueryDto);
         try {
             EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAllSync();
-            return selectSuccess("您的吊牌信息已经导入成功. " + importListener.dataVerifyHandler());
+            String warnMsg = importListener.dataVerifyHandler();
+            ApiResult<String> result = selectSuccess("您的吊牌信息已经导入成功. " + warnMsg);
+            result.setStatus(Opt.ofBlankAble(warnMsg).map(it-> 0).orElse(200));
+            return result;
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.error("导入失败, 请你根据导入规则进行导入\n" + e.getMessage(), 0);
