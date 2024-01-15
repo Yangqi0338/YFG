@@ -1,12 +1,10 @@
 package com.base.sbc.open.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.base.sbc.module.smp.entity.TagPrinting;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 @Data

@@ -8,7 +8,6 @@ import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
-import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
@@ -40,7 +39,10 @@ public interface HangTagConvert {
     List<HangTagMoreLanguageVO> copyList2MoreLanguageVO(List<CountryLanguage> source);
     HangTagMoreLanguageVO copy2MoreLanguageVO(CountryLanguage source);
     @Mappings({
-            @Mapping(target = "code", ignore = true)
+            @Mapping(target = "code", ignore = true),
+            @Mapping(target = "standardColumnCode", source = "code"),
+            @Mapping(target = "standardColumnName", source = "name"),
+            @Mapping(target = "standardColumnId", source = "id"),
     })
     void standardColumn2MoreLanguageBaseVO(StandardColumn source, @MappingTarget HangTagMoreLanguageBaseVO target);
     HangTagMoreLanguageBaseVO copyMyself(HangTagMoreLanguageBaseVO source);
