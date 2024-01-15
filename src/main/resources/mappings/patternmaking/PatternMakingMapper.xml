@@ -656,14 +656,14 @@
         t.pattern_design_id,
         t.brand,
         t1.create_date,
-        tpci.send_date as noNextDraft,
-        check_start_time as reviewedDraft,
-        check_end_time as nextDraft,
-        tns.end_date as punchingCompleted,
-        tns1.end_date as sampleClothingCompleted,
+        date_format(tpci.send_date,'%Y-%m-%d') as noNextDraft,
+        date_format(check_start_time,'%Y-%m-%d') as reviewedDraft,
+        date_format(check_end_time,'%Y-%m-%d')  as nextDraft,
+        date_format(tns.end_date,'%Y-%m-%d')  as punchingCompleted,
+        date_format(tns1.end_date,'%Y-%m-%d') as sampleClothingCompleted,
         CASE
-        WHEN WEEKDAY(tns1.end_date) &lt;= 1 THEN DATE_SUB(tns1.end_date, INTERVAL (WEEKDAY(tns1.end_date) -1) % 7 DAY)
-        ELSE DATE_ADD(tns1.end_date, INTERVAL (8 - WEEKDAY(tns1.end_date)) % 7 DAY)
+        WHEN WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) &lt; 1 THEN DATE_SUB(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) -1) % 7 DAY)
+        ELSE DATE_ADD(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (8 - WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d'))) % 7 DAY)
         END AS 'tempOrderBookProduction'
 
 
