@@ -69,11 +69,34 @@ public class MoreLanguageTagPrinting extends TagPrinting {
     private String C8_APPBOM_StorageTitle;
 
     /**
+     * 是否赠品
+     */
+    @JsonIgnore
+    private Boolean IsGift;
+
+    /**
+     * 商品吊牌价确认
+     */
+    @JsonIgnore
+    private Boolean MerchApproved;
+
+    /**
+     * 品控部确认
+     */
+    @JsonIgnore
+    private Boolean Approved;
+
+    /**
+     * 后技术确认
+     */
+    @JsonIgnore
+    private Boolean TechApproved;
+
+    /**
      * 吊牌价
      */
     @JsonIgnore
-    public BigDecimal C8_Colorway_SalesPrice;
-
+    private BigDecimal C8_Colorway_SalesPrice;
 
     @JsonIgnore
     private final Map<String, CodeMapping<?, String>> codeMap = MapUtil.ofEntries(
