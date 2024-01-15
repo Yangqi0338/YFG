@@ -57,7 +57,7 @@ public class TagPrinting {
     /**
      * 吊牌价
      */
-    private BigDecimal C8_Colorway_SalesPrice;
+    private String C8_Colorway_SalesPrice;
 
     /**
      * 是否内配饰
