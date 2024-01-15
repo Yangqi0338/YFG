@@ -101,6 +101,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper) {
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "tobl.");
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
         //查询BOM版本
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {

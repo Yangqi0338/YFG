@@ -1,11 +1,13 @@
 package com.base.sbc.module.orderbook.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
@@ -33,8 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -225,5 +226,53 @@ public class OrderBookDetailController extends BaseController {
     public ApiResult delByIds(RemoveDto removeDto) {
         boolean b = orderBookDetailService.removeByIds(removeDto);
         return deleteSuccess(b);
+    }
+
+    /**
+     * 修改套装款号
+     */
+    @ApiOperation(value = "修改套装款号")
+    @PostMapping("/setStyleNumber")
+    public ApiResult setStyleNumber(@RequestBody OrderBookDetailSaveDto dto) {
+        OrderBookDetailVo orderBookDetailVo = orderBookDetailService.getDetailById(dto.getId());
+        //先清掉之前关联的款号
+        String bulkStyleNo = orderBookDetailVo.getBulkStyleNo();
+        QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
+        queryWrapper.like("suit_no",bulkStyleNo);
+        List<OrderBookDetail> list = orderBookDetailService.list(queryWrapper);
+        for (OrderBookDetail orderBookDetail : list) {
+            String suitNo = orderBookDetail.getSuitNo();
+            String[] split = suitNo.split(",");
+            List<String> list1 = Arrays.asList(split);
+            list1.remove(bulkStyleNo);
+            if (!list1.isEmpty()){
+                orderBookDetail.setSuitNo(StringUtils.join(list1, ","));
+            }else {
+                orderBookDetail.setSuitNo("");
+            }
+            orderBookDetailService.updateById(orderBookDetail);
+        }
+
+        //再做关联,把被关联的其他款，也关联上当前款号
+        if (StringUtils.isNotBlank(dto.getSuitNo())){
+            OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
+            orderBookDetailQueryDto.setBulkStyleNo(dto.getSuitNo());
+            BaseQueryWrapper<OrderBookDetail> queryWrapper1 = orderBookDetailService.buildQueryWrapper(orderBookDetailQueryDto);
+            List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper1);
+            for (OrderBookDetailVo bookDetailVo : orderBookDetailVos) {
+                String suitNo = bookDetailVo.getSuitNo();
+                if (StringUtils.isNotBlank(suitNo)){
+                    String[] split1 = suitNo.split(",");
+                    Set<String> list2 = new HashSet<>(Arrays.asList(split1));
+                    list2.add(bulkStyleNo);
+                    bookDetailVo.setSuitNo(StringUtils.join(list2, ","));
+                }else {
+                    bookDetailVo.setSuitNo(bulkStyleNo);
+                }
+            }
+        }
+
+        boolean b = orderBookDetailService.updateById(dto);
+        return updateSuccess(b);
     }
 }
