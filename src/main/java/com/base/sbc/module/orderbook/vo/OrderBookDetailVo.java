@@ -248,4 +248,12 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     private String registeringNo;
 
+    private String sumMaterial;
+
+    private String sumBraiding;
+
+    private String sumOfflineProduction;
+    private String sumOnlineProduction;
+    private String sumTagPrice;
+
 }
