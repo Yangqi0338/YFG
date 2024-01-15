@@ -627,6 +627,125 @@
 
         </if>
     </select>
+
+    <select id="getResearchProcessList" resultType="com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo">
+        SELECT t.*,
+
+        IF(t.tempOrderBookProduction &lt; CURDATE() , t.tempOrderBookProduction,null) as 'orderBookProduction',
+        IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) as 'bossStyle'
+
+        FROM (
+        SELECT
+        t.id as styleId,
+        t.design_no as designNo,
+        t.style_pic as stylePic,
+        t1.style_color_pic as styleColorPic,
+        t1.style_no as bulkStyleNo,
+        t.pattern_design_name as patternDesignName,
+        t.designer as designerName,
+        t.devt_type_name as devtTypeName,
+        t.devt_type as devtType,
+        t.brand as brandCode,
+        t.brand_name as brandName,
+        t1.id as styleColorId,
+        template.id as templateId,
+        t.design_no,
+        t1.style_no,
+        t1.devt_type,
+        t.designer_id,
+        t.pattern_design_id,
+        t.brand,
+        t1.create_date,
+        tpci.send_date as noNextDraft,
+        check_start_time as reviewedDraft,
+        check_end_time as nextDraft,
+        tns.end_date as punchingCompleted,
+        tns1.end_date as sampleClothingCompleted,
+        CASE
+        WHEN WEEKDAY(tns1.end_date) &lt;= 1 THEN DATE_SUB(tns1.end_date, INTERVAL (WEEKDAY(tns1.end_date) -1) % 7 DAY)
+        ELSE DATE_ADD(tns1.end_date, INTERVAL (8 - WEEKDAY(tns1.end_date)) % 7 DAY)
+        END AS 'tempOrderBookProduction'
+
+
+        FROM t_style t
+        INNER JOIN t_style_color t1 ON t.id = t1.style_id
+        INNER JOIN t_basicsdatum_research_process_template template ON t.brand = template.brand_code AND t.devt_type = template.product_type and template.del_flag = '0' and template.enable_flag = '0'
+        INNER JOIN t_planning_category_item as tpci on tpci.id = t.planning_category_item_id and t.del_flag = '0'
+        LEFT JOIN (select id,style_id from t_pattern_making where sample_type_name = '初版样' and del_flag = '0' GROUP BY style_id,sample_type_name ORDER BY create_date ASC ) as tpm ON tpm.style_id = t.id
+        LEFT JOIN t_node_status as tns ON tns.data_id = tpm.id AND tns.node = '打版任务' AND tns.status = '打版完成'
+        LEFT JOIN t_node_status as tns1 ON tns1.data_id = tpm.id AND tns1.node = '样衣任务' AND tns1.status = '车缝完成'
+        WHERE
+        t.del_flag = '0'
+        AND t1.del_flag = '0'
+        ) t
+        WHERE 1=1
+        <if test="search != '' and search != null">
+            AND (t.design_no like concat('%',#{search},'%')  or t.style_no  like concat('%',#{search},'%'))
+        </if>
+        <if test="null != devtTypes and devtTypes.size() > 0">
+            AND t.devt_type IN
+            <foreach collection="devtTypes" item="devtType" separator="," open="(" close=")">
+                #{devtType}
+            </foreach>
+        </if>
+        <if test="null != designerIds and designerIds.size() > 0">
+            AND t.designer_id IN
+            <foreach collection="designerIds" item="designerId" separator="," open="(" close=")">
+                #{designerId}
+            </foreach>
+        </if>
+        <if test="null != patternDesignIds and patternDesignIds.size() > 0">
+            AND t.pattern_design_id IN
+            <foreach collection="patternDesignIds" item="patternDesignId" separator="," open="(" close=")">
+                #{patternDesignId}
+            </foreach>
+        </if>
+        <if test="null != brandIds and brandIds.size() > 0">
+            AND t.brand IN
+            <foreach collection="brandIds" item="brandId" separator="," open="(" close=")">
+                #{brandId}
+            </foreach>
+        </if>
+
+        <if test=" nodeCode == 'noNextDraft' ">
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is null
+            AND t.nextDraft is null
+        </if>
+        <if test=" nodeCode == 'reviewedDraft' ">
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is not null
+            AND t.nextDraft is null
+            AND t.punchingCompleted is null
+        </if>
+
+        <if test=" nodeCode == 'nextDraft' ">
+            AND t.nextDraft is not null
+            AND t.punchingCompleted is null
+            AND t.sampleClothingCompleted is null
+        </if>
+
+        <if test=" nodeCode == 'punchingCompleted' ">
+            AND t.punchingCompleted is not null
+            AND t.sampleClothingCompleted is null
+        </if>
+
+        <if test=" nodeCode == 'sampleClothingCompleted' ">
+            AND t.sampleClothingCompleted is not null
+            AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is  null
+        </if>
+
+        <if test=" nodeCode == 'orderBookProduction' ">
+            AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is not null
+            AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null)  is  null
+        </if>
+
+        <if test=" nodeCode == 'bossStyle' ">
+            AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
+        </if>
+
+        ORDER BY t.create_date DESC
+    </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
 
         SELECT
