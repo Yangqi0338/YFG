@@ -632,7 +632,7 @@
         SELECT t.*,
 
         IF(t.tempOrderBookProduction &lt; CURDATE() , t.tempOrderBookProduction,null) as 'orderBookProduction',
-        IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) as 'bossStyle'
+        IF(t.tempOrderBookProduction is not null , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) as 'bossStyle'
 
         FROM (
         SELECT
