@@ -95,9 +95,10 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        return String.format("%s%s %s",
+        return String.format("%s%s%s",
                 StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":": this.standardColumnContent,
-                this.isGroup ? "\n" : "", this.propertiesContent);
+                this.isGroup ? "\n" : "",
+                StrUtil.isNotBlank(this.propertiesContent) ? this.propertiesContent + ":": this.propertiesContent);
     }
 
     @JsonIgnore

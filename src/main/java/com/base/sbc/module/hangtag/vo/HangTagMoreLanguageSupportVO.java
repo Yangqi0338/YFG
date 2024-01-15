@@ -8,6 +8,7 @@ package com.base.sbc.module.hangtag.vo;
 
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
+import com.base.sbc.open.dto.MoreLanguageTagPrinting;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.function.Function;
 
 /**
  * 类描述：吊牌表 实体类
@@ -101,5 +103,8 @@ public class HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "分类列表")
     @JsonIgnore
     private List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
+
+    @JsonIgnore
+    private Function<MoreLanguageTagPrinting, Object> printFunc;
 
 }

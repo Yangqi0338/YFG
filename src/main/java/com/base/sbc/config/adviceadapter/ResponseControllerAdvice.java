@@ -2,6 +2,7 @@ package com.base.sbc.config.adviceadapter;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.Ip2regionAnalysis;
 import com.base.sbc.config.common.base.UserCompany;
@@ -40,7 +41,7 @@ public class ResponseControllerAdvice implements ResponseBodyAdvice<Object> {
 
     private final HttpLogService httpLogService;
 
-    public static ThreadLocal<UserCompany> companyUserInfo = new ThreadLocal<>();
+    public static ThreadLocal<UserCompany> companyUserInfo = new TransmittableThreadLocal<>();
 
 
     /**

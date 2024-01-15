@@ -6,11 +6,15 @@ import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguagePrinterBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
+import com.base.sbc.module.hangtag.vo.HangTagVO;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.standard.entity.StandardColumn;
+import com.base.sbc.open.dto.MoreLanguageTagPrinting;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -43,4 +47,8 @@ public interface HangTagConvert {
     CountryQueryDto copy2CountryQuery(HangTagMoreLanguageDTO source);
     HangTagMoreLanguageBaseVO copy2MoreLanguageBaseVO(CountryLanguage source);
     void countryTranslate2MoreLanguageVO(StandardColumnCountryTranslate source, @MappingTarget HangTagMoreLanguageVO target);
+
+    MoreLanguageHangTagVO copy2MoreLanguage(HangTagVO source);
+    List<MoreLanguageHangTagVO> copyList2MoreLanguage(List<HangTagVO> source);
+    MoreLanguageTagPrinting copy2MoreLanguage(TagPrinting source);
 }

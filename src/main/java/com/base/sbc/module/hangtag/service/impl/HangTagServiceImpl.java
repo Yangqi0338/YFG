@@ -7,15 +7,14 @@
 package com.base.sbc.module.hangtag.service.impl;
 import java.util.Date;
 
-import cn.hutool.core.bean.copier.CopyOptions;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,7 +22,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
@@ -32,10 +30,11 @@ import com.base.sbc.module.basicsdatum.service.SizeBulkStyleService;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguagePrinterBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
@@ -48,6 +47,8 @@ import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
+import com.base.sbc.open.dto.MoreLanguageTagPrinting;
+import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -568,7 +569,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Override
 	public List<TagPrinting> hangTagPrinting(String styleNo, boolean likeQueryFlag) {
 		BaseQueryWrapper<HangTag> baseQueryWrapper = new BaseQueryWrapper<>();
-		List<TagPrinting> tagPrintings = new ArrayList<>();
+
 		if (likeQueryFlag) {
 			baseQueryWrapper.notEmptyEq("bulk_style_no", styleNo);
 		} else {
@@ -578,6 +579,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		baseQueryWrapper.ne("historical_data", "1");
 
 		List<HangTag> list = this.list(baseQueryWrapper);
+
+		List<TagPrinting> tagPrintings = hangTagPrinting(list);
+
+		// 改变吊牌打印状态
+		list.forEach(e -> {
+			e.setPrintOrNot("1");
+		});
+		this.updateBatchById(list);
+
+		return tagPrintings;
+	}
+
+	private <T extends HangTag> List<TagPrinting> hangTagPrinting(List<T> list) {
+		List<TagPrinting> tagPrintings = new ArrayList<>();
 		if (!list.isEmpty()) {
 			for (HangTag hangTag : list) {
 				// 配色
@@ -786,7 +801,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		list.forEach(e -> {
 			e.setPrintOrNot("1");
 		});
-		this.updateBatchById(list);
+		this.updateBatchById(BeanUtil.copyToList(list, HangTag.class));
 
 		return tagPrintings;
 	}
@@ -886,20 +901,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
 		// 查询多吊牌数据 可以优化成只差翻译部分的数据 TODO
-		List<HangTagVO> hangTagVOList = hangTagMapper.getDetailsByBulkStyleNo(bulkStyleNoList, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType());
+		List<MoreLanguageHangTagVO> hangTagVOList = HANG_TAG_CV.copyList2MoreLanguage(hangTagMapper.getDetailsByBulkStyleNo(
+				bulkStyleNoList, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType()
+		));
 
 		List<HangTagMoreLanguageBaseVO> resultList = new ArrayList<>();
-
-		// 转换成codeMap
-		Map<String, Pair<Function<HangTagVO, String>, Function<HangTagVO, String>>> codeMap = new HashMap<>(10);
-		codeMap.put("DP03", Pair.of(HangTagVO::getExecuteStandardCode, HangTagVO::getExecuteStandard));
-		codeMap.put("DP04", Pair.of(HangTagVO::getBulkStyleNo, HangTagVO::getBulkStyleNo));
-		codeMap.put("DP05", Pair.of(HangTagVO::getProductCode, HangTagVO::getProductName));
-		codeMap.put("DP07", Pair.of(HangTagVO::getColorCode, HangTagVO::getColor));
-		codeMap.put("DP12", Pair.of(HangTagVO::getDownContent, HangTagVO::getDownContent));
-		codeMap.put("XM01", Pair.of(HangTagVO::getWarmTipsCode, HangTagVO::getWarmTips));
-		codeMap.put("XM06", Pair.of(HangTagVO::getWashingLabelName, HangTagVO::getWashingLabelName));
-		codeMap.put("XM07", Pair.of(HangTagVO::getStorageDemand, HangTagVO::getStorageDemandName));
 
 		List<String> mergeWarnMsgList = new ArrayList<>();
 
@@ -921,7 +927,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			List<StandardColumn> standardColumnList = standardColumnMap.getOrDefault(code, new ArrayList<>());
 
 			for (String bulkStyleNo : countryMappingBulkStyleNoList) {
-				Optional<HangTagVO> hangTagVOOpt = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst();
+				Optional<MoreLanguageHangTagVO> hangTagVOOpt = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst();
 
 				if (!hangTagVOOpt.isPresent()) {
 					String msg = "大货款号:" + bulkStyleNo + " 不存在吊牌信息";
@@ -933,11 +939,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 				}
 
-				HangTagVO hangTagVO = hangTagVOOpt.get();
+				MoreLanguageHangTagVO hangTagVO = hangTagVOOpt.get();
+				Map<String, MoreLanguageCodeMapping<?, String>> codeMap = hangTagVO.getBaseCodeMapping();
 
 				// 选择了安全技术类别的安全标题 修改
-				if (sameCodeList.stream().anyMatch(it-> it.getType() == CountryLanguageType.TAG) && "10".equals(hangTagVO.getSaftyTitleCode())) {
-					codeMap.put("DP02", Pair.of(HangTagVO::getSaftyTypeCode, HangTagVO::getSaftyType));
+				if (sameCodeList.stream().noneMatch(it-> it.getType() == CountryLanguageType.TAG) && "10".equals(hangTagVO.getSaftyTitleCode())) {
+					codeMap.remove("DP02");
+//					codeMap.put("DP02", Pair.of(MoreLanguageHangTagVO::getSaftyTypeCode, MoreLanguageHangTagVO::getSaftyType));
 				}
 
 				List<CountryLanguageDto> finalSameCodeList = sameCodeList;
@@ -958,7 +966,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					hangTagMoreLanguageBaseVO.setType(standardColumn.getType());
 
 					// 能否找到对应的翻译
-					Pair<Function<HangTagVO, String>, Function<HangTagVO, String>> codeFunc = codeMap.get(standardColumnCode);
+					MoreLanguageCodeMapping<Object, String> codeFunc = (MoreLanguageCodeMapping<Object, String>) codeMap.get(standardColumnCode);
 					String defaultValue = codeFunc.getValue().apply(hangTagVO);
 					hangTagMoreLanguageBaseVO.setPropertiesName(defaultValue);
 					String propertiesCode = codeFunc.getKey().apply(hangTagVO);
@@ -1114,7 +1122,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		if (!mergeWarnMsgList.isEmpty()) {
 			StringJoiner mergeWarnMsgJoiner = new StringJoiner(" / ");
-			mergeWarnMsgList.stream().distinct().forEach(msg-> mergeWarnMsgJoiner.add(msg));
+			mergeWarnMsgList.stream().distinct().forEach(mergeWarnMsgJoiner::add);
 			throw new OtherException(mergeWarnMsgJoiner.toString());
 		}
 
@@ -1131,7 +1139,47 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						});
 				return sourceResultList;
 			case PRINT:
-				return HANG_TAG_CV.copyList2Print(resultList);
+				// 假定为只传一个款
+				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
+//				List<HangTagMoreLanguagePrinterBaseVO> hangTagMoreLanguagePrinterBaseVOS = HANG_TAG_CV.copyList2Print(resultList);
+
+				// 多国家
+				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
+				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
+					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
+					// 获取所有的语言
+					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
+						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
+						Map<String, MoreLanguageTagPrinting.CodeMapping<?, String>> codeMap = printing.getCodeMap();
+						Map<String, Function<MoreLanguageTagPrinting, List<?>>> codeListMap = printing.getCodeListMap();
+
+						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
+							String standardColumnCode = result.getStandardColumnCode();
+
+							Optional<HangTagMoreLanguageVO> languageVoOpt = result.getLanguageList().stream().filter(it -> it.getLanguageCode().equals(languageCode)).findFirst();
+							if (!languageVoOpt.isPresent()) continue;
+							HangTagMoreLanguageVO languageVO = languageVoOpt.get();
+							if (!codeMap.containsKey(standardColumnCode)) continue;
+
+							MoreLanguageTagPrinting.CodeMapping<?, String> pair = codeMap.get(standardColumnCode);
+							BiConsumer<Object, String> title = (BiConsumer<Object, String>) pair.getKey();
+							BiConsumer<Object, String> value = (BiConsumer<Object, String>) pair.getValue();
+
+							Function<MoreLanguageTagPrinting, List<?>> listFunction = codeListMap.get(standardColumnCode);
+							if (listFunction == null) listFunction = MoreLanguageTagPrinting::getMySelfList;
+
+							listFunction.apply(printing).forEach(dataObj-> {
+								title.accept(dataObj, Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(result.getStandardColumnName()));
+								value.accept(dataObj, Opt.ofBlankAble(languageVO.getPropertiesContent()).orElse(result.getPropertiesName()));
+							});
+
+							printing.setLanguageName(languageVO.getLanguageName());
+						}
+						tagPrintingList.add(printing);
+					});
+					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
+				});
+				return tagPrintingResultList;
 			default: throw new IllegalStateException("Unexpected value: " + source);
 		}
 	}
