@@ -30,21 +30,10 @@ public class OrderBookFollowUpController extends BaseController {
         // OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
         // orderBookDetail.setStatus(dto.getStatus());
         // orderBookDetailService.updateById(orderBookDetail);
-        // 提交审核生产订货本跟进
-        OrderBookFollowUp orderBookFollowUp = new OrderBookFollowUp();
-        orderBookFollowUp.setStatus("1");
-        orderBookFollowUp.setOrderBookDetailIds(dto.getOrderBookDetailIds());
-        orderBookFollowUp.setBulkStyleNos(dto.getBulkStyleNos());
-        orderBookFollowUp.setTechnicianName(dto.getCreateName());
-        orderBookFollowUp.setBrandName(dto.getBrandName());
-        orderBookFollowUp.setBrandCode(dto.getBrandCode());
-        orderBookFollowUp.setOrderBookName(dto.getOrderBookName());
-        orderBookFollowUp.setOrderBookId(dto.getOrderBookId());
-        orderBookFollowUp.setSeasonName(dto.getSeasonName());
-        orderBookFollowUp.setSeasonId(dto.getSeasonId());
-        orderBookFollowUp.setStyleNumber(dto.getStyleNumber());
 
-        orderBookFollowUpService.save(orderBookFollowUp);
+        // 提交审核生产订货本跟进
+        dto.setStatus("1");
+        orderBookFollowUpService.save(dto);
         return updateSuccess("操作成功");
     }
 

@@ -40,6 +40,9 @@ public class OrderBookFollowUp extends BaseDataEntity<String> {
     @ApiModelProperty(value = "工艺员")
     private String technicianName;
 
+    @ApiModelProperty(value = "工艺员id")
+    private String technicianId;
+
     @ApiModelProperty(value = "款数")
     private String styleNumber;
 
