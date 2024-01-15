@@ -17,14 +17,23 @@ public enum BasicsdatumProcessNodeEnum {
     DESIGN_DETAIL_DATE("designDetailDate", "设计部下明细单"),
     DESIGN_CORRECT_DATE("designCorrectDate", "设计部下正确样"),
     VERSION_ROOM_CHECK_VERSION("versionRoomCheckVersion", "版房查版"),
+    FABRIC_REQUISITION("fabricRequisition", "面料请购"),
     PURCHASE_REQUEST("purchaseRequest", "面辅料采购申请"),
     REPLY_DELIVERY_TIME("replyDeliveryTime", "采购回复交期"),
+
+    FABRIC_CYCLE("fabricCycle", "面料周期"),
+
+    LINING_OF_ACCESSORIES("liningOfAccessories", "辅料齐套"),
     SURFACE_AUXILIARY_MATERIAL_TESTING("surfaceAuxiliaryMaterialTesting", "面辅料检测"),
     TECHNICAL_TABLE("technicalTable", "产前技术表"),
     PRE_PRODUCTION_SAMPLE_PRODUCTION("preProductionSampleProduction", "产前样制作"),
-    PRICING("pricing", "核价"),
-    ORDER_PLACEMENT_BY_ACCOUNTING_CONTROL("orderPlacementByAccountingControl", "计控下单"),
-    ;
+    ORDER_PLACEMENT_BY_ACCOUNTING_CONTROL("orderPlacementByAccountingControl", "计控下单/核价"),
+
+    ON_LINE_PRODUCTION_TIME("onLineProductionTime", "上线生产时间"),
+
+    ENTRY_WAREHOUSE_TIME("entryWarehouseTime", "入库时间"),
+
+    TIME_TO_MARKET("timeToMarket", "上市时间");
 
     private final String code;
     private final String name;
