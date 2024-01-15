@@ -711,6 +711,7 @@
             AND t.noNextDraft is not null
             AND t.reviewedDraft is null
             AND t.nextDraft is null
+            AND t.punchingCompleted is null
         </if>
         <if test=" nodeCode == 'reviewedDraft' ">
             AND t.noNextDraft is not null
