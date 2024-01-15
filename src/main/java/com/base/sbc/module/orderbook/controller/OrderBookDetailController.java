@@ -16,8 +16,10 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
+import com.base.sbc.module.orderbook.dto.OrderBookFollowUpSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.entity.OrderBookFollowUp;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
@@ -211,15 +213,6 @@ public class OrderBookDetailController extends BaseController {
         return selectSuccess(orderBookDetailVo) ;
     }
 
-    @ApiOperation(value = "订货本-提交审批")
-    @PostMapping("/submitForApproval")
-    public ApiResult submitForApproval(@RequestBody OrderBookDetailSaveDto dto) {
-        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
-        orderBookDetail.setStatus(dto.getStatus());
-        orderBookDetailService.updateById(orderBookDetail);
-        // TODO 2023/12/8 18:56:03 待确认是否需要发送消息
-        return updateSuccess("操作成功");
-    }
 
     @ApiOperation(value = "订货本-删除")
     @DeleteMapping("/delByIds")
