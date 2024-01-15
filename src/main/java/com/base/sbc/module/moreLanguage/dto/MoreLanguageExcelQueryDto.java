@@ -29,7 +29,6 @@ public class MoreLanguageExcelQueryDto {
     private YesOrNoEnum singleLanguageFlag;
 
     @ApiModelProperty(value = "吊牌类型")
-    @NotNull(message = "请选择吊牌类型")
     private CountryLanguageType type;
 
     @ApiModelProperty(value = "选择的标准列")
