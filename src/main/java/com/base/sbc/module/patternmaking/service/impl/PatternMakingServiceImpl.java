@@ -1238,8 +1238,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 break;
             case PRE_PRODUCTION_SAMPLE_PRODUCTION:
                 break;
-            case PRICING:
-                break;
             case ORDER_PLACEMENT_BY_ACCOUNTING_CONTROL:
                 break;
             default:
