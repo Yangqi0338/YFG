@@ -62,13 +62,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date commissioningDate;
 
-    /** 版型定位编码 */
-    @ApiModelProperty(value = "版型定位编码"  )
-    private String patternPositioningCode;
 
-    /** 版型定位名称 */
-    @ApiModelProperty(value = "版型定位名称"  )
-    private String patternPositioningName;
 
 
     /**

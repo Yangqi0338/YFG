@@ -160,7 +160,13 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "CMT总成本（含税")
     private BigDecimal cmtTotalCost;
+    /** 版型定位编码 */
+    @ApiModelProperty(value = "版型定位编码"  )
+    private String patternPositioningCode;
 
+    /** 版型定位名称 */
+    @ApiModelProperty(value = "版型定位名称"  )
+    private String patternPositioningName;
     /**
      * CMT车缝工价
      */
@@ -231,4 +237,15 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "单件用量/里")
     private String unitDosage;
+
+    /**
+     * 版师
+     */
+    private String patternDesignName;
+
+    /**
+     * 套版款号
+     */
+    private String registeringNo;
+
 }

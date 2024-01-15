@@ -125,31 +125,31 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         /*款式定价相关参数*/
         this.queryStylePrice(orderBookDetailVos);
         /*按配色id获取到里面的围度数据*/
-        Map<String, FieldVal> map = new HashMap<>();
+        // Map<String, FieldVal> map = new HashMap<>();
         /*获取配色中的围度里面的动态数据*/
-        List<String> stringList = orderBookDetailVos.stream().map(OrderBookDetailVo::getStyleColorId).collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(stringList)){
-            QueryWrapper<FieldVal> fieldValQueryWrapper = new QueryWrapper<>();
-            fieldValQueryWrapper.in("foreign_id",stringList);
-            fieldValQueryWrapper.eq("data_group", FieldValDataGroupConstant.STYLE_COLOR);
-            /*版型定位*/
-            fieldValQueryWrapper.eq("field_name","positioningCode");
-            List<FieldVal> list = fieldValService.list(fieldValQueryWrapper);
+        // // List<String> stringList = orderBookDetailVos.stream().map(OrderBookDetailVo::getStyleColorId).collect(Collectors.toList());
+        // if(CollUtil.isNotEmpty(stringList)){
+            // QueryWrapper<FieldVal> fieldValQueryWrapper = new QueryWrapper<>();
+            // fieldValQueryWrapper.in("foreign_id",stringList);
+            // fieldValQueryWrapper.eq("data_group", FieldValDataGroupConstant.STYLE_COLOR);
+            // /*版型定位*/
+            // fieldValQueryWrapper.eq("field_name","positioningCode");
+            // List<FieldVal> list = fieldValService.list(fieldValQueryWrapper);
 
-            if(CollUtil.isNotEmpty(list)){
-                map =   Optional.ofNullable(list).orElse(new ArrayList<>()).stream().collect(Collectors.toMap(FieldVal::getForeignId, v -> v, (a, b) -> b));
-            }
-        }
+            // if(CollUtil.isNotEmpty(list)){
+            //     // map =   Optional.ofNullable(list).orElse(new ArrayList<>()).stream().collect(Collectors.toMap(FieldVal::getForeignId, v -> v, (a, b) -> b));
+            // }
+        // }
 
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
 
 
-            /*版型定位字段*/
-            FieldVal fieldValList = map.get(orderBookDetailVo.getStyleColorId());
-            if(!ObjectUtil.isEmpty(fieldValList)){
-                orderBookDetailVo.setPatternPositioningCode(fieldValList.getVal());
-                orderBookDetailVo.setPatternPositioningName(fieldValList.getValName());
-            }
+            // /*版型定位字段*/
+            // FieldVal fieldValList = map.get(orderBookDetailVo.getStyleColorId());
+            // if(!ObjectUtil.isEmpty(fieldValList)){
+            //     orderBookDetailVo.setPatternPositioningCode(fieldValList.getVal());
+            //     orderBookDetailVo.setPatternPositioningName(fieldValList.getValName());
+            // }
             String unitFabricDosageIds = orderBookDetailVo.getUnitFabricDosageIds();
             if (StringUtil.isNotEmpty(unitFabricDosageIds)){
                 StringBuilder names=new StringBuilder();
