@@ -996,7 +996,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             if ("noNextDraft".equals(nodeCode) || "reviewedDraft".equals(nodeCode) || "nextDraft".equals(nodeCode) ||
                     "punchingCompleted".equals(nodeCode) || "sampleClothingCompleted".equals(nodeCode) ||
                     "orderBookProduction".equals(nodeCode) || "bossStyle".equals(nodeCode)) {
-
             } else {
                 return new PageInfo<>(null);
             }
