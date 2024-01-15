@@ -68,35 +68,35 @@ public class MoreLanguageTagPrinting extends TagPrinting {
      */
     private String C8_APPBOM_StorageTitle;
 
-    /**
-     * 是否赠品
-     */
+    @Override
     @JsonIgnore
-    private Boolean IsGift;
+    public Boolean getIsGift() {
+        return super.getIsGift();
+    }
 
-    /**
-     * 商品吊牌价确认
-     */
+    @Override
     @JsonIgnore
-    private Boolean MerchApproved;
+    public Boolean getMerchApproved() {
+        return super.getMerchApproved();
+    }
 
-    /**
-     * 品控部确认
-     */
+    @Override
     @JsonIgnore
-    private Boolean Approved;
+    public Boolean getApproved() {
+        return super.getApproved();
+    }
 
-    /**
-     * 后技术确认
-     */
+    @Override
     @JsonIgnore
-    private Boolean TechApproved;
+    public Boolean getTechApproved() {
+        return super.getTechApproved();
+    }
 
-    /**
-     * 吊牌价
-     */
+    @Override
     @JsonIgnore
-    private BigDecimal C8_Colorway_SalesPrice;
+    public BigDecimal getC8_Colorway_SalesPrice() {
+        return super.getC8_Colorway_SalesPrice();
+    }
 
     @JsonIgnore
     private final Map<String, CodeMapping<?, String>> codeMap = MapUtil.ofEntries(
