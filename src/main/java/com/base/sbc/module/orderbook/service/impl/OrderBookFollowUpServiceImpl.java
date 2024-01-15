@@ -63,7 +63,9 @@ public class OrderBookFollowUpServiceImpl extends BaseServiceImpl<OrderBookFollo
     @Override
     public BaseQueryWrapper<OrderBookFollowUp> buildQueryWrapper(OrderBookFollowUpQueryDto dto) {
         BaseQueryWrapper<OrderBookFollowUp> baseQueryWrapper =new BaseQueryWrapper<>();
-        baseQueryWrapper.eq("tobl.id", dto.getId());
+        baseQueryWrapper.between("tobl.productionDate",dto.getProductionDate());
+        baseQueryWrapper.notEmptyEq("tobl.id", dto.getId());
+        baseQueryWrapper.notEmptyEq("tobl.seasonId", dto.getSeasonId());
         return baseQueryWrapper;
     }
 

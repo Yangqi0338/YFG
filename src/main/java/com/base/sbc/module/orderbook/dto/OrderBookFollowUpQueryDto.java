@@ -11,4 +11,6 @@ import lombok.Data;
 @Data
 public class OrderBookFollowUpQueryDto extends Page {
     private String id;
+    private String[] productionDate;
+    private String seasonId;
 }
