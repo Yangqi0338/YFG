@@ -84,6 +84,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "导出", notes = "")
     @GetMapping("/deriveExcel")
+    @DuplicationCheck(type = 1,message = "服务正在导出请稍等",time = 60)
     public void deriveExcel(HttpServletResponse response, HangTagSearchDTO hangTagSearchDTO) throws IOException {
         hangTagService.deriveExcel(response,hangTagSearchDTO, super.getUserCompany());
     }

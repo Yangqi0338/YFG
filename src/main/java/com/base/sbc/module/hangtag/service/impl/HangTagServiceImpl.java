@@ -175,7 +175,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
+		if(StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)&& hangTagListVOS.size() > 1000){
+			throw new OtherException("最多导出1000条数据");
+		}
 		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		if(StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)){
+			return new PageInfo<>(hangTagListVOS);
+		}
 		if (hangTagListVOS.isEmpty()) {
 			return new PageInfo<>(hangTagListVOS);
 		}
@@ -261,6 +267,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	public void deriveExcel(HttpServletResponse response, HangTagSearchDTO hangTagSearchDTO, String userCompany)
 			throws IOException {
 		/* 查询吊牌数据 */
+		hangTagSearchDTO.setDeriveFlag(BaseGlobal.YES);
 		List<HangTagListVO> list = queryPageInfo(hangTagSearchDTO, userCompany).getList();
 		List<HangTagVoExcel> hangTagVoExcels = BeanUtil.copyToList(list, HangTagVoExcel.class);
 		ExcelUtils.exportExcel(hangTagVoExcels, HangTagVoExcel.class, "吊牌.xlsx", new ExportParams(), response);
