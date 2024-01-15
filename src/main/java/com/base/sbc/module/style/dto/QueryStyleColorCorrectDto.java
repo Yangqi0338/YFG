@@ -237,4 +237,10 @@ public class QueryStyleColorCorrectDto extends Page {
      * 工艺师
      */
     private String technologistName;
+
+    @ApiModelProperty(value = "工艺部接收日期-正确样")
+    private String technicsDate;
+
+    @ApiModelProperty(value = "工艺部接收日期-正确样判断为空标记")
+    private String technicsDateNullFlag;
 }

@@ -11,11 +11,11 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
-import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
 import com.base.sbc.module.style.dto.QueryStyleColorCorrectDto;
@@ -68,6 +68,17 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             queryWrapper.in("ts.designer", StringUtils.convertList(page.getDesigner()));
         }
         queryWrapper.notEmptyEq("ts.task_level_name", page.getTaskLevelName());
+        queryWrapper.like(StringUtils.isNotBlank(page.getTechnicianName()), "ts.technician_name", page.getTechnicianName());
+        queryWrapper.eq(StringUtils.isNotBlank(page.getBomStatus()), "tsc.bom_status", page.getBomStatus());
+        if (StringUtils.isNotBlank(page.getTechnicsDate())) {
+            queryWrapper.between("tcci.technics_date", page.getTechnicsDate().split(","));
+        }
+        if(StrUtil.equals(page.getTechnicsDateNullFlag(), BaseGlobal.IN)){
+            queryWrapper.isNull("tcci.technics_date");
+        }
+        if(StrUtil.equals(page.getTechnicsDateNullFlag(),BaseGlobal.YES)){
+            queryWrapper.isNotNull("tcci.technics_date");
+        }
         queryWrapper.notEmptyEq("tsc.id", page.getStyleColorId());
         queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
         List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);
@@ -184,14 +195,14 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         }
 
         //修改产前样看板的工艺确认时间
-        if(StrUtil.isNotBlank(styleColorCorrectInfo.getProductionSampleId())){
+        /*if(StrUtil.isNotBlank(styleColorCorrectInfo.getProductionSampleId())){
             PreProductionSampleTaskDto task = new PreProductionSampleTaskDto();
             task.setId(styleColorCorrectInfo.getProductionSampleId());
             task.setTechReceiveDate(styleColorCorrectInfo.getTechnicsDate());
             preProductionSampleTaskService.saveTechReceiveDate(task);
             //如果没有关联到  则保存在原始表中
             styleColorCorrectInfo.setTechnicsDate(null);
-        }
+        }*/
 
         //修改款式配色的设计 时间
         AddRevampStyleColorDto styleColor = new AddRevampStyleColorDto();

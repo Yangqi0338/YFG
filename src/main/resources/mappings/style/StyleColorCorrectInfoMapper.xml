@@ -8,6 +8,7 @@
 --                tppst.id                productionSampleId,
                tcci.technology_correct_date,
                tcci.technology_check_date,
+               tcci.technics_date,
 --                tppst.tech_receive_date technicsDate,
                tcci.gst_date,
                tcci.plan_control_date,
