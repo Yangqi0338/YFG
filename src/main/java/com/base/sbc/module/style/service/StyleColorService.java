@@ -16,11 +16,10 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -242,7 +241,13 @@ public interface StyleColorService extends BaseService<StyleColor> {
         void styleColorListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws IOException;
 
 
-// 自定义方法区 不替换的区域【other_end】
+        /**
+         * 根据大货款获取设计师，版师，样衣工信息
+         * @param styleNo
+         * @return
+         */
+        StyleNoUserInfoVo getDesignerInfo(String styleNo);
+    // 自定义方法区 不替换的区域【other_end】
 
 
 }

@@ -77,6 +77,7 @@ import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleColorListExcel;
 import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -1629,6 +1630,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         } finally {
             executor.shutdown();
         }
+    }
+
+    @Override
+    public StyleNoUserInfoVo getDesignerInfo(String styleNo) {
+        return baseMapper.getStyleDesignerInfo(styleNo);
     }
 
     /**

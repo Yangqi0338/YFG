@@ -22,6 +22,9 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.entity.*;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
@@ -57,7 +60,6 @@ public class OpenSmpController extends BaseController {
 
     private final HangTagService hangTagService;
 
-
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
     private final OpenSmpService openSmpService;
@@ -68,6 +70,7 @@ public class OpenSmpController extends BaseController {
 
     private final CcmService ccmService;
 
+    private final StyleColorService styleColorService;
 
     /**
      * bp供应商
@@ -236,4 +239,15 @@ public class OpenSmpController extends BaseController {
         basicsdatumMaterialService.updateById(basicsdatumMaterial);
         return insertSuccess(null);
     }
+
+
+    /**
+     * 获取大货款，设计师，版师，样衣工
+     */
+    @GetMapping("/getStyleDesignerInfo")
+    @ApiOperation(value = "根据大货款号获取，设计师，版师，样衣工", notes = "根据大货款号获取，设计师，版师，样衣工")
+    public ApiResult getStyleDesignerInfo(String styleNo) {
+        return selectSuccess(styleColorService.getDesignerInfo(styleNo));
+    }
+
 }
