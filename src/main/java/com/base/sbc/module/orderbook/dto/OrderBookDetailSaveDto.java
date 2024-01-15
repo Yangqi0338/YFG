@@ -58,4 +58,6 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
     private String productStyle;
 
     private String productStyleName;
+
+    private String planningSeasonId;
 }

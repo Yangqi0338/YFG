@@ -1,10 +1,13 @@
 package com.base.sbc.module.orderbook.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -46,6 +49,7 @@ public class OrderBookDetailController extends BaseController {
     private final StylePicUtils stylePicUtils;
     private final OrderBookService orderBookService;
     private final StylePricingService stylePricingService;
+    private final AmcFeignService amcFeignService;
 
     @ApiOperation(value = "订货本详情-分页条件查询")
     @GetMapping("/queryPage")
@@ -163,18 +167,21 @@ public class OrderBookDetailController extends BaseController {
             orderBookDetail.setDesignerName(dto.getDesignerName());
             orderBookDetail.setStatus("1");
         } else {
-            userId = dto.getBusinessId();
-            if (StringUtils.isEmpty(userId)) {
-                throw new OtherException("商企id不可为空");
-            }
-            orderBookDetail.setBusinessId(userId);
-            orderBookDetail.setBusinessName(dto.getBusinessName());
+
+            orderBookDetail.setBusinessId("1");
+            // orderBookDetail.setBusinessName(dto.getBusinessName());
             orderBookDetail.setStatus("2");
         }
         boolean b = orderBookDetailService.updateById(orderBookDetail);
         if (b) {
             // 发送通知消息给对应的人员
-            messageUtils.sendCommonMessage(userId, "您有新的订货本消息待处理", "/styleManagement/orderBook", stylePicUtils.getGroupUser());
+
+            List<UserCompany> userCompanies = amcFeignService.getTeamUserListByPost(dto.getPlanningSeasonId(), "商企");
+            if (!userCompanies.isEmpty()){
+                List<String> list = userCompanies.stream().map(UserCompany::getUserId).collect(Collectors.toList());
+                messageUtils.sendCommonMessage(StringUtils.join(list, ","), "您有新的订货本消息待处理", "/styleManagement/orderBook", stylePicUtils.getGroupUser());
+
+            }
         }
         return updateSuccess(b);
     }
