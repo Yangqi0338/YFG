@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.security.access.method.P;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -66,6 +67,13 @@ public class MoreLanguageTagPrinting extends TagPrinting {
      * 贮藏要求
      */
     private String C8_APPBOM_StorageTitle;
+
+    /**
+     * 吊牌价
+     */
+    @JsonIgnore
+    public BigDecimal C8_Colorway_SalesPrice;
+
 
     @JsonIgnore
     private final Map<String, CodeMapping<?, String>> codeMap = MapUtil.ofEntries(

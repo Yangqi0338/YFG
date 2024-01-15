@@ -650,7 +650,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 
 					// 吊牌价
-					tagPrinting.setC8_Colorway_SalesPrice(styleColor.getTagPrice().toString());
+					tagPrinting.setC8_Colorway_SalesPrice(styleColor.getTagPrice());
 
 					// 大货款号是否激活
 					tagPrinting.setActive("0".equals(styleColor.getStatus()));
