@@ -60,7 +60,7 @@ public class BasicsdatumResearchProcessNodeController{
 	}
 
 	@ApiOperation(value = "保存")
-	@PostMapping
+	@PostMapping("save")
 	public BasicsdatumResearchProcessNode save(@RequestBody BasicsdatumResearchProcessNode basicsdatumResearchProcessNode) {
 		basicsdatumResearchProcessNodeService.save(basicsdatumResearchProcessNode);
 		return basicsdatumResearchProcessNode;
