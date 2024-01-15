@@ -7,6 +7,7 @@
 package com.base.sbc.module.moreLanguage.service.impl;
 import java.util.Date;
 
+import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.google.common.collect.Maps;
@@ -138,9 +139,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             if (cache) {
                 maxCountryLanguageCode = (int) RedisStaticFunUtils.incr(RedisKeyConstant.COUNTRY_LANGUAGE.addEnd(cache,"size"), 1);
             } else {
-                maxCountryLanguageCode = this.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
+                maxCountryLanguageCode = Opt.ofNullable(this.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
                         .eq(CountryLanguage::getSingleLanguageFlag, baseCountryLanguage.getSingleLanguageFlag())
-                        .orderByDesc(CountryLanguage::getCodeIndex), CountryLanguage::getCodeIndex) + 1;
+                        .orderByDesc(CountryLanguage::getCodeIndex), CountryLanguage::getCodeIndex)).orElse(0) + 1;
             }
             baseCountryLanguage.setCodeIndex(maxCountryLanguageCode);
             // 还要检查是否存在预览数据

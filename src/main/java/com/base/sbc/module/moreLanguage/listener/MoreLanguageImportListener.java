@@ -411,6 +411,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                             .select(CountryLanguage::getId, CountryLanguage::getLanguageCode)
                             .in(CountryLanguage::getLanguageCode, languageCodeList)
                             .eq(CountryLanguage::getEnableFlag, YesOrNoEnum.YES)
+                            .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES)
                             .eq(CountryLanguage::getType, type)
                     );
                     List<String> languageIdList = sameLanguageCodeList.stream().map(CountryLanguage::getLanguageCode).distinct().collect(Collectors.toList());
@@ -451,9 +452,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                                 linkNewTranslateList.add(linkBaseTranslate);
                             }
                         });
-
-                        standardColumnCountryTranslateService.saveOrUpdateBatch(linkNewTranslateList);
                     }
+                    standardColumnCountryTranslateService.saveOrUpdateBatch(linkNewTranslateList);
                 });
                 // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
                 countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>()
