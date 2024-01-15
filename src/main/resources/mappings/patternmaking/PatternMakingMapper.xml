@@ -656,7 +656,7 @@
         t.pattern_design_id,
         t.brand,
         t1.create_date,
-        date_format(tpci.send_date,'%Y-%m-%d') as noNextDraft,
+        date_format(t.create_date,'%Y-%m-%d') as noNextDraft,
         date_format(check_start_time,'%Y-%m-%d') as reviewedDraft,
         date_format(check_end_time,'%Y-%m-%d')  as nextDraft,
         date_format(tns.end_date,'%Y-%m-%d')  as punchingCompleted,
