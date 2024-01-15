@@ -63,6 +63,17 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     private Date commissioningDate;
 
 
+    /**
+     *维度信息（尺寸）
+     */
+    @ApiModelProperty(value = "维度信息（尺寸）")
+    private String dimensionInfo;
+
+    /**
+     * 克重
+     */
+    @ApiModelProperty(value = "克重")
+    private String gramWeight;
 
 
     /**
