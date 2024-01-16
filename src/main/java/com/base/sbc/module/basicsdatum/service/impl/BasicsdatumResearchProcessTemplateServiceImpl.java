@@ -111,6 +111,11 @@ public class BasicsdatumResearchProcessTemplateServiceImpl extends BaseServiceIm
             queryWrapper.orderByAsc("sort");
             List<BasicsdatumResearchProcessNode> templateList = basicsdatumResearchProcessNodeService.list(queryWrapper);
             List<BasicsdatumResearchProcessNodeVo> basicsdatumResearchProcessNodeVos = BeanUtil.copyToList(templateList, BasicsdatumResearchProcessNodeVo.class);
+            basicsdatumResearchProcessNodeVos.forEach(item->{
+                if (item.getNumberDay() == -1) {
+                    item.setNumberDay(null);
+                }
+            });
             templateVo.setTemplateNodeList(basicsdatumResearchProcessNodeVos);
         }
         return templateVo;

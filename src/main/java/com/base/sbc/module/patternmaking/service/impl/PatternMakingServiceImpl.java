@@ -1002,10 +1002,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         List<StyleResearchProcessVo> list = this.getBaseMapper().getResearchProcessList(dto);
 
-
-
-
-
         //region 节点明细数据
         StyleResearchNodeVo styleResearchNodeVo = null;
         List<StyleResearchNodeVo> nodeList = null;
@@ -1028,7 +1024,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
             nodeList = new ArrayList<>();
             for (BasicsdatumResearchProcessNode node : templateList) {
-                //偏移天数
+                // 偏移天数
                 tempDate = DateUtil.offset(tempDate, DateField.DAY_OF_YEAR, node.getNumberDay());
                 // 订货本 周二 如果超过星期二顺延到下周二
                 tempDate = getDate(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION, node.getCode(), Week.TUESDAY.getValue(), tempDate);
@@ -1038,10 +1034,17 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 styleResearchNodeVo = new StyleResearchNodeVo();
                 styleResearchNodeVo.setNodeCode(node.getCode());
                 styleResearchNodeVo.setNodeName(node.getName());
-                styleResearchNodeVo.setNumberDay(node.getNumberDay());
+                if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                    styleResearchNodeVo.setNumberDay(null);
+                    styleResearchNodeVo.setBetweenDayText(null);
+                }else{
+                    styleResearchNodeVo.setNumberDay(node.getNumberDay());
+                    styleResearchNodeVo.setBetweenDayText(node.getNumberDay()+"天");
+                }
+
                 styleResearchNodeVo.setPlanTime(tempDate);
                 //获取节点完成日期
-                BasicsdatumProcessNodeEnum value = BasicsdatumProcessNodeEnum.getBycode(node.getCode());
+                //BasicsdatumProcessNodeEnum value = BasicsdatumProcessNodeEnum.getBycode(node.getCode());
                 //Date nodeFinashTime = getNodeFinashTime(styleResearchProcessVo.getStyleId(), styleResearchProcessVo.getStyleColorId(), value, styleResearchNodeVo,tempDate);
                 Date nodeFinashTime = null;
                 if (BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode().equals(node.getCode())) {
@@ -1055,10 +1058,21 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     nodeFinashTime = styleResearchProcessVo.getPunchingCompleted();
                 }else if(BasicsdatumProcessNodeEnum.SAMPLE_CLOTHING_COMPLETED.getCode().equals(node.getCode())){
                     nodeFinashTime = styleResearchProcessVo.getSampleClothingCompleted();
+                }else if(BasicsdatumProcessNodeEnum.SAMPLE_SELECTION.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getOrderBookProduction();
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周二");
+                    }
                 }else if(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION.getCode().equals(node.getCode())){
                     nodeFinashTime = styleResearchProcessVo.getOrderBookProduction();
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周二");
+                    }
                 }else if(BasicsdatumProcessNodeEnum.BOSS_STYLE.getCode().equals(node.getCode())){
                     nodeFinashTime = styleResearchProcessVo.getBossStyle();
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周三");
+                    }
                 }
                 if (nodeFinashTime != null) {
                     tempDate = nodeFinashTime;
