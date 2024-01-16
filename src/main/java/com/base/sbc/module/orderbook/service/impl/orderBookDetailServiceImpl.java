@@ -12,6 +12,7 @@ import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
@@ -332,8 +333,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             OrderBookDetailSaveDto orderBookDetailSaveDto = map.get(o.getId());
             if (ObjectUtil.isNotEmpty(orderBookDetailSaveDto)) {
                 o.setDesignerId(orderBookDetailSaveDto.getDesignerId());
-                o.setDesignerName(orderBookDetailSaveDto.getDesignerName());
-                o.setDesignerCode(orderBookDetailSaveDto.getDesignerName().split(",")[1]);
+                /*查询是否包含设计师编码*/
+                if(orderBookDetailSaveDto.getDesignerName().indexOf(",")>-1){
+                  List<String> stringList =  StringUtils.convertList(orderBookDetailSaveDto.getDesignerName());
+                    o.setDesignerName(stringList.get(0));
+                    o.setDesignerCode(stringList.get(1));
+                }else {
+                    o.setDesignerName(orderBookDetailSaveDto.getDesignerName());
+                    o.setDesignerCode(orderBookDetailSaveDto.getDesignerCode());
+                }
+
                 o.setStatus(BaseGlobal.YES);
             }
         });

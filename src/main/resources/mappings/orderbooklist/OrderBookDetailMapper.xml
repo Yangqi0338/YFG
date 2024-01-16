@@ -35,6 +35,7 @@
         tsc.bom,
         tsc.bom_status,
         tsc.scm_send_flag,
+        ts.planning_season_id,
         tbcl.colour_code as supplierColor,
         tpi.id as packInfoId
         FROM
