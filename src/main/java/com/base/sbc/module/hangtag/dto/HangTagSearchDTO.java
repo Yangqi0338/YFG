@@ -90,4 +90,7 @@ public class HangTagSearchDTO extends Page {
 
     @ApiModelProperty(value = "二检包装形式")
     private String secondPackagingFormCode;
+
+    @ApiModelProperty(value = "包装形式")
+    private String  packagingFormCode;
 }

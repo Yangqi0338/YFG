@@ -79,6 +79,11 @@
                 AND ht.second_packaging_form_code = #{dto.secondPackagingFormCode}
             </if>
 
+            <if test="dto.packagingFormCode != null and dto.packagingFormCode != ''">
+                AND ht.packaging_form_code = #{dto.packagingFormCode}
+            </if>
+
+
             <if test="null != dto.bandNames and dto.bandNames.length > 0">
                 AND  tssc.band_code IN
                 <foreach collection="dto.bandNames" item="i" separator="," open="(" close=")">
