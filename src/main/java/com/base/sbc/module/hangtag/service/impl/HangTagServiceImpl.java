@@ -1010,8 +1010,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						String propertiesName = codeFunc.getValue().apply(data);
 						hangTagMoreLanguageBaseVO.setPropertiesName(propertiesName);
 
-						if (StrUtil.isBlank(propertiesCode)) return hangTagMoreLanguageBaseVO;
-
 						// 封装多值的Code
 						List<String> propertiesCodeList = Arrays.asList(propertiesCode.split("\n"));
 						if (propertiesCodeList.size() <= 1) {
@@ -1021,20 +1019,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						boolean needFeed = propertiesCodeList.size() > 1;
 
 						// 查询具体翻译
-						LambdaQueryWrapper<StandardColumnCountryTranslate> translateQueryWrapper = new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-								.eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
-								.in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList);
+						List<StandardColumnCountryTranslate> translateList = new ArrayList<>();
 
-						List<StandardColumnCountryTranslate> translateList = standardColumnCountryTranslateService.list(translateQueryWrapper.clone()
-								.in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageDtoList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
-						);
-
-						// 如果没有翻译,查找单语言翻译
 						List<CountryLanguageDto> singleLanguageTypeList = singleLanguageDtoList.stream()
 								.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
-						if (CollectionUtil.isEmpty(translateList)) {
-							translateList.addAll(standardColumnCountryTranslateService.list(translateQueryWrapper.clone()
-									.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageTypeList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
+						if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
+							translateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+									.eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
+									.in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
+									.in(StandardColumnCountryTranslate::getCountryLanguageId, Stream.of(countryLanguageDtoList, singleLanguageTypeList)
+											.flatMap(it-> it.stream().map(CountryLanguage::getId)).collect(Collectors.toList()))
 							));
 						}
 

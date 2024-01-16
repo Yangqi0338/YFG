@@ -319,6 +319,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             baseEntity.setContent(codeName + ":" + type.getText());
             List<StandardColumnCountryTranslate> updateNewTranslateList = new ArrayList<>();
             List<StandardColumnCountryTranslate> addTranslateList = new ArrayList<>();
+            List<StandardColumnCountryTranslate> languageTranslateList = new ArrayList<>();
 
             List<String> countryLanguageIdList = countryLanguageList.stream().map(CountryLanguage::getId).collect(Collectors.toList());
             List<StandardColumnCountryTranslate> updateOldTranslateList = standardColumnCountryTranslateService.list(
@@ -348,12 +349,13 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
 
                 CountryLanguageDto languageDto = singleLanguageList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode())).findFirst().orElse(new CountryLanguageDto());
 
-                Optional<StandardColumnCountryTranslate> countryTranslateOpt = updateOldTranslateList.stream()
-                        .filter(it ->
-                                (it.getCountryLanguageId().equals(countryLanguageDto.getId())
-                                        ||
-                                it.getCountryLanguageId().equals(languageDto.getId())
-                                ) && it.getPropertiesCode().equals(translate.getPropertiesCode()))
+                List<StandardColumnCountryTranslate> countryTranslateList = updateOldTranslateList.stream()
+                        .filter(it -> it.getPropertiesCode().equals(translate.getPropertiesCode())).collect(Collectors.toList());
+                Optional<StandardColumnCountryTranslate> countryTranslateOpt = countryTranslateList.stream()
+                        .filter(it -> it.getCountryLanguageId().equals(countryLanguageDto.getId()))
+                        .findFirst();
+                Optional<StandardColumnCountryTranslate> languageTranslateOpt = countryTranslateList.stream()
+                        .filter(it -> it.getCountryLanguageId().equals(languageDto.getId()))
                         .findFirst();
                 if (countryTranslateOpt.isPresent()) {
                     StandardColumnCountryTranslate countryTranslate = countryTranslateOpt.get();
@@ -363,7 +365,12 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     if (!StrUtil.equals(Opt.ofNullable(translate.getContent()).map(String::trim).orElse(null),
                             Opt.ofNullable(countryTranslate.getContent()).map(String::trim).orElse(null)
                     )) { updateNewTranslateList.add(translate);}
-                }else {
+                }if (languageTranslateOpt.isPresent()) {
+                    StandardColumnCountryTranslate countryTranslate = languageTranslateOpt.get();
+                    translate.setPropertiesName(countryTranslate.getPropertiesName());
+                    translate.setTitleName(countryTranslate.getTitleName());
+                    addTranslateList.add(translate);
+                } else {
                     addTranslateList.add(translate);
                 }
 
