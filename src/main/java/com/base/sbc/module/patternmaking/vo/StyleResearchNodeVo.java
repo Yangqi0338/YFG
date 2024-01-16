@@ -37,6 +37,11 @@ public class StyleResearchNodeVo {
      * 相差天数
      */
     private Long betweenDay;
+
+    /**
+     * 相差天数文本
+     */
+    private String betweenDayText;
     /**
      * 描述
      */
