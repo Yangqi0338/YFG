@@ -8,9 +8,12 @@ import com.base.sbc.module.orderbook.entity.OrderBookFollowUp;
 import com.base.sbc.module.orderbook.service.OrderBookFollowUpService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 /**
  * @author 卞康
@@ -33,7 +36,11 @@ public class OrderBookFollowUpController extends BaseController {
 
         // 提交审核生产订货本跟进
         dto.setStatus("1");
+        dto.setProductionDate(new Date());
+        dto.setTechnicianName(getUser().getName());
+        dto.setUpdateId(getUserId());
         orderBookFollowUpService.save(dto);
+
         return updateSuccess("操作成功");
     }
 

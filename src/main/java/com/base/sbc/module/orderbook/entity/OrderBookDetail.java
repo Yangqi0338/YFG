@@ -309,5 +309,16 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "fabricType")
     private String fabricType;
 
+    /**
+     * 是否下单（0：否，1：是）
+     */
+    @ApiModelProperty(value = "是否下单（0：否，1：是）")
+    private String isOrder;
+    /**
+     * 是否锁定（0：否，1：是）
+     */
+    @ApiModelProperty(value = "是否锁定（0：否，1：是）")
+    private String isLock;
+
 }
 

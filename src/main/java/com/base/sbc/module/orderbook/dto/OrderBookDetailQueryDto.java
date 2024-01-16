@@ -62,4 +62,6 @@ public class OrderBookDetailQueryDto extends Page {
      * 是否有权限查询全部 0否，1是
      */
     private String isAll;
+
+    private String ids;
 }

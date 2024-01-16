@@ -79,14 +79,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         PageHelper.startPage(dto);
         List<OrderBookDetailVo> querylist = this.querylist(queryWrapper,null);
-        BasePageInfo<OrderBookDetailVo> orderBookDetailVoBasePageInfo = new BasePageInfo<>(querylist);
-        Map<String,Object> map =new HashMap<>();
-
-        //查询统计数据
-        List<OrderBookDetailVo> querylistAll = this.querylist(queryWrapper,null);
-
-        orderBookDetailVoBasePageInfo.setObjectMap(map);
-        return orderBookDetailVoBasePageInfo;
+        return new BasePageInfo<>(querylist);
     }
 
 
@@ -253,6 +246,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             queryWrapper.between("tobl.commissioning_date", dto.getCommissioningDate().split(","));
         }
         queryWrapper.notEmptyIn("tobl.id",dto.getId());
+        queryWrapper.notEmptyIn("tobl.id",dto.getIds());
         queryWrapper.notEmptyEq("tsc.devt_type_name",dto.getDevtTypeName());
         queryWrapper.likeList("ts.prod_category", dto.getCategoryCode());
         queryWrapper.likeList("tsc.band_name", dto.getBand());

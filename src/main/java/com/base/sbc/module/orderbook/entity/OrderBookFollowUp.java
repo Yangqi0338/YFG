@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @author 卞康
  * @date 2024-01-15 14:35:28
@@ -35,7 +37,7 @@ public class OrderBookFollowUp extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "投产日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    private String productionDate;
+    private Date productionDate;
 
     @ApiModelProperty(value = "工艺员")
     private String technicianName;

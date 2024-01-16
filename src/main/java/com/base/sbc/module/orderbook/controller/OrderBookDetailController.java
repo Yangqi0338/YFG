@@ -1,5 +1,6 @@
 package com.base.sbc.module.orderbook.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -28,6 +29,7 @@ import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -77,6 +79,56 @@ public class OrderBookDetailController extends BaseController {
     @PostMapping("/orderBookDetailUpdate")
         public ApiResult orderBookDetailUpdate(@RequestBody OrderBookDetailSaveDto dto) {
         return insertSuccess(orderBookDetailService.updateById(dto));
+    }
+
+    /**
+     * 订货本下单
+     */
+    @ApiModelProperty(value = "订货本详情-下单")
+    @PostMapping("/placeAnOrder")
+    public ApiResult placeAnOrder(@RequestBody OrderBookDetailQueryDto dto) {
+        String ids = dto.getIds();
+        return placeAnOrder(dto, ids);
+    }
+
+    /**
+     * 全部下单
+     */
+    @ApiModelProperty(value = "订货本详情-全部下单")
+    @PostMapping("/placeAnOrderAll")
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult placeAnOrderAll(@RequestBody OrderBookDetailQueryDto dto) {
+        String orderBookId = dto.getOrderBookId();
+        return placeAnOrder(dto, orderBookId);
+    }
+
+    private ApiResult placeAnOrder(@RequestBody OrderBookDetailQueryDto dto, String orderBookId) {
+        if (StringUtils.isEmpty(orderBookId)) {
+            return updateSuccess("请选订货本");
+        }
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = orderBookDetailService.buildQueryWrapper(dto);
+        List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper, null);
+        for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
+            if (!"3".equals(orderBookDetail.getStatus())){
+                return updateSuccess(orderBookDetail.getBulkStyleNo()+"未审核，不能下单");
+            }
+            //判断是否能下单
+            String totalProduction = orderBookDetail.getTotalProduction();
+            if (StringUtils.isEmpty(totalProduction) || totalProduction.equals("0")) {
+                return updateSuccess(orderBookDetail.getBulkStyleNo()+"下单数量不能为空或者0");
+            }
+        }
+
+        for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
+            orderBookDetail.setIsLock("1");
+            orderBookDetail.setIsOrder("1");
+            orderBookDetail.setStatus("4");
+        }
+        List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
+        boolean b = orderBookDetailService.updateBatchById(orderBookDetails1);
+        OrderBook orderBook = orderBookService.getById(orderBookId);
+        orderBook.setStatus("2");
+        return updateSuccess(b);
     }
 
     /**
