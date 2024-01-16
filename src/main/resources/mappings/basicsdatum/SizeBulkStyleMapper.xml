@@ -28,5 +28,6 @@
                 #{id}
             </foreach>
         </if>
+        order by sort
     </select>
 </mapper>
