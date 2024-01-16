@@ -75,8 +75,8 @@
                 AND tsd.design_no like concat('%',#{dto.style},'%')
             </if>
 
-            <if test="dto.econdPackagingFormCode != null and dto.econdPackagingFormCode != ''">
-                AND ht.second_packaging_form_code = #{dto.econdPackagingFormCode}
+            <if test="dto.secondPackagingFormCode != null and dto.secondPackagingFormCode != ''">
+                AND ht.second_packaging_form_code = #{dto.secondPackagingFormCode}
             </if>
 
             <if test="null != dto.bandNames and dto.bandNames.length > 0">

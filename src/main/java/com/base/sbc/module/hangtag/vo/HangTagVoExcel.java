@@ -251,7 +251,7 @@ public class HangTagVoExcel {
      * 是否是迁移历史数据 0否 1是
      */
     @ApiModelProperty(value = "是否新系统标记")
-    @Excel(name = "是否新系统标记",replace={"是_0","否_1","是_null"})
+    @Excel(name = "是否新系统标记",replace={"是_0","否_1","是_null","是_"})
     private String historicalData;
 
 }
