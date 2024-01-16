@@ -2,6 +2,7 @@ package com.base.sbc.module.moreLanguage.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -83,7 +84,11 @@ public class MoreLanguageController extends BaseController {
             EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAllSync();
             String warnMsg = importListener.dataVerifyHandler();
             ApiResult<String> result = selectSuccess("您的吊牌信息已经导入成功. " + warnMsg);
-            result.setStatus(Opt.ofBlankAble(warnMsg).map(it-> 200).orElse(0));
+            if (StrUtil.isNotBlank(warnMsg)) {
+                result.setMessage(result.getMessage() + ", 请问是否需要导入?");
+            }else {
+                result.setStatus(200);
+            }
             return result;
         }catch (Exception e){
             e.printStackTrace();

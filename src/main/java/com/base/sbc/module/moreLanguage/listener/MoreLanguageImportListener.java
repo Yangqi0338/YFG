@@ -543,7 +543,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             });
         }
         dataVerifyResults.remove();
-        return joiner + ", 请问是否需要导入?";
+        return joiner.toString();
     }
 
 }
