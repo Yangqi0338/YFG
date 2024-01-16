@@ -253,7 +253,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.likeList("tsc.band_name", dto.getBand());
         queryWrapper.likeList("tobl.designer_id", dto.getDesignerId());
         queryWrapper.likeList("tsc.style_no", dto.getBulkStyleNo());
-        queryWrapper.eq("tobl.company_code", dto.getCompanyCode());
+        queryWrapper.notEmptyEq("tobl.company_code", dto.getCompanyCode());
         // //有权限则查询全部数据
         // if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
         //     queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
