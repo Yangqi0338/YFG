@@ -436,8 +436,8 @@
                     <td class="td_lt gb" style="font-size: 11px"><pre>${downContent}</pre></td>
                 </tr>
                 <tr>
-                    <td class="bold">特殊规格</td>
-                    <td style="font-size: 11px">${specialSpec}</td>
+                    <td class="td_lt bold">特殊规格</td>
+                    <td class="td_lt" style="font-size: 11px"><pre>${specialSpec}</pre></td>
                 </tr>
                 <tr>
                     <td class="gb bold">面料详情</td>
