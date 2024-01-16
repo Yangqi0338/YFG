@@ -474,7 +474,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     String propertiesCode = it.getPropertiesCode();
                     String propertiesName = it.getPropertiesName();
                     countryModel.setModelCode(propertiesCode.split("-")[1]);
-                    countryModel.setModelName(propertiesName.split("-")[1]);
+//                    countryModel.setModelName(propertiesName.split("-")[1]);
                     countryModel.setBasicSizeCode(propertiesCode.split("-")[0]);
                     countryModel.setBasicSizeName(propertiesName.split("-")[0]);
                     countryModel.setContent(it.getContent());
