@@ -92,4 +92,9 @@ public class DimensionLabelsSearchDto {
 
     @ApiModelProperty(value = "显示标识")
     private String showConfig;
+
+
+    @ApiModelProperty(value = "系数模板id")
+    private String  coefficientTemplateId;
+
 }

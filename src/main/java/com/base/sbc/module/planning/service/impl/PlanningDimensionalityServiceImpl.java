@@ -15,6 +15,8 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -33,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +59,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Autowired
     private  FormTypeMapper formTypeMapper;
 
+    @Autowired
+    private BasicsdatumDimensionalityService basicsdatumDimensionalityService;
 
     @Override
     public DimensionalityListVo getDimensionalityList(DimensionLabelsSearchDto dto) {
@@ -218,6 +223,29 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             return new HashMap();
         }
         return dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
+    }
+
+    /**
+     * 系数模板引用
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public boolean templateReference(DimensionLabelsSearchDto dto) {
+        QueryWrapper<BasicsdatumDimensionality> queryWrapper= new QueryWrapper<>();
+        queryWrapper.eq("coefficient_template_id",dto.getCoefficientTemplateId());
+        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()),"prod_category",dto.getProdCategory());
+        /*获取模板中的系数*/
+        List<BasicsdatumDimensionality> dimensionalityList = basicsdatumDimensionalityService.list(queryWrapper);
+
+        List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityList, PlanningDimensionality.class);
+        list.forEach(l ->{
+            l.setPlanningChannelId(null);
+            l.setPlanningSeasonId(dto.getPlanningSeasonId());
+        });
+
+        return false;
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/

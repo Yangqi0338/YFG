@@ -67,6 +67,13 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
     Map getCoefficient(DimensionLabelsSearchDto dto);
 
 
+    /**
+     * 系数模板引用
+     * @param dto
+     * @return
+     */
+   boolean templateReference(DimensionLabelsSearchDto dto);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

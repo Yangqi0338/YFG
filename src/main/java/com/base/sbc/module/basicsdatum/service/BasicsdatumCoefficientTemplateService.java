@@ -7,6 +7,7 @@
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.dto.AddUpdateCoefficientTemplateDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumCoefficientTemplateDto;
+import com.base.sbc.module.basicsdatum.dto.IdDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumCoefficientTemplateVo;
 import com.base.sbc.module.common.service.BaseService;
@@ -49,6 +50,19 @@ public interface BasicsdatumCoefficientTemplateService extends BaseService<Basic
      */
     Boolean startStopCoefficientTemplate(@Valid @RequestBody StartStopDto startStopDto);
 
+    /**
+     * 复制模板
+     * @param dto
+     * @return
+     */
+    Boolean copyTemplate(BasicsdatumCoefficientTemplateDto dto);
+
+    /**
+     * 获取模板详情
+     * @param idDto
+     * @return
+     */
+    BasicsdatumCoefficientTemplateVo  getTemplateDetails(IdDto idDto);
 // 自定义方法区 不替换的区域【other_end】
 
 	

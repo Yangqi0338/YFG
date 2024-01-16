@@ -6,6 +6,10 @@ import lombok.Data;
 
 @Data
 public class BasicsdatumCoefficientTemplateDto extends Page {
+
+    @ApiModelProperty(value = "id"  )
+    private String id;
+
     @ApiModelProperty(value = "模板名称"  )
     private String name;
     /** 季节 */

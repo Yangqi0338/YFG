@@ -61,6 +61,9 @@ public class BasicsdatumDimensionality extends BaseDataEntity<String> {
     /** 维度名称 */
     @ApiModelProperty(value = "维度名称"  )
     private String dimensionalityName;
+    /** 显示标记 */
+    @ApiModelProperty(value = "显示标记"  )
+    private String showFlag;
     /** 是否检查 */
     @ApiModelProperty(value = "是否检查"  )
     private String isExamine;

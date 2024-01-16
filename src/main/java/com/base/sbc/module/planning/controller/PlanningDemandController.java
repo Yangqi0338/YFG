@@ -183,4 +183,13 @@ public class PlanningDemandController {
 		return planningDimensionalityService.getCoefficient(queryDemandDimensionalityDto);
 	}
 
+
+	@ApiOperation(value = "系数模板引用")
+	@GetMapping("/templateReference")
+	public boolean templateReference(DimensionLabelsSearchDto dto) {
+		return planningDimensionalityService.templateReference(dto);
+	}
+
+
+
 }

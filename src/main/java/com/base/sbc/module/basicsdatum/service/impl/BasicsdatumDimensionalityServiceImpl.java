@@ -8,17 +8,17 @@ package com.base.sbc.module.basicsdatum.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumDimensionalityDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
+import com.base.sbc.module.basicsdatum.mapper.BasicsdatumDimensionalityMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.basicsdatum.mapper.BasicsdatumDimensionalityMapper;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
-import com.base.sbc.module.planning.entity.PlanningDimensionality;
-import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -44,7 +44,9 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
      */
     @Override
     public Map getDimensionality(BasicsdatumDimensionalityDto dto) {
-
+        if(StrUtil.isEmpty(dto.getProdCategory())|| StrUtil.isEmpty(dto.getCoefficientTemplateId())){
+            throw new OtherException("品类或模板id不能为空");
+        }
         BaseQueryWrapper<BasicsdatumDimensionality> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tbd.prod_category",dto.getProdCategory());
         queryWrapper.eq("tbd.del_flag",BaseGlobal.NO);
