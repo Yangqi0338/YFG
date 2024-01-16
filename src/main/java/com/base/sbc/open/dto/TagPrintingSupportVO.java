@@ -56,18 +56,18 @@ public class TagPrintingSupportVO extends TagPrinting {
 
     @JsonIgnore
     private final Map<String, CodeMapping<?>> codeMap = MapUtil.ofEntries(
-            MapUtil.entry("DP02", new CodeMapping<>("SaftyTitle")),
-            MapUtil.entry("DP03", new CodeMapping<>("OPStandardTitle")),
-            MapUtil.entry("DP04", new CodeMapping<>("StyleTitle")),
-            MapUtil.entry("DP05", new CodeMapping<>("ProductTitle", MoreLanguageTagPrinting::getProductName, MoreLanguageTagPrinting::setProductName)),
+            MapUtil.entry("DP02", new CodeMapping<>("SaftyTitle-安全技术类别")),
+            MapUtil.entry("DP03", new CodeMapping<>("OPStandardTitle-执行标准")),
+            MapUtil.entry("DP04", new CodeMapping<>("StyleTitle-款号")),
+            MapUtil.entry("DP05", new CodeMapping<>("ProductTitle-品名", MoreLanguageTagPrinting::getProductName, MoreLanguageTagPrinting::setProductName)),
 
-            MapUtil.entry("DP06", new CodeMapping<>("SizeTitle", Size::getSIZECODE, Size::setEuropeCode).setListFunc(MoreLanguageTagPrinting::getSize)),
+            MapUtil.entry("DP06", new CodeMapping<>("SizeTitle-尺码", Size::getSIZECODE, Size::setEuropeCode).setListFunc(MoreLanguageTagPrinting::getSize)),
 
-            MapUtil.entry("DP07", new CodeMapping<>("colorTitle", MoreLanguageTagPrinting::getColorCode, MoreLanguageTagPrinting::setColorDescription)),
-            MapUtil.entry("DP09,DP11,DP10,DP13", new CodeMapping<>("CompositionTitle", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
-            MapUtil.entry("XM01", new CodeMapping<>("AttentionTitle", MoreLanguageTagPrinting::getAttention, MoreLanguageTagPrinting::setAttention)),
-            MapUtil.entry("XM06", new CodeMapping<>("CareSymbolTitle")),
-            MapUtil.entry("XM07", new CodeMapping<>("C8_APPBOM_StorageTitle", MoreLanguageTagPrinting::getC8_APPBOM_StorageReq, MoreLanguageTagPrinting::setC8_APPBOM_StorageReq))
+            MapUtil.entry("DP07", new CodeMapping<>("colorTitle-颜色", MoreLanguageTagPrinting::getColorCode, MoreLanguageTagPrinting::setColorDescription)),
+            MapUtil.entry("DP09,DP11,DP10,DP13", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
+            MapUtil.entry("XM01", new CodeMapping<>("AttentionTitle-温馨提示", MoreLanguageTagPrinting::getAttention, MoreLanguageTagPrinting::setAttention)),
+            MapUtil.entry("XM06", new CodeMapping<>("CareSymbolTitle-洗标")),
+            MapUtil.entry("XM07", new CodeMapping<>("C8_APPBOM_StorageTitle-贮藏要求", MoreLanguageTagPrinting::getC8_APPBOM_StorageReq, MoreLanguageTagPrinting::setC8_APPBOM_StorageReq))
     );
 
     @JsonIgnore
@@ -82,6 +82,7 @@ public class TagPrintingSupportVO extends TagPrinting {
         private Function<MoreLanguageTagPrinting, List<K>> listFunc;
 
         private String titleCode;
+        private String titleName;
 
         private Pair<Function<K, String>, BiConsumer<K, String>> mapping;
 
@@ -91,12 +92,16 @@ public class TagPrintingSupportVO extends TagPrinting {
         }
 
         public CodeMapping(String titleCode) {
-            this.titleCode = titleCode;
+            String[] split = titleCode.split("-");
+            this.titleCode = split[0];
+            this.titleName = split.length > 1 ? split[1] : "";
         }
 
         public CodeMapping(String titleCode, Function<K, String> key, BiConsumer<K, String> value) {
             this.mapping = Pair.of(key,value);
-            this.titleCode = titleCode;
+            String[] split = titleCode.split("-");
+            this.titleCode = split[0];
+            this.titleName = split.length > 1 ? split[1] : "";
         }
     }
 

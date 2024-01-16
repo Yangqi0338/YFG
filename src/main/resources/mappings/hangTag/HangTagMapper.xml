@@ -211,6 +211,7 @@
             <otherwise>
                 tssc.style_no AS bulkStyleNo,
                 tssc.color_name AS color,
+                tssc.color_code AS colorCode,
                 tssc.tag_price AS tagPrice,
                 tssc.is_trim,
                 tssc.style_color_pic ,

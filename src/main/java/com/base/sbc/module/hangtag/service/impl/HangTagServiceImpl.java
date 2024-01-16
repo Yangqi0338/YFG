@@ -1196,7 +1196,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
 						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
 						Map<String, CodeMapping<?>> codeMap = printing.getCodeMap();
-
+						codeMap.forEach((key,value)-> {
+							printing.getTitleMap().put(value.getTitleCode(), value.getTitleName());
+						});
 						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
 							String standardColumnCode = result.getStandardColumnCode();
 
