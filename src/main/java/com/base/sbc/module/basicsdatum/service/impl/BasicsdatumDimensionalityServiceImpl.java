@@ -19,6 +19,9 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumDimensionalityMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.planning.dto.CheckMutexDto;
+import com.base.sbc.module.planning.service.PlanningDemandService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -36,6 +39,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<BasicsdatumDimensionalityMapper, BasicsdatumDimensionality> implements BasicsdatumDimensionalityService {
+
+    @Autowired
+    private PlanningDemandService planningDemandService;
     /**
      * 获取维度数据
      *
@@ -68,6 +74,15 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
      */
     @Override
     public boolean batchSaveDimensionality(List<BasicsdatumDimensionalityDto> dtoList) {
+        if (CollUtil.isEmpty(dtoList)) {
+            throw new OtherException("数据为空");
+        }
+        CheckMutexDto checkMutexDto = new CheckMutexDto();
+        checkMutexDto.setChannel(dtoList.get(0).getChannel());
+//        checkMutexDto.setPlanningSeasonId(dtoList.get(0).getPlanningSeasonId());
+        checkMutexDto.setProdCategory(dtoList.get(0).getProdCategory());
+        checkMutexDto.setProdCategory2nd(dtoList.get(0).getProdCategory2nd());
+        planningDemandService.checkMutex(checkMutexDto);
         List<BasicsdatumDimensionality> list = BeanUtil.copyToList(dtoList, BasicsdatumDimensionality.class);
         list.forEach(p -> {
             if (CommonUtils.isInitId(p.getId())) {

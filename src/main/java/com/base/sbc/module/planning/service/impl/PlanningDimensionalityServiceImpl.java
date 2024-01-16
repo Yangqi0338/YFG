@@ -8,14 +8,18 @@ package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumCoefficientTemplateService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
@@ -25,8 +29,10 @@ import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.formtype.mapper.FormTypeMapper;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
+import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
@@ -61,6 +67,13 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
 
     @Autowired
     private BasicsdatumDimensionalityService basicsdatumDimensionalityService;
+
+    @Autowired
+    private BasicsdatumCoefficientTemplateService basicsdatumCoefficientTemplateService;
+
+
+    @Autowired
+    private PlanningChannelService planningChannelService;
 
     @Override
     public DimensionalityListVo getDimensionalityList(DimensionLabelsSearchDto dto) {
@@ -232,20 +245,43 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean templateReference(DimensionLabelsSearchDto dto) {
-        QueryWrapper<BasicsdatumDimensionality> queryWrapper= new QueryWrapper<>();
-        queryWrapper.eq("coefficient_template_id",dto.getCoefficientTemplateId());
-        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()),"prod_category",dto.getProdCategory());
+        if (StrUtil.isEmpty(dto.getPlanningSeasonId())) {
+            throw new OtherException("产品季id不能为空");
+        }
+        /*获取模板*/
+        BasicsdatumCoefficientTemplate basicsdatumCoefficientTemplate = basicsdatumCoefficientTemplateService.getById(dto.getCoefficientTemplateId());
+        if (ObjectUtil.isEmpty(basicsdatumCoefficientTemplate)) {
+            throw new OtherException("模板id错误");
+        }
+        /*获取渠道*/
+        if (StrUtil.isEmpty(dto.getPlanningChannelId())) {
+            QueryWrapper<PlanningChannel> planningChannelQueryWrapper = new QueryWrapper<>();
+            planningChannelQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
+            planningChannelQueryWrapper.eq("channel", basicsdatumCoefficientTemplate.getChannel());
+            List<PlanningChannel> planningChannelList = planningChannelService.list(planningChannelQueryWrapper);
+            if (CollUtil.isEmpty(planningChannelList)) {
+                throw new OtherException("此产品季下没有" + basicsdatumCoefficientTemplate.getChannelName() + "渠道");
+            }
+            dto.setPlanningChannelId(planningChannelList.get(0).getId());
+        }
+
+        QueryWrapper<BasicsdatumDimensionality> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("coefficient_template_id", basicsdatumCoefficientTemplate.getId());
+        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+//        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory2nd()),"prod_category2nd",dto.getProdCategory2nd());
         /*获取模板中的系数*/
         List<BasicsdatumDimensionality> dimensionalityList = basicsdatumDimensionalityService.list(queryWrapper);
 
         List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityList, PlanningDimensionality.class);
-        list.forEach(l ->{
-            l.setPlanningChannelId(null);
+        list.forEach(l -> {
+            l.setPlanningChannelId(dto.getPlanningChannelId());
             l.setPlanningSeasonId(dto.getPlanningSeasonId());
+            l.setCoefficientFlag(BaseGlobal.YES);
         });
-
-        return false;
+        saveOrUpdateBatch(list);
+        return true;
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/

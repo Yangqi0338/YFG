@@ -30,6 +30,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
@@ -77,6 +78,7 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
      * @return
      */
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public Boolean addUpdateCoefficientTemplate(AddUpdateCoefficientTemplateDto dto) {
         BasicsdatumCoefficientTemplate basicsdatumCoefficientTemplate = new BasicsdatumCoefficientTemplate();
         /*判断新增修改*/
@@ -103,6 +105,8 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
             BeanUtils.copyProperties(dto, basicsdatumCoefficientTemplate);
             baseMapper.insert(basicsdatumCoefficientTemplate);
         }
+        /*新增修改维度标签*/
+        basicsdatumDimensionalityService.batchSaveDimensionality(dto.getList());
         return true;
     }
 

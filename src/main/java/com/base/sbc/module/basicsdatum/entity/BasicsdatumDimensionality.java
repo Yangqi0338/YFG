@@ -5,8 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -18,7 +17,7 @@ import lombok.EqualsAndHashCode;
  * @address com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality
  * @author your name
  * @email your email
- * @date 创建时间：2024-1-15 14:34:41
+ * @date 创建时间：2024-1-16 10:04:12
  * @version 1.0
  */
 @Data
@@ -58,20 +57,48 @@ public class BasicsdatumDimensionality extends BaseDataEntity<String> {
     /** 品类名称 */
     @ApiModelProperty(value = "品类名称"  )
     private String prodCategoryName;
+    /** 中类 */
+    @ApiModelProperty(value = "中类"  )
+    private String prodCategory2nd;
+    /** 中类名称 */
+    @ApiModelProperty(value = "中类名称"  )
+    private String prodCategory2ndName;
     /** 维度名称 */
     @ApiModelProperty(value = "维度名称"  )
     private String dimensionalityName;
-    /** 显示标记 */
-    @ApiModelProperty(value = "显示标记"  )
-    private String showFlag;
-    /** 是否检查 */
-    @ApiModelProperty(value = "是否检查"  )
-    private String isExamine;
+    /** 设计显示标记 */
+    @ApiModelProperty(value = "设计显示标记"  )
+    private String designShowFlag;
+    /** 设计检查标记 */
+    @ApiModelProperty(value = "设计检查标记"  )
+    private String designExamineFlag;
+    /** 研发显示标记 */
+    @ApiModelProperty(value = "研发显示标记"  )
+    private String researchShowFlag;
+    /** 研发检查标记 */
+    @ApiModelProperty(value = "研发检查标记"  )
+    private String researchExamineFlag;
+    /** 复盘显示标记 */
+    @ApiModelProperty(value = "复盘显示标记"  )
+    private String replayShowFlag;
+    /** 复盘检查标记 */
+    @ApiModelProperty(value = "复盘检查标记"  )
+    private String replayExamineFlag;
+    /** 维度等级 */
+    @ApiModelProperty(value = "维度等级"  )
+    private String dimensionalityGrade;
+    /** 维度等级名称 */
+    @ApiModelProperty(value = "维度等级名称"  )
+    private String dimensionalityGradeName;
     /** 排序 */
     @ApiModelProperty(value = "排序"  )
     private Integer sort;
+    /** 分组排序 */
+    @ApiModelProperty(value = "分组排序"  )
+    private Integer groupSort;
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
+

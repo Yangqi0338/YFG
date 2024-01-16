@@ -8,6 +8,7 @@ package com.base.sbc.module.planning.service;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.planning.dto.CheckMutexDto;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.dto.SaveDelDemandDto;
 import com.base.sbc.module.planning.dto.SyncToSeatDto;
@@ -52,6 +53,10 @@ public interface PlanningDemandService extends BaseService<PlanningDemand> {
 
     boolean syncToSeat(SyncToSeatDto dto);
 
+    /**
+     * 增加检查互斥品类和中类互斥
+     */
+    void checkMutex(CheckMutexDto checkMutexDto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

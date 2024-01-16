@@ -58,7 +58,7 @@ public class BasicsdatumCoefficientTemplateController{
 		return basicsdatumCoefficientTemplateService.removeByIds(ids);
 	}
 
-	@ApiOperation(value = "新增修改")
+	@ApiOperation(value = "新增修改模板")
 	@PostMapping("/addUpdateCoefficientTemplate")
 	public Boolean addUpdateCoefficientTemplate(@RequestBody AddUpdateCoefficientTemplateDto dto) {
 		return basicsdatumCoefficientTemplateService.addUpdateCoefficientTemplate(dto);
@@ -70,7 +70,7 @@ public class BasicsdatumCoefficientTemplateController{
 		return basicsdatumCoefficientTemplateService.startStopCoefficientTemplate(startStopDto);
 	}
 
-	@ApiOperation(value = "复制模板")
+	@ApiOperation(value = "复制模板", notes = "id 模板id:, name:模板名称")
 	@PostMapping("/copyTemplate")
 	public Boolean copyTemplate(@Valid @RequestBody BasicsdatumCoefficientTemplateDto dto) {
 		return basicsdatumCoefficientTemplateService.copyTemplate(dto);
