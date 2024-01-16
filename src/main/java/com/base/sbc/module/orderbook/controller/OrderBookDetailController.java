@@ -125,6 +125,9 @@ public class OrderBookDetailController extends BaseController {
             if (!"3".equals(orderBookDetail.getStatus())){
                 return updateSuccess(orderBookDetail.getBulkStyleNo()+"未提交审核，不能驳回审核");
             }
+            orderBookDetail.setStatus("5");
+            orderBookDetail.setIsLock("0");
+            orderBookDetail.setIsOrder("0");
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         orderBookDetailService.updateBatchById(orderBookDetails1);
