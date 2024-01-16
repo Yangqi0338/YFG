@@ -1248,7 +1248,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				if (CollectionUtil.isNotEmpty(sameStandardColumnCodeList)) {
 					webBaseList.removeAll(sameStandardColumnCodeList);
 					sameStandardColumnCodeList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getBulkStyleNo)).forEach((bulkStyleNo, sameBulkList)-> {
-						MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getId().equals(bulkStyleNo)).findFirst().get();
+						MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst().get();
 						HangTagMoreLanguageWebBaseVO webBaseVO = sameBulkList.get(0);
 
 						HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
@@ -1274,7 +1274,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								String sourcePropertiesName = source.getPropertiesName();
 								return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
 										.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
-										.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(sourcePropertiesName));
+										.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
 							}).collect(Collectors.toList());
 
 							rightLanguageMap.forEach(map-> {
