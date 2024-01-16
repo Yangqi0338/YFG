@@ -8,6 +8,7 @@ package com.base.sbc.module.hangtag.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.entity.HangTag;
@@ -104,6 +105,8 @@ public interface HangTagService extends BaseService<HangTag> {
      * @return
      */
     Boolean copyPack(String styleNo, String newStyleNo);
+
+    Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO, boolean needHandle, boolean mergeWarnMsg);
 
 // 自定义方法区 不替换的区域【other_end】
 

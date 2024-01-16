@@ -250,6 +250,11 @@ public class HangTagDTO {
     @ApiModelProperty(value = "温馨提示")
     private String warmTips;
     /**
+     * 温馨提示编码
+     */
+    @ApiModelProperty(value = "温馨提示编码")
+    private String warmTipsCode;
+    /**
      * 洗标
      */
     @ApiModelProperty(value = "洗标")

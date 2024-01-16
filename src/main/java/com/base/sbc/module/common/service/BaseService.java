@@ -1,10 +1,14 @@
 package com.base.sbc.module.common.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -97,6 +101,8 @@ public interface BaseService<T> extends IService<T> {
      */
     void saveOperaLog( String type, String name, T newObject, T oldObject);
 
+    void saveOperaLog(OperaLogEntity operaLogEntity);
+
      void saveOperaLog(String type, String name,String documentName,String documentCode, T newObject, T oldObject);
 
     public void saveOperaLog(String type, String name, String documentName, String documentCode, Map<String,String> data);
@@ -151,5 +157,21 @@ public interface BaseService<T> extends IService<T> {
      * 启用与停用并且记录日志
      */
     void startStopLog(StartStopDto startStopDto);
+
+    /**
+     * 根据queryWrapper检查是否存在
+     */
+    boolean exists(Wrapper<T> wrapper);
+    T findOne(QueryWrapper<T> wrapper);
+    T findOne(LambdaQueryWrapper<T> wrapper);
+    <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
+    <R> List<R> listByIds2OneField(List<String> ids, SFunction<T,R> function);
+
+    /**
+     * 用于redis回查
+     */
+    default Object findByCode(String code) {
+        return null;
+    }
     <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 }

@@ -58,11 +58,20 @@ public interface CcmService {
     /**
      * 新增字典
      *
+     * @param basicBaseDicts 类型
+     * @return
+     */
+    @GetMapping("/ccm/api/saas/basicBaseDicts/batchInsert")
+    public String batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts);
+
+    /**
+     * 新增字典
+     *
      * @param type 类型
      * @return
      */
-    @GetMapping("ccm/api/saas/basicBaseDicts/batchInsert")
-    public String batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts);
+    @DeleteMapping("/ccm/api/saas/basicBaseDicts/batchDeleteDict")
+    public String batchDeleteDict(@Valid @RequestParam("ids") String ids);
 
     /**
      * 获取颜色信息
