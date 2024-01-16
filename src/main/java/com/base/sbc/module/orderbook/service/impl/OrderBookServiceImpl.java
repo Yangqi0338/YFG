@@ -118,7 +118,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         }else {
             this.save(dto);
         }
-        return dto;
+        return this.getById(dto.getId());
         /*做新增*/
         // orderBook.setSeasonId(planningSeason.getId());
         // orderBook.setSeasonName(planningSeason.getSeasonName());

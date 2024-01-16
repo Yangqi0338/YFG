@@ -62,6 +62,17 @@ public class OrderBookDetailController extends BaseController {
         return selectSuccess(orderBookDetailService.queryPage(dto));
     }
 
+    /**
+     * 查询统计数量
+     */
+    @ApiOperation(value = "订货本详情-统计数量")
+    @GetMapping("/queryCount")
+    public ApiResult queryCount(OrderBookDetailQueryDto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        dto.setUserId(super.getUserId());
+        return selectSuccess(orderBookDetailService.queryCount(dto));
+    }
+
     @ApiOperation(value = "订货本详情-修改")
     @PostMapping("/orderBookDetailUpdate")
         public ApiResult orderBookDetailUpdate(@RequestBody OrderBookDetailSaveDto dto) {

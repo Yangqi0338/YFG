@@ -1,7 +1,6 @@
 package com.base.sbc.module.orderbook.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -14,10 +13,9 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.common.dto.BasePageInfo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
-import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
@@ -35,15 +33,12 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
-import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
-import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -78,11 +73,18 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final MessageUtils messageUtils;
 
     @Override
-    public PageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
+    public BasePageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         PageHelper.startPage(dto);
         List<OrderBookDetailVo> querylist = this.querylist(queryWrapper);
-        return new PageInfo<>(querylist);
+        BasePageInfo<OrderBookDetailVo> orderBookDetailVoBasePageInfo = new BasePageInfo<>(querylist);
+        Map<String,Object> map =new HashMap<>();
+
+        //查询统计数据
+        List<OrderBookDetailVo> querylistAll = this.querylist(queryWrapper);
+
+        orderBookDetailVoBasePageInfo.setObjectMap(map);
+        return orderBookDetailVoBasePageInfo;
     }
 
 
@@ -343,6 +345,65 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         // 发送通知消息给对应的人员
         messageUtils.sendCommonMessage(userIds, "您有新的订货本消息待处理", "/styleManagement/orderBook", stylePicUtils.getGroupUser());
         return true;
+    }
+
+    @Override
+    public Map<String, Object> queryCount(OrderBookDetailQueryDto dto) {
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "tobl.");
+        List<OrderBookDetailVo> querylistAll = this.getBaseMapper().queryPage(queryWrapper);
+        HashMap<String, Object> hashMap =new HashMap<>();
+        int materialSum = 0;
+        int materialMoneySum = 0;
+        int braidingSum = 0;
+        int tagPriceSum = 0;
+        int totalProductionSum = 0;
+        int onlineProductionSum = 0;
+        int offlineProductionSum = 0;
+        for (OrderBookDetailVo orderBookDetailVo : querylistAll) {
+            try {
+                materialSum += Integer.parseInt(orderBookDetailVo.getMaterial());
+            } catch (Exception ignored) {
+            }
+            try {
+                materialMoneySum += Integer.parseInt(orderBookDetailVo.getTagPrice().multiply(new BigDecimal(orderBookDetailVo.getMaterial())).toString());
+            } catch (Exception ignored) {
+            }
+            try {
+                braidingSum += Integer.parseInt(orderBookDetailVo.getBraiding());
+            } catch (Exception ignored) {
+            }
+            try {
+                orderBookDetailVo.setTagPrice(new BigDecimal("10.1"));
+                int i = Integer.parseInt(orderBookDetailVo.getTagPrice().toString());
+                tagPriceSum += i;
+            } catch (Exception ignored) {
+                ignored.printStackTrace();
+            }
+            try {
+                totalProductionSum += Integer.parseInt(orderBookDetailVo.getTotalProduction());
+            } catch (Exception ignored) {
+            }
+            try {
+                onlineProductionSum += Integer.parseInt(orderBookDetailVo.getOnlineProduction());
+            } catch (Exception ignored) {
+            }
+            try {
+                offlineProductionSum += Integer.parseInt(orderBookDetailVo.getOfflineProduction());
+            } catch (Exception ignored) {
+            }
+
+
+
+        }
+        hashMap.put("materialSum", materialSum);
+        hashMap.put("materialMoneySum", materialMoneySum);
+        hashMap.put("braidingSum", braidingSum);
+        hashMap.put("tagPriceSum", tagPriceSum);
+        hashMap.put("totalProductionSum", totalProductionSum);
+        hashMap.put("onlineProductionSum", onlineProductionSum);
+        hashMap.put("offlineProductionSum", offlineProductionSum);
+        return hashMap;
     }
 
     /**
