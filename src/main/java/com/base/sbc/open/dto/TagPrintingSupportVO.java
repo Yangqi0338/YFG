@@ -96,12 +96,6 @@ public class TagPrintingSupportVO extends TagPrinting {
         return super.getCareSymbols();
     }
 
-    @Override
-    @JsonIgnore
-    public String getOPStandard() {
-        return super.getOPStandard();
-    }
-
     @JsonIgnore
     private final Map<String, CodeMapping<?>> codeMap = MapUtil.ofEntries(
             MapUtil.entry("DP02", new CodeMapping<>("SaftyTitle-安全技术类别")),

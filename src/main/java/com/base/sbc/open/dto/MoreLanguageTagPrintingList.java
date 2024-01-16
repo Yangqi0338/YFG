@@ -75,10 +75,6 @@ public class MoreLanguageTagPrintingList {
         return tagPrintingList.stream().findFirst().map(MoreLanguageTagPrinting::getCareSymbols).orElse("");
     }
 
-    public String getOPStandard() {
-        return tagPrintingList.stream().findFirst().map(MoreLanguageTagPrinting::getOPStandard).orElse("");
-    }
-
 
     private List<MoreLanguageTagPrinting> tagPrintingList;
 
