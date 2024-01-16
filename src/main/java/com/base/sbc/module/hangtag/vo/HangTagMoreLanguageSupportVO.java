@@ -98,7 +98,4 @@ public class HangTagMoreLanguageSupportVO {
     @JsonIgnore
     private List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
 
-    @JsonIgnore
-    private Function<MoreLanguageTagPrinting, Object> printFunc;
-
 }

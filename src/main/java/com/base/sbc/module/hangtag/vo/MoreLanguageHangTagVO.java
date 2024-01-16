@@ -21,6 +21,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
@@ -49,25 +50,26 @@ public class MoreLanguageHangTagVO extends HangTagVO {
 
     private static Object findIngredient;
     private final Map<String, MoreLanguageCodeMapping<?>> baseCodeMapping = MapUtil.ofEntries(
-            MapUtil.entry("DP02", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getSaftyTypeCode)),
+            MapUtil.entry("DP02", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getSaftyTypeCode, MoreLanguageHangTagVO::getSaftyType)),
 
-            MapUtil.entry("DP03", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getExecuteStandardCode)),
-            MapUtil.entry("DP04", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo)),
-            MapUtil.entry("DP05", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getProductCode)),
+            MapUtil.entry("DP03", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getExecuteStandardCode, MoreLanguageHangTagVO::getExecuteStandard)),
+            MapUtil.entry("DP04", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo, MoreLanguageHangTagVO::getBulkStyleNo)),
+            MapUtil.entry("DP05", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getProductCode, MoreLanguageHangTagVO::getProductName)),
 
-            MapUtil.entry("DP06", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getSizeList, ModelType::getUniqueCode)),
+            MapUtil.entry("DP06", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList)),
 
-            MapUtil.entry("DP07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getColorCode)),
-            MapUtil.entry("DP09", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getIngredientList, HangTagIngredient::getIngredientCode)),
-            MapUtil.entry("DP10", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getIngredientList, HangTagIngredient::getIngredientDescriptionCode)),
-            MapUtil.entry("DP11", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getIngredientList, HangTagIngredient::getTypeCode)),
-            MapUtil.entry("DP13", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getIngredientList, HangTagIngredient::getIngredientSecondCode)),
+            MapUtil.entry("DP07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getColorCode, MoreLanguageHangTagVO::getColor)),
 
-            MapUtil.entry("DP12", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getSizeList, ModelType::getUniqueCode)),
+            MapUtil.entry("DP09", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientCode, HangTagIngredient::getIngredientName).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
+            MapUtil.entry("DP10", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientDescriptionCode, HangTagIngredient::getIngredientDescription).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
+            MapUtil.entry("DP11", new MoreLanguageCodeMapping<>(HangTagIngredient::getTypeCode, HangTagIngredient::getType).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
+            MapUtil.entry("DP13", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientSecondCode, HangTagIngredient::getIngredientSecondName).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
 
-            MapUtil.entry("XM01", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWarmTipsCode)),
-            MapUtil.entry("XM06", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWashingLabelName)),
-            MapUtil.entry("XM07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getStorageDemand))
+            MapUtil.entry("DP12", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList)),
+
+            MapUtil.entry("XM01", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWarmTipsCode, MoreLanguageHangTagVO::getWarmTips)),
+            MapUtil.entry("XM06", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWashingLabelName, MoreLanguageHangTagVO::getWashingLabelName)),
+            MapUtil.entry("XM07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getStorageDemand, MoreLanguageHangTagVO::getStorageDemandName))
     );
 
     private final Map<String, HangTagMoreLanguageGroup> baseCodeGroupMapping = MapUtil.ofEntries(
@@ -116,12 +118,17 @@ public class MoreLanguageHangTagVO extends HangTagVO {
         return CollUtil.toList(this);
     }
 
-    public class MoreLanguageCodeMapping<K> extends Pair<Function<MoreLanguageHangTagVO, List<K>>, Function<K, String>> {
 
-        public MoreLanguageCodeMapping(Function<K, String> value) {
-            super(moreLanguageHangTagVO -> (List<K>) moreLanguageHangTagVO.getMySelfList(), value);
+    @Getter
+    public class MoreLanguageCodeMapping<K> extends Pair<Function<K, String>, Function<K, String>> {
+        private Function<MoreLanguageHangTagVO, List<K>> listFunc = (moreLanguageHangTagVO)-> (List<K>) moreLanguageHangTagVO.getMySelfList();
+
+        public MoreLanguageCodeMapping<K> setListFunc(Function<MoreLanguageHangTagVO, List<K>> listFunc) {
+            this.listFunc = listFunc;
+            return this;
         }
-        public MoreLanguageCodeMapping(Function<MoreLanguageHangTagVO, List<K>> key, Function<K, String> value) {
+
+        public MoreLanguageCodeMapping(Function<K, String> key, Function<K, String> value) {
             super(key, value);
         }
     }

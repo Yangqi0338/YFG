@@ -13,6 +13,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：吊牌表 实体类
@@ -50,11 +52,22 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "标准列翻译")
     private String standardColumnContent = "";
 
+    public String getStandardColumnContent() {
+        return StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":" : "";
+    }
+
     /**
      * 不能找到标准列翻译
      */
     @ApiModelProperty(value = "不能找到标准列翻译")
     protected Boolean cannotFindStandardColumnContent = true;
+
+//    @JsonIgnore
+//    @ApiModelProperty(value = "具体数据模板")
+//    private String propertiesTemplate;
+//
+//    @JsonIgnore
+//    private List<HangTagMoreContentVO> contentList;
 
     public Boolean getCannotFindStandardColumnContent() {
         return this.cannotFindStandardColumnContent && !isGroup;
@@ -91,14 +104,27 @@ public class HangTagMoreLanguageVO {
     protected Boolean isGroup = false;
 
     /**
+     * 具体数据翻译
+     */
+    @ApiModelProperty(value = "具体数据翻译")
+    public String getPropertiesContent() {
+//        String propertiesContent = this.contentList.stream().map(HangTagMoreContentVO::getPropertiesContent).collect(Collectors.joining("\n"));
+//        if (StrUtil.isNotBlank(propertiesTemplate)) {
+//            this.contentList.forEach(it-> {
+//                propertiesTemplate = propertiesTemplate.replaceAll(it.getPropertiesName(), it.getPropertiesContent());
+//            });
+//            propertiesContent = propertiesTemplate;
+//        }
+//        return propertiesContent;
+        return StrUtil.isNotBlank(this.propertiesContent) ? this.propertiesContent : "";
+    }
+
+    /**
      * 全量数据翻译
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        return String.format("%s%s%s",
-                StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":": this.standardColumnContent,
-                this.isGroup ? "\n" : "",
-                StrUtil.isNotBlank(this.propertiesContent) ? this.propertiesContent + ":": this.propertiesContent);
+        return String.format("%s%s%s", getStandardColumnContent(), this.isGroup ? "\n" : " ", getPropertiesContent());
     }
 
     @JsonIgnore
