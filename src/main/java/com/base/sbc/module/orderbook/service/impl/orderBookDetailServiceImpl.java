@@ -105,7 +105,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth) {
-        if (openDataAuth != 1) {
+        if (null == openDataAuth) {
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, "tobl.");
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
@@ -433,7 +433,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             List<String> bulkStyleNos = orderBookDetailVos.stream().map(OrderBookDetailVo::getBulkStyleNo).collect(Collectors.toList());
             BaseQueryWrapper qw = new BaseQueryWrapper();
             qw.in("ssc.style_no", bulkStyleNos);
-            if (openDataAuth != 1) {
+            if (null == openDataAuth) {
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
             }
             /*获取款式定价的列表*/
