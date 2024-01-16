@@ -256,4 +256,11 @@ public class OrderBookDetailVo extends OrderBookDetail {
     private String sumOnlineProduction;
     private String sumTagPrice;
 
+
+    /**
+     * 产品季id
+     */
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
+
 }
