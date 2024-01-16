@@ -255,4 +255,12 @@ public class OpenSmpController extends BaseController {
         return selectSuccess(styleColorService.getDesignerInfo(styleNo));
     }
 
+    /**
+     * 接收成衣成分送检数据
+     */
+    @PostMapping("/garmentInspection")
+    @ApiOperation(value = "PDM获取SCM的成分送检数据", notes = "PDM获取SCM的成分送检数据")
+    public ApiResult garmentInspection() {
+        return insertSuccess(null);
+    }
 }
