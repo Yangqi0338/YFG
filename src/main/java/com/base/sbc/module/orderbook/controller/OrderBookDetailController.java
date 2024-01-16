@@ -75,6 +75,14 @@ public class OrderBookDetailController extends BaseController {
         return selectSuccess(orderBookDetailService.queryCount(dto));
     }
 
+    @ApiOperation(value = "订货本-提交审批")
+    @PostMapping("/submitForApproval")
+    public ApiResult submitForApproval(@RequestBody OrderBookDetailSaveDto dto) {
+        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+        orderBookDetail.setStatus(dto.getStatus());
+        orderBookDetailService.updateById(orderBookDetail);
+        return updateSuccess("操作成功");
+    }
     @ApiOperation(value = "订货本详情-修改")
     @PostMapping("/orderBookDetailUpdate")
         public ApiResult orderBookDetailUpdate(@RequestBody OrderBookDetailSaveDto dto) {
@@ -102,10 +110,51 @@ public class OrderBookDetailController extends BaseController {
         return placeAnOrder(dto, orderBookId);
     }
 
+    /**
+     * 驳回
+     */
+    @ApiModelProperty(value = "订货本详情-驳回")
+    @PostMapping("/placeAnOrderReject")
+    public ApiResult placeAnOrderReject(@RequestBody OrderBookDetailQueryDto dto) {
+        if (StringUtils.isEmpty(dto.getIds())) {
+            return updateSuccess("请选订货本");
+        }
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = orderBookDetailService.buildQueryWrapper(dto);
+        List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper, null);
+        for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
+            if (!"3".equals(orderBookDetail.getStatus())){
+                return updateSuccess(orderBookDetail.getBulkStyleNo()+"未提交审核，不能驳回审核");
+            }
+        }
+        List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
+        orderBookDetailService.updateBatchById(orderBookDetails1);
+        return updateSuccess("驳回成功");
+    }
+
+    /**
+     * 取消锁定
+     */
+    @ApiOperation(value = "订货本详情-取消锁定")
+    @PostMapping("/cancelLock")
+    public ApiResult cancelLock(@RequestBody OrderBookDetailQueryDto dto) {
+        if (StringUtils.isEmpty(dto.getIds())) {
+            return updateSuccess("请选订货本");
+        }
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = orderBookDetailService.buildQueryWrapper(dto);
+        List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper, null);
+        for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
+            orderBookDetail.setIsLock("0");
+        }
+        List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
+        return updateSuccess(orderBookDetailService.updateBatchById(orderBookDetails1));
+    }
+
     private ApiResult placeAnOrder(@RequestBody OrderBookDetailQueryDto dto, String orderBookId) {
         if (StringUtils.isEmpty(orderBookId)) {
             return updateSuccess("请选订货本");
         }
+        dto.setCompanyCode(super.getUserCompany());
+        dto.setUserId(super.getUserId());
         BaseQueryWrapper<OrderBookDetail> queryWrapper = orderBookDetailService.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper, null);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
@@ -126,7 +175,7 @@ public class OrderBookDetailController extends BaseController {
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = orderBookDetailService.updateBatchById(orderBookDetails1);
-        OrderBook orderBook = orderBookService.getById(orderBookId);
+        OrderBook orderBook = orderBookService.getById(dto.getOrderBookId());
         orderBook.setStatus("2");
         return updateSuccess(b);
     }
