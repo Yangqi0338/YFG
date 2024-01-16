@@ -53,7 +53,7 @@ public class ColumnDefineServiceImpl extends BaseServiceImpl<ColumnDefineMapper,
         }
         queryWrapper.orderByAsc(ColumnDefine::getSortOrder);
         List<ColumnDefine> list = list(queryWrapper);
-        if("styleMarking".equals(tableCode)){
+        if("styleMarking".equals(tableCode) || "styleMarkingOrder".equals(tableCode)){
             //款式打标导出专用，动态添加表单字段管理中 维度系数的字段
             styleMarkingColumnAdd(list);
         }

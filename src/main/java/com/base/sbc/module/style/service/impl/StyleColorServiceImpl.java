@@ -1828,6 +1828,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String tableCode = requestAttributes.getRequest().getHeader("tableCode");
             List<ColumnDefine> defaultDetail = SpringUtil.getBean(ColumnUserDefineService.class).findDefaultDetail(tableCode);
             for (ColumnDefine columnDefine : defaultDetail) {
+                if(BaseGlobal.NO.equals(columnDefine.getHidden())){
+                    continue;
+                }
                 ExcelExportEntity entity = new ExcelExportEntity();
                 entity.setKey(columnDefine.getColumnCode());
                 entity.setName(columnDefine.getColumnName());
