@@ -179,9 +179,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			throw new OtherException("最多导出1000条数据");
 		}
 		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
-		if(StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)){
-			return new PageInfo<>(hangTagListVOS);
-		}
 		if (hangTagListVOS.isEmpty()) {
 			return new PageInfo<>(hangTagListVOS);
 		}
