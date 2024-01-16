@@ -252,8 +252,14 @@
                        INNER JOIN t_style t1 ON t.style_id = t1.id
                        LEFT JOIN t_pattern_making t2 on t1.id = t2.style_id
               ORDER BY t2.create_date DESC) t
-        where t.style_no = #{styleNo}
+        where
+         1=1
+        <if test="styleNos !=null and styleNos.size >0">
+            and  t.styleNo in
+            <foreach collection="styleNos" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
         GROUP BY t.style_id
-        limit 1
     </select>
 </mapper>

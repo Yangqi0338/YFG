@@ -98,10 +98,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -1633,8 +1630,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     @Override
-    public StyleNoUserInfoVo getDesignerInfo(String styleNo) {
-        return baseMapper.getStyleDesignerInfo(styleNo);
+    public List<StyleNoUserInfoVo> getDesignerInfo(String styleNo) {
+        return baseMapper.getStyleDesignerInfo(Arrays.asList(styleNo.split(",")));
     }
 
     /**

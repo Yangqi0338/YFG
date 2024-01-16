@@ -12,6 +12,8 @@ import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -247,6 +249,9 @@ public class OpenSmpController extends BaseController {
     @GetMapping("/getStyleDesignerInfo")
     @ApiOperation(value = "根据大货款号获取，设计师，版师，样衣工", notes = "根据大货款号获取，设计师，版师，样衣工")
     public ApiResult getStyleDesignerInfo(String styleNo) {
+        if (StrUtil.isBlank(styleNo)) {
+            throw new OtherException("大货款号不允许为空");
+        }
         return selectSuccess(styleColorService.getDesignerInfo(styleNo));
     }
 

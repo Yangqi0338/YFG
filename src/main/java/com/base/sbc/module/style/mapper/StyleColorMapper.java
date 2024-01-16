@@ -87,10 +87,10 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
 
     /**
      * 根据大货款获取设计师，版师，样衣工信息
-     * @param styleNo
+     * @param styleNos
      * @return
      */
-    StyleNoUserInfoVo getStyleDesignerInfo(String styleNo);
+    List<StyleNoUserInfoVo> getStyleDesignerInfo(@Param("styleNos") List<String> styleNos);
 
 // 自定义方法区 不替换的区域【other_end】
 }

@@ -246,7 +246,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param styleNo
          * @return
          */
-        StyleNoUserInfoVo getDesignerInfo(String styleNo);
+        List<StyleNoUserInfoVo> getDesignerInfo(String styleNo);
     // 自定义方法区 不替换的区域【other_end】
 
 
