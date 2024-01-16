@@ -262,7 +262,7 @@ public class OrderBookDetailController extends BaseController {
             OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
             orderBookDetailQueryDto.setBulkStyleNo(dto.getSuitNo());
             BaseQueryWrapper<OrderBookDetail> queryWrapper1 = orderBookDetailService.buildQueryWrapper(orderBookDetailQueryDto);
-            List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper1);
+            List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper1,null);
             for (OrderBookDetailVo bookDetailVo : orderBookDetailVos) {
                 String suitNo = bookDetailVo.getSuitNo();
                 if (StringUtils.isNotBlank(suitNo)){

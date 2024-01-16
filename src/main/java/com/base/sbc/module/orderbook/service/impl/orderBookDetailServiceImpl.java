@@ -78,12 +78,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     public BasePageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         PageHelper.startPage(dto);
-        List<OrderBookDetailVo> querylist = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> querylist = this.querylist(queryWrapper,null);
         BasePageInfo<OrderBookDetailVo> orderBookDetailVoBasePageInfo = new BasePageInfo<>(querylist);
         Map<String,Object> map =new HashMap<>();
 
         //查询统计数据
-        List<OrderBookDetailVo> querylistAll = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> querylistAll = this.querylist(queryWrapper,null);
 
         orderBookDetailVoBasePageInfo.setObjectMap(map);
         return orderBookDetailVoBasePageInfo;
@@ -93,7 +93,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response) throws IOException {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper,null);
         if (orderBookDetailVos.isEmpty()) {
             throw new RuntimeException("没有数据");
         }
@@ -104,8 +104,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
-    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper) {
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "tobl.");
+    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth) {
+        if (openDataAuth != 1) {
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, "tobl.");
+        }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
         //查询BOM版本
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
@@ -128,7 +130,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
         stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
         /*款式定价相关参数*/
-        this.queryStylePrice(orderBookDetailVos);
+        this.queryStylePrice(orderBookDetailVos,openDataAuth);
         /*按配色id获取到里面的围度数据*/
         // Map<String, FieldVal> map = new HashMap<>();
         /*获取配色中的围度里面的动态数据*/
@@ -233,7 +235,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     public OrderBookDetailVo getDetailById(String id) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tobl.id", id);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper,null);
         if (Objects.nonNull(orderBookDetailVos) && !orderBookDetailVos.isEmpty()) {
             return orderBookDetailVos.get(0);
         }
@@ -426,12 +428,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * 查询款式定价数据
      */
 
-    private void queryStylePrice(List<OrderBookDetailVo> orderBookDetailVos) {
+    private void queryStylePrice(List<OrderBookDetailVo> orderBookDetailVos,Integer openDataAuth) {
         if (orderBookDetailVos != null && !orderBookDetailVos.isEmpty()) {
             List<String> bulkStyleNos = orderBookDetailVos.stream().map(OrderBookDetailVo::getBulkStyleNo).collect(Collectors.toList());
             BaseQueryWrapper qw = new BaseQueryWrapper();
             qw.in("ssc.style_no", bulkStyleNos);
-            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
+            if (openDataAuth != 1) {
+                dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
+            }
             /*获取款式定价的列表*/
             List<StylePricingVO> stylePricingList = stylePricingServiceimpl.getBaseMapper().getStylePricingList(new StylePricingSearchDTO(), qw);
             // List<StylePricingVO> stylePricingVOS = BeanUtil.copyToList(stylePricingList, StylePricingVO.class);
