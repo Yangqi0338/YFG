@@ -1005,7 +1005,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						hangTagMoreLanguageBaseVO.setLanguageList(languageList);
 
 						// 获取翻译的code和name
-						String propertiesCode = codeFunc.getKey().apply(data);
+						String propertiesCode = Opt.ofNullable(codeFunc.getKey().apply(data)).orElse("");
 						hangTagMoreLanguageBaseVO.setPropertiesCode(propertiesCode);
 						String propertiesName = codeFunc.getValue().apply(data);
 						hangTagMoreLanguageBaseVO.setPropertiesName(propertiesName);

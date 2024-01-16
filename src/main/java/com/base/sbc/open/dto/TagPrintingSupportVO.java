@@ -50,8 +50,56 @@ public class TagPrintingSupportVO extends TagPrinting {
 
     @Override
     @JsonIgnore
-    public BigDecimal getC8_Colorway_SalesPrice() {
-        return super.getC8_Colorway_SalesPrice();
+    public String getC8_Colorway_WareCode() {
+        return super.getC8_Colorway_WareCode();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getStyleCode() {
+        return super.getStyleCode();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getC8_Colorway_BatchNo() {
+        return super.getC8_Colorway_BatchNo();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getSecCode() {
+        return super.getSecCode();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getMainCode() {
+        return super.getMainCode();
+    }
+
+    @Override
+    @JsonIgnore
+    public Boolean getIsAccessories() {
+        return super.getIsAccessories();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getC8_Season_Brand() {
+        return super.getC8_Season_Brand();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getCareSymbols() {
+        return super.getCareSymbols();
+    }
+
+    @Override
+    @JsonIgnore
+    public String getOPStandard() {
+        return super.getOPStandard();
     }
 
     @JsonIgnore
