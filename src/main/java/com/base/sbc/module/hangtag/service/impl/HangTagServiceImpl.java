@@ -1224,9 +1224,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
 		Map<String, HangTagMoreLanguageGroup> groupMap = MapUtil.ofEntries(
-				MapUtil.entry("成分信息", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", MoreLanguageHangTagVO::getIngredient)),
-				MapUtil.entry("DP06", new HangTagMoreLanguageGroup("DP06", null)),
-				MapUtil.entry("DP12", new HangTagMoreLanguageGroup("DP12", MoreLanguageHangTagVO::getDownContent))
+//				MapUtil.entry("成分信息", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", MoreLanguageHangTagVO::getIngredient)),
+//				MapUtil.entry("DP06", new HangTagMoreLanguageGroup("DP06", null)),
+//				MapUtil.entry("DP12", new HangTagMoreLanguageGroup("DP12", MoreLanguageHangTagVO::getDownContent))
 		);
 		List<HangTagMoreLanguageWebBaseVO> groupList = new ArrayList<>();
 		groupMap.forEach((standardColumnCode, group)-> {

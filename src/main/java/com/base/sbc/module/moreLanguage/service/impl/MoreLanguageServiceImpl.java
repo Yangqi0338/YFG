@@ -555,7 +555,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     for (Map.Entry<String, Object> entry : translateResultMap.entrySet()) {
                         String key = entry.getKey();
                         Object value = entry.getValue();
-                        if (!field.contains(key)) {
+                        if (!field.equals(key)) {
                             key = (countryLanguage.getLanguageCode() + "-" + key);
                         }
                         if (field.contains(key)) {
