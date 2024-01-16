@@ -2,7 +2,7 @@ package com.base.sbc.open.dto;
 
 import lombok.Data;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Data
 public class GarmentInspectionDetailDto {
@@ -25,10 +25,68 @@ public class GarmentInspectionDetailDto {
      */
     private String matType;
 
+    /**
+     * 二级分类名称
+     */
+    private String secondCategory;
+    /**
+     * 二级分类code
+     */
+    private String secondCategoryCode;
+
+    /**
+     * 百分比
+     */
+    private BigDecimal percentageQty;
+
+    /**
+     * 成分code
+     */
+    private String ingredientCode;
+    /**
+     * 成分名称
+     */
+    private String ingredientName;
+
+    /**
+     * 成分说明code
+     */
+    private String ingredientExplainCode;
+    /**
+     * 成分说明name
+     */
+    private String ingredientExplainName;
+
+    /**
+     * 检测单位code
+     */
+    private String testUnitCode;
+
+    /**
+     * 检测单位name
+     */
+    private String testUnitName;
+
+    /**
+     * 报告附件
+     */
+    private String attachmentUrl;
+
+    /**
+     * 备注
+     */
+    private String remark;
 
     /**
      * 排序
      */
     private Integer sort;
+
+    /**
+     * 删除标识 0：正常，1：删除
+     */
+    private String delFlag;
+
+
 
 }

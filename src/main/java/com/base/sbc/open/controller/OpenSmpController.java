@@ -27,6 +27,7 @@ import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
+import com.base.sbc.open.dto.GarmentInspectionDto;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.entity.*;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
@@ -260,7 +261,8 @@ public class OpenSmpController extends BaseController {
      */
     @PostMapping("/garmentInspection")
     @ApiOperation(value = "PDM获取SCM的成分送检数据", notes = "PDM获取SCM的成分送检数据")
-    public ApiResult garmentInspection() {
+    public ApiResult garmentInspection(@RequestBody GarmentInspectionDto garmentInspectionDto) {
+
         return insertSuccess(null);
     }
 }

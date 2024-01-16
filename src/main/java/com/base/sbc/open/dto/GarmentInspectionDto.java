@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class GarmentInspectionDto {
     /**
-     * 年份日期
+     * 年份
      */
     private String year;
 
@@ -20,6 +20,11 @@ public class GarmentInspectionDto {
      * 大货款号
      */
     private String styleNo;
+
+    /**
+     * 备注
+     */
+    private String remark;
 
     /**
      * 明细集合
