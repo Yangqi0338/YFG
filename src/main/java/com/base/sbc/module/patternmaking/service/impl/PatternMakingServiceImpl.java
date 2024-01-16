@@ -1059,15 +1059,20 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 }else if(BasicsdatumProcessNodeEnum.SAMPLE_CLOTHING_COMPLETED.getCode().equals(node.getCode())){
                     nodeFinashTime = styleResearchProcessVo.getSampleClothingCompleted();
                 }else if(BasicsdatumProcessNodeEnum.SAMPLE_SELECTION.getCode().equals(node.getCode())){
-                    //看样选款取订货本数据
                     nodeFinashTime = styleResearchProcessVo.getOrderBookProduction();
-                    styleResearchNodeVo.setBetweenDayText("周二");
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周二");
+                    }
                 }else if(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION.getCode().equals(node.getCode())){
                     nodeFinashTime = styleResearchProcessVo.getOrderBookProduction();
-                    styleResearchNodeVo.setBetweenDayText("周二");
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周二");
+                    }
                 }else if(BasicsdatumProcessNodeEnum.BOSS_STYLE.getCode().equals(node.getCode())){
                     nodeFinashTime = styleResearchProcessVo.getBossStyle();
-                    styleResearchNodeVo.setBetweenDayText("周三");
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周三");
+                    }
                 }
                 if (nodeFinashTime != null) {
                     tempDate = nodeFinashTime;
