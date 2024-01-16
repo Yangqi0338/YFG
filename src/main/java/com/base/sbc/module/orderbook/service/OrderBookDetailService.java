@@ -25,9 +25,10 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     /**
      *  * 订货本详情-分页条件查询
      * @param queryWrapper  查询条件
+     * @param openDataAuth 开启数据权限标识 1关闭 其它都是开启
      * @return  分页结果
      */
-    List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper);
+    List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth);
 
     /**
      *  * 订货本详情-导出
