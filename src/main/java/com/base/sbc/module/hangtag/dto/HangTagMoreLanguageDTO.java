@@ -72,6 +72,10 @@ public class HangTagMoreLanguageDTO {
     @ApiModelProperty(value = "多租户Id"  )
     private String userCompany;
 
+    /** 模糊查询 */
+    @ApiModelProperty(value = "模糊查询"  )
+    private Boolean likeQueryFlag;
+
 
 }
 

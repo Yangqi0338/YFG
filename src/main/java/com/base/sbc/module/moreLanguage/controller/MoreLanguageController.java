@@ -83,7 +83,7 @@ public class MoreLanguageController extends BaseController {
             EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAllSync();
             String warnMsg = importListener.dataVerifyHandler();
             ApiResult<String> result = selectSuccess("您的吊牌信息已经导入成功. " + warnMsg);
-            result.setStatus(Opt.ofBlankAble(warnMsg).map(it-> 0).orElse(200));
+            result.setStatus(Opt.ofBlankAble(warnMsg).map(it-> 200).orElse(0));
             return result;
         }catch (Exception e){
             e.printStackTrace();

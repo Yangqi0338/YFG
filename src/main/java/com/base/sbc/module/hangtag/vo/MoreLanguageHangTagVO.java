@@ -72,28 +72,17 @@ public class MoreLanguageHangTagVO extends HangTagVO {
             MapUtil.entry("XM07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getStorageDemand, MoreLanguageHangTagVO::getStorageDemandName))
     );
 
-    private final Map<String, HangTagMoreLanguageGroup> baseCodeGroupMapping = MapUtil.ofEntries(
-            MapUtil.entry("DP11", new HangTagMoreLanguageGroup("成分信息", MoreLanguageHangTagVO::getIngredient, 2)),
-            MapUtil.entry("DP13", new HangTagMoreLanguageGroup("成分信息", MoreLanguageHangTagVO::getIngredient, 4)),
-            MapUtil.entry("DP09", new HangTagMoreLanguageGroup("成分信息", MoreLanguageHangTagVO::getIngredient, 1)),
-            MapUtil.entry("DP10", new HangTagMoreLanguageGroup("成分信息", MoreLanguageHangTagVO::getIngredient, 3)),
-            MapUtil.entry("DP06", new HangTagMoreLanguageGroup("DP06", null, 1)),
-            MapUtil.entry("DP12", new HangTagMoreLanguageGroup("DP12", MoreLanguageHangTagVO::getDownContent, 1))
-    );
-
     @Data
     @AllArgsConstructor
     public static class HangTagMoreLanguageGroup {
-        private String groupName;
+        private String standColumnCode;
         private Function<MoreLanguageHangTagVO, String> content;
-        private Integer index;
 
         private String separator = "\n";
 
-        public HangTagMoreLanguageGroup(String groupName, Function<MoreLanguageHangTagVO, String> content, Integer index) {
-            this.groupName = groupName;
+        public HangTagMoreLanguageGroup(String standColumnCode, Function<MoreLanguageHangTagVO, String> content) {
+            this.standColumnCode = standColumnCode;
             this.content = content;
-            this.index = index;
         }
     }
 
