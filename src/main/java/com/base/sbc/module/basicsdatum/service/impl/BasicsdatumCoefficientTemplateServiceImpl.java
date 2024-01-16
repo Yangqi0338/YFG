@@ -105,8 +105,10 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
             BeanUtils.copyProperties(dto, basicsdatumCoefficientTemplate);
             baseMapper.insert(basicsdatumCoefficientTemplate);
         }
-        /*新增修改维度标签*/
-        basicsdatumDimensionalityService.batchSaveDimensionality(dto.getList());
+        if(CollUtil.isNotEmpty(dto.getList())){
+            /*新增修改维度标签*/
+            basicsdatumDimensionalityService.batchSaveDimensionality(dto.getList());
+        }
         return true;
     }
 
