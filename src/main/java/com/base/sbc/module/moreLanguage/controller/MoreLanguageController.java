@@ -77,7 +77,7 @@ public class MoreLanguageController extends BaseController {
     @PostMapping("/importExcel")
     @ApiOperation(value = "导入国家翻译", notes = "导入国家翻译")
     @DuplicationCheck(type = 1, time = 999)
-    public ApiResult importExcel(@RequestPart MultipartFile file, MoreLanguageExcelQueryDto excelQueryDto) {
+    public ApiResult importExcel(@RequestParam("file") MultipartFile file, MoreLanguageExcelQueryDto excelQueryDto) {
 //        moreLanguageService.importExcel(excelQueryDto);
         importListener.setExcelQueryDto(excelQueryDto);
         try {
