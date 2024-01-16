@@ -939,11 +939,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 			// 根据传入的检查Bean, 确定这个国家需要检查的吊牌 和 语言
 			List<String> countryMappingBulkStyleNoList = bulkStyleNoList;
-			List<HangTagMoreLanguageCheckDTO> codeMappingList = hangTagMoreLanguageDTO.getHangTagMoreLanguageCheckDTOList()
-					.stream().filter(it -> it.getCode().equals(code)).collect(Collectors.toList());
+			List<HangTagMoreLanguageCheckDTO> codeMappingList = hangTagMoreLanguageDTO.getHangTagMoreLanguageCheckDTOList();
 			if (CollectionUtil.isNotEmpty(codeMappingList)) {
-				countryMappingBulkStyleNoList = codeMappingList.stream().flatMap(it-> Arrays.stream(it.getBulkStyleNo().split(","))).collect(Collectors.toList());
-				sameCodeList = sameCodeList.stream().filter(it-> codeMappingList.stream().anyMatch(codeMapping->
+				List<HangTagMoreLanguageCheckDTO> mappingList = codeMappingList.stream().filter(it -> it.getCode().equals(code)).collect(Collectors.toList());
+				countryMappingBulkStyleNoList = mappingList.stream().flatMap(it-> Arrays.stream(it.getBulkStyleNo().split(","))).collect(Collectors.toList());
+				sameCodeList = sameCodeList.stream().filter(it-> mappingList.stream().anyMatch(codeMapping->
 						it.getType().equals(codeMapping.getType()) &&
 								(StrUtil.isBlank(codeMapping.getLanguageCode()) || it.getLanguageCode().equals(codeMapping.getLanguageCode())))).collect(Collectors.toList());
 			}
@@ -1214,7 +1214,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							printing.getTitleMap().put(codeMapping.getTitleCode(), titleContent);
 
 							if (codeMapping.getMapping() != null) {
-								BiConsumer<Object, String> title = (BiConsumer<Object, String>) codeMapping.getMapping().getKey();
+								Function<Object, String> title = (Function<Object, String>) codeMapping.getMapping().getKey();
 								BiConsumer<Object, String> value = (BiConsumer<Object, String>) codeMapping.getMapping().getValue();
 								listFunc.apply(printing).forEach(dataObj-> {
 									value.accept(dataObj, Opt.ofBlankAble(languageVO.getPropertiesContent()).orElse(result.getPropertiesName()));

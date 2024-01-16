@@ -52,10 +52,6 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "标准列翻译")
     private String standardColumnContent = "";
 
-    public String getStandardColumnContent() {
-        return StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":" : "";
-    }
-
     /**
      * 不能找到标准列翻译
      */
@@ -124,7 +120,7 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        return String.format("%s%s%s", getStandardColumnContent(), this.isGroup ? "\n" : " ", getPropertiesContent());
+        return String.format("%s%s%s", StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":" : "", this.isGroup ? "\n" : " ", getPropertiesContent());
     }
 
     @JsonIgnore
