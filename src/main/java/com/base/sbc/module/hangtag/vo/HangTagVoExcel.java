@@ -142,6 +142,14 @@ public class HangTagVoExcel {
     @Excel(name = "质量等级")
     private String qualityGrade;
 
+
+    /**
+     * 二检包装形式
+     */
+    @ApiModelProperty(value = "二检包装形式")
+    @Excel(name = "二检包装形式")
+    private String secondPackagingForm;
+
     /**
      * 成分信息
      */
@@ -238,4 +246,12 @@ public class HangTagVoExcel {
     @ApiModelProperty(value = "工艺包颜色规格")
     @Excel(name = "工艺包颜色规格")
     private String artBagColorSpec;
+
+    /**
+     * 是否是迁移历史数据 0否 1是
+     */
+    @ApiModelProperty(value = "是否新系统标记")
+    @Excel(name = "是否新系统标记",replace={"是_0","否_1","是_null"})
+    private String historicalData;
+
 }
