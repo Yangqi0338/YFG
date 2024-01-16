@@ -3,6 +3,8 @@ package com.base.sbc.module.orderbook.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -353,48 +355,62 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, "tobl.");
         List<OrderBookDetailVo> querylistAll = this.getBaseMapper().queryPage(queryWrapper);
         HashMap<String, Object> hashMap =new HashMap<>();
-        int materialSum = 0;
-        int materialMoneySum = 0;
-        int braidingSum = 0;
-        int tagPriceSum = 0;
-        int totalProductionSum = 0;
-        int onlineProductionSum = 0;
-        int offlineProductionSum = 0;
+        float materialSum = 0;
+        float materialMoneySum = 0;
+        float braidingSum = 0;
+        float tagPriceSum = 0;
+        float totalProductionSum = 0;
+        float onlineProductionSum = 0;
+        float offlineProductionSum = 0;
         for (OrderBookDetailVo orderBookDetailVo : querylistAll) {
-            try {
-                materialSum += Integer.parseInt(orderBookDetailVo.getMaterial());
-            } catch (Exception ignored) {
-            }
-            try {
-                materialMoneySum += Integer.parseInt(orderBookDetailVo.getTagPrice().multiply(new BigDecimal(orderBookDetailVo.getMaterial())).toString());
-            } catch (Exception ignored) {
-            }
-            try {
-                braidingSum += Integer.parseInt(orderBookDetailVo.getBraiding());
-            } catch (Exception ignored) {
-            }
-            try {
-                orderBookDetailVo.setTagPrice(new BigDecimal("10.1"));
-                int i = Integer.parseInt(orderBookDetailVo.getTagPrice().toString());
-                tagPriceSum += i;
-            } catch (Exception ignored) {
-                ignored.printStackTrace();
-            }
-            try {
-                totalProductionSum += Integer.parseInt(orderBookDetailVo.getTotalProduction());
-            } catch (Exception ignored) {
-            }
-            try {
-                onlineProductionSum += Integer.parseInt(orderBookDetailVo.getOnlineProduction());
-            } catch (Exception ignored) {
-            }
-            try {
-                offlineProductionSum += Integer.parseInt(orderBookDetailVo.getOfflineProduction());
-            } catch (Exception ignored) {
-            }
+            String commissioningSize = orderBookDetailVo.getCommissioningSize();
+            if (StrUtil.isNotEmpty(commissioningSize)){
+                JSONObject jsonObject = JSON.parseObject(commissioningSize);
+                if (jsonObject!= null){
+                    for (String sizeName : jsonObject.keySet()) {
+                        Object o =  hashMap.get(sizeName);
+                        try {
+                            if (ObjectUtil.isNotEmpty(o)){
+                                hashMap.put(sizeName,(Float)o+jsonObject.getFloat(sizeName));
+                            }else {
+                                hashMap.put(sizeName, jsonObject.getFloat(sizeName));
+                            }
+                        } catch (Exception ignored) {
 
+                        }
+                    }
 
+                }
+            }
+            try {
+                materialSum +=  Float.parseFloat(orderBookDetailVo.getMaterial());
+            } catch (Exception ignored) {
+            }
+            try {
+                materialMoneySum +=  Float.parseFloat(orderBookDetailVo.getTagPrice().multiply(new BigDecimal(orderBookDetailVo.getMaterial())).toString());
+            } catch (Exception ignored) {
+            }
+            try {
+                braidingSum +=  Float.parseFloat(orderBookDetailVo.getBraiding());
+            } catch (Exception ignored) {
+            }
+            try {
 
+                tagPriceSum +=  Float.parseFloat(orderBookDetailVo.getTagPrice().toString());
+            } catch (Exception ignored) {
+            }
+            try {
+                totalProductionSum +=  Float.parseFloat(orderBookDetailVo.getTotalProduction());
+            } catch (Exception ignored) {
+            }
+            try {
+                onlineProductionSum +=  Float.parseFloat(orderBookDetailVo.getOnlineProduction());
+            } catch (Exception ignored) {
+            }
+            try {
+                offlineProductionSum +=  Float.parseFloat(orderBookDetailVo.getOfflineProduction());
+            } catch (Exception ignored) {
+            }
         }
         hashMap.put("materialSum", materialSum);
         hashMap.put("materialMoneySum", materialMoneySum);
