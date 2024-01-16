@@ -75,8 +75,13 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
     @Override
     public boolean batchSaveDimensionality(List<BasicsdatumDimensionalityDto> dtoList) {
         if (CollUtil.isEmpty(dtoList)) {
-            throw new OtherException("数据为空");
+            throw new OtherException("系数列表数据为空");
         }
+        List<BasicsdatumDimensionalityDto> dtoList1 = dtoList.stream().filter(d -> StrUtil.isEmpty(d.getCoefficientTemplateId())).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(dtoList1)) {
+            throw new OtherException("列表数据缺少模板id");
+        }
+
         CheckMutexDto checkMutexDto = new CheckMutexDto();
         checkMutexDto.setChannel(dtoList.get(0).getChannel());
 //        checkMutexDto.setPlanningSeasonId(dtoList.get(0).getPlanningSeasonId());
