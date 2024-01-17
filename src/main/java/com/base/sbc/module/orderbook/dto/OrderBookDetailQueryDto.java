@@ -4,8 +4,6 @@ import com.base.sbc.config.common.base.Page;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class OrderBookDetailQueryDto extends Page {
 
@@ -39,7 +37,7 @@ public class OrderBookDetailQueryDto extends Page {
     @ApiModelProperty(value = "品类")
     private String categoryCode;
 
-    private String designerId;
+    private String designerName;
 
     /** 波段编码 */
     @ApiModelProperty(value = "波段编码"  )
@@ -64,4 +62,8 @@ public class OrderBookDetailQueryDto extends Page {
     private String isAll;
 
     private String ids;
+
+    private String brandCode;
+    private String positioningName;
+    private String patternPositioningName;
 }

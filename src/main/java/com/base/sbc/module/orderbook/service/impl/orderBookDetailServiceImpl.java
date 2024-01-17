@@ -243,17 +243,21 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     public BaseQueryWrapper<OrderBookDetail> buildQueryWrapper(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tobl.order_book_id", dto.getOrderBookId());
-        if (StringUtil.isNotEmpty(dto.getCommissioningDate())){
-            queryWrapper.between("tobl.commissioning_date", dto.getCommissioningDate().split(","));
-        }
+        // if (StringUtil.isNotEmpty(dto.getCommissioningDate())){
+        //     queryWrapper.between("tobl.commissioning_date", dto.getCommissioningDate().split(","));
+        // }commissioningDate
+        queryWrapper.notEmptyLike("tobl.commissioning_date", dto.getCommissioningDate());
         queryWrapper.notEmptyIn("tobl.id",dto.getId());
         queryWrapper.notEmptyIn("tobl.id",dto.getIds());
         queryWrapper.notEmptyEq("tsc.devt_type_name",dto.getDevtTypeName());
         queryWrapper.likeList("ts.prod_category", dto.getCategoryCode());
         queryWrapper.likeList("tsc.band_name", dto.getBand());
-        queryWrapper.likeList("tobl.designer_id", dto.getDesignerId());
+        queryWrapper.likeList("tobl.designer_id", dto.getDesignerName());
         queryWrapper.likeList("tsc.style_no", dto.getBulkStyleNo());
         queryWrapper.notEmptyEq("tobl.company_code", dto.getCompanyCode());
+        queryWrapper.notEmptyLike("ts.brand", dto.getBrandCode());
+        queryWrapper.notEmptyLike("ts.positioning_name", dto.getPositioningName());
+        queryWrapper.notEmptyLike("ts.plate_type_name",dto.getPatternPositioningName());
         // //有权限则查询全部数据
         // if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
         //     queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
