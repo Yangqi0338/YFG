@@ -630,10 +630,8 @@
 
     <select id="getResearchProcessList" resultType="com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo">
         SELECT t.*,
-
         IF(t.tempOrderBookProduction &lt; CURDATE() , t.tempOrderBookProduction,null) as 'orderBookProduction',
         IF(t.tempOrderBookProduction is not null , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) as 'bossStyle'
-
         FROM (
         SELECT
         t.id as styleId,
@@ -665,18 +663,15 @@
         WHEN WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) &lt; 1 THEN DATE_SUB(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) -1) % 7 DAY)
         ELSE DATE_ADD(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (8 - WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d'))) % 7 DAY)
         END AS 'tempOrderBookProduction'
-
-
         FROM t_style t
-        INNER JOIN t_style_color t1 ON t.id = t1.style_id
         INNER JOIN t_basicsdatum_research_process_template template ON t.brand = template.brand_code AND t.devt_type = template.product_type and template.del_flag = '0' and template.enable_flag = '0'
-        INNER JOIN t_planning_category_item as tpci on tpci.id = t.planning_category_item_id and t.del_flag = '0'
+        LEFT JOIN t_style_color t1 ON t.id = t1.style_id AND t1.del_flag = '0'
+        LEFT JOIN t_planning_category_item as tpci on tpci.id = t.planning_category_item_id and t.del_flag = '0'
         LEFT JOIN (select id,style_id from t_pattern_making where sample_type_name = '初版样' and del_flag = '0' GROUP BY style_id,sample_type_name ORDER BY create_date ASC ) as tpm ON tpm.style_id = t.id
         LEFT JOIN t_node_status as tns ON tns.data_id = tpm.id AND tns.node = '打版任务' AND tns.status = '打版完成'
         LEFT JOIN t_node_status as tns1 ON tns1.data_id = tpm.id AND tns1.node = '样衣任务' AND tns1.status = '车缝完成'
         WHERE
         t.del_flag = '0'
-        AND t1.del_flag = '0'
         ) t
         WHERE 1=1
         <if test="search != '' and search != null">
