@@ -84,4 +84,13 @@ public class HangTagSearchDTO extends Page {
 
     @ApiModelProperty(value = "产品季节id")
     private String planningSeasonId;
+
+    @ApiModelProperty(value = "导出标记")
+    private String deriveFlag;
+
+    @ApiModelProperty(value = "二检包装形式")
+    private String secondPackagingFormCode;
+
+    @ApiModelProperty(value = "包装形式")
+    private String  packagingFormCode;
 }

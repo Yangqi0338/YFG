@@ -1,6 +1,7 @@
 package com.base.sbc.module.operalog.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -10,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @mail 247967116@qq.com
  */
 @Mapper
-public interface OperaLogMapper extends BaseMapper<OperaLogEntity> {
+public interface OperaLogMapper extends BaseEnhanceMapper<OperaLogEntity> {
 }

@@ -8,6 +8,8 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -18,6 +20,7 @@ import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import com.base.sbc.config.annotation.QueryField;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.UserCompany;
@@ -30,6 +33,7 @@ import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
+import com.github.pagehelper.SqlUtil;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -476,6 +480,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         this.saveOperaLog(type, name, documentName, documentCode, newObject, oldObject);
     }
 
+    @Override
+    public void saveOperaLog(OperaLogEntity operaLogEntity) {
+        operaLogService.save(operaLogEntity);
+    }
+
     /**
      * 保存操作日志
      *
@@ -601,7 +610,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
             log.setDocumentCode(this.getFieldValueByName(log.getDocumentCodeField(), ne));
             operaLogEntityList.add(log);
         }
-        operaLogService.saveBatch(operaLogEntityList);
+        operaLogService.saveOrUpdateBatch(operaLogEntityList);
     }
 
     @Override
@@ -659,6 +668,31 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         this.saveLog(operaLogEntity);
     }
 
+    @Override
+    public boolean exists(Wrapper<T> wrapper) {
+        return this.count(wrapper) > 0;
+    }
+
+    @Override
+    public T findOne(QueryWrapper<T> wrapper) {
+        return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public T findOne(LambdaQueryWrapper<T> wrapper) {
+        return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
+    }
+
+    @Override
+    public <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        return this.list(wrapper.select(function)).stream().map(function).collect(Collectors.toList());
+    }
+
+    @Override
+    public <R> List<R> listByIds2OneField(List<String> ids, SFunction<T, R> function) {
+        return this.list(new LambdaQueryWrapper<T>().select(function).in(T::getId, ids)).stream().map(function).collect(Collectors.toList());
+    }
+
 
     /**
      * 根据字段名称获取对象的值，包括父类的字段
@@ -692,6 +726,9 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        // 先清掉PageHelper,以免报错
+        // https://blog.csdn.net/qq_42696265/article/details/131944397
+        SqlUtil.clearLocalPage();
         return this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function).orElse(null);
     }
 

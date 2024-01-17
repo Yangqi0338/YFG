@@ -11,11 +11,14 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.exception.OtherException;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -322,6 +325,17 @@ public class CommonUtils {
             }
             return false;
         }
+    }
+
+
+    public static <T, K> Collector<T, ?, Map<K, List<T>>> groupingBy(Function<? super T, ? extends K> classifier) {
+        return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.toList());
+    }
+
+    public static <T, U extends Enum<U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor) {
+        Objects.requireNonNull(keyExtractor);
+        return (Comparator<T> & Serializable)
+                (c1, c2) -> Integer.compare(keyExtractor.apply(c1).ordinal(), keyExtractor.apply(c2).ordinal());
     }
 
 }

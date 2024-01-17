@@ -14,8 +14,11 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
@@ -32,6 +35,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
@@ -45,6 +49,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：吊牌表 Controller类
@@ -84,14 +90,23 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "导出", notes = "")
     @GetMapping("/deriveExcel")
+    @DuplicationCheck(type = 1,message = "服务正在导出请稍等",time = 60)
     public void deriveExcel(HttpServletResponse response, HangTagSearchDTO hangTagSearchDTO) throws IOException {
         hangTagService.deriveExcel(response,hangTagSearchDTO, super.getUserCompany());
     }
 
     @ApiOperation(value = "查询详情")
     @GetMapping("/getDetailsByBulkStyleNo")
+    @Deprecated
     public ApiResult getDetailsByBulkStyleNo(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType) {
         return selectSuccess(hangTagService.getDetailsByBulkStyleNo(bulkStyleNo, super.getUserCompany(), selectType));
+    }
+
+    @ApiOperation(value = "查询详情多语言")
+    @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
+    public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
+        hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
+        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, false));
     }
 
     @ApiOperation(value = "保存")
@@ -100,6 +115,14 @@ public class HangTagController extends BaseController {
     public ApiResult save(@RequestBody HangTagDTO hangTagDTO) {
         String id = hangTagService.save(hangTagDTO, super.getUserCompany());
         return ApiResult.success("保存成功", id);
+    }
+
+    @ApiOperation(value = "修改二检包装形式")
+    @PostMapping("/updateSecondPackagingFormById")
+    @DuplicationCheck
+    public ApiResult updateSecondPackagingFormById(@RequestBody HangTagDTO hangTagDTO) {
+        hangTagService.updateSecondPackagingFormById(hangTagDTO);
+        return ApiResult.success("修改成功");
     }
 
     /**

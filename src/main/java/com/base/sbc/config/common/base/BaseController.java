@@ -1,18 +1,22 @@
 package com.base.sbc.config.common.base;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.i18n.LocaleMessages;
 import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -59,7 +63,14 @@ public class BaseController {
 	public static final String DEL_FLAG="del_flag";
 
 	public String getUserCompany(){
-		return request.getHeader(USER_COMPANY);
+		String header = request.getHeader(USER_COMPANY);
+		if (StrUtil.isBlank(header)) {
+			RequestMapping requestMapping = this.getClass().getAnnotation(RequestMapping.class);
+			if (requestMapping != null && requestMapping.value()[0].startsWith(BaseController.OPEN_URL)) {
+				return BaseConstant.DEF_COMPANY_CODE;
+			}
+		}
+		return header;
 	}
 	public String getUserId(){
 		return request.getHeader(USER_ID);
@@ -100,130 +111,130 @@ public class BaseController {
 
 	/****************************************查询  ************************************************/
 	/**查询成功:单个String，实体，分页对象*/
-	protected ApiResult selectSuccess(Object object) {
+	protected <T> ApiResult<T> selectSuccess(T object) {
 		return success(BaseErrorEnum.SUCCESS_SELECT.getErrorMessage(),object);
 	}
 	/**查询成功：多个实体，list等 */
-	protected ApiResult selectSuccess(Map<String, Object> attributes) {
+	protected <T> ApiResult<T> selectSuccess(Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_SELECT.getErrorMessage(),attributes);
 	}
 	/**查询成功：单个主实体对象，附加的多个list */
-	protected ApiResult selectSuccess(Object object,Map<String, Object> attributes) {
+	protected <T> ApiResult<T> selectSuccess(T object,Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_SELECT.getErrorMessage(),object,attributes);
 	}
 	/**查询失败：属性不满足要求(不存在，不符合，不在之内等) */
-	protected ApiResult selectAttributeNotRequirements(Object object) {
+	protected <T> ApiResult<T> selectAttributeNotRequirements(T object) {
 		return error(BaseErrorEnum.ERR_SELECT_ATTRIBUTE_NOT_REQUIREMENTS.getErrorMessage(),object);
 	}
 	/** 查询失败：找不到数据*/
-	protected ApiResult selectNotFound(Object object) {
+	protected <T> ApiResult<T> selectNotFound(T object) {
 		return error(BaseErrorEnum.ERR_SELECT_NOT_FOUND.getErrorMessage(),object);
 	}
 	/** 查询失败：找不到数据*/
-	protected ApiResult selectNotFound() {
+	protected <T> ApiResult<T> selectNotFound() {
 		return error(BaseErrorEnum.ERR_SELECT_NOT_FOUND.getErrorMessage());
 	}
 
 	/****************************************新增  ************************************************/
 	/**新增成功:单个String，实体，分页对象*/
-	protected ApiResult insertSuccess(Object object) {
+	protected <T> ApiResult<T> insertSuccess(T object) {
 		return success(BaseErrorEnum.SUCCESS_INSERT.getErrorMessage(),object);
 	}
 	/**新增成功：多个实体，list等 */
-	protected ApiResult insertSuccess(Map<String, Object> attributes) {
+	protected <T> ApiResult<T> insertSuccess(Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_INSERT.getErrorMessage(),attributes);
 	}
 	/**新增成功：单个主实体对象，附加的多个list */
-	protected ApiResult insertSuccess(Object object,Map<String, Object> attributes) {
+	protected <T> ApiResult<T> insertSuccess(T object,Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_INSERT.getErrorMessage(),object,attributes);
 	}
 
 	/** 新增失败：属性不满足要求(不存在，不符合，不在之内等) */
-	protected ApiResult insertAttributeNotRequirements(Object object) {
+	protected <T> ApiResult<T> insertAttributeNotRequirements(T object) {
 		return error(BaseErrorEnum.ERR_INSERT_ATTRIBUTE_NOT_REQUIREMENTS.getErrorMessage(),object);
 	}
 	/** 新增失败：数据已存在*/
-	protected ApiResult insertDataRepeat(Object object) {
+	protected <T> ApiResult<T> insertDataRepeat(T object) {
 		return error(BaseErrorEnum.ERR_INSERT_DATA_REPEAT.getErrorMessage(),object);
 	}
 	/** 新增失败：数据已存在*/
-	protected ApiResult insertDataRepeat() {
+	protected <T> ApiResult<T> insertDataRepeat() {
 		return error(BaseErrorEnum.ERR_INSERT_DATA_REPEAT.getErrorMessage());
 	}
 
 
 	/****************************************修改 ************************************************/
 	/**修改成功:单个String，实体，分页对象*/
-	protected ApiResult updateSuccess(Object object) {
+	protected <T> ApiResult<T> updateSuccess(T object) {
 		return success(BaseErrorEnum.SUCCESS_UPDATE.getErrorMessage(),object);
 	}
 	/**修改成功：多个实体，list等 */
-	protected ApiResult updateSuccess(Map<String, Object> attributes) {
+	protected <T> ApiResult<T> updateSuccess(Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_UPDATE.getErrorMessage(),attributes);
 	}
 	/**修改成功：单个主实体对象，附加的多个list */
-	protected ApiResult updateSuccess(Object object,Map<String, Object> attributes) {
+	protected <T> ApiResult<T> updateSuccess(T object,Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_UPDATE.getErrorMessage(),object,attributes);
 	}
 
 	/**修改失败：属性不满足要求(不存在，不符合，不在之内等) */
-	protected ApiResult updateAttributeNotRequirements(Object object) {
+	protected <T> ApiResult<T> updateAttributeNotRequirements(T object) {
 		return error(BaseErrorEnum.ERR_UPDATE_ATTRIBUTE_NOT_REQUIREMENTS.getErrorMessage(),object);
 	}
 	/**修改失败：找不到数据*/
-	protected ApiResult updateNotFound(Object object) {
+	protected <T> ApiResult<T> updateNotFound(T object) {
 		return error(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND.getErrorMessage(),object);
 	}
 	/**修改失败：找不到数据*/
-	protected ApiResult updateNotFound() {
+	protected <T> ApiResult<T> updateNotFound() {
 		return error(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND.getErrorMessage());
 	}
 
 	/****************************************删除************************************************/
 	/**删除成功:单个String，实体，分页对象*/
-	protected ApiResult deleteSuccess(Object object) {
+	protected <T> ApiResult<T> deleteSuccess(T object) {
 		return success(BaseErrorEnum.SUCCESS_DELETE.getErrorMessage(),object);
 	}
 	/**删除成功：多个实体，list等 */
-	protected ApiResult deleteSuccess(Map<String, Object> attributes) {
+	protected <T> ApiResult<T> deleteSuccess(Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_DELETE.getErrorMessage(),attributes);
 	}
 	/**删除成功：单个主实体对象，附加的多个list */
-	protected ApiResult deleteSuccess(Object object,Map<String, Object> attributes) {
+	protected <T> ApiResult<T> deleteSuccess(T object,Map<String, Object> attributes) {
 		return success(BaseErrorEnum.SUCCESS_DELETE.getErrorMessage(),object,attributes);
 	}
 	/** 删除失败：属性不满足要求(不存在，不符合，不在之内等) */
-	protected ApiResult deleteAttributeNotRequirements(Object object) {
+	protected <T> ApiResult<T> deleteAttributeNotRequirements(T object) {
 		return error(BaseErrorEnum.ERR_DELETE_ATTRIBUTE_NOT_REQUIREMENTS.getErrorMessage(),object);
 	}
 	/** 删除失败：找不到数据*/
-	protected ApiResult deleteNotFound(Object object) {
+	protected <T> ApiResult<T> deleteNotFound(T object) {
 		return error(BaseErrorEnum.ERR_DELETE_DATA_NOT_FOUND.getErrorMessage(),object);
 	}
 	/** 删除失败：找不到数据*/
-	protected ApiResult deleteNotFound() {
+	protected <T> ApiResult<T> deleteNotFound() {
 		return error(BaseErrorEnum.ERR_DELETE_DATA_NOT_FOUND.getErrorMessage());
 	}
 
 	/****************************************公用************************************************/
 
-	protected ApiResult success(String baseErrorEnumMessage) {
+	protected <T> ApiResult<T> success(String baseErrorEnumMessage) {
 		return ApiResult.success(getMessage(baseErrorEnumMessage));
 	}
-	protected ApiResult success(String baseErrorEnumMessage,Object object) {
+	protected <T> ApiResult<T> success(String baseErrorEnumMessage,T object) {
 		return ApiResult.success(getMessage(baseErrorEnumMessage),object);
 	}
-	protected ApiResult success(String baseErrorEnumMessage,Map<String, Object> attributes) {
+	protected <T> ApiResult<T> success(String baseErrorEnumMessage,Map<String, Object> attributes) {
 		return ApiResult.success(getMessage(baseErrorEnumMessage),attributes);
 	}
-	protected ApiResult success(String baseErrorEnumMessage,Object object,Map<String, Object> attributes) {
+	protected <T> ApiResult<T> success(String baseErrorEnumMessage,T object,Map<String, Object> attributes) {
 		return ApiResult.success(getMessage(baseErrorEnumMessage),object,attributes);
 	}
 
-	protected ApiResult error(String baseErrorEnumMessage,Object object) {
+	protected <T> ApiResult<T> error(String baseErrorEnumMessage,T object) {
 		return ApiResult.error(getMessage(baseErrorEnumMessage),BaseErrorEnum.valueOf(baseErrorEnumMessage).getErrorCode(),object);
 	}
-	protected ApiResult error(String baseErrorEnumMessage) {
+	protected <T> ApiResult<T> error(String baseErrorEnumMessage) {
 		return ApiResult.error(getMessage(baseErrorEnumMessage),BaseErrorEnum.valueOf(baseErrorEnumMessage).getErrorCode(),null);
 	}
 

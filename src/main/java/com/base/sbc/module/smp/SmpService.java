@@ -490,6 +490,19 @@ public class SmpService {
             smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
             //endregion
 
+            //region 增加二检包装形式
+            //
+            QueryWrapper<HangTag> hangTagQueryWrapper = new QueryWrapper();
+            hangTagQueryWrapper.eq("bulk_style_no",styleColor.getStyleNo());
+            hangTagQueryWrapper.eq("del_flag","0");
+            hangTagQueryWrapper.last("limit 1");
+            HangTag hangTag = hangTagService.getOne(hangTagQueryWrapper);
+            if (hangTag != null) {
+                smpGoodsDto.setSecondPackagingForm(hangTag.getSecondPackagingForm());
+                smpGoodsDto.setSecondPackagingFormCode(hangTag.getSecondPackagingFormCode());
+            }
+            //endregion
+
             // if (true){
             //     return null;
             // }
@@ -1476,7 +1489,6 @@ public class SmpService {
         return index;
     }
 
-
     /**
      * 修改吊牌价的时候验证(暂不需要)
      */
@@ -1484,6 +1496,9 @@ public class SmpService {
         int index = 0;
         String jsonString = JsonStringUtils.toJSONString(secondIngredientSyncDtoList);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString);
+        if (!httpResp.isSuccess()) {
+            throw new OtherException("同步失败");
+        }
         for (SecondIngredientSyncDto secondIngredientSyncDto : secondIngredientSyncDtoList) {
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(secondIngredientSyncDto), "scm", "下发吊牌和款式定价确认信息");
             if (aBoolean) {

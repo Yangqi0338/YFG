@@ -24,6 +24,7 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
+import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.patternmaking.dto.*;
@@ -272,6 +273,12 @@ public class PatternMakingController {
     @GetMapping("/allProgressSteps")
     public PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
         return patternMakingService.allProgressSteps(dto, userCompany);
+    }
+
+    @ApiOperation(value = "研发总进度", notes = "研发总进度new")
+    @GetMapping("/researchProcessList")
+    public PageInfo<StyleResearchProcessVo> researchProcessList(ResearchProgressPageDto dto, @RequestHeader(BaseConstant.USER_COMPANY) String userCompany) {
+        return patternMakingService.researchProcessList(dto, userCompany);
     }
 
     @ApiOperation(value = "工作台使用的打版进度列表", notes = "")
