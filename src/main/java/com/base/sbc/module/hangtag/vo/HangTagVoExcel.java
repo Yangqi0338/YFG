@@ -15,7 +15,7 @@ public class HangTagVoExcel {
      * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
      */
     @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认")
-    @Excel(name = "状态")
+    @Excel(name = "状态",replace={"未提交_1","未填写_0","未确认_2","待技术员确认_3","待品控确认_4","已确认_5"})
     private String status;
 
     /**
@@ -114,6 +114,9 @@ public class HangTagVoExcel {
     @Excel(name = "品名")
     private String productName;
 
+    @ApiModelProperty(value = "品类")
+    @Excel(name = "品类")
+    private String prodCategoryName;
     /**
      * 执行标准
      */
@@ -167,9 +170,9 @@ public class HangTagVoExcel {
     /**
      * 洗标
      */
-//    @ApiModelProperty(value = "洗标")
-//    @Excel(name = "洗标",type = 2)
-//    private String washingLabel;
+    @ApiModelProperty(value = "洗标")
+    @Excel(name = "洗标",type = 2)
+    private String washingLabel;
 
     /**
      * 贮藏要求
@@ -240,12 +243,6 @@ public class HangTagVoExcel {
     @Excel(name = "下单时间")
     private Date placeOrderDate;
 
-    /**
-     * 工艺包颜色规格
-     */
-    @ApiModelProperty(value = "工艺包颜色规格")
-    @Excel(name = "工艺包颜色规格")
-    private String artBagColorSpec;
 
     /**
      * 是否是迁移历史数据 0否 1是
