@@ -15,7 +15,9 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 /** 
  * 类描述：基础资料-纬度系数模板 service类
@@ -63,6 +65,15 @@ public interface BasicsdatumCoefficientTemplateService extends BaseService<Basic
      * @return
      */
     BasicsdatumCoefficientTemplateVo  getTemplateDetails(IdDto idDto);
+
+
+    /**
+     * 导出
+     * @param dto
+     * @param response
+     */
+    void deriveExcel(BasicsdatumCoefficientTemplateDto dto, HttpServletResponse response) throws IOException;
+
 // 自定义方法区 不替换的区域【other_end】
 
 	

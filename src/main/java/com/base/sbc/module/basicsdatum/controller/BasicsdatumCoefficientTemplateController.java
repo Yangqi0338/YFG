@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +97,12 @@ public class BasicsdatumCoefficientTemplateController{
 		return basicsdatumDimensionalityService.batchSaveDimensionality(dtoList);
 	}
 
+
+	@ApiOperation(value = "/导出")
+	@GetMapping("/deriveExcel")
+	public void deriveExcel(BasicsdatumCoefficientTemplateDto dto,HttpServletResponse response) throws Exception {
+		basicsdatumCoefficientTemplateService.deriveExcel(dto,response);
+	}
 
 }
 

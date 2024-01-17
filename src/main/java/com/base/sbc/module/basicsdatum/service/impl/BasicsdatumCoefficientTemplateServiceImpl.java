@@ -6,12 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
@@ -19,6 +22,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumCoefficientTemplateMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCoefficientTemplateService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumCoefficientTemplateExcelVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumCoefficientTemplateVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.Page;
@@ -30,6 +34,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -175,6 +181,19 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
         BasicsdatumCoefficientTemplateVo basicsdatumCoefficientTemplateVo = new BasicsdatumCoefficientTemplateVo();
         BeanUtils.copyProperties(basicsdatumCoefficientTemplate, basicsdatumCoefficientTemplateVo);
         return basicsdatumCoefficientTemplateVo;
+    }
+
+    /**
+     * 导出
+     *
+     * @param dto
+     * @param response
+     */
+    @Override
+    public void deriveExcel(BasicsdatumCoefficientTemplateDto dto, HttpServletResponse response) throws IOException {
+        List<BasicsdatumCoefficientTemplateVo> list = getCoefficientTemplateList(dto).getList();
+        List<BasicsdatumCoefficientTemplateExcelVo> list1 = BeanUtil.copyToList(list, BasicsdatumCoefficientTemplateExcelVo.class);
+        ExcelUtils.exportExcel(list1, BasicsdatumCoefficientTemplateExcelVo.class, "维度系数模板.xlsx", new ExportParams(), response);
     }
 
 // 自定义方法区 不替换的区域【other_start】

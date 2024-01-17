@@ -40,6 +40,8 @@ public interface BasicsdatumDimensionalityService extends BaseService<Basicsdatu
      */
     boolean batchSaveDimensionality( List<BasicsdatumDimensionalityDto> dtoList);
 
+
+
 // 自定义方法区 不替换的区域【other_end】
 
 	
