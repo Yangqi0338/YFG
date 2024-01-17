@@ -3,10 +3,6 @@ package com.base.sbc.config.utils;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
-import cn.afterturn.easypoi.excel.annotation.Excel;
-import cn.afterturn.easypoi.excel.annotation.ExcelCollection;
-import cn.afterturn.easypoi.excel.annotation.ExcelEntity;
-import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
@@ -15,10 +11,6 @@ import cn.afterturn.easypoi.util.PoiExcelGraphDataUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
-import cn.afterturn.easypoi.exception.excel.ExcelExportException;
-import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
-import cn.afterturn.easypoi.util.PoiPublicUtil;
-import cn.afterturn.easypoi.util.PoiReflectorUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
@@ -27,10 +19,13 @@ import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -38,17 +33,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,6 +49,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Excel导入导出工具类
@@ -105,6 +98,7 @@ public class ExcelUtils {
      */
     private static void defaultExport(List<?> list, Class<?> pojoClass, String fileName, HttpServletResponse response, ExportParams exportParams) throws IOException {
         //把数据添加到excel表格中
+        exportParams.setStyle(ExcelExportTitleStyle.class);
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, pojoClass, list);
         downLoadExcel(fileName, response, workbook);
     }
@@ -165,11 +159,13 @@ public class ExcelUtils {
                 return;
             }
         }*/
+        exportParams.setStyle(ExcelExportTitleStyle.class);
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
     private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
         //把数据添加到excel表格中
+        exportParams.setStyle(ExcelExportTitleStyle.class);
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
         downLoadExcel(fileName, response, workbook);
     }
