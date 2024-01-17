@@ -1422,7 +1422,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             return objects.toPageInfo();
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-
+        //region 导出去掉设计师编码
+        list.forEach(item->{
+            if (StrUtil.isNotEmpty(item.getDesigner())) {
+                item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
+            }
+        });
+        //endregion
         stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
@@ -1441,6 +1447,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
+
+        //region 导出去掉设计师编码
+        excelList.forEach(item->{
+            if (StrUtil.isNotEmpty(item.getDesigner())) {
+                item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
+            }
+        });
+        //endregion
+
         /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
