@@ -1422,7 +1422,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             return objects.toPageInfo();
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-
+        list.forEach(item->{
+            if (StrUtil.isNotEmpty(item.getDesigner())) {
+                item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
+            }
+        });
         stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
