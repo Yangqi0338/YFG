@@ -36,6 +36,7 @@
                 tssc.tag_price AS tagPrice,
                 tssc.band_name AS bandName,
                 tssc.is_trim,
+                tssc.bom_status,
             </otherwise>
         </choose>
         tbmt.model_Type AS modelType,

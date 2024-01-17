@@ -167,9 +167,9 @@ public class HangTagVoExcel {
     /**
      * 洗标
      */
-    @ApiModelProperty(value = "洗标")
-    @Excel(name = "洗标",type = 2)
-    private String washingLabel;
+//    @ApiModelProperty(value = "洗标")
+//    @Excel(name = "洗标",type = 2)
+//    private String washingLabel;
 
     /**
      * 贮藏要求

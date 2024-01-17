@@ -93,4 +93,7 @@ public class HangTagSearchDTO extends Page {
 
     @ApiModelProperty(value = "包装形式")
     private String  packagingFormCode;
+
+    @ApiModelProperty(value = "是否导图片")
+    private String  imgFlag;
 }
