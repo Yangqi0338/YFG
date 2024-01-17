@@ -164,6 +164,7 @@
         p.pattern_design_id ,
         p.pat_diff,p.pat_diff_name,
         p.sample_bar_code sampleBarCode,
+        IF(s.designer != '', SUBSTRING_INDEX(s.designer, ',', 1), '') as designer,
         s.*,
         p.*,
         p.status pmStatus,
