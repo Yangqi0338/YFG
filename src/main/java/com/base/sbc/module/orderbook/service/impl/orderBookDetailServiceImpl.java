@@ -265,6 +265,47 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("ts.brand", dto.getBrandCode());
         queryWrapper.notEmptyLike("ts.positioning_name", dto.getPositioningName());
         queryWrapper.notEmptyLike("ts.plate_type_name",dto.getPatternPositioningName());
+        queryWrapper.notEmptyLike("tsc.color_name",dto.getColorName());
+        queryWrapper.notEmptyLike("tbcl.colour_code", dto.getSupplierColor());
+        queryWrapper.notEmptyLike("tsc.tag_price", dto.getTagPrice());
+        queryWrapper.notEmptyLike("tobl.total_production", dto.getTotalProduction());
+        queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCoefficientCode());
+        queryWrapper.notEmptyLike("tobl.status", dto.getStatus());
+
+        // queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCost());
+        queryWrapper.notEmptyLike("tobl.target_time", dto.getTargetTime());
+        queryWrapper.notEmptyLike("tobl.production_urgency_name", dto.getProductionUrgencyName());
+        queryWrapper.notEmptyLike("tobl.remark", dto.getRemark());
+        queryWrapper.notEmptyLike("tobl.other", dto.getOther());
+        queryWrapper.notEmptyLike("tobl.fabric_state", dto.getFabricState());
+        queryWrapper.notEmptyLike("tobl.continuation_point", dto.getContinuationPoint());
+        queryWrapper.notEmptyLike("tobl.company_fabric_number", dto.getCompanyFabricNumber());
+        queryWrapper.notEmptyLike("tobl.fabric_factory_code", dto.getFabricFactoryCode());
+        queryWrapper.notEmptyLike("tobl.fabric_factory_name", dto.getFabricFactoryName());
+        queryWrapper.notEmptyLike("tobl.fabric_composition", dto.getFabricComposition());
+        queryWrapper.notEmptyLike("tobl.fabric_factory_color_number", dto.getFabricFactoryColorNumber());
+        queryWrapper.notEmptyLike("tobl.fabric_type", dto.getFabricType());
+        queryWrapper.notEmptyLike("tobl.unit_price", dto.getUnitPrice());
+        queryWrapper.notEmptyLike("tobl.delivery_time", dto.getDeliveryTime());
+        queryWrapper.notEmptyLike("tobl.inventory_fabric_meter", dto.getInventoryFabricMeter());
+        queryWrapper.notEmptyLike("tobl.inventory_doable_number", dto.getInventoryDoableNumber());
+        queryWrapper.notEmptyLike("tobl.fabric_remarks", dto.getFabricRemarks());
+        queryWrapper.notEmptyLike("tobl.fabric_drop", dto.getFabricDrop());
+        queryWrapper.notEmptyLike("ts.design_no", dto.getStyle());
+        // queryWrapper.notEmptyLike("ts.prod_category2nd_name", dto.getProdCategory2ndName());
+        queryWrapper.notEmptyLike("ts.old_design_no", dto.getOldDesignNo());
+        queryWrapper.notEmptyLike("ts.registering_no", dto.getRegisteringNo());
+        queryWrapper.notEmptyLike("tobl.suit_no", dto.getSuitNo());
+        queryWrapper.notEmptyLike("ts.pattern_design_name", dto.getPatternDesignName());
+        queryWrapper.notEmptyLike("ts.designer", dto.getStyleDesignerName());
+
+        queryWrapper.notEmptyLike("tobl.offline_production", dto.getOfflineProduction());
+        queryWrapper.notEmptyLike("tobl.online_production", dto.getOnlineProduction());
+        queryWrapper.notEmptyLike("tobl.material", dto.getMaterial());
+        queryWrapper.notEmptyLike("tobl.braiding", dto.getBraiding());
+        queryWrapper.notEmptyLike("tobl.dimension_info", dto.getDimensionInfo());
+        queryWrapper.notEmptyLike("tobl.gram_weight", dto.getGramWeight());
+
         // //有权限则查询全部数据
         // if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
         //     queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
