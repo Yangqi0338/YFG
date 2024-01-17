@@ -65,7 +65,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         queryWrapper.notEmptyEq("ts.prod_category", page.getProdCategory());
         queryWrapper.notEmptyEq("ts.devt_type_name", page.getDevtTypeName());
         if(StrUtil.isNotBlank(page.getDesigner())){
-            queryWrapper.in("ts.designer", StringUtils.convertList(page.getDesigner()));
+            queryWrapper.likeList("ts.designer", StringUtils.convertList(page.getDesigner()));
         }
         queryWrapper.notEmptyEq("ts.task_level_name", page.getTaskLevelName());
         queryWrapper.like(StringUtils.isNotBlank(page.getTechnicianName()), "ts.technician_name", page.getTechnicianName());
