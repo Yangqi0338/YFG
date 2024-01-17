@@ -9,6 +9,7 @@ package com.base.sbc.module.basicsdatum.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
@@ -85,10 +86,10 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
 
         CheckMutexDto checkMutexDto = new CheckMutexDto();
         checkMutexDto.setChannel(dtoList.get(0).getChannel());
-//        checkMutexDto.setPlanningSeasonId(dtoList.get(0).getPlanningSeasonId());
+        checkMutexDto.setCoefficientTemplateId(dtoList.get(0).getCoefficientTemplateId());
         checkMutexDto.setProdCategory(dtoList.get(0).getProdCategory());
         checkMutexDto.setProdCategory2nd(dtoList.get(0).getProdCategory2nd());
-        planningDemandService.checkMutex(checkMutexDto);
+        checkMutex(checkMutexDto);
         List<BasicsdatumDimensionality> list = BeanUtil.copyToList(dtoList, BasicsdatumDimensionality.class);
         list.forEach(p -> {
             if (CommonUtils.isInitId(p.getId())) {
@@ -97,6 +98,33 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
         });
         saveOrUpdateBatch(list);
         return true;
+    }
+
+    /**
+     * 增加检查互斥品类和中类互斥
+     *
+     * @param checkMutexDto
+     */
+    @Override
+    public void checkMutex(CheckMutexDto checkMutexDto) {
+        //品类和中类互斥,当前如果是中类,查询是否存在品类,如果是品类,查询是否存在中类
+        QueryWrapper<BasicsdatumDimensionality> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("coefficient_template_id",checkMutexDto.getCoefficientTemplateId());
+        queryWrapper.eq("channel", checkMutexDto.getChannel());
+        if (StrUtil.isNotBlank(checkMutexDto.getProdCategory2nd())) {
+            queryWrapper.eq("prod_category", checkMutexDto.getProdCategory());
+            long count = count(queryWrapper);
+            if (count>0) {
+                throw new OtherException("已存在品类维度");
+            }
+        } else {
+            queryWrapper.isNotNull("prod_category2nd");
+            queryWrapper.ne("prod_category2nd", "");
+            long count = count(queryWrapper);
+            if (count>0) {
+                throw new OtherException("已存在中类维度");
+            }
+        }
     }
 
 // 自定义方法区 不替换的区域【other_start】

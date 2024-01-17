@@ -99,6 +99,26 @@ public class FieldManagementVo {
     private String valName;
     @ApiModelProperty(value = "选中")
     private boolean selected = true;
+
+    /** 设计显示标记 */
+    @ApiModelProperty(value = "设计显示标记"  )
+    private String designShowFlag;
+    /** 设计检查标记 */
+    @ApiModelProperty(value = "设计检查标记"  )
+    private String designExamineFlag;
+    /** 研发显示标记 */
+    @ApiModelProperty(value = "研发显示标记"  )
+    private String researchShowFlag;
+    /** 研发检查标记 */
+    @ApiModelProperty(value = "研发检查标记"  )
+    private String researchExamineFlag;
+    /** 复盘显示标记 */
+    @ApiModelProperty(value = "复盘显示标记"  )
+    private String replayShowFlag;
+    /** 复盘检查标记 */
+    @ApiModelProperty(value = "复盘检查标记"  )
+    private String replayExamineFlag;
+
     List<FieldManagementVo> list;
 
     List<FieldOptionConfigVo> configVoList;

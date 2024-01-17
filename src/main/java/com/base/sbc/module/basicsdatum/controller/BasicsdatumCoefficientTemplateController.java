@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
@@ -52,9 +53,9 @@ public class BasicsdatumCoefficientTemplateController{
 	}
 
 
-	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
-	@DeleteMapping("/{id}")
-	public Boolean removeById(@PathVariable("id") String id) {
+	@ApiOperation(value = "删除模板通过id查询,多个逗号分开")
+	@DeleteMapping("/delCoefficientTemplate")
+	public Boolean removeById(@Valid @NotNull(message = "编号不能为空") String id) {
 		List<String> ids = StringUtils.convertList(id);
 		return basicsdatumCoefficientTemplateService.removeByIds(ids);
 	}
@@ -84,6 +85,12 @@ public class BasicsdatumCoefficientTemplateController{
 		return basicsdatumCoefficientTemplateService.getTemplateDetails(dto);
 	}
 
+	@ApiOperation(value = "/导出")
+	@GetMapping("/deriveExcel")
+	public void deriveExcel(BasicsdatumCoefficientTemplateDto dto,HttpServletResponse response) throws Exception {
+		basicsdatumCoefficientTemplateService.deriveExcel(dto,response);
+	}
+
 	@ApiOperation(value = "获取围度系数数据")
 	@GetMapping("/getDimensionality")
 	public Map getDimensionality(BasicsdatumDimensionalityDto dto) {
@@ -97,12 +104,18 @@ public class BasicsdatumCoefficientTemplateController{
 		return basicsdatumDimensionalityService.batchSaveDimensionality(dtoList);
 	}
 
-
-	@ApiOperation(value = "/导出")
-	@GetMapping("/deriveExcel")
-	public void deriveExcel(BasicsdatumCoefficientTemplateDto dto,HttpServletResponse response) throws Exception {
-		basicsdatumCoefficientTemplateService.deriveExcel(dto,response);
+	@ApiOperation(value = "删除系数通过id查询,多个逗号分开")
+	@DeleteMapping("/delDimensionality")
+	public Boolean delDimensionality(@Valid @NotNull(message = "编号不能为空") String id) {
+		List<String> ids = StringUtils.convertList(id);
+		return basicsdatumDimensionalityService.removeByIds(ids);
 	}
+
+
+
+
+
+
 
 }
 

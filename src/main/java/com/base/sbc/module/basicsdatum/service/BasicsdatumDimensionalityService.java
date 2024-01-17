@@ -5,12 +5,12 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumDimensionalityDto;
-import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumDimensionalityDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
+import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.planning.dto.CheckMutexDto;
+
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +40,12 @@ public interface BasicsdatumDimensionalityService extends BaseService<Basicsdatu
      */
     boolean batchSaveDimensionality( List<BasicsdatumDimensionalityDto> dtoList);
 
+
+    /**
+     * 校验品类中类
+     * @param checkMutexDto
+     */
+    void checkMutex(CheckMutexDto checkMutexDto);
 
 
 // 自定义方法区 不替换的区域【other_end】

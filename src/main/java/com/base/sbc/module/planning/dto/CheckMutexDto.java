@@ -33,4 +33,8 @@ public class CheckMutexDto {
      */
     @ApiModelProperty(value = "渠道")
     private String channel;
+
+    @ApiModelProperty(value = "系数模板id")
+    private String coefficientTemplateId;
+
 }
