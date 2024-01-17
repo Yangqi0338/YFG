@@ -128,7 +128,7 @@ public class ExcelUtils {
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
-    public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode)  throws IOException {
+    public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode,String imgFlag,Integer maxNumber,String... columns)  throws IOException {
         Assert.notBlank(tableCode,"tableCode不能为空");
         ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
         List<ColumnDefine> detail = columnUserDefineService.findDefaultDetail(tableCode);
@@ -163,7 +163,8 @@ public class ExcelUtils {
             }
         }
 
-        defaultExport(list,fileName,response,exportParams,newExcelParams);
+        // defaultExport(list,fileName,response,exportParams,newExcelParams);
+        executorExportExcel(list,pojoClass,fileName,imgFlag,maxNumber,response,columns);
     }
 
     private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {

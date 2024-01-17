@@ -320,10 +320,10 @@ public class OrderBookDetailController extends BaseController {
     @ApiOperation(value = "订货本详情-导出")
     @GetMapping("/importExcel")
     @DuplicationCheck(type = 1,time = 100)
-    public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response) throws IOException {
+    public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response,String tableCode) throws IOException {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        orderBookDetailService.importExcel(dto,response);
+        orderBookDetailService.importExcel(dto,response,tableCode);
     }
 
     @ApiOperation(value = "订货本详情根据id查询")

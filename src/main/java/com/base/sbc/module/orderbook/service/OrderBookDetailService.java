@@ -31,11 +31,12 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth);
 
     /**
-     *  * 订货本详情-导出
-     * @param dto  查询条件
+     * * 订货本详情-导出
      *
+     * @param dto       查询条件
+     * @param tableCode
      */
-    void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response) throws IOException;
+    void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response, String tableCode) throws IOException;
 
     /**
      * 根据id查询详情
