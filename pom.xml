@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
-        <version>Dalston.SR2</version>
+        <version>Edgware.SR2</version>
     </parent>
 
     <dependencies>

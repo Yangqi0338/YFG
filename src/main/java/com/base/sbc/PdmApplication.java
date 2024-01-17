@@ -9,6 +9,7 @@ import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.web.cors.CorsConfiguration;
@@ -19,6 +20,7 @@ import org.springframework.web.filter.CorsFilter;
  * @author Fred
  * @data 创建时间:2020/2/3
  */
+@EnableAsync
 @RefreshScope
 @SpringBootApplication
 @EnableDiscoveryClient
