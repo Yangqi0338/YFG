@@ -55,6 +55,7 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
         }
         BaseQueryWrapper<BasicsdatumDimensionality> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tbd.prod_category",dto.getProdCategory());
+        queryWrapper.eq(StrUtil.isNotBlank(dto.getProdCategory2nd()),"tbd.prod_category2nd",dto.getProdCategory2nd());
         queryWrapper.eq("tbd.del_flag",BaseGlobal.NO);
         queryWrapper.eq("tbd.coefficient_template_id",dto.getCoefficientTemplateId());
         queryWrapper.orderByAsc("tbd.sort");
