@@ -39,14 +39,18 @@ import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.StringUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -74,6 +78,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final StyleColorService styleColorService;
 
     private final MessageUtils messageUtils;
+    @Resource
+    @Lazy
+    private SmpService smpService;
 
     @Override
     public BasePageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
@@ -291,19 +298,28 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * @return
      */
     @Override
+    @Transactional
     public boolean designConfirm(OrderBookDetailSaveDto dto) {
         if(StrUtil.isEmpty(dto.getStyleColorId())){
             throw new RuntimeException("配色id为空");
         }
         dto.setDesignerConfirm("1");
-        //修改厂家
+        boolean isUpdate=false;
         /*查询配色数据*/
         StyleColor styleColor =  styleColorService.getById(dto.getStyleColorId());
-        styleColor.setSupplierAbbreviation(dto.getFobClothingFactoryName());
-        styleColor.setSupplierNo(dto.getFobClothingFactoryCode());
-        styleColor.setSupplier(dto.getFobSupplier());
+        //修改厂家
+        if (!StringUtils.equals(styleColor.getSupplierAbbreviation(),dto.getFobClothingFactoryName())
+        || !StringUtils.equals(styleColor.getSupplierNo(),dto.getFobClothingFactoryCode())
+        || !StringUtils.equals(styleColor.getSupplier(),dto.getFobSupplier())){
+
+            styleColor.setSupplierAbbreviation(dto.getFobClothingFactoryName());
+            styleColor.setSupplierNo(dto.getFobClothingFactoryCode());
+            styleColor.setSupplier(dto.getFobSupplier());
+            isUpdate=true;
+        }
         /*当颜色修改时同时修改配色和bom的颜色*/
-        if(!StrUtil.equals(styleColor.getColorCode(),dto.getColorCode())){
+        if(!StrUtil.equals(styleColor.getColorCode(),dto.getColorCode()) || !StrUtil.equals(styleColor.getColorName(),dto.getColorName())){
+            isUpdate=true;
             styleColor.setColorName(dto.getColorName());
             styleColor.setColorCode(dto.getColorCode());
             /*修改bom的颜色*/
@@ -314,8 +330,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 packInfoService.updateById(packInfo);
             }
         }
-        /*xiu*/
-        styleColorService.updateById(styleColor);
+
+        if (isUpdate){
+            /*修改*/
+            styleColorService.updateById(styleColor);
+
+            //触发下发
+            smpService.goods(styleColor.getId().split(","));
+        }
+
         baseMapper.updateById(dto);
         return true;
     }
