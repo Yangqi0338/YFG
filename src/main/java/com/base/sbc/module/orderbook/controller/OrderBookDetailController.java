@@ -78,9 +78,14 @@ public class OrderBookDetailController extends BaseController {
     @ApiOperation(value = "订货本-提交审批")
     @PostMapping("/submitForApproval")
     public ApiResult submitForApproval(@RequestBody OrderBookDetailSaveDto dto) {
-        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
-        orderBookDetail.setStatus(dto.getStatus());
-        orderBookDetailService.updateById(orderBookDetail);
+        // OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+        String[] split = dto.getIds().split(",");
+        List<OrderBookDetail> orderBookDetails = orderBookDetailService.listByIds(Arrays.asList(split));
+        for (OrderBookDetail orderBookDetail : orderBookDetails) {
+            orderBookDetail.setStatus(dto.getStatus());
+
+        }
+        orderBookDetailService.updateBatchById(orderBookDetails);
         return updateSuccess("操作成功");
     }
     @ApiOperation(value = "订货本详情-修改")
