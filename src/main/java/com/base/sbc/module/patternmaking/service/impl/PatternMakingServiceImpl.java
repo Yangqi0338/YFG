@@ -265,7 +265,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public List<PatternMakingVo> getSampleDressBydesignNo(String styleId) {
         BaseQueryWrapper<PatternMaking> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("style_id",styleId);
-        queryWrapper.eq("node","样衣任务");
         queryWrapper.isNotNullStr("sample_bar_code");
         List<PatternMaking> makingList = baseMapper.selectList(queryWrapper);
         List<PatternMakingVo> list = CopyUtil.copy(makingList,PatternMakingVo.class);
