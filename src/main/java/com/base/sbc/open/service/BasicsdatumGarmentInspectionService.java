@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.open.service;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
 import com.base.sbc.open.entity.BasicsdatumGarmentInspection;
 
 /** 
@@ -20,7 +21,11 @@ public interface BasicsdatumGarmentInspectionService extends BaseService<Basicsd
 
 // 自定义方法区 不替换的区域【other_start】
 
-
+    /**
+     * 接收成衣送检数据
+     * @param garmentInspectionDto
+     */
+    void saveGarmentInspection(BasicsdatumGarmentInspectionDto garmentInspectionDto);
 
 // 自定义方法区 不替换的区域【other_end】
 

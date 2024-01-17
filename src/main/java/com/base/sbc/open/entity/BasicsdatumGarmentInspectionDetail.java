@@ -37,6 +37,12 @@ public class BasicsdatumGarmentInspectionDetail extends BaseDataEntity<String> {
     /** 主表单据id */
     @ApiModelProperty(value = "主表单据id"  )
     private String billId;
+    /** 大货款号 */
+    @ApiModelProperty(value = "大货款号"  )
+    private String styleNo;
+    /** 年份 */
+    @ApiModelProperty(value = "年份"  )
+    private String year;
     /** 物料厂家编号 */
     @ApiModelProperty(value = "物料厂家编号"  )
     private String matFactoryCode;
