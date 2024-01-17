@@ -1,6 +1,7 @@
 package com.base.sbc.module.orderbook.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ArrayUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -62,6 +63,17 @@ public class OrderBookDetailController extends BaseController {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
         return selectSuccess(orderBookDetailService.queryPage(dto));
+    }
+
+    /**
+     * 重新排序
+     */
+    @ApiOperation(value = "订货本详情-重新排序")
+    @PostMapping("/reorder")
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult reorder(@RequestBody List<OrderBookDetail> list) {
+        boolean b = orderBookDetailService.updateBatchById(list);
+        return selectSuccess(b);
     }
 
     /**
@@ -356,8 +368,12 @@ public class OrderBookDetailController extends BaseController {
         for (OrderBookDetail orderBookDetail : list) {
             String suitNo = orderBookDetail.getSuitNo();
             String[] split = suitNo.split(",");
-            List<String> list1 = Arrays.asList(split);
-            list1.remove(bulkStyleNo);
+            List<String> list1 = StringUtils.convertStrsToList(split);
+            // List<String> list1 = Arrays.asList(split);
+
+            // list1.remove(bulkStyleNo);
+            list1.removeIf(s -> s.equals(bulkStyleNo));
+
             if (!list1.isEmpty()){
                 orderBookDetail.setSuitNo(StringUtils.join(list1, ","));
             }else {
