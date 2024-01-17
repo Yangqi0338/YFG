@@ -13,10 +13,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.AddUpdateCoefficientTemplateDto;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumCoefficientTemplateDto;
-import com.base.sbc.module.basicsdatum.dto.IdDto;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumCoefficientTemplateMapper;
@@ -107,6 +104,9 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
         }
         if(CollUtil.isNotEmpty(dto.getList())){
             /*新增修改维度标签*/
+            for (BasicsdatumDimensionalityDto basicsdatumDimensionalityDto : dto.getList()) {
+                basicsdatumDimensionalityDto.setCoefficientTemplateId(basicsdatumCoefficientTemplate.getId());
+            }
             basicsdatumDimensionalityService.batchSaveDimensionality(dto.getList());
         }
         return true;
