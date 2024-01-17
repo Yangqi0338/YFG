@@ -39,6 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
  * 类描述：吊牌&洗唛全量标准表 service类
@@ -70,6 +71,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         // 初始化实体类
         StandardColumn standardColumn = new StandardColumn();
         standardColumn.setIsDefault(rightOperationValue);
+        standardColumn.setModel(standardColumnSaveDto.getModel());
 
         // 做个最简单的lock
         saveLock.lock();
@@ -93,7 +95,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
 //            throw new OtherException("无法修改系统默认标准");
 //        }
             // 属性拷贝
-            BeanUtil.copyProperties(standardColumnSaveDto, standardColumn);
+            MORE_LANGUAGE_CV.copy2Entity(standardColumnSaveDto, standardColumn);
             if (this.count(queryWrapper) > 0) {
                 throw new OtherException("已存在相同的标准表");
             }
