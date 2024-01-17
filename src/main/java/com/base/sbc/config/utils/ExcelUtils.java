@@ -6,6 +6,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.afterturn.easypoi.excel.annotation.ExcelCollection;
 import cn.afterturn.easypoi.excel.annotation.ExcelEntity;
+import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
@@ -15,6 +16,7 @@ import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
 import cn.afterturn.easypoi.util.PoiExcelGraphDataUtil;
 import cn.afterturn.easypoi.util.PoiPublicUtil;
 import cn.afterturn.easypoi.util.PoiReflectorUtil;
+import cn.hutool.core.lang.Assert;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
@@ -123,54 +125,45 @@ public class ExcelUtils {
      * @param response
      */
     public static void exportExcel(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response) throws IOException {
-        ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        /*String tableCode = requestAttributes.getRequest().getHeader("tableCode");
-        String id = requestAttributes.getRequest().getHeader("tableCode-id");
-        if(StrUtil.isNotEmpty(tableCode)){
-            List<ColumnDefine> detail;
-            if(StrUtil.isNotEmpty(id)){
-                detail = columnUserDefineService.findDetail(tableCode, id);
-            }else {
-                detail = columnUserDefineService.findDefaultDetail(tableCode);
-            }
-            if(CollectionUtils.isNotEmpty(detail)){
-                Map<String, Integer> userColumnMap = new HashMap<>();
-                for (ColumnDefine columnDefine : detail) {
-                    if(BaseGlobal.NO.equals(columnDefine.getHidden())){
-                        continue;
-                    }
-                    Integer sortOrder = columnDefine.getSortOrder();
-                    if(StrUtil.isNotBlank(columnDefine.getExportAlias())){
-                        for (String s : columnDefine.getExportAlias().split(",")) {
-                            userColumnMap.put(s,sortOrder);
-                        }
-                    }
-                    userColumnMap.put(columnDefine.getColumnCode(),sortOrder);
-                }
-                //这里是复制出来官方的导出接口
-                List<ExcelExportEntity> excelParams = new ArrayList<>();
-                Field[] fileds = PoiPublicUtil.getClassFields(pojoClass);
-                ExcelTarget etarget = pojoClass.getAnnotation(ExcelTarget.class);
-                String targetId = etarget == null ? null : etarget.value();
-                //这里是改造的官方接口
-                getAllExcelField(exportParams.getExclusions(), targetId, fileds, excelParams, pojoClass, new ArrayList<>(), null);
-
-                //根据用户配置显示的才导出，导出顺序也按照用户配置
-                List<ExcelExportEntity> newExcelParams = new ArrayList<>();
-                for (ExcelExportEntity excelParam : excelParams) {
-                    if(userColumnMap.containsKey(excelParam.getKey())){
-                        excelParam.setOrderNum(userColumnMap.get(excelParam.getKey()));
-                        newExcelParams.add(excelParam);
-                    }
-                }
-
-                defaultExport(list,fileName,response,exportParams,newExcelParams);
-                return;
-            }
-        }*/
-        exportParams.setStyle(ExcelExportTitleStyle.class);
         defaultExport(list, pojoClass, fileName, response, exportParams);
+    }
+
+    public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode)  throws IOException {
+        Assert.notBlank(tableCode,"tableCode不能为空");
+        ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
+        List<ColumnDefine> detail = columnUserDefineService.findDefaultDetail(tableCode);
+        Assert.notEmpty(detail,"没有找到对应列配置，请联系管理员维护");
+        Map<String, Integer> userColumnMap = new HashMap<>();
+        for (ColumnDefine columnDefine : detail) {
+            if(BaseGlobal.NO.equals(columnDefine.getHidden())){
+                continue;
+            }
+            Integer sortOrder = columnDefine.getSortOrder();
+            if(StrUtil.isNotBlank(columnDefine.getExportAlias())){
+                for (String s : columnDefine.getExportAlias().split(",")) {
+                    userColumnMap.put(s,sortOrder);
+                }
+            }
+            userColumnMap.put(columnDefine.getColumnCode(),sortOrder);
+        }
+        //这里是复制出来官方的导出接口
+        List<ExcelExportEntity> excelParams = new ArrayList<>();
+        Field[] fileds = PoiPublicUtil.getClassFields(pojoClass);
+        ExcelTarget etarget = pojoClass.getAnnotation(ExcelTarget.class);
+        String targetId = etarget == null ? null : etarget.value();
+        //这里是改造的官方接口
+        getAllExcelField(exportParams.getExclusions(), targetId, fileds, excelParams, pojoClass, new ArrayList<>(), null);
+
+        //根据用户配置显示的才导出，导出顺序也按照用户配置
+        List<ExcelExportEntity> newExcelParams = new ArrayList<>();
+        for (ExcelExportEntity excelParam : excelParams) {
+            if(userColumnMap.containsKey(excelParam.getKey())){
+                excelParam.setOrderNum(userColumnMap.get(excelParam.getKey()));
+                newExcelParams.add(excelParam);
+            }
+        }
+
+        defaultExport(list,fileName,response,exportParams,newExcelParams);
     }
 
     private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
