@@ -1062,11 +1062,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							});
 
 							List<StandardColumnCountryTranslate> countryTranslateList = translateList.stream()
-									.filter(it -> languageIdList.contains(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
+									.filter(it -> countryLanguageId.equals(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
 									.collect(Collectors.toList());
 							if (CollectionUtil.isEmpty(countryTranslateList)) {
 								countryTranslateList.addAll(translateList.stream()
-										.filter(it -> languageIdList.contains(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
+										.filter(it -> singleLanguageId.equals(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
 										.collect(Collectors.toList()));
 							}
 

@@ -121,7 +121,6 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     public String save(CountryTypeLanguageSaveDto countryTypeLanguageSaveDto, boolean cache) {
 
         String countryName = countryTypeLanguageSaveDto.getCountryName();
-        if (countryName.contains("中国")) throw new OtherException("不可创建中国的多语言国家维护");
         String countryCode = countryTypeLanguageSaveDto.getCountryCode();
 
         // 插入国家表
