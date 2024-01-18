@@ -62,4 +62,8 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
     private String planningSeasonId;
 
     private String ids;
+
+    private String bandName;
+
+    private String bandCode;
 }

@@ -1090,6 +1090,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
           /*  if (!updateStyleNoBandDto.getStyleNo().substring(0, 1).equals(sampleStyleColor.getStyleNo().substring(0, 1))) {
                 throw new OtherException("无法修改大货款号前1位");
             }*/
+            if ("1".equals(sampleStyleColor.getScmSendFlag())){
+                throw new OtherException("大货款号已下发,无法修改");
+            }
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("style_no", updateStyleNoBandDto.getStyleNo());
             StyleColor styleColor = baseMapper.selectOne(queryWrapper);

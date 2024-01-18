@@ -361,6 +361,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             styleColor.setSupplier(dto.getFobSupplier());
             isUpdate=true;
         }
+        //修改波段
+        if (!StringUtils.equals(styleColor.getBandCode(),dto.getBandCode()) || !StringUtils.equals(styleColor.getBandName(),dto.getBandName())){
+            styleColor.setBandCode(dto.getBandCode());
+            styleColor.setBandName(dto.getBandName());
+            isUpdate=true;
+        }
+
         /*当颜色修改时同时修改配色和bom的颜色*/
         if(!StrUtil.equals(styleColor.getColorCode(),dto.getColorCode()) || !StrUtil.equals(styleColor.getColorName(),dto.getColorName())){
             isUpdate=true;
