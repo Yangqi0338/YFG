@@ -46,6 +46,7 @@ public class    FabricIngredientsInfoVo  extends FabricIngredientsInfo {
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
     private String imageUrl;
+    private byte[] imageUrl1;
     /** 厂家寄出时间 */
     @ApiModelProperty(value = "厂家寄出时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")

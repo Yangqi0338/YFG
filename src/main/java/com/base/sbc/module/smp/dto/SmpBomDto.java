@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp.dto;
 
+import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.BomMaterial;
 import com.base.sbc.module.smp.entity.SmpSizeQty;
@@ -55,4 +56,12 @@ public class SmpBomDto extends SmpBaseDto {
     private List<BomMaterial> bomMaterials;
     /**同步ID*/
     private String syncId;
+    /** rfid标识 0 否 1 是 */
+    private String rfidFlag;
+    /** rfid属性
+     * all("洗唛&吊牌RFID"),
+     * washing("洗唛RFID"),
+     * hangTag("吊牌RFID"),
+     * */
+    private String rfidType = "0";
 }

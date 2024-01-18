@@ -1,10 +1,14 @@
 package com.base.sbc.client.ccm.service;
 
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author Youkehai
@@ -40,7 +44,7 @@ public interface CcmService {
      * @return
      */
     @GetMapping("/ccm/api/saas/basicBaseDicts/selectDictByTypes")
-    public String getDictInfo(@RequestParam("type") String type);
+    public String getDictInfo(@RequestParam("type") String type, @RequestParam("status") String status);
 
     /**
      * 开放接口获取字典信息
@@ -50,6 +54,24 @@ public interface CcmService {
      */
     @GetMapping("/ccm/api/open/structure/selectDictByTypes")
     public String getOpenDictInfo(@RequestParam("userCompany") String userCompany,@RequestParam("type") String type);
+
+    /**
+     * 新增字典
+     *
+     * @param basicBaseDicts 类型
+     * @return
+     */
+    @GetMapping("/ccm/api/saas/basicBaseDicts/batchInsert")
+    public String batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts);
+
+    /**
+     * 新增字典
+     *
+     * @param type 类型
+     * @return
+     */
+    @DeleteMapping("/ccm/api/saas/basicBaseDicts/batchDeleteDict")
+    public String batchDeleteDict(@Valid @RequestParam("ids") String ids);
 
     /**
      * 获取颜色信息

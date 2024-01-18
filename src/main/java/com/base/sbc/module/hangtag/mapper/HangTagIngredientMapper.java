@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.module.hangtag.vo.HangTagIngredientVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -24,7 +25,7 @@ import java.util.List;
  * @date 创建时间：2023-6-26 17:15:55
  */
 @Mapper
-public interface HangTagIngredientMapper extends BaseMapper<HangTagIngredient> {
+public interface HangTagIngredientMapper extends BaseEnhanceMapper<HangTagIngredient> {
     // 自定义方法区 不替换的区域【other_start】
 
     /**

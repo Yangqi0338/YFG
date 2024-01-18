@@ -60,7 +60,10 @@
         p.node,
         p.status as `pmStatus`,
         p.pattern_req_date,
-        p.revision_comments
+        p.revision_comments,
+        p.receive_sample_date,
+        p.pattern_designer_name,
+        p.receive_reason
         FROM
         t_pattern_making p,
         t_style s
@@ -102,6 +105,7 @@
         s.style_name,
         s.designer,
         s.designer_id,
+        p.style_id,
         p.code,
         p.sample_type,
         p.design_send_date,
@@ -134,7 +138,10 @@
         p.grading_name,
         p.stitcher_remark,
         p.sample_bar_code,
-        p.grading_date
+        p.grading_date,
+        p.sample_making_score,
+        p.sample_making_quality_score,
+        p.second_processing
         FROM
         t_pattern_making p,
         t_style s
@@ -620,9 +627,124 @@
 
         </if>
     </select>
+
+    <select id="getResearchProcessList" resultType="com.base.sbc.module.patternmaking.vo.StyleResearchProcessVo">
+        SELECT t.*,
+        IF(t.tempOrderBookProduction &lt; CURDATE() , t.tempOrderBookProduction,null) as 'orderBookProduction',
+        IF(t.tempOrderBookProduction is not null , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) as 'bossStyle'
+        FROM (
+        SELECT
+        t.id as styleId,
+        t.design_no as designNo,
+        t.style_pic as stylePic,
+        t1.style_color_pic as styleColorPic,
+        t1.style_no as bulkStyleNo,
+        t.pattern_design_name as patternDesignName,
+        t.designer as designerName,
+        t.devt_type_name as devtTypeName,
+        t.devt_type as devtType,
+        t.brand as brandCode,
+        t.brand_name as brandName,
+        t1.id as styleColorId,
+        template.id as templateId,
+        t.design_no,
+        t1.style_no,
+        t1.devt_type,
+        t.designer_id,
+        t.pattern_design_id,
+        t.brand,
+        t1.create_date,
+        date_format(t.create_date,'%Y-%m-%d') as noNextDraft,
+        date_format(check_start_time,'%Y-%m-%d') as reviewedDraft,
+        date_format(check_end_time,'%Y-%m-%d')  as nextDraft,
+        date_format(tns.end_date,'%Y-%m-%d')  as punchingCompleted,
+        date_format(tns1.end_date,'%Y-%m-%d') as sampleClothingCompleted,
+        CASE
+        WHEN WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) &lt; 1 THEN DATE_SUB(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) -1) % 7 DAY)
+        ELSE DATE_ADD(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (8 - WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d'))) % 7 DAY)
+        END AS 'tempOrderBookProduction'
+        FROM t_style t
+        INNER JOIN t_basicsdatum_research_process_template template ON t.brand = template.brand_code AND t.devt_type = template.product_type and template.del_flag = '0' and template.enable_flag = '0'
+        LEFT JOIN t_style_color t1 ON t.id = t1.style_id AND t1.del_flag = '0'
+        LEFT JOIN t_planning_category_item as tpci on tpci.id = t.planning_category_item_id and t.del_flag = '0'
+        LEFT JOIN (select id,style_id from t_pattern_making where sample_type_name = '初版样' and del_flag = '0' GROUP BY style_id,sample_type_name ORDER BY create_date ASC ) as tpm ON tpm.style_id = t.id
+        LEFT JOIN t_node_status as tns ON tns.data_id = tpm.id AND tns.node = '打版任务' AND tns.status = '打版完成'
+        LEFT JOIN t_node_status as tns1 ON tns1.data_id = tpm.id AND tns1.node = '样衣任务' AND tns1.status = '车缝完成'
+        WHERE
+        t.del_flag = '0'
+        ) t
+        WHERE 1=1
+        <if test="search != '' and search != null">
+            AND (t.design_no like concat('%',#{search},'%')  or t.style_no  like concat('%',#{search},'%'))
+        </if>
+        <if test="null != devtTypes and devtTypes.size() > 0">
+            AND t.devt_type IN
+            <foreach collection="devtTypes" item="devtType" separator="," open="(" close=")">
+                #{devtType}
+            </foreach>
+        </if>
+        <if test="null != designerIds and designerIds.size() > 0">
+            AND t.designer_id IN
+            <foreach collection="designerIds" item="designerId" separator="," open="(" close=")">
+                #{designerId}
+            </foreach>
+        </if>
+        <if test="null != patternDesignIds and patternDesignIds.size() > 0">
+            AND t.pattern_design_id IN
+            <foreach collection="patternDesignIds" item="patternDesignId" separator="," open="(" close=")">
+                #{patternDesignId}
+            </foreach>
+        </if>
+        <if test="null != brandIds and brandIds.size() > 0">
+            AND t.brand IN
+            <foreach collection="brandIds" item="brandId" separator="," open="(" close=")">
+                #{brandId}
+            </foreach>
+        </if>
+
+        <if test=" nodeCode == 'noNextDraft' ">
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is null
+            AND t.nextDraft is null
+            AND t.punchingCompleted is null
+        </if>
+        <if test=" nodeCode == 'reviewedDraft' ">
+            AND t.noNextDraft is not null
+            AND t.reviewedDraft is not null
+            AND t.nextDraft is null
+            AND t.punchingCompleted is null
+        </if>
+
+        <if test=" nodeCode == 'nextDraft' ">
+            AND t.nextDraft is not null
+            AND t.punchingCompleted is null
+            AND t.sampleClothingCompleted is null
+        </if>
+
+        <if test=" nodeCode == 'punchingCompleted' ">
+            AND t.punchingCompleted is not null
+            AND t.sampleClothingCompleted is null
+        </if>
+
+        <if test=" nodeCode == 'sampleClothingCompleted' ">
+            AND t.sampleClothingCompleted is not null
+            AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is  null
+        </if>
+
+        <if test=" nodeCode == 'orderBookProduction' ">
+            AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is not null
+            AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null)  is  null
+        </if>
+
+        <if test=" nodeCode == 'bossStyle' ">
+            AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
+        </if>
+
+        ORDER BY t.create_date DESC
+    </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
 
-                SELECT
+        SELECT
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '版房主管下发' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bfzgxfsj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '已接收' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bsjssj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '已接收' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'jssdrq',
@@ -633,49 +755,18 @@
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '车缝完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'cfwcsj',
         DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '样衣完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'yywcsj',
         p.id AS patternMakingId,
-        p.pattern_design_name,
-        p.pattern_design_id,
-        p.pat_diff,
-        p.pat_diff_name,
+        CONCAT(s.year_name,' ',s.season,' ',s.brand_name) AS season,
         p.sample_bar_code AS sampleBarCode,
-        p.sample_type_name,
-        p.pat_seq_name,
-        p.pattern_no,
         p.create_date AS `pmCreateDate`,
         p.demand_finish_date AS demandFinishDate ,
-        p.technician_kitting,
-        p.technician_kitting_date,
-        p.sgl_kitting,
-        p.sgl_kitting_date,
-        p.pattern_technician_name,
-        p.pattern_finish_num,
-        p.sample_finish_num,
-        p.sample_making_score,
-        p.sample_making_quality_score,
-        p.pattern_making_score,
-        p.pattern_making_quality_score,
-        p.second_processing,
-        p.prm_send_date,
-        p.prm_send_status,
-        p.grading_name,
-        p.grading_date,
-        p.pattern_designer_name,
-        p.receive_sample_date,
-        p.break_off_sample,
-        p.break_off_pattern,
-        p.pattern_req_date,
-        p.revision_comments,
-        p.revision_reason,
-        p.requirement_num,
-        p.suspend_remarks,
-        p.cutter_finish_num,
         s.*,
+        p.*,
         p.cutter_name AS cutterName,
         p.stitcher AS stitcher
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id and p.del_flag = '0' )
-				LEFT JOIN t_node_status ns ON (ns.data_id = p.id and ns.del_flag = '0' )
+        LEFT JOIN t_node_status ns ON (ns.data_id = p.id and ns.del_flag = '0' )
         where  s.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

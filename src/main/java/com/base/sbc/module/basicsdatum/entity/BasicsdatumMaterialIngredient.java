@@ -63,6 +63,12 @@ public class BasicsdatumMaterialIngredient extends BaseEntity {
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")
 	private String materialCode;
+	/** 物料编号 */
+	@ApiModelProperty(value = "物料成分编号")
+	private String materialKindCode;
+	/** 物料编号 */
+	@ApiModelProperty(value = "物料成分名称")
+	private String materialKindName;
 	/** 创建日期 */
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	@TableField(fill = FieldFill.INSERT)

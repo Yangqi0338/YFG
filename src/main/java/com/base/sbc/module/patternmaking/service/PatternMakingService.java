@@ -9,21 +9,22 @@ package com.base.sbc.module.patternmaking.service;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
+import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -94,6 +95,8 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @return
      */
     PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto);
+
+    void technologyCenterTaskListExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto);
 
     /**
      * 设置版师
@@ -223,6 +226,23 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @version 1.0
      */
     PageInfo<NodeListVo> allProgressSteps(NodestatusPageSearchDto dto, String userCompany);
+
+    /**
+     * 研发总进度看板 new
+     * @param dto
+     * @param userCompany
+     * @return
+     */
+    PageInfo<StyleResearchProcessVo> researchProcessList(ResearchProgressPageDto dto, String userCompany);
+
+    /**
+     * 获取各个节点的完成时间
+     * @param stylelId
+     * @param styleColorId
+     * @param basicsdatumProcessNodeEnum
+     * @return
+     */
+    Date getNodeFinashTime(String stylelId,String styleColorId,BasicsdatumProcessNodeEnum basicsdatumProcessNodeEnum,StyleResearchNodeVo styleResearchNodeVo,Date preFinishDate);
     /**
      * 类描述：打版进度列表，工作台上面的
      *
@@ -331,6 +351,14 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
     boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score);
 
     /**
+     * 样衣工编辑
+     * @param user
+     * @param dto
+     * @return
+     */
+    boolean sampleMakingEdit(Principal user,PatternMakingDto dto);
+
+    /**
      * 获取所有版师列表
      *
      * @param companyCode
@@ -367,6 +395,17 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      * @return
      */
     boolean startStop(StartStopDto startStopDto);
+
+    void saveReceiveReason(TechnologyCenterTaskVo dto);
+
+    List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo);
+
+    /**
+     * 获取款下面的初版车缝工和上次车缝工
+     * @param styleId
+     * @return
+     */
+    Map<String,String> getHeadLastTimeStitcher(String styleId);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

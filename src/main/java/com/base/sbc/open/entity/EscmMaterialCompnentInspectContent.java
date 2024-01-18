@@ -30,6 +30,11 @@ public class EscmMaterialCompnentInspectContent{
     @ApiModelProperty(notes = "成分内容")
     private String inspectContent;
 
+    @ApiModelProperty(value = "物料成分编号")
+    private String kindCode;
+
+    @ApiModelProperty(value = "物料成分名称")
+    private String kindName;
 
     @ApiModelProperty(notes = "成分占比")
     private String contentProportion;

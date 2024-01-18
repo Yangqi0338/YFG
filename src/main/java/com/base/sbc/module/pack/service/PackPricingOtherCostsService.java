@@ -52,6 +52,15 @@ public interface PackPricingOtherCostsService extends PackBaseService<PackPricin
      * @return
      */
     List<PackPricingOtherCosts> getPriceSumByForeignIds(List<String> foreignIds, String companyCode);
+
+    /**
+     * 生成费用明细单
+     * @param dict 字典编码 多个用,分割
+     * @param foreignId 父级id
+     * @param packType
+     * @return
+     */
+    boolean createCostDetail(String dict,String foreignId,String packType);
 // 自定义方法区 不替换的区域【other_end】
 
 

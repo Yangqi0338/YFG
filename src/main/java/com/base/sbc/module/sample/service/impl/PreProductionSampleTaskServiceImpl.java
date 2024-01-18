@@ -7,13 +7,16 @@
 package com.base.sbc.module.sample.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -26,10 +29,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
@@ -42,21 +42,26 @@ import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
 import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
+import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
+import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -69,6 +74,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 类描述：产前样-任务 service类
@@ -81,7 +89,7 @@ import java.util.Map;
  */
 @Service
 public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProductionSampleTaskMapper, PreProductionSampleTask> implements PreProductionSampleTaskService {
-
+    Logger log = LoggerFactory.getLogger(getClass());
 
 // 自定义方法区 不替换的区域【other_start】
 
@@ -204,11 +212,19 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
         }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
-        // 设置图
-        stylePicUtils.setStylePic(list, "stylePic");
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
         nodeStatusService.setNodeStatus(list);
+        /**/
+        if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
+            /*带图片只能导出3000条*/
+            if(objects.toPageInfo().getList().size() >2000){
+                throw new OtherException("带图片最多只能导出2000条");
+            }
+            return objects.toPageInfo();
+        }
+        // 设置图
+        stylePicUtils.setStylePic(list, "stylePic");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
         return objects.toPageInfo();
     }
@@ -221,29 +237,47 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
      */
     @Override
     public void taskderiveExcel(HttpServletResponse response, PreProductionSampleTaskSearchDto dto) throws IOException {
-        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
-        qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
-        qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
-        qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
-        qw.andLike(dto.getSearch(), "s.style_no", "t.code");
-        qw.notEmptyIn("s.year", dto.getYear());
-        qw.notEmptyIn("s.season", dto.getSeason());
-        qw.notEmptyIn("s.month", dto.getMonth());
-        qw.orderByDesc("t.create_date");
-        if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
-            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
-        } else {
-            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
-        }
-        List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
-        // 设置图
-        stylePicUtils.setStylePic(list, "stylePic");
-        // 设置头像
-        amcFeignService.setUserAvatarToList(list);
-        nodeStatusService.setNodeStatus(list);
+        /**/
+        List<PreProductionSampleTaskVo> sampleTaskVoList = taskList(dto).getList();
 
-        List<PreProductionSampleTaskVoExcel> excelList = BeanUtil.copyToList(list, PreProductionSampleTaskVoExcel.class);
-        ExcelUtils.exportExcel(excelList, PreProductionSampleTaskVoExcel.class, "产前样看板.xlsx", new ExportParams(), response);
+        List<PreProductionSampleTaskVoExcel> list = CopyUtil.copy(sampleTaskVoList, PreProductionSampleTaskVoExcel.class);
+
+
+        /*开启一个线程池*/
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                .build();
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*获取图片链接*/
+                stylePicUtils.setStylePic(list, "stylePic",30);
+                minioUtils.setObjectUrlToList(list, "samplePic");
+                /*计时器*/
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (PreProductionSampleTaskVoExcel preProductionSampleTaskVoExcel : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = preProductionSampleTaskVoExcel.getStylePic();
+                            preProductionSampleTaskVoExcel.setPic(HttpUtil.downloadBytes(stylePic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list, PreProductionSampleTaskVoExcel.class, "产前样看板.xlsx", new ExportParams("产前样看板", "产前样看板", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
     }
 
     @Override
@@ -328,14 +362,16 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         }
 
         // 判断是否重复
-        BaseQueryWrapper<PreProductionSampleTask> queryWrapper = new BaseQueryWrapper<>();
+        //region 20231226-hq-禅道4530编号 一个资料包下可以有多个产前样任务
+        /*BaseQueryWrapper<PreProductionSampleTask> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("style_id", style.getId());
         queryWrapper.eq("pack_info_id", packInfo.getId());
 
         List<PreProductionSampleTask> list = this.list(queryWrapper);
         if (!list.isEmpty()) {
             throw new OtherException("该资料包已经生成产前样任务");
-        }
+        }*/
+        //endregion
 
         PreProductionSampleTask task = new PreProductionSampleTask();
         task.setStyleId(style.getId());

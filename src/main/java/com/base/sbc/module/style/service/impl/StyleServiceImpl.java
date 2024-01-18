@@ -31,7 +31,9 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
@@ -502,6 +504,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignerIds()));
         qw.eq(StrUtil.isNotBlank(dto.getDevtType()), "devt_type", dto.getDevtType());
         qw.eq(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", dto.getPlanningSeasonId());
+        if (StrUtil.isNotBlank(dto.getEnableStatus()) && !StrUtil.equals(dto.getEnableStatus(), BaseGlobal.STOCK_STATUS_CHECKED)) {
+            qw.eq("enable_status", dto.getEnableStatus());
+        } else {
+            qw.eq("enable_status", BaseGlobal.NO);
+        }
         qw.eq("del_flag", BaseGlobal.NO);
         if (!StringUtils.isEmpty(dto.getIsTrim())) {
             if (dto.getIsTrim().equals(BaseGlobal.STATUS_NORMAL)) {
@@ -527,7 +534,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         //2我创建的
         else if (StrUtil.equals(dto.getUserType(), StylePageDto.USER_TYPE_2)) {
-            qw.isNull("sender");
+            qw.isNullStr("sender");
             qw.eq("create_id", userId);
         }
         //3我负责的
@@ -717,6 +724,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<StyleInfoColor> styleInfoColorList = styleInfoColorService.list(new QueryWrapper<StyleInfoColor>().eq("foreign_id", id));
         if (CollectionUtil.isNotEmpty(styleInfoColorList)) {
             sampleVo.setStyleInfoColorVoList(BeanUtil.copyToList(styleInfoColorList, StyleInfoColorVo.class));
+        }
+
+        // RFID标识
+        if (StrUtil.isBlank(sampleVo.getRfidFlag())) {
+            sampleVo.setRfidFlag(YesOrNoEnum.NO.getValueStr());
+            if (RFIDProperties.filterList.stream().anyMatch(filter-> filter.check(sampleVo.getYear(), sampleVo.getBrandName(), sampleVo.getProdCategory()))) {
+                sampleVo.setRfidFlag(YesOrNoEnum.YES.getValueStr());
+            }
         }
 
         return sampleVo;

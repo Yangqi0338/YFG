@@ -46,4 +46,7 @@ public class QueryFabricIngredientsInfoDto extends Page {
     @ApiModelProperty(value = "导出标记"  )
     private String   deriveFlag;
 
+    @ApiModelProperty(value = "图片标记"  )
+    private String imgFlag;
+
 }

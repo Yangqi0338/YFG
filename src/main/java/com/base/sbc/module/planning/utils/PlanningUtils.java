@@ -146,7 +146,7 @@ public class PlanningUtils {
         } else {
             qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), prefix + "prod_category1st", dto.getProdCategory1st());
             qw.eq(prefix + "prod_category", dto.getProdCategory());
-            qw.isNull(prefix + "prod_category2nd");
+            qw.isNullStr(prefix + "prod_category2nd");
         }
     }
 

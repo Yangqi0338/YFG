@@ -209,6 +209,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         if (uploadFile != null) {
             uploadFileService.removeById(attachment.getFileId());
             minioUtils.delFile(uploadFile.getUrl());
+            this.saveOperaLog("删除图片",attachment.getType(),attachment.getForeignId(),null,null,new Attachment(),attachment);
         }
         return true;
     }
@@ -240,6 +241,7 @@ public class AttachmentServiceImpl extends BaseServiceImpl<AttachmentMapper, Att
         attachment.setType(dto.getPackType() + StrUtil.DASHED + dto.getSpecType());
         attachment.setId(null);
         save(attachment);
+        this.saveOperaLog("上传图片",dto.getPackType()+StrUtil.DASHED+dto.getSpecType(),dto.getForeignId(),null,null,attachment,null);
         return getAttachmentById(attachment.getId());
     }
 

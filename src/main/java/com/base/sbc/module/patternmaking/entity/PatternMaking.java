@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -390,6 +392,7 @@ public class PatternMaking extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "放码时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date gradingDate;
     /** 完成数量 */
     @ApiModelProperty(value = "完成数量"  )
@@ -397,6 +400,9 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 是否是迁移历史数据 */
     @ApiModelProperty(value = "是否是迁移历史数据"  )
     private String historicalData;
+    /** 停留原因 */
+    @ApiModelProperty(value = "停留原因"  )
+    private String receiveReason;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

@@ -1,8 +1,14 @@
 package com.base.sbc.module.common.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -104,6 +110,8 @@ public interface BaseService<T> extends IService<T> {
      */
     void saveOperaLog( String type, String name, T newObject, T oldObject);
 
+    void saveOperaLog(OperaLogEntity operaLogEntity);
+
      void saveOperaLog(String type, String name,String documentName,String documentCode, T newObject, T oldObject);
 
     public void saveOperaLog(String type, String name, String documentName, String documentCode, Map<String,String> data);
@@ -111,6 +119,22 @@ public interface BaseService<T> extends IService<T> {
      * 保存操作日志
      */
     void saveOrUpdateOperaLog(Object newObject, Object oldObject, OperaLogEntity operaLogEntity);
+
+
+    /**
+     * 保存修改操作日志
+     * @param type 操作类型 新增/修改
+     * @param name 模块名称
+     * @param documentId 单据id
+     * @param documentName 单据名称
+     * @param documentCode 单据编码
+     * @param newObject 新对象
+     * @param oldObject 原对象
+     */
+    void saveOperaLog(String type, String name,String documentId,String documentName,String documentCode, T newObject, T oldObject);
+
+
+
 
     /**
      * 批量保存操作日志
@@ -143,4 +167,20 @@ public interface BaseService<T> extends IService<T> {
      */
     void startStopLog(StartStopDto startStopDto);
 
+    /**
+     * 根据queryWrapper检查是否存在
+     */
+    boolean exists(Wrapper<T> wrapper);
+    T findOne(QueryWrapper<T> wrapper);
+    T findOne(LambdaQueryWrapper<T> wrapper);
+    <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
+    <R> List<R> listByIds2OneField(List<String> ids, SFunction<T,R> function);
+
+    /**
+     * 用于redis回查
+     */
+    default Object findByCode(String code) {
+        return null;
+    }
+    <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 }

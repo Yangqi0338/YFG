@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @Author xhj
  * @Date 2023/6/26 17:53
@@ -57,10 +59,38 @@ public class HangTagSearchDTO extends Page {
     @ApiModelProperty(value = "查询类型：packBigGoods.标准资料包")
     private String selectType;
 
+    @ApiModelProperty(value = "品名编码")
+    private String  productCode;
+
+    @ApiModelProperty(value = "品类编码")
+    private String  prodCategory;
+
+
+    private String[] productCodes;
+
+    private String[]   prodCategorys;
+
     private String checkType;
 
     private String[] bulkStyleNos;
 
     private String[] designNos;
 
+    /** 波段名称 */
+    @ApiModelProperty(value = "波段名称"  )
+    private String bandName;
+
+    private String[] bandNames;
+
+    @ApiModelProperty(value = "产品季节id")
+    private String planningSeasonId;
+
+    @ApiModelProperty(value = "导出标记")
+    private String deriveFlag;
+
+    @ApiModelProperty(value = "二检包装形式")
+    private String secondPackagingFormCode;
+
+    @ApiModelProperty(value = "包装形式")
+    private String  packagingFormCode;
 }

@@ -23,6 +23,9 @@
         tsd.style_type_name AS styleTypeName,
         tsd.size_range_name AS modelTypeName,
         tsd.design_no AS designNo,
+        tsd.brand AS brand,
+        tsd.year AS year,
+        tsd.season AS season,
         <choose>
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
@@ -31,12 +34,14 @@
                 tssc.style_no AS bulkStyleNo,
                 tssc.color_name AS color,
                 tssc.tag_price AS tagPrice,
+                tssc.band_name AS bandName,
                 tssc.is_trim,
             </otherwise>
         </choose>
         tbmt.model_Type AS modelType,
         ht.product_name AS productName,
         ht.product_code AS productCode,
+        tsd.prod_category_name,
         ht.*,
         tsp.control_confirm as planCostConfirm,
         tsp.product_hangtag_confirm as productTagPriceConfirm,
@@ -69,6 +74,27 @@
             <if test="dto.style != null and dto.style != ''">
                 AND tsd.design_no like concat('%',#{dto.style},'%')
             </if>
+
+            <if test="dto.secondPackagingFormCode != null and dto.secondPackagingFormCode != ''">
+                AND ht.second_packaging_form_code = #{dto.secondPackagingFormCode}
+            </if>
+
+            <if test="dto.packagingFormCode != null and dto.packagingFormCode != ''">
+                AND ht.packaging_form_code = #{dto.packagingFormCode}
+            </if>
+
+
+            <if test="null != dto.bandNames and dto.bandNames.length > 0">
+                AND  tssc.band_code IN
+                <foreach collection="dto.bandNames" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
+            </if>
+
+            <if test="dto.planningSeasonId != null and dto.planningSeasonId != ''">
+                AND tsd.planning_season_id = #{dto.planningSeasonId}
+            </if>
+
             <if test="dto.bulkStyleNos != null and dto.bulkStyleNos.length > 0 ">
 
                 AND
@@ -81,6 +107,22 @@
             <if test="dto.ingredient != null and dto.ingredient != ''">
                 AND ht.ingredient like concat('%',#{dto.ingredient},'%')
             </if>
+
+
+            <if test="null != dto.productCodes and dto.productCodes.length > 0">
+                AND  ht.product_code IN
+                <foreach collection="dto.productCodes" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
+            </if>
+
+            <if test="null != dto.prodCategorys and dto.prodCategorys.length > 0">
+                AND  tsd.prod_category IN
+                <foreach collection="dto.prodCategorys" item="i" separator="," open="(" close=")">
+                    #{i}
+                </foreach>
+            </if>
+
             <if test="dto.status != null and dto.status != ''">
                 <choose>
                     <when test="dto.status == 0">
@@ -94,9 +136,7 @@
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
                 AND  DATE_FORMAT(ht.confirm_date,'%Y-%m-%d')  = #{dto.confirmDate}
             </if>
-            <if test="dto.designNo != null and dto.designNo != ''">
-                AND tsd.design_no like concat('%',#{dto.designNo},'%')
-            </if>
+
             <if test="dto.styleNo != null and dto.styleNo != ''">
                 <choose>
                     <when test='dto.likeQueryFlag == "1"'>
@@ -113,16 +153,25 @@
             <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 and tsd.design_no is not null
             </if>
-            <if test="dto.designNos !=null and dto.designNos.size() !=0 ">
+            <if test="dto.designNos !=null and dto.designNos.length !=0 ">
                 and
-                <foreach item="designNo" collection="designNos" open="(" separator="or" close=")">
+                <foreach item="designNo" collection="dto.designNos" open="(" separator="or" close=")">
                     tsd.design_no like concat('%',#{designNo},'%')
                 </foreach>
             </if>
             <if test="authSql != null and authSql != ''">
                 and (${authSql})
             </if>
+            <choose>
+                <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
+                    ORDER BY  tpi.create_date DESC
+                </when>
+                <otherwise>
+                    ORDER BY   tssc.create_date DESC
+                </otherwise>
+            </choose>
         </where>
+
 
     </select>
 
@@ -185,6 +234,7 @@
             <otherwise>
                 tssc.style_no AS bulkStyleNo,
                 tssc.color_name AS color,
+                tssc.color_code AS colorCode,
                 tssc.tag_price AS tagPrice,
                 tssc.is_trim,
                 tssc.style_color_pic ,
@@ -212,17 +262,21 @@
         <where>
             <choose>
                 <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
-                    AND tpi.design_no = #{bulkStyleNo}
+                    AND tpi.design_no in
+                    <foreach item="bulkStyleNo" collection="bulkStyleNoList" open="(" separator="," close=")">
+                        #{bulkStyleNo}
+                    </foreach>
                 </when>
                 <otherwise>
                     tssc.del_flag = 0
                     AND tssc.company_code = #{companyCode}
-                    and tssc.style_no = #{bulkStyleNo}
+                    AND tssc.style_no in
+                    <foreach item="bulkStyleNo" collection="bulkStyleNoList" open="(" separator="," close=")">
+                        #{bulkStyleNo}
+                    </foreach>
                 </otherwise>
             </choose>
         </where>
-
-        limit 1
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

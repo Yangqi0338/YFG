@@ -24,3 +24,7 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+
+bootstrap-dev.yml
+rebel.xml
+pom-*.xml

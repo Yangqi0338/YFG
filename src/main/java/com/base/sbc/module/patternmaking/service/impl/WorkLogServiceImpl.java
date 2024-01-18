@@ -8,14 +8,14 @@ package com.base.sbc.module.patternmaking.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
@@ -27,6 +27,7 @@ import com.base.sbc.module.patternmaking.vo.WorkLogVoExcel;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -50,6 +51,8 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
     // 自定义方法区 不替换的区域【other_start】
     @Resource
     RedisUtils redisUtils;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 
     @Override
@@ -58,13 +61,15 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
         qw.notEmptyIn("worker_id", dto.getWorkerId());
         qw.notEmptyIn("log_type", dto.getLogType());
         qw.notEmptyIn("num_type", dto.getNumType());
-        qw.andLike(dto.getSearch(), "worker", "reference_no", "work_description");
+        qw.andLike(dto.getSearch(), "worker", "reference_no", "work_description", "code");
         if (StrUtil.isNotBlank(dto.getWorkDate())) {
             qw.between("work_date", dto.getWorkDate().split(","));
         }
         if (StrUtil.isEmpty(dto.getOrderBy())) {
             dto.setOrderBy("create_date desc");
         }
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.work_log.getK());
         Page<WorkLog> objects = PageHelper.startPage(dto);
         list(qw);
         return CopyUtil.copy(objects.toPageInfo(), WorkLogVo.class);
@@ -90,22 +95,9 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
      */
     @Override
     public void workLogDeriveExcel(WorkLogSearchDto dto, HttpServletResponse response) throws IOException {
-        BaseQueryWrapper<WorkLog> qw = new BaseQueryWrapper<>();
-
-        qw.notEmptyIn("worker_id", dto.getWorkerId());
-        qw.notEmptyIn("log_type", dto.getLogType());
-        qw.notEmptyIn("num_type", dto.getNumType());
-        qw.in(StringUtils.isNotBlank(dto.getId()) ,"id",StringUtils.convertList(dto.getId()));
-        qw.andLike(dto.getSearch(), "worker", "reference_no", "work_description");
-        if (StrUtil.isNotBlank(dto.getWorkDate())) {
-            qw.between("work_date",
-                    DateUtil.parse(dto.getWorkDate() + " 00:00:00"),
-                    DateUtil.parse(dto.getWorkDate() + " 23:59:59"));
-        }
-        if (StrUtil.isEmpty(dto.getOrderBy())) {
-            dto.setOrderBy("create_date desc");
-        }
-        List<WorkLogVoExcel> list = BeanUtil.copyToList(baseMapper.selectList(qw), WorkLogVoExcel.class);
+        PageInfo<WorkLogVo> workLogVoPageInfo = pageInfo(dto);
+        List<WorkLogVo> list1 = workLogVoPageInfo.getList();
+        List<WorkLogVoExcel> list = BeanUtil.copyToList(list1, WorkLogVoExcel.class);
         ExcelUtils.exportExcel(list, WorkLogVoExcel.class, "基础资料-号型类型.xlsx", new ExportParams(), response);
 
     }

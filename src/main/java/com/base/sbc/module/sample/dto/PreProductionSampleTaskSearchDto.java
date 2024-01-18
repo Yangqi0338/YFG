@@ -39,4 +39,10 @@ public class PreProductionSampleTaskSearchDto extends Page {
     private String finishFlag;
 
     private String prodCategory;
+
+    /*是否导出图片*/
+    private String imgFlag;
+
+    /*导出标记*/
+    private String excelFlag;
 }
