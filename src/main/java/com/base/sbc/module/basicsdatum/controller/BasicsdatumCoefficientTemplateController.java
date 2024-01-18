@@ -9,6 +9,8 @@ package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCoefficientTemplateService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumCoefficientTemplateVo;
@@ -62,7 +64,7 @@ public class BasicsdatumCoefficientTemplateController{
 
 	@ApiOperation(value = "新增修改模板")
 	@PostMapping("/addUpdateCoefficientTemplate")
-	public Boolean addUpdateCoefficientTemplate(@RequestBody AddUpdateCoefficientTemplateDto dto) {
+	public BasicsdatumCoefficientTemplate addUpdateCoefficientTemplate(@RequestBody AddUpdateCoefficientTemplateDto dto) {
 		return basicsdatumCoefficientTemplateService.addUpdateCoefficientTemplate(dto);
 	}
 
@@ -100,7 +102,7 @@ public class BasicsdatumCoefficientTemplateController{
 
 	@ApiOperation(value = "保存/编辑维度标签")
 	@PostMapping("/batchSaveDimensionality")
-	public boolean batchSaveDimensionality(@Valid @RequestBody List<BasicsdatumDimensionalityDto> dtoList) {
+	public List<BasicsdatumDimensionality> batchSaveDimensionality(@Valid @RequestBody List<BasicsdatumDimensionalityDto> dtoList) {
 		return basicsdatumDimensionalityService.batchSaveDimensionality(dtoList);
 	}
 

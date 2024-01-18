@@ -41,10 +41,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -240,6 +237,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
 
     /**
      * 系数模板引用
+     * 覆盖之前的数据
      *
      * @param dto
      * @return
@@ -265,6 +263,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
                 throw new OtherException("此产品季下没有" + basicsdatumCoefficientTemplate.getChannelName() + "渠道");
             }
             dto.setPlanningChannelId(planningChannelList.get(0).getId());
+            dto.setChannel(planningChannelList.get(0).getChannel());
         }
 
         QueryWrapper<BasicsdatumDimensionality> queryWrapper = new QueryWrapper<>();
@@ -274,13 +273,29 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         /*获取模板中的系数*/
         List<BasicsdatumDimensionality> dimensionalityList = basicsdatumDimensionalityService.list(queryWrapper);
 
-        List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityList, PlanningDimensionality.class);
-        list.forEach(l -> {
-            l.setPlanningChannelId(dto.getPlanningChannelId());
-            l.setPlanningSeasonId(dto.getPlanningSeasonId());
-            l.setCoefficientFlag(BaseGlobal.YES);
-        });
-        saveOrUpdateBatch(list);
+        if (CollUtil.isNotEmpty(dimensionalityList)) {
+            /*此产品季的系数*/
+            QueryWrapper<PlanningDimensionality> dimensionalityQueryWrapper = new QueryWrapper<>();
+            dimensionalityQueryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+            dimensionalityQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
+            dimensionalityQueryWrapper.eq("channel", dto.getChannel());
+            dimensionalityQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
+            dimensionalityQueryWrapper.eq("coefficient_flag", BaseGlobal.YES);
+            List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(dimensionalityQueryWrapper);
+            if (CollUtil.isNotEmpty(planningDimensionalityList)) {
+                /*删除之前的数据覆盖*/
+                List<String> stringList = planningDimensionalityList.stream().map(PlanningDimensionality::getId).collect(Collectors.toList());
+                baseMapper.deleteBatchIds(stringList);
+            }
+            List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityList, PlanningDimensionality.class);
+            list.forEach(l -> {
+                l.setId(null);
+                l.setPlanningChannelId(dto.getPlanningChannelId());
+                l.setPlanningSeasonId(dto.getPlanningSeasonId());
+                l.setCoefficientFlag(BaseGlobal.YES);
+            });
+            saveOrUpdateBatch(list);
+        }
         return true;
     }
 

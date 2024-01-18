@@ -185,8 +185,8 @@ public class PlanningDemandController {
 
 
 	@ApiOperation(value = "系数模板引用")
-	@GetMapping("/templateReference")
-	public boolean templateReference(DimensionLabelsSearchDto dto) {
+	@PostMapping("/templateReference")
+	public boolean templateReference(@RequestBody DimensionLabelsSearchDto dto) {
 		return planningDimensionalityService.templateReference(dto);
 	}
 

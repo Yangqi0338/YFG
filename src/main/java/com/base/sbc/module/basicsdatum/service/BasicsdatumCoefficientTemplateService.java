@@ -43,7 +43,7 @@ public interface BasicsdatumCoefficientTemplateService extends BaseService<Basic
      * @param dto
      * @return
      */
-    Boolean addUpdateCoefficientTemplate(@RequestBody AddUpdateCoefficientTemplateDto dto);
+    BasicsdatumCoefficientTemplate addUpdateCoefficientTemplate(@RequestBody AddUpdateCoefficientTemplateDto dto);
 
     /**
      * 停用启用

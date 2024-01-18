@@ -56,7 +56,11 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
         }
         BaseQueryWrapper<BasicsdatumDimensionality> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tbd.prod_category",dto.getProdCategory());
-        queryWrapper.eq(StrUtil.isNotBlank(dto.getProdCategory2nd()),"tbd.prod_category2nd",dto.getProdCategory2nd());
+        if(StrUtil.isNotBlank(dto.getProdCategory2nd())){
+            queryWrapper.eq("tbd.prod_category2nd",dto.getProdCategory2nd());
+        }else {
+            queryWrapper.isNullStr("tbd.prod_category2nd");
+        }
         queryWrapper.eq("tbd.del_flag",BaseGlobal.NO);
         queryWrapper.eq("tbd.coefficient_template_id",dto.getCoefficientTemplateId());
         queryWrapper.orderByAsc("tbd.sort");
@@ -75,7 +79,7 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
      * @return
      */
     @Override
-    public boolean batchSaveDimensionality(List<BasicsdatumDimensionalityDto> dtoList) {
+    public List<BasicsdatumDimensionality> batchSaveDimensionality(List<BasicsdatumDimensionalityDto> dtoList) {
         if (CollUtil.isEmpty(dtoList)) {
             throw new OtherException("系数列表数据为空");
         }
@@ -97,7 +101,7 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
             }
         });
         saveOrUpdateBatch(list);
-        return true;
+        return list;
     }
 
     /**

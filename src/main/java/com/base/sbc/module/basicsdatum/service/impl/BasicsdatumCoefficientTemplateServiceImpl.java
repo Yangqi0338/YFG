@@ -67,7 +67,7 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
         queryWrapper.like(StringUtils.isNotBlank(dto.getName()),"name",dto.getName());
         queryWrapper.in(StringUtils.isNotBlank(dto.getChannel()),"channel",StringUtils.convertList(dto.getChannel()));
         queryWrapper.in(StringUtils.isNotBlank(dto.getSeason()),"season",StringUtils.convertList(dto.getSeason()));
-        queryWrapper.eq(StringUtils.isNotBlank(dto.getStatus()),"status",StringUtils.convertList(dto.getStatus()));
+        queryWrapper.eq(StringUtils.isNotBlank(dto.getStatus()),"status",dto.getStatus());
         /*查询*/
         Page<BasicsdatumCoefficientTemplateVo> objects = PageHelper.startPage(dto);
         baseMapper.selectList(queryWrapper);
@@ -82,7 +82,7 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean addUpdateCoefficientTemplate(AddUpdateCoefficientTemplateDto dto) {
+    public BasicsdatumCoefficientTemplate addUpdateCoefficientTemplate(AddUpdateCoefficientTemplateDto dto) {
         BasicsdatumCoefficientTemplate basicsdatumCoefficientTemplate = new BasicsdatumCoefficientTemplate();
         /*判断新增修改*/
         if (StringUtils.isNotBlank(dto.getId())) {
@@ -115,7 +115,7 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
             }
             basicsdatumDimensionalityService.batchSaveDimensionality(dto.getList());
         }
-        return true;
+        return basicsdatumCoefficientTemplate;
     }
 
     /**
@@ -152,8 +152,8 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
         BasicsdatumCoefficientTemplate coefficientTemplate = baseMapper.selectById(dto.getId());
         /*模板里面的系数*/
         List<BasicsdatumDimensionality> list = basicsdatumDimensionalityService.getByList("coefficient_template_id", coefficientTemplate.getId());
+        BeanUtils.copyProperties(dto, coefficientTemplate);
         coefficientTemplate.setId(null);
-        coefficientTemplate.setName(dto.getName());
         coefficientTemplate.insertInit();
         coefficientTemplate.updateInit();
         baseMapper.insert(coefficientTemplate);

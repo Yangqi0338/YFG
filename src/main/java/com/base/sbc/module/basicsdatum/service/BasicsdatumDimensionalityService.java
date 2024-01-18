@@ -38,7 +38,7 @@ public interface BasicsdatumDimensionalityService extends BaseService<Basicsdatu
      * @param dtoList
      * @return
      */
-    boolean batchSaveDimensionality( List<BasicsdatumDimensionalityDto> dtoList);
+    List<BasicsdatumDimensionality> batchSaveDimensionality( List<BasicsdatumDimensionalityDto> dtoList);
 
 
     /**
