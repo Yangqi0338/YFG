@@ -6,12 +6,19 @@
  *****************************************************************************/
 package com.base.sbc.module.style.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -23,16 +30,23 @@ import com.base.sbc.module.style.entity.StyleColorCorrectInfo;
 import com.base.sbc.module.style.mapper.StyleColorCorrectInfoMapper;
 import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.vo.StyleColorCorrectInfoExcel;
 import com.base.sbc.module.style.vo.StyleColorCorrectInfoVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * 类描述：正确样管理 service类
@@ -54,6 +68,8 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
     @Autowired
     private PreProductionSampleTaskService preProductionSampleTaskService;
+
+    Logger log = LoggerFactory.getLogger(getClass());
 
     @Override
     public PageInfo<StyleColorCorrectInfoVo> findList(QueryStyleColorCorrectDto page) {
@@ -241,5 +257,49 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
     public void deleteMain(StyleColorCorrectInfo styleColorCorrectInfo) {
         String id = saveMain(styleColorCorrectInfo);
         removeById(id);
+    }
+
+    @Override
+    public void deriveExcel(HttpServletResponse response, QueryStyleColorCorrectDto dto) {
+        dto.setExcelFlag(BaseGlobal.YES);
+        List<StyleColorCorrectInfoVo> infoVoList = findList(dto).getList();
+        List<StyleColorCorrectInfoExcel> list = BeanUtil.copyToList(infoVoList, StyleColorCorrectInfoExcel.class);
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                .build();
+
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(infoVoList) && infoVoList.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                stylePicUtils.setStylePic(list, "stylePic",30);
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (StyleColorCorrectInfoExcel excel : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = excel.getStylePic();
+                            excel.setStylePic1(HttpUtil.downloadBytes(stylePic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list, StyleColorCorrectInfoExcel.class, "正确样跟踪.xlsx", new ExportParams("正确样跟踪", "正确样跟踪", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
     }
 }

@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.style.dto.QueryStyleColorCorrectDto;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 类描述：正确样管理 Controller类
@@ -58,6 +61,12 @@ public class StyleColorCorrectInfoController {
         return ApiResult.success("成功",id);
     }
 
+    @ApiOperation(value = "/正确样导出")
+    @GetMapping("/deriveExcel")
+    @DuplicationCheck(type = 1,message = "服务已存在导出，请稍后...")
+    public void deriveExcel(HttpServletResponse response , QueryStyleColorCorrectDto dto) throws Exception {
+        styleColorCorrectInfoService.deriveExcel(response,dto);
+    }
 
 }
 

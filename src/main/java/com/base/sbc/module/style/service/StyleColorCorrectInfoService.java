@@ -11,6 +11,8 @@ import com.base.sbc.module.style.entity.StyleColorCorrectInfo;
 import com.base.sbc.module.style.vo.StyleColorCorrectInfoVo;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
+
 /** 
  * 类描述：正确样管理 service类
  * @address com.base.sbc.module.style.service.StyleColorCorrectInfoService
@@ -26,4 +28,6 @@ public interface StyleColorCorrectInfoService extends BaseService<StyleColorCorr
     String saveMain(StyleColorCorrectInfo styleColorCorrectInfo);
 
     void deleteMain(StyleColorCorrectInfo styleColorCorrectInfo);
+
+    void deriveExcel(HttpServletResponse response, QueryStyleColorCorrectDto dto);
 }
