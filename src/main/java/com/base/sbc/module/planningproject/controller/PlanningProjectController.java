@@ -166,51 +166,73 @@ public class PlanningProjectController extends BaseController {
     @ApiOperation(value = "导入Excel")
     @PostMapping("/importExcel2")
     public ApiResult importExcel2(@RequestParam("file") MultipartFile file) throws Exception {
-        List<HashMap<Integer,String>> hashMaps = EasyExcel.read(file.getInputStream()).headRowNumber(0).doReadAllSync();
-        JSONObject jsonObject = new JSONObject();
+        List<HashMap<Integer, String>> hashMaps = EasyExcel.read(file.getInputStream()).headRowNumber(0).doReadAllSync();
+
         for (int i = 0; i < hashMaps.size(); i++) {
+            JSONObject jsonObject = new JSONObject();
             for (Integer s : hashMaps.get(i).keySet()) {
-                System.out.println(s);
-                jsonObject.put(String.valueOf(s),hashMaps.get(i).get(s));
+                jsonObject.put(String.valueOf(s), hashMaps.get(i).get(s));
             }
 
-
-
-            switch (i){
+            switch (i) {
                 case 0:
-                    //标题
-                    Object o = jsonObject.get(0);
+                    // 标题
+                    String string = jsonObject.getString("0");
+                    System.out.println("标题:" + string);
                     break;
-                    case 1:
-
-                        for (String s : jsonObject.keySet()) {
-                            System.out.println(s);
-                            int i1 = Integer.parseInt(s);
-                            if (i1>3){
-                                System.out.println(jsonObject.get(i1));
-                            }
+                case 1:
+                    // 上市波段
+                    for (String s : jsonObject.keySet()) {
+                        int i1 = Integer.parseInt(s);
+                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            System.out.println("上市波段:" + jsonObject.getString(s));
                         }
-
-                        //上市波段
+                    }
                     break;
-                    case 2:
-                        //下单时间
+                case 2:
+                    // 下单时间
+                    for (String s : jsonObject.keySet()) {
+                        int i1 = Integer.parseInt(s);
+                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            System.out.println("下单时间:" + jsonObject.getString(s));
+                        }
+                    }
                     break;
-                    case 3:
-                        //上市时间
+                case 3:
+                    // 上市时间
+                    for (String s : jsonObject.keySet()) {
+                        int i1 = Integer.parseInt(s);
+                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            System.out.println("上市时间:" + jsonObject.getString(s));
+                        }
+                    }
                     break;
-                    case 4:
-                        //款式类别
+                case 4:
+                    // 款式类别
+                    for (String s : jsonObject.keySet()) {
+                        int i1 = Integer.parseInt(s);
+                        if (i1 > 2) {
+                            System.out.println("样式类别:" + jsonObject.getString(s));
+                        }
+                    }
                     break;
-                    case 5:
-                        //品类
-                    break;
-                    case 6:
-                        //品类
-                    break;
-                    case 7:
-                        //品类
-                    break;
+                default:
+                    // 品类
+                    for (String s : jsonObject.keySet()) {
+                        int i1 = Integer.parseInt(s);
+                        if (i1 == 0 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            System.out.println("大类:" + jsonObject.getString(s));
+                        }
+                        if (i1 == 1 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            System.out.println("品类:" + jsonObject.getString(s));
+                        }
+                        if (i1 == 2) {
+                            System.out.println("中类:" + jsonObject.getString(s));
+                        }
+                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            System.out.println("数量:" + jsonObject.getString(s));
+                        }
+                    }
             }
 
         }
