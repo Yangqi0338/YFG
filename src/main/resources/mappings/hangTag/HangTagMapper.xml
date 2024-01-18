@@ -37,6 +37,7 @@
                 tssc.band_name AS bandName,
                 tssc.is_trim,
                 tssc.bom_status,
+                tssc.historical_data historicalData,
             </otherwise>
         </choose>
         tbmt.model_Type AS modelType,

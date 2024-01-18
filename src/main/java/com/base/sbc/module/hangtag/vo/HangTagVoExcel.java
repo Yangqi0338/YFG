@@ -171,8 +171,16 @@ public class HangTagVoExcel {
      * 洗标
      */
     @ApiModelProperty(value = "洗标")
-    @Excel(name = "洗标",type = 2)
+//    @Excel(name = "洗标",type = 2 ,width = 30 , height = 50)
     private String washingLabel;
+
+    /**
+     * 洗标
+     */
+    @ApiModelProperty(value = "洗标")
+    @Excel(name = "洗标",type = 2 ,imageType = 2,width = 30)
+    private byte[] washingLabel1;
+
 
     /**
      * 贮藏要求
@@ -248,7 +256,7 @@ public class HangTagVoExcel {
      * 是否是迁移历史数据 0否 1是
      */
     @ApiModelProperty(value = "是否新系统标记")
-    @Excel(name = "是否新系统标记",replace={"是_0","否_1","是_null","是_"})
+    @Excel(name = "是否新系统标记",replace={"是_0","否_1","是_null"})
     private String historicalData;
 
 }
