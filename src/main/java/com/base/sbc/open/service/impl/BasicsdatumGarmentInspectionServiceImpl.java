@@ -100,6 +100,8 @@ public class BasicsdatumGarmentInspectionServiceImpl extends BaseServiceImpl<Bas
 
             BasicsdatumGarmentInspectionDetail inspectionDetail = BeanUtil.copyProperties(inspectionDetailDto, BasicsdatumGarmentInspectionDetail.class);
             inspectionDetail.setBillId(billId);
+            inspectionDetail.setYear(garmentInspectionDto.getYear());
+            inspectionDetail.setStyleNo(garmentInspectionDto.getStyleNo());
             basicsdatumGarmentInspectionDetailService.save(inspectionDetail);
 
             List<String> attachmentUrlList = inspectionDetailDto.getAttachmentUrlList();
