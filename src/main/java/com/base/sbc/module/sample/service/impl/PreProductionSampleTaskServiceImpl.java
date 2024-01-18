@@ -26,6 +26,7 @@ import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -37,6 +38,7 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
@@ -53,6 +55,8 @@ import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
@@ -75,6 +79,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：产前样-任务 service类
@@ -110,6 +115,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private DataPermissionsService dataPermissionsService;
     @Autowired
     private StylePicUtils stylePicUtils;
+    @Autowired
+    private StyleColorService styleColorService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -379,6 +386,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         countQc.eq("style_id", style.getId());
         long count = getBaseMapper().countByQw(countQc);
         task.setCode(Opt.ofBlankAble(packInfo.getStyleNo()).orElse(packInfo.getDesignNo()) + StrUtil.DASHED + (count + 1));
+
+        //查询款式配色数据，保持技术接收时间（工艺接收明细单时间）一致
+        String styleColorId = packInfo.getStyleColorId();
+        StyleColor styleColor = styleColorService.getById(styleColorId);
+        task.setTechReceiveTime(styleColor.getTechReceiveTime());
+
         return save(task, "产前样看板");
     }
 
@@ -489,7 +502,46 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatusService.remove(queryWrapper4);
         }
 
+        //技术接收时间（工艺接收明细单时间）修改时
+        if(dto.getTechReceiveTime() != null){
+            //1.款式配色大货款保持一致
+            //通过资料包数据拿到 款式配色id
+            String packInfoId = task.getPackInfoId();
+            PackInfo packInfo = packInfoService.getById(packInfoId);
+            //查询出款式配色数据修改 工艺接收明细单时间 字段
+            String styleColorId = packInfo.getStyleColorId();
 
+            StyleColor old = styleColorService.getById(styleColorId);
+
+            LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StyleColor::getTechReceiveTime, dto.getTechReceiveTime())
+                    .eq(StyleColor::getId, styleColorId);
+            styleColorService.update(updateWrapper);
+
+            StyleColor styleColor1 = styleColorService.getById(styleColorId);
+
+            styleColorService.saveOperaLog("修改", "款式配色", old.getColorName(), old.getStyleNo(), styleColor1, old);
+
+            //2.产前样看板中，相同大货款号的数据也保持一致
+            BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+            qw.eq("p.style_no",old.getStyleNo());
+            List<PreProductionSampleTaskVo> preProductionSampleTaskVos = getBaseMapper().taskList(qw);
+            List<String> ids = preProductionSampleTaskVos.stream().map(BaseEntity::getId).filter(o->!o.equals(dto.getId())).distinct().collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(ids)){
+                List<PreProductionSampleTask> oldList = listByIds(ids);
+                LambdaUpdateWrapper<PreProductionSampleTask> uwf = new LambdaUpdateWrapper<>();
+                uwf.set(PreProductionSampleTask::getTechReceiveTime, dto.getTechReceiveTime());
+                uwf.in(PreProductionSampleTask::getId, ids);
+                update(uwf);
+                //记录修改日志
+                List<PreProductionSampleTask> newList = listByIds(ids);
+                Map<String, PreProductionSampleTask> voMap = newList.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+                for (PreProductionSampleTask preProductionSampleTask : oldList) {
+                    PreProductionSampleTask preProductionSampleTask1 = voMap.get(preProductionSampleTask.getId());
+                    this.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
+                }
+            }
+        }
 
         // 记录日志
         this.saveOperaLog("修改", "产前样看板", dto, task);

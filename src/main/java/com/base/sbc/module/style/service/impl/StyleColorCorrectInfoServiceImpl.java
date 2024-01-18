@@ -15,7 +15,9 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -23,9 +25,13 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.sample.entity.PreProductionSampleTask;
+import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
+import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
 import com.base.sbc.module.style.dto.QueryStyleColorCorrectDto;
+import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleColorCorrectInfo;
 import com.base.sbc.module.style.mapper.StyleColorCorrectInfoMapper;
 import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
@@ -44,9 +50,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：正确样管理 service类
@@ -68,6 +76,9 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
     @Autowired
     private PreProductionSampleTaskService preProductionSampleTaskService;
+
+    @Autowired
+    private PreProductionSampleTaskMapper preProductionSampleTaskMapper;
 
     Logger log = LoggerFactory.getLogger(getClass());
 
@@ -210,15 +221,45 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             styleColorCorrectInfo.insertInit();
         }
 
-        //修改产前样看板的工艺确认时间
-        /*if(StrUtil.isNotBlank(styleColorCorrectInfo.getProductionSampleId())){
-            PreProductionSampleTaskDto task = new PreProductionSampleTaskDto();
-            task.setId(styleColorCorrectInfo.getProductionSampleId());
-            task.setTechReceiveDate(styleColorCorrectInfo.getTechnicsDate());
-            preProductionSampleTaskService.saveTechReceiveDate(task);
-            //如果没有关联到  则保存在原始表中
+        //修改产前样看板的工艺确认时间 和款式配色的时间
+        if(styleColorCorrectInfo.getTechnicsDate() != null){
+            //1.款式配色大货款保持一致
+            //款式配色数据修改 工艺接收明细单时间 字段
+            String styleColorId = styleColorCorrectInfo.getStyleColorId();
+
+            StyleColor old = styleColorService.getById(styleColorId);
+
+            LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StyleColor::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate())
+                    .eq(StyleColor::getId, styleColorId);
+            styleColorService.update(updateWrapper);
+
+            StyleColor styleColor1 = styleColorService.getById(styleColorId);
+
+            styleColorService.saveOperaLog("修改", "款式配色", old.getColorName(), old.getStyleNo(), styleColor1, old);
+
+            //2.产前样看板中，相同大货款号的数据也保持一致
+            BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+            qw.eq("p.style_no",old.getStyleNo());
+            List<PreProductionSampleTaskVo> preProductionSampleTaskVos = preProductionSampleTaskMapper.taskList(qw);
+            List<String> ids = preProductionSampleTaskVos.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(ids)){
+                List<PreProductionSampleTask> oldList = preProductionSampleTaskService.listByIds(ids);
+                LambdaUpdateWrapper<PreProductionSampleTask> uwf = new LambdaUpdateWrapper<>();
+                uwf.set(PreProductionSampleTask::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate());
+                uwf.in(PreProductionSampleTask::getId, ids);
+                preProductionSampleTaskService.update(uwf);
+                //记录修改日志
+                List<PreProductionSampleTask> newList = preProductionSampleTaskService.listByIds(ids);
+                Map<String, PreProductionSampleTask> voMap = newList.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+                for (PreProductionSampleTask preProductionSampleTask : oldList) {
+                    PreProductionSampleTask preProductionSampleTask1 = voMap.get(preProductionSampleTask.getId());
+                    preProductionSampleTaskService.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
+                }
+            }
             styleColorCorrectInfo.setTechnicsDate(null);
-        }*/
+            oldDto.setTechnicsDate(null);
+        }
 
         //修改款式配色的设计 时间
         AddRevampStyleColorDto styleColor = new AddRevampStyleColorDto();
