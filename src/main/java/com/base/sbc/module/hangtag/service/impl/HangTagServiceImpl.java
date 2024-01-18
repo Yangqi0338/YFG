@@ -1042,6 +1042,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							HangTagMoreLanguageVO languageVO = HANG_TAG_CV.copy2MoreLanguageVO(countryLanguageDto);
 							// 设置标准列模式用于判断
 							languageVO.setModel(standardColumn.getModel());
+							languageVO.setPropertiesContent(hangTagMoreLanguageBaseVO.getPropertiesName());
 							// 获取标题名翻译
 							titleTranslateList.stream().filter(it->
 									languageIdList.contains(it.getCountryLanguageId())
@@ -1252,6 +1253,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						groupVO.setStandardColumnName(groupName);
 						if (groupName.equals(standColumnCode)) {
 							groupVO.setStandardColumnName(webBaseVO.getStandardColumnName());
+						}else {
+							groupVO.getLanguageList().forEach(languageVo-> {
+								languageVo.setStandardColumnContent(groupName);
+							});
 						}
 						groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(",")));
 

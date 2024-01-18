@@ -234,7 +234,6 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         }
 //        // 使用redis作为中间通信,standardColumnCodeList参数暂时没用了
 //        exportExcel(new MoreLanguageExcelQueryDto(countryId, new ArrayList<>()));
-        RedisStaticFunUtils.clear();
         return code;
     }
 
@@ -284,7 +283,6 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             RedisStaticFunUtils.setBusinessService(standardColumnService).setMessage("非法标准列code");
             return (StandardColumn) RedisStaticFunUtils.hget(RedisKeyConstant.STANDARD_COLUMN_LIST.build(), type.getCode() + RedisKeyBuilder.COMMA + standardColumnCode);
         }).collect(Collectors.toList());
-        RedisStaticFunUtils.clear();
         return standardColumnList;
     }
 
