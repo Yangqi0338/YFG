@@ -9,11 +9,16 @@ package com.base.sbc.open.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.common.entity.Attachment;
+import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.pushrecords.service.PushRecordsService;
+import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDetailDto;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
 import com.base.sbc.open.entity.BasicsdatumGarmentInspectionDetail;
@@ -22,6 +27,7 @@ import com.base.sbc.open.entity.BasicsdatumGarmentInspection;
 import com.base.sbc.open.service.BasicsdatumGarmentInspectionDetailService;
 import com.base.sbc.open.service.BasicsdatumGarmentInspectionService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -39,7 +45,12 @@ public class BasicsdatumGarmentInspectionServiceImpl extends BaseServiceImpl<Bas
 
     @Resource
     private BasicsdatumGarmentInspectionDetailService basicsdatumGarmentInspectionDetailService;
+    @Resource
+    private PushRecordsService pushRecordsService;
+    @Resource
+    private AttachmentService attachmentService;
 
+    @Transactional
     @Override
     public void saveGarmentInspection(BasicsdatumGarmentInspectionDto garmentInspectionDto) {
         String year = garmentInspectionDto.getYear();
@@ -53,20 +64,58 @@ public class BasicsdatumGarmentInspectionServiceImpl extends BaseServiceImpl<Bas
         }
 
         QueryWrapper inspectionQueryWrapper = new QueryWrapper<BasicsdatumGarmentInspection>()
-                .eq("style_no", garmentInspectionDto.getStyleNo())
-                .eq("year", garmentInspectionDto);
+                .eq("style_no", styleNo)
+                .eq("year", year);
+
         this.saveOrUpdate(garmentInspectionDto,inspectionQueryWrapper);
 
 
-        QueryWrapper inspectionDetailQueryWrapper = new QueryWrapper<BasicsdatumGarmentInspectionDetail>()
-                .eq("style_no", garmentInspectionDto.getStyleNo())
-                .eq("year", garmentInspectionDto);
 
-        basicsdatumGarmentInspectionDetailService.remove(inspectionDetailQueryWrapper);
+        QueryWrapper<BasicsdatumGarmentInspectionDetail> detailQueryWrapper = new QueryWrapper<BasicsdatumGarmentInspectionDetail>()
+                .eq("bill_id", garmentInspectionDto.getGarmentInspectionDetailDtoList());
 
-        List<BasicsdatumGarmentInspectionDetail> basicsdatumGarmentInspectionDetails = BeanUtil.copyToList(detailDtoList, BasicsdatumGarmentInspectionDetail.class);
+        List<BasicsdatumGarmentInspectionDetail> detailList = basicsdatumGarmentInspectionDetailService.list(detailQueryWrapper);
 
-        basicsdatumGarmentInspectionDetailService.saveBatch(basicsdatumGarmentInspectionDetails);
+        if(CollUtil.isNotEmpty(detailList)){
+            for (BasicsdatumGarmentInspectionDetail inspectionDetail : detailList) {
+                //移除成衣成分送检明细数据
+                basicsdatumGarmentInspectionDetailService.removeById(inspectionDetail.getId());
+                //移除成衣成分送检图片数据
+                attachmentService.remove(new QueryWrapper<Attachment>().eq("foreign_id",inspectionDetail.getId()));
+            }
+        }
+
+
+        //重新新增明细和图片数据
+        for (BasicsdatumGarmentInspectionDetailDto inspectionDetailDto : detailDtoList) {
+
+            BasicsdatumGarmentInspectionDetail inspectionDetail = BeanUtil.copyProperties(inspectionDetailDto, BasicsdatumGarmentInspectionDetail.class);
+
+            basicsdatumGarmentInspectionDetailService.save(inspectionDetail);
+
+            List<String> attachmentUrlList = inspectionDetailDto.getAttachmentUrlList();
+
+            if (CollUtil.isNotEmpty(attachmentUrlList)) {
+                for (String url : attachmentUrlList) {
+                    Attachment attachment = new Attachment();
+                    attachment.setType("GARMENT_INSPECTION");
+                    attachment.setForeignId(inspectionDetail.getId());
+                    attachment.setStatus("0");
+                    attachment.setRemarks(url);
+                    attachmentService.save(attachment);
+                }
+            }
+        }
+
+        //保存日志
+//        HttpResp httpResp = new HttpResp();
+//        private String statusCode;
+//        private String code;
+//        private boolean success;
+//        private String message;
+//        private String url;
+//        pushRecordsService.pushRecordSave(httpResp, JSONObject.toJSONString(garmentInspectionDto), "SCM", "成衣成分送检接收");
+
     }
 
 // 自定义方法区 不替换的区域【other_start】
