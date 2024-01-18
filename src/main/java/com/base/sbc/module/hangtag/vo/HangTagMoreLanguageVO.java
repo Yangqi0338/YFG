@@ -92,7 +92,7 @@ public class HangTagMoreLanguageVO {
 //            propertiesContent = propertiesTemplate;
 //        }
 //        return propertiesContent;
-        return cannotFindPropertiesContent ? "" : this.propertiesContent;
+        return cannotFindPropertiesContent || StrUtil.isBlank(this.propertiesContent) ? "" : this.propertiesContent;
     }
 
     /**
