@@ -3,7 +3,6 @@ package com.base.sbc.module.planningproject.controller;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -14,10 +13,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
@@ -25,7 +21,6 @@ import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
-import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planningproject.dto.HistoryMatchDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
@@ -35,26 +30,21 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.*;
-import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.simpleframework.xml.core.Validate;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.method.P;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @Api(tags = "企划看板规划-相关接口")
@@ -160,85 +150,6 @@ public class PlanningProjectController extends BaseController {
         return insertSuccess(true);
     }
 
-    /**
-     * 导入季节企划
-     */
-    @ApiOperation(value = "导入Excel")
-    @PostMapping("/importExcel2")
-    public ApiResult importExcel2(@RequestParam("file") MultipartFile file) throws Exception {
-        List<HashMap<Integer, String>> hashMaps = EasyExcel.read(file.getInputStream()).headRowNumber(0).doReadAllSync();
-
-        for (int i = 0; i < hashMaps.size(); i++) {
-            JSONObject jsonObject = new JSONObject();
-            for (Integer s : hashMaps.get(i).keySet()) {
-                jsonObject.put(String.valueOf(s), hashMaps.get(i).get(s));
-            }
-
-            switch (i) {
-                case 0:
-                    // 标题
-                    String string = jsonObject.getString("0");
-                    System.out.println("标题:" + string);
-                    break;
-                case 1:
-                    // 上市波段
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("上市波段:" + jsonObject.getString(s));
-                        }
-                    }
-                    break;
-                case 2:
-                    // 下单时间
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("下单时间:" + jsonObject.getString(s));
-                        }
-                    }
-                    break;
-                case 3:
-                    // 上市时间
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("上市时间:" + jsonObject.getString(s));
-                        }
-                    }
-                    break;
-                case 4:
-                    // 款式类别
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 > 2) {
-                            System.out.println("样式类别:" + jsonObject.getString(s));
-                        }
-                    }
-                    break;
-                default:
-                    // 品类
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 == 0 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("大类:" + jsonObject.getString(s));
-                        }
-                        if (i1 == 1 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("品类:" + jsonObject.getString(s));
-                        }
-                        if (i1 == 2) {
-                            System.out.println("中类:" + jsonObject.getString(s));
-                        }
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("数量:" + jsonObject.getString(s));
-                        }
-                    }
-            }
-
-        }
-
-        return null;
-    }
 
     /**
      * 根据导入数据的ids删除
