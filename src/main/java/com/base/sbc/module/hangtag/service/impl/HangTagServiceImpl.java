@@ -1021,11 +1021,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						// 查询具体翻译
 						List<StandardColumnCountryTranslate> translateList = new ArrayList<>();
 
+						String searchStandardColumnCode = standardColumnCode;
+						if (StrUtil.isNotEmpty(codeFunc.getSearchStandardColumnCode())) {
+							searchStandardColumnCode = codeFunc.getSearchStandardColumnCode();
+						}
+
 						List<CountryLanguageDto> singleLanguageTypeList = singleLanguageDtoList.stream()
 								.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
 						if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
 							translateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-									.eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
+									.eq(StandardColumnCountryTranslate::getTitleCode, searchStandardColumnCode)
 									.in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
 									.in(StandardColumnCountryTranslate::getCountryLanguageId, Stream.of(countryLanguageDtoList, singleLanguageTypeList)
 											.flatMap(it-> it.stream().map(CountryLanguage::getId)).collect(Collectors.toList()))
@@ -1059,6 +1064,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							List<StandardColumnCountryTranslate> countryTranslateList = translateList.stream()
 									.filter(it -> languageIdList.contains(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
 									.collect(Collectors.toList());
+							if (CollectionUtil.isEmpty(countryTranslateList)) {
+								countryTranslateList.addAll(translateList.stream()
+										.filter(it -> languageIdList.contains(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
+										.collect(Collectors.toList()));
+							}
 
 							countryTranslateList.stream().findFirst().ifPresent(translate-> {
 								//  找到 设置翻译 以及 flag
@@ -1169,6 +1179,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		decorateWebList(hangTagVOList, webBaseList);
 		switch (source) {
 			case PDM:
+				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> "ZH".equals(it.getLanguageCode())));
                 return webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getType));
 			case BCS:
 				List<HangTagMoreLanguageBCSVO> sourceResultList = new ArrayList<>();
@@ -1249,6 +1260,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						HangTagMoreLanguageWebBaseVO webBaseVO = sameBulkList.get(0);
 
 						HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
+						groupVO.setIsGroup(true);
 						groupVO.setStandardColumnCode(standColumnCode);
 						groupVO.setStandardColumnName(groupName);
 						if (groupName.equals(standColumnCode)) {
@@ -1268,9 +1280,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						}else {
 							propertiesName = sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesName).distinct().collect(Collectors.joining(separator));
 						}
-
+						groupVO.getLanguageList().forEach(languageVo-> languageVo.setPropertiesContent(propertiesName));
 						groupVO.getLanguageList().forEach(languageVo-> {
-							languageVo.setPropertiesContent(propertiesName);
 							List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
 								String sourcePropertiesName = source.getPropertiesName();
 								return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
@@ -1279,7 +1290,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							}).collect(Collectors.toList());
 
 							rightLanguageMap.forEach(map-> {
-								map.forEach((key,value)-> languageVo.setPropertiesContent(languageVo.getPropertiesContent().replaceAll(key,value)));
+								map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
 							});
 						});
 						groupVO.setPropertiesName(propertiesName);

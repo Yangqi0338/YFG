@@ -47,6 +47,8 @@ public interface HangTagConvert {
     void standardColumn2MoreLanguageBaseVO(StandardColumn source, @MappingTarget HangTagMoreLanguageBaseVO target);
     HangTagMoreLanguageBaseVO copyMyself(HangTagMoreLanguageBaseVO source);
     HangTagMoreLanguageWebBaseVO copyMyself(HangTagMoreLanguageWebBaseVO source);
+    List<HangTagMoreLanguageVO> copyMyself(List<HangTagMoreLanguageVO> languageList);
+    HangTagMoreLanguageVO copyMyself(HangTagMoreLanguageVO source);
     CountryQueryDto copy2CountryQuery(HangTagMoreLanguageDTO source);
     HangTagMoreLanguageBaseVO copy2MoreLanguageBaseVO(CountryLanguage source);
     void countryTranslate2MoreLanguageVO(StandardColumnCountryTranslate source, @MappingTarget HangTagMoreLanguageVO target);

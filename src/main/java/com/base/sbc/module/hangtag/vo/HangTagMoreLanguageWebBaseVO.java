@@ -32,6 +32,14 @@ import java.util.stream.Collectors;
 @Data
 public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
+    public String getWarnMsg() {
+        StringJoiner joiner = new StringJoiner("、");
+        this.getLanguageList().stream().filter(it-> it.getCannotFindStandardColumnContent() || it.getCannotFindPropertiesContent()).forEach(languageVO-> {
+            joiner.add(languageVO.getLanguageName()+"翻译");
+        });
+        return "【提示：" + joiner + "为空】";
+    }
+
     public Map<String, String> getContent() {
         Map<String, String> map = new HashMap<>(this.getLanguageList().size() + 1);
         this.getLanguageList().forEach(languageVo-> {
@@ -42,19 +50,23 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
     public String getMergedContent() {
         StringJoiner joiner = new StringJoiner("\n");
-        this.getLanguageList().forEach(languageVO-> {
-            joiner.add(languageVO.getContent() + "（" + languageVO.getLanguageName() + "）");
-        });
+        joiner.add("（原文）");
         joiner.add(this.getSourceContent());
+        this.getLanguageList().forEach(languageVO-> {
+            joiner.add("（" + languageVO.getLanguageName() + "）");
+            joiner.add(languageVO.getContent());
+        });
         return joiner.toString();
     }
 
     public String getMergedContentWithoutPrefix() {
         StringJoiner joiner = new StringJoiner("\n");
-        this.getLanguageList().forEach(languageVO-> {
-            joiner.add(languageVO.getPropertiesContent() + "（" + languageVO.getLanguageName() + "）");
-        });
+        joiner.add("（原文）");
         joiner.add(this.getPropertiesName());
+        this.getLanguageList().forEach(languageVO-> {
+            joiner.add("（" + languageVO.getLanguageName() + "）");
+            joiner.add(languageVO.getPropertiesContent());
+        });
         return joiner.toString();
     }
 

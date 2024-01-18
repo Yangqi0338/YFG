@@ -65,7 +65,7 @@ public class MoreLanguageHangTagVO extends HangTagVO {
             MapUtil.entry("DP11", new MoreLanguageCodeMapping<>(HangTagIngredient::getTypeCode, HangTagIngredient::getType).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
             MapUtil.entry("DP13", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientSecondCode, HangTagIngredient::getIngredientSecondName).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
 
-            MapUtil.entry("DP12", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList)),
+            MapUtil.entry("DP12", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList).setSearchStandardColumnCode("DP06")),
 
             MapUtil.entry("XM01", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWarmTipsCode, MoreLanguageHangTagVO::getWarmTips)),
             MapUtil.entry("XM06", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWashingLabelName, MoreLanguageHangTagVO::getWashingLabelName)),
@@ -111,9 +111,15 @@ public class MoreLanguageHangTagVO extends HangTagVO {
     @Getter
     public class MoreLanguageCodeMapping<K> extends Pair<Function<K, String>, Function<K, String>> {
         private Function<MoreLanguageHangTagVO, List<K>> listFunc = (moreLanguageHangTagVO)-> (List<K>) moreLanguageHangTagVO.getMySelfList();
+        private String searchStandardColumnCode;
 
         public MoreLanguageCodeMapping<K> setListFunc(Function<MoreLanguageHangTagVO, List<K>> listFunc) {
             this.listFunc = listFunc;
+            return this;
+        }
+
+        public MoreLanguageCodeMapping<K> setSearchStandardColumnCode(String searchStandardColumnCode) {
+            this.searchStandardColumnCode = searchStandardColumnCode;
             return this;
         }
 
