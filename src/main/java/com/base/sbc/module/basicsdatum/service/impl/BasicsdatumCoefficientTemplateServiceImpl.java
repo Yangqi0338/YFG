@@ -68,6 +68,7 @@ public class BasicsdatumCoefficientTemplateServiceImpl extends BaseServiceImpl<B
         queryWrapper.in(StringUtils.isNotBlank(dto.getChannel()),"channel",StringUtils.convertList(dto.getChannel()));
         queryWrapper.in(StringUtils.isNotBlank(dto.getSeason()),"season",StringUtils.convertList(dto.getSeason()));
         queryWrapper.eq(StringUtils.isNotBlank(dto.getStatus()),"status",dto.getStatus());
+        queryWrapper.orderByDesc("create_date");
         /*查询*/
         Page<BasicsdatumCoefficientTemplateVo> objects = PageHelper.startPage(dto);
         baseMapper.selectList(queryWrapper);
