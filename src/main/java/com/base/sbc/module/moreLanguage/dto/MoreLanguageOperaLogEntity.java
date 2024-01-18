@@ -36,7 +36,7 @@ public class MoreLanguageOperaLogEntity extends OperaLogEntity {
     }
 
     public String getCountryLanguageType() {
-        if (StrUtil.isBlank(this.getContent()) || this.getContent().split("-").length <= 1) return "";
+        if (StrUtil.isBlank(this.getContent()) || this.getContent().split(":").length <= 1) return "";
         return this.getContent().split(":")[1];
     }
 
