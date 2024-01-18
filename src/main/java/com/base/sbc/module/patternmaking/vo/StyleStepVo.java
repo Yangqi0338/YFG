@@ -67,6 +67,8 @@ public class StyleStepVo {
 
         @ApiModelProperty(value = "打版类型")
         private String sampleType;
+        @ApiModelProperty(value = "当前打版状态")
+        private String status;
 
         @ApiModelProperty(value = "节点信息")
         private Map<String, NodeStatus> nodeStatus;
