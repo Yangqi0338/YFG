@@ -398,6 +398,7 @@ public class OrderBookDetailController extends BaseController {
                 }else {
                     bookDetailVo.setSuitNo(bulkStyleNo);
                 }
+                orderBookDetailService.updateById(bookDetailVo);
             }
         }
 
