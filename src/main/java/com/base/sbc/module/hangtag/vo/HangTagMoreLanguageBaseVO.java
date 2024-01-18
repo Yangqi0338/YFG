@@ -42,6 +42,12 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     protected String code;
 
     /**
+     * 标准列码
+     */
+    @ApiModelProperty(value = "标准列码")
+    private String standardColumnCode;
+
+    /**
      * 标准列名
      */
     @ApiModelProperty(value = "标准列名")

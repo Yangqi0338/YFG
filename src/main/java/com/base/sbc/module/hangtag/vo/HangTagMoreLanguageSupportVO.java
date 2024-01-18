@@ -36,13 +36,6 @@ public class HangTagMoreLanguageSupportVO {
     private String standardColumnId;
 
     /**
-     * 标准列码
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "标准列码")
-    private String standardColumnCode;
-
-    /**
      * 标准列模型
      */
     @JsonIgnore
