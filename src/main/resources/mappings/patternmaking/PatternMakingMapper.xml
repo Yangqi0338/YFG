@@ -665,13 +665,13 @@
         END AS 'tempOrderBookProduction'
         FROM t_style t
         INNER JOIN t_basicsdatum_research_process_template template ON t.brand = template.brand_code AND t.devt_type = template.product_type and template.del_flag = '0' and template.enable_flag = '0'
-        LEFT JOIN t_style_color t1 ON t.id = t1.style_id AND t1.del_flag = '0'
+        LEFT JOIN t_style_color t1 ON t.id = t1.style_id AND t1.del_flag = '0' and t1.historical_data = 0
         LEFT JOIN t_planning_category_item as tpci on tpci.id = t.planning_category_item_id and t.del_flag = '0'
         LEFT JOIN (select id,style_id from t_pattern_making where sample_type_name = '初版样' and del_flag = '0' GROUP BY style_id,sample_type_name ORDER BY create_date ASC ) as tpm ON tpm.style_id = t.id
         LEFT JOIN t_node_status as tns ON tns.data_id = tpm.id AND tns.node = '打版任务' AND tns.status = '打版完成'
         LEFT JOIN t_node_status as tns1 ON tns1.data_id = tpm.id AND tns1.node = '样衣任务' AND tns1.status = '车缝完成'
         WHERE
-        t.del_flag = '0'
+        t.del_flag = '0' and t.historical_data = 0
         ) t
         WHERE 1=1
         <if test="search != '' and search != null">
@@ -699,6 +699,13 @@
             AND t.brand IN
             <foreach collection="brandIds" item="brandId" separator="," open="(" close=")">
                 #{brandId}
+            </foreach>
+        </if>
+
+        <if test="null != planningSeasonIds and planningSeasonIds.size() > 0">
+            AND t.planning_season_id IN
+            <foreach collection="planningSeasonIds" item="planningSeasonId" separator="," open="(" close=")">
+                #{planningSeasonId}
             </foreach>
         </if>
 
@@ -740,7 +747,7 @@
             AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
         </if>
 
-        ORDER BY t.create_date DESC
+        ORDER BY t.create_date,t.designNo DESC
     </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
 
