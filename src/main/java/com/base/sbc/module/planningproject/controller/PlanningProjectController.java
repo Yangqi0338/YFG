@@ -2,6 +2,9 @@ package com.base.sbc.module.planningproject.controller;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -12,6 +15,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumModelTypeExcelDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -154,6 +158,64 @@ public class PlanningProjectController extends BaseController {
         }
         planningProjectImportService.saveBatch(list);
         return insertSuccess(true);
+    }
+
+    /**
+     * 导入季节企划
+     */
+    @ApiOperation(value = "导入Excel")
+    @PostMapping("/importExcel2")
+    public ApiResult importExcel2(@RequestParam("file") MultipartFile file) throws Exception {
+        List<HashMap<Integer,String>> hashMaps = EasyExcel.read(file.getInputStream()).headRowNumber(0).doReadAllSync();
+        JSONObject jsonObject = new JSONObject();
+        for (int i = 0; i < hashMaps.size(); i++) {
+            for (Integer s : hashMaps.get(i).keySet()) {
+                System.out.println(s);
+                jsonObject.put(String.valueOf(s),hashMaps.get(i).get(s));
+            }
+
+
+
+            switch (i){
+                case 0:
+                    //标题
+                    Object o = jsonObject.get(0);
+                    break;
+                    case 1:
+
+                        for (String s : jsonObject.keySet()) {
+                            System.out.println(s);
+                            int i1 = Integer.parseInt(s);
+                            if (i1>3){
+                                System.out.println(jsonObject.get(i1));
+                            }
+                        }
+
+                        //上市波段
+                    break;
+                    case 2:
+                        //下单时间
+                    break;
+                    case 3:
+                        //上市时间
+                    break;
+                    case 4:
+                        //款式类别
+                    break;
+                    case 5:
+                        //品类
+                    break;
+                    case 6:
+                        //品类
+                    break;
+                    case 7:
+                        //品类
+                    break;
+            }
+
+        }
+
+        return null;
     }
 
     /**
