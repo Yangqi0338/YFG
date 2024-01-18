@@ -44,7 +44,7 @@ public class MoreLanguageDbTableStrategy implements MoreLanguageTableStrategy {
         List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(json, MoreLanguageTableTitle.class);
         String tableFields = tableTitleList.stream().map(it-> StrUtil.toUnderlineCase(it.getCode())).collect(Collectors.joining(","));
         com.github.pagehelper.Page<Map<String,Object>> startPage = page.startPage();
-        moreLanguageService.listAllByTable(tableFields, standardColumn.getTableName(), "delFlag = 0");
+        moreLanguageService.listAllByTable(tableFields, standardColumn.getTableName(), "del_flag = 0");
         return startPage.toPageInfo();
     }
 
