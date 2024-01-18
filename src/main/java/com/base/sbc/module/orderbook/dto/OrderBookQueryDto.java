@@ -16,4 +16,5 @@ public class OrderBookQueryDto extends Page {
      */
     @ApiModelProperty(value = "产品季id")
     private String  seasonId;
+    private String name;
 }

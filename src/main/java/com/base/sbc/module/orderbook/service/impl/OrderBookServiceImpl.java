@@ -134,6 +134,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         BaseQueryWrapper<OrderBook> queryWrapper=new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tob.season_id",dto.getSeasonId());
         queryWrapper.notEmptyEq("tob.status",dto.getStatus());
+        queryWrapper.notEmptyLike("tob.name",dto.getName());
         queryWrapper.orderByDesc("id");
         return queryWrapper;
     }
