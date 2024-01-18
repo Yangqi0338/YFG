@@ -331,7 +331,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         }
 
-
+        queryWrapper.orderByDesc("tobl.serial_number");
         return queryWrapper;
     }
 
