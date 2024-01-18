@@ -9,21 +9,18 @@ package com.base.sbc.open.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
-import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDetailDto;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
+import com.base.sbc.open.entity.BasicsdatumGarmentInspection;
 import com.base.sbc.open.entity.BasicsdatumGarmentInspectionDetail;
 import com.base.sbc.open.mapper.BasicsdatumGarmentInspectionMapper;
-import com.base.sbc.open.entity.BasicsdatumGarmentInspection;
 import com.base.sbc.open.service.BasicsdatumGarmentInspectionDetailService;
 import com.base.sbc.open.service.BasicsdatumGarmentInspectionService;
 import org.springframework.stereotype.Service;
@@ -63,16 +60,25 @@ public class BasicsdatumGarmentInspectionServiceImpl extends BaseServiceImpl<Bas
             throw new OtherException("明细数据不能为空！");
         }
 
+        String billId = null;
         QueryWrapper inspectionQueryWrapper = new QueryWrapper<BasicsdatumGarmentInspection>()
                 .eq("style_no", styleNo)
                 .eq("year", year);
 
-        this.saveOrUpdate(garmentInspectionDto,inspectionQueryWrapper);
+        BasicsdatumGarmentInspection basicsdatumGarmentInspection = BeanUtil.copyProperties(garmentInspectionDto, BasicsdatumGarmentInspection.class);
 
+        BasicsdatumGarmentInspection result = this.getOne(inspectionQueryWrapper);
 
+        if (result != null) {
+            this.updateById(result);
+            billId = result.getId();
+        }else{
+            this.save(basicsdatumGarmentInspection);
+            billId = basicsdatumGarmentInspection.getId();
+        }
 
         QueryWrapper<BasicsdatumGarmentInspectionDetail> detailQueryWrapper = new QueryWrapper<BasicsdatumGarmentInspectionDetail>()
-                .eq("bill_id", garmentInspectionDto.getGarmentInspectionDetailDtoList());
+                .eq("bill_id", billId);
 
         List<BasicsdatumGarmentInspectionDetail> detailList = basicsdatumGarmentInspectionDetailService.list(detailQueryWrapper);
 
@@ -81,7 +87,10 @@ public class BasicsdatumGarmentInspectionServiceImpl extends BaseServiceImpl<Bas
                 //移除成衣成分送检明细数据
                 basicsdatumGarmentInspectionDetailService.removeById(inspectionDetail.getId());
                 //移除成衣成分送检图片数据
-                attachmentService.remove(new QueryWrapper<Attachment>().eq("foreign_id",inspectionDetail.getId()));
+                List<Attachment> attachments = attachmentService.list(new QueryWrapper<Attachment>().eq("foreign_id", inspectionDetail.getId()));
+                for (Attachment attachment : attachments) {
+                    attachmentService.removeById(attachment.getId());
+                }
             }
         }
 
@@ -90,7 +99,7 @@ public class BasicsdatumGarmentInspectionServiceImpl extends BaseServiceImpl<Bas
         for (BasicsdatumGarmentInspectionDetailDto inspectionDetailDto : detailDtoList) {
 
             BasicsdatumGarmentInspectionDetail inspectionDetail = BeanUtil.copyProperties(inspectionDetailDto, BasicsdatumGarmentInspectionDetail.class);
-
+            inspectionDetail.setBillId(billId);
             basicsdatumGarmentInspectionDetailService.save(inspectionDetail);
 
             List<String> attachmentUrlList = inspectionDetailDto.getAttachmentUrlList();
