@@ -153,6 +153,9 @@
             <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 and tsd.design_no is not null
             </if>
+            <if test="dto.year != null and dto.year != ''">
+                and tsd.year = #{dto.year}
+            </if>
             <if test="dto.designNos !=null and dto.designNos.length !=0 ">
                 and
                 <foreach item="designNo" collection="dto.designNos" open="(" separator="or" close=")">
