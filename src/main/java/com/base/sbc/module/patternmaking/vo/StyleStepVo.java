@@ -67,8 +67,10 @@ public class StyleStepVo {
 
         @ApiModelProperty(value = "打版类型")
         private String sampleType;
-        @ApiModelProperty(value = "当前打版状态")
-        private String status;
+        /** 中断样衣(0正常，1中断) */
+        private String breakOffSample;
+        /** 中断打版(0正常，1中断) */
+        private String breakOffPattern;
 
         @ApiModelProperty(value = "节点信息")
         private Map<String, NodeStatus> nodeStatus;
