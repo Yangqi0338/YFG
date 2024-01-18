@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
@@ -61,6 +62,7 @@ import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import com.github.pagehelper.PageInfo;
 import lombok.SneakyThrows;
+import org.apache.bcel.generic.BREAKPOINT;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -544,9 +546,10 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             Map<String, Object> map = new HashMap<>(showFieldList.size());
             List<StandardColumnCountryTranslate> translatePropertiesList = translateList.stream()
                     .filter(it -> it.getPropertiesCode().equals(propertiesKey))
-                    .sorted(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate)).collect(Collectors.toList());
+                    .sorted(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate).reversed()).collect(Collectors.toList());
             showFieldList.forEach(field->{
-                List<Object> fieldValueList = new ArrayList<>();
+                Object fieldValue = null;
+                breakPoint:
                 for (StandardColumnCountryTranslate translate : translatePropertiesList) {
                     CountryLanguageDto countryLanguage = countryLanguageList.stream()
                             .filter(it -> it.getId().equals(translate.getCountryLanguageId())).findFirst()
@@ -559,35 +562,21 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                             key = (countryLanguage.getLanguageCode() + "-" + key);
                         }
                         if (field.contains(key)) {
-                            fieldValueList.add(value);
-                            break;
+                            fieldValue = value;
+                            break breakPoint;
                         }
                     }
                 }
                 String fieldKey = StrUtil.toUnderlineCase(field);
-                if (CollectionUtil.isEmpty(fieldValueList) && !baseEntityFieldNameList.contains(field) && resultMap.containsKey(fieldKey)) {
-                    fieldValueList.add(resultMap.get(fieldKey));
+                if (fieldValue == null && !baseEntityFieldNameList.contains(field) && resultMap.containsKey(fieldKey)) {
+                    fieldValue = resultMap.get(fieldKey);
+                }
+                // 对日期进行处理, 封装字符串列表
+                if (fieldValue instanceof Date) {
+                    fieldValue = DateUtil.format((Date) fieldValue, "yyyy-MM-dd HH:mm:ss");
                 }
 
-                String fieldValue = "";
-                fieldValueList = fieldValueList.stream().filter(Objects::nonNull).collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(fieldValueList)) {
-                    // 对日期进行处理, 封装字符串列表
-                    List<String> fieldValueStrList = fieldValueList.stream().map(it -> {
-                        if (it instanceof Date) {
-                            return DateUtil.format((Date) it, "yyyy-MM-dd HH:mm:ss");
-                        }
-                        return it.toString();
-                    }).collect(Collectors.toList());
-                    // 进行去重
-                    List<String> distinctFieldValue = fieldValueStrList.stream().distinct().collect(Collectors.toList());
-                    // 若去重后大于一个数值,就直接使用拼接
-                    fieldValue = fieldValueStrList.get(0);
-                    if (distinctFieldValue.size() > 1){
-                        fieldValue = String.join(",", distinctFieldValue);
-                    }
-                }
-                map.put(field, fieldValue);
+                map.put(field, Opt.ofNullable(fieldValue).orElse(""));
             });
             return map;
         }).collect(Collectors.toList()));

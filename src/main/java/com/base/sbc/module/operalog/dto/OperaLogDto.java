@@ -27,6 +27,7 @@ public class OperaLogDto extends BaseDto {
     private String parentId;
 
     private String path;
+    private String content;
     private String userCompany;
     /**
      * 操作类型

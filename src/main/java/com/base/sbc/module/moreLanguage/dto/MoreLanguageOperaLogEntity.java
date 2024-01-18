@@ -12,7 +12,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.Collections;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：资料包-公共筛选条件
@@ -30,12 +32,12 @@ public class MoreLanguageOperaLogEntity extends OperaLogEntity {
 
     public String getCode() {
         if (StrUtil.isBlank(this.getContent())) return "";
-        return this.getContent().split("-")[0];
+        return this.getContent().split(":")[0];
     }
 
     public String getCountryLanguageType() {
         if (StrUtil.isBlank(this.getContent()) || this.getContent().split("-").length <= 1) return "";
-        return this.getContent().split("-")[1];
+        return this.getContent().split(":")[1];
     }
 
     public String getStandardColumnCode() {
