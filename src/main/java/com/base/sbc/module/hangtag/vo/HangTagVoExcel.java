@@ -15,15 +15,22 @@ public class HangTagVoExcel {
      * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
      */
     @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认")
-    @Excel(name = "状态",replace={"未提交_1","未填写_0","未确认_2","待技术员确认_3","待品控确认_4","已确认_5"})
+    @Excel(name = "状态",replace={"未提交_1","未填写_0","未确认_2","待技术员确认_3","待品控确认_4","已确认_5","未填写_null"})
     private String status;
 
     /**
-     * 款式
+     * 颜色
      */
-    @ApiModelProperty(value = "款式")
-    @Excel(name = "款式")
-    private String style;
+    @ApiModelProperty(value = "颜色")
+    @Excel(name = "配色")
+    private String color;
+
+    /**
+     * 大货款号
+     */
+    @ApiModelProperty(value = "大货款号")
+    @Excel(name = "大货款号")
+    private String bulkStyleNo;
 
     /**
      * 款式类型名称
@@ -78,19 +85,7 @@ public class HangTagVoExcel {
     @Excel(name = "生产类型")
     private String  produceTypeName;
 
-    /**
-     * 颜色
-     */
-    @ApiModelProperty(value = "颜色")
-    @Excel(name = "配色")
-    private String color;
 
-    /**
-     * 大货
-     */
-    @ApiModelProperty(value = "大货款号")
-    @Excel(name = "大货款号")
-    private String bulkStyleNo;
 
     /**
      * 号型类型名称
