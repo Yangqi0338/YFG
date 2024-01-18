@@ -1282,6 +1282,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						}
 						groupVO.getLanguageList().forEach(languageVo-> languageVo.setPropertiesContent(propertiesName));
 						groupVO.getLanguageList().forEach(languageVo-> {
+							languageVo.setIsGroup(true);
 							List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
 								String sourcePropertiesName = source.getPropertiesName();
 								return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
