@@ -653,6 +653,7 @@
         t.designer_id,
         t.pattern_design_id,
         t.brand,
+        t.planning_season_id,
         t1.create_date,
         date_format(t.create_date,'%Y-%m-%d') as noNextDraft,
         date_format(check_start_time,'%Y-%m-%d') as reviewedDraft,
