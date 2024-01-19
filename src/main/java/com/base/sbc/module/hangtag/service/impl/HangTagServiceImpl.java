@@ -922,12 +922,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		languageDto.setSingleLanguageFlag(YesOrNoEnum.YES);
 		List<CountryLanguageDto> singleLanguageDtoList = countryLanguageService.listQuery(languageDto);
 		// 如果为空, 查找单语言翻译
-		if(CollectionUtil.isEmpty(titleTranslateList)) {
-			titleTranslateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-					.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList()))
-					.in(StandardColumnCountryTranslate::getPropertiesCode,standardColumnCodeList)
-			));
-		}
+		List<String> fillStandardColumnCodeList = standardColumnCodeList.stream()
+				.filter(standardColumnCode -> titleTranslateList.stream().noneMatch(it -> it.getPropertiesCode().equals(standardColumnCode)))
+				.collect(Collectors.toList());
+		titleTranslateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+				.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList()))
+				.in(StandardColumnCountryTranslate::getPropertiesCode,fillStandardColumnCodeList)
+		));
 
 		List<HangTagMoreLanguageBaseVO> resultList = new ArrayList<>();
 		List<String> mergeWarnMsgList = new ArrayList<>();
