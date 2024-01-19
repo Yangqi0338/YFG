@@ -47,6 +47,7 @@ import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskExcelDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
@@ -227,10 +228,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
-		if(StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)&& hangTagListVOS.size() > 1000){
-			throw new OtherException("最多导出1000条数据");
+		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
+			if(hangTagListVOS.size() > 2000){
+				throw new OtherException("带图片导出2000条数据");
+			}
+			minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
 		}
-		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		if(!StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)){
+			minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		}
 		if (hangTagListVOS.isEmpty()) {
 			return new PageInfo<>(hangTagListVOS);
 		}
@@ -284,7 +290,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			bulkStyleNos.add(e.getBulkStyleNo());
 
 		});
-		List<PackInfo> packInfos = packInfoService
+/*		List<PackInfo> packInfos = packInfoService
 				.list(new QueryWrapper<PackInfo>().in("style_no", bulkStyleNos).select("id", "style_no"));
 		List<String> packInfoIds = packInfos.stream().map(PackInfo::getId).collect(Collectors.toList());
 		if (!packInfoIds.isEmpty()) {
@@ -301,7 +307,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			for (HangTagListVO hangTagListVO : hangTagListVOS) {
 				hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBulkStyleNo()));
 			}
-		}
+		}*/
 
 		return new PageInfo<>(hangTagListVOS);
 	}
@@ -319,7 +325,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagSearchDTO.setDeriveFlag(BaseGlobal.YES);
 		List<HangTagListVO> list = queryPageInfo(hangTagSearchDTO, userCompany).getList();
 		List<HangTagVoExcel> hangTagVoExcels = BeanUtil.copyToList(list, HangTagVoExcel.class);
-		ExcelUtils.exportExcel(hangTagVoExcels, HangTagVoExcel.class, "吊牌.xlsx", new ExportParams(), response);
+		ExcelUtils.executorExportExcel(hangTagVoExcels, HangTagVoExcel.class,"吊牌",hangTagSearchDTO.getImgFlag(),2000,response,"washingLabel");
 	}
 
 	@Override
