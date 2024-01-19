@@ -136,6 +136,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Resource
     private MaterialStockService materialStockService;
 
+    @Resource
+    private StylePicUtils stylePicUtils;
+
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
     public List<BasicsdatumMaterialIngredient> formatIngredient(
@@ -831,6 +834,38 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             updateBatchById(ulist);
         }
         return page.toPageInfo();
+    }
+
+    @Override
+    public PageInfo<BasicsdatumMaterialPageAndStyleVo> materialsBomStylePage(BasicsdatumMaterialPageAndStyleDto dto) {
+        PageHelper.startPage(dto);
+        BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> qc = new BaseQueryWrapper<>();
+        List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(qc);
+        minioUtils.setObjectUrlToList(list, "materialsImageUrl");
+        qc.andLike(dto.getSearch(), "tpb.material_code", "tpb.color","tpb.translate","tbs.supplier_abbreviation","tsc.design_no","tsc.style_no","tsc.color_specification");
+        qc.notEmptyEq("tsc.bom_status", dto.getBomPhase());
+        qc.notEmptyEq("tpb.material_code", dto.getMaterialsCode());
+        //物料编号、物料颜色、物料规格、厂家简称、设计款号、大货款号、配色颜色
+        for (BasicsdatumMaterialPageAndStyleVo vo : list) {
+            getStyleImage(vo);
+        }
+
+        return new PageInfo<>(list);
+    }
+
+    /**
+     * 得到商品款图片
+     * @param vo
+     */
+    private void getStyleImage(BasicsdatumMaterialPageAndStyleVo vo) {
+        String styleColorPic = vo.getStyleColorPic();
+        String stylePic = vo.getStylePic();
+        vo.setStyleImageUrl(stylePicUtils.getStyleUrl(styleColorPic));
+        if (StrUtil.isEmpty(styleColorPic)) {
+            vo.setStyleImageUrl(stylePicUtils.getStyleUrl(stylePic));
+        }else{
+            vo.setStyleImageUrl(stylePicUtils.getStyleUrl(styleColorPic));
+        }
     }
 
     public void updateImgUrl(int pageNum, int pageSize, Map<String, String> hz) {

@@ -492,6 +492,12 @@ public class BasicsdatumMaterialController extends BaseController {
         return true;
     }
 
+    @ApiOperation(value = "物料清单款式报表列表")
+    @GetMapping("/getMaterialsBomStylePage")
+    public PageInfo<BasicsdatumMaterialPageAndStyleVo> materialsBomStylePage(BasicsdatumMaterialPageAndStyleDto dto) {
+        return basicsdatumMaterialService.materialsBomStylePage(dto);
+    }
+
 
     /**
      * 初始化物料检测报告图片
