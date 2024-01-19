@@ -8,6 +8,7 @@ package com.base.sbc.module.basicsdatum.service;
 
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumDimensionalityDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planning.dto.CheckMutexDto;
 
@@ -31,7 +32,7 @@ public interface BasicsdatumDimensionalityService extends BaseService<Basicsdatu
      * @param dto
      * @return
      */
-    Map getDimensionality(BasicsdatumDimensionalityDto dto);
+    List<BasicsdatumDimensionalityVo> getDimensionality(BasicsdatumDimensionalityDto dto);
 
     /**
      * 保存/编辑维度标签

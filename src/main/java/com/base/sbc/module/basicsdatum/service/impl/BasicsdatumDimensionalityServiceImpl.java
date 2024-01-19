@@ -20,14 +20,14 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumDimensionalityMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.planning.dto.CheckMutexDto;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +50,7 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
      * @return
      */
     @Override
-    public Map getDimensionality(BasicsdatumDimensionalityDto dto) {
+    public List<BasicsdatumDimensionalityVo> getDimensionality(BasicsdatumDimensionalityDto dto) {
         if(StrUtil.isEmpty(dto.getProdCategory())|| StrUtil.isEmpty(dto.getCoefficientTemplateId())){
             throw new OtherException("品类或模板id不能为空");
         }
@@ -63,13 +63,21 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
         }
         queryWrapper.eq("tbd.del_flag",BaseGlobal.NO);
         queryWrapper.eq("tbd.coefficient_template_id",dto.getCoefficientTemplateId());
-        queryWrapper.orderByAsc("tbd.sort");
+        queryWrapper.orderByAsc("tbd.group_sort","tbd.sort");
         List<BasicsdatumDimensionalityVo> dimensionalityList = baseMapper.getDimensionality(queryWrapper);
 
+        List<BasicsdatumDimensionalityVo> list = new ArrayList<>();
         if(CollUtil.isEmpty(dimensionalityList)){
-            return new HashMap();
+            return list;
         }
-        return dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
+        LinkedHashMap<String, List<BasicsdatumDimensionalityVo>> map = dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
+        for (String s :map.keySet()){
+            BasicsdatumDimensionalityVo basicsdatumDimensionalityVo = new BasicsdatumDimensionalityVo();
+            basicsdatumDimensionalityVo.setList(map.get(s));
+            basicsdatumDimensionalityVo.setGroupName(s);
+            list.add(basicsdatumDimensionalityVo);
+        }
+        return list;
     }
 
     /**

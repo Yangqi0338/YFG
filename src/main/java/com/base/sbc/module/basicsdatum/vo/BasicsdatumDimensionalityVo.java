@@ -4,6 +4,8 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class BasicsdatumDimensionalityVo extends BasicsdatumDimensionality {
 
@@ -17,6 +19,9 @@ public class BasicsdatumDimensionalityVo extends BasicsdatumDimensionality {
 
     @ApiModelProperty(value = "字段说明")
     private String    fieldExplain;
+
+    @ApiModelProperty(value = "字段说明")
+    private  List<BasicsdatumDimensionalityVo> list;
 
     @ApiModelProperty(value = "编辑")
     private boolean readonly;
