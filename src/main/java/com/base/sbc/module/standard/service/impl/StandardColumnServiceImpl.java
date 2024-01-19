@@ -84,7 +84,8 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
             LambdaQueryWrapper<StandardColumn> queryWrapper = new LambdaQueryWrapper<StandardColumn>()
                     .eq(StandardColumn::getName, standardColumnSaveDto.getName())
                     .eq(StandardColumn::getType, type);
-            if (StrUtil.isNotBlank(id)) {
+            boolean isUpdate = StrUtil.isNotBlank(id);
+            if (isUpdate) {
                 standardColumn = this.getById(id);
                 queryWrapper.ne(StandardColumn::getId, id);
             }else {
@@ -103,7 +104,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
             if (this.count(queryWrapper) > 0) {
                 throw new OtherException("已存在相同的标准表");
             }
-            addSingleLanguageRelation(standardColumn);
+            if (!isUpdate) addSingleLanguageRelation(standardColumn);
             this.saveOrUpdate(standardColumn);
         }finally {
             saveLock.unlock();
@@ -117,7 +118,6 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
     @Async
     public void addSingleLanguageRelation(StandardColumn standardColumn){
         // 处理新增标准列的时候 单语言不同步的问题
-        if (StrUtil.isBlank(standardColumn.getId())) return;
         CountryQueryDto countryQueryDto = new CountryQueryDto();
         countryQueryDto.setType(CountryLanguageType.findByStandardColumnType(standardColumn.getType()));
         countryQueryDto.setSingleLanguageFlag(YesOrNoEnum.YES);
