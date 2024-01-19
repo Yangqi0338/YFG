@@ -234,7 +234,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      * @return
      */
     @Override
-    public Map getCoefficient(DimensionLabelsSearchDto dto) {
+    public List<PlanningDimensionalityVo>  getCoefficient(DimensionLabelsSearchDto dto) {
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tpd.channel",dto.getChannel());
         queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
@@ -242,13 +242,21 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
         queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
         queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
-        queryWrapper.orderByAsc("tpd.sort");
+        queryWrapper.orderByAsc("tpd.group_sort","tpd.sort");
         List<PlanningDimensionalityVo> dimensionalityList = baseMapper.getCoefficientList(queryWrapper);
+        List<PlanningDimensionalityVo> list = new ArrayList<>();
 
         if(CollUtil.isEmpty(dimensionalityList)){
-            return new HashMap();
+            return list;
         }
-        return dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
+        LinkedHashMap<String, List<PlanningDimensionalityVo>> map = dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
+        for (String s :map.keySet()){
+            PlanningDimensionalityVo planningDimensionalityVo = new PlanningDimensionalityVo();
+            planningDimensionalityVo.setList(map.get(s));
+            planningDimensionalityVo.setGroupName(s);
+            list.add(planningDimensionalityVo);
+        }
+        return list;
     }
 
     /**

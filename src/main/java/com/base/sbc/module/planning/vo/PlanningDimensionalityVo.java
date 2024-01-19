@@ -4,6 +4,8 @@ import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class PlanningDimensionalityVo extends PlanningDimensionality {
 
@@ -19,6 +21,9 @@ public class PlanningDimensionalityVo extends PlanningDimensionality {
 
     @ApiModelProperty(value = "字段说明")
     private String    fieldExplain;
+
+
+    private List<PlanningDimensionalityVo> list;
 
     @ApiModelProperty(value = "编辑")
     private boolean readonly;

@@ -168,9 +168,7 @@
                 #{id}
             </foreach>
         </if>
-        order By tfm.sequence desc
-
-
+        ORDER BY  tpd.group_sort ASC,  tpd.sort ASC
 
     </select>
 

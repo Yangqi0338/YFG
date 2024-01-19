@@ -944,7 +944,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             // [3].查询字段值
             if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getForeignId())) {
                 fieldManagementService.conversion(fieldManagementListByIds, fvList);
-                result = fieldManagementListByIds.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
+                result =  fieldManagementListByIds.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
             }
         }
         return result;

@@ -18,6 +18,7 @@ import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
@@ -29,7 +30,6 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述：企划-需求管理相关接口
@@ -179,7 +179,7 @@ public class PlanningDemandController {
 
 	@ApiOperation(value = "获取围度系数数据")
 	@GetMapping("/getCoefficient")
-	public Map getCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+	public List<PlanningDimensionalityVo>  getCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
 		return planningDimensionalityService.getCoefficient(queryDemandDimensionalityDto);
 	}
 
