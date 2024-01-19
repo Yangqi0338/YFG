@@ -33,11 +33,11 @@ import java.util.stream.Collectors;
 public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
     public String getWarnMsg() {
-        StringJoiner joiner = new StringJoiner("、");
+        StringJoiner joiner = new StringJoiner("、", "【提示：", "为空】").setEmptyValue("");
         this.getLanguageList().stream().filter(it-> it.getCannotFindStandardColumnContent() || it.getCannotFindPropertiesContent()).forEach(languageVO-> {
             joiner.add(languageVO.getLanguageName()+"翻译");
         });
-        return "【提示：" + joiner + "为空】";
+        return joiner.toString();
     }
 
     public Map<String, String> getContent() {

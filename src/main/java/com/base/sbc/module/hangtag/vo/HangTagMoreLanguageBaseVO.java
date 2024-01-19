@@ -70,7 +70,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
      */
     @ApiModelProperty(value = "全量数据")
     public String getSourceContent() {
-        return String.format("%s:%s %s", this.standardColumnName, this.isGroup ? "\n" : "", Opt.ofNullable(this.propertiesName).orElse(""));
+        return String.format("%s:%s %s", Opt.ofNullable(this.standardColumnName).orElse(""), this.isGroup ? "\n" : "", Opt.ofNullable(this.propertiesName).orElse(""));
     }
 
 }
