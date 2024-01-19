@@ -25,6 +25,32 @@ public class HangTagVoExcel {
     @Excel(name = "配色")
     private String color;
 
+    @Excel(name = "工艺员确认",replace={"未确认_1","未确认_0","未确认_2","已确认_3","已确认_4","已确认_5","未确认_null"})
+    private String confirmedByTheTechnician;
+
+
+
+    @Excel(name = "技术确认",replace={"未确认_1","未确认_0","未确认_2","未确认_3","已确认_4","已确认_5","未确认_null"})
+    private String       technicalConfirmation;
+
+
+    @Excel(name = "品控确认",replace={"未确认_1","未确认_0","未确认_2","未确认_3","未确认_4","已确认_5","未确认_null"})
+    private String  qualityControlConfirmation;
+
+    public String getConfirmedByTheTechnician() {
+        return status;
+    }
+
+    public String getTechnicalConfirmation() {
+        return status;
+    }
+
+    public String getQualityControlConfirmation() {
+        return status;
+    }
+
+
+
     /**
      * 大货款号
      */
