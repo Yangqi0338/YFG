@@ -101,10 +101,10 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             queryWrapper.between("tsc.tech_receive_time", page.getTechnicsDate().split(","));
         }
         if(StrUtil.equals(page.getTechnicsDateNullFlag(), BaseGlobal.IN)){
-            queryWrapper.isNull("tcci.technics_date");
+            queryWrapper.isNull("tsc.tech_receive_time");
         }
         if(StrUtil.equals(page.getTechnicsDateNullFlag(),BaseGlobal.YES)){
-            queryWrapper.isNotNull("tcci.technics_date");
+            queryWrapper.isNotNull("tsc.tech_receive_time");
         }
         queryWrapper.notEmptyEq("tsc.id", page.getStyleColorId());
         queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
