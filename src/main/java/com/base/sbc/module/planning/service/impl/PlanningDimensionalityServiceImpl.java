@@ -33,6 +33,7 @@ import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
 import com.base.sbc.module.planning.service.PlanningChannelService;
+import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
@@ -68,6 +69,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Autowired
     private BasicsdatumCoefficientTemplateService basicsdatumCoefficientTemplateService;
 
+    @Autowired
+    private  PlanningDemandService planningDemandService;
 
     @Autowired
     private PlanningChannelService planningChannelService;
@@ -179,6 +182,12 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      */
     @Override
     public List<PlanningDimensionality> batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList) {
+
+
+//        planningDemandService
+
+
+
         List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
         list.forEach(p -> {
             if (CommonUtils.isInitId(p.getId())) {
@@ -223,6 +232,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tpd.channel",dto.getChannel());
         queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
+        queryWrapper.eq("tpd.prod_category2nd",dto.getProdCategory2nd());
         queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
         queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
         queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
