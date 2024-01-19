@@ -154,7 +154,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             LambdaQueryWrapper<CountryLanguage> queryWrapper = new LambdaQueryWrapper<CountryLanguage>()
                     .eq(CountryLanguage::getCode, code)
                     .eq(CountryLanguage::getCountryCode, countryCode);
-            if (!this.exists(queryWrapper)) throw new OtherException("国家对应不上,请清理缓存");
+            if (!cache && !this.exists(queryWrapper)) throw new OtherException("国家对应不上,请清理缓存");
         }
         baseCountryLanguage.setCode(code);
 
@@ -327,6 +327,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     private TransactionDefinition transactionDefinition;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void initLanguage(List<BasicBaseDict> dictList) {
         TransactionStatus transaction = platformTransactionManager.getTransaction(transactionDefinition);
         try {

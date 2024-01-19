@@ -1243,62 +1243,65 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
 		Map<String, HangTagMoreLanguageGroup> groupMap = MapUtil.ofEntries(
-				MapUtil.entry("成分信息", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", MoreLanguageHangTagVO::getIngredient)),
-				MapUtil.entry("DP06", new HangTagMoreLanguageGroup("DP06", null)),
-				MapUtil.entry("DP12", new HangTagMoreLanguageGroup("DP12", MoreLanguageHangTagVO::getDownContent))
+				MapUtil.entry("DP16", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", MoreLanguageHangTagVO::getIngredient)),
+				MapUtil.entry("DP06", new HangTagMoreLanguageGroup(null)),
+				MapUtil.entry("DP12", new HangTagMoreLanguageGroup( MoreLanguageHangTagVO::getDownContent))
 		);
 		List<HangTagMoreLanguageWebBaseVO> groupList = new ArrayList<>();
 		webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getCode)).forEach((code, sameCodeList)-> {
 			groupMap.forEach((groupName, group)-> {
 				String standColumnCode = group.getStandColumnCode();
 				List<HangTagMoreLanguageWebBaseVO> sameStandardColumnCodeList = webBaseList.stream()
-						.filter(it -> standColumnCode.contains(it.getStandardColumnCode())).collect(Collectors.toList());
-
+						.filter(it -> groupName.equals(it.getStandardColumnCode())).collect(Collectors.toList());
+				sameStandardColumnCodeList.addAll( webBaseList.stream()
+						.filter(it -> standColumnCode.contains(it.getStandardColumnCode())).collect(Collectors.toList()));
 				if (CollectionUtil.isNotEmpty(sameStandardColumnCodeList)) {
 					webBaseList.removeAll(sameStandardColumnCodeList);
-					sameStandardColumnCodeList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getBulkStyleNo)).forEach((bulkStyleNo, sameBulkList)-> {
-						MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst().get();
-						HangTagMoreLanguageWebBaseVO webBaseVO = sameBulkList.get(0);
+					sameStandardColumnCodeList.stream()
+							.collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getBulkStyleNo, LinkedHashMap::new, Collectors.toList()))
+							.forEach((bulkStyleNo, sameBulkList)-> {
+								MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst().get();
+								HangTagMoreLanguageWebBaseVO webBaseVO = sameBulkList.get(0);
 
-						HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
-						groupVO.setIsGroup(true);
-						groupVO.setStandardColumnCode(standColumnCode);
-						groupVO.setStandardColumnName(groupName);
-						if (groupName.equals(standColumnCode)) {
-							groupVO.setStandardColumnName(webBaseVO.getStandardColumnName());
-						}else {
-							groupVO.getLanguageList().forEach(languageVo-> {
-								languageVo.setStandardColumnContent(groupName);
-							});
-						}
-						groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(",")));
+								HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
+								groupVO.setIsGroup(true);
+								groupVO.setStandardColumnCode(standColumnCode);
+								groupVO.setStandardColumnName(groupName);
+								if (groupName.equals(standColumnCode)) {
+									groupVO.setStandardColumnName(webBaseVO.getStandardColumnName());
+								}else {
+									groupVO.getLanguageList().forEach(languageVo-> {
+										languageVo.setStandardColumnContent(groupName);
+									});
+								}
+								groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(",")));
 
-						String separator = group.getSeparator();
-						Function<MoreLanguageHangTagVO, String> content = group.getContent();
-						String propertiesName;
-						if (content != null) {
-							propertiesName = content.apply(hangTagVO);
-						}else {
-							propertiesName = sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesName).distinct().collect(Collectors.joining(separator));
-						}
-						groupVO.getLanguageList().forEach(languageVo-> languageVo.setPropertiesContent(propertiesName));
-						groupVO.getLanguageList().forEach(languageVo-> {
-							languageVo.setIsGroup(true);
-							List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
-								String sourcePropertiesName = source.getPropertiesName();
-								return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
-										.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
-										.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
-							}).collect(Collectors.toList());
+								String separator = group.getSeparator();
+								Function<MoreLanguageHangTagVO, String> content = group.getContent();
+								String propertiesName;
+								if (content != null) {
+									propertiesName = content.apply(hangTagVO);
+								}else {
+									propertiesName = sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesName).distinct().collect(Collectors.joining(separator));
+								}
+								groupVO.getLanguageList().forEach(languageVo-> languageVo.setPropertiesContent(propertiesName));
+								groupVO.getLanguageList().forEach(languageVo-> {
+									languageVo.setIsGroup(true);
+									List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
+										String sourcePropertiesName = source.getPropertiesName();
+										return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
+												.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
+												.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
+									}).collect(Collectors.toList());
 
-							rightLanguageMap.forEach(map-> {
-								map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
-							});
+									rightLanguageMap.forEach(map-> {
+										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
+									});
+								});
+								groupVO.setPropertiesName(propertiesName);
+
+								groupList.add(groupVO);
 						});
-						groupVO.setPropertiesName(propertiesName);
-
-						groupList.add(groupVO);
-					});
 				}
 			});
 		});

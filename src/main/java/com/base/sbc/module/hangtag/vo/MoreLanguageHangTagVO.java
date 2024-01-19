@@ -66,6 +66,7 @@ public class MoreLanguageHangTagVO extends HangTagVO {
             MapUtil.entry("DP13", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientSecondCode, HangTagIngredient::getIngredientSecondName).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
 
             MapUtil.entry("DP12", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList).setSearchStandardColumnCode("DP06")),
+            MapUtil.entry("DP16", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo, MoreLanguageHangTagVO::getBulkStyleNo)),
 
             MapUtil.entry("XM01", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWarmTipsCode, MoreLanguageHangTagVO::getWarmTips)),
             MapUtil.entry("XM06", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWashingLabelName, MoreLanguageHangTagVO::getWashingLabelName)),
@@ -79,6 +80,10 @@ public class MoreLanguageHangTagVO extends HangTagVO {
         private Function<MoreLanguageHangTagVO, String> content;
 
         private String separator = "\n";
+
+        public HangTagMoreLanguageGroup(Function<MoreLanguageHangTagVO, String> content) {
+            this.content = content;
+        }
 
         public HangTagMoreLanguageGroup(String standColumnCode, Function<MoreLanguageHangTagVO, String> content) {
             this.standColumnCode = standColumnCode;

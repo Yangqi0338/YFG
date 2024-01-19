@@ -13,6 +13,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.exception.OtherException;
@@ -20,6 +21,8 @@ import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
+import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
@@ -30,6 +33,7 @@ import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.mapper.StandardColumnMapper;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,7 +103,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
             if (this.count(queryWrapper) > 0) {
                 throw new OtherException("已存在相同的标准表");
             }
-
+            addSingleLanguageRelation(standardColumn);
             this.saveOrUpdate(standardColumn);
         }finally {
             saveLock.unlock();
@@ -110,8 +114,22 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         return standardColumn.getId();
     }
 
+    @Async
+    public void addSingleLanguageRelation(StandardColumn standardColumn){
+        // 处理新增标准列的时候 单语言不同步的问题
+        if (StrUtil.isBlank(standardColumn.getId())) return;
+        CountryQueryDto countryQueryDto = new CountryQueryDto();
+        countryQueryDto.setType(CountryLanguageType.findByStandardColumnType(standardColumn.getType()));
+        countryQueryDto.setSingleLanguageFlag(YesOrNoEnum.YES);
+        List<CountryLanguageDto> countryLanguageDtoList = countryLanguageService.listQuery(countryQueryDto);
+        List<StandardColumnCountryRelation> relationList = countryLanguageDtoList.stream().map(countryLanguageDto ->
+                new StandardColumnCountryRelation(countryLanguageDto.getId(), standardColumn)
+        ).collect(Collectors.toList());
+        standardColumnCountryRelationService.saveOrUpdateBatch(relationList);
+    }
+
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean delByIds(List<String> list) {
         List<String> standColumnCodeList = this.listByIds2OneField(list, StandardColumn::getCode);
         boolean removeSuccess = this.remove(new BaseLambdaQueryWrapper<StandardColumn>()

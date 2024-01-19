@@ -50,7 +50,6 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
     public String getMergedContent() {
         StringJoiner joiner = new StringJoiner("\n");
-        joiner.add("（原文）");
         joiner.add(this.getSourceContent());
         this.getLanguageList().forEach(languageVO-> {
             joiner.add("（" + languageVO.getLanguageName() + "）");
@@ -59,9 +58,18 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         return joiner.toString();
     }
 
+    public String getMergedPrefixContent() {
+        StringJoiner joiner = new StringJoiner("\n");
+        joiner.add(this.getStandardColumnName());
+        this.getLanguageList().forEach(languageVO-> {
+            joiner.add("（" + languageVO.getLanguageName() + "）");
+            joiner.add(languageVO.getStandardColumnContent());
+        });
+        return joiner.toString();
+    }
+
     public String getMergedContentWithoutPrefix() {
         StringJoiner joiner = new StringJoiner("\n");
-        joiner.add("（原文）");
         joiner.add(this.getPropertiesName());
         this.getLanguageList().forEach(languageVO-> {
             joiner.add("（" + languageVO.getLanguageName() + "）");
