@@ -4,12 +4,16 @@ import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.mapper.SeasonalPlanningMapper;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
+import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
+import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -184,5 +188,26 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         long l = this.count(queryWrapper);
         seasonalPlanningSaveDto.setStatus(l > 0 ? "1" : "0");
         this.save(seasonalPlanningSaveDto);
+    }
+
+    @Override
+    public List<SeasonalPlanningVo> queryList(SeasonalPlanningQueryDto seasonalPlanningQueryDto) {
+        BaseQueryWrapper<SeasonalPlanning> queryWrapper = this.buildQueryWrapper(seasonalPlanningQueryDto);
+        return baseMapper.listByQueryWrapper(queryWrapper);
+    }
+
+    @Override
+    public List<SeasonalPlanningVo> queryPage(SeasonalPlanningQueryDto seasonalPlanningQueryDto) {
+        PageHelper.startPage(seasonalPlanningQueryDto);
+        return this.queryList(seasonalPlanningQueryDto);
+    }
+
+
+    private BaseQueryWrapper<SeasonalPlanning> buildQueryWrapper(SeasonalPlanningQueryDto seasonalPlanningQueryDto) {
+        BaseQueryWrapper<SeasonalPlanning> baseQueryWrapper = new BaseQueryWrapper<>();
+        baseQueryWrapper.notEmptyEq("tsp.season_id",seasonalPlanningQueryDto.getSeasonId());
+        baseQueryWrapper.notEmptyEq("tsp.channel_code",seasonalPlanningQueryDto.getChannelCode());
+        baseQueryWrapper.orderByDesc("tsp.id");
+        return baseQueryWrapper;
     }
 }

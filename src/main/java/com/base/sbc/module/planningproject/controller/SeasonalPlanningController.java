@@ -1,26 +1,23 @@
 package com.base.sbc.module.planningproject.controller;
 
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
-import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
+import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
+import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * @author 卞康
@@ -44,5 +41,15 @@ public class SeasonalPlanningController extends BaseController {
         seasonalPlanningSaveDto.setCompanyCode(this.getUserCompany());
         seasonalPlanningService.importExcel(file,seasonalPlanningSaveDto);
         return insertSuccess("导入成功");
+    }
+
+    /**
+     * 根据条件查询
+     */
+    @ApiOperation(value = "根据条件查询")
+    @GetMapping("/queryList")
+    public ApiResult queryList(SeasonalPlanningQueryDto seasonalPlanningQueryDto){
+        List<SeasonalPlanningVo> list = seasonalPlanningService.queryList(seasonalPlanningQueryDto);
+        return selectSuccess(list);
     }
 }
