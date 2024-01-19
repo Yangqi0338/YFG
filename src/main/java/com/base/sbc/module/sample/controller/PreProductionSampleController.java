@@ -6,8 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -18,7 +16,6 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.EnableFlagSettingDto;
 import com.base.sbc.module.common.dto.IdDto;
-import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -181,6 +178,14 @@ public class PreProductionSampleController extends BaseController{
     public boolean samplePicUpload(@Validated @RequestBody SamplePicUploadDto dto) {
         return preProductionSampleTaskService.samplePicUpload(dto);
     }
+
+    @ApiOperation(value = "保存工艺确认时间")
+    @PostMapping("/saveTechReceiveDate")
+    public ApiResult saveTechReceiveDate( @Valid @RequestBody PreProductionSampleTaskDto task) {
+        preProductionSampleTaskService.saveTechReceiveDate(task);
+        return ApiResult.success();
+    }
+
 }
 
 

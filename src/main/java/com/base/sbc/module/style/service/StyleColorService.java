@@ -17,10 +17,8 @@ import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
@@ -240,6 +238,10 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @throws IOException
          */
         void styleColorListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws IOException;
+
+    void saveCorrectBarCode(StyleColor styleColor);
+
+    void saveDesignDate(AddRevampStyleColorDto styleColor);
 
 
 // 自定义方法区 不替换的区域【other_end】

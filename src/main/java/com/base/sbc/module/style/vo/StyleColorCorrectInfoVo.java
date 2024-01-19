@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,7 +26,7 @@ import java.util.Optional;
 @Data
 
 @ApiModel("样衣-款式配色 SampleStyleColor")
-public class StyleColorVo {
+public class StyleColorCorrectInfoVo {
     /**
      * 是否撞色
      */
@@ -116,6 +117,10 @@ public class StyleColorVo {
     /** 季节名称 */
     @ApiModelProperty(value = "季节名称"  )
     private String seasonName;
+
+    public String getPlanningSeason() {
+        return StrUtil.join(" ", yearName, seasonName, brandName);
+    }
 
     /**
      * 历史款
@@ -329,11 +334,11 @@ public class StyleColorVo {
     private Date sendSingleDate;
     /** 设计下明细单 */
     @ApiModelProperty(value = "设计下明细单"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designDetailDate;
     /** 设计下正确样 */
     @ApiModelProperty(value = "设计下正确样"  )
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date designCorrectDate;
 
     /** 供应商 */
@@ -457,11 +462,41 @@ public class StyleColorVo {
      */
     private String defaultBarCode;
 
-    /**
-     * 正确样样衣码
-     */
-    @ApiModelProperty(value = "正确样样衣码")
-    private String correctBarCode;
+    /** 技术接受正确样日期-正确样 */
+    @ApiModelProperty(value = "技术接受正确样日期-正确样"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date technologyCorrectDate;
+    /** 技术部查版完成日期-正确样 */
+    @ApiModelProperty(value = "技术部查版完成日期-正确样"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date technologyCheckDate;
+    /** 工艺部接收日期-正确样 */
+    @ApiModelProperty(value = "工艺部接收日期-正确样"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date technicsDate;
+    /** GST接收-正确样 */
+    @ApiModelProperty(value = "GST接收-正确样"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date gstDate;
+    /** 计控接明细单日期-明细单 */
+    @ApiModelProperty(value = "计控接明细单日期-明细单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date planControlDate;
+    /** 采购需求日期-明细单 */
+    @ApiModelProperty(value = "采购需求日期-明细单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date purchaseNeedDate;
+    /** 采购回复货期-明细单 */
+    @ApiModelProperty(value = "采购回复货期-明细单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date purchaseRecoverDate;
+    /** 辅仓接收日期-明细单 */
+    @ApiModelProperty(value = "辅仓接收日期-明细单"  )
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date auxiliaryDate;
 
+    private String styleColorId;
+
+    private String productionSampleId;
 
 }
