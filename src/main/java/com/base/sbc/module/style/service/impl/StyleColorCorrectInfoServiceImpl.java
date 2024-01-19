@@ -98,7 +98,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         queryWrapper.like(StringUtils.isNotBlank(page.getTechnicianName()), "ts.technician_name", page.getTechnicianName());
         queryWrapper.eq(StringUtils.isNotBlank(page.getBomStatus()), "tsc.bom_status", page.getBomStatus());
         if (StringUtils.isNotBlank(page.getTechnicsDate())) {
-            queryWrapper.between("tcci.technics_date", page.getTechnicsDate().split(","));
+            queryWrapper.between("tsc.tech_receive_time", page.getTechnicsDate().split(","));
         }
         if(StrUtil.equals(page.getTechnicsDateNullFlag(), BaseGlobal.IN)){
             queryWrapper.isNull("tcci.technics_date");
