@@ -262,11 +262,11 @@ public interface StyleService extends BaseService<Style> {
 
     String selectMaxOldDesignNo(QueryWrapper qc);
 
-    boolean startMarkingApproval(String id);
+    boolean startMarkingApproval(String id, String showFOB, String styleColorId);
 
     boolean approvalMarking(AnswerDto dto);
 
-    boolean startMarkingOrderApproval(String id);
+    boolean startMarkingOrderApproval(String id, String showFOB, String styleColorId);
 
     boolean approvalMarkingOrder(AnswerDto dto);
 }

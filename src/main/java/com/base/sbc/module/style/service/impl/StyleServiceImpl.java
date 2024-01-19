@@ -1986,12 +1986,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
-    public boolean startMarkingApproval(String id) {
+    public boolean startMarkingApproval(String id, String showFOB, String styleColorId) {
         Style style = getById(id);
         if (style == null) {
             throw new OtherException("样衣数据不存在,请先保存");
         }
-        if(StrUtil.isBlank(style.getDesignAuditStatus())){
+        if (StrUtil.isBlank(style.getDesignAuditStatus())) {
             style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
         }
         if (StrUtil.equals(style.getDesignAuditStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
@@ -2004,7 +2004,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 "/pdm/api/saas/style/approvalMarking",
                 "/pdm/api/saas/style/approvalMarking",
                 "/pdm/api/saas/style/approvalMarking",
-                "/styleAnalysis/styleMarkingDetails?sampleDesignId="+ id +"&isEdit=0&panelValue=design", variables);
+                "/styleAnalysis/styleMarkingDetails?sampleDesignId=" + id + "&isEdit=0&panelValue=design&showFOB="
+                        + showFOB + "&id=" + id + "&styleColorId=" + styleColorId, variables);
     }
 
     @Override
@@ -2031,12 +2032,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
-    public boolean startMarkingOrderApproval(String id) {
+    public boolean startMarkingOrderApproval(String id, String showFOB, String styleColorId) {
         Style style = getById(id);
         if (style == null) {
             throw new OtherException("样衣数据不存在,请先保存");
         }
-        if(StrUtil.isBlank(style.getOrderAuditStatus())){
+        if (StrUtil.isBlank(style.getOrderAuditStatus())) {
             style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
         }
         if (StrUtil.equals(style.getOrderAuditStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
@@ -2049,7 +2050,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 "/pdm/api/saas/style/approvalMarkingOrder",
                 "/pdm/api/saas/style/approvalMarkingOrder",
                 "/pdm/api/saas/style/approvalMarkingOrder",
-                "/styleAnalysis/styleMarkingDetails?sampleDesignId="+ id +"&isEdit=0&panelValue=order", variables);
+                "/styleAnalysis/styleMarkingDetails?sampleDesignId=" + id + "&isEdit=0&panelValue=order&showFOB="
+                        + showFOB + "&id=" + id + "&styleColorId=" + styleColorId, variables);
     }
 
     @Override

@@ -254,8 +254,8 @@ public class StyleController extends BaseController {
     @ApiOperation(value = "发起审批-款式打标-设计阶段")
     @GetMapping("/startMarkingApproval")
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true, paramType = "query")})
-    public boolean startMarkingApproval(@NotBlank(message = "编号不能为空") String id) {
-        return styleService.startMarkingApproval(id);
+    public boolean startMarkingApproval(@NotBlank(message = "编号不能为空") String id, String showFOB, String styleColorId) {
+        return styleService.startMarkingApproval(id, showFOB, styleColorId);
     }
 
     /**
@@ -273,8 +273,8 @@ public class StyleController extends BaseController {
     @ApiOperation(value = "发起审批-款式打标-下单阶段")
     @GetMapping("/startMarkingOrderApproval")
     @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true, paramType = "query")})
-    public boolean startMarkingOrderApproval(@NotBlank(message = "编号不能为空") String id) {
-        return styleService.startMarkingOrderApproval(id);
+    public boolean startMarkingOrderApproval(@NotBlank(message = "编号不能为空") String id, String showFOB, String styleColorId) {
+        return styleService.startMarkingOrderApproval(id, showFOB, styleColorId);
     }
 
     /**
