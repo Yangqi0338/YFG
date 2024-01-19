@@ -1245,7 +1245,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		Map<String, HangTagMoreLanguageGroup> groupMap = MapUtil.ofEntries(
 				MapUtil.entry("DP16", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", MoreLanguageHangTagVO::getIngredient)),
 				MapUtil.entry("DP06", new HangTagMoreLanguageGroup(null)),
-				MapUtil.entry("DP12", new HangTagMoreLanguageGroup( MoreLanguageHangTagVO::getDownContent))
+				MapUtil.entry("DP12", new HangTagMoreLanguageGroup(MoreLanguageHangTagVO::getDownContent))
 		);
 		List<HangTagMoreLanguageWebBaseVO> groupList = new ArrayList<>();
 		webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getCode)).forEach((code, sameCodeList)-> {
@@ -1253,8 +1253,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				String standColumnCode = group.getStandColumnCode();
 				List<HangTagMoreLanguageWebBaseVO> sameStandardColumnCodeList = webBaseList.stream()
 						.filter(it -> groupName.equals(it.getStandardColumnCode())).collect(Collectors.toList());
-				sameStandardColumnCodeList.addAll( webBaseList.stream()
-						.filter(it -> standColumnCode.contains(it.getStandardColumnCode())).collect(Collectors.toList()));
+				if (StrUtil.isNotBlank(standColumnCode)) {
+					sameStandardColumnCodeList.addAll( webBaseList.stream()
+							.filter(it -> standColumnCode.contains(it.getStandardColumnCode())).collect(Collectors.toList()));
+				}
 				if (CollectionUtil.isNotEmpty(sameStandardColumnCodeList)) {
 					webBaseList.removeAll(sameStandardColumnCodeList);
 					sameStandardColumnCodeList.stream()
@@ -1265,10 +1267,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 								HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
 								groupVO.setIsGroup(true);
-								groupVO.setStandardColumnCode(standColumnCode);
-								groupVO.setStandardColumnName(groupName);
-								if (groupName.equals(standColumnCode)) {
-									groupVO.setStandardColumnName(webBaseVO.getStandardColumnName());
+								groupVO.setStandardColumnCode(Opt.ofNullable(standColumnCode).orElse(groupName));
+								if (!groupName.equals(webBaseVO.getStandardColumnCode())) {
+									groupVO.setStandardColumnName(groupName);
 								}else {
 									groupVO.getLanguageList().forEach(languageVo-> {
 										languageVo.setStandardColumnContent(groupName);
