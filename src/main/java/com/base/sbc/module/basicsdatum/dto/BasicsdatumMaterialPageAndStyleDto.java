@@ -13,4 +13,8 @@ public class BasicsdatumMaterialPageAndStyleDto extends Page {
      * bom阶段
      */
     private String materialsCode;
+    /**
+     * 分类id
+     */
+    private String categoryId;
 }

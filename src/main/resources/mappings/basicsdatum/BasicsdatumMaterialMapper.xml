@@ -191,12 +191,13 @@
 			t_basicsdatum_material tbm
 			LEFT JOIN t_basicsdatum_material_color tbmc on  tbmc.material_code = tbm.material_code and tbmc.del_flag='0'
 			LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code and select_flag ='1'   and tbmp.del_flag='0'
-			    ${ ew.customSqlSegment}
+			    ${ew.customSqlSegment}
 
 	</select>
 
 	<select id="getBasicsdatumMaterialAndStyleList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageAndStyleVo">
-		SELECT tpb.color as materialsColor,
+		select * from (
+			SELECT tpb.color as materialsColor,
 			   tpb.translate as materialsSpec,
 			   tpb.image_url as materialsImageUrl,
 			   tbs.supplier_abbreviation as supperSampleName,
@@ -209,13 +210,19 @@
 			   tpb.material_code as materialsCode,
 			   ts.style_pic as stylePic,
 			   tsc.style_color_pic as styleColorPic,
+			   tsc.bom_status as bomStatus,
+			   ttbm.category1_id,
+			   ttbm.category2_id,
+			   ttbm.category3_id,
 			   IF(tsc.bom_status = 0, '样品', '大货') as bomPhase
 		    FROM t_style_color tsc
 				 INNER JOIN t_style ts ON tsc.style_id = ts.id
 				 INNER JOIN t_pack_info tpi ON tsc.style_no = tpi.style_no and tpi.DEL_FLAG = 0
 				 INNER JOIN t_pack_bom tpb ON tpb.foreign_id = tpi.id
+				 INNER JOIN t_basicsdatum_material tbm ON tpb.material_id = tbm.id
 				 INNER JOIN t_pack_bom_version tpbv ON tpb.bom_version_id = tpbv.id AND tpb.foreign_id = tpbv.foreign_id AND tpbv.status = 1 and tpbv.DEL_FLAG = 0 AND IF(tsc.bom_status = 0, 'packDesign', 'packBigGoods') = tpbv.pack_type
-				 LEFT JOIN  t_basicsdatum_supplier tbs  ON tpb.supplier_id = tbs.supplier_code
+				 LEFT JOIN  t_basicsdatum_supplier tbs  ON tpb.supplier_id = tbs.supplier_code ) t
+			${ew.customSqlSegment}
 	</select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

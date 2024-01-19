@@ -840,16 +840,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     public PageInfo<BasicsdatumMaterialPageAndStyleVo> materialsBomStylePage(BasicsdatumMaterialPageAndStyleDto dto) {
         PageHelper.startPage(dto);
         BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> qc = new BaseQueryWrapper<>();
+        qc.andLike(dto.getSearch(), "t.materialsCode", "t.materialsColor","t.materialsSpec","t.supperSampleName","t.designNo","t.bulkNo","t.styleColor");
+        qc.notEmptyEq("t.bomStatus", dto.getBomPhase());
+        qc.notEmptyEq("t.materialsCode", dto.getMaterialsCode());
+
+        if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+            qc.and(Wrapper -> Wrapper.eq("tbm.category_id", dto.getCategoryId()).or()
+                    .eq("tbm.category1_code ", dto.getCategoryId()).or().eq("tbm.category2_code", dto.getCategoryId()).or()
+                    .eq("tbm.category3_code", dto.getCategoryId()));
+        }
         List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(qc);
-        minioUtils.setObjectUrlToList(list, "materialsImageUrl");
-        qc.andLike(dto.getSearch(), "tpb.material_code", "tpb.color","tpb.translate","tbs.supplier_abbreviation","tsc.design_no","tsc.style_no","tsc.color_specification");
-        qc.notEmptyEq("tsc.bom_status", dto.getBomPhase());
-        qc.notEmptyEq("tpb.material_code", dto.getMaterialsCode());
         //物料编号、物料颜色、物料规格、厂家简称、设计款号、大货款号、配色颜色
         for (BasicsdatumMaterialPageAndStyleVo vo : list) {
             getStyleImage(vo);
         }
-
+        minioUtils.setObjectUrlToList(list, "materialsImageUrl");
         return new PageInfo<>(list);
     }
 
