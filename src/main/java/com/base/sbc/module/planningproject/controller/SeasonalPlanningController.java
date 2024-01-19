@@ -116,17 +116,17 @@ public class SeasonalPlanningController extends BaseController {
 
             if (!integerTreeSet.isEmpty()){
                 System.out.println("last:" + integerTreeSet.last());
-                jsonObject.put(String.valueOf(integerTreeSet.last()+1), "合计");
+                jsonObject.put(String.valueOf(integerTreeSet.last()+2), "合计");
                 System.out.println(jsonObject);
             }
             if (!orderTime.isEmpty()){
                 System.out.println("last:" + orderTime.last());
-                jsonObject.put(String.valueOf(orderTime.last()+1), "-");
+                jsonObject.put(String.valueOf(orderTime.last()+2), "-");
                 System.out.println(jsonObject);
             }
             if (!listingTime.isEmpty()){
                 System.out.println("last:" + listingTime.last());
-                jsonObject.put(String.valueOf(listingTime.last()+1), "-");
+                jsonObject.put(String.valueOf(listingTime.last()+2), "-");
                 System.out.println(jsonObject);
             }
             if (!styleCategories.isEmpty()){
@@ -136,18 +136,49 @@ public class SeasonalPlanningController extends BaseController {
                 System.out.println(jsonObject);
             }
             if (!middleClass.isEmpty()){
+                int sum = 0;
+                int sum1 = 0;
                 for (String s : jsonObject.keySet()) {
-                    // TODO 2024-01-18 18:06:49 第三位开始相加
+                    int i1 = Integer.parseInt(s);
+                    if (i1 > 2) {
+                        if (i1 % 2 == 0){
+                            sum1 += Integer.parseInt(jsonObject.getString(s));
+                        }else {
+                            sum += Integer.parseInt(jsonObject.getString(s));
+                        }
+                    }
                 }
 
-                System.out.println("last:" + middleClass.last());
-                jsonObject.put(String.valueOf(middleClass.last()+1), "中类");
-                System.out.println(jsonObject);
+                jsonObject.put(String.valueOf(middleClass.last()+1), sum);
+                jsonObject.put(String.valueOf(middleClass.last()+2), sum1);
             }
-            // System.out.println(integerTreeSet.last());
             jsonArray.add(jsonObject);
         }
 
+        //竖排合计
+        JSONObject jsonObject2 =new JSONObject();
+        jsonObject2.put("2","合计");
+        for (int i = 0; i < jsonArray.size(); i++) {
+
+            if (i>4){
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                for (String s : jsonObject.keySet()) {
+                    int i1 = Integer.parseInt(s);
+                    if (i1>2){
+                        int sum;
+                        if (jsonObject2.getInteger(s)!= null) {
+                            sum=jsonObject.getInteger(s) +jsonObject2.getInteger(s);
+                        }else {
+                            sum = jsonObject.getInteger(s);
+                        }
+                        jsonObject2.put(s, sum);
+                    }
+                }
+
+            }
+        }
+        jsonArray.add(jsonObject2);
+        System.out.println(jsonArray);
         String string = jsonArray.toString();
         return null;
     }
