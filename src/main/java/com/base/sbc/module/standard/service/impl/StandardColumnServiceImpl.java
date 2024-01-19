@@ -122,9 +122,11 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         countryQueryDto.setType(CountryLanguageType.findByStandardColumnType(standardColumn.getType()));
         countryQueryDto.setSingleLanguageFlag(YesOrNoEnum.YES);
         List<CountryLanguageDto> countryLanguageDtoList = countryLanguageService.listQuery(countryQueryDto);
-        List<StandardColumnCountryRelation> relationList = countryLanguageDtoList.stream().map(countryLanguageDto ->
-                new StandardColumnCountryRelation(countryLanguageDto.getId(), standardColumn)
-        ).collect(Collectors.toList());
+        List<StandardColumnCountryRelation> relationList = countryLanguageDtoList.stream().map(countryLanguageDto -> {
+            String redisKey = RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.addEnd(true, countryLanguageDto.getCode(), countryLanguageDto.getType().getCode());
+            RedisStaticFunUtils.del(redisKey);
+            return new StandardColumnCountryRelation(countryLanguageDto.getId(), standardColumn);
+        }).collect(Collectors.toList());
         standardColumnCountryRelationService.saveOrUpdateBatch(relationList);
     }
 
