@@ -27,6 +27,7 @@ import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FormType;
 import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.formtype.mapper.FormTypeMapper;
+import com.base.sbc.module.planning.dto.CheckMutexDto;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
@@ -183,10 +184,15 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Override
     public List<PlanningDimensionality> batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList) {
 
-
-//        planningDemandService
-
-
+        if (dimensionalityDtoList.isEmpty()) {
+            return new ArrayList<>();
+        }
+        CheckMutexDto checkMutexDto = new CheckMutexDto();
+        checkMutexDto.setChannel(dimensionalityDtoList.get(0).getChannel());
+        checkMutexDto.setPlanningSeasonId(dimensionalityDtoList.get(0).getPlanningSeasonId());
+        checkMutexDto.setProdCategory(dimensionalityDtoList.get(0).getProdCategory());
+        checkMutexDto.setProdCategory2nd(dimensionalityDtoList.get(0).getProdCategory2nd());
+        planningDemandService.checkMutex(checkMutexDto);
 
         List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
         list.forEach(p -> {
