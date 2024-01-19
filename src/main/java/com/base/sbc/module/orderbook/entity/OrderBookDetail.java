@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.orderbook.entity;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -74,6 +75,12 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "克重")
     private String gramWeight;
+
+    /**
+     * 面料吊牌
+     */
+    @Excel(name = "面料吊牌")
+    private String fabricDrop;
 
 
     /**
