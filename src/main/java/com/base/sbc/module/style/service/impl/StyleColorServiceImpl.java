@@ -1106,7 +1106,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (StringUtils.isBlank(sampleStyleColor.getHisStyleNo())) {
                 sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
             }
-            sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
+            sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo().replaceAll(" ", ""));
         }
         /*修改波段*/
     /*    if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
