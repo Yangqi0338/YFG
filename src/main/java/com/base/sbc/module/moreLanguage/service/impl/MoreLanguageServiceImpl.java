@@ -94,6 +94,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -608,19 +609,19 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
     public List<BasicsdatumSize> findSize(String code) {
         List<BasicsdatumSize> result = new ArrayList<>();
         List<BasicsdatumSize> list = basicsdatumSizeService.list();
-        list.stream().collect(Collectors.groupingBy(BasicsdatumSize::getModelTypeCode)).forEach((modelTypeCode,sameCodeList)-> {
-            String[] modelTypeCodeArray = modelTypeCode.split(",");
-            String[] modelTypeArray = sameCodeList.get(0).getModelType().split(",");
-            for (int i = 0; i < modelTypeCodeArray.length; i++) {
-                for (BasicsdatumSize size : sameCodeList) {
-                    BasicsdatumSize newSize = MORE_LANGUAGE_CV.copyMyself(size);
-                    newSize.setModelTypeCode(modelTypeCodeArray[i]);
-                    newSize.setModelType(modelTypeArray[i]);
-                    result.add(newSize);
-                }
-
-            }
-        });
+        list.stream().collect(Collectors.groupingBy(BasicsdatumSize::getModelTypeCode, LinkedHashMap::new, Collectors.toList()))
+                .forEach((modelTypeCode, sameCodeList)-> {
+                    String[] modelTypeCodeArray = modelTypeCode.split(",");
+                    String[] modelTypeArray = sameCodeList.get(0).getModelType().split(",");
+                    for (int i = 0; i < modelTypeCodeArray.length; i++) {
+                        for (BasicsdatumSize size : sameCodeList) {
+                            BasicsdatumSize newSize = MORE_LANGUAGE_CV.copyMyself(size);
+                            newSize.setModelTypeCode(modelTypeCodeArray[i]);
+                            newSize.setModelType(modelTypeArray[i]);
+                            result.add(newSize);
+                        }
+                    }
+                });
         return result;
     }
 
