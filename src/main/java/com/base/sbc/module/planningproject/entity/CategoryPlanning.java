@@ -27,4 +27,6 @@ public class CategoryPlanning extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "状态（0：启用，1：未启用）")
     private String status;
+
+    private String seasonalPlanningId;
 }

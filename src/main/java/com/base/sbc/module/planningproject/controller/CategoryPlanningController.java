@@ -61,6 +61,7 @@ public class CategoryPlanningController extends BaseController {
             categoryPlanning.setChannelName(seasonalPlanning.getChannelName());
             categoryPlanning.setSeasonId(seasonalPlanning.getSeasonId());
             categoryPlanning.setSeasonName(seasonalPlanning.getSeasonName());
+            categoryPlanning.setSeasonalPlanningId(seasonalPlanning.getId());
             categoryPlanning.setStatus(l == 0 ? "0" : "1");
             categoryPlanningService.save(categoryPlanning);
         }
