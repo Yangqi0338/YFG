@@ -48,6 +48,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
     @Override
     public PageInfo<OrderBookVo> queryPage(OrderBookQueryDto dto) {
         BaseQueryWrapper<OrderBook> orderBookBaseQueryWrapper = this.buildQueryWrapper(dto);
+        orderBookBaseQueryWrapper.orderByDesc("id");
         PageHelper.startPage(dto);
         List<OrderBookVo> list = this.queryList(orderBookBaseQueryWrapper);
         return new PageInfo<>(list);
@@ -65,6 +66,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
     @Override
     public void importExcel(OrderBookQueryDto dto, HttpServletResponse response) throws IOException {
         BaseQueryWrapper<OrderBook> orderBookBaseQueryWrapper = this.buildQueryWrapper(dto);
+        orderBookBaseQueryWrapper.orderByDesc("id");
         List<OrderBookVo> orderBookVos = this.queryList(orderBookBaseQueryWrapper);
         List<OrderBookExportVo> orderBookExportVos = BeanUtil.copyToList(orderBookVos, OrderBookExportVo.class);
         ExcelUtils.exportExcel(orderBookExportVos, OrderBookExportVo.class, "订货本.xls", new ExportParams(), response);
@@ -135,7 +137,6 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         queryWrapper.notEmptyEq("tob.season_id",dto.getSeasonId());
         queryWrapper.notEmptyEq("tob.status",dto.getStatus());
         queryWrapper.likeList("tob.name",dto.getName());
-        queryWrapper.orderByDesc("id");
         return queryWrapper;
     }
 }
