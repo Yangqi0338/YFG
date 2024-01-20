@@ -37,6 +37,8 @@ import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.EasyPoiMapExportParam;
@@ -107,6 +109,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
  * 类描述：吊牌列头翻译表 service类
@@ -136,6 +139,9 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
     @Autowired
     private StandardColumnService standardColumnService;
+
+    @Autowired
+    private BasicsdatumSizeService basicsdatumSizeService;
 
     @Autowired
     private StandardColumnCountryTranslateMapper standardColumnCountryTranslateMapper;
@@ -596,6 +602,23 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         queryDto.setCodeList(Arrays.asList(code.split(COMMA)));
 
         return standardColumnService.listQuery(queryDto);
+    }
+
+    @Override
+    public List<BasicsdatumSize> findSize(String code) {
+        List<BasicsdatumSize> result = new ArrayList<>();
+        List<BasicsdatumSize> list = basicsdatumSizeService.list();
+        list.forEach(size-> {
+            String[] modelTypeCodeArray = size.getModelTypeCode().split(",");
+            String[] modelTypeArray = size.getModelType().split(",");
+            for (int i = 0; i < modelTypeCodeArray.length; i++) {
+                BasicsdatumSize newSize = MORE_LANGUAGE_CV.copyMyself(size);
+                newSize.setModelTypeCode(modelTypeCodeArray[i]);
+                newSize.setModelType(modelTypeArray[i]);
+                result.add(newSize);
+            }
+        });
+        return result;
     }
 
 // 自定义方法区 不替换的区域【other_end】

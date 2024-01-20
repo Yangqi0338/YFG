@@ -1,5 +1,6 @@
 package com.base.sbc.module.moreLanguage.strategy.impl;
 
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.base.sbc.config.enums.business.StandardColumnModel;
@@ -44,7 +45,7 @@ public class MoreLanguageDbTableStrategy implements MoreLanguageTableStrategy {
         List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(json, MoreLanguageTableTitle.class);
         String tableFields = tableTitleList.stream().map(it-> StrUtil.toUnderlineCase(it.getCode())).collect(Collectors.joining(","));
         com.github.pagehelper.Page<Map<String,Object>> startPage = page.startPage();
-        moreLanguageService.listAllByTable(tableFields, standardColumn.getTableName(), "del_flag = 0");
+        moreLanguageService.listAllByTable(tableFields, standardColumn.getTableName(), Opt.ofNullable(standardColumn.getTableCode()).orElse("1=1"));
         return startPage.toPageInfo();
     }
 

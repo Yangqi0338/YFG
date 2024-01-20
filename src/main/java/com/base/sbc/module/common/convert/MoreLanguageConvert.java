@@ -1,5 +1,6 @@
 package com.base.sbc.module.common.convert;
 
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
@@ -44,5 +45,6 @@ public interface MoreLanguageConvert {
             @Mapping(target = "model", ignore = true),
     })
     void copy2Entity(StandardColumnSaveDto source, @MappingTarget StandardColumn target);
+    BasicsdatumSize copyMyself(BasicsdatumSize source);
 
 }
