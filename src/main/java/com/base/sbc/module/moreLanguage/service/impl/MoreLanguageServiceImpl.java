@@ -608,14 +608,17 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
     public List<BasicsdatumSize> findSize(String code) {
         List<BasicsdatumSize> result = new ArrayList<>();
         List<BasicsdatumSize> list = basicsdatumSizeService.list();
-        list.forEach(size-> {
-            String[] modelTypeCodeArray = size.getModelTypeCode().split(",");
-            String[] modelTypeArray = size.getModelType().split(",");
+        list.stream().collect(Collectors.groupingBy(BasicsdatumSize::getModelTypeCode)).forEach((modelTypeCode,sameCodeList)-> {
+            String[] modelTypeCodeArray = modelTypeCode.split(",");
+            String[] modelTypeArray = sameCodeList.get(0).getModelType().split(",");
             for (int i = 0; i < modelTypeCodeArray.length; i++) {
-                BasicsdatumSize newSize = MORE_LANGUAGE_CV.copyMyself(size);
-                newSize.setModelTypeCode(modelTypeCodeArray[i]);
-                newSize.setModelType(modelTypeArray[i]);
-                result.add(newSize);
+                for (BasicsdatumSize size : sameCodeList) {
+                    BasicsdatumSize newSize = MORE_LANGUAGE_CV.copyMyself(size);
+                    newSize.setModelTypeCode(modelTypeCodeArray[i]);
+                    newSize.setModelType(modelTypeArray[i]);
+                    result.add(newSize);
+                }
+
             }
         });
         return result;
