@@ -1,8 +1,10 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
@@ -38,7 +40,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             JSONObject jsonObject = new JSONObject();
             Set<Integer> keySet = hashMaps.get(i).keySet();
             for (Integer s : keySet) {
-                jsonObject.put(String.valueOf(s), hashMaps.get(i).get(s));
+                jsonObject.put(String.valueOf(s), hashMaps.get(i).get(s) ==null ? "" : hashMaps.get(i).get(s));
             }
             TreeSet<Integer> integerTreeSet = new TreeSet<>();
             TreeSet<Integer>  orderTime = new TreeSet<>();
@@ -55,9 +57,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 上市波段
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("上市波段:" + jsonObject.getString(s));
-                        }
+                        // if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                        //     System.out.println("上市波段:" + jsonObject.getString(s));
+                        // }
                         integerTreeSet.add(i1);
                     }
                     break;
@@ -65,9 +67,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 下单时间
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("下单时间:" + jsonObject.getString(s));
-                        }
+                        // if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                        //     System.out.println("下单时间:" + jsonObject.getString(s));
+                        // }
                         orderTime.add(i1);
                     }
                     break;
@@ -75,9 +77,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 上市时间
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("上市时间:" + jsonObject.getString(s));
-                        }
+                        // if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                        //     System.out.println("上市时间:" + jsonObject.getString(s));
+                        // }
                         listingTime.add(i1);
                     }
                     break;
@@ -85,9 +87,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 款式类别
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        if (i1 > 2) {
-                            System.out.println("样式类别:" + jsonObject.getString(s));
-                        }
+                        // if (i1 > 2) {
+                        //     System.out.println("样式类别:" + jsonObject.getString(s));
+                        // }
                         styleCategories.add(i1);
                     }
                     break;
@@ -95,42 +97,37 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 品类
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        if (i1 == 0 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("大类:" + jsonObject.getString(s));
-                        }
-                        if (i1 == 1 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("品类:" + jsonObject.getString(s));
-                        }
-                        if (i1 == 2) {
-                            System.out.println("中类:" + jsonObject.getString(s));
-                        }
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            System.out.println("数量:" + jsonObject.getString(s));
-                        }
+                        // if (i1 == 0 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                        //     // System.out.println("大类:" + jsonObject.getString(s));
+                        // }
+                        // if (i1 == 1 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                        //     System.out.println("品类:" + jsonObject.getString(s));
+                        // }
+                        // if (i1 == 2) {
+                        //     System.out.println("中类:" + jsonObject.getString(s));
+                        // }
+                        // if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                        //     System.out.println("数量:" + jsonObject.getString(s));
+                        // }
                         middleClass.add(i1);
                     }
             }
 
             if (!integerTreeSet.isEmpty()){
-                System.out.println("last:" + integerTreeSet.last());
+                jsonObject.put(String.valueOf(integerTreeSet.last()+1), "");
                 jsonObject.put(String.valueOf(integerTreeSet.last()+2), "合计");
-                System.out.println(jsonObject);
             }
             if (!orderTime.isEmpty()){
-                System.out.println("last:" + orderTime.last());
+                jsonObject.put(String.valueOf(orderTime.last()+1), "");
                 jsonObject.put(String.valueOf(orderTime.last()+2), "-");
-                System.out.println(jsonObject);
             }
             if (!listingTime.isEmpty()){
-                System.out.println("last:" + listingTime.last());
+                jsonObject.put(String.valueOf(listingTime.last()+1), "");
                 jsonObject.put(String.valueOf(listingTime.last()+2), "-");
-                System.out.println(jsonObject);
             }
             if (!styleCategories.isEmpty()){
-                System.out.println("last:" + styleCategories.last());
                 jsonObject.put(String.valueOf(styleCategories.last()+1), "常规");
                 jsonObject.put(String.valueOf(styleCategories.last()+2), "高奢");
-                System.out.println(jsonObject);
             }
             if (!middleClass.isEmpty()){
                 int sum = 0;
@@ -175,7 +172,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             }
         }
         jsonArray.add(jsonObject2);
-        String dataJson = jsonArray.toString();
+        String dataJson = JSON.toJSONString(jsonArray,SerializerFeature.WriteMapNullValue);
 
         seasonalPlanningSaveDto.setDataJson(dataJson);
 

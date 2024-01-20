@@ -1,9 +1,12 @@
 package com.base.sbc.module.planningproject.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
+import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -51,5 +55,43 @@ public class SeasonalPlanningController extends BaseController {
     public ApiResult queryList(SeasonalPlanningQueryDto seasonalPlanningQueryDto){
         List<SeasonalPlanningVo> list = seasonalPlanningService.queryList(seasonalPlanningQueryDto);
         return selectSuccess(list);
+    }
+
+    /**
+     * 启用停用
+     */
+    @ApiOperation(value = "启用停用")
+    @PostMapping("/updateStatus")
+    public ApiResult updateStatus(SeasonalPlanningSaveDto seasonalPlanningSaveDto){
+        if ("0".equals(seasonalPlanningSaveDto.getStatus())){
+            QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+            queryWrapper.ne("id",seasonalPlanningSaveDto.getId());
+            queryWrapper.eq("status","0");
+            long l = seasonalPlanningService.count(queryWrapper);
+            if (l > 0){
+                throw new RuntimeException("已存在启用的季节企划");
+            }
+            seasonalPlanningService.updateById(seasonalPlanningSaveDto);
+        }
+
+        return updateSuccess("更新成功");
+    }
+
+    /**
+     * 删除季节企划
+     */
+    @ApiOperation(value = "删除季节企划")
+    @PostMapping("/delByIds")
+    public ApiResult delByIds(RemoveDto removeDto){
+        String ids = removeDto.getIds();
+        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", Arrays.asList(ids.split(",")));
+        queryWrapper.eq("status","0");
+        long l = seasonalPlanningService.count(queryWrapper);
+        if (l > 0){
+            throw new RuntimeException("存在启用的季节企划,不能删除");
+        }
+
+        return deleteSuccess("删除成功");
     }
 }
