@@ -920,10 +920,7 @@
         <#assign lastIndex = jcgyDataList?size - 1>
         <#assign totalSize = jcgyDataList[lastIndex].rows + cjgyRows>
     <#--可以容纳27个没有数字的行-->
-        <#assign maxSize = 26>
-    <#--如果每一行都有数字则能容纳22行（测试机器和生产机器为准）-->
-    <#--25/22 约等于 0.88, 也就是说存在数字的行数/0.88 + 不存在数字的行数 是否大于 25，如果大于则换行-->
-    <#--假如基础工艺8行没有数字的 + 2行有数字的  2*0.88 + 8*1-->
+        <#assign maxSize = 21>
     <#--    <#assign maxSize = 23>-->
 
 
@@ -951,7 +948,7 @@
                             <div>
                                 <div class="flex_td_box">
                                     <#list jcgyDataList as item>
-                                        <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
+                                        <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
                                         <#if curRows lt maxSize>
                                             <div>
                                                 <div>
@@ -989,11 +986,10 @@
             </table>
         </#if>
 
-        <#if breakPointer gt 0>
+        <#if breakPointer gt 0 && breakPointer+1 lt jcgyDataList?size>
             <#assign lastItem = jcgyDataList[breakPointer+1]>
-        <#--总行数减去有数字的行数 = 不存在数字的行数-->
-            <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/0.88 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 27>
-        <#--如果需要分页-->
+            <#--总行数减去有数字的行数 = 不存在数字的行数-->
+            <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/1 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 21>
             <#if hasPageBreak>
                 <table class="table_border mt" style="page-break-before: always">
                     <thead>
@@ -1016,7 +1012,7 @@
                                 <div>
                                     <div class="flex_td_box">
                                         <#list jcgyDataList as item>
-                                            <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
+                                            <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
                                             <#if curRows gt maxSize || curRows == maxSize>
                                                 <div>
                                                     <div>
