@@ -1243,7 +1243,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
 		Map<String, HangTagMoreLanguageGroup> groupMap = MapUtil.ofEntries(
-				MapUtil.entry("DP16", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", MoreLanguageHangTagVO::getIngredient)),
+				MapUtil.entry("DP16", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", "成分信息",MoreLanguageHangTagVO::getIngredient)),
 				MapUtil.entry("DP06", new HangTagMoreLanguageGroup(null)),
 				MapUtil.entry("DP12", new HangTagMoreLanguageGroup(MoreLanguageHangTagVO::getDownContent))
 		);
@@ -1253,6 +1253,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				String standColumnCode = group.getStandColumnCode();
 				List<HangTagMoreLanguageWebBaseVO> sameStandardColumnCodeList = webBaseList.stream()
 						.filter(it -> groupName.equals(it.getStandardColumnCode())).collect(Collectors.toList());
+				boolean notChoose = CollectionUtil.isEmpty(sameStandardColumnCodeList);
 				if (StrUtil.isNotBlank(standColumnCode)) {
 					sameStandardColumnCodeList.addAll( webBaseList.stream()
 							.filter(it -> standColumnCode.contains(it.getStandardColumnCode())).collect(Collectors.toList()));
@@ -1267,12 +1268,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 								HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
 								groupVO.setIsGroup(true);
-								groupVO.setStandardColumnCode(Opt.ofNullable(standColumnCode).orElse(groupName));
-								if (!groupName.equals(webBaseVO.getStandardColumnCode())) {
-									groupVO.setStandardColumnName(groupName);
-								}else {
+								groupVO.setStandardColumnCode(groupName);
+								if (notChoose) {
+									groupVO.setStandardColumnName(group.getStandColumnName());
 									groupVO.getLanguageList().forEach(languageVo-> {
-										languageVo.setStandardColumnContent(groupName);
+										languageVo.setStandardColumnContent(group.getStandColumnName());
 									});
 								}
 								groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(",")));

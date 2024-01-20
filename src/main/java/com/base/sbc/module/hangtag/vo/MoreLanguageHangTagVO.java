@@ -77,6 +77,7 @@ public class MoreLanguageHangTagVO extends HangTagVO {
     @AllArgsConstructor
     public static class HangTagMoreLanguageGroup {
         private String standColumnCode;
+        private String standColumnName;
         private Function<MoreLanguageHangTagVO, String> content;
 
         private String separator = "\n";
@@ -85,7 +86,7 @@ public class MoreLanguageHangTagVO extends HangTagVO {
             this.content = content;
         }
 
-        public HangTagMoreLanguageGroup(String standColumnCode, Function<MoreLanguageHangTagVO, String> content) {
+        public HangTagMoreLanguageGroup(String standColumnCode, String standColumnName, Function<MoreLanguageHangTagVO, String> content) {
             this.standColumnCode = standColumnCode;
             this.content = content;
         }
