@@ -157,7 +157,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 面料状态
      */
     @ApiModelProperty(value = "cmt面料状态")
-    private String fabricState;
+    protected String fabricState;
     /**
      * 是否延续
      */
