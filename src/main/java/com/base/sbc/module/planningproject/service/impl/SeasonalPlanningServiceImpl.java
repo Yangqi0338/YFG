@@ -6,24 +6,26 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
+import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.mapper.SeasonalPlanningMapper;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
 import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
 import com.github.pagehelper.PageHelper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -31,22 +33,34 @@ import java.util.TreeSet;
  * @mail 247967116@qq.com
  */
 @Service
-public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlanningMapper,SeasonalPlanning> implements SeasonalPlanningService {
+@RequiredArgsConstructor
+public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlanningMapper, SeasonalPlanning> implements SeasonalPlanningService {
+    private final CcmFeignService ccmFeignService;
+
     @Override
     public void importExcel(MultipartFile file, SeasonalPlanningSaveDto seasonalPlanningSaveDto) throws IOException {
         List<HashMap<Integer, String>> hashMaps = EasyExcel.read(file.getInputStream()).headRowNumber(0).doReadAllSync();
+
         JSONArray jsonArray = new JSONArray();
+
+        List<String> bandNames = new ArrayList<>();
+        List<String> orders = new ArrayList<>();
+        List<String> markets = new ArrayList<>();
+        List<Integer> sums = new ArrayList<>();
+        List<HashMap<String, String>> hashMapList = new ArrayList<>();
+
         for (int i = 0; i < hashMaps.size(); i++) {
+            HashMap<String, String> hashMap = new HashMap<>();
             JSONObject jsonObject = new JSONObject();
             Set<Integer> keySet = hashMaps.get(i).keySet();
             for (Integer s : keySet) {
-                jsonObject.put(String.valueOf(s), hashMaps.get(i).get(s) ==null ? "" : hashMaps.get(i).get(s));
+                jsonObject.put(String.valueOf(s), hashMaps.get(i).get(s) == null ? "" : hashMaps.get(i).get(s));
             }
             TreeSet<Integer> integerTreeSet = new TreeSet<>();
-            TreeSet<Integer>  orderTime = new TreeSet<>();
+            TreeSet<Integer> orderTime = new TreeSet<>();
             TreeSet<Integer> listingTime = new TreeSet<>();
             TreeSet<Integer> styleCategories = new TreeSet<>();
-            TreeSet<Integer>  middleClass = new TreeSet<>();
+            TreeSet<Integer> middleClassSet = new TreeSet<>();
             switch (i) {
                 case 0:
                     // 标题
@@ -57,9 +71,11 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 上市波段
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        // if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                        //     System.out.println("上市波段:" + jsonObject.getString(s));
-                        // }
+                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            // System.out.println("上市波段:" + jsonObject.getString(s));
+                            bandNames.add(jsonObject.getString(s));
+                            bandNames.add(jsonObject.getString(s));
+                        }
                         integerTreeSet.add(i1);
                     }
                     break;
@@ -67,9 +83,11 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 下单时间
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        // if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                        //     System.out.println("下单时间:" + jsonObject.getString(s));
-                        // }
+                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            // System.out.println("下单时间:" + jsonObject.getString(s));
+                            orders.add(jsonObject.getString(s));
+                            orders.add(jsonObject.getString(s));
+                        }
                         orderTime.add(i1);
                     }
                     break;
@@ -77,9 +95,11 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 上市时间
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        // if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                        //     System.out.println("上市时间:" + jsonObject.getString(s));
-                        // }
+                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            // System.out.println("上市时间:" + jsonObject.getString(s));
+                            markets.add(jsonObject.getString(s));
+                            markets.add(jsonObject.getString(s));
+                        }
                         listingTime.add(i1);
                     }
                     break;
@@ -87,82 +107,127 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 款式类别
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        // if (i1 > 2) {
-                        //     System.out.println("样式类别:" + jsonObject.getString(s));
-                        // }
+                        if (i1 > 2) {
+                            System.out.println("样式类别:" + jsonObject.getString(s));
+                        }
                         styleCategories.add(i1);
                     }
                     break;
                 default:
-                    // 品类
+                    List<BasicCategoryDot> categoryDotList = new ArrayList<>();
+
+                    int sum = 0;
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
-                        // if (i1 == 0 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                        //     // System.out.println("大类:" + jsonObject.getString(s));
-                        // }
-                        // if (i1 == 1 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                        //     System.out.println("品类:" + jsonObject.getString(s));
-                        // }
-                        // if (i1 == 2) {
-                        //     System.out.println("中类:" + jsonObject.getString(s));
-                        // }
-                        // if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                        //     System.out.println("数量:" + jsonObject.getString(s));
-                        // }
-                        middleClass.add(i1);
+
+                        if (i1 == 0 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            // System.out.println("大类:" + jsonObject.getString(s));
+
+                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(s), "0");
+                            if (list != null && !list.isEmpty()) {
+                                categoryDotList.add(list.get(0));
+                            }
+                        }
+                        if (i1 == 1 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            // System.out.println("品类:" + jsonObject.getString(s));
+                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(s), "1");
+                            if (list != null && !list.isEmpty()) {
+                                categoryDotList.add(list.get(0));
+                            }
+
+                        }
+                        if (i1 == 2) {
+                            // System.out.println("中类:" + jsonObject.getString(s));
+                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(s), "2");
+                            if (list != null && !list.isEmpty()) {
+                                categoryDotList.add(list.get(0));
+                            }
+                        }
+                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                            // System.out.println("数量:" + jsonObject.getString(s));
+                            sum += Integer.parseInt(jsonObject.getString(s));
+                        }
+                        middleClassSet.add(i1);
                     }
+                    // System.out.println("SKC数量"+sum);
+                    sums.add(sum);
+
+                    for (BasicCategoryDot basicCategoryDot : categoryDotList) {
+                        // 每次都清掉中类信息
+                        hashMap.put("中类名称", "");
+                        hashMap.put("中类编码", "");
+                        Integer level = basicCategoryDot.getLevel();
+                        if (level == 0) {
+                            hashMap.put("大类名称", basicCategoryDot.getName());
+                            hashMap.put("大类编码", basicCategoryDot.getValue());
+                        }
+                        if (level == 1) {
+                            hashMap.put("品类名称", basicCategoryDot.getName());
+                            hashMap.put("品类编码", basicCategoryDot.getValue());
+                        }
+                        if (level == 2) {
+                            hashMap.put("中类名称", basicCategoryDot.getName());
+                            hashMap.put("中类编码", basicCategoryDot.getValue());
+                        }
+                    }
+                    // System.out.println(hashMap);
+                    hashMapList.add(hashMap);
             }
 
-            if (!integerTreeSet.isEmpty()){
-                jsonObject.put(String.valueOf(integerTreeSet.last()+1), "");
-                jsonObject.put(String.valueOf(integerTreeSet.last()+2), "合计");
+            if (!integerTreeSet.isEmpty()) {
+                jsonObject.put(String.valueOf(integerTreeSet.last() + 1), "");
+                jsonObject.put(String.valueOf(integerTreeSet.last() + 2), "合计");
             }
-            if (!orderTime.isEmpty()){
-                jsonObject.put(String.valueOf(orderTime.last()+1), "");
-                jsonObject.put(String.valueOf(orderTime.last()+2), "-");
+            if (!orderTime.isEmpty()) {
+                jsonObject.put(String.valueOf(orderTime.last() + 1), "");
+                jsonObject.put(String.valueOf(orderTime.last() + 2), "-");
             }
-            if (!listingTime.isEmpty()){
-                jsonObject.put(String.valueOf(listingTime.last()+1), "");
-                jsonObject.put(String.valueOf(listingTime.last()+2), "-");
+            if (!listingTime.isEmpty()) {
+                jsonObject.put(String.valueOf(listingTime.last() + 1), "");
+                jsonObject.put(String.valueOf(listingTime.last() + 2), "-");
             }
-            if (!styleCategories.isEmpty()){
-                jsonObject.put(String.valueOf(styleCategories.last()+1), "常规");
-                jsonObject.put(String.valueOf(styleCategories.last()+2), "高奢");
+            if (!styleCategories.isEmpty()) {
+                jsonObject.put(String.valueOf(styleCategories.last() + 1), "常规");
+                jsonObject.put(String.valueOf(styleCategories.last() + 2), "高奢");
             }
-            if (!middleClass.isEmpty()){
+            if (!middleClassSet.isEmpty()) {
                 int sum = 0;
                 int sum1 = 0;
                 for (String s : jsonObject.keySet()) {
                     int i1 = Integer.parseInt(s);
                     if (i1 > 2) {
-                        if (i1 % 2 == 0){
+                        System.out.println(jsonObject.getString(s));
+                        if (i1 % 2 == 0) {
                             sum1 += Integer.parseInt(jsonObject.getString(s));
-                        }else {
+                        } else {
                             sum += Integer.parseInt(jsonObject.getString(s));
                         }
                     }
                 }
 
-                jsonObject.put(String.valueOf(middleClass.last()+1), sum);
-                jsonObject.put(String.valueOf(middleClass.last()+2), sum1);
+                jsonObject.put(String.valueOf(middleClassSet.last() + 1), sum);
+                jsonObject.put(String.valueOf(middleClassSet.last() + 2), sum1);
             }
             jsonArray.add(jsonObject);
         }
+        // System.out.println(band);
+        // System.out.println(order);
+        // System.out.println(market);
 
-        //竖排合计
-        JSONObject jsonObject2 =new JSONObject();
-        jsonObject2.put("2","合计");
+        // 竖排合计
+        JSONObject jsonObject2 = new JSONObject();
+        jsonObject2.put("2", "合计");
         for (int i = 0; i < jsonArray.size(); i++) {
 
-            if (i>4){
+            if (i > 4) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 for (String s : jsonObject.keySet()) {
                     int i1 = Integer.parseInt(s);
-                    if (i1>2){
+                    if (i1 > 2) {
                         int sum;
-                        if (jsonObject2.getInteger(s)!= null) {
-                            sum=jsonObject.getInteger(s) +jsonObject2.getInteger(s);
-                        }else {
+                        if (jsonObject2.getInteger(s) != null) {
+                            sum = jsonObject.getInteger(s) + jsonObject2.getInteger(s);
+                        } else {
                             sum = jsonObject.getInteger(s);
                         }
                         jsonObject2.put(s, sum);
@@ -172,19 +237,46 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             }
         }
         jsonArray.add(jsonObject2);
-        String dataJson = JSON.toJSONString(jsonArray,SerializerFeature.WriteMapNullValue);
+        String dataJson = JSON.toJSONString(jsonArray, SerializerFeature.WriteMapNullValue);
 
         seasonalPlanningSaveDto.setDataJson(dataJson);
 
-        //先去查有没有启用的，如果有就将状态设为停用
-        QueryWrapper<SeasonalPlanning> queryWrapper =new QueryWrapper<>();
-        queryWrapper.eq("company_code",seasonalPlanningSaveDto.getCompanyCode());
-        queryWrapper.eq("status","0");
-        queryWrapper.eq("season_id",seasonalPlanningSaveDto.getSeasonId());
-        queryWrapper.eq("channel_code",seasonalPlanningSaveDto.getChannelCode());
+        // 先去查有没有启用的，如果有就将状态设为停用
+        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("company_code", seasonalPlanningSaveDto.getCompanyCode());
+        queryWrapper.eq("status", "0");
+        queryWrapper.eq("season_id", seasonalPlanningSaveDto.getSeasonId());
+        queryWrapper.eq("channel_code", seasonalPlanningSaveDto.getChannelCode());
         long l = this.count(queryWrapper);
         seasonalPlanningSaveDto.setStatus(l > 0 ? "1" : "0");
         this.save(seasonalPlanningSaveDto);
+
+
+        List<SeasonalPlanningDetails> detailsList = new ArrayList<>();
+        System.out.println(hashMapList);
+        for (int i = 0; i < hashMapList.size(); i++) {
+            SeasonalPlanningDetails seasonalPlanningDetails = new SeasonalPlanningDetails();
+            seasonalPlanningDetails.setProdCategory1stCode(hashMapList.get(i).get("大类编码"));
+            seasonalPlanningDetails.setProdCategory1stName(hashMapList.get(i).get("大类名称"));
+            seasonalPlanningDetails.setProdCategory2ndCode(hashMapList.get(i).get("中类编码"));
+            seasonalPlanningDetails.setProdCategory2ndName(hashMapList.get(i).get("中类名称"));
+            seasonalPlanningDetails.setProdCategoryCode(hashMapList.get(i).get("品类编码"));
+            seasonalPlanningDetails.setProdCategoryName(hashMapList.get(i).get("品类名称"));
+            seasonalPlanningDetails.setBandName(String.join(",", bandNames));
+            seasonalPlanningDetails.setBandCode(null);
+            seasonalPlanningDetails.setSeasonalPlanningId(seasonalPlanningSaveDto.getId());
+            seasonalPlanningDetails.setSeasonalPlanningName(seasonalPlanningSaveDto.getName());
+            seasonalPlanningDetails.setSkcCount(sums.stream().mapToInt(Integer::intValue).sum());
+            seasonalPlanningDetails.setLaunchTime(String.join(",", markets));
+            seasonalPlanningDetails.setOrderTime(String.join(",", orders));
+
+            detailsList.add(seasonalPlanningDetails);
+        }
+        System.out.println(detailsList);
+
+        // seasonalPlanningDetails.setSkcCount(sum);
+        // seasonalPlanningDetails.setSeasonalPlanningId();
+
     }
 
     @Override
@@ -202,8 +294,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
     private BaseQueryWrapper<SeasonalPlanning> buildQueryWrapper(SeasonalPlanningQueryDto seasonalPlanningQueryDto) {
         BaseQueryWrapper<SeasonalPlanning> baseQueryWrapper = new BaseQueryWrapper<>();
-        baseQueryWrapper.notEmptyEq("tsp.season_id",seasonalPlanningQueryDto.getSeasonId());
-        baseQueryWrapper.notEmptyEq("tsp.channel_code",seasonalPlanningQueryDto.getChannelCode());
+        baseQueryWrapper.notEmptyEq("tsp.season_id", seasonalPlanningQueryDto.getSeasonId());
+        baseQueryWrapper.notEmptyEq("tsp.channel_code", seasonalPlanningQueryDto.getChannelCode());
         baseQueryWrapper.orderByDesc("tsp.id");
         return baseQueryWrapper;
     }
