@@ -1,5 +1,6 @@
 package com.base.sbc.module.orderbook.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -265,6 +266,7 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     @Override
     public String getFabricState(){
+        if(StrUtil.isBlank(this.fabricState)) return "";
         switch (this.fabricState) {
             case "0": return "库存";
             case "1": return "现货";
