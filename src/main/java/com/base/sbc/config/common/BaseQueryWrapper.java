@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -122,6 +123,26 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                 }
             });
         });
+        return this;
+    }
+
+    /**
+     * 判断时间区间 或者时间是否为空
+     * @param columns
+     * @param val
+     * @param flag
+     * @return
+     */
+    public QueryWrapper<T> dateBetweenOrIsNull(String columns, String val, String flag) {
+        if (!StringUtils.isEmpty(val)) {
+            return this.between(columns, val.split(","));
+        }
+        if(StrUtil.equals(flag, BaseGlobal.IN)){
+            return this.isNull(columns);
+        }
+        if(StrUtil.equals(flag,BaseGlobal.YES)){
+            return this.isNotNull(columns);
+        }
         return this;
     }
 
