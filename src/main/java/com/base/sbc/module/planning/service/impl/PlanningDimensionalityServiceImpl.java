@@ -274,6 +274,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
        queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
        queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
        queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
+       queryWrapper.isNotNullStr("tfm.group_name");
        queryWrapper.orderByAsc("tpd.group_sort","tpd.sort");
     }
 

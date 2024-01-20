@@ -80,13 +80,26 @@
         <if test="formTypeCode !='' and formTypeCode != null">
             and tft.code=#{formTypeCode}
         </if>
+
+        <if test="formTypeCode !='' and formTypeCode != null">
+            and tft.code=#{formTypeCode}
+        </if>
+
+        <if test="fieldName !='' and fieldName != null">
+            and tfm.field_name=#{fieldName}
+        </if>
+
+        <if test="fieldExplain !='' and fieldExplain != null">
+            and tfm.field_explain=#{fieldExplain}
+        </if>
+
         <if test="ids!=null">
             and tfm.id in
             <foreach collection="ids" item="id" open="(" close=")" separator=",">
                 #{id}
             </foreach>
         </if>
-        order By tfm.sequence desc
+        order By tfm.group_name desc ,tfm.create_date desc
     </select>
 
     <select id="getOptionList" resultType="com.base.sbc.module.formtype.entity.Option" >

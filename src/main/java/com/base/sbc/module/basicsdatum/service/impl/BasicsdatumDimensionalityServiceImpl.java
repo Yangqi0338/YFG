@@ -89,6 +89,7 @@ public class BasicsdatumDimensionalityServiceImpl extends BaseServiceImpl<Basics
         }
         queryWrapper.eq("tbd.del_flag", BaseGlobal.NO);
         queryWrapper.eq("tbd.coefficient_template_id", dto.getCoefficientTemplateId());
+        queryWrapper.isNotNullStr("tfm.group_name");
         queryWrapper.orderByAsc("tbd.group_sort", "tbd.sort");
     }
 

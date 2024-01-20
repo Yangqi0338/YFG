@@ -229,6 +229,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         }else {
             dto.setPlanningSeasonId(planningSeasonId);
             dto.setProdCategory(prodCategory);
+
             list = baseMapper.getFieldManagementList1(dto);
         }
 
