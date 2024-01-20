@@ -236,4 +236,5 @@ public class QueryStyleColorDto extends Page {
      * 工艺师
      */
     private String technologistName;
+
 }

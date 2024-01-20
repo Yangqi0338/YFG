@@ -132,11 +132,11 @@ public class PackPricingOtherCostsServiceImpl extends AbstractPackBaseServiceImp
     }
 
     @Override
-    public List<PackPricingOtherCosts> getPriceSumByForeignIds(List<String> foreignIds, String companyCode) {
+    public List<PackPricingOtherCosts> getPriceSumByForeignIds(List<String> foreignIds, String companyCode, String packType) {
         if (CollectionUtils.isEmpty(foreignIds)) {
             return Lists.newArrayList();
         }
-        return super.getBaseMapper().getPriceSumByForeignIds(foreignIds, companyCode);
+        return super.getBaseMapper().getPriceSumByForeignIds(foreignIds, companyCode,packType);
     }
 
     /**
