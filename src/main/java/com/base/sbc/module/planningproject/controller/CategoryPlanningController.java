@@ -2,10 +2,13 @@ package com.base.sbc.module.planningproject.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.BaseDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQueryDto;
+import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanning;
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
@@ -16,6 +19,7 @@ import com.base.sbc.module.planningproject.service.SeasonalPlanningDetailsServic
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningVo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -79,5 +83,50 @@ public class CategoryPlanningController extends BaseController {
         }
         categoryPlanningDetailsService.saveBatch(categoryPlanningDetails);
         return success("生成品类企划成功");
+    }
+
+    /**
+     * 启用停用
+     */
+    @ApiOperation(value = "启用停用")
+    @PostMapping("/updateStatus")
+    public ApiResult updateStatus(@RequestBody BaseDto baseDto){
+        String ids = baseDto.getIds();
+        if ("0".equals(baseDto.getStatus())){
+            QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
+            queryWrapper.in("id", Arrays.asList(ids.split(",")));
+            queryWrapper.ne("id",baseDto.getId());
+            queryWrapper.eq("status","0");
+            long l = categoryPlanningService.count(queryWrapper);
+            if (l > 0){
+                throw new RuntimeException("已存在启用的品类企划");
+            }
+            UpdateWrapper<CategoryPlanning> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.set("status", baseDto.getStatus());
+            updateWrapper.in("id", Arrays.asList(ids.split(",")));
+            categoryPlanningService.update(updateWrapper);
+        }
+
+        return updateSuccess("更新成功");
+    }
+
+    /**
+     * 删除品类企划
+     */
+    @ApiOperation(value = "删除品类企划")
+    @DeleteMapping("/delByIds")
+    public ApiResult delByIds(RemoveDto removeDto){
+        String ids = removeDto.getIds();
+        List<String> list = Arrays.asList(ids.split(","));
+        QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id",list);
+        queryWrapper.eq("status","0");
+        long l = categoryPlanningService.count(queryWrapper);
+        if (l > 0){
+            throw new RuntimeException("存在启用的季节企划,不能删除");
+        }
+        categoryPlanningService.removeByIds(list);
+
+        return deleteSuccess("删除成功");
     }
 }

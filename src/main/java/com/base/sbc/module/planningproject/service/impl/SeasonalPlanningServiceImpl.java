@@ -182,16 +182,16 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             }
 
             if (!integerTreeSet.isEmpty()) {
-                jsonObject.put(String.valueOf(integerTreeSet.last() + 1), "");
-                jsonObject.put(String.valueOf(integerTreeSet.last() + 2), "合计");
+                jsonObject.put(String.valueOf(integerTreeSet.last() + 1), "合计");
+                jsonObject.put(String.valueOf(integerTreeSet.last() + 2), "");
             }
             if (!orderTime.isEmpty()) {
-                jsonObject.put(String.valueOf(orderTime.last() + 1), "");
-                jsonObject.put(String.valueOf(orderTime.last() + 2), "-");
+                jsonObject.put(String.valueOf(orderTime.last() + 1), "-");
+                jsonObject.put(String.valueOf(orderTime.last() + 2), "");
             }
             if (!listingTime.isEmpty()) {
-                jsonObject.put(String.valueOf(listingTime.last() + 1), "");
-                jsonObject.put(String.valueOf(listingTime.last() + 2), "-");
+                jsonObject.put(String.valueOf(listingTime.last() + 1), "-");
+                jsonObject.put(String.valueOf(listingTime.last() + 2), "");
             }
             if (!styleCategories.isEmpty()) {
                 jsonObject.put(String.valueOf(styleCategories.last() + 1), "常规");
