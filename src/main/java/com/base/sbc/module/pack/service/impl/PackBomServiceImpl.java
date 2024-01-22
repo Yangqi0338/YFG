@@ -531,7 +531,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public boolean unusableChange(String id, String unusableFlag) {
         List<String> split = StrUtil.split(id, CharUtil.COMMA);
         PackBom byId = getById(split.get(0));
-        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
+        /*校验吊牌是否在审核中或已审核完成*/
+        PackInfo packInfo = packInfoService.get(byId.getForeignId(), byId.getPackType());
+        HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
+        /*不是在未填写，未提交阶段时提示不能修改*/
+        if(hangTag.getStatus() != HangTagStatusEnum.NOT_INPUT && hangTag.getStatus() != HangTagStatusEnum.NOT_COMMIT){
+            throw new OtherException("吊牌已提交无法停用");
+        }
+        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
         // 校验版本
         packBomVersionService.checkVersion(byId.getBomVersionId());
         UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
