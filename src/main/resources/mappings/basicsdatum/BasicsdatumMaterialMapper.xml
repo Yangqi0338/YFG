@@ -211,9 +211,9 @@
 			   ts.style_pic as stylePic,
 			   tsc.style_color_pic as styleColorPic,
 			   tsc.bom_status as bomStatus,
-			   ttbm.category1_id,
-			   ttbm.category2_id,
-			   ttbm.category3_id,
+			   tbm.category1_code,
+			   tbm.category2_code,
+			   tbm.category3_code,
 			   IF(tsc.bom_status = 0, '样品', '大货') as bomPhase
 		    FROM t_style_color tsc
 				 INNER JOIN t_style ts ON tsc.style_id = ts.id
