@@ -16,5 +16,5 @@ import java.util.List;
  */
 @Mapper
 public interface SeasonalPlanningMapper extends BaseMapper<SeasonalPlanning> {
-    List<SeasonalPlanningVo> listByQueryWrapper(@Param("qw") QueryWrapper<SeasonalPlanning> qw);
+    List<SeasonalPlanningVo> listByQueryWrapper(@Param("ew") QueryWrapper<SeasonalPlanning> ew);
 }

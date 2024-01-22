@@ -14,10 +14,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
@@ -63,8 +60,10 @@ public class SeasonalPlanningController extends BaseController {
     @ApiOperation(value = "启用停用")
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(SeasonalPlanningSaveDto seasonalPlanningSaveDto){
+        String ids = seasonalPlanningSaveDto.getIds();
         if ("0".equals(seasonalPlanningSaveDto.getStatus())){
             QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+            queryWrapper.in("id", Arrays.asList(ids.split(",")));
             queryWrapper.ne("id",seasonalPlanningSaveDto.getId());
             queryWrapper.eq("status","0");
             long l = seasonalPlanningService.count(queryWrapper);
@@ -81,7 +80,7 @@ public class SeasonalPlanningController extends BaseController {
      * 删除季节企划
      */
     @ApiOperation(value = "删除季节企划")
-    @PostMapping("/delByIds")
+    @DeleteMapping("/delByIds")
     public ApiResult delByIds(RemoveDto removeDto){
         String ids = removeDto.getIds();
         QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();

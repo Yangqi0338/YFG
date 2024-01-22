@@ -16,5 +16,5 @@ import java.util.List;
  */
 @Mapper
 public interface CategoryPlanningMapper extends BaseMapper<CategoryPlanning> {
-    List<CategoryPlanningVo> listByQueryWrapper(@Param("qw") BaseQueryWrapper<CategoryPlanning> qw);
+    List<CategoryPlanningVo> listByQueryWrapper(@Param("ew") BaseQueryWrapper<CategoryPlanning> ew);
 }

@@ -4,8 +4,8 @@
     <select id="listByQueryWrapper" resultType="com.base.sbc.module.planningproject.vo.SeasonalPlanningVo">
         select * from t_seasonal_planning tsp
         where tsp.del_flag = '0'
-        <if test="qw.customSqlSegment != null and qw.customSqlSegment != ''">
-            ${ qw.customSqlSegment.startsWith("WHERE")?qw.customSqlSegment.replace("WHERE","AND "):qw.customSqlSegment}
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
 </mapper>

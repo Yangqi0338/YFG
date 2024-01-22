@@ -10,4 +10,5 @@ import lombok.Data;
  */
 @Data
 public class SeasonalPlanningSaveDto extends SeasonalPlanning {
+    private String ids;
 }
