@@ -262,6 +262,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyEq("tsc.devt_type_name",dto.getDevtTypeName());
         queryWrapper.likeList("ts.prod_category", dto.getCategoryCode());
         queryWrapper.likeList("tsc.band_name", dto.getBand());
+        queryWrapper.likeList("tsc.band_code", dto.getBandCode());
         queryWrapper.likeList("tobl.designer_id", dto.getDesignerName());
         queryWrapper.likeList("tsc.style_no", dto.getBulkStyleNo());
         queryWrapper.notEmptyEq("tobl.company_code", dto.getCompanyCode());
@@ -274,7 +275,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.total_production", dto.getTotalProduction());
         queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCoefficientCode());
         queryWrapper.notEmptyLike("tobl.status", dto.getStatus());
-
+        queryWrapper.notEmptyLike("tobl.is_order", dto.getIsOrder());
         // queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCost());
         queryWrapper.notEmptyLike("tobl.target_time", dto.getTargetTime());
         queryWrapper.notEmptyLike("tobl.production_urgency_name", dto.getProductionUrgencyName());
@@ -295,12 +296,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.fabric_remarks", dto.getFabricRemarks());
         queryWrapper.notEmptyLike("tobl.fabric_drop", dto.getFabricDrop());
         queryWrapper.notEmptyLike("ts.design_no", dto.getStyle());
-        // queryWrapper.notEmptyLike("ts.prod_category2nd_name", dto.getProdCategory2ndName());
+        queryWrapper.notEmptyLike("ts.prod_category2nd", dto.getProdCategory2ndCode());
+        queryWrapper.notEmptyLike("ts.prod_category1st", dto.getProdCategory1st());
         queryWrapper.notEmptyLike("ts.old_design_no", dto.getOldDesignNo());
         queryWrapper.notEmptyLike("ts.registering_no", dto.getRegisteringNo());
         queryWrapper.notEmptyLike("tobl.suit_no", dto.getSuitNo());
         queryWrapper.notEmptyLike("ts.pattern_design_name", dto.getPatternDesignName());
         queryWrapper.notEmptyLike("ts.designer", dto.getStyleDesignerName());
+        queryWrapper.notEmptyLike("tob.season_id", dto.getPlanningSeasonId());
 
         queryWrapper.notEmptyLike("tobl.offline_production", dto.getOfflineProduction());
         queryWrapper.notEmptyLike("tobl.online_production", dto.getOnlineProduction());

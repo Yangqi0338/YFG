@@ -21,4 +21,6 @@ public interface SeasonalPlanningService extends BaseService<SeasonalPlanning> {
     List<SeasonalPlanningVo> queryList(SeasonalPlanningQueryDto seasonalPlanningQueryDto);
 
     List<SeasonalPlanningVo> queryPage(SeasonalPlanningQueryDto seasonalPlanningQueryDto);
+
+    SeasonalPlanningVo getDetailById(String id);
 }

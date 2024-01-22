@@ -58,6 +58,16 @@ public class SeasonalPlanningController extends BaseController {
     }
 
     /**
+     * 根据id查询详情
+     */
+    @ApiOperation(value = "根据id查询详情")
+    @GetMapping("/getDetailById")
+    public ApiResult getDetailById(@RequestParam String id){
+        SeasonalPlanningVo seasonalPlanningVo = seasonalPlanningService.getDetailById(id);
+        return selectSuccess(seasonalPlanningVo);
+    }
+
+    /**
      * 启用停用
      */
     @ApiOperation(value = "启用停用")

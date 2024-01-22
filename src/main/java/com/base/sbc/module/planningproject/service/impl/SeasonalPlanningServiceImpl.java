@@ -1,5 +1,6 @@
 package com.base.sbc.module.planningproject.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -12,6 +13,10 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
@@ -39,6 +44,7 @@ import java.util.stream.Collectors;
 public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlanningMapper, SeasonalPlanning> implements SeasonalPlanningService {
     private final CcmFeignService ccmFeignService;
     private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
+    private final OrderBookDetailService orderBookDetailService;
 
     @Override
     public void importExcel(MultipartFile file, SeasonalPlanningSaveDto seasonalPlanningSaveDto) throws IOException {
@@ -329,6 +335,78 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     public List<SeasonalPlanningVo> queryPage(SeasonalPlanningQueryDto seasonalPlanningQueryDto) {
         PageHelper.startPage(seasonalPlanningQueryDto);
         return this.queryList(seasonalPlanningQueryDto);
+    }
+
+    @Override
+    public SeasonalPlanningVo getDetailById(String id) {
+        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("tsp.id",id);
+        List<SeasonalPlanningVo> list = baseMapper.listByQueryWrapper(queryWrapper);
+        SeasonalPlanningVo seasonalPlanningVo = list.get(0);
+        List<SeasonalPlanningDetails> detailsList = seasonalPlanningDetailsService.listByField("seasonal_planning_id", seasonalPlanningVo.getId());
+
+        //拆分成中类维度
+        List<SeasonalPlanningDetails> list1 =new ArrayList<>();
+        List<SeasonalPlanningDetails> list2 =new ArrayList<>();
+        for (SeasonalPlanningDetails seasonalPlanningDetails : detailsList) {
+            String prodCategory2ndCode = seasonalPlanningDetails.getProdCategory2ndCode();
+            if (StringUtils.isNotBlank(prodCategory2ndCode)&& prodCategory2ndCode.split(",").length>1) {
+                String[] split = prodCategory2ndCode.split(",");
+                for (int i = 0; i < split.length; i++) {
+                    SeasonalPlanningDetails seasonalPlanningDetails1 =new SeasonalPlanningDetails();
+                    BeanUtil.copyProperties(seasonalPlanningDetails,seasonalPlanningDetails1);
+                    seasonalPlanningDetails1.setProdCategory2ndCode(split[i]);
+                    seasonalPlanningDetails1.setProdCategory2ndName(seasonalPlanningDetails.getProdCategory2ndName().split(",")[i]);
+                    list1.add(seasonalPlanningDetails1);
+                }
+            } else  {
+                list1.add(seasonalPlanningDetails);
+            }
+        }
+        //拆分成波段维度
+        for (SeasonalPlanningDetails seasonalPlanningDetails : list1) {
+            String bandCode = seasonalPlanningDetails.getBandCode();
+            if(StringUtils.isNotBlank(bandCode) && bandCode.split(",").length>1) {
+                String[] split = bandCode.split(",");
+                //去重
+                List<String> arrayList =  Arrays.stream(split).distinct().collect(Collectors.toList());
+
+                for (int i = 0; i < arrayList.size(); i++) {
+                    SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
+                    BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
+                    seasonalPlanningDetails1.setBandCode(arrayList.get(i));
+                    seasonalPlanningDetails1.setBandName(seasonalPlanningDetails.getBandName().split(",")[i*2]);
+                    list2.add(seasonalPlanningDetails1);
+                }
+            }
+        }
+
+        System.out.println(list2);
+        //查询订货本下单的数据
+        for (SeasonalPlanningDetails seasonalPlanningDetails : list2) {
+            String prodCategory2ndCode = seasonalPlanningDetails.getProdCategory2ndCode();
+            String prodCategory1stCode = seasonalPlanningDetails.getProdCategory1stCode();
+            String prodCategoryCode = seasonalPlanningDetails.getProdCategoryCode();
+            String bandCode = seasonalPlanningDetails.getBandCode();
+
+            OrderBookDetailQueryDto dto = new OrderBookDetailQueryDto();
+            dto.setBandCode(bandCode);
+            dto.setPlanningSeasonId(seasonalPlanningVo.getSeasonId());
+            dto.setCategoryCode(prodCategoryCode);
+            dto.setProdCategory1st(prodCategory1stCode);
+            dto.setProdCategory2ndCode(prodCategory2ndCode);
+            dto.setIsOrder("1");
+            BaseQueryWrapper<OrderBookDetail> bookDetailBaseQueryWrapper = orderBookDetailService.buildQueryWrapper(dto);
+            List<OrderBookDetailVo> bookDetailVos = orderBookDetailService.querylist(bookDetailBaseQueryWrapper, null);
+
+            if (!bookDetailVos.isEmpty()){
+                for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
+                    System.out.println(bookDetailVo.getBulkStyleNo());
+                }
+
+            }
+        }
+        return seasonalPlanningVo;
     }
 
 
