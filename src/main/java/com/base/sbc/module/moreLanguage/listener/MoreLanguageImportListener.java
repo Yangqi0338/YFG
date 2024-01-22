@@ -297,7 +297,8 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             String codeName = countryLanguageList.get(0).getCountryName();
             String countryCode = countryLanguageList.get(0).getCountryCode();
             String name = "多语言翻译";
-            if (excelQueryDto.getSingleLanguageFlag() == YesOrNoEnum.YES) {
+            boolean isSingleLanguageFlag = excelQueryDto.getSingleLanguageFlag() == YesOrNoEnum.YES;
+            if (isSingleLanguageFlag) {
                 name = "单语言翻译";
                 code = excelQueryDto.getLanguageCode();
                 codeName = countryLanguageList.get(0).getLanguageName();
@@ -349,13 +350,17 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 taskList.add(()-> {
                     List<CountryLanguageDto> finalCountryLanguageList = new ArrayList<>(countryLanguageList);
 
+
                     List<CountryLanguage> sameLanguageCodeList = countryLanguageService.list(new LambdaQueryWrapper<CountryLanguage>()
                             .select(CountryLanguage::getId, CountryLanguage::getLanguageCode, CountryLanguage::getCountryCode)
-                            .in(CountryLanguage::getLanguageCode, finalCountryLanguageList.stream().map(CountryLanguage::getLanguageCode).distinct().collect(Collectors.joining(COMMA)))
+                            .in(CountryLanguage::getLanguageCode, finalCountryLanguageList.stream().map(CountryLanguage::getLanguageCode).distinct().collect(Collectors.toList()))
                             .eq(CountryLanguage::getEnableFlag, YesOrNoEnum.YES)
                             .eq(CountryLanguage::getType, type)
+                            .eq(isSingleLanguageFlag, CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO)
                     );
-                    sameLanguageCodeList = sameLanguageCodeList.stream().filter(it-> !countryCode.equals(it.getCountryCode())).collect(Collectors.toList());
+                    if (isSingleLanguageFlag) {
+                        sameLanguageCodeList = sameLanguageCodeList.stream().filter(it-> !countryCode.equals(it.getCountryCode())).collect(Collectors.toList());
+                    }
 
                     List<String> sameLanguageCodeIdList = sameLanguageCodeList.stream().map(CountryLanguage::getId).collect(Collectors.toList());
                     List<String> propertiesCodeList = translateList.stream().map(StandardColumnCountryTranslate::getPropertiesCode).distinct().collect(Collectors.toList());
