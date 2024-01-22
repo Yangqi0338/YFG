@@ -24,7 +24,8 @@ public class BasicsdatumMaterialStyleExcelVo {
 	/**
 	 * 物料图片
 	 */
-	@Excel(name = "物料图片")
+
+	@Excel(name = "物料图片", type = 2)
 	private String materialsImageUrl;
 
 	/**
@@ -48,7 +49,7 @@ public class BasicsdatumMaterialStyleExcelVo {
 	/**
 	 * 款式图
 	 */
-	@Excel(name = "款式图")
+	@Excel(name = "款式图", type = 2)
 	private String styleImageUrl;
 
 	/**
