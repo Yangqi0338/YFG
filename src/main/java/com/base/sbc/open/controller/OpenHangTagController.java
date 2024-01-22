@@ -86,7 +86,7 @@ public class OpenHangTagController extends BaseController {
     }
 
     @ApiOperation(value = "查询详情多语言")
-    @GetMapping("/getMoreLanguageCheckByBulkStyleNo")
+    @PostMapping("/getMoreLanguageCheckByBulkStyleNo")
 //    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
     public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotBlank(message = "检查参数不能为空") String jsonParams) {
         List<HangTagMoreLanguageSystemDTO> hangTagMoreLanguageSystemDTOList = JSONUtil.toList(jsonParams, HangTagMoreLanguageSystemDTO.class);
@@ -107,7 +107,7 @@ public class OpenHangTagController extends BaseController {
         hangTagMoreLanguageDTO.setBulkStyleNo(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).collect(Collectors.joining(",")));
         hangTagMoreLanguageDTO.setCode(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getCode).collect(Collectors.joining(",")));
         hangTagMoreLanguageDTO.setSource(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getSource).findFirst().orElse(SystemSource.BCS));
-        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, true));
+        return selectSuccess(JSONUtil.toJsonStr(hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, true)));
     }
 
     /**
