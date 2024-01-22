@@ -225,6 +225,13 @@ public class BasicsdatumMaterialController extends BaseController {
         basicsdatumMaterialService.exportBasicsdatumMaterial(response, dto);
     }
 
+    @ApiOperation(value = "物料BOM：按筛选条件导出")
+    @GetMapping("/exportBasicsdatumMaterialBom")
+    public void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto)
+            throws Exception {
+        basicsdatumMaterialService.exportBasicsdatumMaterialAndStyle(response, dto);
+    }
+
     @ApiOperation(value = "主物料:查询物料详情(不包括颜色、规格、报价、旧料号)")
     @GetMapping("/getBasicsdatumMaterial")
     public BasicsdatumMaterialVo getBasicsdatumMaterial(

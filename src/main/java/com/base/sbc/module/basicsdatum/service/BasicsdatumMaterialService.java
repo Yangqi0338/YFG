@@ -74,6 +74,8 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 
 	void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto) throws IOException;
 
+	void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto) throws IOException;
+
 	PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto);
 
 	Boolean saveBasicsdatumMaterialWidthGroup(BasicsdatumMaterialWidthGroupSaveDto dto);

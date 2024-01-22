@@ -458,6 +458,15 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
+    public void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<BasicsdatumMaterialPageAndStyleVo> list = materialsBomStylePage(dto).getList();
+        List<BasicsdatumMaterialStyleExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialStyleExcelVo.class);
+        ExcelUtils.exportExcel(list1, BasicsdatumMaterialStyleExcelVo.class, "物料BOM档案.xls", new ExportParams(), response);
+    }
+
+    @Override
     public PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto) {
         BaseQueryWrapper<BasicsdatumMaterial> qw = new BaseQueryWrapper<>();
         qw.andLike(dto.getSearch(), "bm.material_code", "bm.material_name", "bm.supplier_fabric_code");
