@@ -358,7 +358,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                             .eq(CountryLanguage::getType, type)
                             .eq(isSingleLanguageFlag, CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO)
                     );
-                    if (isSingleLanguageFlag) {
+                    if (!isSingleLanguageFlag) {
                         sameLanguageCodeList = sameLanguageCodeList.stream().filter(it-> !countryCode.equals(it.getCountryCode())).collect(Collectors.toList());
                     }
 
