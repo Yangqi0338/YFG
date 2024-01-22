@@ -504,7 +504,9 @@ public class SmpService {
                 smpGoodsDto.setSecondPackagingFormCode(hangTag.getSecondPackagingFormCode());
 
                 smpGoodsDto.setPackageType(hangTag.getPackagingForm());
-                smpGoodsDto.setPackageSize(hangTag.getPackagingBagStandard());
+                smpGoodsDto.setPackageTypeCode(hangTag.getPackagingFormCode());
+                smpGoodsDto.setPackageSize(hangTag.getPackagingBagStandardCode());
+                smpGoodsDto.setPackageSizeCode(hangTag.getPackagingBagStandard());
             }
             //endregion
 

@@ -215,8 +215,12 @@ public class SmpGoodsDto extends SmpBaseDto {
     private String supplierArticleColor;
     /**包装形式*/
     private String packageType;
+    /**包装形式*/
+    private String packageTypeCode;
     /**包装袋标准*/
     private String packageSize;
+    /**包装袋标准*/
+    private String packageSizeCode;
     /**产品细分*/
     private String prodSeg;
     /**销售类型*/
