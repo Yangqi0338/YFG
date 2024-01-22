@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
@@ -16,6 +17,7 @@ import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.mapper.SeasonalPlanningMapper;
+import com.base.sbc.module.planningproject.service.SeasonalPlanningDetailsService;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
 import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
 import com.github.pagehelper.PageHelper;
@@ -36,21 +38,24 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlanningMapper, SeasonalPlanning> implements SeasonalPlanningService {
     private final CcmFeignService ccmFeignService;
+    private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
 
     @Override
     public void importExcel(MultipartFile file, SeasonalPlanningSaveDto seasonalPlanningSaveDto) throws IOException {
         List<HashMap<Integer, String>> hashMaps = EasyExcel.read(file.getInputStream()).headRowNumber(0).doReadAllSync();
 
         JSONArray jsonArray = new JSONArray();
+        List<BasicBaseDict> c8Band = ccmFeignService.getDictInfoToList("C8_Band");
 
         List<String> bandNames = new ArrayList<>();
         List<String> orders = new ArrayList<>();
         List<String> markets = new ArrayList<>();
+        List<String> styleCategorieList = new ArrayList<>();
         List<Integer> sums = new ArrayList<>();
         List<HashMap<String, String>> hashMapList = new ArrayList<>();
-
+        HashMap<String, String> hashMap = new HashMap<>();
         for (int i = 0; i < hashMaps.size(); i++) {
-            HashMap<String, String> hashMap = new HashMap<>();
+
             JSONObject jsonObject = new JSONObject();
             Set<Integer> keySet = hashMaps.get(i).keySet();
             for (Integer s : keySet) {
@@ -109,6 +114,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         int i1 = Integer.parseInt(s);
                         if (i1 > 2) {
                             System.out.println("样式类别:" + jsonObject.getString(s));
+                            styleCategorieList.add(jsonObject.getString(s));
                         }
                         styleCategories.add(i1);
                     }
@@ -171,7 +177,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         }
                     }
                     // System.out.println(hashMap);
-                    hashMapList.add(hashMap);
+                    HashMap<String, String> hashMap1 = new HashMap<>(hashMap);
+                    hashMapList.add(hashMap1);
             }
 
             if (!integerTreeSet.isEmpty()) {
@@ -254,26 +261,59 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
         List<SeasonalPlanningDetails> detailsList = new ArrayList<>();
         System.out.println(hashMapList);
-        for (int i = 0; i < hashMapList.size(); i++) {
+        //如果品类相同,则只存一个,并且将中类内容用逗号分开相加
+        List<HashMap<String, String> > hashMapList1 = new ArrayList<>();
+        HashMap<String,String> hashMap1 = new HashMap<>();
+        for (HashMap<String, String> stringStringHashMap : hashMapList) {
+            String  prodCategoryCode = stringStringHashMap.get("品类编码");
+            String s = hashMap1.get(prodCategoryCode);
+            if (s != null) {
+                hashMap1.put(stringStringHashMap.get("品类编码"),s+","+stringStringHashMap.get("品类编码"));
+                hashMap1.put(stringStringHashMap.get("品类名称"),s+","+stringStringHashMap.get("品类名称"));
+                hashMap1.put("中类名称",hashMap1.get("中类名称")+","+stringStringHashMap.get("中类名称"));
+                hashMap1.put("中类编码",hashMap1.get("中类编码")+","+stringStringHashMap.get("中类编码"));
+                hashMap1.put("大类名称",stringStringHashMap.get("大类名称"));
+                hashMap1.put("大类编码",stringStringHashMap.get("大类编码"));
+                hashMap1.put("品类名称",stringStringHashMap.get("品类名称"));
+                hashMap1.put("品类编码",stringStringHashMap.get("品类编码"));
+            }else {
+                hashMap1.put(stringStringHashMap.get("品类编码"),stringStringHashMap.get("品类编码"));
+                hashMap1.put(stringStringHashMap.get("品类名称"),stringStringHashMap.get("品类名称"));
+                hashMap1.putAll(stringStringHashMap);
+                hashMapList1.add(hashMap1);
+            }
+        }
+
+        for (HashMap<String, String> stringStringHashMap : hashMapList1) {
             SeasonalPlanningDetails seasonalPlanningDetails = new SeasonalPlanningDetails();
-            seasonalPlanningDetails.setProdCategory1stCode(hashMapList.get(i).get("大类编码"));
-            seasonalPlanningDetails.setProdCategory1stName(hashMapList.get(i).get("大类名称"));
-            seasonalPlanningDetails.setProdCategory2ndCode(hashMapList.get(i).get("中类编码"));
-            seasonalPlanningDetails.setProdCategory2ndName(hashMapList.get(i).get("中类名称"));
-            seasonalPlanningDetails.setProdCategoryCode(hashMapList.get(i).get("品类编码"));
-            seasonalPlanningDetails.setProdCategoryName(hashMapList.get(i).get("品类名称"));
+            seasonalPlanningDetails.setProdCategory1stCode(stringStringHashMap.get("大类编码"));
+            seasonalPlanningDetails.setProdCategory1stName(stringStringHashMap.get("大类名称"));
+            seasonalPlanningDetails.setProdCategory2ndCode(stringStringHashMap.get("中类编码"));
+            seasonalPlanningDetails.setProdCategory2ndName(stringStringHashMap.get("中类名称"));
+            seasonalPlanningDetails.setProdCategoryCode(stringStringHashMap.get("品类编码"));
+            seasonalPlanningDetails.setProdCategoryName(stringStringHashMap.get("品类名称"));
             seasonalPlanningDetails.setBandName(String.join(",", bandNames));
-            seasonalPlanningDetails.setBandCode(null);
+            seasonalPlanningDetails.setStyleCategory(String.join(",", styleCategorieList));
+            List<String> bandCodes = new ArrayList<>();
+            for (String bandName : bandNames) {
+                for (BasicBaseDict basicBaseDict : c8Band) {
+                    if (basicBaseDict.getName().equals(bandName)) {
+                        bandCodes.add(basicBaseDict.getValue());
+                        break;
+                    }
+                }
+            }
+
+            seasonalPlanningDetails.setBandCode(String.join(",", bandCodes));
             seasonalPlanningDetails.setSeasonalPlanningId(seasonalPlanningSaveDto.getId());
             seasonalPlanningDetails.setSeasonalPlanningName(seasonalPlanningSaveDto.getName());
-            seasonalPlanningDetails.setSkcCount(sums.stream().mapToInt(Integer::intValue).sum());
+            seasonalPlanningDetails.setSkcCount(String.valueOf(sums.stream().mapToInt(Integer::intValue).sum()));
             seasonalPlanningDetails.setLaunchTime(String.join(",", markets));
             seasonalPlanningDetails.setOrderTime(String.join(",", orders));
 
             detailsList.add(seasonalPlanningDetails);
         }
-        System.out.println(detailsList);
-
+        seasonalPlanningDetailsService.saveBatch(detailsList);
         // seasonalPlanningDetails.setSkcCount(sum);
         // seasonalPlanningDetails.setSeasonalPlanningId();
 
