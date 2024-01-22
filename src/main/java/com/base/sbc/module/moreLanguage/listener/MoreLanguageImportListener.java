@@ -25,11 +25,13 @@ import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageMapExportMapping;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.CountryModel;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
 import com.base.sbc.module.moreLanguage.service.CountryModelService;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService;
 import com.base.sbc.module.operalog.dto.OperaLogJsonDto;
@@ -64,6 +66,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 
 /**
@@ -100,6 +103,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     private final CountryLanguageService countryLanguageService;
 
     private final StandardColumnService standardColumnService;
+    private final StandardColumnCountryRelationService standardColumnCountryRelationService;
 
     @Setter
     private MoreLanguageExcelQueryDto excelQueryDto;
@@ -350,7 +354,6 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 taskList.add(()-> {
                     List<CountryLanguageDto> finalCountryLanguageList = new ArrayList<>(countryLanguageList);
 
-
                     List<CountryLanguage> sameLanguageCodeList = countryLanguageService.list(new LambdaQueryWrapper<CountryLanguage>()
                             .select(CountryLanguage::getId, CountryLanguage::getLanguageCode, CountryLanguage::getCountryCode)
                             .in(CountryLanguage::getLanguageCode, finalCountryLanguageList.stream().map(CountryLanguage::getLanguageCode).distinct().collect(Collectors.toList()))
@@ -358,24 +361,46 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                             .eq(CountryLanguage::getType, type)
                             .eq(isSingleLanguageFlag, CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO)
                     );
-                    if (!isSingleLanguageFlag) {
-                        sameLanguageCodeList = sameLanguageCodeList.stream().filter(it-> !countryCode.equals(it.getCountryCode())).collect(Collectors.toList());
+
+                    if (CollectionUtil.isNotEmpty(sameLanguageCodeList)) {
+                        if (!isSingleLanguageFlag) {
+                            sameLanguageCodeList = sameLanguageCodeList.stream().filter(it-> !countryCode.equals(it.getCountryCode())).collect(Collectors.toList());
+                        }
+
+                        List<String> sameLanguageCodeIdList = sameLanguageCodeList.stream().map(CountryLanguage::getId).collect(Collectors.toList());
+
+                        // 查询是否存在关联
+                        sameLanguageCodeIdList = standardColumnCountryRelationService.listOneField(new LambdaQueryWrapper<StandardColumnCountryRelation>()
+                                .eq(StandardColumnCountryRelation::getStandardColumnCode, standardColumnCode)
+                                .in(StandardColumnCountryRelation::getCountryLanguageId, sameLanguageCodeIdList), StandardColumnCountryRelation::getCountryLanguageId
+                        );
+                        List<String> finalSameLanguageCodeIdList = sameLanguageCodeIdList;
+                        sameLanguageCodeList.removeIf(countryLanguage -> !finalSameLanguageCodeIdList.contains(countryLanguage.getId()));
+
+                        List<String> propertiesCodeList = translateList.stream().map(StandardColumnCountryTranslate::getPropertiesCode).distinct().collect(Collectors.toList());
+                        List<StandardColumnCountryTranslate> sameLanguageCodeTransalteList = standardColumnCountryTranslateService.list(
+                                new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                                        .in(StandardColumnCountryTranslate::getCountryLanguageId, sameLanguageCodeIdList)
+                                        .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
+                                        .in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
+                        );
+                        List<StandardColumnCountryTranslate> finalUpdateNewTranslateList = new ArrayList<>();
+                        for (StandardColumnCountryTranslate countryTranslate : updateNewTranslateList) {
+                            sameLanguageCodeList.forEach(countryLanguage -> {
+                                StandardColumnCountryTranslate translate = MORE_LANGUAGE_CV.copyMyself(countryTranslate);
+                                translate.setCountryLanguageId(countryLanguage.getId());
+                                finalUpdateNewTranslateList.add(translate);
+                            });
+                        }
+
+                        Pair<List<StandardColumnCountryTranslate>, List<StandardColumnCountryTranslate>> sameListPair =
+                                diffTranslateList(standardColumnName, context, finalUpdateNewTranslateList,
+                                        BeanUtil.copyToList(sameLanguageCodeList, CountryLanguageDto.class),
+                                        sameLanguageCodeTransalteList, false);
+
+                        standardColumnCountryTranslateService.saveOrUpdateBatch(sameListPair.getKey());
+                        standardColumnCountryTranslateService.saveOrUpdateBatch(sameListPair.getValue());
                     }
-
-                    List<String> sameLanguageCodeIdList = sameLanguageCodeList.stream().map(CountryLanguage::getId).collect(Collectors.toList());
-                    List<String> propertiesCodeList = translateList.stream().map(StandardColumnCountryTranslate::getPropertiesCode).distinct().collect(Collectors.toList());
-                    List<StandardColumnCountryTranslate> sameLanguageCodeTransalteList = standardColumnCountryTranslateService.list(
-                            new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-                                    .in(StandardColumnCountryTranslate::getCountryLanguageId, sameLanguageCodeIdList)
-                                    .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
-                                    .in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
-                    );
-
-                    Pair<List<StandardColumnCountryTranslate>, List<StandardColumnCountryTranslate>> sameListPair =
-                            diffTranslateList(standardColumnName, context, translateList, BeanUtil.copyToList(sameLanguageCodeList, CountryLanguageDto.class), sameLanguageCodeTransalteList, false);
-
-                    standardColumnCountryTranslateService.saveOrUpdateBatch(sameListPair.getKey());
-                    standardColumnCountryTranslateService.saveOrUpdateBatch(sameListPair.getValue());
                 });
                 // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
                 countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>()
@@ -447,7 +472,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     .filter(it ->
                             it.getPropertiesCode().equals(translate.getPropertiesCode())
                                     &&
-                                    it.getCountryLanguageId().equals(countryLanguageDto.getId())
+                            it.getCountryLanguageId().equals(countryLanguageDto.getId())
                     ).findFirst();
             if (countryTranslateOpt.isPresent()) {
                 StandardColumnCountryTranslate countryTranslate = countryTranslateOpt.get();
@@ -458,6 +483,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                         Opt.ofNullable(countryTranslate.getContent()).map(String::trim).orElse(null)
                 )) { updateNewTranslateList.add(translate);}
             }else {
+                translate.setId(null);
                 addTranslateList.add(translate);
             }
 

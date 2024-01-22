@@ -46,5 +46,6 @@ public interface MoreLanguageConvert {
     })
     void copy2Entity(StandardColumnSaveDto source, @MappingTarget StandardColumn target);
     BasicsdatumSize copyMyself(BasicsdatumSize source);
+    StandardColumnCountryTranslate copyMyself(StandardColumnCountryTranslate source);
 
 }

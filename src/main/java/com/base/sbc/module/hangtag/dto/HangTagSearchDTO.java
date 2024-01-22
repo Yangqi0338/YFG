@@ -44,6 +44,11 @@ public class HangTagSearchDTO extends Page {
     @ApiModelProperty(value = "确认时间")
     private String confirmDate;
     /**
+     * 翻译确认时间
+     */
+    @ApiModelProperty(value = "翻译确认时间")
+    private String translateConfirmDate;
+    /**
      * 款号
      */
     @ApiModelProperty(value = "款号")

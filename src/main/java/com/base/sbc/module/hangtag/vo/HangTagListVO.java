@@ -127,6 +127,12 @@ public class HangTagListVO extends HangTag {
     @ApiModelProperty(value = "确认时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date confirmDate;
+    /**
+     * 翻译确认时间
+     */
+    @ApiModelProperty(value = "翻译确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date translateConfirmDate;
 
     /**
      * 品名编码
