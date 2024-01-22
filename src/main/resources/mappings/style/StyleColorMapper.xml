@@ -11,9 +11,9 @@
       set  style_no = #{nweStyleNo}
       where style_no = #{styleNo} ;
 
-      update  t_style_order_book_color
-      set  style_no = #{nweStyleNo}
-      where style_no = #{styleNo} ;
+      update  t_hang_tag
+      set  bulk_style_no = #{nweStyleNo}
+      where bulk_style_no = #{styleNo} ;
 
       update  t_pack_info
       set  style_no = #{nweStyleNo}

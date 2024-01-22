@@ -344,8 +344,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		PackInfo packInfo = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (packInfo != null) {
-			List<PackBom> packBomList = packBomService.list(
-					new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()));
+			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
+			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
+			List<PackBom> packBomList = packBomService.list(queryWrapper);
 			if (!packBomList.isEmpty()) {
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
 				if (!codes.isEmpty()) {
