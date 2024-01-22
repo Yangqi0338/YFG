@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.vo;
 import java.util.Date;
 import java.util.List;
 
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -110,7 +111,7 @@ public class HangTagVO extends HangTag {
      * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
      */
     @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认")
-    private String status;
+    private HangTagStatusEnum status;
     /**
      * 确认时间
      */

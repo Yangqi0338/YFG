@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.dto;
 
+import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -34,10 +36,10 @@ public class HangTagUpdateStatusDTO {
 
     @NotBlank(message = "状态不可为空")
     @ApiModelProperty(value = "状态")
-    private String status;
+    private HangTagStatusEnum status;
 
 
-    private String checkType;
+    private HangTagStatusCheckEnum checkType;
 
 }
 

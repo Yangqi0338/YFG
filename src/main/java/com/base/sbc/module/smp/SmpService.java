@@ -17,6 +17,7 @@ import com.base.sbc.config.JsonStringUtils;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.RFIDProperties;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.CommonUtils;
@@ -1398,7 +1399,7 @@ public class SmpService {
                 String bulkStyleNo = hangTag.getBulkStyleNo();
                 if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() == type) {
                     //当status 等于4 待品控确认反审核只取消上一级
-                    if("4".equals(hangTag.getStatus())){
+                    if(HangTagStatusEnum.QC_CHECK == hangTag.getStatus()){
                         //反审
                         tagConfirmDateDto.setStyleNo(bulkStyleNo);
                         tagConfirmDateDto.setTechnicalConfirm(0);

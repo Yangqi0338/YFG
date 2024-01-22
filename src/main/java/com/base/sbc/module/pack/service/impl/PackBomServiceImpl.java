@@ -25,6 +25,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
@@ -261,7 +262,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                             /*判断款式定价的状态全部都通过*/
                             HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
                             if(ObjectUtils.isNotEmpty(hangTag)){
-                                if (StrUtil.equals(hangTag.getStatus(), BaseGlobal.FIVE_STRING)) {
+                                if (hangTag.getStatus() == HangTagStatusEnum.TRANSLATE_CHECK || hangTag.getStatus() == HangTagStatusEnum.FINISH) {
                                     //发送消息
                                     messageUtils.sendMessage("",hangTag.getCreateId(),packInfo.getStyleNo()+"大货款号，物料已替换请注意查收","/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods","",baseController.getUser());
                                 }
