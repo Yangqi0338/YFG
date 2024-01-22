@@ -88,10 +88,7 @@ public class OpenHangTagController extends BaseController {
     @ApiOperation(value = "查询详情多语言")
     @PostMapping("/getMoreLanguageCheckByBulkStyleNo")
 //    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotEmpty(message = "检查参数列表不能为空") List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList) {
-    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestParam @NotBlank(message = "检查参数不能为空") String jsonParams) {
-        List<HangTagMoreLanguageSystemDTO> hangTagMoreLanguageSystemDTOList = JSONUtil.toList(jsonParams, HangTagMoreLanguageSystemDTO.class);
-        ValidationUtil.validate(hangTagMoreLanguageSystemDTOList);
-
+    public ApiResult getMoreLanguageCheckByBulkStyleNo(@Valid @RequestBody List<HangTagMoreLanguageSystemDTO> hangTagMoreLanguageSystemDTOList) {
         // 通过名字获取编码
         List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList = hangTagMoreLanguageSystemDTOList.stream().map(hangTagMoreLanguageSystemDTO-> {
             HangTagMoreLanguageCheckDTO languageCheckDTO = OPEN_CV.copy2Check(hangTagMoreLanguageSystemDTO);
