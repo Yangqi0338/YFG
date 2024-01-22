@@ -6,6 +6,7 @@
         select tcci.id,
                tsc.id                styleColorId,
 --                tppst.id                productionSampleId,
+               tpi.id                packInfoId,
                tcci.technology_correct_date,
                tcci.technology_check_date,
                tsc.tech_receive_time technicsDate,
@@ -41,6 +42,7 @@
         FROM t_style_color tsc
                  LEFT JOIN t_style ts ON ts.id = tsc.style_id
                  left join t_style_color_correct_info tcci on tcci.style_color_id = tsc.id and tcci.del_flag = '0'
+                 left join t_pack_info tpi on tpi.style_color_id = tsc.id and tpi.del_flag = '0'
             ${ew.customSqlSegment}
     </select>
 
