@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.entity;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,6 +12,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
+@TableName("t_category_planning_details")
 public class CategoryPlanningDetails extends BaseDataEntity<String> {
     @ApiModelProperty(value = "季节企划名称")
     private String  seasonalPlanningName;
