@@ -888,11 +888,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             // showConfig 为空时，表示所有场景都展示，否则只有入参showConfig = 数据中showConfig时才展示
             // 展示数据根据显示配置传参进行过滤
             if (StrUtil.isNotEmpty(dto.getShowConfig())) {
-                if ("styleMarkingDesign".equals(dto.getShowConfig())) {
-                    pdList = pdList.stream().filter(o -> BaseGlobal.YES.equals(o.getDesignShowFlag())).collect(Collectors.toList());
-                } else if ("styleMarkingOrder".equals(dto.getShowConfig())) {
+                if ("styleMarkingOrder".equals(dto.getShowConfig())) {
                     pdList = pdList.stream().filter(o -> BaseGlobal.YES.equals(o.getResearchShowFlag())).collect(Collectors.toList());
                 }
+            }else{
+                pdList = pdList.stream().filter(o -> BaseGlobal.YES.equals(o.getDesignShowFlag())).collect(Collectors.toList());
             }
             if (CollUtil.isEmpty(pdList)) {
                 return result;
