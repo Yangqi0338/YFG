@@ -97,15 +97,16 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         queryWrapper.notEmptyEq("ts.task_level_name", page.getTaskLevelName());
         queryWrapper.like(StringUtils.isNotBlank(page.getTechnicianName()), "ts.technician_name", page.getTechnicianName());
         queryWrapper.eq(StringUtils.isNotBlank(page.getBomStatus()), "tsc.bom_status", page.getBomStatus());
-        if (StringUtils.isNotBlank(page.getTechnicsDate())) {
-            queryWrapper.between("tsc.tech_receive_time", page.getTechnicsDate().split(","));
-        }
-        if(StrUtil.equals(page.getTechnicsDateNullFlag(), BaseGlobal.IN)){
-            queryWrapper.isNull("tsc.tech_receive_time");
-        }
-        if(StrUtil.equals(page.getTechnicsDateNullFlag(),BaseGlobal.YES)){
-            queryWrapper.isNotNull("tsc.tech_receive_time");
-        }
+        queryWrapper.dateBetweenOrIsNull("tsc.design_detail_date",page.getDesignDetailDate(),page.getDesignDetailDateNullFlag());
+        queryWrapper.dateBetweenOrIsNull("tsc.design_correct_date",page.getDesignCorrectDate(),page.getDesignCorrectDateNullFlag());
+        queryWrapper.dateBetweenOrIsNull("tsc.tech_receive_time",page.getTechnicsDate(),page.getTechnicsDateNullFlag());
+        queryWrapper.dateBetweenOrIsNull("tcci.technology_correct_date",page.getTechnologyCorrectDate(),page.getTechnologyCorrectDateNullFlag());
+        queryWrapper.dateBetweenOrIsNull("tcci.technology_check_date",page.getTechnologyCheckDate(),page.getTechnologyCheckDateNullFlag());
+        queryWrapper.dateBetweenOrIsNull("tcci.plan_control_date",page.getPlanControlDate(),page.getPlanControlDateNullFlag());
+        queryWrapper.dateBetweenOrIsNull("tcci.purchase_need_date",page.getPurchaseNeedDate(),page.getPurchaseNeedDateNullFlag());
+        queryWrapper.dateBetweenOrIsNull("tcci.purchase_recover_date",page.getPurchaseRecoverDate(),page.getPurchaseRecoverDateNullFlag());
+        queryWrapper.dateBetweenOrIsNull("tcci.auxiliary_date",page.getAuxiliaryDate(),page.getAuxiliaryDateNullFlag());
+
         queryWrapper.notEmptyEq("tsc.id", page.getStyleColorId());
         queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
         List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);

@@ -130,11 +130,7 @@ public class QueryStyleColorCorrectDto extends Page {
     @ApiModelProperty(value = "下里布单")
     private String sendSingleDate;
 
-    @ApiModelProperty(value = "设计下明细单")
-    private String designDetailDate;
 
-    @ApiModelProperty(value = "设计下正确样")
-    private String designCorrectDate;
 
     @ApiModelProperty(value = "产品细分")
     private String productSubdivideName;
@@ -243,4 +239,44 @@ public class QueryStyleColorCorrectDto extends Page {
 
     @ApiModelProperty(value = "工艺部接收日期-正确样判断为空标记")
     private String technicsDateNullFlag;
+
+    @ApiModelProperty(value = "设计下明细单")
+    private String designDetailDate;
+
+    private String designDetailDateNullFlag;
+
+    @ApiModelProperty(value = "设计下正确样")
+    private String designCorrectDate;
+
+    private String designCorrectDateNullFlag;
+
+    @ApiModelProperty(value = "技术接收正确样日期")
+    private String technologyCorrectDate;
+
+    private String technologyCorrectDateNullFlag;
+
+    @ApiModelProperty(value = "技术部查版完成日期")
+    private String technologyCheckDate;
+
+    private String technologyCheckDateNullFlag;
+
+    @ApiModelProperty(value = "计控接明细单日期-明细单"  )
+    private String planControlDate;
+
+    private String planControlDateNullFlag;
+
+    @ApiModelProperty(value = "采购需求日期-明细单"  )
+    private String purchaseNeedDate;
+
+    private String purchaseNeedDateNullFlag;
+
+    @ApiModelProperty(value = "采购回复货期-明细单"  )
+    private String purchaseRecoverDate;
+
+    private String purchaseRecoverDateNullFlag;
+
+    @ApiModelProperty(value = "辅仓接收日期-明细单"  )
+    private String auxiliaryDate;
+
+    private String auxiliaryDateNullFlag;
 }
