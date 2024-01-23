@@ -53,6 +53,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -279,6 +280,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         return stylePricingList.get(0);
     }
 
+    @Transactional
     @Override
     public void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode) {
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
