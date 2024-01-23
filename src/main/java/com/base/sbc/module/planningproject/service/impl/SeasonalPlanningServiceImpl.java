@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -399,6 +400,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             dto.setProdCategory2ndCode(prodCategory2ndCode);
             dto.setIsOrder("1");
             BaseQueryWrapper<OrderBookDetail> bookDetailBaseQueryWrapper = orderBookDetailService.buildQueryWrapper(dto);
+            bookDetailBaseQueryWrapper.orderByDesc("commissioning_date");
             if (i%2==0){
                 bookDetailBaseQueryWrapper.like("tsc.style_no","Q");
                 seasonalPlanningDetails.setStyleCategory("高奢");
@@ -407,6 +409,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 bookDetailBaseQueryWrapper.notLike("tsc.style_no","Q");
             }
 
+            seasonalPlanningDetails.setSkcCount("0");
+            seasonalPlanningDetails.setOrderTime("");
+            seasonalPlanningDetails.setLaunchTime("");
             List<OrderBookDetailVo> bookDetailVos = orderBookDetailService.querylist(bookDetailBaseQueryWrapper, null);
 
             if (!bookDetailVos.isEmpty()){
@@ -414,9 +419,13 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 // for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
                 //     System.out.println(bookDetailVo.getBulkStyleNo());
                 // }
+                if (bookDetailVos.get(0).getCommissioningDate()!=null){
+                    SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String format = simpleDateFormat.format(bookDetailVos.get(0).getCommissioningDate());
+                    seasonalPlanningDetails.setOrderTime(format);
+                    seasonalPlanningDetails.setLaunchTime(format);
+                }
                 seasonalPlanningDetails.setSkcCount(String.valueOf(bookDetailVos.size()));
-            }else {
-                seasonalPlanningDetails.setSkcCount("0");
             }
         }
         seasonalPlanningVo.setSeasonalPlanningDetailsList(list2);
