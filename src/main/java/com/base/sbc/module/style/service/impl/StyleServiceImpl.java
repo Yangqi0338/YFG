@@ -789,6 +789,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
+        //款式打标-下单阶段逻辑，如果第一次查看下单阶段数据，则查询为空，复制一份设计阶段数据作为下单阶段数据
+        if(StrUtil.isNotBlank(dto.getShowConfig()) && "styleMarkingOrder".equals(dto.getShowConfig())){
+            List<FieldVal> fvList1 = fieldValService.list(dto.getForeignId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+            if(CollUtil.isNotEmpty(fvList1)){
+                fvList = fvList1;
+            }
+        }
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,null,null);
@@ -832,9 +839,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public List<FieldManagementVo> queryDimensionLabelsByStyle(DimensionLabelsSearchDto dto) {
         dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-        if(StrUtil.isNotBlank(dto.getShowConfig()) && "styleMarkingOrder".equals(dto.getShowConfig())){
-            dto.setDataGroup(FieldValDataGroupConstant.STYLE_MARKING_ORDER);
-        }
         //修改时
         if (StrUtil.isNotBlank(dto.getForeignId()) && !CommonUtils.isInitId(dto.getForeignId())) {
             Style style = getById(dto.getForeignId());
@@ -868,6 +872,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
+        //款式打标-下单阶段逻辑，如果第一次查看下单阶段数据，则查询为空，复制一份设计阶段数据作为下单阶段数据
+        if(StrUtil.isNotBlank(dto.getShowConfig()) && "styleMarkingOrder".equals(dto.getShowConfig())){
+            List<FieldVal> fvList1 = fieldValService.list(dto.getForeignId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+            if(CollUtil.isNotEmpty(fvList1)){
+                fvList = fvList1;
+            }
+        }
         if (CollUtil.isNotEmpty(pdList)) {
             // showConfig 为空时，表示所有场景都展示，否则只有入参showConfig = 数据中showConfig时才展示
             // 展示数据根据显示配置传参进行过滤
