@@ -76,7 +76,8 @@ public class MoreLanguageHangTagVO extends HangTagVO {
             MapUtil.entry("XM07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getStorageDemand, MoreLanguageHangTagVO::getStorageDemandName)),
             MapUtil.entry("XM08", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList)),
             MapUtil.entry("XM09", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getColorCode, MoreLanguageHangTagVO::getColor)),
-            MapUtil.entry("XM10", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo, MoreLanguageHangTagVO::getBulkStyleNo))
+            MapUtil.entry("XM10", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo, MoreLanguageHangTagVO::getBulkStyleNo)),
+            MapUtil.entry("XM11", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientSecondCode, HangTagIngredient::getIngredientSecondName).setListFunc(MoreLanguageHangTagVO::getIngredientList))
     );
 
     @Data

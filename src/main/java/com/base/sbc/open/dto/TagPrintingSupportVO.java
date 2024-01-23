@@ -114,6 +114,7 @@ public class TagPrintingSupportVO extends TagPrinting {
             MapUtil.entry("XM02", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
             MapUtil.entry("XM03", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
             MapUtil.entry("XM04", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
+            MapUtil.entry("XM11", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
             MapUtil.entry("XM10", new CodeMapping<>("CompositionTitle-成分信息")),
             MapUtil.entry("XM06", new CodeMapping<>("CareSymbolTitle-洗标")),
             MapUtil.entry("XM07", new CodeMapping<>("C8_APPBOM_StorageTitle-贮藏要求", MoreLanguageTagPrinting::getC8_APPBOM_StorageReq, MoreLanguageTagPrinting::setC8_APPBOM_StorageReq)),
