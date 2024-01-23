@@ -15,6 +15,7 @@ import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -216,26 +217,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         CommonUtils.removeQuerySplit(dto, ",", "patternPartsPic");
         CommonUtils.removeQuery(dto, "stylePic");
 
-        //添加打标逻辑 - markingType 默认为空时和设计阶段，打标逻辑一致，如果维度数据全部填写则全部打标，否则部分打标，全部未填写时为未打标
-        if(StrUtil.isEmpty(dto.getMarkingType())){
-            //审批状态设置为未审批
-            if(StrUtil.isEmpty(dto.getDesignAuditStatus())){
-                dto.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
-            } else if (!BaseGlobal.STOCK_STATUS_WAIT_CHECK.equals(dto.getDesignAuditStatus())) {
-                //待审核时不处理
-                dto.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
-            }
-        }else{
-            //如果 markingType 为order时表示下单阶段，此时 工艺信息另存一份，不修改原始数据 其他逻辑一致
-            //审批状态设置为未审批
-            if(StrUtil.isEmpty(dto.getOrderAuditStatus())){
-                dto.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
-            } else if (!BaseGlobal.STOCK_STATUS_WAIT_CHECK.equals(dto.getOrderAuditStatus())) {
-                //待审核时不处理
-                dto.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
-            }
-        }
-
         if (CommonUtils.isInitId(dto.getId())) {
             style = saveNewStyle(dto);
         } else {
@@ -274,6 +255,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             // 保存工艺信息
             fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
         }else{
+            // 保存下单阶段 打标状态
+            LambdaUpdateWrapper<StyleColor> styleColorUpdateWrapper = new LambdaUpdateWrapper<>();
+            styleColorUpdateWrapper.set(StyleColor::getOrderMarkingStatus,dto.getOrderMarkingStatus());
+            styleColorUpdateWrapper.eq(StyleColor::getId,dto.getStyleColorId());
+            styleColorMapper.update(null,styleColorUpdateWrapper);
+
             // 保存下单阶段工艺信息
             fieldValService.save(dto.getStyleColorId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER, dto.getTechnologyInfo());
         }
@@ -2051,7 +2038,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean startMarkingOrderApproval(String id, String showFOB, String styleColorId) {
-        Style style = getById(id);
+        /*Style style = getById(id);
         if (style == null) {
             throw new OtherException("样衣数据不存在,请先保存");
         }
@@ -2069,13 +2056,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 "/pdm/api/saas/style/approvalMarkingOrder",
                 "/pdm/api/saas/style/approvalMarkingOrder",
                 "/styleAnalysis/styleMarkingDetails?sampleDesignId=" + id + "&isEdit=0&panelValue=order&showFOB="
-                        + showFOB + "&id=" + id + "&styleColorId=" + styleColorId, variables);
+                        + showFOB + "&id=" + id + "&styleColorId=" + styleColorId, variables);*/
+        return true;
     }
 
     @Override
     @Transactional(rollbackFor = {OtherException.class, Exception.class})
     public boolean approvalMarkingOrder(AnswerDto dto) {
-        Style style = getById(dto.getBusinessKey());
+        /*Style style = getById(dto.getBusinessKey());
         logger.info("————————————————款式打标-下单阶段审批 回调方法————————————————", JSON.toJSONString(style));
         logger.info("————————————————回调类型————————————————", dto.getApprovalType());
         if (style != null) {
@@ -2090,7 +2078,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
             }
             updateById(style);
-        }
+        }*/
         return true;
     }
 

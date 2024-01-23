@@ -354,9 +354,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         if(StrUtil.isNotBlank(queryDto.getOrderMarkingStatus())){
             if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getOrderMarkingStatus())) {
-                queryWrapper.isNullStrEq("ts.order_marking_status", queryDto.getOrderMarkingStatus());
+                queryWrapper.isNullStrEq("tsc.order_marking_status", queryDto.getOrderMarkingStatus());
             } else {
-                queryWrapper.eq("ts.order_marking_status", queryDto.getOrderMarkingStatus());
+                queryWrapper.eq("tsc.order_marking_status", queryDto.getOrderMarkingStatus());
             }
         }
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.styleColor.getK(), "ts.");

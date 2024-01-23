@@ -138,8 +138,8 @@
             ts.id styleId,
             ts.design_audit_status,
             ts.design_marking_status,
-            ts.order_audit_status,
-            ts.order_marking_status,
+            tsc.order_audit_status,
+            tsc.order_marking_status,
             tsc.*,
             CASE WHEN tsc.is_trim = '0' THEN tsma.style_no ELSE '' END as accessoryNo,
             CASE WHEN tsc.is_trim = '0' THEN tsma.color_name ELSE'' END as accessory1,
@@ -261,9 +261,9 @@
                sum(IF(IFNULL(ts.design_marking_status, 0) = 0, 1, 0)) AS designCount,
                sum(IF(ts.design_marking_status = 1, 1, 0))            AS designCount1,
                sum(IF(ts.design_marking_status = 2, 1, 0))            AS designCount2,
-               sum(IF(IFNULL(ts.order_marking_status, 0) = 0, 1, 0)) AS orderCount,
-               sum(IF(ts.order_marking_status = 1, 1, 0))            AS orderCount1,
-               sum(IF(ts.order_marking_status = 2, 1, 0))            AS orderCount2,
+               sum(IF(IFNULL(tsc.order_marking_status, 0) = 0, 1, 0)) AS orderCount,
+               sum(IF(tsc.order_marking_status = 1, 1, 0))            AS orderCount1,
+               sum(IF(tsc.order_marking_status = 2, 1, 0))            AS orderCount2,
                count(1) AS totalCount
         FROM t_style ts
                  LEFT JOIN t_style_color tsc ON (ts.id = tsc.style_id AND tsc.del_flag = '0')

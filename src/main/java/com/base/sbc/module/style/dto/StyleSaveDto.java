@@ -45,4 +45,15 @@ public class StyleSaveDto extends Style {
     @ApiModelProperty(value = "款式配色Id")
     private String styleColorId;
 
+    /**
+     * 下单阶段-审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "下单阶段-审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
+    private String orderAuditStatus;
+    /**
+     * 下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)
+     */
+    @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
+    private String orderMarkingStatus;
+
 }

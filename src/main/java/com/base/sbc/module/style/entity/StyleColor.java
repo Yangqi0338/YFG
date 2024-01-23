@@ -5,27 +5,20 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.business.RFIDType;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：款式-款式配色 实体类
  *
@@ -316,6 +309,17 @@ public class StyleColor extends BaseDataEntity<String> {
      * 是否是迁移历史数据 0否 1是
      */
     private String historicalData;
+
+    /**
+     * 下单阶段-审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "下单阶段-审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
+    private String orderAuditStatus;
+    /**
+     * 下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)
+     */
+    @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
+    private String orderMarkingStatus;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
