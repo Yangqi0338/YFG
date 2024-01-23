@@ -281,6 +281,12 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     private String braiding;
 
     /**
+     * 总投产尺码
+     */
+    @ApiModelProperty(value = "总投产尺码")
+    private String totalCommissioningSize;
+
+    /**
      * 投产尺码
      */
     @ApiModelProperty(value = "投产尺码")

@@ -66,4 +66,6 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
     private String bandName;
 
     private String bandCode;
+
+    private String totalCommissioningSize;
 }

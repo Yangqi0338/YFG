@@ -197,6 +197,7 @@ public class OrderBookDetailController extends BaseController {
             orderBookDetail.setIsLock("1");
             orderBookDetail.setIsOrder("1");
             orderBookDetail.setStatus("4");
+            orderBookDetail.setCommissioningDate(new Date());
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = orderBookDetailService.updateBatchById(orderBookDetails1);
