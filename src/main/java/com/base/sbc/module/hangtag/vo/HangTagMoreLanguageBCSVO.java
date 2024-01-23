@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -98,21 +99,27 @@ public class HangTagMoreLanguageBCSVO {
          */
         @ApiModelProperty(value = "打印系统专门检查信息")
         public String getPrinterCheckMessage(){
-            String messageFormat = "%s未翻译";
-            StringJoiner message = new StringJoiner("/");
-            this.getLanguageList().forEach(language-> {
-                StringJoiner languageMsg = new StringJoiner("、");
-                if (language.getCannotFindStandardColumnContent()) languageMsg.add(String.format(messageFormat, "字段"));
-                if (language.getCannotFindPropertiesContent())  languageMsg.add(String.format(messageFormat, "内容"));
-                if (languageMsg.length() > 0) {
-                    message.add(language.getLanguageName() + languageMsg);
-                }
-            });
-            if (message.length() > 0) {
-                return this.getStandardColumnName() + message;
+
+            boolean languageEmpty = CollectionUtil.isEmpty(this.getLanguageList());
+            if (languageEmpty) {
+                if (StrUtil.isBlank(this.getCode())) return "PDM未创建" + Opt.ofNullable(this.getCountryName()).orElse("") + "国家语言翻译";
+                if (StrUtil.isBlank(this.getStandardColumnId()) || StrUtil.isBlank(this.getStandardColumnCode())) return "不存在吊牌信息";
+                if (!hasLanguage) return Opt.ofNullable(this.getCountryName()).orElse("") +"不存在该语种";
+            } else {
+                String messageFormat = "%s未翻译";
+                StringJoiner message = new StringJoiner("/",this.getStandardColumnName(),"").setEmptyValue("");
+                this.getLanguageList().forEach(language-> {
+                    StringJoiner languageMsg = new StringJoiner("、");
+                    if (language.getCannotFindStandardColumnContent()) languageMsg.add(String.format(messageFormat, "字段"));
+                    if (language.getCannotFindPropertiesContent())  languageMsg.add(String.format(messageFormat, "内容"));
+                    if (languageMsg.length() > 0) {
+                        message.add(language.getLanguageName() + languageMsg);
+                    }
+                });
+                return message.toString();
             }
             return "";
-        };
+        }
     }
 
 }
