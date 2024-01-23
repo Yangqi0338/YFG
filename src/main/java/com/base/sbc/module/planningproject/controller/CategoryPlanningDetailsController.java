@@ -1,5 +1,6 @@
 package com.base.sbc.module.planningproject.controller;
 
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
@@ -41,5 +42,58 @@ public class CategoryPlanningDetailsController extends BaseController{
     public ApiResult getDetailById(String id) {
         CategoryPlanningDetailsVo categoryPlanningDetailsVo = categoryPlanningDetailsService.getDetailById(id);
         return selectSuccess(categoryPlanningDetailsVo);
+    }
+
+    /**
+     * 编辑详情后保存
+     */
+    @RequestMapping("/updateDetail")
+    @DuplicationCheck
+    public ApiResult updateDetail(CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
+        String jsonStr = "[\n" +
+                "  {\n" +
+                "    \"prodCategory1stName\": \"外套\",\n" +
+                "    \"prodCategory2ndCode\": \"\",\n" +
+                "    \"code\": \"T1\",\n" +
+                "    \"name\": \"紧身\",\n" +
+                "    \"prodCategoryCode\": \"1\",\n" +
+                "    \"prodCategory1stCode\": \"A01\",\n" +
+                "    \"prodCategory2ndName\": \"\",\n" +
+                "    \"prodCategoryName\": \"上衣\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"prodCategory1stName\": \"外套\",\n" +
+                "    \"prodCategory2ndCode\": \"\",\n" +
+                "    \"code\": \"T1\",\n" +
+                "    \"name\": \"紧身\",\n" +
+                "    \"prodCategoryCode\": \"1\",\n" +
+                "    \"prodCategory1stCode\": \"A01\",\n" +
+                "    \"prodCategory2ndName\": \"\",\n" +
+                "    \"prodCategoryName\": \"上衣\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"prodCategory1stName\": \"外套\",\n" +
+                "    \"prodCategory2ndCode\": \"\",\n" +
+                "    \"code\": \"T2\",\n" +
+                "    \"name\": \"合体\",\n" +
+                "    \"prodCategoryCode\": \"1\",\n" +
+                "    \"prodCategory1stCode\": \"A01\",\n" +
+                "    \"prodCategory2ndName\": \"\",\n" +
+                "    \"prodCategoryName\": \"上衣\"\n" +
+                "  },\n" +
+                "  {\n" +
+                "    \"prodCategory1stName\": \"外套\",\n" +
+                "    \"prodCategory2ndCode\": \"22\",\n" +
+                "    \"code\": \"T3\",\n" +
+                "    \"name\": \"宽松\",\n" +
+                "    \"prodCategoryCode\": \"1\",\n" +
+                "    \"prodCategory1stCode\": \"A01\",\n" +
+                "    \"prodCategory2ndName\": \"\",\n" +
+                "    \"prodCategoryName\": \"上衣\"\n" +
+                "  }\n" +
+                "]";
+        categoryPlanningDetailsVo.setDataJson(jsonStr);
+        categoryPlanningDetailsService.updateDetail(categoryPlanningDetailsVo);
+        return updateSuccess(categoryPlanningDetailsVo);
     }
 }

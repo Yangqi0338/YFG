@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.vo;
 
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -12,4 +13,12 @@ import lombok.Data;
 public class CategoryPlanningDetailsVo extends CategoryPlanningDetails {
     private String seasonId;
     private String channelCode;
+    private String channelName;
+    /**
+     * 产品季名称
+     */
+    @ApiModelProperty(value = "产品季名称")
+    private String seasonName;
+
+    private String categoryPlanningStatus;
 }

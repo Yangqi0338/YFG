@@ -20,7 +20,7 @@ public class PlanningProject extends BaseDataEntity<String> {
     private String seasonId;
 
     /**
-     * 产品季id
+     * 产品季名称
      */
     @ApiModelProperty(value = "产品季名称")
     private String seasonName;

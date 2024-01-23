@@ -76,7 +76,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
 
         List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);
         //匹配
-        this.match(list);
+        // this.match(list);
         List<TableColumnVo> tableColumnVos =new ArrayList<>();
         Map<String, Integer> map =new TreeMap<>();
 
