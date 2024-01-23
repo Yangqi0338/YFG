@@ -206,6 +206,12 @@ public class Style extends BaseDataEntity<String> {
     /** 版型名称 */
     @ApiModelProperty(value = "版型名称"  )
     private String plateTypeName;
+    /** 版型 */
+    @ApiModelProperty(value = "版型"  )
+    private String platePositioning;
+    /** 版型名称 */
+    @ApiModelProperty(value = "版型名称"  )
+    private String platePositioningName;
     /** 号型编码 */
     @ApiModelProperty(value = "号型编码"  )
     private String sizeRange;

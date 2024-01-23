@@ -42,5 +42,7 @@ public class StyleSaveDto extends Style {
     @ApiModelProperty(value = "打标类型")
     private String markingType;
 
+    @ApiModelProperty(value = "款式配色Id")
+    private String styleColorId;
 
 }
