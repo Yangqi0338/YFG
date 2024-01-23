@@ -790,7 +790,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,null,null);
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,null,null,null);
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
@@ -885,7 +885,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 return result;
             }
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,dto.getPlanningSeasonId(),dto.getProdCategory());
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,dto.getPlanningSeasonId(),dto.getProdCategory(),dto.getChannel());
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
@@ -2079,6 +2079,46 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
             updateById(style);
         }*/
+        return true;
+    }
+
+    /**
+     * 保存打板中的维度系数数据
+     * @param fieldValList
+     * @param styleId
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean saveCoefficient(List<FieldVal> fieldValList, String styleId) {
+        // 保存系数数据
+        fieldValService.saveOrUpdateBatch(fieldValList);
+        /*查询这个款式下的配色*/
+        QueryWrapper<StyleColor> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("style_id",styleId);
+        List<StyleColor> styleColorList = styleColorMapper.selectList(queryWrapper);
+        /*获取版师修改的字段*/
+        Map<String,FieldVal> map = fieldValList.stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v, (a, b) -> b));
+
+        if(CollUtil.isNotEmpty(styleColorList)){
+            /*数据放到配色*/
+            for (StyleColor styleColor : styleColorList) {
+                List<FieldVal> list = fieldValService.list(styleColor.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+                /*下单阶段存在数据时修改字段*/
+                if (CollUtil.isNotEmpty(list)) {
+                    list.forEach(fieldVal -> {
+                        /*查看是否修改字段*/
+                        FieldVal fieldVal1 = map.get(fieldVal.getFieldName());
+                        if(ObjectUtil.isNotEmpty(fieldVal1)){
+                            fieldVal.setVal(fieldVal1.getVal());
+                            fieldVal.setValName(fieldVal1.getValName());
+                        }
+                    });
+                    // 保存系数数据
+                    fieldValService.saveOrUpdateBatch(list);
+                }
+            }
+        }
         return true;
     }
 

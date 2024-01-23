@@ -289,35 +289,11 @@ public class StyleController extends BaseController {
         return styleService.approvalMarkingOrder(dto);
     }
 
+
+    @ApiOperation(value = "打板保存系数")
+    @PostMapping("/saveCoefficient")
+    public boolean saveCoefficient(@RequestBody SaveCoefficientDto saveCoefficientDto) {
+        return styleService.saveCoefficient(saveCoefficientDto.getFieldValList(),saveCoefficientDto.getStyleId());
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
