@@ -85,6 +85,13 @@ public class HangTagMoreLanguageSupportVO {
     protected Boolean isGroup = false;
 
     /**
+     * 有语言的
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "有语言的")
+    protected Boolean hasLanguage = true;
+
+    /**
      * 分类列表
      */
     @ApiModelProperty(value = "分类列表")
