@@ -738,7 +738,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注
-				tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarksName());
 				// 贮藏要求
 				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemandName());
 				// 产地
@@ -1203,9 +1202,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
 						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
 						Map<String, CodeMapping<?>> codeMap = printing.getCodeMap();
-						codeMap.forEach((key,value)-> {
-							printing.getTitleMap().put(value.getTitleCode(), value.getTitleName());
-						});
 						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
 							String standardColumnCode = result.getStandardColumnCode();
 
@@ -1219,16 +1215,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 							if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
 
-							String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(result.getStandardColumnName());
+							String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse("ZH".equals(languageCode) ? result.getStandardColumnName() : "");
 							printing.getTitleMap().put(codeMapping.getTitleCode(), titleContent);
 
 							if (codeMapping.getMapping() != null) {
-								Function<Object, String> title = (Function<Object, String>) codeMapping.getMapping().getKey();
-								BiConsumer<Object, String> value = (BiConsumer<Object, String>) codeMapping.getMapping().getValue();
-								listFunc.apply(printing).forEach(dataObj-> {
-									value.accept(dataObj, Opt.ofBlankAble(languageVO.getPropertiesContent()).orElse(result.getPropertiesName()));
-								});
-							}
+								Function<Object, String> codeFunc = (Function<Object, String>) codeMapping.getMapping().getKey();
+								BiConsumer<Object, String> valueFunc = (BiConsumer<Object, String>) codeMapping.getMapping().getValue();
+								List<?> list = listFunc.apply(printing);
+                                for (Object dataObj : list) {
+                                    String sourceStr = codeFunc.apply(dataObj);
+                                    String str = StrUtil.replace(sourceStr, result.getPropertiesName(), languageVO.getPropertiesContent());
+									if (!sourceStr.equals(str)) {
+										valueFunc.accept(dataObj, str);
+									}
+                                }
+                            }
 
 							printing.setLanguageName(languageVO.getLanguageName());
 						}

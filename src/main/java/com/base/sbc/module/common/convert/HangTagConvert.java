@@ -56,4 +56,6 @@ public interface HangTagConvert {
     MoreLanguageHangTagVO copy2MoreLanguage(HangTagVO source);
     List<MoreLanguageHangTagVO> copyList2MoreLanguage(List<HangTagVO> source);
     MoreLanguageTagPrinting copy2MoreLanguage(TagPrinting source);
+    MoreLanguageTagPrinting.Size copy2MoreLanguage(TagPrinting.Size source);
+    List<MoreLanguageTagPrinting.Size> copyList2MoreLanguageSize(List<TagPrinting.Size> source);
 }
