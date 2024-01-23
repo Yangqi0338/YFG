@@ -419,7 +419,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 		/*检测报告*/
 		List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagDTO.getHangTagInspectCompanyList();
-		hangTagInspectCompanyService.saveOrUpdateBatch(hangTagInspectCompanyList);
+		if(CollUtil.isNotEmpty(hangTagInspectCompanyList)){
+			for (HangTagInspectCompany hangTagInspectCompany : hangTagInspectCompanyList) {
+				hangTagInspectCompany.setHangTagId(hangTag.getId());
+			}
+			hangTagInspectCompanyService.saveOrUpdateBatch(hangTagInspectCompanyList);
+		}
+
 	/*	if (flag){
 			smpService.goods(styleColor.getId().split(","));
 		}*/

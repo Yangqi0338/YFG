@@ -120,4 +120,7 @@ public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String
 
     @TableField(exist = false)
     private List<EscmMaterialCompnentInspectContent> detailList;
+
+    @TableField(exist = false)
+    private String inspectCompanyId;
 }

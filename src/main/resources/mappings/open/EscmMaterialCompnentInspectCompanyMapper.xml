@@ -9,7 +9,7 @@
 		SELECT
 		*
 		FROM
-		( SELECT file_url,materials_name,materials_no FROM `t_escm_material_component_inspect_company` WHERE
+		( SELECT id inspectCompanyId, file_url,materials_name,materials_no FROM `t_escm_material_component_inspect_company` WHERE
 		materials_no IN
 		<foreach collection="materialsNos" item="i" separator="," open="(" close=")">
 			#{i}
