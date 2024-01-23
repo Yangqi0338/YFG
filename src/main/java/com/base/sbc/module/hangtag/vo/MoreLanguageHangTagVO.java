@@ -69,8 +69,14 @@ public class MoreLanguageHangTagVO extends HangTagVO {
             MapUtil.entry("DP16", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo, MoreLanguageHangTagVO::getBulkStyleNo)),
 
             MapUtil.entry("XM01", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWarmTipsCode, MoreLanguageHangTagVO::getWarmTips)),
+            MapUtil.entry("XM02", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientCode, HangTagIngredient::getIngredientName).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
+            MapUtil.entry("XM03", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientDescriptionCode, HangTagIngredient::getIngredientDescription).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
+            MapUtil.entry("XM04", new MoreLanguageCodeMapping<>(HangTagIngredient::getTypeCode, HangTagIngredient::getType).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
             MapUtil.entry("XM06", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWashingLabelName, MoreLanguageHangTagVO::getWashingLabelName)),
-            MapUtil.entry("XM07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getStorageDemand, MoreLanguageHangTagVO::getStorageDemandName))
+            MapUtil.entry("XM07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getStorageDemand, MoreLanguageHangTagVO::getStorageDemandName)),
+            MapUtil.entry("XM08", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList)),
+            MapUtil.entry("XM09", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getColorCode, MoreLanguageHangTagVO::getColor)),
+            MapUtil.entry("XM10", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo, MoreLanguageHangTagVO::getBulkStyleNo))
     );
 
     @Data
