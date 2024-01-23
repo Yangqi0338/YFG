@@ -535,8 +535,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         PackInfo packInfo = packInfoService.get(byId.getForeignId(), byId.getPackType());
         HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
         /*不是在未填写，未提交阶段时提示不能修改*/
-        if(ObjectUtil.isNotEmpty(hangTag) &&   "0,1".indexOf(hangTag.getStatus()) == -1 ){
-            throw new OtherException("吊牌已提交无法停用");
+        if(ObjectUtil.isNotEmpty(hangTag) ){
+            if("0,1".indexOf(hangTag.getStatus()) == -1 ){
+                throw new OtherException("吊牌已提交无法停用");
+            }else {
+                /*更新吊牌的检测报告*/
+            }
+
         }
         BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
         // 校验版本

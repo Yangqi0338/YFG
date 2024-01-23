@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
+import com.base.sbc.module.hangtag.entity.HangTagInspectCompany;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModel;
@@ -301,6 +302,13 @@ public class HangTagDTO {
      * 外发工厂
      */
     private String outFactory;
+
+
+    /**
+     * 检测报告id
+     */
+    @ApiModelProperty(value = "检测报告")
+    private List<HangTagInspectCompany>  hangTagInspectCompanyList;
 
 }
 
