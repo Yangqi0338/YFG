@@ -50,4 +50,6 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
     private String orderTime;
     @ApiModelProperty(value = "上市时间")
     private String launchTime;
+
+    private String dataJson;
 }

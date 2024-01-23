@@ -79,6 +79,7 @@ public class CategoryPlanningController extends BaseController {
         List<SeasonalPlanningDetails> detailsList = seasonalPlanningDetailsService.listByField("seasonal_planning_id", seasonalPlanning.getId());
         List<CategoryPlanningDetails> categoryPlanningDetails = BeanUtil.copyToList(detailsList, CategoryPlanningDetails.class);
         for (CategoryPlanningDetails categoryPlanningDetail : categoryPlanningDetails) {
+            categoryPlanningDetail.setId(null);
             categoryPlanningDetail.setCategoryPlanningId(categoryPlanning.getId());
             categoryPlanningDetail.setCategoryPlanningName(categoryPlanning.getName());
         }

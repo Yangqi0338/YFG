@@ -10,4 +10,6 @@ import lombok.Data;
  */
 @Data
 public class CategoryPlanningDetailsVo extends CategoryPlanningDetails {
+    private String seasonId;
+    private String channelCode;
 }
