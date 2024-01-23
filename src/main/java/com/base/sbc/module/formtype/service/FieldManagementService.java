@@ -45,7 +45,7 @@ public interface FieldManagementService extends BaseService<FieldManagement> {
 
     ApiResult adjustmentOrder(QueryFieldManagementDto queryFieldManagementDto);
 
-    List<FieldManagementVo> getFieldManagementListByIds(List<String> ids);
+    List<FieldManagementVo> getFieldManagementListByIds(List<String> ids,String planningSeasonId,String prodCategory);
 
     /**
      * 通过表名，品类，季节查询
@@ -73,6 +73,14 @@ public interface FieldManagementService extends BaseService<FieldManagement> {
      * @return
      */
     Boolean  removeById(String id);
+
+
+    /**
+     * 获取表单中的字段
+     * @param dto
+     * @return
+     */
+    PageInfo<FieldManagementVo> getFieldListByFormCode(QueryFieldManagementDto dto);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

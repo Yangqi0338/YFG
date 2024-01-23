@@ -8,11 +8,15 @@ package com.base.sbc.module.style.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -34,6 +38,8 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -84,10 +90,12 @@ import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleColorListExcel;
 import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -97,6 +105,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -205,90 +215,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         /*分页*/
         Page<Object> objects = PageHelper.startPage(queryDto);
-        BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "tsc.color_specification", queryDto.getColorSpecification());
-        if(StringUtils.isNotBlank(queryDto.getStyleNo())){
-            queryWrapper.likeList("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
-        }
-        if(StringUtils.isNotBlank(queryDto.getDesignNo())){
-            queryWrapper.likeList("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
-        }
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorName()), "tsc.color_name", queryDto.getColorName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorCode()), "tsc.color_code", queryDto.getColorCode());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getMeetFlag()), "tsc.meet_flag", queryDto.getMeetFlag());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategoryName()), "ts.prod_category_name", queryDto.getProdCategoryName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory()), "ts.prod_category", queryDto.getProdCategory());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "tsc.subdivide", queryDto.getSubdivide());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getCategoryName()), "ts.prod_category_name", queryDto.getCategoryName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTaskLevelName()), "ts.task_level_name", queryDto.getTaskLevelName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDevtTypeName()), "ts.devt_type_name", queryDto.getDevtTypeName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignerId()), "ts.designer_id", queryDto.getDesignerId());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTechnicianId()), "ts.technician_id", queryDto.getTechnicianId());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getPlanningSeasonId()), "ts.planning_season_id", queryDto.getPlanningSeasonId());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory1st()), "ts.prod_category1st", queryDto.getProdCategory1st());
-        queryWrapper.in(StringUtils.isNotBlank(queryDto.getStyleStatus()), "ts.status", StringUtils.convertList(queryDto.getStyleStatus()));
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleTypeName()), "ts.style_type_name", queryDto.getStyleTypeName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getHisDesignNo()), "ts.his_design_no", queryDto.getHisDesignNo());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSizeRangeName()), "ts.size_range_name", queryDto.getSizeRangeName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getBandCode()), "ts.band_code", queryDto.getBandCode());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getBandName()), "tsc.band_name", queryDto.getBandName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()), "ts.designer", queryDto.getDesigner());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()), "ts.technician_name", queryDto.getTechnicianName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()), "tsc.status", queryDto.getStatus());
-        queryWrapper.notEmptyLike("ts.prod_category3rd_name", queryDto.getProdCategory3ndName());
-        queryWrapper.notEmptyLike("ts.prod_category2nd_name", queryDto.getProdCategory2ndName());
-        queryWrapper.notEmptyLike("ts.prod_category1st_name", queryDto.getProdCategory1stName());
-        queryWrapper.notEmptyLike("ts.season_name", queryDto.getSeasonName());
-        queryWrapper.notEmptyLike("ts.year_name", queryDto.getYearName());
-        queryWrapper.notEmptyLike("tppst.technologist_name", queryDto.getTechnologistName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory3nd()), "ts.prod_category3rd", queryDto.getProdCategory3nd());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory2nd()), "ts.prod_category2nd", queryDto.getProdCategory2nd());
-
-        queryWrapper.between("tsc.create_date", queryDto.getCreateDate());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCreateName()), "tsc.create_name", queryDto.getCreateName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getNewDate()), "tsc.new_date", queryDto.getNewDate());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsLuxury()), "tsc.is_luxury", queryDto.getIsLuxury());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivideName()), "tsc.subdivide_name", queryDto.getSubdivideName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendMainFabricDate()), "tsc.send_main_fabric_date", queryDto.getSendMainFabricDate());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate1()), "tsc.send_batching_date1", queryDto.getSendBatchingDate1());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate2()), "tsc.send_batching_date2", queryDto.getSendBatchingDate2());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate3()), "tsc.send_batching_date3", queryDto.getSendBatchingDate3());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendSingleDate()), "tsc.send_single_date", queryDto.getSendSingleDate());
-        if (StringUtils.isNotBlank(queryDto.getDesignDetailDate())) {
-            queryWrapper.between("tsc.design_detail_date", queryDto.getDesignDetailDate().split(","));
-        }
-        if (StringUtils.isNotBlank(queryDto.getDesignCorrectDate())) {
-            queryWrapper.between("tsc.design_correct_date", queryDto.getDesignCorrectDate().split(","));
-        }
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignCorrectDate()), "tsc.design_correct_date", queryDto.getDesignCorrectDate());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductSubdivideName()), "tsc.product_subdivide_name", queryDto.getProductSubdivideName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyle()), "tsc.principal_style", queryDto.getPrincipalStyle());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyleNo()), "tsc.principal_style_no", queryDto.getPrincipalStyleNo());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getAccessory()), "tsc.accessory", queryDto.getAccessory());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getAccessoryNo()), "tsc.accessory_no", queryDto.getAccessoryNo());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSenderDesignerName()), "tsc.sender_designer_name", queryDto.getSenderDesignerName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getMerchDesignName()), "ts.merch_design_name", queryDto.getMerchDesignName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getBom()), "tsc.bom", queryDto.getBom());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getBomStatus()), "tsc.bom_status", queryDto.getBomStatus());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSalesTypeName()), "tsc.sales_type_name", queryDto.getSalesTypeName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getTagPrice()), "tsc.tag_price", queryDto.getTagPrice());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleFlavourName()), "ts.style_flavour_name", queryDto.getStyleFlavourName());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()), "tsc.supplier", queryDto.getSupplier());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()), "tsc.supplier", queryDto.getSupplier());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()), "tsc.supplier", queryDto.getSupplier());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierColor()), "tsc.supplier_color", queryDto.getSupplierColor());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierAbbreviation()), "tsc.supplier_abbreviation", queryDto.getSupplierAbbreviation());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierNo()), "tsc.supplier_no", queryDto.getSupplierNo());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductName()), "tsc.product_name", queryDto.getProductName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDefectiveName()), "tsc.defective_name", queryDto.getDefectiveName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductHangtagConfirm()), "tsp.control_confirm", queryDto.getProductHangtagConfirm());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlConfirm()), "tsp.product_hangtag_confirm", queryDto.getControlConfirm());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()), "tsp.control_hangtag_confirm", queryDto.getControlHangtagConfirm());
-        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()), "ts.pattern_design_name", queryDto.getPatternDesignName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()), "tsc.order_flag", queryDto.getOrderFlag());
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.styleColor.getK(), "ts.");
+        BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
         if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
@@ -335,6 +262,113 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
 
         return new PageInfo<>(sampleStyleColorList);
+    }
+
+    @NotNull
+    private BaseQueryWrapper getBaseQueryWrapper(QueryStyleColorDto queryDto) {
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "tsc.color_specification", queryDto.getColorSpecification());
+        if(StringUtils.isNotBlank(queryDto.getStyleNo())){
+            queryWrapper.likeList("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
+        }
+        if(StringUtils.isNotBlank(queryDto.getDesignNo())){
+            queryWrapper.likeList("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
+        }
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorName()), "tsc.color_name", queryDto.getColorName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getColorCode()), "tsc.color_code", queryDto.getColorCode());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getMeetFlag()), "tsc.meet_flag", queryDto.getMeetFlag());
+        queryWrapper.notEmptyEqOrIsNull("ts.prod_category_name", queryDto.getProdCategoryName());
+        queryWrapper.notEmptyEqOrIsNull("ts.prod_category", queryDto.getProdCategory());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivide()), "tsc.subdivide", queryDto.getSubdivide());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getCategoryName()), "ts.prod_category_name", queryDto.getCategoryName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTaskLevelName()), "ts.task_level_name", queryDto.getTaskLevelName());
+        queryWrapper.notEmptyEqOrIsNull("ts.devt_type_name", queryDto.getDevtTypeName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignerId()), "ts.designer_id", queryDto.getDesignerId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getTechnicianId()), "ts.technician_id", queryDto.getTechnicianId());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getPlanningSeasonId()), "ts.planning_season_id", queryDto.getPlanningSeasonId());
+        queryWrapper.notEmptyEqOrIsNull("ts.prod_category1st", queryDto.getProdCategory1st());
+        queryWrapper.in(StringUtils.isNotBlank(queryDto.getStyleStatus()), "ts.status", StringUtils.convertList(queryDto.getStyleStatus()));
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleTypeName()), "ts.style_type_name", queryDto.getStyleTypeName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getHisDesignNo()), "ts.his_design_no", queryDto.getHisDesignNo());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSizeRangeName()), "ts.size_range_name", queryDto.getSizeRangeName());
+        queryWrapper.notEmptyEqOrIsNull("ts.band_code", queryDto.getBandCode());
+        queryWrapper.notEmptyEqOrIsNull("ts.brand_name", queryDto.getBrandName());
+        queryWrapper.notEmptyLikeOrIsNull("ts.band_name", queryDto.getBandName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()), "ts.designer", queryDto.getDesigner());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()), "ts.technician_name", queryDto.getTechnicianName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()), "tsc.status", queryDto.getStatus());
+        queryWrapper.notEmptyLike("ts.prod_category3rd_name", queryDto.getProdCategory3ndName());
+        queryWrapper.notEmptyLike("ts.prod_category2nd_name", queryDto.getProdCategory2ndName());
+        queryWrapper.notEmptyLikeOrIsNull("ts.prod_category1st_name", queryDto.getProdCategory1stName());
+        queryWrapper.notEmptyLikeOrIsNull("ts.season_name", queryDto.getSeasonName());
+        queryWrapper.notEmptyLikeOrIsNull("ts.year_name", queryDto.getYearName());
+        queryWrapper.notEmptyLike("tppst.technologist_name", queryDto.getTechnologistName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory3nd()), "ts.prod_category3rd", queryDto.getProdCategory3nd());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProdCategory2nd()), "ts.prod_category2nd", queryDto.getProdCategory2nd());
+
+        queryWrapper.between("tsc.create_date", queryDto.getCreateDate());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getCreateName()), "tsc.create_name", queryDto.getCreateName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getNewDate()), "tsc.new_date", queryDto.getNewDate());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsLuxury()), "tsc.is_luxury", queryDto.getIsLuxury());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSubdivideName()), "tsc.subdivide_name", queryDto.getSubdivideName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendMainFabricDate()), "tsc.send_main_fabric_date", queryDto.getSendMainFabricDate());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate1()), "tsc.send_batching_date1", queryDto.getSendBatchingDate1());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate2()), "tsc.send_batching_date2", queryDto.getSendBatchingDate2());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendBatchingDate3()), "tsc.send_batching_date3", queryDto.getSendBatchingDate3());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getSendSingleDate()), "tsc.send_single_date", queryDto.getSendSingleDate());
+        if (StringUtils.isNotBlank(queryDto.getDesignDetailDate())) {
+            queryWrapper.between("tsc.design_detail_date", queryDto.getDesignDetailDate().split(","));
+        }
+        if (StringUtils.isNotBlank(queryDto.getDesignCorrectDate())) {
+            queryWrapper.between("tsc.design_correct_date", queryDto.getDesignCorrectDate().split(","));
+        }
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDesignCorrectDate()), "tsc.design_correct_date", queryDto.getDesignCorrectDate());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductSubdivideName()), "tsc.product_subdivide_name", queryDto.getProductSubdivideName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyle()), "tsc.principal_style", queryDto.getPrincipalStyle());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPrincipalStyleNo()), "tsc.principal_style_no", queryDto.getPrincipalStyleNo());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getAccessory()), "tsc.accessory", queryDto.getAccessory());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getAccessoryNo()), "tsc.accessory_no", queryDto.getAccessoryNo());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSenderDesignerName()), "tsc.sender_designer_name", queryDto.getSenderDesignerName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getMerchDesignName()), "ts.merch_design_name", queryDto.getMerchDesignName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getBom()), "tsc.bom", queryDto.getBom());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getBomStatus()), "tsc.bom_status", queryDto.getBomStatus());
+        queryWrapper.notEmptyEqOrIsNull("ts.sales_type_name", queryDto.getSalesTypeName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getTagPrice()), "tsc.tag_price", queryDto.getTagPrice());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleFlavourName()), "ts.style_flavour_name", queryDto.getStyleFlavourName());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()), "tsc.supplier", queryDto.getSupplier());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()), "tsc.supplier", queryDto.getSupplier());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplier()), "tsc.supplier", queryDto.getSupplier());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierColor()), "tsc.supplier_color", queryDto.getSupplierColor());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierAbbreviation()), "tsc.supplier_abbreviation", queryDto.getSupplierAbbreviation());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getSupplierNo()), "tsc.supplier_no", queryDto.getSupplierNo());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductName()), "tsc.product_name", queryDto.getProductName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getDefectiveName()), "tsc.defective_name", queryDto.getDefectiveName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getProductHangtagConfirm()), "tsp.control_confirm", queryDto.getProductHangtagConfirm());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlConfirm()), "tsp.product_hangtag_confirm", queryDto.getControlConfirm());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()), "tsp.control_hangtag_confirm", queryDto.getControlHangtagConfirm());
+        queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()), "ts.pattern_design_name", queryDto.getPatternDesignName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()), "tsc.order_flag", queryDto.getOrderFlag());
+        if(StringUtils.isNotBlank(queryDto.getMarkingOrderFlag())){
+            queryWrapper.inSql("tsc.id","select style_color_id from t_order_book_detail where order_book_id in (select id from t_order_book where `status` = '3')");
+        }
+        if(StrUtil.isNotBlank(queryDto.getDesignMarkingStatus())){
+            if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getDesignMarkingStatus())) {
+                queryWrapper.isNullStrEq("ts.design_marking_status", queryDto.getDesignMarkingStatus());
+            } else {
+                queryWrapper.eq("ts.design_marking_status", queryDto.getDesignMarkingStatus());
+            }
+        }
+        if(StrUtil.isNotBlank(queryDto.getOrderMarkingStatus())){
+            if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getOrderMarkingStatus())) {
+                queryWrapper.isNullStrEq("ts.order_marking_status", queryDto.getOrderMarkingStatus());
+            } else {
+                queryWrapper.eq("ts.order_marking_status", queryDto.getOrderMarkingStatus());
+            }
+        }
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.styleColor.getK(), "ts.");
+        return queryWrapper;
     }
 
     /**
@@ -1741,4 +1775,111 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         return result;
     }
+
+    @Override
+    public void markingDeriveExcel(Principal user, HttpServletResponse response, QueryStyleColorDto dto) {
+        dto.setExcelFlag(BaseGlobal.YES);
+        PageInfo<StyleColorVo> pageInfo = getSampleStyleColorList(user, dto);
+        List<StyleColorVo> styleColorVoList = pageInfo.getList();
+
+        //根据查询出维度系数数据
+        LambdaQueryWrapper<FieldVal> fieldValQueryWrapper = new LambdaQueryWrapper<>();
+        List<String> styleIdList = styleColorVoList.stream().map(StyleColorVo::getStyleId).distinct().collect(Collectors.toList());
+        fieldValQueryWrapper.in(FieldVal::getForeignId,styleIdList);
+        if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
+            fieldValQueryWrapper.eq(FieldVal::getDataGroup,FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+        }else{
+            fieldValQueryWrapper.eq(FieldVal::getDataGroup,FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        }
+        List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);
+        Map<String, List<FieldVal>> fieldValMap = fieldValList.stream().collect(Collectors.groupingBy(FieldVal::getForeignId));
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(styleColorVoList.size()))
+                .build();
+
+        try {
+            List<Map<String,Object>> dataList = new ArrayList<>();
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(styleColorVoList) && styleColorVoList.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                stylePicUtils.setStylePic(styleColorVoList, "stylePic",30);
+            }
+            CountDownLatch countDownLatch = new CountDownLatch(styleColorVoList.size());
+            for (StyleColorVo styleColorVo : styleColorVoList) {
+                executor.submit(() -> {
+                    Map<String,Object> dataMap = JSONObject.parseObject(JSONObject.toJSONString(styleColorVo), Map.class);
+                    try {
+                        if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                            final String stylePic = styleColorVo.getStylePic();
+                            dataMap.put("stylePic1",HttpUtil.downloadBytes(stylePic));
+                        }
+                    } catch (Exception e) {
+                        log.error(e.getMessage());
+                    } finally {
+                        //每次减一
+                        countDownLatch.countDown();
+                        log.info(String.valueOf(countDownLatch.getCount()));
+                    }
+
+                    if(fieldValMap.containsKey(styleColorVo.getStyleId())){
+                        List<FieldVal> fieldValList1 = fieldValMap.get(styleColorVo.getStyleId());
+                        for (FieldVal fieldVal : fieldValList1) {
+                            String fieldName = fieldVal.getFieldName();
+                            String val = StrUtil.isNotBlank(fieldVal.getValName()) ? fieldVal.getValName() : fieldVal.getVal();
+                            dataMap.put(fieldName,val);
+                        }
+                    }
+                    dataList.add(dataMap);
+                });
+            }
+            countDownLatch.await();
+            String type = "款式打标设计阶段";
+            if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
+                type = "款式打标下单阶段";
+            }
+
+            //组装excel头部
+            List<ExcelExportEntity> entityList = new ArrayList<>();
+            ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            String tableCode = requestAttributes.getRequest().getHeader("tableCode");
+            List<ColumnDefine> defaultDetail = SpringUtil.getBean(ColumnUserDefineService.class).findDefaultDetail(tableCode);
+            for (ColumnDefine columnDefine : defaultDetail) {
+                if(BaseGlobal.NO.equals(columnDefine.getHidden())){
+                    continue;
+                }
+                ExcelExportEntity entity = new ExcelExportEntity();
+                entity.setKey(columnDefine.getColumnCode());
+                entity.setName(columnDefine.getColumnName());
+                if(StrUtil.equals("img",columnDefine.getColumnType())){
+                    entity.setExportImageType(2);
+                    entity.setType(2);
+                }
+                entity.setOrderNum(columnDefine.getSortOrder());
+                entityList.add(entity);
+            }
+
+            ExcelUtils.defaultExport(dataList, type+".xlsx", response,new ExportParams(type, type, ExcelType.HSSF),entityList);
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    @Override
+    public PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto queryDto) {
+        /*分页*/
+        Page<Object> objects = PageHelper.startPage(queryDto);
+        BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
+
+        List<StyleMarkingCheckVo> styleMarkingCheckVos = baseMapper.markingCheckPage(queryWrapper);
+        return new PageInfo<>(styleMarkingCheckVos);
+    }
+
+
 }

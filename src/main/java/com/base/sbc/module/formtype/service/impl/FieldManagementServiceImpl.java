@@ -8,6 +8,8 @@ package com.base.sbc.module.formtype.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -16,6 +18,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.dto.SaveUpdateFieldManagementDto;
@@ -27,10 +30,13 @@ import com.base.sbc.module.formtype.mapper.OptionMapper;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FormTypeService;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.patternmaking.entity.WorkLog;
+import com.base.sbc.module.patternmaking.vo.WorkLogVo;
 import com.base.sbc.module.planning.dto.QueryDemandDto;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.utils.PlanningUtils;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
@@ -136,6 +142,14 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
             PageHelper.startPage(queryFieldManagementDto);
         }
         queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
+        /*当formTypeId为空时使用编码查询出formTypeId*/
+        if(StrUtil.isEmpty(queryFieldManagementDto.getFormTypeId())){
+            FormType formType = formTypeService.getByOne("code", queryFieldManagementDto.getFormTypeCode());
+            if(ObjectUtil.isEmpty(formType)){
+                throw new OtherException("表单id和编码不能同时为空");
+            }
+            queryFieldManagementDto.setFormTypeId(formType.getId());
+        }
         List<FieldManagementVo> list = baseMapper.getFieldManagementList(queryFieldManagementDto);
         /*
         * 判断字段是否是对象 是对象获取到对象里面的所有字段
@@ -202,14 +216,22 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
     }
 
     @Override
-    public List<FieldManagementVo> getFieldManagementListByIds(List<String> ids) {
+    public List<FieldManagementVo> getFieldManagementListByIds(List<String> ids,String planningSeasonId,String prodCategory) {
         if (CollUtil.isEmpty(ids)) {
             return null;
         }
         QueryFieldManagementDto dto = new QueryFieldManagementDto();
         dto.setIds(ids);
         dto.setCompanyCode(getCompanyCode());
-        List<FieldManagementVo> list = baseMapper.getFieldManagementList(dto);
+        List<FieldManagementVo> list = new ArrayList<>();
+        if(StrUtil.isEmpty(planningSeasonId)){
+            list = baseMapper.getFieldManagementList(dto);
+        }else {
+            dto.setPlanningSeasonId(planningSeasonId);
+            dto.setProdCategory(prodCategory);
+            list = baseMapper.getFieldManagementList1(dto);
+        }
+
         return list;
     }
 
@@ -231,7 +253,7 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         fmQw.select("id");
         List<Object> objectList = this.listObjs(fmQw);
         List<String> ids = objectList.stream().map(Object::toString).collect(Collectors.toList());
-        return getFieldManagementListByIds(ids);
+        return getFieldManagementListByIds(ids,null,null);
     }
 
     @Override
@@ -273,6 +295,32 @@ public class FieldManagementServiceImpl extends BaseServiceImpl<FieldManagementM
         List<String> optionIds =	optionList.stream().map(Option::getId).collect(Collectors.toList());
         optionMapper.deleteBatchIds(optionIds);
         return baseMapper.deleteBatchIds(com.base.sbc.config.utils.StringUtils.convertList(id))>0;
+    }
+
+    /**
+     * 获取表单中的字段
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public PageInfo<FieldManagementVo> getFieldListByFormCode(QueryFieldManagementDto dto) {
+
+        if(StrUtil.isEmpty(dto.getFormTypeCode())){
+            throw new OtherException("表单编码不能为空");
+        }
+        FormType formType = formTypeService.getByOne("code", dto.getFormTypeCode());
+        if (ObjectUtil.isEmpty(formType)) {
+            throw new OtherException("无表单");
+        }
+        BaseQueryWrapper<FieldManagement> qw = new BaseQueryWrapper<>();
+        Page<FieldManagement> objects = PageHelper.startPage(dto);
+        qw.eq("form_type_id",formType.getId());
+        qw.like(StrUtil.isNotBlank(dto.getGroupName()),"group_name",dto.getGroupName());
+        qw.like(StrUtil.isNotBlank(dto.getFieldName()),"field_name",dto.getFieldName());
+        qw.like(StrUtil.isNotBlank(dto.getFieldExplain()),"field_explain",dto.getFieldExplain());
+        list(qw);
+        return CopyUtil.copy(objects.toPageInfo(), FieldManagementVo.class);
     }
 
 

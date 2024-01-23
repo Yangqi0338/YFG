@@ -21,7 +21,6 @@ public class QueryFieldManagementDto  extends Page {
 
     private String id;
 
-    private String groupName;
 
     /*原先*/
     private String currentId;
@@ -39,4 +38,19 @@ public class QueryFieldManagementDto  extends Page {
 
     @ApiModelProperty(value = "品类编码")
     private String categoryId;
+
+    @ApiModelProperty(value = "分组名称")
+    private String  groupName;
+
+    @ApiModelProperty(value = "字段名称")
+    private String  fieldName;
+
+    @ApiModelProperty(value = "字段说明")
+    private String     fieldExplain;
+
+    @ApiModelProperty(value = "产品季id")
+    private String planningSeasonId;
+
+    @ApiModelProperty(value = "品类")
+    private String  prodCategory;
 }

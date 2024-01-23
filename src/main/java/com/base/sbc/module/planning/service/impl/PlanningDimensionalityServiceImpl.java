@@ -8,13 +8,19 @@ package com.base.sbc.module.planning.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumCoefficientTemplateService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -24,12 +30,16 @@ import com.base.sbc.module.formtype.mapper.FormTypeMapper;
 import com.base.sbc.module.planning.dto.CheckMutexDto;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
+import com.base.sbc.module.planning.service.PlanningDemandService;
+import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +49,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +72,17 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Resource
     private PlanningDemandService planningDemandService;
 
+    @Autowired
+    private BasicsdatumDimensionalityService basicsdatumDimensionalityService;
+
+    @Autowired
+    private BasicsdatumCoefficientTemplateService basicsdatumCoefficientTemplateService;
+
+    @Autowired
+    private  PlanningDemandService planningDemandService;
+
+    @Autowired
+    private PlanningChannelService planningChannelService;
 
     @Override
     public DimensionalityListVo getDimensionalityList(DimensionLabelsSearchDto dto) {
@@ -210,6 +232,94 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         fieldManagement1.setSort(currentId);
         fieldManagement1.updateInit();
         baseMapper.updateById(fieldManagement1);
+        return true;
+    }
+
+    /**
+     * 获取围度系数数据
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public Map getCoefficient(DimensionLabelsSearchDto dto) {
+        BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("tpd.channel",dto.getChannel());
+        queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
+        queryWrapper.eq("tpd.prod_category2nd",dto.getProdCategory2nd());
+        queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
+        queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
+        queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
+        queryWrapper.orderByAsc("tpd.sort");
+        List<PlanningDimensionalityVo> dimensionalityList = baseMapper.getCoefficientList(queryWrapper);
+
+        if(CollUtil.isEmpty(dimensionalityList)){
+            return new HashMap();
+        }
+        return dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
+    }
+
+    /**
+     * 系数模板引用
+     * 覆盖之前的数据
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean templateReference(DimensionLabelsSearchDto dto) {
+        if (StrUtil.isEmpty(dto.getPlanningSeasonId())) {
+            throw new OtherException("产品季id不能为空");
+        }
+        /*获取模板*/
+        BasicsdatumCoefficientTemplate basicsdatumCoefficientTemplate = basicsdatumCoefficientTemplateService.getById(dto.getCoefficientTemplateId());
+        if (ObjectUtil.isEmpty(basicsdatumCoefficientTemplate)) {
+            throw new OtherException("模板id错误");
+        }
+        /*获取渠道*/
+        if (StrUtil.isEmpty(dto.getPlanningChannelId())) {
+            QueryWrapper<PlanningChannel> planningChannelQueryWrapper = new QueryWrapper<>();
+            planningChannelQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
+            planningChannelQueryWrapper.eq("channel", basicsdatumCoefficientTemplate.getChannel());
+            List<PlanningChannel> planningChannelList = planningChannelService.list(planningChannelQueryWrapper);
+            if (CollUtil.isEmpty(planningChannelList)) {
+                throw new OtherException("此产品季下没有" + basicsdatumCoefficientTemplate.getChannelName() + "渠道");
+            }
+            dto.setPlanningChannelId(planningChannelList.get(0).getId());
+            dto.setChannel(planningChannelList.get(0).getChannel());
+        }
+
+        QueryWrapper<BasicsdatumDimensionality> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("coefficient_template_id", basicsdatumCoefficientTemplate.getId());
+        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+//        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory2nd()),"prod_category2nd",dto.getProdCategory2nd());
+        /*获取模板中的系数*/
+        List<BasicsdatumDimensionality> dimensionalityList = basicsdatumDimensionalityService.list(queryWrapper);
+
+        if (CollUtil.isNotEmpty(dimensionalityList)) {
+            /*此产品季的系数*/
+            QueryWrapper<PlanningDimensionality> dimensionalityQueryWrapper = new QueryWrapper<>();
+            dimensionalityQueryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+            dimensionalityQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
+            dimensionalityQueryWrapper.eq("channel", dto.getChannel());
+            dimensionalityQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
+            dimensionalityQueryWrapper.eq("coefficient_flag", BaseGlobal.YES);
+            List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(dimensionalityQueryWrapper);
+            if (CollUtil.isNotEmpty(planningDimensionalityList)) {
+                /*删除之前的数据覆盖*/
+                List<String> stringList = planningDimensionalityList.stream().map(PlanningDimensionality::getId).collect(Collectors.toList());
+                baseMapper.deleteBatchIds(stringList);
+            }
+            List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityList, PlanningDimensionality.class);
+            list.forEach(l -> {
+                l.setId(null);
+                l.setPlanningChannelId(dto.getPlanningChannelId());
+                l.setPlanningSeasonId(dto.getPlanningSeasonId());
+                l.setCoefficientFlag(BaseGlobal.YES);
+            });
+            saveOrUpdateBatch(list);
+        }
         return true;
     }
 

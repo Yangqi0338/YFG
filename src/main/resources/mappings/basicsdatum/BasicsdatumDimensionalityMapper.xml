@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper">
+<mapper namespace="com.base.sbc.module.basicsdatum.mapper.BasicsdatumDimensionalityMapper">
     <!--
-        企划-维度表
-        创建人：lxl
-        邮箱：lxl.fml@gmail.com
-        创建时间：2023-4-27 11:15:30
+        基础资料-纬度系数表
+        创建人：your name
+        邮箱：your email
+        创建时间：2024-1-15 14:34:41
         版本号：1.0
       -->
 
@@ -13,17 +13,14 @@
 
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
-    <select id="getCoefficientList" resultType="com.base.sbc.module.planning.vo.PlanningDimensionalityVo">
-
-
+    <select id="getDimensionality" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo">
         select
-        tpd.* ,
+        tbd.* ,
         tfm.group_name,
         tfm.field_name,
         tfm.field_explain
-         from t_planning_dimensionality tpd
-         LEFT JOIN  t_field_management tfm on (tpd.field_id = tfm.id and tfm.del_flag = '0')
+         from t_basicsdatum_dimensionality tbd
+         LEFT JOIN  t_field_management tfm on (tbd.field_id = tfm.id and tfm.del_flag = '0')
          ${ ew.customSqlSegment}
-
     </select>
 </mapper>

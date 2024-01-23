@@ -8,10 +8,8 @@ package com.base.sbc.module.basicsdatum.service;
 
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumCategoryMeasureDto;
 import com.base.sbc.module.basicsdatum.dto.QueryCategoryMeasureDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,7 +59,7 @@ public interface BasicsdatumCategoryMeasureService extends BaseService<Basicsdat
         * @param addRevampBasicsdatumCategoryMeasureDto 部件Dto类
         * @return boolean
         */
-        Boolean addRevampBasicsdatumCategoryMeasure(AddRevampBasicsdatumCategoryMeasureDto addRevampBasicsdatumCategoryMeasureDto);
+        BasicsdatumCategoryMeasure addRevampBasicsdatumCategoryMeasure(AddRevampBasicsdatumCategoryMeasureDto addRevampBasicsdatumCategoryMeasureDto);
 
 
 

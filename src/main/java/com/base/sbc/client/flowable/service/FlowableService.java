@@ -53,6 +53,10 @@ public class FlowableService {
 
     public static final String PURCHASE_REQUEST = "采购申请单";
 
+    public static final String DESIGN_MARKING = "款式打标-设计阶段审批";
+
+    public static final String ORDER_MARKING = "款式打标-下单阶段审批";
+
     @Autowired
     FlowableFeignService flowableFeignService;
 

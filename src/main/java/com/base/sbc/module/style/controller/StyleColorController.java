@@ -6,42 +6,32 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
-import java.security.Principal;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.basicsdatum.dto.SpecificationGroupDto;
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
 import com.base.sbc.module.style.dto.*;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.vo.StyleColorVo;
+import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
+import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.github.pagehelper.PageInfo;
-
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.security.Principal;
+import java.util.List;
 
 /**
 * 类描述：款式-款式配色 Controller类
@@ -227,5 +217,19 @@ public class StyleColorController {
 	public  PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto) {
 		return styleColorService.getByStyleList(dto);
 	}
+
+	@ApiOperation(value = "/款式打标导出")
+	@GetMapping("/markingDeriveExcel")
+	@DuplicationCheck(type = 1,message = "服务已存在导出，请稍后...")
+	public void markingDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws Exception {
+		styleColorService.markingDeriveExcel(user,response,dto);
+	}
+
+	@ApiOperation(value = "/打标检查列表查询")
+	@GetMapping("/markingCheckPage")
+	public PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto) throws Exception {
+		return styleColorService.markingCheckPage(dto);
+	}
+
 }
 

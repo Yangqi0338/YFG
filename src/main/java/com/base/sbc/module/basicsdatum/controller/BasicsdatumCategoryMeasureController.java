@@ -9,11 +9,9 @@ package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumCategoryMeasureDto;
 import com.base.sbc.module.basicsdatum.dto.QueryCategoryMeasureDto;
-import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumCategoryMeasure;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCategoryMeasureService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -71,7 +69,7 @@ public class BasicsdatumCategoryMeasureController{
 
 	@ApiOperation(value = "新增修改基础资料-品类测量组")
 	@PostMapping("/addRevampBasicsdatumCategoryMeasure")
-	public Boolean addRevampBasicsdatumCategoryMeasure(@Valid @RequestBody AddRevampBasicsdatumCategoryMeasureDto addRevampBasicsdatumCategoryMeasureDto) {
+	public BasicsdatumCategoryMeasure addRevampBasicsdatumCategoryMeasure(@Valid @RequestBody AddRevampBasicsdatumCategoryMeasureDto addRevampBasicsdatumCategoryMeasureDto) {
 	return basicsdatumCategoryMeasureService.addRevampBasicsdatumCategoryMeasure(addRevampBasicsdatumCategoryMeasureDto);
 	}
 
@@ -86,6 +84,9 @@ public class BasicsdatumCategoryMeasureController{
 	public BasicsdatumCategoryMeasure getById(@PathVariable("id") String id) {
 		return basicsdatumCategoryMeasureService.getById(id);
 	}
+
+
+
 
 
 }

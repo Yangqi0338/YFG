@@ -6,6 +6,7 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -42,6 +43,22 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this.like(!StringUtils.isEmpty(val), column, val);
     }
 
+    public QueryWrapper<T> notEmptyLikeOrIsNull(String column, Object val) {
+        if(!StringUtils.isEmpty(val) && BaseGlobal.NULL_KEY.equals(val)){
+            return this.isNullStr(column);
+        }else{
+            return this.like(!StringUtils.isEmpty(val), column, val);
+        }
+    }
+
+    public QueryWrapper<T> notEmptyEqOrIsNull(String column, Object val) {
+        if(!StringUtils.isEmpty(val) && BaseGlobal.NULL_KEY.equals(val)){
+            return this.isNullStr(column);
+        }else{
+            return this.eq(!StringUtils.isEmpty(val), column, val);
+        }
+    }
+
     public QueryWrapper<T> between(String column, String[] strings) {
         if (strings != null && strings.length > 0) {
             this.ge(!StringUtils.isEmpty(strings[0]), column, strings[0]);
@@ -76,6 +93,11 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
 
     public QueryWrapper<T> isNullStr(String column) {
         this.and(qw -> qw.isNull(column).or(qw2 -> qw2.eq(column, "")));
+        return this;
+    }
+
+    public QueryWrapper<T> isNullStrEq(String column,String value) {
+        this.and(qw -> qw.isNull(column).or(qw2 -> qw2.eq(column, value)));
         return this;
     }
 

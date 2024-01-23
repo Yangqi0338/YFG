@@ -47,6 +47,7 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：款式设计 Controller类
@@ -150,6 +151,18 @@ public class StyleController extends BaseController {
         return styleService.queryDimensionLabelsByStyle(dto);
     }
 
+
+    @ApiOperation(value = "查询款式设计围度系数", notes = "")
+    @GetMapping("/queryCoefficientByStyle")
+    public Map<String,List<FieldManagementVo>> queryCoefficientByStyle(DimensionLabelsSearchDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        dto.setForeignId(dto.getId());
+        return styleService.queryCoefficientByStyle(dto);
+    }
+
+
     @ApiOperation(value = "设计师列表", notes = "")
     @GetMapping("/getDesignerList")
     public List<SampleUserVo> getDesignerList(@RequestHeader(BaseConstant.USER_COMPANY) String companyCode) {
@@ -236,6 +249,44 @@ public class StyleController extends BaseController {
     @PostMapping("/startStopStyle")
     public Boolean startStopBasicsdatumWashIcon(@Valid @RequestBody StartStopDto startStopDto) {
         return styleService.startStopStyle(startStopDto);
+    }
+
+    @ApiOperation(value = "发起审批-款式打标-设计阶段")
+    @GetMapping("/startMarkingApproval")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true, paramType = "query")})
+    public boolean startMarkingApproval(@NotBlank(message = "编号不能为空") String id, String showFOB, String styleColorId) {
+        return styleService.startMarkingApproval(id, showFOB, styleColorId);
+    }
+
+    /**
+     * 处理审批-款式打标-设计阶段
+     *
+     * @param dto
+     * @return
+     */
+    @ApiIgnore
+    @PostMapping("/approvalMarking")
+    public boolean approvalMarking(@RequestBody AnswerDto dto) {
+        return styleService.approvalMarking(dto);
+    }
+
+    @ApiOperation(value = "发起审批-款式打标-下单阶段")
+    @GetMapping("/startMarkingOrderApproval")
+    @ApiImplicitParams({@ApiImplicitParam(name = "id", value = "id", required = true, paramType = "query")})
+    public boolean startMarkingOrderApproval(@NotBlank(message = "编号不能为空") String id, String showFOB, String styleColorId) {
+        return styleService.startMarkingOrderApproval(id, showFOB, styleColorId);
+    }
+
+    /**
+     * 处理审批-款式打标-下单阶段
+     *
+     * @param dto
+     * @return
+     */
+    @ApiIgnore
+    @PostMapping("/approvalMarkingOrder")
+    public boolean approvalMarkingOrder(@RequestBody AnswerDto dto) {
+        return styleService.approvalMarkingOrder(dto);
     }
 
 }
