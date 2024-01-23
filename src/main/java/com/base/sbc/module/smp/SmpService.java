@@ -356,11 +356,13 @@ public class SmpService {
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 
             // 资料包
-            PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
+            //region 资料包取值逻辑错误
+            /*PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
             if (packTechPackaging != null) {
                 smpGoodsDto.setPackageType(packTechPackaging.getPackagingForm());
                 smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
-            }
+            }*/
+            //endregion
 
             smpGoodsDto.setProductTypeId(style.getStyleType());
             smpGoodsDto.setProductType(style.getStyleTypeName());
@@ -500,6 +502,9 @@ public class SmpService {
             if (hangTag != null) {
                 smpGoodsDto.setSecondPackagingForm(hangTag.getSecondPackagingForm());
                 smpGoodsDto.setSecondPackagingFormCode(hangTag.getSecondPackagingFormCode());
+
+                smpGoodsDto.setPackageType(hangTag.getPackagingFormCode());
+                smpGoodsDto.setPackageSize(hangTag.getPackagingBagStandardCode());
             }
             //endregion
 
