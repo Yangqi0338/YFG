@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -93,19 +94,25 @@ public class CategoryPlanningController extends BaseController {
     public ApiResult updateStatus(@RequestBody BaseDto baseDto){
         String ids = baseDto.getIds();
         if ("0".equals(baseDto.getStatus())){
+            List<String> idList = Arrays.asList(ids.split(","));
+            List<CategoryPlanning> categoryPlannings = categoryPlanningService.listByIds(idList);
+            List<String> seasonIds = categoryPlannings.stream().map(CategoryPlanning::getSeasonId).collect(Collectors.toList());
+            List<String> channelCodes = categoryPlannings.stream().map(CategoryPlanning::getChannelCode).collect(Collectors.toList());
+
             QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
-            queryWrapper.in("id", Arrays.asList(ids.split(",")));
-            queryWrapper.ne("id",baseDto.getId());
+            queryWrapper.in("season_id", seasonIds);
+            queryWrapper.in("channel_code", channelCodes);
+            queryWrapper.notIn("id",idList);
             queryWrapper.eq("status","0");
             long l = categoryPlanningService.count(queryWrapper);
             if (l > 0){
                 throw new RuntimeException("已存在启用的品类企划");
             }
-            UpdateWrapper<CategoryPlanning> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.set("status", baseDto.getStatus());
-            updateWrapper.in("id", Arrays.asList(ids.split(",")));
-            categoryPlanningService.update(updateWrapper);
         }
+        UpdateWrapper<CategoryPlanning> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("status", baseDto.getStatus());
+        updateWrapper.in("id", Arrays.asList(ids.split(",")));
+        categoryPlanningService.update(updateWrapper);
 
         return updateSuccess("更新成功");
     }

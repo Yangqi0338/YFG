@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -75,9 +76,15 @@ public class SeasonalPlanningController extends BaseController {
     public ApiResult updateStatus(@RequestBody BaseDto baseDto){
         String ids = baseDto.getIds();
         if ("0".equals(baseDto.getStatus())){
+            List<String> idList = Arrays.asList(ids.split(","));
+            List<SeasonalPlanning> seasonalPlannings = seasonalPlanningService.listByIds(idList);
+            List<String> seasonIds = seasonalPlannings.stream().map(SeasonalPlanning::getSeasonId).collect(Collectors.toList());
+            List<String> channelCodes = seasonalPlannings.stream().map(SeasonalPlanning::getChannelCode).collect(Collectors.toList());
+
             QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
-            queryWrapper.in("id", Arrays.asList(ids.split(",")));
-            queryWrapper.ne("id",baseDto.getId());
+            queryWrapper.in("season_id", seasonIds);
+            queryWrapper.in("channel_code", channelCodes);
+            queryWrapper.notIn("id",idList);
             queryWrapper.eq("status","0");
             long l = seasonalPlanningService.count(queryWrapper);
             if (l > 0){

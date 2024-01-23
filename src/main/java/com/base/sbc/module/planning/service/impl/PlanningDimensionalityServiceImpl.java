@@ -78,8 +78,6 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Autowired
     private BasicsdatumCoefficientTemplateService basicsdatumCoefficientTemplateService;
 
-    @Autowired
-    private  PlanningDemandService planningDemandService;
 
     @Autowired
     private PlanningChannelService planningChannelService;

@@ -34,6 +34,17 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         return  this.baseMapper.listByQueryWrapper(queryWrapper);
     }
 
+    @Override
+    public CategoryPlanningDetailsVo getDetailById(String id) {
+        BaseQueryWrapper<CategoryPlanningDetails> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.eq("tcpd.id",id);
+        List<CategoryPlanningDetailsVo> categoryPlanningDetailsVos = this.baseMapper.listByQueryWrapper(queryWrapper);
+        if(!categoryPlanningDetailsVos.isEmpty()){
+            return categoryPlanningDetailsVos.get(0);
+        }
+        return null;
+    }
+
 
     /**
      * 构造查询期

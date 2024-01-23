@@ -33,4 +33,13 @@ public class CategoryPlanningDetailsController extends BaseController{
         PageInfo<CategoryPlanningDetailsVo> pageInfo = categoryPlanningDetailsService.queryPage(dto);
         return selectSuccess(pageInfo);
     }
+
+    /**
+     * 根据id查询明细详情
+     */
+    @RequestMapping("/getDetailById")
+    public ApiResult getDetailById(String id) {
+        CategoryPlanningDetailsVo categoryPlanningDetailsVo = categoryPlanningDetailsService.getDetailById(id);
+        return selectSuccess(categoryPlanningDetailsVo);
+    }
 }

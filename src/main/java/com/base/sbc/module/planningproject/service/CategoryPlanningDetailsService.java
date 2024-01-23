@@ -17,4 +17,6 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
     PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto);
 
     List<CategoryPlanningDetailsVo> queryList(CategoryPlanningDetailsQueryDto dto);
+
+    CategoryPlanningDetailsVo getDetailById(String id);
 }
