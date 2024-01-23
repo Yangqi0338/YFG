@@ -422,6 +422,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if(CollUtil.isNotEmpty(hangTagInspectCompanyList)){
 			for (HangTagInspectCompany hangTagInspectCompany : hangTagInspectCompanyList) {
 				hangTagInspectCompany.setHangTagId(hangTag.getId());
+				hangTagInspectCompany.insertInit();
 			}
 			hangTagInspectCompanyService.saveOrUpdateBatch(hangTagInspectCompanyList);
 		}
