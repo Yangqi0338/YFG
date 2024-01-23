@@ -83,12 +83,11 @@ public class SeasonalPlanningController extends BaseController {
             if (l > 0){
                 throw new RuntimeException("已存在启用的季节企划");
             }
-            UpdateWrapper<SeasonalPlanning> updateWrapper = new UpdateWrapper<>();
-            updateWrapper.set("status", baseDto.getStatus());
-            updateWrapper.in("id", Arrays.asList(ids.split(",")));
-            seasonalPlanningService.update(updateWrapper);
         }
-
+        UpdateWrapper<SeasonalPlanning> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("status", baseDto.getStatus());
+        updateWrapper.in("id", Arrays.asList(ids.split(",")));
+        seasonalPlanningService.update(updateWrapper);
         return updateSuccess("更新成功");
     }
 

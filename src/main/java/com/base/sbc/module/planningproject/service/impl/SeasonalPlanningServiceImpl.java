@@ -27,6 +27,7 @@ import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
 import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -369,13 +370,13 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             if(StringUtils.isNotBlank(bandCode) && bandCode.split(",").length>1) {
                 String[] split = bandCode.split(",");
                 //去重
-                List<String> arrayList =  Arrays.stream(split).distinct().collect(Collectors.toList());
-
+                // List<String> arrayList =  Arrays.stream(split).distinct().collect(Collectors.toList());
+                List<String> arrayList = Arrays.asList(split);
                 for (int i = 0; i < arrayList.size(); i++) {
                     SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
                     BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
                     seasonalPlanningDetails1.setBandCode(arrayList.get(i));
-                    seasonalPlanningDetails1.setBandName(seasonalPlanningDetails.getBandName().split(",")[i*2]);
+                    seasonalPlanningDetails1.setBandName(seasonalPlanningDetails.getBandName().split(",")[i]);
                     list2.add(seasonalPlanningDetails1);
                 }
             }
@@ -383,7 +384,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
         System.out.println(list2);
         //查询订货本下单的数据
-        for (SeasonalPlanningDetails seasonalPlanningDetails : list2) {
+        for (int i = 0; i < list2.size(); i++) {
+            SeasonalPlanningDetails seasonalPlanningDetails = list2.get(i);
             String prodCategory2ndCode = seasonalPlanningDetails.getProdCategory2ndCode();
             String prodCategory1stCode = seasonalPlanningDetails.getProdCategory1stCode();
             String prodCategoryCode = seasonalPlanningDetails.getProdCategoryCode();
@@ -397,15 +399,27 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             dto.setProdCategory2ndCode(prodCategory2ndCode);
             dto.setIsOrder("1");
             BaseQueryWrapper<OrderBookDetail> bookDetailBaseQueryWrapper = orderBookDetailService.buildQueryWrapper(dto);
+            if (i%2==0){
+                bookDetailBaseQueryWrapper.like("tsc.style_no","Q");
+                seasonalPlanningDetails.setStyleCategory("高奢");
+            }else {
+                seasonalPlanningDetails.setStyleCategory("常规");
+                bookDetailBaseQueryWrapper.notLike("tsc.style_no","Q");
+            }
+
             List<OrderBookDetailVo> bookDetailVos = orderBookDetailService.querylist(bookDetailBaseQueryWrapper, null);
 
             if (!bookDetailVos.isEmpty()){
-                for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
-                    System.out.println(bookDetailVo.getBulkStyleNo());
-                }
-
+                System.out.println(bookDetailVos.size());
+                // for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
+                //     System.out.println(bookDetailVo.getBulkStyleNo());
+                // }
+                seasonalPlanningDetails.setSkcCount(String.valueOf(bookDetailVos.size()));
+            }else {
+                seasonalPlanningDetails.setSkcCount("0");
             }
         }
+        seasonalPlanningVo.setSeasonalPlanningDetailsList(list2);
         return seasonalPlanningVo;
     }
 

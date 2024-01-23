@@ -320,7 +320,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         // }
 
         if(StrUtil.isNotBlank(dto.getPlanningSeasonId())){
-            BaseQueryWrapper<OrderBook> baseQueryWrapper = new BaseQueryWrapper();
+            BaseQueryWrapper<OrderBook> baseQueryWrapper = new BaseQueryWrapper<>();
             baseQueryWrapper.eq("season_id",dto.getPlanningSeasonId());
             List<OrderBook> list = orderBookService.list(baseQueryWrapper);
             List<String> stringList = list.stream().map(OrderBook::getId).collect(Collectors.toList());
