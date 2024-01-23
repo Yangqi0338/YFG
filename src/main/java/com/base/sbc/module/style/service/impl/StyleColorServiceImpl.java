@@ -342,9 +342,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()), "tsp.control_hangtag_confirm", queryDto.getControlHangtagConfirm());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()), "ts.pattern_design_name", queryDto.getPatternDesignName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()), "tsc.order_flag", queryDto.getOrderFlag());
-        /*if(StringUtils.isNotBlank(queryDto.getMarkingOrderFlag())){
+        if(StringUtils.isNotBlank(queryDto.getMarkingOrderFlag())){
             queryWrapper.inSql("tsc.id","select style_color_id from t_order_book_detail where order_book_id in (select id from t_order_book where `status` = '3')");
-        }*/
+        }
         if(StrUtil.isNotBlank(queryDto.getDesignMarkingStatus())){
             if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getDesignMarkingStatus())) {
                 queryWrapper.isNullStrEq("ts.design_marking_status", queryDto.getDesignMarkingStatus());

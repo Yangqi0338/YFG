@@ -138,8 +138,6 @@
             ts.id styleId,
             ts.design_audit_status,
             ts.design_marking_status,
-            tsc.order_audit_status,
-            tsc.order_marking_status,
             tsc.*,
             CASE WHEN tsc.is_trim = '0' THEN tsma.style_no ELSE '' END as accessoryNo,
             CASE WHEN tsc.is_trim = '0' THEN tsma.color_name ELSE'' END as accessory1,
