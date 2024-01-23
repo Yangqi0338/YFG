@@ -12,6 +12,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -28,6 +29,7 @@ import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageInfo;
@@ -183,8 +185,9 @@ public class OrderBookDetailController extends BaseController {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = orderBookDetailService.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper, null);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
-            if (!"3".equals(orderBookDetail.getStatus())){
-                return updateSuccess(orderBookDetail.getBulkStyleNo()+"未审核，不能下单");
+            int status = Integer.parseInt(orderBookDetail.getStatus());
+            if (status != 3){
+                return updateSuccess(orderBookDetail.getBulkStyleNo()+(status > 3 ? "已审核,请勿重复提交" : "未审核，不能下单"));
             }
             //判断是否能下单
             String totalProduction = orderBookDetail.getTotalProduction();
@@ -203,6 +206,13 @@ public class OrderBookDetailController extends BaseController {
         boolean b = orderBookDetailService.updateBatchById(orderBookDetails1);
         OrderBook orderBook = orderBookService.getById(dto.getOrderBookId());
         orderBook.setStatus("2");
+        orderBookService.updateById(orderBook);
+        orderBookDetails1.forEach(orderBookDetail -> {
+            PublicStyleColorDto colorDto = new PublicStyleColorDto();
+            colorDto.setOrderFlag(YesOrNoEnum.YES.getValueStr());
+            colorDto.setId(orderBookDetail.getStyleColorId());
+            styleColorService.updateOrderFlag(colorDto);
+        });
         return updateSuccess(b);
     }
 
