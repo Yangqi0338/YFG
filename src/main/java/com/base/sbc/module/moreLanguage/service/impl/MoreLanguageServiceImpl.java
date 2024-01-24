@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
@@ -36,6 +37,8 @@ import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.EasyPoiMapExportParam;
@@ -61,6 +64,7 @@ import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import com.github.pagehelper.PageInfo;
 import lombok.SneakyThrows;
+import org.apache.bcel.generic.BREAKPOINT;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
@@ -90,6 +94,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -105,6 +110,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
  * 类描述：吊牌列头翻译表 service类
@@ -134,6 +140,9 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
     @Autowired
     private StandardColumnService standardColumnService;
+
+    @Autowired
+    private BasicsdatumSizeService basicsdatumSizeService;
 
     @Autowired
     private StandardColumnCountryTranslateMapper standardColumnCountryTranslateMapper;
@@ -544,9 +553,10 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             Map<String, Object> map = new HashMap<>(showFieldList.size());
             List<StandardColumnCountryTranslate> translatePropertiesList = translateList.stream()
                     .filter(it -> it.getPropertiesCode().equals(propertiesKey))
-                    .sorted(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate)).collect(Collectors.toList());
+                    .sorted(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate).reversed()).collect(Collectors.toList());
             showFieldList.forEach(field->{
-                List<Object> fieldValueList = new ArrayList<>();
+                Object fieldValue = null;
+                breakPoint:
                 for (StandardColumnCountryTranslate translate : translatePropertiesList) {
                     CountryLanguageDto countryLanguage = countryLanguageList.stream()
                             .filter(it -> it.getId().equals(translate.getCountryLanguageId())).findFirst()
@@ -559,35 +569,21 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                             key = (countryLanguage.getLanguageCode() + "-" + key);
                         }
                         if (field.contains(key)) {
-                            fieldValueList.add(value);
-                            break;
+                            fieldValue = value;
+                            break breakPoint;
                         }
                     }
                 }
                 String fieldKey = StrUtil.toUnderlineCase(field);
-                if (CollectionUtil.isEmpty(fieldValueList) && !baseEntityFieldNameList.contains(field) && resultMap.containsKey(fieldKey)) {
-                    fieldValueList.add(resultMap.get(fieldKey));
+                if (fieldValue == null && !baseEntityFieldNameList.contains(field) && resultMap.containsKey(fieldKey)) {
+                    fieldValue = resultMap.get(fieldKey);
+                }
+                // 对日期进行处理, 封装字符串列表
+                if (fieldValue instanceof Date) {
+                    fieldValue = DateUtil.format((Date) fieldValue, "yyyy-MM-dd HH:mm:ss");
                 }
 
-                String fieldValue = "";
-                fieldValueList = fieldValueList.stream().filter(Objects::nonNull).collect(Collectors.toList());
-                if (CollectionUtil.isNotEmpty(fieldValueList)) {
-                    // 对日期进行处理, 封装字符串列表
-                    List<String> fieldValueStrList = fieldValueList.stream().map(it -> {
-                        if (it instanceof Date) {
-                            return DateUtil.format((Date) it, "yyyy-MM-dd HH:mm:ss");
-                        }
-                        return it.toString();
-                    }).collect(Collectors.toList());
-                    // 进行去重
-                    List<String> distinctFieldValue = fieldValueStrList.stream().distinct().collect(Collectors.toList());
-                    // 若去重后大于一个数值,就直接使用拼接
-                    fieldValue = fieldValueStrList.get(0);
-                    if (distinctFieldValue.size() > 1){
-                        fieldValue = String.join(",", distinctFieldValue);
-                    }
-                }
-                map.put(field, fieldValue);
+                map.put(field, Opt.ofNullable(fieldValue).orElse(""));
             });
             return map;
         }).collect(Collectors.toList()));
@@ -607,6 +603,26 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         queryDto.setCodeList(Arrays.asList(code.split(COMMA)));
 
         return standardColumnService.listQuery(queryDto);
+    }
+
+    @Override
+    public List<BasicsdatumSize> findSize(String code) {
+        List<BasicsdatumSize> result = new ArrayList<>();
+        List<BasicsdatumSize> list = basicsdatumSizeService.list();
+        list.stream().collect(Collectors.groupingBy(BasicsdatumSize::getModelTypeCode, LinkedHashMap::new, Collectors.toList()))
+                .forEach((modelTypeCode, sameCodeList)-> {
+                    String[] modelTypeCodeArray = modelTypeCode.split(",");
+                    String[] modelTypeArray = sameCodeList.get(0).getModelType().split(",");
+                    for (int i = 0; i < modelTypeCodeArray.length; i++) {
+                        for (BasicsdatumSize size : sameCodeList) {
+                            BasicsdatumSize newSize = MORE_LANGUAGE_CV.copyMyself(size);
+                            newSize.setModelTypeCode(modelTypeCodeArray[i]);
+                            newSize.setModelType(modelTypeArray[i]);
+                            result.add(newSize);
+                        }
+                    }
+                });
+        return result;
     }
 
 // 自定义方法区 不替换的区域【other_end】

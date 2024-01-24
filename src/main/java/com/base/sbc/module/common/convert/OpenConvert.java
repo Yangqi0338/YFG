@@ -1,10 +1,12 @@
 package com.base.sbc.module.common.convert;
 
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.LanguageSaveDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
@@ -28,6 +30,11 @@ public interface OpenConvert {
 
     HangTagMoreLanguageCheckDTO copy2Check(HangTagMoreLanguageSystemDTO source);
     HangTagMoreLanguageDTO copy2MoreLanguageDTO(HangTagMoreLanguageSystemDTO source);
+
+    @Mappings({
+            @Mapping(target = "type", ignore = true)
+    })
+    HangTagMoreLanguageBaseVO copy2MoreLanguageVO(HangTagMoreLanguageSystemDTO source);
     CountryQueryDto copy2CountryQuery(HangTagMoreLanguageSystemDTO source);
 
     default CountryLanguageType getTypeByCsvIndex(Integer index) {

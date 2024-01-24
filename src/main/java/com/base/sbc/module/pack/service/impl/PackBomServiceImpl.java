@@ -638,7 +638,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         Page<FabricSummaryVO> page = PageHelper.startPage(fabricSummaryDTO);
         QueryWrapper qw = new QueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabric_summary.getK(), "t2.");
-        baseMapper.fabricSummaryList(fabricSummaryDTO, qw);
+//        baseMapper.fabricSummaryList(fabricSummaryDTO, qw);
         if (CollectionUtil.isNotEmpty(page.toPageInfo().getList())) {
             for (FabricSummaryVO fabricSummaryVO : page.toPageInfo().getList()) {
                 // 统计物料下被多少款使用

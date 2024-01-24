@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -273,6 +274,11 @@ public class TagPrinting {
          * 特殊规格
          */
         private String SpecialSpec;
+
+        @JsonIgnore
+        public String getSystemSizeName(){
+            return this.SIZENAME + "(" + this.SIZECODE + ")";
+        }
     }
 
 }
