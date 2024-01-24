@@ -1,8 +1,14 @@
 package com.base.sbc.open.controller;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
@@ -28,7 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author 卞康
@@ -57,6 +65,8 @@ public class OpenSmpController extends BaseController {
     private final BasicsdatumMaterialIngredientService basicsdatumMaterialIngredientService;
 
     private final BasicsdatumMaterialService basicsdatumMaterialService;
+
+    private final CcmService ccmService;
 
 
     /**
@@ -165,22 +175,45 @@ public class OpenSmpController extends BaseController {
         basicsdatumMaterialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("material_code",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
         String quanlityInspectContent="";
 
+        List<BasicBaseDict> pd021DictList = new ArrayList<>();
+        String dictInfo = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, "pd021");
+        JSONObject dictJsonObject = JSON.parseObject(dictInfo);
+        if (dictJsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            pd021DictList = dictJsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+        }
         for (int i = 0; i < escmMaterialCompnentInspectCompanyDto.getDetailList().size(); i++) {
+            EscmMaterialCompnentInspectContent inspectContent = escmMaterialCompnentInspectCompanyDto.getDetailList().get(i);
+
             BasicsdatumMaterialIngredient basicsdatumMaterialIngredient =new BasicsdatumMaterialIngredient();
             basicsdatumMaterialIngredient.setMaterialCode(escmMaterialCompnentInspectCompanyDto.getMaterialsNo());
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
             String say = "";
-            if(StringUtils.isNotEmpty(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark())){
-                 say = escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getRemark().replace("（", "(").replace("）", ")");
-                basicsdatumMaterialIngredient.setSay(say);
+            if(StringUtils.isNotEmpty(inspectContent.getRemark())){
+//                 say = inspectContent.getRemark().replace("（", "(").replace("）", ")");
+                say = "("+inspectContent.getRemark()+")";
+                basicsdatumMaterialIngredient.setSay(inspectContent.getRemark());
             }
-            basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion().replace("%",""))));
+            String contentProportion = inspectContent.getContentProportion().replace("%", "");
+            if (StrUtil.isNotBlank(contentProportion)) {
+                basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(contentProportion)));
+            }
+/*清掉%*/
+            if(StrUtil.equals(inspectContent.getContentProportion(), "%")){
+                inspectContent.setContentProportion("");
+            }
             basicsdatumMaterialIngredient.setType("0");
-            basicsdatumMaterialIngredient.setName(escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent());
+            basicsdatumMaterialIngredient.setName(inspectContent.getInspectContent());
+            String kindCode = inspectContent.getKindCode();
+            String kindName = inspectContent.getKindName();
+            kindName = Optional.ofNullable(kindName).orElse(
+                    pd021DictList.stream().filter(it -> it.getValue().equals(kindCode)).findFirst().map(BasicBaseDict::getName).orElse("")
+            );
+            basicsdatumMaterialIngredient.setMaterialKindCode(kindCode);
+            basicsdatumMaterialIngredient.setMaterialKindName(kindName);
             basicsdatumMaterialIngredientService.save(basicsdatumMaterialIngredient);
 
-            quanlityInspectContent+=escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getContentProportion()+
-                    escmMaterialCompnentInspectCompanyDto.getDetailList().get(i).getInspectContent();
+            quanlityInspectContent+= kindName + inspectContent.getContentProportion()+
+                    inspectContent.getInspectContent();
             if (StringUtils.isNotEmpty( say)){
                 quanlityInspectContent+=say;
             }

@@ -77,6 +77,11 @@ public class StylePricing extends BaseDataEntity<String> {
     @ApiModelProperty(value = "备注")
     private String remarks;
     /**
+     * 计控实际成本
+     */
+    @ApiModelProperty(value = "计控实际成本")
+    private BigDecimal controlPlanCost;
+    /**
      * 计控确认成本时间
      */
     @ApiModelProperty(value = "计控确认成本时间")

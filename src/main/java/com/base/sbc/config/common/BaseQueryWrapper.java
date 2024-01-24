@@ -1,9 +1,12 @@
 package com.base.sbc.config.common;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -70,8 +73,13 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
-    public QueryWrapper<T> isNull(String column) {
+    public QueryWrapper<T> isNullStr(String column) {
         this.and(qw -> qw.isNull(column).or(qw2 -> qw2.eq(column, "")));
+        return this;
+    }
+
+    public QueryWrapper<T> isNotNullStr(String column) {
+        this.and(qw -> qw.isNotNull(column).and(qw2 -> qw2.ne(column, "")));
         return this;
     }
 
@@ -121,6 +129,26 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     }
 
     /**
+     * 判断时间区间 或者时间是否为空
+     * @param columns
+     * @param val
+     * @param flag
+     * @return
+     */
+    public QueryWrapper<T> dateBetweenOrIsNull(String columns, String val, String flag) {
+        if (!StringUtils.isEmpty(val)) {
+            return this.between(columns, val.split(","));
+        }
+        if(StrUtil.equals(flag, BaseGlobal.IN)){
+            return this.isNull(columns);
+        }
+        if(StrUtil.equals(flag,BaseGlobal.YES)){
+            return this.isNotNull(columns);
+        }
+        return this;
+    }
+
+    /**
      * 模糊搜索一个字段为集合
      * @param columns
      * @param val
@@ -143,4 +171,8 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this;
     }
 
+//    @Override
+//    public BaseLambdaQueryWrapper<T> lambda() {
+//        return BeanUtil.copyProperties(super.lambda(), BaseLambdaQueryWrapper.class );
+//    }
 }

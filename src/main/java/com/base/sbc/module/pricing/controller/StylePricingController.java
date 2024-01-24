@@ -6,8 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.controller;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -20,6 +18,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
@@ -42,8 +41,11 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +79,9 @@ public class StylePricingController extends BaseController {
     @Lazy
     private SmpService smpService;
 
+    @Autowired
+    private PackPricingService packPricingService;
+
 
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
@@ -89,11 +94,12 @@ public class StylePricingController extends BaseController {
      */
     @ApiOperation(value = "导出款式定价列表")
     @GetMapping("/exportStylePricingList")
+    @DuplicationCheck(type = 1,time = 200,message = "正在导出中，请稍后...")
     public void exportStylePricingList(Principal user, StylePricingSearchDTO stylePricingSearchDTO, HttpServletResponse response) throws IOException {
+        stylePricingSearchDTO.setDeriveFlag(BaseGlobal.YES);
         PageInfo<StylePricingVO> stylePricingList = stylePricingService.getStylePricingList(user, stylePricingSearchDTO);
         //导出
-        // EasyExcel.write(response.getOutputStream(), StylePricingVO.class).excelType(ExcelTypeEnum.CSV).sheet("款式定价").doWrite(stylePricingList.getList());
-        ExcelUtils.exportExcel(stylePricingList.getList(),  StylePricingVO.class, "款式定价.xlsx",new ExportParams("title","sheetName",ExcelType.HSSF) ,response);
+        ExcelUtils.executorExportExcel(stylePricingList.getList(), StylePricingVO.class,"款式定价.xlsx",stylePricingSearchDTO.getImgFlag(),2000,response,"styleColorPic");
     }
 
 
@@ -118,6 +124,25 @@ public class StylePricingController extends BaseController {
         stylePricingService.insertOrUpdateBatch(stylePricingSaveDTO, super.getUserCompany());
         return updateSuccess("修改成功");
     }
+
+
+    @ApiOperation(value = "计控确认")
+    @PostMapping("/controlPlanCostConfirm")
+    @DuplicationCheck
+    public ApiResult controlPlanCostConfirm(@Valid @RequestBody StylePricingStatusDTO dto) {
+        /*获取到款式定价数据*/
+        List<StylePricing> stylePricings = stylePricingService.listByField("pack_id", com.base.sbc.config.utils.StringUtils.convertList(dto.getId()));
+        /*存在款式定价*/
+        if (CollUtil.isNotEmpty(stylePricings)) {
+            dto.setIds(stylePricings.get(0).getId());
+        } else {
+            dto.setIds("packInfo:" + dto.getId());
+        }
+        dto.setControlConfirm(BaseGlobal.YES);
+        return updateStatus(dto);
+    }
+
+
     @ApiOperation(value = "提交审核")
     @PostMapping("/updateStatus")
     @DuplicationCheck
@@ -135,6 +160,8 @@ public class StylePricingController extends BaseController {
                 StylePricing stylePricing =new StylePricing();
                 stylePricing.setPackId(packInfoId);
                 stylePricing.setCompanyCode(super.getUserCompany());
+                /*企划倍率默认为4*/
+                stylePricing.setPlanningRate(new BigDecimal(4));
                 stylePricingService.save(stylePricing);
                 s=stylePricing.getId();
             }
@@ -173,6 +200,10 @@ public class StylePricingController extends BaseController {
                 stylePricing.setControlHangtagConfirm(dto.getControlHangtagConfirm());
                 stylePricing.setControlConfirmTime(new Date());
             }
+//            计控确认时设置计控成本价等于总成本
+            if (StrUtil.equals(stylePricing.getControlConfirm(),BaseGlobal.YES)){
+                stylePricing.setControlPlanCost(packPricingService.countTotalPrice(stylePricing.getPackId(), BaseGlobal.STOCK_STATUS_CHECKED,3));
+            }
         }
         /*迁移数据不能操作*/
         List<String> packIds = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
@@ -200,7 +231,7 @@ public class StylePricingController extends BaseController {
             type = 4;
         }
 
-        //是否商品吊牌确认
+        //是否计控吊牌确认
         if(StrUtil.equals(dto.getControlHangtagConfirm(),BaseGlobal.YES)){
             type = 5;
         }
@@ -212,7 +243,7 @@ public class StylePricingController extends BaseController {
         smpService.tagConfirmDates(list,type,1);
 
         /*吊牌确认下发*/
-        if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE)){
+        if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE) || StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
             String collect = packInfoList.stream().filter(f -> StrUtil.isNotBlank(f.getStyleColorId())).map(PackInfo::getStyleColorId).collect(Collectors.joining(","));
             if (StrUtil.isNotBlank(collect)) {
                 smpService.goods(collect.split(","));

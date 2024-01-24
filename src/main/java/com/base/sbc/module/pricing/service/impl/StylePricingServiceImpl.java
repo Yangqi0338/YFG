@@ -7,6 +7,7 @@
 package com.base.sbc.module.pricing.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -52,12 +53,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -121,7 +124,22 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return page.toPageInfo();
         }
-        stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
+
+        if(StrUtil.equals(dto.getDeriveFlag(),BaseGlobal.YES) ){
+            if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES) ){
+                if(stylePricingList.size() >1000){
+                    throw new OtherException("带图片最多只能导出1000条");
+                }else {
+                    stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic", 30);
+                }
+            }else {
+                if(stylePricingList.size() >2000){
+                    throw new OtherException("不带图片最多只能导出2000条");
+                }
+            }
+        }else {
+            stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
+        }
         this.dataProcessing(stylePricingList, dto.getCompanyCode());
         return new PageInfo<>(stylePricingList);
     }
@@ -138,85 +156,111 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                 .collect(Collectors.toList());
         Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode);
         Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
-        stylePricingList.forEach(stylePricingVO -> {
-            // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
-            PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
-            packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
-            packCommonSearchDto.setForeignId(stylePricingVO.getId());
-            //材料成本,如果fob,则不计算
-            if ("CMT".equals(stylePricingVO.getProductionType())){
-                stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
-            }else {
-                stylePricingVO.setMaterialCost(BigDecimal.ZERO);
-            }
-            stylePricingVO.setPackagingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "包装费")));
-            stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "检测费")));
-            stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "车缝加工费")));
-            stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "毛纱加工费")));
-            BigDecimal coordinationProcessingFee = new BigDecimal(0);
-            coordinationProcessingFee = coordinationProcessingFee.add(
-                            BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协其他"))).
-                    add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协印花"))).
-                    add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协绣花"))).
-                    add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协压皱")));
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .build();
 
-            stylePricingVO.setCoordinationProcessingFee(coordinationProcessingFee);
-
-            //加工费
-            List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
-            if (!processCostsList.isEmpty()) {
-                try {
-                    processCostsList.stream()
-                            .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
-                            .reduce(BigDecimal::add)
-                            .ifPresent(stylePricingVO::setProcessingFee);
-                } catch (Exception e) {
-                    logger.error("StylePricingServiceImpl#dataProcessing 加工费计算异常", e);
+        try {
+        CountDownLatch countDownLatch = new CountDownLatch(stylePricingList.size());
+        for (StylePricingVO stylePricingVO : stylePricingList) {
+            executor.submit(() -> {
+                // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
+                PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
+                packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+                packCommonSearchDto.setForeignId(stylePricingVO.getId());
+                //材料成本,如果fob,则不计算
+                if ("CMT".equals(stylePricingVO.getProductionType())) {
+                    stylePricingVO.setMaterialCost(packBomService.calculateCosts(packCommonSearchDto));
+                } else {
+                    stylePricingVO.setMaterialCost(BigDecimal.ZERO);
                 }
+                stylePricingVO.setPackagingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "包装费")));
+                stylePricingVO.setTestingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "检测费")));
+                stylePricingVO.setSewingProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "车缝加工费")));
+                stylePricingVO.setWoolenYarnProcessingFee(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "毛纱加工费")));
+                BigDecimal coordinationProcessingFee = new BigDecimal(0);
+                coordinationProcessingFee = coordinationProcessingFee.add(
+                                BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协其他"))).
+                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协印花"))).
+                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协绣花"))).
+                        add(BigDecimalUtil.convertBigDecimal(otherCostsMap.get(stylePricingVO.getId() + "外协压皱")));
 
-            }
-            //二次加工费用
-            List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
-            if (!pricingCraftCostsList.isEmpty()) {
-                try {
-                    pricingCraftCostsList.stream()
-                            .map(costs -> costs.getPrice().multiply(costs.getNum()))
-                            .reduce(BigDecimal::add)
-                            .ifPresent(stylePricingVO::setSecondaryProcessingFee);
-                } catch (Exception e) {
-                    logger.error("StylePricingServiceImpl#dataProcessing 二次加工费用计算异常", e);
-                }
-            }
+                stylePricingVO.setCoordinationProcessingFee(coordinationProcessingFee);
 
-
-            stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
-                    stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(),
-                    stylePricingVO.getCoordinationProcessingFee(), stylePricingVO.getSecondaryProcessingFee(), stylePricingVO.getProcessingFee()));
-            stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().setScale(3, RoundingMode.HALF_UP));
-            BigDecimal taxRate = BigDecimal.ONE;
-            if ("CMT".equals(stylePricingVO.getProductionType())){
-
-                System.out.println(stylePricingVO.getCalcItemVal());
-                JSONObject jsonObject = JSON.parseObject(stylePricingVO.getCalcItemVal());
-                if (jsonObject!=null){
-                    taxRate = jsonObject.getBigDecimal("税率");
+                //加工费
+                List<PackPricingProcessCosts> processCostsList = packPricingProcessCostsService.list(new QueryWrapper<PackPricingProcessCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
+                if (!processCostsList.isEmpty()) {
+                    try {
+                        processCostsList.stream()
+                                .map(costs -> costs.getProcessPrice().multiply(costs.getMultiple()))
+                                .reduce(BigDecimal::add)
+                                .ifPresent(stylePricingVO::setProcessingFee);
+                    } catch (Exception e) {
+                        logger.error("StylePricingServiceImpl#dataProcessing 加工费计算异常", e);
+                    }
 
                 }
-                if (stylePricingVO.getTotalCost()!=null && taxRate!=null){
-                    stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate).setScale(3, RoundingMode.HALF_UP));
+                //二次加工费用
+                List<PackPricingCraftCosts> pricingCraftCostsList = packPricingCraftCostsService.list(new QueryWrapper<PackPricingCraftCosts>().eq("foreign_id", stylePricingVO.getId()).eq("pack_type", "packBigGoods"));
+                if (!pricingCraftCostsList.isEmpty()) {
+                    try {
+                        pricingCraftCostsList.stream()
+                                .map(costs -> costs.getPrice().multiply(costs.getNum()))
+                                .reduce(BigDecimal::add)
+                                .ifPresent(stylePricingVO::setSecondaryProcessingFee);
+                    } catch (Exception e) {
+                        logger.error("StylePricingServiceImpl#dataProcessing 二次加工费用计算异常", e);
+                    }
                 }
-            }
 
 
-            stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
-            // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
-            //目前逻辑修改为取计控实际成本取总成本
-            stylePricingVO.setPlanCost(stylePricingVO.getTotalCost());
-            //计控实际倍率 = 吊牌价/计控实际成本
-            stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
-            //实际倍率 = 吊牌价/总成本
-            stylePricingVO.setActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(), 2));
-        });
+                stylePricingVO.setTotalCost(BigDecimalUtil.add(stylePricingVO.getMaterialCost(), stylePricingVO.getPackagingFee(),
+                        stylePricingVO.getTestingFee(), stylePricingVO.getSewingProcessingFee(), stylePricingVO.getWoolenYarnProcessingFee(),
+                        stylePricingVO.getCoordinationProcessingFee(), stylePricingVO.getSecondaryProcessingFee(), stylePricingVO.getProcessingFee()));
+                stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().setScale(3, RoundingMode.HALF_UP));
+                BigDecimal taxRate = BigDecimal.ONE;
+                if ("CMT".equals(stylePricingVO.getProductionType())) {
+
+                    System.out.println(stylePricingVO.getCalcItemVal());
+                    JSONObject jsonObject = JSON.parseObject(stylePricingVO.getCalcItemVal());
+                    if (jsonObject != null) {
+                        taxRate = jsonObject.getBigDecimal("税率");
+
+                    }
+                    if (stylePricingVO.getTotalCost() != null && taxRate != null) {
+                        stylePricingVO.setTotalCost(stylePricingVO.getTotalCost().multiply(taxRate).setScale(3, RoundingMode.HALF_UP));
+                    }
+                }
+
+
+                stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
+                // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
+               /*优先展示手数的数据*/
+                if(stylePricingVO.getControlPlanCost() != null){
+                    stylePricingVO.setPlanCost((stylePricingVO.getControlPlanCost()));
+                }else {
+                //目前逻辑修改为取计控实际成本取总成本
+                stylePricingVO.setPlanCost(stylePricingVO.getTotalCost());
+                }
+                //计控实际倍率 = 吊牌价/计控实际成本
+                stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
+                //实际倍率 = 吊牌价/总成本
+                stylePricingVO.setActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getTotalCost(), 2));
+                //每次减一
+                countDownLatch.countDown();
+            });
+        }
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
         stylePicUtils.setStylePic(stylePricingList, "sampleDesignPic");
     }
 
@@ -236,6 +280,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         return stylePricingList.get(0);
     }
 
+    @Transactional
     @Override
     public void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode) {
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);

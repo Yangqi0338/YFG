@@ -6,42 +6,31 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
-import java.security.Principal;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.module.basicsdatum.dto.SpecificationGroupDto;
+import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.sample.dto.QueryFabricIngredientsInfoDto;
 import com.base.sbc.module.style.dto.*;
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageInfo;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.security.Principal;
+import java.util.List;
 
 /**
 * 类描述：款式-款式配色 Controller类
@@ -149,8 +138,8 @@ public class StyleColorController {
 
 	@ApiOperation(value = "修改大货款号,波段")
 	@PostMapping("/updateStyleNoBand")
-	public Boolean updateStyleNoBand(@Valid @RequestBody UpdateStyleNoBandDto updateStyleNoBandDto) {
-		return styleColorService.updateStyleNoBand(updateStyleNoBandDto);
+	public Boolean updateStyleNoBand(Principal user, @Valid @RequestBody UpdateStyleNoBandDto updateStyleNoBandDto) {
+		return styleColorService.updateStyleNoBand(user, updateStyleNoBandDto);
 	}
 
 	@ApiOperation(value = "验证配色是否可修改")
@@ -229,6 +218,20 @@ public class StyleColorController {
 	@GetMapping("/getByStyleList")
 	public  PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto) {
 		return styleColorService.getByStyleList(dto);
+	}
+
+	@ApiOperation(value = "保存正确样样衣码字段")
+	@PostMapping("/saveCorrectBarCode")
+	public ApiResult saveCorrectBarCode( @Valid @RequestBody StyleColor styleColor) {
+		styleColorService.saveCorrectBarCode(styleColor);
+		return ApiResult.success();
+	}
+
+	@ApiOperation(value = "保存设计时间")
+	@PostMapping("/saveDesignDate")
+	public ApiResult saveDesignDate( @Valid @RequestBody AddRevampStyleColorDto styleColor) {
+		styleColorService.saveDesignDate(styleColor);
+		return ApiResult.success();
 	}
 }
 

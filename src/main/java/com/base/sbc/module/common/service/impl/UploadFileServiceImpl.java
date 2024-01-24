@@ -16,6 +16,7 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.CustomStylePicUpload;
@@ -51,7 +52,6 @@ import com.base.sbc.module.style.service.StylePicService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StylePicVo;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
@@ -521,7 +521,38 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delStyleImage(DelStylePicDto dto, Principal user) {
-        return false;
+        StyleColor styleColor = styleColorMapper.selectById(dto.getStyleColorId());
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(StyleColor::getId,dto.getStyleColorId());
+        updateWrapper.set(StyleColor::getStyleColorPic,null);
+        styleColorMapper.update(null,updateWrapper);
+        delStyleColorImage(dto,user,styleColor.getStyleColorPic(),null);
+        return true;
+    }
+
+    @Override
+    public boolean delStyleColorImage(DelStylePicDto dto, Principal user,String delFileName,String picType) {
+        GroupUser userBy = userUtils.getUserBy(user);
+        Style style = styleMapper.selectById(dto.getStyleId());
+        StylePicParamsDto params = new StylePicParamsDto();
+        try {
+            setCommonParameter(params, userBy.getUsername(), style);
+            params.setPicname(delFileName);
+            params.setFolderName(customStylePicUpload.getBigGoodsFolder());
+            params.setQuarter(style.getSeason());
+            //不传文件类型 ，默认删除当前款所有类型图片
+            params.setPictype(picType);
+            Map<String, Object> paramMap = BeanUtil.beanToMap(params, false, true);
+            System.out.println("请求参数:" + JSONObject.toJSONString(paramMap));
+            String query = URLUtil.buildQuery(paramMap, Charset.defaultCharset());
+            String delUrl = customStylePicUpload.getDeletePhotoUrl() + "?" + query;
+            System.out.println("请求地址:" + delUrl);
+            String s = HttpUtil.get(delUrl);
+            System.out.println("删除返回:" + s);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return true;
     }
 
     @Override

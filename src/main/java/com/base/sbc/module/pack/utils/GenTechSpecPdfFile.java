@@ -133,6 +133,8 @@ public class GenTechSpecPdfFile {
 
     @ApiModelProperty(value = "包装形式")
     private String packagingForm;
+    @ApiModelProperty(value = "二检包装形式")
+    private String secondPackagingForm;
     @ApiModelProperty(value = "特殊规格")
     private String specialSpec;
 
@@ -198,6 +200,11 @@ public class GenTechSpecPdfFile {
     private boolean fob;
     @ApiModelProperty(value = "基础工艺和裁剪工艺是否强制同页")
     private boolean ctBasicPage;
+    /**
+     * 外辅工艺是否打印(0不打印，1打印)
+     */
+    @ApiModelProperty(value = "外辅工艺是否打印(0不打印，1打印)")
+    private Boolean printWaifuFlag;
 
     public boolean isFob() {
         return StrUtil.equals(devtType, "FOB");
@@ -410,9 +417,16 @@ public class GenTechSpecPdfFile {
         dataModel.put("jcgyShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("jcgyDataList")));
         // 整烫包装 是否显示
         dataModel.put("ztbzShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("ztbzDataList")));
+        List<PackTechSpecVo> ztbzSpecVos = Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList());
+        int ztbzTotalRows = CharUtils.getRows(ztbzSpecVos.stream().map(p -> (PackTechSpec)p).collect(Collectors.toList()));
+        dataModel.put("ztbzRows", ztbzTotalRows);
         // 外辅工艺 是否显示
-        dataModel.put("wfgyDataList", Optional.ofNullable(gyMap.get("外辅工艺")).orElse(CollUtil.newArrayList()));
-        dataModel.put("wfgyShow", isFob() && ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")));
+        List<PackTechSpecVo> wfgyDataList = Optional.ofNullable(gyMap.get("外辅工艺")).orElse(CollUtil.newArrayList());
+        dataModel.put("wfgyDataList", wfgyDataList);
+//        dataModel.put("wfgyShow", isFob && ObjectUtil.isNotEmpty(dataModel.get("wfgyDataList")));
+        dataModel.put("wfgyShow", printWaifuFlag);
+        int wfgyDataRows = getJCGYRows(wfgyDataList);
+        dataModel.put("wfgyDataRows", wfgyDataRows);
         StringWriter writer = new StringWriter();
         template.process(dataModel, writer);
         String html = writer.toString();
@@ -447,6 +461,27 @@ public class GenTechSpecPdfFile {
      * @return
      */
     public static int getCJGYRows(List<PackTechSpecVo> list) {
+        int totalRows = 0;
+        int numberRows = 0;
+        for (PackTechSpecVo packTechSpec : list) {
+            Integer itemRowCount = CharUtils.contentRows(132f, packTechSpec.getItem(), false);
+            Integer contentRowCount = CharUtils.contentRows(912f, packTechSpec.getContent(), false);
+            // 数字行数
+            float oneRowWidth = itemRowCount > contentRowCount ? 132f : 912f;
+            String content = itemRowCount > contentRowCount ? packTechSpec.getItem() : packTechSpec.getContent();
+            numberRows += CharUtils.contentRows(oneRowWidth, content, true);
+            totalRows += itemRowCount > contentRowCount ? itemRowCount : contentRowCount;
+            packTechSpec.setRows(totalRows);
+            packTechSpec.setNumberRows(numberRows);
+        }
+        return totalRows;
+    }
+
+    /**
+     * @param list
+     * @return
+     */
+    public static int getWFGYRows(List<PackTechSpecVo> list) {
         int totalRows = 0;
         int numberRows = 0;
         for (PackTechSpecVo packTechSpec : list) {

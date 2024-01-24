@@ -15,15 +15,48 @@ public class HangTagVoExcel {
      * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
      */
     @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认")
-    @Excel(name = "状态")
+    @Excel(name = "状态",replace={"未提交_1","未填写_0","未确认_2","待技术员确认_3","待品控确认_4","已确认_5","未填写_null"})
     private String status;
 
     /**
-     * 款式
+     * 颜色
      */
-    @ApiModelProperty(value = "款式")
-    @Excel(name = "款式")
-    private String style;
+    @ApiModelProperty(value = "颜色")
+    @Excel(name = "配色")
+    private String color;
+
+    @Excel(name = "工艺员确认",replace={"未确认_1","未确认_0","未确认_2","已确认_3","已确认_4","已确认_5","未确认_null"})
+    private String confirmedByTheTechnician;
+
+
+
+    @Excel(name = "技术确认",replace={"未确认_1","未确认_0","未确认_2","未确认_3","已确认_4","已确认_5","未确认_null"})
+    private String       technicalConfirmation;
+
+
+    @Excel(name = "品控确认",replace={"未确认_1","未确认_0","未确认_2","未确认_3","未确认_4","已确认_5","未确认_null"})
+    private String  qualityControlConfirmation;
+
+    public String getConfirmedByTheTechnician() {
+        return status;
+    }
+
+    public String getTechnicalConfirmation() {
+        return status;
+    }
+
+    public String getQualityControlConfirmation() {
+        return status;
+    }
+
+
+
+    /**
+     * 大货款号
+     */
+    @ApiModelProperty(value = "大货款号")
+    @Excel(name = "大货款号")
+    private String bulkStyleNo;
 
     /**
      * 款式类型名称
@@ -78,19 +111,7 @@ public class HangTagVoExcel {
     @Excel(name = "生产类型")
     private String  produceTypeName;
 
-    /**
-     * 颜色
-     */
-    @ApiModelProperty(value = "颜色")
-    @Excel(name = "配色")
-    private String color;
 
-    /**
-     * 大货
-     */
-    @ApiModelProperty(value = "大货款号")
-    @Excel(name = "大货款号")
-    private String bulkStyleNo;
 
     /**
      * 号型类型名称
@@ -114,6 +135,9 @@ public class HangTagVoExcel {
     @Excel(name = "品名")
     private String productName;
 
+    @ApiModelProperty(value = "品类")
+    @Excel(name = "品类")
+    private String prodCategoryName;
     /**
      * 执行标准
      */
@@ -142,6 +166,14 @@ public class HangTagVoExcel {
     @Excel(name = "质量等级")
     private String qualityGrade;
 
+
+    /**
+     * 二检包装形式
+     */
+    @ApiModelProperty(value = "二检包装形式")
+    @Excel(name = "二检包装形式")
+    private String secondPackagingForm;
+
     /**
      * 成分信息
      */
@@ -160,8 +192,16 @@ public class HangTagVoExcel {
      * 洗标
      */
     @ApiModelProperty(value = "洗标")
-    @Excel(name = "洗标",type = 2)
+//    @Excel(name = "洗标",type = 2 ,width = 30 , height = 50)
     private String washingLabel;
+
+    /**
+     * 洗标
+     */
+    @ApiModelProperty(value = "洗标")
+    @Excel(name = "洗标",type = 2 ,imageType = 2,width = 30)
+    private byte[] washingLabel1;
+
 
     /**
      * 贮藏要求
@@ -232,10 +272,12 @@ public class HangTagVoExcel {
     @Excel(name = "下单时间")
     private Date placeOrderDate;
 
+
     /**
-     * 工艺包颜色规格
+     * 是否是迁移历史数据 0否 1是
      */
-    @ApiModelProperty(value = "工艺包颜色规格")
-    @Excel(name = "工艺包颜色规格")
-    private String artBagColorSpec;
+    @ApiModelProperty(value = "是否新系统标记")
+    @Excel(name = "是否新系统标记",replace={"是_0","否_1","是_null"})
+    private String historicalData;
+
 }

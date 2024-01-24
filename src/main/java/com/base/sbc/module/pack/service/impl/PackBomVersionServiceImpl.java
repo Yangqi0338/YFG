@@ -37,7 +37,9 @@ import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleInfoColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -96,7 +98,8 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
     @Resource
     @Lazy
     private SmpService smpService;
-
+    @Resource
+    private StyleService styleService;
     @Override
     public PageInfo<PackBomVersionVo> pageInfo(PackCommonPageSearchDto dto) {
         QueryWrapper<PackBomVersion> qw = new QueryWrapper<>();
@@ -306,7 +309,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
             throw new OtherException("版本不存在");
         }
         if (StrUtil.equals(byId.getLockFlag(), BaseGlobal.YES)) {
-            throw new OtherException("已锁定");
+            throw new OtherException("物料清单已锁定，请解锁");
         }
         return byId;
     }
@@ -335,7 +338,7 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
         //物料
         List<PackBomVo> bomList = null;
         //配码
-        List<PackBomSizeVo> bomSizeList = null;
+        List<PackBomSizeVo> bomSizeList = new ArrayList<>();
         //配色
         List<PackBomColor> packBomColorList = null;
         //处理版本
@@ -370,7 +373,36 @@ public class PackBomVersionServiceImpl extends AbstractPackBaseServiceImpl<PackB
                     }
                 }
             }
-            bomSizeList = packBomSizeService.getByBomIds(bomIds);
+            /*判断号型类型是否相等*/
+            PackInfo packInfo = packInfoService.getById(sourceForeignId);
+            /*查询原资料报*/
+            PackInfo packInfo1 = packInfoService.getById(targetForeignId);
+
+            Style style = styleService.getById(packInfo.getForeignId());
+
+            Style style1 = styleService.getById(packInfo1.getForeignId());
+
+            /*判断两个资料包的号型类型是否相同*/
+            if(StrUtil.equals(style.getSizeRange(),style1.getSizeRange())){
+                bomSizeList = packBomSizeService.getByBomIds(bomIds);
+            }else {
+                /*获取款式信息中选中的尺码添加的packbomzies表中*/
+                List<String> productSizes = StringUtils.convertList(style1.getProductSizes());
+                List<String> sizeIds = StringUtils.convertList(style1.getSizeIds());
+                /*组装bom下面的配吗*/
+                for (PackBomVo packBomVo : bomList) {
+                    for (int i = 0; i < sizeIds.size(); i++) {
+                        PackBomSizeVo packBomSize = new PackBomSizeVo();
+                        packBomSize.setSizeId(sizeIds.get(i));
+                        packBomSize.setSize(StringUtils.replaceBlank(productSizes.get(i)));
+                        packBomSize.setWidth(packBomVo.getTranslate());
+                        packBomSize.setWidthCode(packBomVo.getTranslateCode());
+                        packBomSize.setQuantity(StrUtil.equals(packBomVo.getStageFlag(), PackUtils.PACK_TYPE_DESIGN) ? packBomVo.getDesignUnitUse() : packBomVo.getBulkUnitUse());
+                        packBomSize.setBomId(packBomVo.getId());
+                        bomSizeList.add(packBomSize);
+                    }
+                }
+            }
             packBomColorList = BeanUtil.copyToList(packBomColorService.getByBomIds(bomIds), PackBomColor.class);
             // 1获取目标启用版本
             newVersion = BeanUtil.copyProperties(getEnableVersion(targetForeignId, targetPackType), PackBomVersionVo.class);

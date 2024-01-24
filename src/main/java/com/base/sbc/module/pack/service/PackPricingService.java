@@ -32,21 +32,42 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
     Map<String, BigDecimal> calculateCosts(PackCommonSearchDto dto);
 
-    BigDecimal formula(String formula, Map<String, Object> itemVal);
+    /**
+     * 计算价格
+     * @param formula
+     * @param itemVal
+     * @param decimal 保留小数点
+     * @return
+     */
+    BigDecimal formula(String formula, Map<String, Object> itemVal,Integer decimal);
 
     PackPricingVo saveByDto(PackPricingDto dto);
 
     /**
      * 计算总价格
-     * 默认查大货 flag=1 资料包什么阶段就查什么阶段
+     * 默认查大货 flag=1 查询设计  flag=2 当前阶段
      * @param packInfoId
      * @param flag
      * @return
      */
-    BigDecimal countTotalPrice(String packInfoId,String flag);
+    BigDecimal countTotalPrice(String packInfoId,String flag,Integer decimal);
 
     void asyncCost(String foreignId);
 
+    /**
+     * 获取核价信息中的路由信息
+     * @param styleNo
+     * @return
+     */
+    Map getPricingRoute(String styleNo);
+
+    /**
+     * 生成核价信息
+     * @param styleId
+     * @param foreignId
+     * @return
+     */
+   boolean createPackPricing( String styleId,String foreignId);
 
 // 自定义方法区 不替换的区域【other_end】
 

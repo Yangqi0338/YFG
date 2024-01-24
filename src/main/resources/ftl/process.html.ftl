@@ -250,7 +250,7 @@
     .td_lt {
         text-align: left;
         vertical-align: top;
-        padding-top: 4px;
+        /*padding-top: 4px;*/
     }
 
     hr {
@@ -432,12 +432,12 @@
                     <td >${washingMaterialRemarksName}</td>
                 </tr>
                 <tr>
-                    <td class="gb bold">充绒量</td>
-                    <td class="gb" style="font-size: 11px">${downContent}</td>
+                    <td class="td_lt gb bold">充绒量</td>
+                    <td class="td_lt gb" style="font-size: 11px"><pre>${downContent}</pre></td>
                 </tr>
                 <tr>
-                    <td class="bold">特殊规格</td>
-                    <td style="font-size: 11px">${specialSpec}</td>
+                    <td class="td_lt bold">特殊规格</td>
+                    <td class="td_lt" style="font-size: 11px"><pre>${specialSpec}</pre></td>
                 </tr>
                 <tr>
                     <td class="gb bold">面料详情</td>
@@ -920,10 +920,7 @@
         <#assign lastIndex = jcgyDataList?size - 1>
         <#assign totalSize = jcgyDataList[lastIndex].rows + cjgyRows>
     <#--可以容纳27个没有数字的行-->
-        <#assign maxSize = 26>
-    <#--如果每一行都有数字则能容纳22行（测试机器和生产机器为准）-->
-    <#--25/22 约等于 0.88, 也就是说存在数字的行数/0.88 + 不存在数字的行数 是否大于 25，如果大于则换行-->
-    <#--假如基础工艺8行没有数字的 + 2行有数字的  2*0.88 + 8*1-->
+        <#assign maxSize = 21>
     <#--    <#assign maxSize = 23>-->
 
 
@@ -951,7 +948,7 @@
                             <div>
                                 <div class="flex_td_box">
                                     <#list jcgyDataList as item>
-                                        <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
+                                        <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
                                         <#if curRows lt maxSize>
                                             <div>
                                                 <div>
@@ -989,11 +986,10 @@
             </table>
         </#if>
 
-        <#if breakPointer gt 0>
+        <#if breakPointer gt 0 && breakPointer+1 lt jcgyDataList?size>
             <#assign lastItem = jcgyDataList[breakPointer+1]>
-        <#--总行数减去有数字的行数 = 不存在数字的行数-->
-            <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/0.88 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 27>
-        <#--如果需要分页-->
+            <#--总行数减去有数字的行数 = 不存在数字的行数-->
+            <#assign hasPageBreak = ((lastItem.numberRows+cjgyDataList?last.numberRows)/1 + ((lastItem.rows-lastItem.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))) gt 21>
             <#if hasPageBreak>
                 <table class="table_border mt" style="page-break-before: always">
                     <thead>
@@ -1016,7 +1012,7 @@
                                 <div>
                                     <div class="flex_td_box">
                                         <#list jcgyDataList as item>
-                                            <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/0.88 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
+                                            <#assign curRows = (item.numberRows+cjgyDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (cjgyDataList?last.rows - cjgyDataList?last.numberRows))>
                                             <#if curRows gt maxSize || curRows == maxSize>
                                                 <div>
                                                     <div>
@@ -1282,37 +1278,93 @@
 
 <!--    外辅工艺 7-->
 <#if wfgyShow>
-    <table class="table_border mt" style="page-break-before: always;">
-        <thead>
-        <tr>
-            <th colspan="2" class="th_title">
-                <p>外辅工艺</p>
-                <hr>
-            </th>
-        </tr>
-        <tr>
-            <th class="gb item_th">工艺项目</th>
-            <th class="gb">描述</th>
-        </tr>
-        </thead>
-        <tbody>
-        <#if wfgyDataList??>
-            <#list wfgyDataList as item>
+    <#if wfgyDataList?size gt 0>
+        <#assign lastIndex = wfgyDataList?size - 1>
+        <#assign totalSize = wfgyDataList[lastIndex].rows + ztbzDataList?size - 1>
+        <#assign maxSize = 21>
+
+        <!--    基础工艺 4 3-->
+        <#assign breakPointer = 0 >
+        <table class="table_border mt" style="page-break-inside: auto;">
+            <thead>
+            <tr>
+                <th colspan="2" class="th_title">
+                    <p>外辅工艺</p>
+                    <hr>
+                </th>
+            </tr>
+            <tr>
+                <th class="gb item_th">工艺项目</th>
+                <th class="gb">描述</th>
+            </tr>
+            </thead>
+            <tbody>
+            <#if wfgyDataList??>
+                <#list wfgyDataList as item>
+                    <#assign curRows = (item.numberRows+wfgyDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))>
+                    <#if curRows lt maxSize>
+                        <tr>
+                            <td style="text-align: left;width: 12em;text-indent: 1em;box-sizing: border-box">${item.item}</td>
+                            <td>
+                                ${item.content}
+                            </td>
+                        </tr>
+                        <#assign breakPointer = item_index >
+                    </#if>
+                </#list>
+            </#if>
+            </tbody>
+            <#if breakPointer+1 gte wfgyDataList?size>
+                <tfoot>
                 <tr>
-                    <td style="text-align: left;width: 12em;text-indent: 1em;box-sizing: border-box">${item.item}</td>
-                    <td>
-                        ${item.content}
-                    </td>
+                    <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>
                 </tr>
-            </#list>
+                </tfoot>
+            </#if>
+        </table>
+
+        <#if breakPointer gt 0 && breakPointer+1 lt wfgyDataList?size>
+<#--            <#assign lastItem = wfgyDataList[breakPointer+1]>-->
+<#--            &lt;#&ndash;总行数减去有数字的行数 = 不存在数字的行数&ndash;&gt;-->
+<#--            <#assign hasPageBreak = ((lastItem.numberRows+wfgyDataList?last.numberRows)/1 + ((lastItem.rows-lastItem.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))) gt 21>-->
+<#--            <#if hasPageBreak>-->
+                <table class="table_border mt" style="page-break-before: always;">
+                    <thead>
+                    <tr>
+                        <th colspan="2" class="th_title">
+                            <p>外辅工艺</p>
+                            <hr>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th class="gb item_th">工艺项目</th>
+                        <th class="gb">描述</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <#if wfgyDataList??>
+                        <#list wfgyDataList as item>
+                            <#assign curRows = (item.numberRows+wfgyDataList?last.numberRows)/1 + ((item.rows-item.numberRows) + (wfgyDataList?last.rows - wfgyDataList?last.numberRows))>
+                            <#if curRows gt maxSize || curRows == maxSize>
+                                <tr>
+                                    <td style="text-align: left;width: 12em;text-indent: 1em;box-sizing: border-box">${item.item}</td>
+                                    <td>
+                                        ${item.content}
+                                    </td>
+                                </tr>
+                            </#if>
+                        </#list>
+                    </#if>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>
+                    </tr>
+                    </tfoot>
+                </table>
+<#--            </#if>-->
         </#if>
-        </tbody>
-<#--        <tfoot>-->
-<#--        <tr>-->
-<#--            <td colspan="3" style="height: 32px;">外辅工艺-${wfgyDataList?size}</td>-->
-<#--        </tr>-->
-<#--        </tfoot>-->
-    </table>
+    </#if>
 </#if>
 </body>
 </html>

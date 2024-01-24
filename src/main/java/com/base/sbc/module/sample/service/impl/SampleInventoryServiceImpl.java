@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.exception.OtherException;
@@ -30,7 +31,6 @@ import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import com.google.common.collect.Lists;
 import org.apache.commons.collections4.CollectionUtils;
-import org.codehaus.plexus.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -168,7 +168,7 @@ public class SampleInventoryServiceImpl extends BaseServiceImpl<SampleInventoryM
         QueryWrapper<SampleInventoryVo> qw = new QueryWrapper<>();
         qw.eq("si2.company_code", getCompanyCode());
 
-        if (StringUtils.isNotEmpty(dto.getStatus()) && !StringUtils.equals(dto.getStatus(), "0")) {
+        if (StrUtil.isNotEmpty(dto.getStatus()) && !StrUtil.equals(dto.getStatus(), "0")) {
             qw.eq("si2.status", dto.getStatus());
         }
         if (null != dto.getStartDate()) {

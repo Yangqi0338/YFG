@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.controller;
 
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.IdsDto;
@@ -69,6 +70,7 @@ public class PackPricingController {
 
     @ApiOperation(value = "保存")
     @PostMapping()
+    @DuplicationCheck
     public PackPricingVo savePackPricing(@Valid @RequestBody PackPricingDto dto) {
         return packPricingService.saveByDto(dto);
     }
@@ -163,7 +165,14 @@ public class PackPricingController {
     @ApiOperation(value = "公式计算")
     @PostMapping("/formula")
     public BigDecimal formula(@Valid @RequestBody FormulaDto dto) {
-        return packPricingService.formula(dto.getFormula(), dto.getItemVal());
+        return packPricingService.formula(dto.getFormula(), dto.getItemVal(),2);
+    }
+
+
+    @ApiOperation(value = "获取核价信息路由参数")
+    @GetMapping("/getPricingRoute")
+    public Map getPricingRoute(String styleNo) {
+        return packPricingService.getPricingRoute(styleNo);
     }
 }
 

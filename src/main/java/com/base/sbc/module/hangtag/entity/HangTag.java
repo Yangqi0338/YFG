@@ -106,6 +106,11 @@ public class HangTag extends BaseDataEntity<String> {
     /** 包装形式编码 */
     @ApiModelProperty(value = "包装形式编码"  )
     private String packagingFormCode;
+    /** 二检包装形式 */
+    @ApiModelProperty(value = "二检包装形式"  )
+    private String secondPackagingForm;
+    @ApiModelProperty(value = "二检包装形式编码"  )
+    private String secondPackagingFormCode;
     /** 包装形式 */
     @ApiModelProperty(value = "包装形式"  )
     private String packagingForm;
@@ -167,6 +172,11 @@ public class HangTag extends BaseDataEntity<String> {
     /** 温馨提示 */
     @ApiModelProperty(value = "温馨提示"  )
     private String warmTips;
+    /**
+     * 温馨提示编码
+     */
+    @ApiModelProperty(value = "温馨提示编码")
+    private String warmTipsCode;
     /**
      * 洗标
      */

@@ -20,6 +20,9 @@ import org.hibernate.validator.constraints.NotBlank;
 public class PackCopyDto {
 
 
+    /**
+     * 被引用的bom id
+     */
     @ApiModelProperty(value = "源资料包id")
     @NotBlank(message = "源id为空")
     private String sourceForeignId;
@@ -29,6 +32,9 @@ public class PackCopyDto {
     @NotBlank(message = "源类型为空")
     private String sourcePackType;
 
+    /**
+     * 原本的bom id
+     */
     @ApiModelProperty(value = "目标资料包id")
     @NotBlank(message = "目标id为空")
     private String targetForeignId;

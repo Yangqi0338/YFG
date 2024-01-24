@@ -4,10 +4,13 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
@@ -316,6 +319,12 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getComponent()), "component", pageDto.getComponent());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryCode()), "category_id", pageDto.getCategoryCode());
         queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryId()), "category_id", pageDto.getCategoryId());
+        queryWrapper.in(StringUtils.isNotEmpty(pageDto.getComponent()), "component", StringUtils.convertList(pageDto.getComponent()));
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryName()), "category_name", pageDto.getCategoryName());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getProcessRequire()), "process_require", pageDto.getProcessRequire());
+
+
+
         queryWrapper.andLike(pageDto.getSearch(), "code", "process_name");
         if (pageDto.getCreateDate() != null) {
 
@@ -364,5 +373,47 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         qw.ne("del_flag", BaseGlobal.YES);
         qw.eq("type", BasicNumber.SEVEN.getNumber());
         return list(qw);
+    }
+
+    /**
+     * 获取到部件中部件类别可查询的数据
+     *
+     * @param type
+     * @param companyCode
+     * @return
+     */
+    @Override
+    public List<ProcessDatabase> getQueryList(String type,String field, String brandId,String categoryId,String companyCode) {
+
+        QueryWrapper<ProcessDatabase> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq(COMPANY_CODE, companyCode);
+        queryWrapper.eq("del_flag", BaseGlobal.NO);
+        queryWrapper.eq("type", type);
+        queryWrapper.eq("status", BaseGlobal.NO);
+        queryWrapper.like(StringUtils.isNotBlank(brandId),"brand_id", brandId);
+        queryWrapper.like(StringUtils.isNotBlank(categoryId),"category_id", categoryId);
+        queryWrapper.groupBy(StringUtils.toUnderScoreCase(field));
+        List<ProcessDatabase> processDatabaseList = baseMapper.selectList(queryWrapper);
+        if (CollUtil.isEmpty(processDatabaseList)) {
+            return processDatabaseList;
+        }
+
+        if (StrUtil.equals(field, "categoryId")) {
+            List<ProcessDatabase> list = new ArrayList<>();
+            String collect = processDatabaseList.stream().map(ProcessDatabase::getCategoryName).collect(Collectors.joining(","));
+
+            List<String> stringList = StringUtils.convertList(collect);
+            stringList = stringList.stream().distinct().collect(Collectors.toList());
+            for (String s : stringList) {
+                ProcessDatabase p = new ProcessDatabase();
+                p.setCategoryName(s);
+                list.add(p);
+            }
+            return list;
+        }
+
+        /*去掉空数据*/
+        return processDatabaseList.stream().filter(p -> StrUtil.isNotBlank(BeanUtil.getProperty(p, field))).collect(Collectors.toList());
+
     }
 }

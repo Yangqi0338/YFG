@@ -28,5 +28,7 @@
                 #{id}
             </foreach>
         </if>
+        and (tbs.internal_size is not null and tbs.internal_size != '')
+        order by FIELD(tbs.internal_size, 'XXXS','XXS','XS','S','M','L','XL','XXL','XXL','XXXL','XXXXL')
     </select>
 </mapper>

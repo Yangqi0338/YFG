@@ -63,6 +63,20 @@ public class HangTagListVO extends HangTag {
     @ApiModelProperty(value = "生产类型")
     private String produceType;
 
+    /** 波段名称 */
+    @ApiModelProperty(value = "波段名称"  )
+    private String bandName;
+
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 年份 */
+    @ApiModelProperty(value = "年份"  )
+    private String year;
+
+    /** 季节 */
+    @ApiModelProperty(value = "季节"  )
+    private String  season;
 
     /**
      * 生产类型名称

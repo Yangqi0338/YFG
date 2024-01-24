@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.moreLanguage.mapper.StandardColumnCountryTranslateMapper">
+    <!--
+        品名多语言属性值配置表
+        创建人：KC
+        邮箱：KC
+        创建时间：2023-11-30 15:07:41
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+
+    <select id="listAllByTable" resultType="java.util.Map">
+        select ${fields} from ${tableName} where ${where}
+    </select>
+</mapper>

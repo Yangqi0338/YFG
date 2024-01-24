@@ -6,23 +6,26 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.service.impl;
 
-import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateField;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.date.Week;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
-import cn.hutool.core.thread.ThreadFactoryBuilder;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.entity.Dept;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -31,7 +34,6 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
-import com.base.sbc.config.IFileLoaderImpl;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -43,12 +45,15 @@ import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
+import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessNodeService;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.nodestatus.dto.NodestatusPageSearchDto;
+import com.base.sbc.module.nodestatus.dto.ResearchProgressPageDto;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
@@ -70,7 +75,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Maps;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,8 +84,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.Principal;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
@@ -131,6 +133,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Autowired
     private ScoreConfigService scoreConfigService;
 
+    @Autowired
+    private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
+
+    @Autowired
+    private PatternMakingService patternMakingService;
+
+
     private final ReentrantLock lock = new ReentrantLock();
 
     @Override
@@ -168,9 +177,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         } else {
             rQw.ne("sample_type", "初版样");
             long count = count(rQw);
-            if (count >= 5) {
+            /*去掉限制改为前端消息提醒*/
+           /* if (count >= 5) {
                 throw new OtherException("只能新建6个打版指令:1个初版样、5个其他");
-            }
+            }*/
         }
         // 校验打样顺序重复
         checkPatSeqRepeat(dto.getStyleId(), null, dto.getPatSeq());
@@ -228,6 +238,78 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         updateWrapper.set("disable_flag", startStopDto.getStatus());
         /*修改状态*/
         return baseMapper.update(null, updateWrapper) > 0;
+    }
+
+    /**
+     * 获取款下面的初版车缝工和上次车缝工
+     *
+     * @param styleId
+     * @return
+     */
+    @Override
+    public Map<String, String> getHeadLastTimeStitcher(String styleId) {
+        Map<String, String> map = new HashMap<>();
+        /*获取初版下的车缝工*/
+        BaseQueryWrapper<PatternMaking> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("style_id", styleId);
+        queryWrapper.eq("sample_type", "初版样");
+        PatternMaking patternMaking = baseMapper.selectOne(queryWrapper);
+        if (ObjectUtil.isNotEmpty(patternMaking)) {
+            map.put("headStitcher", patternMaking.getStitcher());
+        }
+        /*获取最后一次车缝工（按版的新建时间）*/
+        queryWrapper.clear();
+        queryWrapper.eq("style_id", styleId);
+        queryWrapper.isNotNullStr("stitcher");
+        queryWrapper.orderByDesc("create_date");
+        List<PatternMaking> makingList = baseMapper.selectList(queryWrapper);
+        if (CollUtil.isNotEmpty(makingList)) {
+            map.put("lastTimeStitcher", makingList.get(0).getStitcher());
+        }
+        return map;
+    }
+
+    /**
+     * 获取到设计款下面的样衣
+     *
+     * @param styleId
+     * @return
+     */
+    @Override
+    public List<PatternMakingVo> getSampleDressBydesignNo(String styleId) {
+        BaseQueryWrapper<PatternMaking> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("style_id",styleId);
+        queryWrapper.isNotNullStr("sample_bar_code");
+        List<PatternMaking> makingList = baseMapper.selectList(queryWrapper);
+        List<PatternMakingVo> list = CopyUtil.copy(makingList,PatternMakingVo.class);
+        return list;
+    }
+
+    @Override
+    public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
+
+        QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
+        qw.select("DISTINCT pattern_designer_id as user_id, pattern_designer_name as name");
+        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
+                .isNotNull(PatternMaking::getPatternDesignerId)
+                .isNotNull(PatternMaking::getPatternDesignerName)
+                .ne(PatternMaking::getPatternDesignerName, "")
+                .ne(PatternMaking::getPatternDesignerId, "");
+        List<Map<String, Object>> maps = listMaps(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        amcFeignService.setUserAvatarToList(list);
+        return list;
+    }
+
+    @Override
+    public void saveReceiveReason(TechnologyCenterTaskVo dto) {
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId, dto.getId());
+        updateWrapper.set(PatternMaking::getUpdateId, getUserId());
+        updateWrapper.set(PatternMaking::getUpdateName, getUserName());
+        updateWrapper.set(PatternMaking::getUpdateDate, new Date());
+        updateWrapper.set(PatternMaking::getReceiveReason, dto.getReceiveReason());
+        update(updateWrapper);
     }
 
     @Override
@@ -444,8 +526,29 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         } else {
             dto.setOrderBy(dto.getOrderBy());
         }
+        if(StrUtil.isNotBlank(dto.getIsRetentionQuery())){
+            //是否滞留款查询
+            //仅获取样衣看板内的初版样
+            qw.eq("p.sample_type_name", "初版样");
+            //如果相同款有后续样时则不查出
+            qw.notExists("select 1 from t_pattern_making p1 where p1.sample_type_name != '初版样' and p.style_id = p1.style_id");
+            //没有再次下发打版指令+＞7天
+            qw.lt("p.receive_sample_date",DateUtils.getWeekAgo(new Date()));
+
+            qw.like(StrUtil.isNotBlank(dto.getPatternRoom()), "p.pattern_room", dto.getPatternRoom());
+            qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
+            qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
+            if (StrUtil.isNotBlank(dto.getReceiveSampleDate())) {
+                String[] split = dto.getReceiveSampleDate().split(",");
+                qw.ge("p.receive_sample_date", split[0]);
+                qw.le("p.receive_sample_date", split[1]);
+            }
+        }
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
-        Page<TechnologyCenterTaskVo> page = PageHelper.startPage(dto);
+        Page<TechnologyCenterTaskVo> page = null;
+        if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+            page = PageHelper.startPage(dto);
+        }
         List<TechnologyCenterTaskVo> list = getBaseMapper().technologyCenterTaskList(qw);
         // 设置图片
         stylePicUtils.setStylePic(list, "stylePic");
@@ -465,7 +568,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 //            }
         }
         nodeStatusService.setNodeStatus(list);
-        return page.toPageInfo();
+        return page != null ? page.toPageInfo() : new PageInfo<>(list);
+    }
+
+    @Override
+    public void technologyCenterTaskListExcel(HttpServletResponse response, TechnologyCenterTaskSearchDto dto) {
+        List<TechnologyCenterTaskVo> list = technologyCenterTaskList(dto).getList();
+        if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
+            minioUtils.setObjectUrlToList(list,"stylePic");
+        }
+        List<TechnologyCenterTaskExcelDto> list1 = BeanUtil.copyToList(list, TechnologyCenterTaskExcelDto.class);
+        /*使用线程导出*/
+        ExcelUtils.executorExportExcel(list1, TechnologyCenterTaskExcelDto.class,"滞留款导出",dto.getImgFlag(),2000,response,"stylePic");
     }
 
     @Override
@@ -600,6 +714,17 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq(StrUtil.isNotBlank(dto.getFinishFlag()), "p.finish_flag", dto.getFinishFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleCompleteFlag()), "p.sample_complete_flag", dto.getSampleCompleteFlag());
         qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
+        if (StrUtil.isNotBlank(dto.getUserType())){
+            switch (dto.getUserType()) {
+                case "0":
+                    qw.ne("p.pattern_design_id", getUserId());
+                    break;
+                case "3":
+                    qw.eq("p.pattern_design_id", getUserId());
+                    break;
+                default:
+            }
+        }
         //手机端
         if (StrUtil.equals(dto.getIsApp(), BasicNumber.ONE.getNumber())) {
             //判断是否是样衣组长
@@ -875,6 +1000,300 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return new PageInfo<>(list);
     }
 
+
+
+    @Override
+    public PageInfo<StyleResearchProcessVo> researchProcessList(ResearchProgressPageDto dto, String userCompany) {
+        dto.setCompanyCode(userCompany);
+        PageHelper.startPage(dto);
+        String nodeCode = dto.getNodeCode();
+
+        if (StrUtil.isNotBlank(nodeCode)) {
+            if ("noNextDraft".equals(nodeCode) || "reviewedDraft".equals(nodeCode) || "nextDraft".equals(nodeCode) ||
+                    "punchingCompleted".equals(nodeCode) || "sampleClothingCompleted".equals(nodeCode) ||
+                    "orderBookProduction".equals(nodeCode) || "bossStyle".equals(nodeCode)) {
+            } else {
+                return new PageInfo<>(null);
+            }
+        }
+        List<StyleResearchProcessVo> list = this.getBaseMapper().getResearchProcessList(dto);
+
+        //region 节点明细数据
+        StyleResearchNodeVo styleResearchNodeVo = null;
+        List<StyleResearchNodeVo> nodeList = null;
+        Date tempDate = null;
+        String presentName = null;
+        String presentStatus = null;
+
+        for (StyleResearchProcessVo styleResearchProcessVo : list) {
+            String templateId = styleResearchProcessVo.getTemplateId();
+            if (styleResearchProcessVo.getNoNextDraft() != null) {
+                tempDate = styleResearchProcessVo.getNoNextDraft();
+            }else{
+                tempDate = new Date();
+            }
+
+            QueryWrapper<BasicsdatumResearchProcessNode> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("template_id", templateId);
+            queryWrapper.orderByAsc("sort");
+            List<BasicsdatumResearchProcessNode> templateList = basicsdatumResearchProcessNodeService.list(queryWrapper);
+
+            nodeList = new ArrayList<>();
+            for (BasicsdatumResearchProcessNode node : templateList) {
+                // 偏移天数
+                tempDate = DateUtil.offset(tempDate, DateField.DAY_OF_YEAR, node.getNumberDay());
+                // 订货本 周二 如果超过星期二顺延到下周二
+                tempDate = getDate(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION, node.getCode(), Week.TUESDAY.getValue(), tempDate);
+                // 老板看样 周三 如果超过星期三顺延到下周三
+                tempDate = getDate(BasicsdatumProcessNodeEnum.BOSS_STYLE, node.getCode(), Week.WEDNESDAY.getValue(), tempDate);
+
+                styleResearchNodeVo = new StyleResearchNodeVo();
+                styleResearchNodeVo.setNodeCode(node.getCode());
+                styleResearchNodeVo.setNodeName(node.getName());
+                if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                    styleResearchNodeVo.setNumberDay(null);
+                    styleResearchNodeVo.setBetweenDayText(null);
+                }else{
+                    styleResearchNodeVo.setNumberDay(node.getNumberDay());
+                    styleResearchNodeVo.setBetweenDayText(node.getNumberDay()+"天");
+                }
+
+                styleResearchNodeVo.setPlanTime(tempDate);
+                //获取节点完成日期
+                //BasicsdatumProcessNodeEnum value = BasicsdatumProcessNodeEnum.getBycode(node.getCode());
+                //Date nodeFinashTime = getNodeFinashTime(styleResearchProcessVo.getStyleId(), styleResearchProcessVo.getStyleColorId(), value, styleResearchNodeVo,tempDate);
+                Date nodeFinashTime = null;
+                if (BasicsdatumProcessNodeEnum.NO_NEXT_DRAFT.getCode().equals(node.getCode())) {
+                    nodeFinashTime = styleResearchProcessVo.getNoNextDraft();
+                    styleResearchNodeVo.setPlanTime(nodeFinashTime);
+                }else if (BasicsdatumProcessNodeEnum.REVIEWED_DRAFT.getCode().equals(node.getCode())) {
+                    nodeFinashTime = styleResearchProcessVo.getReviewedDraft();
+                }else if(BasicsdatumProcessNodeEnum.NEXT_DRAFT.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getNextDraft();
+                }else if(BasicsdatumProcessNodeEnum.PUNCHING_COMPLETED.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getPunchingCompleted();
+                }else if(BasicsdatumProcessNodeEnum.SAMPLE_CLOTHING_COMPLETED.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getSampleClothingCompleted();
+                }else if(BasicsdatumProcessNodeEnum.SAMPLE_SELECTION.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getOrderBookProduction();
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周二");
+                    }
+                }else if(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getOrderBookProduction();
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周二");
+                    }
+                }else if(BasicsdatumProcessNodeEnum.BOSS_STYLE.getCode().equals(node.getCode())){
+                    nodeFinashTime = styleResearchProcessVo.getBossStyle();
+                    if (node.getNumberDay() != null && node.getNumberDay() == -1) {
+                        styleResearchNodeVo.setBetweenDayText("周三");
+                    }
+                }
+                if (nodeFinashTime != null) {
+                    tempDate = nodeFinashTime;
+                }
+
+                styleResearchNodeVo.setFinishTime(nodeFinashTime);
+
+                if (styleResearchNodeVo.getFinishTime() != null && styleResearchNodeVo.getPlanTime() != null) {
+                    int compare = DateUtil.compare(styleResearchNodeVo.getFinishTime(), styleResearchNodeVo.getPlanTime());
+
+                    long betweenDay = DateUtil.between(styleResearchNodeVo.getFinishTime(), styleResearchNodeVo.getPlanTime(), DateUnit.DAY);
+                    styleResearchNodeVo.setBetweenDay(betweenDay);
+                    if (compare == 1) {
+                        styleResearchNodeVo.setDescription("延期" + betweenDay + "天");
+                        styleResearchNodeVo.setNodeStatus(1);
+                    } else if (compare == 0) {
+                        styleResearchNodeVo.setDescription("");
+                        styleResearchNodeVo.setNodeStatus(0);
+                    } else if (compare == -1) {
+                        styleResearchNodeVo.setDescription("提前" + betweenDay + "天");
+                        styleResearchNodeVo.setNodeStatus(-1);
+                    }
+                }
+
+                //region 当前节点确认
+                if (nodeFinashTime != null) {
+                    presentName = node.getName();
+                    presentStatus = String.valueOf(styleResearchNodeVo.getNodeStatus());
+                }
+                //endregion
+                nodeList.add(styleResearchNodeVo);
+            }
+
+            // 设置图片
+            getImg(styleResearchProcessVo);
+            styleResearchProcessVo.setPresentNodeStatus(presentStatus);
+            styleResearchProcessVo.setPresentNodeName(presentName);
+            styleResearchProcessVo.setNodeList(nodeList);
+        }
+        //endregion
+        return new PageInfo<>(list);
+    }
+
+    /**
+     * 获取图片
+     * @param styleResearchProcessVo
+     */
+    private void getImg(StyleResearchProcessVo styleResearchProcessVo) {
+        String styleColorPic = styleResearchProcessVo.getStyleColorPic();
+        String stylePic = styleResearchProcessVo.getStylePic();
+        styleResearchProcessVo.setPicture(stylePicUtils.getStyleUrl(styleColorPic));
+        if (StrUtil.isEmpty(styleColorPic)) {
+            styleResearchProcessVo.setPicture(stylePicUtils.getStyleUrl(stylePic));
+        }else{
+            styleResearchProcessVo.setPicture(stylePicUtils.getStyleUrl(styleColorPic));
+        }
+    }
+
+    /**
+     * 特殊逻辑，顺延周几
+     * @param orderBookProduction
+     * @param node
+     * @param weekDay
+     * @param tempDate
+     * @return
+     */
+    private static Date getDate(BasicsdatumProcessNodeEnum orderBookProduction, String node, Integer weekDay, Date tempDate) {
+        if (orderBookProduction.getCode().equals(node) && weekDay != null) {
+            int orderDay = DateUtil.dayOfWeek(tempDate);
+            if (weekDay == Week.TUESDAY.getValue()) {
+                if (orderDay == Week.SUNDAY.getValue()) {
+                    tempDate = DateUtil.offsetDay(tempDate, 2);
+                }else if(orderDay == Week.MONDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 1);
+                }else if(orderDay == Week.WEDNESDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 6);
+                }else if(orderDay == Week.THURSDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 5);
+                }else if(orderDay == Week.FRIDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 4);
+                }else if(orderDay == Week.SATURDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 3);
+                }
+            }else if(weekDay == Week.WEDNESDAY.getValue()){
+                if (orderDay == Week.SUNDAY.getValue()) {
+                    tempDate = DateUtil.offsetDay(tempDate, 3);
+                }else if(orderDay == Week.MONDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 2);
+                }else if(orderDay == Week.MONDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 1);
+                }else if(orderDay == Week.THURSDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 6);
+                }else if(orderDay == Week.FRIDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 5);
+                }else if(orderDay == Week.SATURDAY.getValue()){
+                    tempDate = DateUtil.offsetDay(tempDate, 4);
+                }
+            }
+        }
+        return tempDate;
+    }
+
+    @Override
+    public Date getNodeFinashTime(String stylelId, String styleColorId, BasicsdatumProcessNodeEnum basicsdatumProcessNodeEnum,StyleResearchNodeVo styleResearchNodeVo,Date preFinishDate) {
+        Date resutDate = null;
+        String patternMakeId = null;
+        QueryWrapper<PatternMaking> patternMakingQueryWrapper = new QueryWrapper<>();
+        patternMakingQueryWrapper.eq("style_id",stylelId);
+        patternMakingQueryWrapper.last(" limit 1 ");
+        patternMakingQueryWrapper.orderByAsc("create_date");
+        PatternMaking patternMaking = patternMakingService.getOne(patternMakingQueryWrapper);
+        if (patternMaking != null) {
+            patternMakeId = patternMaking.getId();
+        }
+
+        switch (basicsdatumProcessNodeEnum) {
+            case NO_NEXT_DRAFT:
+                resutDate = preFinishDate;
+                break;
+            case REVIEWED_DRAFT:
+                resutDate = getStyleRelationNodeDate(stylelId,"check_start_time");
+                break;
+            case NEXT_DRAFT:
+                resutDate = getStyleRelationNodeDate(stylelId,"check_end_time");
+                break;
+            case PUNCHING_COMPLETED:
+                QueryWrapper<NodeStatus> plateMakeStatusQueryWrapper = new QueryWrapper<>();
+                plateMakeStatusQueryWrapper.select("end_date");
+                plateMakeStatusQueryWrapper.eq("data_id",patternMakeId);
+                plateMakeStatusQueryWrapper.eq("node","打版任务");
+                plateMakeStatusQueryWrapper.eq("status","打版完成");
+                NodeStatus plateMakeNodeStatus = nodeStatusService.getOne(plateMakeStatusQueryWrapper);
+                if (plateMakeNodeStatus != null) {
+                    resutDate = plateMakeNodeStatus.getEndDate();
+                }
+                break;
+            case SAMPLE_CLOTHING_COMPLETED:
+                QueryWrapper<NodeStatus> sampleNodeStatusQueryWrapper = new QueryWrapper<>();
+                sampleNodeStatusQueryWrapper.select("end_date");
+                sampleNodeStatusQueryWrapper.eq("data_id",patternMakeId);
+                sampleNodeStatusQueryWrapper.eq("node","样衣任务");
+                sampleNodeStatusQueryWrapper.eq("status","车缝完成");
+                NodeStatus sampleNodeStatus = nodeStatusService.getOne(sampleNodeStatusQueryWrapper);
+                if (sampleNodeStatus != null) {
+                    resutDate = sampleNodeStatus.getEndDate();
+                }
+                break;
+            case SAMPLE_SELECTION:
+                break;
+            case ORDER_BOOK_PRODUCTION:
+                //订货本
+                resutDate = getDate(BasicsdatumProcessNodeEnum.ORDER_BOOK_PRODUCTION, styleResearchNodeVo.getNodeCode(), Week.TUESDAY.getValue(), preFinishDate);
+                break;
+            case BOSS_STYLE:
+                //老板看样
+                resutDate = getDate(BasicsdatumProcessNodeEnum.BOSS_STYLE, styleResearchNodeVo.getNodeCode(), Week.WEDNESDAY.getValue(), preFinishDate);
+                break;
+            case RISK_ASSESSMENT:
+                break;
+            case BUSINESS_ENTERPRISES:
+                break;
+            case SEND_MAIN_FABRIC:
+                break;
+            case DESIGN_DETAIL_DATE:
+                break;
+            case DESIGN_CORRECT_DATE:
+                break;
+            case VERSION_ROOM_CHECK_VERSION:
+                break;
+            case PURCHASE_REQUEST:
+                break;
+            case REPLY_DELIVERY_TIME:
+                break;
+            case SURFACE_AUXILIARY_MATERIAL_TESTING:
+                break;
+            case TECHNICAL_TABLE:
+                break;
+            case PRE_PRODUCTION_SAMPLE_PRODUCTION:
+                break;
+            case ORDER_PLACEMENT_BY_ACCOUNTING_CONTROL:
+                break;
+            default:
+                break;
+        }
+        return resutDate;
+    }
+
+    private Date getStyleRelationNodeDate(String stylelId, String returnKey) {
+        Date resutDate = null;
+        QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select(returnKey);
+        queryWrapper.eq("id", stylelId);
+        Style style = styleService.getOne(queryWrapper);
+        if (style != null) {
+            if ("create_date".equals(returnKey)) {
+                resutDate = style.getCreateDate();
+            }else if("check_start_time".equals(returnKey)){
+                resutDate = style.getCheckStartTime();
+            }else if("check_end_time".equals(returnKey)) {
+                resutDate = style.getCheckEndTime();
+            }
+        }
+        return resutDate;
+    }
+
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean nodeStatusChange(String userId, List<NodeStatusChangeDto> list, GroupUser groupUser) {
@@ -1019,7 +1438,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             return objects.toPageInfo();
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
-
+        //region 导出去掉设计师编码
+        list.forEach(item->{
+            if (StrUtil.isNotEmpty(item.getDesigner())) {
+                item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
+            }
+        });
+        //endregion
         stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
@@ -1038,6 +1463,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
+
+        //region 导出去掉设计师编码
+        excelList.forEach(item->{
+            if (StrUtil.isNotEmpty(item.getDesigner())) {
+                item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
+            }
+        });
+        //endregion
+
         /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)

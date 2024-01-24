@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
@@ -15,6 +16,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.CommonUtils;
@@ -22,10 +24,13 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
+import com.base.sbc.module.basicsdatum.dto.SecondIngredientSyncDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.service.*;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
@@ -53,9 +58,12 @@ import com.base.sbc.module.smp.entity.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
+import com.base.sbc.module.style.entity.StyleSpecFabric;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.service.StyleSpecFabricService;
+import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -105,6 +113,10 @@ public class SmpService {
     @Resource
     @Lazy
     private final PackTechSpecService packTechSpecService;
+
+    @Resource
+    @Lazy
+    private StyleSpecFabricService styleSpecFabricService;
 
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
@@ -198,11 +210,12 @@ public class SmpService {
             PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
             if (packInfo!=null){
-                //产前样
-                PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
-                if (preProductionSampleTask!=null){
-                    smpGoodsDto.setTechReceiveDate(preProductionSampleTask.getTechReceiveDate());
-                    smpGoodsDto.setProcessDepartmentDate(preProductionSampleTask.getProcessDepartmentDate());
+                //产前样查询 拿最早的工艺部接收正确样时间
+                List<PreProductionSampleTask> sampleTaskList = preProductionSampleTaskService.list(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()).orderByAsc("tech_receive_date"));
+//                PreProductionSampleTask preProductionSampleTask = preProductionSampleTaskService.getOne(new QueryWrapper<PreProductionSampleTask>().eq("pack_info_id", packInfo.getId()));
+                if (CollUtil.isNotEmpty(sampleTaskList)){
+                    smpGoodsDto.setTechReceiveDate(sampleTaskList.get(0).getTechReceiveDate());
+                    smpGoodsDto.setProcessDepartmentDate(sampleTaskList.get(0).getProcessDepartmentDate());
                 }
                 style = styleService.getById(packInfo.getStyleId());
                 if (style==null){
@@ -343,11 +356,13 @@ public class SmpService {
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 
             // 资料包
-            PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
+            //region 资料包取值逻辑错误
+            /*PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
             if (packTechPackaging != null) {
                 smpGoodsDto.setPackageType(packTechPackaging.getPackagingForm());
                 smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
-            }
+            }*/
+            //endregion
 
             smpGoodsDto.setProductTypeId(style.getStyleType());
             smpGoodsDto.setProductType(style.getStyleTypeName());
@@ -370,10 +385,25 @@ public class SmpService {
                 // 核价
                 if (packPricing != null) {
                     JSONObject jsonObject = JSON.parseObject(packPricing.getCalcItemVal());
-                    smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                    //smpGoodsDto.setCost(jsonObject.getBigDecimal("成本价") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("成本价"));
+                    //车缝教加工费
                     smpGoodsDto.setLaborCosts(jsonObject.getBigDecimal("车缝加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("车缝加工费"));
+                    //物料费
                     smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
+                    //总成本
+                    smpGoodsDto.setCost(packPricingService.countTotalPrice(packInfo.getId(), null,2));
+                    //设计Bom总成本
+                    smpGoodsDto.setDesignPackCost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES,2));
+                    //外协加工费
+                    smpGoodsDto.setOutsourcingProcessingCost((jsonObject.getBigDecimal("外协加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("外协加工费")));
+                    //包装费
+                    smpGoodsDto.setPackagingCost((jsonObject.getBigDecimal("包装费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("包装费")));
+                    //检测费
+                    smpGoodsDto.setTestCost((jsonObject.getBigDecimal("检测费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("检测费")));
+                    //毛纱加工费
+                    smpGoodsDto.setSweaterProcessingCost((jsonObject.getBigDecimal("毛纱加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("毛纱加工费")));
                 }
+
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
 
@@ -453,6 +483,31 @@ public class SmpService {
                 smpSizes.add(smpSize);
             }
             smpGoodsDto.setItemList(smpSizes);
+
+            //region 添加配色指定面料下发 huangqiang
+            QueryWrapper<StyleSpecFabric> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("style_color_id",styleColor.getId());
+            queryWrapper.eq("del_flag","0");
+            List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
+            smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
+            //endregion
+
+            //region 增加二检包装形式
+            //
+            QueryWrapper<HangTag> hangTagQueryWrapper = new QueryWrapper();
+            hangTagQueryWrapper.eq("bulk_style_no",styleColor.getStyleNo());
+            hangTagQueryWrapper.eq("del_flag","0");
+            hangTagQueryWrapper.last("limit 1");
+            HangTag hangTag = hangTagService.getOne(hangTagQueryWrapper);
+            if (hangTag != null) {
+                smpGoodsDto.setSecondPackagingForm(hangTag.getSecondPackagingForm());
+                smpGoodsDto.setSecondPackagingFormCode(hangTag.getSecondPackagingFormCode());
+
+                smpGoodsDto.setPackageType(hangTag.getPackagingFormCode());
+                smpGoodsDto.setPackageSize(hangTag.getPackagingBagStandardCode());
+            }
+            //endregion
+
             // if (true){
             //     return null;
             // }
@@ -694,6 +749,34 @@ public class SmpService {
             //         throw new OtherException(packBom.getMaterialName()+":主面料颜色和配色颜色不一致,无法下发");
             //     }
             // }
+
+            //校验颜色是否存在
+            BasicsdatumMaterialColorQueryDto queryDto = new BasicsdatumMaterialColorQueryDto();
+            queryDto.setMaterialCode(packBom.getMaterialCode());
+            PageInfo<BasicsdatumMaterialColorPageVo> basicsdatumMaterialColorList = basicsdatumMaterialService.getBasicsdatumMaterialColorList(queryDto);
+            if (CollUtil.isEmpty(basicsdatumMaterialColorList.getList())) {
+                throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到颜色信息");
+            } else {
+                long count = basicsdatumMaterialColorList.getList().stream().filter(o -> o.getColorCode().equals(packBom.getColorCode())).count();
+                if (count == 0) {
+                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getColorCode() + packBom.getColor() + "颜色信息");
+                }
+            }
+
+            //校验规格是否存在
+            BasicsdatumMaterialWidthQueryDto queryDto1 = new BasicsdatumMaterialWidthQueryDto();
+            queryDto1.setMaterialCode(packBom.getMaterialCode());
+            PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(queryDto1);
+            if (CollUtil.isEmpty(basicsdatumMaterialWidthList.getList())) {
+                throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到规格信息");
+            } else {
+                long count = basicsdatumMaterialWidthList.getList().stream().filter(o -> o.getWidthCode().equals(packBom.getTranslateCode())).count();
+                if (count == 0) {
+                    throw new OtherException(packBom.getMaterialCode() + "_" + packBom.getMaterialName() + " 没有找到 " + packBom.getTranslateCode() + packBom.getTranslate() + "规格信息");
+                }
+            }
+
+
             /*判断供应商报价是否停用*/
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("is_supplier",BaseGlobal.YES);
@@ -762,8 +845,26 @@ public class SmpService {
                 }
 
             }
+            if (sizeQtyList.isEmpty()){
+                throw new OtherException("尺码信息为空");
+            }
+            if (StringUtils.isEmpty(smpBomDto.getColorName()) || StringUtils.isEmpty(smpBomDto.getColorCode())){
+                throw new OtherException("颜色信息为空");
+            }
             smpBomDto.setSizeQtyList(sizeQtyList);
+            smpBomDto.setRfidFlag(styleColor.getRfidFlag());
+            String category3Code = basicsdatumMaterialService.findOneField(new LambdaQueryWrapper<BasicsdatumMaterial>()
+                    .eq(BasicsdatumMaterial::getMaterialCode, smpBomDto.getMaterialCode()), BasicsdatumMaterial::getCategory3Code);
+            RFIDProperties.categoryRfidMapping.forEach((categoryCode, RFIDType)-> {
+                if (categoryCode.equals(category3Code)) {
+                    smpBomDto.setRfidType(RFIDType.ordinal() + "");
+                }
+            });
 
+            /*如果物料是未下发状态或者是发送失败 就是新增的物料*/
+            if (StrUtil.equals(packBom.getScmSendFlag(), BaseGlobal.NO) || StrUtil.equals(packBom.getScmSendFlag(), BaseGlobal.STOCK_STATUS_CHECKED)) {
+                packBomService.costUpdate(list.get(0).getForeignId(), null);
+            }
 
             String jsonString = JsonStringUtils.toJSONString(smpBomDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/bom", jsonString);
@@ -1314,15 +1415,24 @@ public class SmpService {
                 HangTag hangTag = hangTagService.getById(id);
                 String bulkStyleNo = hangTag.getBulkStyleNo();
                 if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() == type) {
-                    //反审
-                    tagConfirmDateDto.setStyleNo(bulkStyleNo);
-                    tagConfirmDateDto.setTechnologistConfirm(0);
-                    tagConfirmDateDto.setTechnicalConfirm(0);
-                    tagConfirmDateDto.setQualityControlConfirm(0);
-                    tagConfirmDateDto.setTechnologistConfirmDate(null);
-                    tagConfirmDateDto.setTechnicalConfirmDate(null);
-                    tagConfirmDateDto.setQualityControlConfirmDate(null);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    //当status 等于4 待品控确认反审核只取消上一级
+                    if("4".equals(hangTag.getStatus())){
+                        //反审
+                        tagConfirmDateDto.setStyleNo(bulkStyleNo);
+                        tagConfirmDateDto.setTechnicalConfirm(0);
+                        tagConfirmDateDto.setTechnicalConfirmDate(null);
+                        tagConfirmDate.add(tagConfirmDateDto);
+                    }else{
+                        //反审
+                        tagConfirmDateDto.setStyleNo(bulkStyleNo);
+                        tagConfirmDateDto.setTechnologistConfirm(0);
+                        tagConfirmDateDto.setTechnicalConfirm(0);
+                        tagConfirmDateDto.setQualityControlConfirm(0);
+                        tagConfirmDateDto.setTechnologistConfirmDate(null);
+                        tagConfirmDateDto.setTechnicalConfirmDate(null);
+                        tagConfirmDateDto.setQualityControlConfirmDate(null);
+                        tagConfirmDate.add(tagConfirmDateDto);
+                    }
                 }
                 if (HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode() == type) {
                     //工艺员确认
@@ -1347,11 +1457,14 @@ public class SmpService {
                 StylePricing stylePricing = stylePricingService.getById(id);
                 PackInfo packInfo = packInfoService.getById(stylePricing.getPackId());
                 String styleNo = packInfo.getStyleNo();
+                if (StringUtils.isEmpty(styleNo)){
+                    continue;
+                }
                 if (HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode() == type) {
                     //计控成本确认
                     tagConfirmDateDto.setStyleNo(styleNo);
-                    tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
-                    tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
+                    tagConfirmDateDto.setPlanCostConfirm(confirmStatus);
+                    tagConfirmDateDto.setPlanCostConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM.getCode() == type) {
                     //商品吊牌确认
@@ -1362,8 +1475,8 @@ public class SmpService {
                 } else if (HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM.getCode() == type) {
                     //计控吊牌确认
                     tagConfirmDateDto.setStyleNo(styleNo);
-                    tagConfirmDateDto.setPlanCostConfirm(confirmStatus);
-                    tagConfirmDateDto.setPlanCostConfirmDate(date);
+                    tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
+                    tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
@@ -1376,6 +1489,25 @@ public class SmpService {
                 if (aBoolean) {
                     index++;
                 }
+            }
+        }
+        return index;
+    }
+
+    /**
+     * 修改吊牌价的时候验证(暂不需要)
+     */
+    public int secondIngredient(List<SecondIngredientSyncDto> secondIngredientSyncDtoList) {
+        int index = 0;
+        String jsonString = JsonStringUtils.toJSONString(secondIngredientSyncDtoList);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/materialElementKind", jsonString);
+        if (!httpResp.isSuccess()) {
+            throw new OtherException("同步失败");
+        }
+        for (SecondIngredientSyncDto secondIngredientSyncDto : secondIngredientSyncDtoList) {
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(secondIngredientSyncDto), "scm", "下发吊牌和款式定价确认信息");
+            if (aBoolean) {
+                index++;
             }
         }
         return index;

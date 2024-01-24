@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,6 +47,9 @@ public class HangTagIngredientController extends BaseController{
 
     @PostMapping("/save")
     public ApiResult save(@RequestBody HangTagIngredient hangTagIngredient){
+        if (hangTagIngredient.checkPercentageRequired()) {
+            hangTagIngredient.setPercentage(new BigDecimal(hangTagIngredient.getPercentageStr()));
+        }
         hangTagIngredientService.saveOrUpdate(hangTagIngredient);
         return updateSuccess("保存成功");
     }
@@ -55,6 +59,7 @@ public class HangTagIngredientController extends BaseController{
     public ApiResult saveList(@RequestBody HangTagDTO hangTagDTO){
 
         List<HangTagIngredient> hangTagIngredients = hangTagDTO.getHangTagIngredients();
+        hangTagIngredients.stream().filter(HangTagIngredient::checkPercentageRequired).forEach(it-> it.setPercentage(new BigDecimal(it.getPercentageStr())));
         HangTag hangTag =BeanUtil.copyProperties(hangTagDTO, HangTag.class);
 
         if (StringUtils.isEmpty(hangTag.getId())){

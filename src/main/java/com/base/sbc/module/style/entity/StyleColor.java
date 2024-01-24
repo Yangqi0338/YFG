@@ -5,26 +5,21 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.business.RFIDType;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：款式-款式配色 实体类
  *
@@ -73,6 +68,8 @@ public class StyleColor extends BaseDataEntity<String> {
         smpGoodsDto.setActive("0".equals(status));
         smpGoodsDto.setDesignCorrectDate(designCorrectDate);
         smpGoodsDto.setDesignDetailDate(designDetailDate);
+        smpGoodsDto.setRfidFlag(this.rfidFlag);
+        smpGoodsDto.setRfidType(this.rfidType);
         return smpGoodsDto;
     }
     /**********************************实体存放的其他字段区 【other_end】******************************************/
@@ -277,6 +274,12 @@ public class StyleColor extends BaseDataEntity<String> {
     @ApiModelProperty(value = "rfid标记(0否 1是)")
     private String rfidFlag;
     /**
+     * rfid标记(0否 1是)
+     */
+
+    @ApiModelProperty(value = "rfid类型")
+    private RFIDType rfidType;
+    /**
      * 备注
      */
     @ApiModelProperty(value = "备注")
@@ -309,6 +312,18 @@ public class StyleColor extends BaseDataEntity<String> {
      */
     private String historicalData;
 
+    /**
+     * 正确样样衣码
+     */
+    @ApiModelProperty(value = "正确样样衣码")
+    private String correctBarCode;
+
+    /**
+     * 工艺接收明细单时间
+     */
+    @ApiModelProperty(value = "工艺接收明细单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date techReceiveTime;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
