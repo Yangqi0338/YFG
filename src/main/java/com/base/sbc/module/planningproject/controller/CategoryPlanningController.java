@@ -9,14 +9,8 @@ import com.base.sbc.module.common.dto.BaseDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
-import com.base.sbc.module.planningproject.entity.CategoryPlanning;
-import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
-import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
-import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
-import com.base.sbc.module.planningproject.service.CategoryPlanningDetailsService;
-import com.base.sbc.module.planningproject.service.CategoryPlanningService;
-import com.base.sbc.module.planningproject.service.SeasonalPlanningDetailsService;
-import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
+import com.base.sbc.module.planningproject.entity.*;
+import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -42,6 +36,7 @@ public class CategoryPlanningController extends BaseController {
     private final SeasonalPlanningService seasonalPlanningService;
     private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
     private final CategoryPlanningDetailsService categoryPlanningDetailsService;
+    private final PlanningProjectService planningProjectService;
 
     /**
      * 根据条件查询列表
@@ -53,7 +48,7 @@ public class CategoryPlanningController extends BaseController {
     }
 
     /**
-     * 根据季节企划生成品类企划
+     * 根据季节企划生成品类企划,同时生成企划看板
      */
     @PostMapping("/generateCategoryPlanning")
     public ApiResult generateCategoryPlanning(@RequestBody BaseDto baseDto) {
@@ -61,7 +56,7 @@ public class CategoryPlanningController extends BaseController {
         SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(baseDto.getId());
         QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", "0");
-        queryWrapper.eq("seasonal_planning_id", seasonalPlanning.getId());
+        queryWrapper.eq("season_id", seasonalPlanning.getSeasonId());
         queryWrapper.eq("channel_code", seasonalPlanning.getChannelCode());
         queryWrapper.eq("company_code", getUserCompany());
         long l = categoryPlanningService.count(queryWrapper);
@@ -80,11 +75,31 @@ public class CategoryPlanningController extends BaseController {
         List<CategoryPlanningDetails> categoryPlanningDetails = BeanUtil.copyToList(detailsList, CategoryPlanningDetails.class);
         for (CategoryPlanningDetails categoryPlanningDetail : categoryPlanningDetails) {
             categoryPlanningDetail.setId(null);
+            categoryPlanningDetail.setDataJson(null);
             categoryPlanningDetail.setCategoryPlanningId(categoryPlanning.getId());
             categoryPlanningDetail.setCategoryPlanningName(categoryPlanning.getName());
         }
         categoryPlanningDetailsService.saveBatch(categoryPlanningDetails);
-        return success("生成品类企划成功");
+
+        //生成企划看板
+        QueryWrapper<PlanningProject> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.eq("status", "0");
+        queryWrapper1.eq("season_id", seasonalPlanning.getSeasonId());
+        queryWrapper1.eq("planning_channel_code", seasonalPlanning.getChannelCode());
+        queryWrapper1.eq("company_code", getUserCompany());
+        long l1 = planningProjectService.count(queryWrapper1);
+
+        PlanningProject planningProject = new PlanningProject();
+        planningProject.setCategoryPlanningId(categoryPlanning.getId());
+        planningProject.setSeasonId(seasonalPlanning.getSeasonId());
+        planningProject.setSeasonName(categoryPlanning.getSeasonName());
+        planningProject.setPlanningChannelName(categoryPlanning.getChannelName());
+        planningProject.setPlanningChannelCode(categoryPlanning.getChannelCode());
+        planningProject.setPlanningProjectName(categoryPlanning.getName());
+        planningProject.setStatus(l1 == 0 ? "0" : "1");
+
+        planningProjectService.save(planningProject);
+        return success("生成品类企划成功和企划看板成功");
     }
 
     /**

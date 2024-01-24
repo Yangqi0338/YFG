@@ -12,6 +12,10 @@ import lombok.EqualsAndHashCode;
 @TableName("t_planning_project")
 @ApiModel("企划规划表 PlanningProject")
 public class PlanningProject extends BaseDataEntity<String> {
+    /**
+     * 品类企划id
+     */
+    private String categoryPlanningId;
 
     /**
      * 产品季id

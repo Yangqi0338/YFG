@@ -15,20 +15,19 @@ import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
-import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
-import com.base.sbc.module.planningproject.entity.PlanningProject;
-import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
-import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
+import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.CategoryPlanningDetailsMapper;
-import com.base.sbc.module.planningproject.service.CategoryPlanningDetailsService;
-import com.base.sbc.module.planningproject.service.PlanningProjectService;
+import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,6 +42,13 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     private final PlanningDimensionalityService planningDimensionalityService;
     private final FieldOptionConfigService fieldOptionConfigService;
     private final PlanningProjectService planningProjectService;
+
+    private final PlanningProjectDimensionService planningProjectDimensionService;
+    private final PlanningProjectPlankService planningProjectPlankService;
+    @Resource
+    @Lazy
+    private  CategoryPlanningService categoryPlanningService;
+
     @Override
     public PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto) {
         PageHelper.startPage(dto);
@@ -180,84 +186,124 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         if (StringUtils.isNotBlank(categoryPlanningDetails1.getDataJson())){
             throw  new RuntimeException("数据已经存在,无法修改");
         }
-        //如果已经存在有关联的企划看板,则不做操作
+
+        CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningDetailsVo.getCategoryPlanningId());
         QueryWrapper<PlanningProject> queryWrapper =new QueryWrapper<>();
-        queryWrapper.eq("season_id",categoryPlanningDetailsVo.getSeasonId());
-        queryWrapper.eq("planning_channel_code",categoryPlanningDetailsVo.getChannelCode());
-        queryWrapper.eq("status",categoryPlanningDetailsVo.getCategoryPlanningStatus());
-        if (planningProjectService.count(queryWrapper)>0){
-            throw  new RuntimeException("企划看板数据已经存在,无法修改");
+
+        //如果不存在相关的企划看板,则创建
+        queryWrapper.eq("seasonal_planning_id",categoryPlanningDetails1.getId());
+        PlanningProject planningProject = planningProjectService.getOne(queryWrapper);
+        if (planningProject==null){
+            QueryWrapper<PlanningProject> queryWrapper1 = new QueryWrapper<>();
+            queryWrapper.eq("status", "0");
+            queryWrapper.eq("seasonal_id", categoryPlanning.getSeasonId());
+            queryWrapper.eq("channel_code", categoryPlanning.getChannelCode());
+            queryWrapper.eq("company_code", categoryPlanning.getCompanyCode());
+            long l1 = planningProjectService.count(queryWrapper1);
+
+
+            planningProject =new PlanningProject();
+            planningProject.setCategoryPlanningId(categoryPlanning.getId());
+            planningProject.setSeasonId(categoryPlanning.getSeasonId());
+            planningProject.setSeasonName(categoryPlanning.getSeasonName());
+            planningProject.setPlanningChannelCode(categoryPlanning.getChannelCode());
+            planningProject.setPlanningChannelName(categoryPlanning.getChannelName());
+            planningProject.setPlanningProjectName(categoryPlanningDetailsVo.getCategoryPlanningName());
+            planningProject.setStatus(l1 == 0 ? "0" : "1");
+            planningProjectService.save(planningProject);
         }
 
-        boolean b = this.updateById(categoryPlanningDetailsVo);
+        //修改数据
+        // boolean b = this.updateById(categoryPlanningDetailsVo);
 
-        PlanningProjectSaveDTO planningProjectSaveDTO = new PlanningProjectSaveDTO();
-        planningProjectSaveDTO.setPlanningProjectName(categoryPlanningDetailsVo.getCategoryPlanningName());
-        planningProjectSaveDTO.setPlanningChannelCode(categoryPlanningDetailsVo.getChannelCode());
-        planningProjectSaveDTO.setPlanningChannelName(categoryPlanningDetailsVo.getChannelName());
-        planningProjectSaveDTO.setSeasonId(categoryPlanningDetailsVo.getSeasonId());
-        planningProjectSaveDTO.setSeasonName(categoryPlanningDetailsVo.getSeasonName());
-        planningProjectSaveDTO.setStatus(categoryPlanningDetailsVo.getCategoryPlanningStatus());
 
-        List<PlanningProjectMaxCategory> planningProjectMaxCategoryList = new ArrayList<>();
+
         List<PlanningProjectDimension> planningProjectDimensionList = new ArrayList<>();
 
         String dataJson = categoryPlanningDetailsVo.getDataJson();
         if (StringUtils.isNotBlank(dataJson)){
             JSONArray jsonArray = JSON.parseArray(dataJson);
-            List<String> prodCategory1stNames = new ArrayList<>();
-            List<String> prodCategory1stCodes = new ArrayList<>();
-            Map<String,String> map = new HashMap<>();
+            // List<String> prodCategory1stNames = new ArrayList<>();
+            // List<String> prodCategory1stCodes = new ArrayList<>();
+            // Map<String,String> map = new HashMap<>();
 
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                String prodCategory1stName = jsonObject.getString("prodCategory1stName");
-                prodCategory1stNames.add(prodCategory1stName);
-                String prodCategory1ndCode = jsonObject.getString("prodCategory1ndCode");
-                map.put(prodCategory1ndCode,jsonObject.getString("prodCategory1ndSum"));
-                prodCategory1stCodes.add(prodCategory1ndCode);
+                JSONObject band = jsonObject.getJSONObject("band");
+                if(band!=null){
+                    JSONArray bandNames = band.getJSONArray("bandName");
+                    JSONArray bandCodes = band.getJSONArray("bandCode");
+                    JSONArray numbers = band.getJSONArray("number");
+                    for (int i1 = 0; i1 < bandNames.size(); i1++) {
+                        String bandName = bandNames.getString(i);
+                        String bandCode = bandCodes.getString(i);
+                        String number = numbers.getString(i);
+                        PlanningProjectDimension planningProjectDimension =new PlanningProjectDimension();
 
-                PlanningProjectDimension planningProjectDimension =new PlanningProjectDimension();
-                planningProjectDimension.setProdCategory1stCode(jsonObject.getString("prodCategory1stCode"));
-                planningProjectDimension.setProdCategory1stName(jsonObject.getString("prodCategory1stName"));
-                planningProjectDimension.setProdCategory2ndCode(jsonObject.getString("prodCategory2ndCode"));
-                planningProjectDimension.setProdCategory2ndName(jsonObject.getString("prodCategory2ndName"));
-                planningProjectDimension.setProdCategoryCode(jsonObject.getString("prodCategoryCode"));
-                planningProjectDimension.setProdCategoryName(jsonObject.getString("prodCategoryName"));
-                planningProjectDimension.setNumber(jsonObject.getString("num"));
+                        planningProjectDimension.setBandName(bandName);
+                        planningProjectDimension.setBandCode(bandCode);
+                        planningProjectDimension.setNumber(number);
+
+                        planningProjectDimension.setProdCategory1stCode(jsonObject.getString("prodCategory1stCode"));
+                        planningProjectDimension.setProdCategory1stName(jsonObject.getString("prodCategory1stName"));
+                        planningProjectDimension.setProdCategory2ndCode(jsonObject.getString("prodCategory2ndCode"));
+                        planningProjectDimension.setProdCategory2ndName(jsonObject.getString("prodCategory2ndName"));
+                        planningProjectDimension.setProdCategoryCode(jsonObject.getString("prodCategoryCode"));
+                        planningProjectDimension.setProdCategoryName(jsonObject.getString("prodCategoryName"));
 
 
-                planningProjectDimension.setDimensionId(jsonObject.getString("dimensionId"));
-                planningProjectDimension.setDimensionName(jsonObject.getString("dimensionName"));
+                        planningProjectDimension.setDimensionId(jsonObject.getString("dimensionId"));
+                        planningProjectDimension.setDimensionName(jsonObject.getString("dimensionName"));
 
-                planningProjectDimension.setDimensionCode(jsonObject.getString("dimensionCode"));
-                planningProjectDimension.setDimensionValue(jsonObject.getString("dimensionValue"));
-                planningProjectDimension.setDimensionTypeCode(jsonObject.getString("dimensionTypeCode"));
+                        planningProjectDimension.setDimensionCode(jsonObject.getString("dimensionCode"));
+                        planningProjectDimension.setDimensionValue(jsonObject.getString("dimensionValue"));
+                        planningProjectDimension.setDimensionTypeCode(jsonObject.getString("dimensionTypeCode"));
 
-                planningProjectDimensionList.add(planningProjectDimension);
+
+                        planningProjectDimensionList.add(planningProjectDimension);
+                        planningProjectDimensionService.save(planningProjectDimension);
+
+                    }
+                }
+                //生成坑位
+                for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
+                    List<PlanningProjectPlank> planningProjectPlanks = new ArrayList<>();
+                    for (int j = 0; j <  Integer.parseInt(planningProjectDimension.getNumber()); j++) {
+                        PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
+                        planningProjectPlank.setPlanningProjectId(categoryPlanning.getId());
+                        planningProjectPlank.setMatchingStyleStatus("0");
+                        planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
+                        planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+                        planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
+                        planningProjectPlanks.add(planningProjectPlank);
+                    }
+                    planningProjectPlankService.saveBatch(planningProjectPlanks);
+                }
+                // String prodCategory1stName = jsonObject.getString("prodCategory1stName");
+                // prodCategory1stNames.add(prodCategory1stName);
+                // String prodCategory1ndCode = jsonObject.getString("prodCategory1ndCode");
+                // map.put(prodCategory1ndCode,jsonObject.getString("prodCategory1ndSum"));
+                // prodCategory1stCodes.add(prodCategory1ndCode);
+
+
+
+
+
 
 
             }
             //去重
-            List<String> collect1 = prodCategory1stNames.stream().distinct().collect(Collectors.toList());
-            List<String> collect2 = prodCategory1stCodes.stream().distinct().collect(Collectors.toList());
-
-            for (int i = 0; i < collect1.size(); i++) {
-                PlanningProjectMaxCategory planningProjectMaxCategory = new PlanningProjectMaxCategory();
-                planningProjectMaxCategory.setProdCategory1stName(collect1.get(i));
-                planningProjectMaxCategory.setProdCategory1stCode(collect2.get(i));
-                planningProjectMaxCategory.setNumber(map.get(collect2.get(i)));
-                planningProjectMaxCategoryList.add(planningProjectMaxCategory);
-            }
+            // List<String> collect1 = prodCategory1stNames.stream().distinct().collect(Collectors.toList());
+            // List<String> collect2 = prodCategory1stCodes.stream().distinct().collect(Collectors.toList());
 
 
-            planningProjectSaveDTO.setPlanningProjectDimensionList(planningProjectDimensionList);
-            planningProjectSaveDTO.setPlanningProjectMaxCategoryList(planningProjectMaxCategoryList);
+            // planningProjectSaveDTO.setPlanningProjectDimensionList(planningProjectDimensionList);
+            // planningProjectSaveDTO.setPlanningProjectMaxCategoryList(planningProjectMaxCategoryList);
             // planningProjectService.save(planningProjectSaveDTO);
 
         }
 
-        return b;
+        return false;
     }
 
     /**
