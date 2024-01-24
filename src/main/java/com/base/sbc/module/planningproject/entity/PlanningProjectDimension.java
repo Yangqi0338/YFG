@@ -1,10 +1,7 @@
 
 package com.base.sbc.module.planningproject.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -68,6 +65,7 @@ public class PlanningProjectDimension {
     /** 是否开启中类(0:未开启,1:开启) */
     @ApiModelProperty(value = "是否开启中类(0:未开启,1:开启)"  )
     private String isProdCategory2nd;
+    @TableField(fill = FieldFill.INSERT)
     private String companyCode;
 
     /**

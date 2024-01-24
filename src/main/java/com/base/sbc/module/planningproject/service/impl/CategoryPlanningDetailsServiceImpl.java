@@ -187,10 +187,15 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     public boolean updateDetail(CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
 
         CategoryPlanningDetails categoryPlanningDetails1 = this.getById(categoryPlanningDetailsVo.getId());
-        if (StringUtils.isNotBlank(categoryPlanningDetails1.getDataJson())){
-            throw  new RuntimeException("数据已经存在,无法修改");
-        }
+        // if (StringUtils.isNotBlank(categoryPlanningDetails1.getDataJson())){
+        //     throw  new RuntimeException("数据已经存在,无法修改");
+        // }
 
+        //修改数据
+        boolean b = this.updateById(categoryPlanningDetailsVo);
+        if (b){
+            return false;
+        }
         CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningDetailsVo.getCategoryPlanningId());
         QueryWrapper<PlanningProject> queryWrapper =new QueryWrapper<>();
 
@@ -217,8 +222,6 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             planningProjectService.save(planningProject);
         }
 
-        //修改数据
-        boolean b = this.updateById(categoryPlanningDetailsVo);
 
 
 
@@ -239,9 +242,9 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     JSONArray bandCodes = band.getJSONArray("bandCode");
                     JSONArray numbers = band.getJSONArray("number");
                     for (int i1 = 0; i1 < bandNames.size(); i1++) {
-                        String bandName = bandNames.getString(i);
-                        String bandCode = bandCodes.getString(i);
-                        String number = numbers.getString(i);
+                        String bandName = bandNames.getString(i1);
+                        String bandCode = bandCodes.getString(i1);
+                        String number = numbers.getString(i1);
 
                         //企划看板维度数据
                         PlanningProjectDimension planningProjectDimension =new PlanningProjectDimension();
@@ -265,25 +268,29 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                         planningProjectDimension.setDimensionCode(jsonObject.getString("dimensionCode"));
                         planningProjectDimension.setDimensionValue(jsonObject.getString("dimensionValue"));
                         planningProjectDimension.setDimensionTypeCode(jsonObject.getString("dimensionTypeCode"));
-
+                        // planningProjectDimension.setCompanyCode("45646456");
 
                         planningProjectDimensionList.add(planningProjectDimension);
-                        planningProjectDimensionService.save(planningProjectDimension);
+                        // planningProjectDimensionService.save(planningProjectDimension);
 
                     }
+                    planningProjectDimensionService.saveBatch(planningProjectDimensionList);
                 }
                 //生成坑位
                 for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
                     List<PlanningProjectPlank> planningProjectPlanks = new ArrayList<>();
-                    for (int j = 0; j <  Integer.parseInt(planningProjectDimension.getNumber()); j++) {
-                        PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
-                        planningProjectPlank.setPlanningProjectId(categoryPlanning.getId());
-                        planningProjectPlank.setMatchingStyleStatus("0");
-                        planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
-                        planningProjectPlank.setBandName(planningProjectDimension.getBandName());
-                        planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
-                        planningProjectPlanks.add(planningProjectPlank);
+                    if (StringUtils.isNotBlank(planningProjectDimension.getNumber())){
+                        for (int j = 0; j <  Integer.parseInt(planningProjectDimension.getNumber()); j++) {
+                            PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
+                            planningProjectPlank.setPlanningProjectId(categoryPlanning.getId());
+                            planningProjectPlank.setMatchingStyleStatus("0");
+                            planningProjectPlank.setBandCode(planningProjectDimension.getBandCode());
+                            planningProjectPlank.setBandName(planningProjectDimension.getBandName());
+                            planningProjectPlank.setPlanningProjectDimensionId(planningProjectDimension.getId());
+                            planningProjectPlanks.add(planningProjectPlank);
+                        }
                     }
+
                     planningProjectPlankService.saveBatch(planningProjectPlanks);
                 }
             }
