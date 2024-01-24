@@ -525,9 +525,6 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
             packInfoStatus.setToBigGoodsDate(nowDate);
-            packInfoStatus.setApparelLabels(packDesignStatus.getApparelLabels());
-            packInfoStatus.setSpecNotice(packDesignStatus.getSpecNotice());
-            packInfoStatus.setSpecialSpecComments(packDesignStatus.getSpecialSpecComments());
             packInfoStatusService.updateById(packInfoStatus);
             //updateById(packInfo);
             //设置bom 状态
@@ -833,7 +830,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         /*目标原版本*/
         PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
         PackInfoStatus targetStatus = packInfoStatusService.get(dto.getTargetForeignId(), dto.getTargetPackType());
-        PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), dto.getSourcePackType());
+        PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), PackUtils.PACK_TYPE_DESIGN);
         /*区分是不是迁移数据*/
         boolean isRhd = StringUtils.equals(packInfo.getHistoricalData(), BaseGlobal.YES);
         if (StrUtil.contains(dto.getItem(), "物料清单")) {
