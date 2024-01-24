@@ -50,49 +50,6 @@ public class CategoryPlanningDetailsController extends BaseController{
     @RequestMapping("/updateDetail")
     @DuplicationCheck
     public ApiResult updateDetail(CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
-        String jsonStr = "[\n" +
-                "  {\n" +
-                "    \"prodCategory1stName\": \"外套\",\n" +
-                "    \"prodCategory2ndCode\": \"\",\n" +
-                "    \"code\": \"T1\",\n" +
-                "    \"name\": \"紧身\",\n" +
-                "    \"prodCategoryCode\": \"1\",\n" +
-                "    \"prodCategory1stCode\": \"A01\",\n" +
-                "    \"prodCategory2ndName\": \"\",\n" +
-                "    \"prodCategoryName\": \"上衣\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"prodCategory1stName\": \"外套\",\n" +
-                "    \"prodCategory2ndCode\": \"\",\n" +
-                "    \"code\": \"T1\",\n" +
-                "    \"name\": \"紧身\",\n" +
-                "    \"prodCategoryCode\": \"1\",\n" +
-                "    \"prodCategory1stCode\": \"A01\",\n" +
-                "    \"prodCategory2ndName\": \"\",\n" +
-                "    \"prodCategoryName\": \"上衣\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"prodCategory1stName\": \"外套\",\n" +
-                "    \"prodCategory2ndCode\": \"\",\n" +
-                "    \"code\": \"T2\",\n" +
-                "    \"name\": \"合体\",\n" +
-                "    \"prodCategoryCode\": \"1\",\n" +
-                "    \"prodCategory1stCode\": \"A01\",\n" +
-                "    \"prodCategory2ndName\": \"\",\n" +
-                "    \"prodCategoryName\": \"上衣\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"prodCategory1stName\": \"外套\",\n" +
-                "    \"prodCategory2ndCode\": \"22\",\n" +
-                "    \"code\": \"T3\",\n" +
-                "    \"name\": \"宽松\",\n" +
-                "    \"prodCategoryCode\": \"1\",\n" +
-                "    \"prodCategory1stCode\": \"A01\",\n" +
-                "    \"prodCategory2ndName\": \"\",\n" +
-                "    \"prodCategoryName\": \"上衣\"\n" +
-                "  }\n" +
-                "]";
-        categoryPlanningDetailsVo.setDataJson(jsonStr);
         categoryPlanningDetailsService.updateDetail(categoryPlanningDetailsVo);
         return updateSuccess(categoryPlanningDetailsVo);
     }

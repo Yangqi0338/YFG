@@ -64,6 +64,47 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         if(!categoryPlanningDetailsVos.isEmpty()){
 
             CategoryPlanningDetailsVo categoryPlanningDetailsVo = categoryPlanningDetailsVos.get(0);
+
+
+            String bandName = categoryPlanningDetailsVo.getBandName();
+            String styleCategory = categoryPlanningDetailsVo.getStyleCategory();
+            String prodCategoryName = categoryPlanningDetailsVo.getProdCategoryName();
+            String prodCategory2ndName = categoryPlanningDetailsVo.getProdCategory2ndName();
+            String skcCount = categoryPlanningDetailsVo.getSkcCount();
+            JSONObject object = new JSONObject();
+            String[] split = skcCount.split(",");
+            int i = 0;
+            for (String string : bandName.split(",")) {
+                for (String s : prodCategoryName.split(",")) {
+                    if (StringUtils.isBlank(prodCategory2ndName)) {
+                        String s1 = object.getString(string + "-" + s);
+                        if (StringUtils.isBlank(s1)){
+                            object.put(string + "-" + s ,split[i]);
+                        }else {
+                            int i1 = Integer.parseInt(s1);
+                            i1 = i1 + Integer.parseInt(split[i]);
+                            object.put(string + "-" + s , String.valueOf(i1));
+                        }
+
+                        i++;
+                    } else {
+                        for (String s1 : prodCategory2ndName.split(",")) {
+
+                            String s2 = object.getString(string + "-" + s+ "-" + s1);
+                            if (StringUtils.isBlank(s2)){
+                                object.put(string + "-" + s + "-" + s1, split[i]);
+                            }else {
+                                int i1 = Integer.parseInt(s2);
+                                i1 = i1 + Integer.parseInt(split[i]);
+
+                                object.put(string + "-" + s + "-" + s1, String.valueOf(i1));
+                            }
+                            i++;
+                        }
+                    }
+                }
+            }
+
             if (StringUtils.isNotBlank(categoryPlanningDetailsVo.getDataJson())){
                 return categoryPlanningDetailsVo;
             }
@@ -103,10 +144,10 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                     jsonObject.put("dimensionId", planningDimensionality.getFieldId());
                                     jsonObject.put("dimensionName", planningDimensionality.getDimensionalityName());
                                     jsonObject.put("dimensionTypeCode", fieldOptionConfig.getFormTypeId());
-                                    // jsonObject.put("skuCount",categoryPlanningDetailsVo.getSkcCount());
+                                    jsonObject.put("skuCount",categoryPlanningDetailsVo.getSkcCount());
                                     jsonObject.put("prodCategory1stName", prodCategory1stName);
                                     jsonObject.put("prodCategory1stCode", prodCategory1stCode);
-
+                                    jsonObject.put("maxSum",object.toJSONString());
                                     jsonObject.put("prodCategoryCode", fieldOptionConfig.getCategoryCode());
                                     jsonObject.put("prodCategoryName", fieldOptionConfig.getCategoryName());
 

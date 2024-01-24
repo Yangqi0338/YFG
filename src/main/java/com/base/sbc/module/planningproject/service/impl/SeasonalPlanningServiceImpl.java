@@ -59,7 +59,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         List<String> orders = new ArrayList<>();
         List<String> markets = new ArrayList<>();
         List<String> styleCategorieList = new ArrayList<>();
-        List<Integer> sums = new ArrayList<>();
+        List<String> sums = new ArrayList<>();
         List<HashMap<String, String>> hashMapList = new ArrayList<>();
         HashMap<String, String> hashMap = new HashMap<>();
         for (int i = 0; i < hashMaps.size(); i++) {
@@ -130,7 +130,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 default:
                     List<BasicCategoryDot> categoryDotList = new ArrayList<>();
 
-                    int sum = 0;
+                    // int sum = 0;
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
 
@@ -159,12 +159,13 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         }
                         if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
                             // System.out.println("数量:" + jsonObject.getString(s));
-                            sum += Integer.parseInt(jsonObject.getString(s));
+                            // sum += Integer.parseInt(jsonObject.getString(s));
+                            sums.add(String.valueOf(jsonObject.getString(s)));
                         }
                         middleClassSet.add(i1);
                     }
                     // System.out.println("SKC数量"+sum);
-                    sums.add(sum);
+
 
                     for (BasicCategoryDot basicCategoryDot : categoryDotList) {
                         // 每次都清掉中类信息
@@ -315,7 +316,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             seasonalPlanningDetails.setBandCode(String.join(",", bandCodes));
             seasonalPlanningDetails.setSeasonalPlanningId(seasonalPlanningSaveDto.getId());
             seasonalPlanningDetails.setSeasonalPlanningName(seasonalPlanningSaveDto.getName());
-            seasonalPlanningDetails.setSkcCount(String.valueOf(sums.stream().mapToInt(Integer::intValue).sum()));
+            seasonalPlanningDetails.setSkcCount(String.join(",",sums));
             seasonalPlanningDetails.setLaunchTime(String.join(",", markets));
             seasonalPlanningDetails.setOrderTime(String.join(",", orders));
 
