@@ -1300,6 +1300,23 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 	}
 
+
+	/**
+	 * 通过物料编码获取检查报告
+	 * @param dto
+	 * @return
+	 */
+	@Override
+	public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(EscmMaterialCompnentInspectCompanyDto dto) {
+
+		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
+		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
+		queryWrapper.eq("year", dto.getYear());
+
+		List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.list(queryWrapper);
+		return list;
+	}
+
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
 		Map<String, HangTagMoreLanguageGroup> groupMap = MapUtil.ofEntries(
 				MapUtil.entry("成分信息", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", MoreLanguageHangTagVO::getIngredient)),

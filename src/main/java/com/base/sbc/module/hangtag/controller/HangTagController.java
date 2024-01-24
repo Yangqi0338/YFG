@@ -30,6 +30,7 @@ import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -217,4 +218,12 @@ public class HangTagController extends BaseController {
         hangTagService.updateById(hangTag1);
         return updateSuccess("反审成功");
     }
+
+
+    @ApiOperation(value = "通过物料编码获取检查报告")
+    @GetMapping("/getInspectReport")
+    public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(EscmMaterialCompnentInspectCompanyDto dto) {
+        return hangTagService.getInspectReport(dto);
+    }
+
 }
