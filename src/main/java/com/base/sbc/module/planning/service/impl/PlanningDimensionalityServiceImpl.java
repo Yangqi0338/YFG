@@ -265,12 +265,13 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      */
    public void setBaseQueryWrapper(BaseQueryWrapper queryWrapper,DimensionLabelsSearchDto dto){
        queryWrapper.eq("tpd.channel",dto.getChannel());
-       if(StrUtil.isNotBlank(dto.getProdCategory())){
-           queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
+       if(StrUtil.isNotBlank(dto.getProdCategory2nd())){
+           queryWrapper.eq("tpd.prod_category2nd",dto.getProdCategory2nd());
        }else {
-           queryWrapper.isNullStr("tpd.prod_category");
+           queryWrapper.isNullStr("tpd.prod_category2nd");
        }
-       queryWrapper.eq("tpd.prod_category2nd",dto.getProdCategory2nd());
+       queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
+
        queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
        queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
        queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
