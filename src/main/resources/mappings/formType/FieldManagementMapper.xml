@@ -80,13 +80,26 @@
         <if test="formTypeCode !='' and formTypeCode != null">
             and tft.code=#{formTypeCode}
         </if>
+
+        <if test="formTypeCode !='' and formTypeCode != null">
+            and tft.code=#{formTypeCode}
+        </if>
+
+        <if test="fieldName !='' and fieldName != null">
+            and tfm.field_name=#{fieldName}
+        </if>
+
+        <if test="fieldExplain !='' and fieldExplain != null">
+            and tfm.field_explain=#{fieldExplain}
+        </if>
+
         <if test="ids!=null">
             and tfm.id in
             <foreach collection="ids" item="id" open="(" close=")" separator=",">
                 #{id}
             </foreach>
         </if>
-        order By tfm.sequence desc
+        order By tfm.group_name desc ,tfm.create_date desc
     </select>
 
     <select id="getOptionList" resultType="com.base.sbc.module.formtype.entity.Option" >
@@ -143,7 +156,7 @@
         tfm.structure_tier
         from t_field_management tfm
         left join t_form_type tft on tfm.form_type_id = tft.id
-        left join t_planning_dimensionality tpd on ( tpd.del_flag='0' and tpd.field_id = tfm.id and planning_season_id = #{planningSeasonId} and prod_category = #{prodCategory})
+        left join t_planning_dimensionality tpd on ( tpd.del_flag='0' and tpd.channel = #{channel} and tpd.field_id = tfm.id and tpd.coefficient_flag = '1' and tpd.planning_season_id = #{planningSeasonId} and tpd.prod_category = #{prodCategory})
         where tfm.company_code=#{companyCode}
         and tfm.del_flag='0'
         and tft.status='0'
@@ -168,9 +181,7 @@
                 #{id}
             </foreach>
         </if>
-        order By tfm.sequence desc
-
-
+        ORDER BY  tpd.group_sort ASC,  tpd.sort ASC
 
     </select>
 

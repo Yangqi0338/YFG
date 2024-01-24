@@ -206,6 +206,12 @@ public class Style extends BaseDataEntity<String> {
     /** 版型名称 */
     @ApiModelProperty(value = "版型名称"  )
     private String plateTypeName;
+    /** 版型 */
+    @ApiModelProperty(value = "版型"  )
+    private String platePositioning;
+    /** 版型名称 */
+    @ApiModelProperty(value = "版型名称"  )
+    private String platePositioningName;
     /** 号型编码 */
     @ApiModelProperty(value = "号型编码"  )
     private String sizeRange;
@@ -573,16 +579,6 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "设计阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
     private String designMarkingStatus;
-    /**
-     * 下单阶段-审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
-     */
-    @ApiModelProperty(value = "下单阶段-审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
-    private String orderAuditStatus;
-    /**
-     * 下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)
-     */
-    @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
-    private String orderMarkingStatus;
 
     /**
      * 销售类型

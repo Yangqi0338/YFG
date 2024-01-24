@@ -351,7 +351,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()), "ts.pattern_design_name", queryDto.getPatternDesignName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()), "tsc.order_flag", queryDto.getOrderFlag());
         if(StringUtils.isNotBlank(queryDto.getMarkingOrderFlag())){
-            queryWrapper.inSql("tsc.id","select style_color_id from t_order_book_detail where order_book_id in (select id from t_order_book where `status` = '3')");
+            queryWrapper.inSql("tsc.id","select style_color_id from t_order_book_detail where status = '4'");
         }
         if(StrUtil.isNotBlank(queryDto.getDesignMarkingStatus())){
             if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getDesignMarkingStatus())) {
@@ -362,9 +362,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         if(StrUtil.isNotBlank(queryDto.getOrderMarkingStatus())){
             if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getOrderMarkingStatus())) {
-                queryWrapper.isNullStrEq("ts.order_marking_status", queryDto.getOrderMarkingStatus());
+                queryWrapper.isNullStrEq("tsc.order_marking_status", queryDto.getOrderMarkingStatus());
             } else {
-                queryWrapper.eq("ts.order_marking_status", queryDto.getOrderMarkingStatus());
+                queryWrapper.eq("tsc.order_marking_status", queryDto.getOrderMarkingStatus());
             }
         }
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.styleColor.getK(), "ts.");
@@ -1784,11 +1784,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //根据查询出维度系数数据
         LambdaQueryWrapper<FieldVal> fieldValQueryWrapper = new LambdaQueryWrapper<>();
-        List<String> styleIdList = styleColorVoList.stream().map(StyleColorVo::getStyleId).distinct().collect(Collectors.toList());
-        fieldValQueryWrapper.in(FieldVal::getForeignId,styleIdList);
         if(StringUtils.isNotBlank(dto.getMarkingOrderFlag())){
+            List<String> styleColorIdList = styleColorVoList.stream().map(StyleColorVo::getId).distinct().collect(Collectors.toList());
+            fieldValQueryWrapper.in(FieldVal::getForeignId,styleColorIdList);
             fieldValQueryWrapper.eq(FieldVal::getDataGroup,FieldValDataGroupConstant.STYLE_MARKING_ORDER);
         }else{
+            List<String> styleIdList = styleColorVoList.stream().map(StyleColorVo::getStyleId).distinct().collect(Collectors.toList());
+            fieldValQueryWrapper.in(FieldVal::getForeignId,styleIdList);
             fieldValQueryWrapper.eq(FieldVal::getDataGroup,FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
         }
         List<FieldVal> fieldValList = fieldValService.list(fieldValQueryWrapper);

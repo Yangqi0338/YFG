@@ -21,6 +21,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCoefficientTemplateService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -162,6 +163,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
 
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult saveDimensionality(UpdateDimensionalityDto dto) {
         PlanningDimensionality planningDimensionality = null;
         // 新增
@@ -178,6 +180,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             planningDimensionality.updateInit();
             baseMapper.updateById(planningDimensionality);
         }
+        /*校验维度等级*/
+        checkDimensionality(dto);
         return ApiResult.success("操作成功", planningDimensionality);
     }
 
@@ -206,9 +210,35 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
                 p.setId(null);
             }
         });
+        /*校验维度等级*/
         saveOrUpdateBatch(list);
+        checkDimensionality(dimensionalityDtoList.get(0));
+
         return list;
     }
+
+    /**
+     * 校验维度等级
+     * @param dto
+     */
+    public void checkDimensionality(UpdateDimensionalityDto dto){
+        BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+        DimensionLabelsSearchDto dimensionLabelsSearchDto = new DimensionLabelsSearchDto();
+        BeanUtil.copyProperties(dto, dimensionLabelsSearchDto);
+        setBaseQueryWrapper(queryWrapper, dimensionLabelsSearchDto);
+        queryWrapper.isNotNullStr("tpd.dimensionality_grade");
+        List<PlanningDimensionalityVo> dimensionalityList = baseMapper.getCoefficientList(queryWrapper);
+        if (CollUtil.isNotEmpty(dimensionalityList)) {
+            List<String> stringList = dimensionalityList.stream().map(PlanningDimensionalityVo::getDimensionalityGradeName).collect(Collectors.toList());
+            /*获取重复的维度*/
+            Set<String> uniqueElements = new HashSet<>(stringList);
+            Set<String> duplicateElements = stringList.stream().filter(e -> !uniqueElements.remove(e)).collect(Collectors.toSet());
+            if (CollUtil.isNotEmpty(duplicateElements)) {
+                throw new OtherException(duplicateElements + "数据存在重复维度等级");
+            }
+        }
+    }
+
 
     /**
      * 修改排序
@@ -234,27 +264,49 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     }
 
     /**
+     * 设置构造器
+     * @param queryWrapper
+     * @param dto
+     */
+   public void setBaseQueryWrapper(BaseQueryWrapper queryWrapper,DimensionLabelsSearchDto dto){
+       queryWrapper.eq("tpd.channel",dto.getChannel());
+       if(StrUtil.isNotBlank(dto.getProdCategory())){
+           queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
+       }else {
+           queryWrapper.isNullStr("tpd.prod_category");
+       }
+       queryWrapper.eq("tpd.prod_category2nd",dto.getProdCategory2nd());
+       queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
+       queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
+       queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
+       queryWrapper.isNotNullStr("tfm.group_name");
+       queryWrapper.orderByAsc("tpd.group_sort","tpd.sort");
+    }
+
+    /**
      * 获取围度系数数据
      *
      * @param dto
      * @return
      */
     @Override
-    public Map getCoefficient(DimensionLabelsSearchDto dto) {
+    public List<PlanningDimensionalityVo>  getCoefficient(DimensionLabelsSearchDto dto) {
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("tpd.channel",dto.getChannel());
-        queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
-        queryWrapper.eq("tpd.prod_category2nd",dto.getProdCategory2nd());
-        queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
-        queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
-        queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);
-        queryWrapper.orderByAsc("tpd.sort");
+        setBaseQueryWrapper(queryWrapper,dto);
         List<PlanningDimensionalityVo> dimensionalityList = baseMapper.getCoefficientList(queryWrapper);
+        List<PlanningDimensionalityVo> list = new ArrayList<>();
 
         if(CollUtil.isEmpty(dimensionalityList)){
-            return new HashMap();
+            return list;
         }
-        return dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName()));
+        LinkedHashMap<String, List<PlanningDimensionalityVo>> map = dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
+        for (String s :map.keySet()){
+            PlanningDimensionalityVo planningDimensionalityVo = new PlanningDimensionalityVo();
+            planningDimensionalityVo.setList(map.get(s));
+            planningDimensionalityVo.setGroupName(s);
+            list.add(planningDimensionalityVo);
+        }
+        return list;
     }
 
     /**
@@ -270,27 +322,23 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         if (StrUtil.isEmpty(dto.getPlanningSeasonId())) {
             throw new OtherException("产品季id不能为空");
         }
+        if (StrUtil.isEmpty(dto.getPlanningChannelId())) {
+            throw new OtherException("渠道id不能为空");
+        }
         /*获取模板*/
         BasicsdatumCoefficientTemplate basicsdatumCoefficientTemplate = basicsdatumCoefficientTemplateService.getById(dto.getCoefficientTemplateId());
         if (ObjectUtil.isEmpty(basicsdatumCoefficientTemplate)) {
             throw new OtherException("模板id错误");
         }
-        /*获取渠道*/
-        if (StrUtil.isEmpty(dto.getPlanningChannelId())) {
-            QueryWrapper<PlanningChannel> planningChannelQueryWrapper = new QueryWrapper<>();
-            planningChannelQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
-            planningChannelQueryWrapper.eq("channel", basicsdatumCoefficientTemplate.getChannel());
-            List<PlanningChannel> planningChannelList = planningChannelService.list(planningChannelQueryWrapper);
-            if (CollUtil.isEmpty(planningChannelList)) {
-                throw new OtherException("此产品季下没有" + basicsdatumCoefficientTemplate.getChannelName() + "渠道");
-            }
-            dto.setPlanningChannelId(planningChannelList.get(0).getId());
-            dto.setChannel(planningChannelList.get(0).getChannel());
+        /*查询渠道*/
+        PlanningChannel planningChannel = planningChannelService.getById(dto.getPlanningChannelId());
+        if (ObjectUtil.isEmpty(planningChannel)) {
+            throw new OtherException("此产品季渠道查询失败");
         }
 
         QueryWrapper<BasicsdatumDimensionality> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("coefficient_template_id", basicsdatumCoefficientTemplate.getId());
-        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", StringUtils.convertList(dto.getProdCategory()) );
 //        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory2nd()),"prod_category2nd",dto.getProdCategory2nd());
         /*获取模板中的系数*/
         List<BasicsdatumDimensionality> dimensionalityList = basicsdatumDimensionalityService.list(queryWrapper);
@@ -298,10 +346,10 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         if (CollUtil.isNotEmpty(dimensionalityList)) {
             /*此产品季的系数*/
             QueryWrapper<PlanningDimensionality> dimensionalityQueryWrapper = new QueryWrapper<>();
-            dimensionalityQueryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+            dimensionalityQueryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category",StringUtils.convertList(dto.getProdCategory()) );
             dimensionalityQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
-            dimensionalityQueryWrapper.eq("channel", dto.getChannel());
-            dimensionalityQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
+            dimensionalityQueryWrapper.eq("channel", planningChannel.getChannel());
+            dimensionalityQueryWrapper.eq("planning_channel_id", dto.getPlanningChannelId());
             dimensionalityQueryWrapper.eq("coefficient_flag", BaseGlobal.YES);
             List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(dimensionalityQueryWrapper);
             if (CollUtil.isNotEmpty(planningDimensionalityList)) {
@@ -314,6 +362,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
                 l.setId(null);
                 l.setPlanningChannelId(dto.getPlanningChannelId());
                 l.setPlanningSeasonId(dto.getPlanningSeasonId());
+                l.setChannel(planningChannel.getChannel());
+                l.setChannelName(planningChannel.getChannelName());
                 l.setCoefficientFlag(BaseGlobal.YES);
             });
             saveOrUpdateBatch(list);

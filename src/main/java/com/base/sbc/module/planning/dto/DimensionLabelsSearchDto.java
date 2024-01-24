@@ -104,4 +104,7 @@ public class DimensionLabelsSearchDto {
     @ApiModelProperty(value = "系数模板id")
     private String  coefficientTemplateId;
 
+    @ApiModelProperty(value = "款式配色Id")
+    private String styleColorId;
+
 }

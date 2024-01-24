@@ -11,6 +11,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackInfoDto;
 import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
@@ -269,5 +270,13 @@ public interface StyleService extends BaseService<Style> {
     boolean startMarkingOrderApproval(String id, String showFOB, String styleColorId);
 
     boolean approvalMarkingOrder(AnswerDto dto);
+
+    /**
+     * 保存打板中的维度系数数据
+     * @param fieldValList
+     * @param styleId
+     * @return
+     */
+    boolean saveCoefficient(List<FieldVal> fieldValList,String styleId);
 }
 

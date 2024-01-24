@@ -13,6 +13,7 @@ import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,7 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
      * @param dto
      * @return
      */
-    Map getCoefficient(DimensionLabelsSearchDto dto);
+    List<PlanningDimensionalityVo>  getCoefficient(DimensionLabelsSearchDto dto);
 
 
     /**

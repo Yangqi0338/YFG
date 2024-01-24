@@ -453,6 +453,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         queryWrapper.eq(StrUtil.isNotBlank(checkMutexDto.getPlanningSeasonId()),"planning_season_id", checkMutexDto.getPlanningSeasonId());
         queryWrapper.eq("channel", checkMutexDto.getChannel());
         queryWrapper.eq("prod_category", checkMutexDto.getProdCategory());
+        queryWrapper.eq("coefficient_flag",BaseGlobal.YES);
         if (StrUtil.isNotBlank(checkMutexDto.getProdCategory2nd())) {
             queryWrapper.isNullStr("prod_category2nd");
             long count = planningDimensionalityService.count(queryWrapper);

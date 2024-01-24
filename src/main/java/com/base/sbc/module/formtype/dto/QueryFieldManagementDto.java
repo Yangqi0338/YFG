@@ -30,6 +30,8 @@ public class QueryFieldManagementDto  extends Page {
     @ApiModelProperty(value = "字段id")
     List<String> ids;
 
+    @ApiModelProperty(value = "渠道")
+    private String channel;
 
     @ApiModelProperty(value = "表单编码")
     private String formTypeCode;

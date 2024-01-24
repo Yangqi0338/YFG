@@ -14,6 +14,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCoefficientTemplateService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumCoefficientTemplateVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -95,7 +96,7 @@ public class BasicsdatumCoefficientTemplateController{
 
 	@ApiOperation(value = "获取围度系数数据")
 	@GetMapping("/getDimensionality")
-	public Map getDimensionality(BasicsdatumDimensionalityDto dto) {
+	public List<BasicsdatumDimensionalityVo> getDimensionality(BasicsdatumDimensionalityDto dto) {
 		return basicsdatumDimensionalityService.getDimensionality(dto);
 	}
 
