@@ -145,11 +145,12 @@ public class PlanningUtils {
         if (StrUtil.equals(dto.getCategoryFlag(), BasicNumber.ONE.getNumber())) {
             qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), prefix + "prod_category1st", dto.getProdCategory1st());
             qw.eq(prefix + "prod_category", dto.getProdCategory());
-            qw.eq(prefix + "prod_category2nd", dto.getProdCategory2nd());
+            qw.isNullStr(prefix + "prod_category2nd");
         } else {
             qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), prefix + "prod_category1st", dto.getProdCategory1st());
             qw.eq(prefix + "prod_category", dto.getProdCategory());
-            qw.isNullStr(prefix + "prod_category2nd");
+//            qw.isNullStr(prefix + "prod_category2nd");
+            qw.eq(prefix + "prod_category2nd", dto.getProdCategory2nd());
         }
     }
 
