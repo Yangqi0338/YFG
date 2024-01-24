@@ -60,6 +60,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -92,7 +94,7 @@ import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.company
 @RequiredArgsConstructor
 public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumMaterialMapper, BasicsdatumMaterial>
         implements BasicsdatumMaterialService {
-
+    Logger log = LoggerFactory.getLogger(getClass());
     private final SpecificationService specificationService;
     private final SpecificationGroupService specificationGroupService;
     private final BasicsdatumMaterialOldService materialOldService;
@@ -458,12 +460,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
-    public void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto) throws IOException {
+    public void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto){
         dto.setPageNum(0);
         dto.setPageSize(0);
         List<BasicsdatumMaterialPageAndStyleVo> list = materialsBomStylePage(dto).getList();
-        List<BasicsdatumMaterialStyleExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialStyleExcelVo.class);
-        ExcelUtils.exportExcel(list1, BasicsdatumMaterialStyleExcelVo.class, "物料BOM档案.xls", new ExportParams(), response);
+        List<BasicsdatumMaterialStyleExcel> excelVoList = CopyUtil.copy(list, BasicsdatumMaterialStyleExcel.class);
+        ExcelUtils.executorExportExcel(excelVoList, BasicsdatumMaterialStyleExcel.class,"物料BOM档案",dto.getImgFlag(),2000,response,"styleImageUrl","materialsImageUrl");
     }
 
     @Override

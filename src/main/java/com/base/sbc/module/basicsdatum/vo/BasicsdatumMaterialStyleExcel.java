@@ -1,13 +1,8 @@
 package com.base.sbc.module.basicsdatum.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 
@@ -19,15 +14,20 @@ import java.util.Date;
  */
 @Data
 @ApiModel("物料BOM档案导出数据")
-public class BasicsdatumMaterialStyleExcelVo {
+public class BasicsdatumMaterialStyleExcel {
+	/**
+	 * 物料编号
+	 */
+	@Excel(name = "物料编号")
+	private String materialsCode;
 
 	/**
 	 * 物料图片
 	 */
+	@Excel(name = "物料图片", type = 2, imageType = 2)
+	private byte[] materialsImageUrl1;
 
-	@Excel(name = "物料图片", type = 2)
 	private String materialsImageUrl;
-
 	/**
 	 * 物料颜色
 	 */
@@ -49,7 +49,9 @@ public class BasicsdatumMaterialStyleExcelVo {
 	/**
 	 * 款式图
 	 */
-	@Excel(name = "款式图", type = 2)
+	@Excel(name = "款式图", type = 2, imageType = 2)
+	private byte[] styleImageUrl1;
+
 	private String styleImageUrl;
 
 	/**

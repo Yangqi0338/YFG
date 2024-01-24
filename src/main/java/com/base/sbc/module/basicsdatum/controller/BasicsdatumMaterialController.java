@@ -226,6 +226,7 @@ public class BasicsdatumMaterialController extends BaseController {
     }
 
     @ApiOperation(value = "物料BOM：按筛选条件导出")
+    @DuplicationCheck(type = 1,message = "服务正在导出请稍等",time = 60)
     @GetMapping("/exportBasicsdatumMaterialBom")
     public void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto)
             throws Exception {

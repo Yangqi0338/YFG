@@ -17,4 +17,8 @@ public class BasicsdatumMaterialPageAndStyleDto extends Page {
      * 分类id
      */
     private String categoryId;
+    /**
+     * 图片标识
+     */
+    private String imgFlag;
 }
