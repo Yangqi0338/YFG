@@ -75,6 +75,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             String bandName = categoryPlanningDetailsVo.getBandName();
             String prodCategoryName = categoryPlanningDetailsVo.getProdCategoryName();
             String prodCategory2ndName = categoryPlanningDetailsVo.getProdCategory2ndName();
+            String prodCategory2ndCode = categoryPlanningDetailsVo.getProdCategory2ndCode();
             String skcCount = categoryPlanningDetailsVo.getSkcCount();
             JSONObject object = new JSONObject();
             String[] split = skcCount.split(",");
@@ -126,6 +127,10 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             queryWrapper1.eq("prod_category1st",prodCategory1stCode);
             queryWrapper1.eq("prod_category",prodCategoryCode);
             queryWrapper1.eq("dimensionality_grade","1");
+            if (StringUtils.isNotBlank(prodCategory2ndCode)){
+                String[] split1 = prodCategory2ndCode.split(",");
+                queryWrapper1.in("prod_category2nd",Arrays.asList(split1));
+            }
             List<JSONObject> jsonObjects =new ArrayList<>();
             List<PlanningDimensionality> list = planningDimensionalityService.list(queryWrapper1);
             if (!list.isEmpty()){
@@ -156,8 +161,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                     jsonObject.put("prodCategoryCode", fieldOptionConfig.getCategoryCode());
                                     jsonObject.put("prodCategoryName", fieldOptionConfig.getCategoryName());
 
-                                    jsonObject.put("prodCategory2ndCode", fieldOptionConfig.getProdCategory2nd());
-                                    jsonObject.put("prodCategory2ndName", fieldOptionConfig.getProdCategory2ndName());
+                                    jsonObject.put("prodCategory2ndCode", planningDimensionality.getProdCategory2nd());
+                                    jsonObject.put("prodCategory2ndName", planningDimensionality.getProdCategory2ndName());
                                     jsonObjects.add(jsonObject);
                                     break;
                                 }

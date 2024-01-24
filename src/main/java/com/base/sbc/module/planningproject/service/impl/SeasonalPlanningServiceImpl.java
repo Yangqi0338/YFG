@@ -121,7 +121,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     for (String s : jsonObject.keySet()) {
                         int i1 = Integer.parseInt(s);
                         if (i1 > 2) {
-                            System.out.println("样式类别:" + jsonObject.getString(s));
+                            // System.out.println("样式类别:" + jsonObject.getString(s));
                             styleCategorieList.add(jsonObject.getString(s));
                         }
                         styleCategories.add(i1);
@@ -212,7 +212,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 for (String s : jsonObject.keySet()) {
                     int i1 = Integer.parseInt(s);
                     if (i1 > 2) {
-                        System.out.println(jsonObject.getString(s));
+                        // System.out.println(jsonObject.getString(s));
                         if (i1 % 2 == 0) {
                             sum1 += Integer.parseInt(jsonObject.getString(s));
                         } else {
@@ -269,7 +269,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
 
         List<SeasonalPlanningDetails> detailsList = new ArrayList<>();
-        System.out.println(hashMapList);
+        // System.out.println(hashMapList);
         //如果品类相同,则只存一个,并且将中类内容用逗号分开相加
         List<HashMap<String, String> > hashMapList1 = new ArrayList<>();
         HashMap<String,String> hashMap1 = new HashMap<>();
@@ -384,7 +384,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             }
         }
 
-        System.out.println(list2);
+        // System.out.println(list2);
         //查询订货本下单的数据
         for (int i = 0; i < list2.size(); i++) {
             SeasonalPlanningDetails seasonalPlanningDetails = list2.get(i);
@@ -416,7 +416,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             List<OrderBookDetailVo> bookDetailVos = orderBookDetailService.querylist(bookDetailBaseQueryWrapper, null);
 
             if (!bookDetailVos.isEmpty()){
-                System.out.println(bookDetailVos.size());
+                // System.out.println(bookDetailVos.size());
                 // for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
                 //     System.out.println(bookDetailVo.getBulkStyleNo());
                 // }
