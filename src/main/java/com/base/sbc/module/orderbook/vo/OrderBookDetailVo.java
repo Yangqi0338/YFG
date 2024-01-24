@@ -256,6 +256,7 @@ public class OrderBookDetailVo extends OrderBookDetail {
     private String sumOfflineProduction;
     private String sumOnlineProduction;
     private String sumTagPrice;
+    private String materialMoney;
 
 
     /**

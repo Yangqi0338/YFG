@@ -7,12 +7,19 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -42,6 +49,7 @@ import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageHelper;
@@ -58,7 +66,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 @Service
 @RequiredArgsConstructor
@@ -110,7 +121,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth) {
         if (null == openDataAuth) {
-            dataPermissionsService.getDataPermissionsForQw(queryWrapper, "tobl.");
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
         //查询BOM版本
@@ -401,10 +412,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean assignmentDesigner(List<OrderBookDetailSaveDto> dto) {
         List<String> ids = dto.stream().map(OrderBookDetailSaveDto::getId).collect(Collectors.toList());
         /*id分组*/
-        Map<String, OrderBookDetailSaveDto> map = Optional.ofNullable(dto).orElse(new ArrayList<>()).stream().collect(Collectors.toMap(OrderBookDetailSaveDto::getId, v -> v, (a, b) -> b));
+        Map<String, OrderBookDetailSaveDto> map = dto.stream().collect(Collectors.toMap(OrderBookDetailSaveDto::getId, Function.identity()));
         List<OrderBookDetail> orderBookDetails = baseMapper.selectBatchIds(ids);
         /*设置设计师*/
         orderBookDetails.forEach(o -> {
@@ -412,8 +424,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             if (ObjectUtil.isNotEmpty(orderBookDetailSaveDto)) {
                 o.setDesignerId(orderBookDetailSaveDto.getDesignerId());
                 /*查询是否包含设计师编码*/
-                if(orderBookDetailSaveDto.getDesignerName().indexOf(",")>-1){
-                  List<String> stringList =  StringUtils.convertList(orderBookDetailSaveDto.getDesignerName());
+                if(orderBookDetailSaveDto.getDesignerName().contains(COMMA)){
+                    List<String> stringList =  StringUtils.convertList(orderBookDetailSaveDto.getDesignerName());
                     o.setDesignerName(stringList.get(0));
                     o.setDesignerCode(stringList.get(1));
                 }else {
@@ -421,7 +433,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     o.setDesignerCode(orderBookDetailSaveDto.getDesignerCode());
                 }
 
-                o.setStatus(BaseGlobal.YES);
+                o.setStatus(OrderBookDetailStatusEnum.DESIGNER);
             }
         });
         /*保存*/
@@ -503,6 +515,121 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         hashMap.put("onlineProductionSum", onlineProductionSum);
         hashMap.put("offlineProductionSum", offlineProductionSum);
         return hashMap;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void submitForApproval(OrderBookDetailSaveDto dto) {
+        // OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+        String[] split = dto.getIds().split(",");
+        List<OrderBookDetail> orderBookDetails = this.listByIds(Arrays.asList(split));
+        for (OrderBookDetail orderBookDetail : orderBookDetails) {
+            // 判断是否能下单
+            if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT){
+                throw new OtherException("已经发起审核,请勿重复提交");
+            }
+            if (StrUtil.isBlank(orderBookDetail.getBusinessId())) {
+                throw new OtherException("还未分配商企");
+            }
+            if (StrUtil.isBlank(orderBookDetail.getDesignerCode())) {
+                throw new OtherException("还未分配设计师");
+            }
+            String totalProduction = orderBookDetail.getTotalProduction();
+            if (StringUtils.isEmpty(totalProduction) || "0".equals(totalProduction)) {
+                throw new OtherException("下单数量不能为空或者0");
+            }
+            orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_AUDIT);
+            orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.AWAIT);
+        }
+        this.updateBatchById(orderBookDetails);
+
+        // 修改订货本状态为待确认
+        List<String> orderBookIdList = orderBookDetails.stream().map(OrderBookDetail::getOrderBookId).distinct().collect(Collectors.toList());
+        orderBookService.update(new LambdaUpdateWrapper<OrderBook>()
+                .set(OrderBook::getStatus, OrderBookStatusEnum.NOT_CONFIRM)
+                .in(OrderBook::getId,orderBookIdList));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void placeAnOrderReject(OrderBookDetailQueryDto dto) {
+        if (StringUtils.isEmpty(dto.getIds())) {
+            throw new OtherException("请选订货本");
+        }
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
+        for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
+            if (OrderBookDetailStatusEnum.NOT_AUDIT != orderBookDetail.getStatus()){
+                throw new OtherException(orderBookDetail.getBulkStyleNo()+"未提交审核，不能驳回审核");
+            }
+            orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT_SUSPEND);
+            orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.NOT_COMMIT);
+            orderBookDetail.setIsLock(YesOrNoEnum.NO);
+            orderBookDetail.setIsOrder(YesOrNoEnum.NO);
+        }
+        List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
+        this.updateBatchById(orderBookDetails1);
+
+        List<String> orderBookIdList = orderBookDetails1.stream().map(OrderBookDetail::getOrderBookId).distinct().collect(Collectors.toList());
+        for (String orderBookId : orderBookIdList) {
+            LambdaQueryWrapper<OrderBookDetail> ew = new LambdaQueryWrapper<OrderBookDetail>().eq(OrderBookDetail::getOrderBookId, orderBookId);
+            long totalCount = this.count(ew);
+            long rightStatusCount = this.count(ew.eq(OrderBookDetail::getIsOrder, YesOrNoEnum.NO));
+
+            orderBookService.update(new LambdaUpdateWrapper<OrderBook>()
+                    .set(OrderBook::getStatus,OrderBookStatusEnum.NOT_COMMIT)
+                    .set(OrderBook::getOrderStatus,totalCount == rightStatusCount ? OrderBookOrderStatusEnum.NOT_COMMIT : OrderBookOrderStatusEnum.PART_ORDER)
+                    .eq(OrderBook::getId,orderBookId));
+        }
+
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean placeAnOrder(OrderBookDetailQueryDto dto, String orderBookId) {
+        if (StringUtils.isEmpty(orderBookId)) {
+            throw new OtherException("请选订货本");
+        }
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
+        for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
+            if (orderBookDetail.getStatus() != OrderBookDetailStatusEnum.NOT_AUDIT){
+                throw new OtherException(orderBookDetail.getBulkStyleNo()+
+                        (orderBookDetail.getStatus().greatThan(OrderBookDetailStatusEnum.NOT_AUDIT) ? "已审核,请勿重复提交" : "未审核，不能下单"));
+            }
+        }
+
+        for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
+            orderBookDetail.setIsLock(YesOrNoEnum.YES);
+            orderBookDetail.setIsOrder(YesOrNoEnum.YES);
+            orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT);
+            orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.FINISH);
+            orderBookDetail.setCommissioningDate(new Date());
+        }
+        List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
+        boolean b = this.updateBatchById(orderBookDetails1);
+
+        // 检查是否下属详情是否全部完成审核
+        LambdaQueryWrapper<OrderBookDetail> ew = new LambdaQueryWrapper<OrderBookDetail>().eq(OrderBookDetail::getOrderBookId, dto.getOrderBookId());
+        long totalCount = this.count(ew);
+        long rightStatusCount = this.count(ew.eq(OrderBookDetail::getIsOrder, YesOrNoEnum.YES));
+
+        OrderBook orderBook = orderBookService.getById(dto.getOrderBookId());
+        if (totalCount == rightStatusCount) {
+            orderBook.setStatus(OrderBookStatusEnum.ORDER);
+            orderBook.setOrderStatus(OrderBookOrderStatusEnum.ORDER);
+        }else {
+            orderBook.setStatus(OrderBookStatusEnum.CONFIRM);
+            orderBook.setOrderStatus(OrderBookOrderStatusEnum.PART_ORDER);
+        }
+        orderBookService.updateById(orderBook);
+        orderBookDetails1.forEach(orderBookDetail -> {
+            PublicStyleColorDto colorDto = new PublicStyleColorDto();
+            colorDto.setOrderFlag(YesOrNoEnum.YES.getValueStr());
+            colorDto.setId(orderBookDetail.getStyleColorId());
+            styleColorService.updateOrderFlag(colorDto);
+        });
+        return b;
     }
 
     /**

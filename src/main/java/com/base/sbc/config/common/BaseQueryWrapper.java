@@ -3,9 +3,11 @@ package com.base.sbc.config.common;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import lombok.Data;
 import org.springframework.util.StringUtils;
 
@@ -23,6 +25,10 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
         return this.eq(!StringUtils.isEmpty(val), column, val);
     }
 
+    public QueryWrapper<T> notNullEq(String column, Object val) {
+        this.eq(ObjectUtil.isNotEmpty(val), column, val);
+        return this;
+    }
 
     public QueryWrapper<T> notEmptyIn(String column, Collection<?> coll) {
         if (coll == null) {

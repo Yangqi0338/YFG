@@ -24,7 +24,7 @@ public interface OrderBookService extends BaseService<OrderBook> {
     /**
      * 根据条件查询
      */
-    List<OrderBookVo> queryList(QueryWrapper<OrderBook> queryWrapper);
+    List<OrderBookVo> queryList(QueryWrapper<OrderBook> queryWrapper, OrderBookQueryDto dto);
 
     void importExcel(OrderBookQueryDto dto, HttpServletResponse response) throws IOException;
 

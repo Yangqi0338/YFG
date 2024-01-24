@@ -9,6 +9,9 @@ package com.base.sbc.module.orderbook.entity;
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -92,7 +95,12 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 状态
      */
     @ApiModelProperty(value = "状态:0：未提交，1：分配设计师，2：分配商企，3：待审核,4:审核通过,5:审核未通过")
-    private String status;
+    private OrderBookDetailStatusEnum status;
+    /**
+     * 审核状态
+     */
+    @ApiModelProperty(value = "审核状态:0：未审批，1：待审批，2：已审批")
+    private OrderBookDetailAuditStatusEnum auditStatus;
     /**
      * 设计师确认(0:未确认，1：已确认)
      */
@@ -326,12 +334,18 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 是否下单（0：否，1：是）
      */
     @ApiModelProperty(value = "是否下单（0：否，1：是）")
-    private String isOrder;
+    private YesOrNoEnum isOrder;
     /**
      * 是否锁定（0：否，1：是）
      */
     @ApiModelProperty(value = "是否锁定（0：否，1：是）")
-    private String isLock;
+    private YesOrNoEnum isLock;
+
+    /**
+     * 品牌
+     */
+    @ApiModelProperty(value = "brand")
+    private String brand;
 
 }
 

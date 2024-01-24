@@ -37,7 +37,8 @@
         tsc.scm_send_flag,
         ts.planning_season_id,
         tbcl.colour_code as supplierColor,
-        tpi.id as packInfoId
+        tpi.id as packInfoId,
+        IFNULL(tobl.material,0) * IFNULL(tsc.tag_price,0) as materialMoney
         FROM
         t_order_book_detail tobl
         left join t_style_color tsc on tobl.style_color_id = tsc.id and tsc.del_flag='0'
