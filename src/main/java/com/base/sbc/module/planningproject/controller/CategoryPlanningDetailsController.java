@@ -11,6 +11,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -49,7 +50,7 @@ public class CategoryPlanningDetailsController extends BaseController{
      */
     @RequestMapping("/updateDetail")
     @DuplicationCheck
-    public ApiResult updateDetail(CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
+    public ApiResult updateDetail(@RequestBody CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
         categoryPlanningDetailsService.updateDetail(categoryPlanningDetailsVo);
         return updateSuccess(categoryPlanningDetailsVo);
     }

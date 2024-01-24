@@ -195,7 +195,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         QueryWrapper<PlanningProject> queryWrapper =new QueryWrapper<>();
 
         //如果不存在相关的企划看板,则创建
-        queryWrapper.eq("seasonal_planning_id",categoryPlanningDetails1.getId());
+        queryWrapper.eq("category_planning_id",categoryPlanningDetails1.getId());
         PlanningProject planningProject = planningProjectService.getOne(queryWrapper);
         if (planningProject==null){
             QueryWrapper<PlanningProject> queryWrapper1 = new QueryWrapper<>();
@@ -218,7 +218,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         }
 
         //修改数据
-        // boolean b = this.updateById(categoryPlanningDetailsVo);
+        boolean b = this.updateById(categoryPlanningDetailsVo);
 
 
 
@@ -242,8 +242,11 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                         String bandName = bandNames.getString(i);
                         String bandCode = bandCodes.getString(i);
                         String number = numbers.getString(i);
+
+                        //企划看板维度数据
                         PlanningProjectDimension planningProjectDimension =new PlanningProjectDimension();
 
+                        planningProjectDimension.setPlanningProjectId(planningProject.getId());
                         planningProjectDimension.setBandName(bandName);
                         planningProjectDimension.setBandCode(bandCode);
                         planningProjectDimension.setNumber(number);
@@ -283,31 +286,10 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     }
                     planningProjectPlankService.saveBatch(planningProjectPlanks);
                 }
-                // String prodCategory1stName = jsonObject.getString("prodCategory1stName");
-                // prodCategory1stNames.add(prodCategory1stName);
-                // String prodCategory1ndCode = jsonObject.getString("prodCategory1ndCode");
-                // map.put(prodCategory1ndCode,jsonObject.getString("prodCategory1ndSum"));
-                // prodCategory1stCodes.add(prodCategory1ndCode);
-
-
-
-
-
-
-
             }
-            //去重
-            // List<String> collect1 = prodCategory1stNames.stream().distinct().collect(Collectors.toList());
-            // List<String> collect2 = prodCategory1stCodes.stream().distinct().collect(Collectors.toList());
-
-
-            // planningProjectSaveDTO.setPlanningProjectDimensionList(planningProjectDimensionList);
-            // planningProjectSaveDTO.setPlanningProjectMaxCategoryList(planningProjectMaxCategoryList);
-            // planningProjectService.save(planningProjectSaveDTO);
-
         }
 
-        return false;
+        return b;
     }
 
     /**
