@@ -525,6 +525,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
             packInfoStatus.setToBigGoodsDate(nowDate);
+            packInfoStatus.setApparelLabels(packDesignStatus.getApparelLabels());
+            packInfoStatus.setSpecNotice(packDesignStatus.getSpecNotice());
+            packInfoStatus.setSpecialSpecComments(packDesignStatus.getSpecialSpecComments());
             packInfoStatusService.updateById(packInfoStatus);
             //updateById(packInfo);
             //设置bom 状态
@@ -539,6 +542,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     smpService.bom(collect.split(","));
                 }
             }
+
+
             //手动提交事务,防止下发配色的时候获取的数据不是修改后的数据
             platformTransactionManager.commit(transactionStatus);
             /*配色下发*/
@@ -603,7 +608,6 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packSampleReviewService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //业务意见
         packBusinessOpinionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
-
         return true;
     }
 
