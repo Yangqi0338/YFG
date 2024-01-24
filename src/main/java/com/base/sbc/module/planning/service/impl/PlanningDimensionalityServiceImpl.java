@@ -317,27 +317,23 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         if (StrUtil.isEmpty(dto.getPlanningSeasonId())) {
             throw new OtherException("产品季id不能为空");
         }
+        if (StrUtil.isEmpty(dto.getPlanningChannelId())) {
+            throw new OtherException("渠道id不能为空");
+        }
         /*获取模板*/
         BasicsdatumCoefficientTemplate basicsdatumCoefficientTemplate = basicsdatumCoefficientTemplateService.getById(dto.getCoefficientTemplateId());
         if (ObjectUtil.isEmpty(basicsdatumCoefficientTemplate)) {
             throw new OtherException("模板id错误");
         }
-        /*获取渠道*/
-        if (StrUtil.isEmpty(dto.getPlanningChannelId())) {
-            QueryWrapper<PlanningChannel> planningChannelQueryWrapper = new QueryWrapper<>();
-            planningChannelQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
-            planningChannelQueryWrapper.eq("channel", basicsdatumCoefficientTemplate.getChannel());
-            List<PlanningChannel> planningChannelList = planningChannelService.list(planningChannelQueryWrapper);
-            if (CollUtil.isEmpty(planningChannelList)) {
-                throw new OtherException("此产品季下没有" + basicsdatumCoefficientTemplate.getChannelName() + "渠道");
-            }
-            dto.setPlanningChannelId(planningChannelList.get(0).getId());
-            dto.setChannel(planningChannelList.get(0).getChannel());
+        /*查询渠道*/
+        PlanningChannel planningChannel = planningChannelService.getById(dto.getPlanningChannelId());
+        if (ObjectUtil.isEmpty(planningChannel)) {
+            throw new OtherException("此产品季渠道查询失败");
         }
 
         QueryWrapper<BasicsdatumDimensionality> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("coefficient_template_id", basicsdatumCoefficientTemplate.getId());
-        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", StringUtils.convertList(dto.getProdCategory()) );
 //        queryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory2nd()),"prod_category2nd",dto.getProdCategory2nd());
         /*获取模板中的系数*/
         List<BasicsdatumDimensionality> dimensionalityList = basicsdatumDimensionalityService.list(queryWrapper);
@@ -345,10 +341,10 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         if (CollUtil.isNotEmpty(dimensionalityList)) {
             /*此产品季的系数*/
             QueryWrapper<PlanningDimensionality> dimensionalityQueryWrapper = new QueryWrapper<>();
-            dimensionalityQueryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category", dto.getProdCategory());
+            dimensionalityQueryWrapper.in(StrUtil.isNotBlank(dto.getProdCategory()), "prod_category",StringUtils.convertList(dto.getProdCategory()) );
             dimensionalityQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
-            dimensionalityQueryWrapper.eq("channel", dto.getChannel());
-            dimensionalityQueryWrapper.eq("planning_season_id", dto.getPlanningSeasonId());
+            dimensionalityQueryWrapper.eq("channel", planningChannel.getChannel());
+            dimensionalityQueryWrapper.eq("planning_channel_id", dto.getPlanningChannelId());
             dimensionalityQueryWrapper.eq("coefficient_flag", BaseGlobal.YES);
             List<PlanningDimensionality> planningDimensionalityList = baseMapper.selectList(dimensionalityQueryWrapper);
             if (CollUtil.isNotEmpty(planningDimensionalityList)) {
@@ -361,6 +357,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
                 l.setId(null);
                 l.setPlanningChannelId(dto.getPlanningChannelId());
                 l.setPlanningSeasonId(dto.getPlanningSeasonId());
+                l.setChannel(planningChannel.getChannel());
+                l.setChannelName(planningChannel.getChannelName());
                 l.setCoefficientFlag(BaseGlobal.YES);
             });
             saveOrUpdateBatch(list);
