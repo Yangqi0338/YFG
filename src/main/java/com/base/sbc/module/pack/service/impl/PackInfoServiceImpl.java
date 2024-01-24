@@ -192,6 +192,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Value("${techSpecView:http://10.98.250.44:8087}")
     private String techSpecView;
 
+    @Value("${scanAddress}")
+    private String scanAddress;
+
+
     @Autowired
     private DataUpdateScmService dataUpdateScmService;
     @Autowired
@@ -730,7 +734,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         String objectFileName = "DataPackage/" + style.getBrandName() + "/" + style.getYearName() + "/";
         vo.setObjectFileName(objectFileName);
         //二维码url
-        String fileWebUrl = techSpecView + "/?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
+        //        String fileWebUrl = techSpecView + "/?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
+        String fileWebUrl =scanAddress +"/#/pages/pdm/processSheet/processSheet/?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
+
         System.out.println(fileWebUrl);
         System.out.println(URLUtil.encode(fileWebUrl));
         String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encodeAll(fileWebUrl);
