@@ -232,6 +232,9 @@
         tsd.planning_season_id as planningSeasonId,
         tsd.devt_type_name as produceTypeName,
         tsd.prod_category1st_name as prodCategory1stName,
+        tsd.dev_class as devClass,
+        tsd.dev_class_name as devClassName,
+
         <choose>
             <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,

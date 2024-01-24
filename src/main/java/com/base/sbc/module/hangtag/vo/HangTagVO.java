@@ -336,6 +336,14 @@ public class HangTagVO extends HangTag {
 
     private String repIngredient;
 
+
+    /** 开发分类 */
+    @ApiModelProperty(value = "开发分类"  )
+    private String devClass;
+    /** 开发分类名称 */
+    @ApiModelProperty(value = "开发分类名称"  )
+    private String devClassName;
+
     /**
      * 附件
      */
