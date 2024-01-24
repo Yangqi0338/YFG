@@ -174,7 +174,6 @@ public class SmpService {
      */
     public Integer goods(String[] ids) {
         int i = 0;
-        long l = System.currentTimeMillis();
 
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
         if (CollUtil.isEmpty(styleColors)) {
@@ -186,7 +185,6 @@ public class SmpService {
                 throw new OtherException("旧系统数据不允许下发");
             }
         }
-        System.out.println("--------------------goods: 1 用时： " + (System.currentTimeMillis() - l));
 
         for (StyleColor styleColor : styleColors) {
 
@@ -223,7 +221,6 @@ public class SmpService {
                 }
             }
 
-            System.out.println("--------------------goods: 2 用时： " + (System.currentTimeMillis() - l));
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
@@ -256,7 +253,6 @@ public class SmpService {
             smpGoodsDto.setImgList(imgList);
 
 
-            System.out.println("--------------------goods: 3 用时： " + (System.currentTimeMillis() - l));
 
             //设计师id,下稿设计师,工艺员,工艺员id,版师名称,版师ID
             String designer = style.getDesigner();
@@ -293,7 +289,6 @@ public class SmpService {
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
 
-            System.out.println("--------------------goods: 4 用时： " + (System.currentTimeMillis() - l));
             //动态字段
 
             List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
@@ -360,7 +355,6 @@ public class SmpService {
             smpGoodsDto.setBandName(style.getBandName());
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 
-            System.out.println("--------------------goods: 5 用时： " + (System.currentTimeMillis() - l));
             // 资料包
             //region 资料包取值逻辑错误
             /*PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
@@ -384,7 +378,6 @@ public class SmpService {
             smpGoodsDto.setAuProcess(count > 0);
 
 
-            System.out.println("--------------------goods: 6 用时： " + (System.currentTimeMillis() - l));
 
             smpGoodsDto.setUnit(style.getStyleUnitCode());
             String downContent = "";
@@ -415,7 +408,6 @@ public class SmpService {
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
 
-                System.out.println("--------------------goods: 7 用时： " + (System.currentTimeMillis() - l));
 
                 if (stylePricingVO != null) {
                     smpGoodsDto.setBomPhase("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
@@ -468,7 +460,6 @@ public class SmpService {
 
             }
 
-            System.out.println("--------------------goods: 8 用时： " + (System.currentTimeMillis() - l));
             //废弃
             //smpGoodsDto.setSeriesId(null);
             //smpGoodsDto.setSeriesName(null);
@@ -480,7 +471,6 @@ public class SmpService {
             }
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
 
-            System.out.println("--------------------goods: 9 用时： " + (System.currentTimeMillis() - l));
 
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
@@ -505,7 +495,6 @@ public class SmpService {
             smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
             //endregion
 
-            System.out.println("--------------------goods: 10 用时： " + (System.currentTimeMillis() - l));
 
             //region 增加二检包装形式
             //
@@ -537,7 +526,6 @@ public class SmpService {
             }
             styleColorService.updateById(styleColor);
 
-            System.out.println("--------------------goods: 11 用时： " + (System.currentTimeMillis() - l));
         }
         return i;
     }
