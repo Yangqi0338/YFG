@@ -23,6 +23,11 @@ public interface FieldValDataGroupConstant {
     String SAMPLE_DESIGN_TECHNOLOGY = "SAMPLE_DESIGN_TECHNOLOGY";
 
     /**
+     * 款式打标 下单阶段维度数据
+     */
+    String STYLE_MARKING_ORDER = "STYLE_MARKING_ORDER";
+
+    /**
      * 款式配色维度数据
      */
     String STYLE_COLOR = "STYLE_COLOR";

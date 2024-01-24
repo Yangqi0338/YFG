@@ -11,6 +11,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackInfoDto;
 import com.base.sbc.module.pack.dto.PlanningDemandStatisticsResultVo;
@@ -125,6 +126,25 @@ public interface StyleService extends BaseService<Style> {
      * @param dto@return
      */
     List<FieldManagementVo> queryDimensionLabelsByStyle(DimensionLabelsSearchDto dto);
+
+
+    /**
+     * 查询维度标签
+     *
+     * @param dto
+     * @return
+     */
+    Map<String,List<FieldManagementVo>> queryCoefficient(DimensionLabelsSearchDto dto);
+
+
+    /**
+     * 查询围度系数
+     *
+     * @param dto@return
+     */
+    Map<String,List<FieldManagementVo>> queryCoefficientByStyle(DimensionLabelsSearchDto dto);
+
+
 
     List<SampleUserVo> getDesignerList(String companyCode);
 
@@ -242,5 +262,21 @@ public interface StyleService extends BaseService<Style> {
     boolean setMainPic(StyleSaveDto dto);
 
     String selectMaxOldDesignNo(QueryWrapper qc);
+
+    boolean startMarkingApproval(String id, String showFOB, String styleColorId);
+
+    boolean approvalMarking(AnswerDto dto);
+
+    boolean startMarkingOrderApproval(String id, String showFOB, String styleColorId);
+
+    boolean approvalMarkingOrder(AnswerDto dto);
+
+    /**
+     * 保存打板中的维度系数数据
+     * @param fieldValList
+     * @param styleId
+     * @return
+     */
+    boolean saveCoefficient(List<FieldVal> fieldValList,String styleId);
 }
 

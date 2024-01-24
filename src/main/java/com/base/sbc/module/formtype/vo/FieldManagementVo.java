@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Optional;
 
 @Data
 @JsonIgnoreProperties(value = {"handler"})
@@ -48,6 +49,9 @@ public class FieldManagementVo {
     /** 选项（0手动，1外部' */
     @ApiModelProperty(value = "选项"  )
     private String isOption;
+    /** 结构管理层级 */
+    @ApiModelProperty(value = "结构管理层级"  )
+    private String structureTier;
     /** 是否必填(0是，1否) */
     @ApiModelProperty(value = "是否必填(0是，1否)"  )
     private String isMustFill;
@@ -95,6 +99,25 @@ public class FieldManagementVo {
     private String valName;
     @ApiModelProperty(value = "选中")
     private boolean selected = true;
+
+    /** 设计显示标记 */
+    @ApiModelProperty(value = "设计显示标记"  )
+    private String designShowFlag;
+    /** 设计检查标记 */
+    @ApiModelProperty(value = "设计检查标记"  )
+    private String designExamineFlag;
+    /** 研发显示标记 */
+    @ApiModelProperty(value = "研发显示标记"  )
+    private String researchShowFlag;
+    /** 研发检查标记 */
+    @ApiModelProperty(value = "研发检查标记"  )
+    private String researchExamineFlag;
+    /** 复盘显示标记 */
+    @ApiModelProperty(value = "复盘显示标记"  )
+    private String replayShowFlag;
+    /** 复盘检查标记 */
+    @ApiModelProperty(value = "复盘检查标记"  )
+    private String replayExamineFlag;
 
     List<FieldManagementVo> list;
 

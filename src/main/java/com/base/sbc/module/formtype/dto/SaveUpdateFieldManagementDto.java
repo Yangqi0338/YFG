@@ -56,6 +56,10 @@ public class SaveUpdateFieldManagementDto {
     @NotBlank(message = "是否必填")
     private String isMustFill;
 
+    /** 结构管理层级 */
+    @ApiModelProperty(value = "结构管理层级"  )
+    private String structureTier;
+
     /** 品类使用范围对应结构树id */
     @ApiModelProperty(value = "品类使用范围对应结构树id"  )
 

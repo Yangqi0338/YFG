@@ -39,6 +39,8 @@ public class DimensionLabelsSearchDto {
     @NotBlank(message = "产品季id不能为空")
     private String planningSeasonId;
 
+    @ApiModelProperty(value = "渠道", example = "0")
+    private String planningChannelId;
 
     @ApiModelProperty(value = "渠道", example = "0")
     private String channel;
@@ -83,4 +85,21 @@ public class DimensionLabelsSearchDto {
      */
     @ApiModelProperty(value = "配置页面")
     private String configPageFlag;
+
+    /**
+     * 围度系数标识
+     */
+    @ApiModelProperty(value = "围度系数标识")
+    private String coefficientFlag;
+
+    @ApiModelProperty(value = "显示标识")
+    private String showConfig;
+
+
+    @ApiModelProperty(value = "系数模板id")
+    private String  coefficientTemplateId;
+
+    @ApiModelProperty(value = "款式配色Id")
+    private String styleColorId;
+
 }

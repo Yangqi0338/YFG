@@ -34,18 +34,12 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
-import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
-import com.base.sbc.module.planning.dto.QueryDemandDto;
-import com.base.sbc.module.planning.dto.SaveDelDemandDto;
-import com.base.sbc.module.planning.dto.SyncToSeatDto;
+import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandProportionDataMapper;
 import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
-import com.base.sbc.module.planning.service.PlanningChannelService;
-import com.base.sbc.module.planning.service.PlanningDemandService;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.PlanningDemandProportionDataVo;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
@@ -95,6 +89,8 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     private PlanningCategoryItemService planningCategoryItemService;
     @Autowired
     private PlanningChannelService planningChannelService;
+    @Autowired
+    private PlanningDimensionalityService planningDimensionalityService;
 
     @Override
     public List<PlanningDemandVo> getDemandListById(Principal user, QueryDemandDto queryDemandDimensionalityDto) {
@@ -196,7 +192,7 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
 
     @Override
     public ApiResult getFormDemand(QueryDemandDto queryDemandDimensionalityDto) {
-        Map<String, List> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         /*查询表单的数据*/
         QueryWrapper<FormType> formTypeQueryWrapper = new QueryWrapper<>();
         formTypeQueryWrapper.eq("code", queryDemandDimensionalityDto.getFormCode());
@@ -221,6 +217,11 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
          * 查询需求占比中依赖于字段id
          */
         List<FieldManagement> fieldManagementList = fieldManagementMapper.selectBatchIds(fieldManagementIdList);
+
+        /*维度系数穿梭框*/
+        if(StrUtil.equals(queryDemandDimensionalityDto.getCoefficientFlag(),BaseGlobal.YES)) {
+            return ApiResult.success("查询成功", fieldManagementList);
+        }
         /*可选的数据，配置所有数据*/
         map.put("fieldManagement", fieldManagementList);
         QueryWrapper<PlanningDemand> queryWrapper1 = new QueryWrapper<>();
@@ -436,6 +437,35 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
         //保存坑位的维度数据
         fieldValService.saveBatch(seatFvList);
         return true;
+    }
+
+    /**
+     * 增加检查互斥品类和中类互斥
+     *
+     * @param checkMutexDto
+     */
+    @Override
+    public void checkMutex(CheckMutexDto checkMutexDto) {
+        //品类和中类互斥,当前如果是中类,查询是否存在品类,如果是品类,查询是否存在中类
+        BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq(StrUtil.isNotBlank(checkMutexDto.getPlanningSeasonId()),"planning_season_id", checkMutexDto.getPlanningSeasonId());
+        queryWrapper.eq("channel", checkMutexDto.getChannel());
+        queryWrapper.eq("prod_category", checkMutexDto.getProdCategory());
+        queryWrapper.eq("coefficient_flag",BaseGlobal.YES);
+        if (StrUtil.isNotBlank(checkMutexDto.getProdCategory2nd())) {
+            queryWrapper.isNullStr("prod_category2nd");
+            long count = planningDimensionalityService.count(queryWrapper);
+            if (count>0) {
+                throw new OtherException("已存在品类维度");
+            }
+        } else {
+            queryWrapper.isNotNull("prod_category2nd");
+            queryWrapper.ne("prod_category2nd", "");
+            long count = planningDimensionalityService.count(queryWrapper);
+            if (count>0) {
+                throw new OtherException("已存在中类维度");
+            }
+        }
     }
 
 

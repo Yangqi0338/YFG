@@ -136,6 +136,8 @@
             ts.prod_category3rd as prodCategory3nd,
             ts.prod_category3rd_name as prodCategory3ndName,
             ts.id styleId,
+            ts.design_audit_status,
+            ts.design_marking_status,
             tsc.*,
             CASE WHEN tsc.is_trim = '0' THEN tsma.style_no ELSE '' END as accessoryNo,
             CASE WHEN tsc.is_trim = '0' THEN tsma.color_name ELSE'' END as accessory1,
@@ -238,6 +240,45 @@
             #{id}
         </foreach>
         and tsc.scm_send_flag &lt;&gt; '1'
+    </select>
+
+    <select id="markingCheckPage" resultType="com.base.sbc.module.style.vo.StyleMarkingCheckVo">
+        SELECT ts.year_name,
+               ts.season_name,
+               ts.brand_name,
+               ts.band_code,
+               ts.band_name,
+               ts.prod_category1st,
+               ts.prod_category1st_name,
+               ts.prod_category,
+               ts.prod_category_name,
+               ts.devt_type,
+               ts.devt_type_name,
+               ts.sales_type,
+               ts.sales_type_name,
+               sum(IF(IFNULL(ts.design_marking_status, 0) = 0, 1, 0)) AS designCount,
+               sum(IF(ts.design_marking_status = 1, 1, 0))            AS designCount1,
+               sum(IF(ts.design_marking_status = 2, 1, 0))            AS designCount2,
+               sum(IF(IFNULL(tsc.order_marking_status, 0) = 0, 1, 0)) AS orderCount,
+               sum(IF(tsc.order_marking_status = 1, 1, 0))            AS orderCount1,
+               sum(IF(tsc.order_marking_status = 2, 1, 0))            AS orderCount2,
+               count(1) AS totalCount
+        FROM t_style ts
+                 LEFT JOIN t_style_color tsc ON (ts.id = tsc.style_id AND tsc.del_flag = '0')
+            ${ew.customSqlSegment}
+        GROUP BY ts.year_name,
+                ts.season_name,
+                ts.brand_name,
+                ts.band_code,
+                ts.band_name,
+                ts.prod_category1st,
+                ts.prod_category1st_name,
+                ts.prod_category,
+                ts.prod_category_name,
+                ts.devt_type,
+                ts.devt_type_name,
+                ts.sales_type,
+                ts.sales_type_name
     </select>
 
 </mapper>
