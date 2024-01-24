@@ -174,7 +174,7 @@ public class SmpService {
      */
     public Integer goods(String[] ids) {
         int i = 0;
-
+        long l = System.currentTimeMillis();
 
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
         if (CollUtil.isEmpty(styleColors)) {
@@ -186,7 +186,7 @@ public class SmpService {
                 throw new OtherException("旧系统数据不允许下发");
             }
         }
-
+        System.out.println("--------------------goods: 1 用时： " + (System.currentTimeMillis() - l));
 
         for (StyleColor styleColor : styleColors) {
 
@@ -222,6 +222,8 @@ public class SmpService {
                     style= styleService.getById(styleColor.getStyleId());
                 }
             }
+
+            System.out.println("--------------------goods: 2 用时： " + (System.currentTimeMillis() - l));
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
@@ -252,6 +254,9 @@ public class SmpService {
                 imgList.add(attachmentVo.getUrl());
             }
             smpGoodsDto.setImgList(imgList);
+
+
+            System.out.println("--------------------goods: 3 用时： " + (System.currentTimeMillis() - l));
 
             //设计师id,下稿设计师,工艺员,工艺员id,版师名称,版师ID
             String designer = style.getDesigner();
@@ -288,7 +293,7 @@ public class SmpService {
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
 
-
+            System.out.println("--------------------goods: 4 用时： " + (System.currentTimeMillis() - l));
             //动态字段
 
             List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
@@ -355,6 +360,7 @@ public class SmpService {
             smpGoodsDto.setBandName(style.getBandName());
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 
+            System.out.println("--------------------goods: 5 用时： " + (System.currentTimeMillis() - l));
             // 资料包
             //region 资料包取值逻辑错误
             /*PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
@@ -377,6 +383,8 @@ public class SmpService {
             long count = packTechSpecService.count(new QueryWrapper<PackTechSpec>().eq("pack_type", "packBigGoods").eq("foreign_id", style.getId()).eq("spec_type", "外辅工艺"));
             smpGoodsDto.setAuProcess(count > 0);
 
+
+            System.out.println("--------------------goods: 6 用时： " + (System.currentTimeMillis() - l));
 
             smpGoodsDto.setUnit(style.getStyleUnitCode());
             String downContent = "";
@@ -407,6 +415,7 @@ public class SmpService {
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
 
+                System.out.println("--------------------goods: 7 用时： " + (System.currentTimeMillis() - l));
 
                 if (stylePricingVO != null) {
                     smpGoodsDto.setBomPhase("0".equals(stylePricingVO.getBomStage()) ? "Sample" : "Production");
@@ -458,6 +467,8 @@ public class SmpService {
 
 
             }
+
+            System.out.println("--------------------goods: 8 用时： " + (System.currentTimeMillis() - l));
             //废弃
             //smpGoodsDto.setSeriesId(null);
             //smpGoodsDto.setSeriesName(null);
@@ -468,6 +479,8 @@ public class SmpService {
                 throw new OtherException("尺码不能为空");
             }
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
+
+            System.out.println("--------------------goods: 9 用时： " + (System.currentTimeMillis() - l));
 
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
@@ -491,6 +504,8 @@ public class SmpService {
             List<StyleSpecFabric> styleSpecFabricList = styleSpecFabricService.list(queryWrapper);
             smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
             //endregion
+
+            System.out.println("--------------------goods: 10 用时： " + (System.currentTimeMillis() - l));
 
             //region 增加二检包装形式
             //
@@ -521,6 +536,8 @@ public class SmpService {
                 styleColor.setScmSendFlag("2");
             }
             styleColorService.updateById(styleColor);
+
+            System.out.println("--------------------goods: 11 用时： " + (System.currentTimeMillis() - l));
         }
         return i;
     }
@@ -1404,15 +1421,17 @@ public class SmpService {
         int index = 0;
         TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
         List<TagConfirmDateDto> tagConfirmDate = new ArrayList<>();
-        for (String id : ids) {
-            Date date = confirmStatus.equals(0) ? null : new Date();
-            boolean tagBol =
-                    (type == HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() ||
-                            type == HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode() ||
-                            type == HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM.getCode() ||
-                            type == HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM.getCode());
-            if (tagBol) {
-                HangTag hangTag = hangTagService.getById(id);
+
+        Date date = confirmStatus.equals(0) ? null : new Date();
+        boolean tagBol =
+                (type == HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() ||
+                        type == HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode() ||
+                        type == HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM.getCode() ||
+                        type == HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM.getCode());
+
+        if (tagBol) {
+            List<HangTag> hangTags = hangTagService.listByIds(ids);
+            for (HangTag hangTag : hangTags) {
                 String bulkStyleNo = hangTag.getBulkStyleNo();
                 if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() == type) {
                     //当status 等于4 待品控确认反审核只取消上一级
@@ -1453,9 +1472,12 @@ public class SmpService {
                     tagConfirmDateDto.setQualityControlConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
-            } else {
-                StylePricing stylePricing = stylePricingService.getById(id);
-                PackInfo packInfo = packInfoService.getById(stylePricing.getPackId());
+            }
+        } else {
+            List<StylePricing> stylePricings = stylePricingService.listByIds(ids);
+            List<String> packIds = stylePricings.stream().map(o -> o.getPackId()).distinct().collect(Collectors.toList());
+            List<PackInfo> packInfos = packInfoService.listByIds(packIds);
+            for (PackInfo packInfo : packInfos) {
                 String styleNo = packInfo.getStyleNo();
                 if (StringUtils.isEmpty(styleNo)){
                     continue;
@@ -1480,17 +1502,18 @@ public class SmpService {
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
-            String params = JSONArray.toJSONString(tagConfirmDate);
+        }
+        String params = JSONArray.toJSONString(tagConfirmDate);
 
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
-            for (TagConfirmDateDto tagConfirmDateDto1 : tagConfirmDate) {
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
+        for (TagConfirmDateDto tagConfirmDateDto1 : tagConfirmDate) {
 
-                Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
-                if (aBoolean) {
-                    index++;
-                }
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
+            if (aBoolean) {
+                index++;
             }
         }
+
         return index;
     }
 
