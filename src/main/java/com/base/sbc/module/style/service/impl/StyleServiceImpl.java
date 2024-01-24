@@ -2092,7 +2092,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Transactional(rollbackFor = {Exception.class})
     public boolean saveCoefficient(List<FieldVal> fieldValList, String styleId) {
         // 保存系数数据
-        fieldValService.saveOrUpdateBatch(fieldValList);
+        fieldValService.save(styleId,FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY,fieldValList);
         /*查询这个款式下的配色*/
         QueryWrapper<StyleColor> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("style_id",styleId);
