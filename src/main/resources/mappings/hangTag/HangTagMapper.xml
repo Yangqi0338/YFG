@@ -26,6 +26,7 @@
         tsd.brand AS brand,
         tsd.year AS year,
         tsd.season AS season,
+        tsd.brand_name AS brandName,
         <choose>
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,

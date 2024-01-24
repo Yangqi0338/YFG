@@ -70,6 +70,10 @@ public class HangTagListVO extends HangTag {
     /** 品牌 */
     @ApiModelProperty(value = "品牌"  )
     private String brand;
+
+    /** 品牌mc */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
     /** 年份 */
     @ApiModelProperty(value = "年份"  )
     private String year;
