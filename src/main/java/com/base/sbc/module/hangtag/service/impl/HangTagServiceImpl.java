@@ -1311,7 +1311,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
 		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
-		queryWrapper.eq("year", dto.getYear());
+		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year", dto.getYear());
 
 		List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.list(queryWrapper);
 		return list;
