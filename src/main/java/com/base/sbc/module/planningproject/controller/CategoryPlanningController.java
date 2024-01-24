@@ -75,7 +75,6 @@ public class CategoryPlanningController extends BaseController {
         List<CategoryPlanningDetails> categoryPlanningDetails = BeanUtil.copyToList(detailsList, CategoryPlanningDetails.class);
         for (CategoryPlanningDetails categoryPlanningDetail : categoryPlanningDetails) {
             categoryPlanningDetail.setId(null);
-            categoryPlanningDetail.setDataJson(null);
             categoryPlanningDetail.setCategoryPlanningId(categoryPlanning.getId());
             categoryPlanningDetail.setCategoryPlanningName(categoryPlanning.getName());
         }

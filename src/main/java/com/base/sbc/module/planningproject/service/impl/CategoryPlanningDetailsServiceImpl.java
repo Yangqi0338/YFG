@@ -73,7 +73,6 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
 
 
             String bandName = categoryPlanningDetailsVo.getBandName();
-            String styleCategory = categoryPlanningDetailsVo.getStyleCategory();
             String prodCategoryName = categoryPlanningDetailsVo.getProdCategoryName();
             String prodCategory2ndName = categoryPlanningDetailsVo.getProdCategory2ndName();
             String skcCount = categoryPlanningDetailsVo.getSkcCount();
