@@ -1407,7 +1407,6 @@ public class SmpService {
      */
     public int tagConfirmDates(List<String> ids, Integer type, Integer confirmStatus) {
         int index = 0;
-        TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
         List<TagConfirmDateDto> tagConfirmDate = new ArrayList<>();
 
         Date date = confirmStatus.equals(0) ? null : new Date();
@@ -1420,6 +1419,7 @@ public class SmpService {
         if (tagBol) {
             List<HangTag> hangTags = hangTagService.listByIds(ids);
             for (HangTag hangTag : hangTags) {
+                TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
                 String bulkStyleNo = hangTag.getBulkStyleNo();
                 if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() == type) {
                     //当status 等于4 待品控确认反审核只取消上一级
@@ -1470,6 +1470,7 @@ public class SmpService {
                 if (StringUtils.isEmpty(styleNo)){
                     continue;
                 }
+                TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
                 if (HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode() == type) {
                     //计控成本确认
                     tagConfirmDateDto.setStyleNo(styleNo);
