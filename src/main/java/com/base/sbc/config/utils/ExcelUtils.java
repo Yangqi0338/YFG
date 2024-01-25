@@ -475,6 +475,7 @@ public class ExcelUtils {
     private static ExcelExportEntity createExcelExportEntity(Field field, String targetId, Class<?> pojoClass, List<Method> getMethods, ExcelEntity excelGroup) {
         Excel excel = field.getAnnotation(Excel.class);
         ExcelExportEntity excelEntity = new ExcelExportEntity();
+        excelEntity.setType(excel.type());
         excelEntity.setKey(field.getName());
         excelEntity.setName(PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null));
         excelEntity.setWidth(excel.width());
