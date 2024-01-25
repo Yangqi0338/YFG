@@ -9,6 +9,7 @@ import java.util.Date;
 
 import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.google.common.collect.Maps;
 
@@ -108,7 +109,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                     .notEmptyIn(CountryLanguage::getLanguageName, countryQueryDto.getLanguageName())
                     .notEmptyEq(CountryLanguage::getEnableFlag, countryQueryDto.getEnableFlag())
                     .eq(CountryLanguage::getSingleLanguageFlag, countryQueryDto.isSingleLanguage() ? YesOrNoEnum.YES : YesOrNoEnum.NO)
-                    .orderByDesc(CountryLanguage::getCodeIndex).orderByAsc(CountryLanguage::getType)
+                    .orderByDesc(CountryLanguage::getCodeIndex).orderByAsc(Arrays.asList(CountryLanguage::getType, CountryLanguage::getSort))
             );
         }
 
@@ -163,7 +164,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
         saveLock.lock();
         try {
-            countryTypeLanguageSaveDto.getTypeLanguage().stream().sorted(Comparator.comparing(it-> it.getType().ordinal())).forEach(typeLanguageSaveDto-> {
+            countryTypeLanguageSaveDto.getTypeLanguage().stream().sorted(CommonUtils.comparing(TypeLanguageSaveDto::getType)).forEach(typeLanguageSaveDto-> {
                 CountryLanguageType type = typeLanguageSaveDto.getType();
                 List<String> standardColumnCodeList = typeLanguageSaveDto.getStandardColumnCodeList();
                 List<String> languageCodeList = typeLanguageSaveDto.getLanguageCodeList();
@@ -194,6 +195,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
                     this.remove(queryWrapper.clone().notIn(CountryLanguage::getLanguageCode, languageCodeList));
 
+                    AtomicInteger sort = new AtomicInteger();
                     for (String languageCode : languageCodeList) {
                         CountryLanguage countryLanguage = oldCountryLanguageList.stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst().orElse(null);
 
@@ -203,7 +205,11 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                             countryLanguage = BeanUtil.copyProperties(countryTypeLanguage, CountryLanguage.class);
                             countryLanguage.setLanguageCode(languageCode);
                             countryLanguage.setLanguageName(basicBaseDict.getName());
+                            countryLanguage.setSort(sort.getAndIncrement());
                             this.save(countryLanguage);
+                        }else {
+                            countryLanguage.setSort(sort.getAndIncrement());
+                            this.updateById(countryLanguage);
                         }
 
                         String countryId = countryLanguage.getId();
