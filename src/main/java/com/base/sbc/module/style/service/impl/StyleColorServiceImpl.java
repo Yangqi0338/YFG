@@ -53,6 +53,8 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
@@ -158,8 +160,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private StylePicUtils stylePicUtils;
 
-    @Autowired
-    private StyleColorService styleColorService;
 
     private final FieldManagementService fieldManagementService;
 
@@ -198,6 +198,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private  PlanningSeasonService planningSeasonService;
+    @Resource
+    @Lazy
+    private  OrderBookDetailService orderBookDetailService;
 
     Pattern pattern = Pattern.compile("[a-z||A-Z]");
 
@@ -1707,25 +1710,25 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("field_name",fieldManagement.getFieldName());
-        queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
+        queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_MARKING_ORDER);
         queryWrapper.select("foreign_id");
 
         List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
         List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
-//        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
 
-
-//        List<StyleColor> list1 = styleColorService.list(styleColorBaseQueryWrapper);
-//        List<String> styleColorIds1 = list1.stream().map(StyleColor::getId).collect(Collectors.toList());
-//        styleColorIds1.addAll(styleColorIds);
+        //查询已下单的配色id
+        QueryWrapper<OrderBookDetail> queryWrapper2 =new QueryWrapper<>();
+        queryWrapper2.in("style_color_id",styleColorIds);
+        queryWrapper2.select("style_color_id");
+        List<OrderBookDetail> list1 = orderBookDetailService.list(queryWrapper2);
+        List<String> list2 = list1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
 
         BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
         styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
         styleQueryWrapper.eq("ts.prod_category1st",dto.getProdCategory1st());
         styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
         styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
-        styleQueryWrapper.eq("tsc.order_flag", "1");
-        styleQueryWrapper.in("tsc.id",styleColorIds);
+        styleQueryWrapper.in("tsc.id",list2);
         if (!list.isEmpty()) {
             List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
             styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);

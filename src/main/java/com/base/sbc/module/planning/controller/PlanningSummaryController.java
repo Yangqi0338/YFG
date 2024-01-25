@@ -58,7 +58,9 @@ public class PlanningSummaryController extends BaseController{
         queryWrapper1.eq("status", "0");
         List<PlanningProject> list = planningProjectService.list(queryWrapper1);
         List<String> planningProjectIds = list.stream().map(PlanningProject::getId).collect(Collectors.toList());
-
+        if(planningProjectIds.isEmpty()){
+            return ApiResult.error("产品季下没有数据", 10000);
+        }
         // 获取企划看板-规划-维度
         BaseQueryWrapper<PlanningProjectDimension> queryWrapper2 = new BaseQueryWrapper<>();
         queryWrapper2.in("planning_project_id", planningProjectIds);
