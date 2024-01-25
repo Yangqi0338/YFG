@@ -14,6 +14,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public class HangTagUpdateStatusDTO {
     @ApiModelProperty(value = "吊牌id")
     private List<String> ids;
 
-    @NotBlank(message = "状态不可为空")
+    @NotNull(message = "状态不可为空")
     @ApiModelProperty(value = "状态")
     private HangTagStatusEnum status;
 
