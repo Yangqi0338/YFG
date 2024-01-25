@@ -68,11 +68,10 @@ public class HangTagMoreLanguageBCSVO {
     public String getFailureMessage() {
         StringJoiner message = new StringJoiner("\n");
         message.setEmptyValue("");
-        String messageFormat = "%s未翻译";
         if (CollectionUtil.isNotEmpty(this.failureList)) {
             this.failureList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo))
                     .forEach((bulkStyleNo, sameBulkStyleNoList)-> {
-                        message.add(String.format(messageFormat, "款号" + bulkStyleNo) + ": " +
+                        message.add(bulkStyleNo + ": " +
                                 sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage).distinct().collect(Collectors.joining("\n")));
                     });
         }
