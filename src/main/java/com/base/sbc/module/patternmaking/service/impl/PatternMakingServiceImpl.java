@@ -49,6 +49,8 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessNodeService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -59,6 +61,7 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
@@ -1309,7 +1312,31 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
 
-        packQueryWrapper(dto, qw);
+        String columnHeard = dto.getColumnHeard();
+
+        Field[] declaredFields = dto.getClass().getDeclaredFields();
+        for (Field field : declaredFields) {
+            //开启权限
+            try {
+                field.setAccessible(true);
+                TableField annotation = field.getAnnotation(TableField.class);
+                if (annotation != null) {
+                    Object o = field.get(dto);
+                    if (ObjectUtil.isNotEmpty(o) && StrUtil.isNotEmpty(columnHeard)) {
+                        qw.select(" DISTINCT " + annotation.value());
+                        break;
+                    } else if (ObjectUtil.isNotEmpty(o)) {
+                        qw.like(annotation.value(), o);
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } finally {
+                field.setAccessible(false);
+            }
+        }
+
+
 
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
@@ -1443,6 +1470,17 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             return objects.toPageInfo();
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
+
+
+
+        if (StrUtil.isNotEmpty(columnHeard)) {
+            dto.setPageNum(0);
+            dto.setPageSize(0);
+            Page<SampleBoardVo> headPage = PageHelper.startPage(dto);
+            return objects.toPageInfo();
+        }
+
+
         //region 导出去掉设计师编码
         list.forEach(item->{
             if (StrUtil.isNotEmpty(item.getDesigner())) {

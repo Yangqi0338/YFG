@@ -245,4 +245,8 @@ public class PatternMakingCommonPageSearchDto extends Page {
     //private String sampleBarCode;//	样衣码
     //private String receiveSampleDate;//	设计收到时间
     //添加字段进行模糊查询
+
+    //列头全量匹配
+    private String columnHeard;
+    //列头全量匹配
 }

@@ -159,16 +159,21 @@
     </select>
     <select id="sampleBoardList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
         SELECT
-        p.id AS patternMakingId,
-        p.pattern_design_name ,
-        p.pattern_design_id ,
-        p.pat_diff,p.pat_diff_name,
-        p.sample_bar_code sampleBarCode,
-        s.*,
-        p.*,
-        p.status pmStatus,
-        p.create_date as `pmCreateDate`,
-        p.demand_finish_date as demandFinishDate
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            p.id AS patternMakingId,
+            p.pattern_design_name ,
+            p.pattern_design_id ,
+            p.pat_diff,p.pat_diff_name,
+            p.sample_bar_code sampleBarCode,
+            s.*,
+            p.*,
+            p.status pmStatus,
+            p.create_date as `pmCreateDate`,
+            p.demand_finish_date as demandFinishDate
+        </if>
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
