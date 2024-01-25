@@ -8,7 +8,6 @@ package com.base.sbc.module.pricing.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -205,20 +204,16 @@ public class StylePricingController extends BaseController {
                 stylePricing.setControlPlanCost(packPricingService.countTotalPrice(stylePricing.getPackId(), BaseGlobal.STOCK_STATUS_CHECKED,3));
             }
         }
+        /*获取款式下的关联的款*/
+        List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
+        List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*迁移数据不能操作*/
-        List<String> packIds = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.in("id",packIds);
-        queryWrapper.eq("historical_data",BaseGlobal.YES);
-        List packInfoList1 = packInfoService.list(queryWrapper);
-        if(CollUtil.isNotEmpty(packInfoList1)){
+        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
+        if(count > 0){
             throw new OtherException("历史数据不能操作");
         }
 
         stylePricingService.updateBatchById(stylePricings);
-        List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
-        /*获取款式下的关联的款*/
-        List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*计控确认成本消息通知*/
         if(StrUtil.equals(dto.getControlConfirm(), BaseGlobal.STATUS_CLOSE)) {
             for (PackInfo packInfo : packInfoList) {
@@ -244,9 +239,9 @@ public class StylePricingController extends BaseController {
 
         /*吊牌确认下发*/
         if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE) || StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
-            String collect = packInfoList.stream().filter(f -> StrUtil.isNotBlank(f.getStyleColorId())).map(PackInfo::getStyleColorId).collect(Collectors.joining(","));
-            if (StrUtil.isNotBlank(collect)) {
-                smpService.goods(collect.split(","));
+            String[] collect = packInfoList.stream().map(PackInfo::getStyleColorId).filter(StrUtil::isNotBlank).toArray(String[]::new);
+            if (collect.length > 0) {
+                smpService.goods(collect);
             }
         }
         return updateSuccess("提交成功");
