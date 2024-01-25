@@ -5,76 +5,13 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service.impl;
-import java.util.Date;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.lang.Pair;
-import cn.hutool.core.map.MapUtil;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
-import com.base.sbc.config.enums.business.CountryLanguageType;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletResponse;
-
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.StandardColumnModel;
-import com.base.sbc.config.enums.business.SystemSource;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
-import com.base.sbc.module.hangtag.entity.HangTagInspectCompany;
-import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
-import com.base.sbc.module.basicsdatum.service.SizeBulkStyleService;
-import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
-import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
-import com.base.sbc.module.hangtag.service.HangTagInspectCompanyService;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
-import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
-import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageGroup;
-import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
-import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
-import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
-import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
-import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
-import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
-import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
-import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
-import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskExcelDto;
-import com.base.sbc.module.smp.SmpService;
-import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.module.style.entity.StyleMainAccessories;
-import com.base.sbc.module.style.service.StyleMainAccessoriesService;
-import com.base.sbc.module.standard.entity.StandardColumn;
-import com.base.sbc.module.standard.service.StandardColumnService;
-import com.base.sbc.open.dto.MoreLanguageTagPrinting;
-import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
-import com.base.sbc.open.dto.TagPrintingSupportVO;
-import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
-import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
-import com.base.sbc.open.entity.EscmMaterialCompnentInspectContent;
-import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.access.method.P;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
-
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -82,54 +19,91 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumCategoryMeasureVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.hangtag.dto.HangTagDTO;
-import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
-import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
+import com.base.sbc.module.hangtag.dto.*;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
+import com.base.sbc.module.hangtag.entity.HangTagInspectCompany;
 import com.base.sbc.module.hangtag.entity.HangTagLog;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.enums.HangTagStatusEnum;
 import com.base.sbc.module.hangtag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangtag.mapper.HangTagMapper;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
+import com.base.sbc.module.hangtag.service.HangTagInspectCompanyService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
-import com.base.sbc.module.hangtag.vo.HangTagListVO;
-import com.base.sbc.module.hangtag.vo.HangTagVO;
-import com.base.sbc.module.hangtag.vo.HangTagVoExcel;
+import com.base.sbc.module.hangtag.vo.*;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageGroup;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
+import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.open.dto.MoreLanguageTagPrinting;
+import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
+import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
+import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
@@ -1307,14 +1281,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	 * @return
 	 */
 	@Override
-	public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(EscmMaterialCompnentInspectCompanyDto dto) {
-
+	public PageInfo getInspectReport(InspectCompanyDto dto) {
 		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
 		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
 		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year", dto.getYear());
 
-		List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.list(queryWrapper);
-		return list;
+		/*查询基础资料-品类测量组数据*/
+		Page<BasicsdatumCategoryMeasureVo> objects = PageHelper.startPage(dto);
+		escmMaterialCompnentInspectCompanyService.list(queryWrapper);
+		return objects.toPageInfo();
 	}
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
