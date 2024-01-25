@@ -154,7 +154,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             LambdaQueryWrapper<CountryLanguage> queryWrapper = new LambdaQueryWrapper<CountryLanguage>()
                     .eq(CountryLanguage::getCode, code)
                     .eq(CountryLanguage::getCountryCode, countryCode);
-            if (!this.exists(queryWrapper)) throw new OtherException("国家对应不上,请清理缓存");
+            if (!cache && !this.exists(queryWrapper)) throw new OtherException("国家对应不上,请清理缓存");
         }
         baseCountryLanguage.setCode(code);
 
@@ -234,7 +234,6 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         }
 //        // 使用redis作为中间通信,standardColumnCodeList参数暂时没用了
 //        exportExcel(new MoreLanguageExcelQueryDto(countryId, new ArrayList<>()));
-        RedisStaticFunUtils.clear();
         return code;
     }
 
@@ -284,7 +283,6 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             RedisStaticFunUtils.setBusinessService(standardColumnService).setMessage("非法标准列code");
             return (StandardColumn) RedisStaticFunUtils.hget(RedisKeyConstant.STANDARD_COLUMN_LIST.build(), type.getCode() + RedisKeyBuilder.COMMA + standardColumnCode);
         }).collect(Collectors.toList());
-        RedisStaticFunUtils.clear();
         return standardColumnList;
     }
 
@@ -329,6 +327,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     private TransactionDefinition transactionDefinition;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void initLanguage(List<BasicBaseDict> dictList) {
         TransactionStatus transaction = platformTransactionManager.getTransaction(transactionDefinition);
         try {

@@ -7,6 +7,8 @@
 package com.base.sbc.module.hangtag.service.impl;
 import java.util.Date;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.map.MapUtil;
@@ -47,6 +49,7 @@ import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskExcelDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
@@ -227,10 +230,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
-		if(StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)&& hangTagListVOS.size() > 1000){
-			throw new OtherException("最多导出1000条数据");
+		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
+			if(hangTagListVOS.size() > 2000){
+				throw new OtherException("带图片导出2000条数据");
+			}
+			minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
 		}
-		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		if(!StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)){
+			minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
+		}
 		if (hangTagListVOS.isEmpty()) {
 			return new PageInfo<>(hangTagListVOS);
 		}
@@ -284,7 +292,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			bulkStyleNos.add(e.getBulkStyleNo());
 
 		});
-		List<PackInfo> packInfos = packInfoService
+/*		List<PackInfo> packInfos = packInfoService
 				.list(new QueryWrapper<PackInfo>().in("style_no", bulkStyleNos).select("id", "style_no"));
 		List<String> packInfoIds = packInfos.stream().map(PackInfo::getId).collect(Collectors.toList());
 		if (!packInfoIds.isEmpty()) {
@@ -301,7 +309,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			for (HangTagListVO hangTagListVO : hangTagListVOS) {
 				hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBulkStyleNo()));
 			}
-		}
+		}*/
 
 		return new PageInfo<>(hangTagListVOS);
 	}
@@ -319,7 +327,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagSearchDTO.setDeriveFlag(BaseGlobal.YES);
 		List<HangTagListVO> list = queryPageInfo(hangTagSearchDTO, userCompany).getList();
 		List<HangTagVoExcel> hangTagVoExcels = BeanUtil.copyToList(list, HangTagVoExcel.class);
-		ExcelUtils.exportExcel(hangTagVoExcels, HangTagVoExcel.class, "吊牌.xlsx", new ExportParams(), response);
+		ExcelUtils.executorExportExcel(hangTagVoExcels, HangTagVoExcel.class,"吊牌",hangTagSearchDTO.getImgFlag(),2000,response,"washingLabel");
 	}
 
 	@Override
@@ -777,7 +785,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注
-				tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarksName());
 				// 贮藏要求
 				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemandName());
 				// 产地
@@ -901,7 +908,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO, boolean needHandle, boolean mergeWarnMsg) {
-		List<String> codeList = Arrays.asList(hangTagMoreLanguageDTO.getCode().split(","));
+		Set<String> codeList = CollUtil.set(false, hangTagMoreLanguageDTO.getCode().split(","));
 
 		// 多国家语言 多款号
 		Boolean likeQueryFlag = hangTagMoreLanguageDTO.getLikeQueryFlag();
@@ -936,7 +943,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 获取吊牌的modelType
 		List<String> sizeCodeList  = hangTagVOList.stream().map(HangTagVO::getModelType).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
-		List<BasicsdatumModelType> modelTypeList = basicsdatumModelTypeService.list(new BaseLambdaQueryWrapper<BasicsdatumModelType>().in(BasicsdatumModelType::getCode,sizeCodeList));
+		List<BasicsdatumModelType> modelTypeList = basicsdatumModelTypeService.list(new BaseLambdaQueryWrapper<BasicsdatumModelType>().notEmptyIn(BasicsdatumModelType::getCode,sizeCodeList));
 
 		// 获得要翻译的标准列码集合
 		Map<String, List<StandardColumn>> standardColumnMap = new HashMap<>(codeList.size());
@@ -961,20 +968,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		languageDto.setSingleLanguageFlag(YesOrNoEnum.YES);
 		List<CountryLanguageDto> singleLanguageDtoList = countryLanguageService.listQuery(languageDto);
 		// 如果为空, 查找单语言翻译
-		if(CollectionUtil.isEmpty(titleTranslateList)) {
-			titleTranslateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-					.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList()))
-					.in(StandardColumnCountryTranslate::getPropertiesCode,standardColumnCodeList)
-			));
-		}
+		List<String> fillStandardColumnCodeList = standardColumnCodeList.stream()
+				.filter(standardColumnCode -> titleTranslateList.stream().noneMatch(it -> it.getPropertiesCode().equals(standardColumnCode)))
+				.collect(Collectors.toList());
+		titleTranslateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+				.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList()))
+				.in(StandardColumnCountryTranslate::getPropertiesCode,fillStandardColumnCodeList)
+		));
 
 		List<HangTagMoreLanguageBaseVO> resultList = new ArrayList<>();
-		List<String> mergeWarnMsgList = new ArrayList<>();
 
 		// 根据国家分组
 		countryLanguageList.stream().collect(Collectors.groupingBy(CountryLanguage::getCode)).forEach((code, sameCodeList)-> {
 			// 封装基础VO
 			HangTagMoreLanguageBaseVO baseCountryLanguageVO = HANG_TAG_CV.copy2MoreLanguageBaseVO(sameCodeList.get(0));
+			HangTagMoreLanguageBaseVO moreLanguageBaseVO = HANG_TAG_CV.copyMyself(baseCountryLanguageVO);
 
 			// 根据传入的检查Bean, 确定这个国家需要检查的吊牌 和 语言
 			List<String> countryMappingBulkStyleNoList = bulkStyleNoList;
@@ -986,22 +994,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						it.getType().equals(codeMapping.getType()) &&
 								(StrUtil.isBlank(codeMapping.getLanguageCode()) || it.getLanguageCode().equals(codeMapping.getLanguageCode())))).collect(Collectors.toList());
 			}
-			// 如果没有任何一个语种,报错返回 (缺少语言名字)TODO
-			if (CollectionUtil.isEmpty(sameCodeList)) throw new OtherException(baseCountryLanguageVO.getCountryName()+"不存在该语种");
 
 			// 获取当前国家对应的标准列数据
 			List<StandardColumn> standardColumnList = standardColumnMap.getOrDefault(code, new ArrayList<>());
 
 			// 循环款号
 			for (String bulkStyleNo : countryMappingBulkStyleNoList) {
+				moreLanguageBaseVO.setBulkStyleNo(bulkStyleNo);
+
 				Optional<MoreLanguageHangTagVO> hangTagVoOpt = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst();
 				if (!hangTagVoOpt.isPresent()) {
-					String msg = "大货款号:" + bulkStyleNo + " 不存在吊牌信息";
 					// 如果不需要合并错误信息,直接报错
 					if (!mergeWarnMsg) {
-						throw new OtherException(msg);
+						throw new OtherException("大货款号:" + bulkStyleNo + " 不存在吊牌信息");
 					}else {
-						mergeWarnMsgList.add(msg);
+						resultList.add(HANG_TAG_CV.copyMyself(moreLanguageBaseVO));
 						continue;
 					}
 				}
@@ -1022,24 +1029,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTagVO.setSizeList(modelTypeList.stream().filter(it-> it.getCode().equals(hangTagVO.getModelType())).collect(Collectors.toList()));
 
 				// 循环配置在CodeMapping的标准列数据
+				List<HangTagMoreLanguageBaseVO> result = new ArrayList<>();
 				List<CountryLanguageDto> finalSameCodeList = sameCodeList;
-				List<HangTagMoreLanguageBaseVO> result = standardColumnList.stream().filter(it -> codeMap.containsKey(it.getCode())).flatMap(standardColumn -> {
+				standardColumnList.stream().filter(it -> codeMap.containsKey(it.getCode())).forEach(standardColumn -> {
 					// 获取与标准类相同类型的国家语言列表
 					List<CountryLanguageDto> countryLanguageDtoList = finalSameCodeList.stream()
 							.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
-					if (CollectionUtil.isEmpty(countryLanguageDtoList)) return null;
 
 					String standardColumnCode = standardColumn.getCode();
 					// 从codeMapping 获取 处理Func
 					MoreLanguageCodeMapping<Object> codeFunc = (MoreLanguageCodeMapping<Object>) codeMap.get(standardColumnCode);
 
 					// 遍历语言列表, 封装languageList
-					return codeFunc.getListFunc().apply(hangTagVO).stream().map(data-> {
+					codeFunc.getListFunc().apply(hangTagVO).forEach(data-> {
 						// 拷贝基础数据
-						HangTagMoreLanguageBaseVO hangTagMoreLanguageBaseVO = HANG_TAG_CV.copyMyself(baseCountryLanguageVO);
-						hangTagMoreLanguageBaseVO.setBulkStyleNo(bulkStyleNo);
+						HangTagMoreLanguageBaseVO hangTagMoreLanguageBaseVO = HANG_TAG_CV.copyMyself(moreLanguageBaseVO);
 						HANG_TAG_CV.standardColumn2MoreLanguageBaseVO(standardColumn, hangTagMoreLanguageBaseVO);
-
 						List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
 						hangTagMoreLanguageBaseVO.setLanguageList(languageList);
 
@@ -1060,63 +1065,77 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						// 查询具体翻译
 						List<StandardColumnCountryTranslate> translateList = new ArrayList<>();
 
-						List<CountryLanguageDto> singleLanguageTypeList = singleLanguageDtoList.stream()
-								.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
-						if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
-							translateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-									.eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
-									.in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
-									.in(StandardColumnCountryTranslate::getCountryLanguageId, Stream.of(countryLanguageDtoList, singleLanguageTypeList)
-											.flatMap(it-> it.stream().map(CountryLanguage::getId)).collect(Collectors.toList()))
-							));
+						String searchStandardColumnCode = standardColumnCode;
+						if (StrUtil.isNotEmpty(codeFunc.getSearchStandardColumnCode())) {
+							searchStandardColumnCode = codeFunc.getSearchStandardColumnCode();
 						}
 
-						countryLanguageDtoList.forEach(countryLanguageDto -> {
-							String countryLanguageId = countryLanguageDto.getId();
-							// 获取单语言的id
-							String singleLanguageId = singleLanguageTypeList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode()))
-									.findFirst().map(CountryLanguage::getId).orElse("");
-							List<String> languageIdList = Arrays.asList(countryLanguageId, singleLanguageId);
-							// 复制基础 languageVo
-							HangTagMoreLanguageVO languageVO = HANG_TAG_CV.copy2MoreLanguageVO(countryLanguageDto);
-							// 设置标准列模式用于判断
-							languageVO.setModel(standardColumn.getModel());
-							// 获取标题名翻译
-							titleTranslateList.stream().filter(it->
-									languageIdList.contains(it.getCountryLanguageId())
-											&&
-											it.getPropertiesCode().equals(standardColumnCode)
-											&&
-											StrUtil.isNotBlank(it.getContent())
-							).findFirst().ifPresent(titleTranslate -> {
-								// 找到 设置翻译 以及 flag
-								languageVO.setCannotFindStandardColumnContent(false);
-								languageVO.setStandardColumnContent(titleTranslate.getContent());
-							});
+						if (CollectionUtil.isNotEmpty(countryLanguageDtoList)) {
+							List<CountryLanguageDto> singleLanguageTypeList = singleLanguageDtoList.stream()
+									.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
+							if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
+								translateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+										.eq(StandardColumnCountryTranslate::getTitleCode, searchStandardColumnCode)
+										.in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
+										.in(StandardColumnCountryTranslate::getCountryLanguageId, Stream.of(countryLanguageDtoList, singleLanguageTypeList)
+												.flatMap(it-> it.stream().map(CountryLanguage::getId)).collect(Collectors.toList()))
+								));
+							}
 
-							List<StandardColumnCountryTranslate> countryTranslateList = translateList.stream()
-									.filter(it -> languageIdList.contains(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
-									.collect(Collectors.toList());
+							countryLanguageDtoList.forEach(countryLanguageDto -> {
+								String countryLanguageId = countryLanguageDto.getId();
+								// 获取单语言的id
+								String singleLanguageId = singleLanguageTypeList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode()))
+										.findFirst().map(CountryLanguage::getId).orElse("");
+								List<String> languageIdList = Arrays.asList(countryLanguageId, singleLanguageId);
+								// 复制基础 languageVo
+								HangTagMoreLanguageVO languageVO = HANG_TAG_CV.copy2MoreLanguageVO(countryLanguageDto);
+								// 设置标准列模式用于判断
+								languageVO.setModel(standardColumn.getModel());
+								languageVO.setPropertiesContent(hangTagMoreLanguageBaseVO.getPropertiesName());
+								// 获取标题名翻译
+								titleTranslateList.stream().filter(it->
+										languageIdList.contains(it.getCountryLanguageId())
+												&&
+												it.getPropertiesCode().equals(standardColumnCode)
+												&&
+												StrUtil.isNotBlank(it.getContent())
+								).findFirst().ifPresent(titleTranslate -> {
+									// 找到 设置翻译 以及 flag
+									languageVO.setCannotFindStandardColumnContent(false);
+									languageVO.setStandardColumnContent(titleTranslate.getContent());
+								});
 
-							countryTranslateList.stream().findFirst().ifPresent(translate-> {
-								//  找到 设置翻译 以及 flag
-								languageVO.setCannotFindPropertiesContent(false);
-								// 再复制, 主要是翻译时间
-								HANG_TAG_CV.countryTranslate2MoreLanguageVO(translate, languageVO);
-								String content;
-								// 需要合并 就多个合并
-								if (needFeed) {
-									content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining("\n"));
-								} else {
-									content = translate.getContent();
+								List<StandardColumnCountryTranslate> countryTranslateList = translateList.stream()
+										.filter(it -> countryLanguageId.equals(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
+										.collect(Collectors.toList());
+								if (CollectionUtil.isEmpty(countryTranslateList)) {
+									countryTranslateList.addAll(translateList.stream()
+											.filter(it -> singleLanguageId.equals(it.getCountryLanguageId()) && StrUtil.isNotBlank(it.getContent()))
+											.collect(Collectors.toList()));
 								}
-								languageVO.setPropertiesContent(content);
+
+								countryTranslateList.stream().findFirst().ifPresent(translate-> {
+									//  找到 设置翻译 以及 flag
+									languageVO.setCannotFindPropertiesContent(false);
+									// 再复制, 主要是翻译时间
+									HANG_TAG_CV.countryTranslate2MoreLanguageVO(translate, languageVO);
+									String content;
+									// 需要合并 就多个合并
+									if (needFeed) {
+										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining("\n"));
+									} else {
+										content = translate.getContent();
+									}
+									languageVO.setPropertiesContent(content);
+								});
+								languageList.add(languageVO);
 							});
-							languageList.add(languageVO);
-						});
-						return hangTagMoreLanguageBaseVO;
+						}
+						else { hangTagMoreLanguageBaseVO.setHasLanguage(false); }
+						result.add(hangTagMoreLanguageBaseVO);
 					});
-				}).filter(Objects::nonNull).collect(Collectors.toList());
+				});
 
 //					// 成分信息专属
 //					String ingredient = hangTagVO.getIngredient();
@@ -1196,17 +1215,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		});
 
-		if (!mergeWarnMsgList.isEmpty()) {
-			StringJoiner mergeWarnMsgJoiner = new StringJoiner(" / ");
-			mergeWarnMsgList.stream().distinct().forEach(mergeWarnMsgJoiner::add);
-			throw new OtherException(mergeWarnMsgJoiner.toString());
-		}
+		resultList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getStandardColumnId, Comparator.nullsFirst(String::compareTo)));
 
-		resultList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getStandardColumnId));
-		List<HangTagMoreLanguageWebBaseVO> webBaseList = HANG_TAG_CV.copyList2Web(resultList);
-		decorateWebList(hangTagVOList, webBaseList);
 		switch (source) {
 			case PDM:
+				List<HangTagMoreLanguageWebBaseVO> webBaseList = HANG_TAG_CV.copyList2Web(resultList);
+				decorateWebList(hangTagVOList, webBaseList);
+				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> "ZH".equals(it.getLanguageCode())));
                 return webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getType));
 			case BCS:
 				List<HangTagMoreLanguageBCSVO> sourceResultList = new ArrayList<>();
@@ -1229,9 +1244,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
 						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
 						Map<String, CodeMapping<?>> codeMap = printing.getCodeMap();
-						codeMap.forEach((key,value)-> {
-							printing.getTitleMap().put(value.getTitleCode(), value.getTitleName());
-						});
 						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
 							String standardColumnCode = result.getStandardColumnCode();
 
@@ -1245,16 +1257,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 							if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
 
-							String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(result.getStandardColumnName());
+							String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse("ZH".equals(languageCode) ? result.getStandardColumnName() : "");
 							printing.getTitleMap().put(codeMapping.getTitleCode(), titleContent);
 
 							if (codeMapping.getMapping() != null) {
-								Function<Object, String> title = (Function<Object, String>) codeMapping.getMapping().getKey();
-								BiConsumer<Object, String> value = (BiConsumer<Object, String>) codeMapping.getMapping().getValue();
-								listFunc.apply(printing).forEach(dataObj-> {
-									value.accept(dataObj, Opt.ofBlankAble(languageVO.getPropertiesContent()).orElse(result.getPropertiesName()));
-								});
-							}
+								Function<Object, String> codeFunc = (Function<Object, String>) codeMapping.getMapping().getKey();
+								BiConsumer<Object, String> valueFunc = (BiConsumer<Object, String>) codeMapping.getMapping().getValue();
+								List<?> list = listFunc.apply(printing);
+                                for (Object dataObj : list) {
+                                    String sourceStr = codeFunc.apply(dataObj);
+                                    String str = StrUtil.replace(sourceStr, result.getPropertiesName(), languageVO.getPropertiesContent());
+									if (!sourceStr.equals(str)) {
+										valueFunc.accept(dataObj, str);
+									}
+                                }
+                            }
 
 							printing.setLanguageName(languageVO.getLanguageName());
 						}
@@ -1269,57 +1286,66 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
 		Map<String, HangTagMoreLanguageGroup> groupMap = MapUtil.ofEntries(
-				MapUtil.entry("成分信息", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", MoreLanguageHangTagVO::getIngredient)),
-				MapUtil.entry("DP06", new HangTagMoreLanguageGroup("DP06", null)),
-				MapUtil.entry("DP12", new HangTagMoreLanguageGroup("DP12", MoreLanguageHangTagVO::getDownContent))
+				MapUtil.entry("DP16", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", "成分信息",MoreLanguageHangTagVO::getIngredient)),
+				MapUtil.entry("DP06", new HangTagMoreLanguageGroup(null)),
+				MapUtil.entry("DP12", new HangTagMoreLanguageGroup(MoreLanguageHangTagVO::getDownContent))
 		);
 		List<HangTagMoreLanguageWebBaseVO> groupList = new ArrayList<>();
 		webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getCode)).forEach((code, sameCodeList)-> {
 			groupMap.forEach((groupName, group)-> {
 				String standColumnCode = group.getStandColumnCode();
 				List<HangTagMoreLanguageWebBaseVO> sameStandardColumnCodeList = webBaseList.stream()
-						.filter(it -> standColumnCode.contains(it.getStandardColumnCode())).collect(Collectors.toList());
-
+						.filter(it -> groupName.equals(it.getStandardColumnCode())).collect(Collectors.toList());
+				boolean notChoose = CollectionUtil.isEmpty(sameStandardColumnCodeList);
+				if (StrUtil.isNotBlank(standColumnCode)) {
+					sameStandardColumnCodeList.addAll( webBaseList.stream()
+							.filter(it -> StrUtil.contains(standColumnCode, it.getStandardColumnCode())).collect(Collectors.toList()));
+				}
 				if (CollectionUtil.isNotEmpty(sameStandardColumnCodeList)) {
 					webBaseList.removeAll(sameStandardColumnCodeList);
-					sameStandardColumnCodeList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getBulkStyleNo)).forEach((bulkStyleNo, sameBulkList)-> {
-						MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst().get();
-						HangTagMoreLanguageWebBaseVO webBaseVO = sameBulkList.get(0);
+					sameStandardColumnCodeList.stream()
+							.collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getBulkStyleNo, LinkedHashMap::new, Collectors.toList()))
+							.forEach((bulkStyleNo, sameBulkList)-> {
+								MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst().get();
+								HangTagMoreLanguageWebBaseVO webBaseVO = sameBulkList.get(0);
 
-						HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
-						groupVO.setStandardColumnCode(standColumnCode);
-						groupVO.setStandardColumnName(groupName);
-						if (groupName.equals(standColumnCode)) {
-							groupVO.setStandardColumnName(webBaseVO.getStandardColumnName());
-						}
-						groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(",")));
+								HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
+								groupVO.setIsGroup(true);
+								groupVO.setStandardColumnCode(groupName);
+								if (notChoose) {
+									groupVO.setStandardColumnName(group.getStandColumnName());
+									groupVO.getLanguageList().forEach(languageVo-> {
+										languageVo.setStandardColumnContent(group.getStandColumnName());
+									});
+								}
+								groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(",")));
 
-						String separator = group.getSeparator();
-						Function<MoreLanguageHangTagVO, String> content = group.getContent();
-						String propertiesName;
-						if (content != null) {
-							propertiesName = content.apply(hangTagVO);
-						}else {
-							propertiesName = sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesName).distinct().collect(Collectors.joining(separator));
-						}
+								String separator = group.getSeparator();
+								Function<MoreLanguageHangTagVO, String> content = group.getContent();
+								String propertiesName;
+								if (content != null) {
+									propertiesName = content.apply(hangTagVO);
+								}else {
+									propertiesName = sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesName).distinct().collect(Collectors.joining(separator));
+								}
+								groupVO.getLanguageList().forEach(languageVo-> languageVo.setPropertiesContent(propertiesName));
+								groupVO.getLanguageList().forEach(languageVo-> {
+									languageVo.setIsGroup(true);
+									List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
+										String sourcePropertiesName = source.getPropertiesName();
+										return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
+												.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
+												.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
+									}).collect(Collectors.toList());
 
-						groupVO.getLanguageList().forEach(languageVo-> {
-							languageVo.setPropertiesContent(propertiesName);
-							List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
-								String sourcePropertiesName = source.getPropertiesName();
-								return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
-										.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
-										.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
-							}).collect(Collectors.toList());
+									rightLanguageMap.forEach(map-> {
+										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
+									});
+								});
+								groupVO.setPropertiesName(propertiesName);
 
-							rightLanguageMap.forEach(map-> {
-								map.forEach((key,value)-> languageVo.setPropertiesContent(languageVo.getPropertiesContent().replaceAll(key,value)));
-							});
+								groupList.add(groupVO);
 						});
-						groupVO.setPropertiesName(propertiesName);
-
-						groupList.add(groupVO);
-					});
 				}
 			});
 		});

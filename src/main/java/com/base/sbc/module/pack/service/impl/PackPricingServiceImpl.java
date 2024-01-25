@@ -113,13 +113,14 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
 
     /**
      * 计算总价格
-     * 默认查大货 默认查大货 flag=1 查询设计  flag=2 当前阶段
+     * 默认查大货 默认查大货 flag=1 查询设计  flag=2 当前阶段   ；decimal 保留小数据点
      * @param packInfoId
      * @param flag
+     * @param decimal
      * @return
      */
     @Override
-    public BigDecimal countTotalPrice(String packInfoId,String flag) {
+    public BigDecimal countTotalPrice(String packInfoId,String flag,Integer decimal) {
 /*默认查大货 */
         String packType = PackUtils.PACK_TYPE_BIG_GOODS;
         if(StrUtil.equals(flag,BaseGlobal.YES)){
@@ -155,7 +156,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         for(String key:otherStatistics.keySet()){
             hashMap.put(key,otherStatistics.get(key));
         }
-        BigDecimal formula = formula(collect.get(0).getExpressionShow().replaceAll(",",""), hashMap);
+        BigDecimal formula = formula(collect.get(0).getExpressionShow().replaceAll(",",""), hashMap,decimal);
         return  formula;
     }
 
@@ -307,8 +308,15 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         return result;
     }
 
+    /**
+     * 计算价格
+     * @param formula
+     * @param itemVal
+     * @param decimal 保留小数点
+     * @return
+     */
     @Override
-    public BigDecimal formula(String formula, Map<String, Object> itemVal) {
+    public BigDecimal formula(String formula, Map<String, Object> itemVal,Integer decimal) {
         try {
             JEP jep = new JEP();
             for (Map.Entry<String, Object> item : itemVal.entrySet()) {
@@ -319,7 +327,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
             jep.parseExpression(formula);
             double value = jep.getValue();
             BigDecimal b = new BigDecimal(value);
-            return b.setScale(2, RoundingMode.HALF_UP);
+            return b.setScale(decimal, RoundingMode.HALF_UP);
         } catch (NumberFormatException e) {
             throw new OtherException("计算异常,请检查公式是否有误");
         }

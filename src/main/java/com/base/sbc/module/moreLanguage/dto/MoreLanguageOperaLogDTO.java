@@ -46,9 +46,9 @@ public class MoreLanguageOperaLogDTO extends OperaLogDto {
             joiner.add(code);
         }
         if (countryLanguageType != null) {
-            joiner.add(countryLanguageType.getCode());
+            joiner.add(countryLanguageType.getText());
         }
-        this.setPath(joiner.toString());
+        this.setContent(joiner.toString());
         if (StrUtil.isBlank(this.getName())) {
             throw new OtherException("缺少日志类型");
         }

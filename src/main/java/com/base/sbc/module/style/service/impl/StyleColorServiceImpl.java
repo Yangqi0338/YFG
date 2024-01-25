@@ -18,6 +18,7 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -116,10 +117,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -1046,7 +1044,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 //            物料成本为0时查询核价信息的总成本
             if (packBomCost.compareTo(BigDecimal.ZERO) == 0) {
 //                核价信息总成本
-                BigDecimal bigDecimal = packPricingService.countTotalPrice(packInfo.getId(), "1");
+                BigDecimal bigDecimal = packPricingService.countTotalPrice(packInfo.getId(), "1",2);
                 if (bigDecimal.compareTo(BigDecimal.ZERO) == 0) {
                     throw new OtherException(styleColor.getStyleNo() + "的开发成本为0,请联系设计工艺员添加材料到BOM");
                 }
@@ -1159,7 +1157,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (StringUtils.isBlank(sampleStyleColor.getHisStyleNo())) {
                 sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
             }
-            sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
+            sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo().replaceAll(" ", ""));
         }
         /*修改波段*/
     /*    if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
@@ -1686,6 +1684,29 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         } finally {
             executor.shutdown();
         }
+    }
+
+    @Override
+    public void saveCorrectBarCode(StyleColor styleColor) {
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getCorrectBarCode, styleColor.getCorrectBarCode());
+        updateWrapper.set(StyleColor::getUpdateId, getUserId());
+        updateWrapper.set(StyleColor::getUpdateName, getUserName());
+        updateWrapper.set(StyleColor::getUpdateDate, new Date());
+        updateWrapper.eq(StyleColor::getId, styleColor.getId());
+        update(updateWrapper);
+    }
+
+    @Override
+    public void saveDesignDate(AddRevampStyleColorDto styleColor) {
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getDesignDetailDate, styleColor.getDesignDetailDate());
+        updateWrapper.set(StyleColor::getDesignCorrectDate, styleColor.getDesignCorrectDate());
+        updateWrapper.set(StyleColor::getUpdateId, getUserId());
+        updateWrapper.set(StyleColor::getUpdateName, getUserName());
+        updateWrapper.set(StyleColor::getUpdateDate, new Date());
+        updateWrapper.eq(StyleColor::getId, styleColor.getId());
+        update(updateWrapper);
     }
 
     /**

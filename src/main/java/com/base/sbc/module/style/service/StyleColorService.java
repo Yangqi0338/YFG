@@ -240,6 +240,10 @@ public interface StyleColorService extends BaseService<StyleColor> {
          */
         void styleColorListDeriveExcel(Principal user,HttpServletResponse response , QueryStyleColorDto dto) throws IOException;
 
+    void saveCorrectBarCode(StyleColor styleColor);
+
+    void saveDesignDate(AddRevampStyleColorDto styleColor);
+
     void markingDeriveExcel(Principal user, HttpServletResponse response, QueryStyleColorDto dto);
 
     PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto);

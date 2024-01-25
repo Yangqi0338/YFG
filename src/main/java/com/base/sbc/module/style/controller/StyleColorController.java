@@ -218,6 +218,20 @@ public class StyleColorController {
 		return styleColorService.getByStyleList(dto);
 	}
 
+	@ApiOperation(value = "保存正确样样衣码字段")
+	@PostMapping("/saveCorrectBarCode")
+	public ApiResult saveCorrectBarCode( @Valid @RequestBody StyleColor styleColor) {
+		styleColorService.saveCorrectBarCode(styleColor);
+		return ApiResult.success();
+	}
+
+	@ApiOperation(value = "保存设计时间")
+	@PostMapping("/saveDesignDate")
+	public ApiResult saveDesignDate( @Valid @RequestBody AddRevampStyleColorDto styleColor) {
+		styleColorService.saveDesignDate(styleColor);
+		return ApiResult.success();
+	}
+
 	@ApiOperation(value = "/款式打标导出")
 	@GetMapping("/markingDeriveExcel")
 	@DuplicationCheck(type = 1,message = "服务已存在导出，请稍后...")

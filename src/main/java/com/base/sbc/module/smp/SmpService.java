@@ -175,7 +175,6 @@ public class SmpService {
     public Integer goods(String[] ids) {
         int i = 0;
 
-
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
         if (CollUtil.isEmpty(styleColors)) {
             return i;
@@ -186,7 +185,6 @@ public class SmpService {
                 throw new OtherException("旧系统数据不允许下发");
             }
         }
-
 
         for (StyleColor styleColor : styleColors) {
 
@@ -222,6 +220,7 @@ public class SmpService {
                     style= styleService.getById(styleColor.getStyleId());
                 }
             }
+
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());
@@ -252,6 +251,8 @@ public class SmpService {
                 imgList.add(attachmentVo.getUrl());
             }
             smpGoodsDto.setImgList(imgList);
+
+
 
             //设计师id,下稿设计师,工艺员,工艺员id,版师名称,版师ID
             String designer = style.getDesigner();
@@ -287,7 +288,6 @@ public class SmpService {
             smpGoodsDto.setBandName(map.get(style.getBandCode()));
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
-
 
             //动态字段
 
@@ -356,11 +356,13 @@ public class SmpService {
             smpGoodsDto.setAccessories("配饰".equals(style.getProdCategory1stName()));
 
             // 资料包
-            PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
+            //region 资料包取值逻辑错误
+            /*PackTechPackaging packTechPackaging = packTechPackagingService.getOne(new QueryWrapper<PackTechPackaging>().eq("foreign_id", style.getId()).eq("pack_type", "packBigGoods"));
             if (packTechPackaging != null) {
                 smpGoodsDto.setPackageType(packTechPackaging.getPackagingForm());
                 smpGoodsDto.setPackageSize(packTechPackaging.getPackagingBagStandard());
-            }
+            }*/
+            //endregion
 
             smpGoodsDto.setProductTypeId(style.getStyleType());
             smpGoodsDto.setProductType(style.getStyleTypeName());
@@ -376,6 +378,7 @@ public class SmpService {
             smpGoodsDto.setAuProcess(count > 0);
 
 
+
             smpGoodsDto.setUnit(style.getStyleUnitCode());
             String downContent = "";
             if (packInfo != null) {
@@ -389,9 +392,9 @@ public class SmpService {
                     //物料费
                     smpGoodsDto.setMaterialCost(jsonObject.getBigDecimal("物料费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("物料费"));
                     //总成本
-                    smpGoodsDto.setCost(packPricingService.countTotalPrice(packInfo.getId(), null));
+                    smpGoodsDto.setCost(packPricingService.countTotalPrice(packInfo.getId(), null,2));
                     //设计Bom总成本
-                    smpGoodsDto.setDesignPackCost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES));
+                    smpGoodsDto.setDesignPackCost(packPricingService.countTotalPrice(packInfo.getId(),BaseGlobal.YES,2));
                     //外协加工费
                     smpGoodsDto.setOutsourcingProcessingCost((jsonObject.getBigDecimal("外协加工费") == null ? new BigDecimal(0) : jsonObject.getBigDecimal("外协加工费")));
                     //包装费
@@ -456,6 +459,7 @@ public class SmpService {
 
 
             }
+
             //废弃
             //smpGoodsDto.setSeriesId(null);
             //smpGoodsDto.setSeriesName(null);
@@ -466,6 +470,7 @@ public class SmpService {
                 throw new OtherException("尺码不能为空");
             }
             List<BasicsdatumSize> basicsdatumSizes = basicsdatumSizeService.listByField("code", sizeCodes);
+
 
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
@@ -490,6 +495,7 @@ public class SmpService {
             smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
             //endregion
 
+
             //region 增加二检包装形式
             //
             QueryWrapper<HangTag> hangTagQueryWrapper = new QueryWrapper();
@@ -500,6 +506,9 @@ public class SmpService {
             if (hangTag != null) {
                 smpGoodsDto.setSecondPackagingForm(hangTag.getSecondPackagingForm());
                 smpGoodsDto.setSecondPackagingFormCode(hangTag.getSecondPackagingFormCode());
+
+                smpGoodsDto.setPackageType(hangTag.getPackagingFormCode());
+                smpGoodsDto.setPackageSize(hangTag.getPackagingBagStandardCode());
             }
             //endregion
 
@@ -516,6 +525,7 @@ public class SmpService {
                 styleColor.setScmSendFlag("2");
             }
             styleColorService.updateById(styleColor);
+
         }
         return i;
     }
@@ -1397,17 +1407,19 @@ public class SmpService {
      */
     public int tagConfirmDates(List<String> ids, Integer type, Integer confirmStatus) {
         int index = 0;
-        TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
         List<TagConfirmDateDto> tagConfirmDate = new ArrayList<>();
-        for (String id : ids) {
-            Date date = confirmStatus.equals(0) ? null : new Date();
-            boolean tagBol =
-                    (type == HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() ||
-                            type == HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode() ||
-                            type == HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM.getCode() ||
-                            type == HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM.getCode());
-            if (tagBol) {
-                HangTag hangTag = hangTagService.getById(id);
+
+        Date date = confirmStatus.equals(0) ? null : new Date();
+        boolean tagBol =
+                (type == HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() ||
+                        type == HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode() ||
+                        type == HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM.getCode() ||
+                        type == HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM.getCode());
+
+        if (tagBol) {
+            List<HangTag> hangTags = hangTagService.listByIds(ids);
+            for (HangTag hangTag : hangTags) {
+                TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
                 String bulkStyleNo = hangTag.getBulkStyleNo();
                 if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() == type) {
                     //当status 等于4 待品控确认反审核只取消上一级
@@ -1448,13 +1460,17 @@ public class SmpService {
                     tagConfirmDateDto.setQualityControlConfirmDate(date);
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
-            } else {
-                StylePricing stylePricing = stylePricingService.getById(id);
-                PackInfo packInfo = packInfoService.getById(stylePricing.getPackId());
+            }
+        } else {
+            List<StylePricing> stylePricings = stylePricingService.listByIds(ids);
+            List<String> packIds = stylePricings.stream().map(o -> o.getPackId()).distinct().collect(Collectors.toList());
+            List<PackInfo> packInfos = packInfoService.listByIds(packIds);
+            for (PackInfo packInfo : packInfos) {
                 String styleNo = packInfo.getStyleNo();
                 if (StringUtils.isEmpty(styleNo)){
                     continue;
                 }
+                TagConfirmDateDto tagConfirmDateDto = new TagConfirmDateDto();
                 if (HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode() == type) {
                     //计控成本确认
                     tagConfirmDateDto.setStyleNo(styleNo);
@@ -1475,17 +1491,18 @@ public class SmpService {
                     tagConfirmDate.add(tagConfirmDateDto);
                 }
             }
-            String params = JSONArray.toJSONString(tagConfirmDate);
+        }
+        String params = JSONArray.toJSONString(tagConfirmDate);
 
-            HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
-            for (TagConfirmDateDto tagConfirmDateDto1 : tagConfirmDate) {
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
+        for (TagConfirmDateDto tagConfirmDateDto1 : tagConfirmDate) {
 
-                Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
-                if (aBoolean) {
-                    index++;
-                }
+            Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
+            if (aBoolean) {
+                index++;
             }
         }
+
         return index;
     }
 

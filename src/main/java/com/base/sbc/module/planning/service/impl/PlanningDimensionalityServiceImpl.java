@@ -97,10 +97,12 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             planningDimensionalityList = baseMapper.selectList(qw);
         } else {
             //坑位、款式页面先按中类查，中类没有再查品类
-            dto.setCategoryFlag("1");
-            PlanningUtils.dimensionCommonQw(qw, dto);
-            qw.orderByAsc("sort");
-            planningDimensionalityList = baseMapper.selectList(qw);
+            if(StrUtil.isNotBlank(dto.getProdCategory2nd())){
+                dto.setCategoryFlag("1");
+                PlanningUtils.dimensionCommonQw(qw, dto);
+                qw.orderByAsc("sort");
+                planningDimensionalityList = baseMapper.selectList(qw);
+            }
             if (CollUtil.isEmpty(planningDimensionalityList) && StrUtil.isBlank(dto.getConfigPageFlag())) {
                 qw = new BaseQueryWrapper<>();
                 dto.setCategoryFlag("0");
@@ -270,12 +272,13 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      */
    public void setBaseQueryWrapper(BaseQueryWrapper queryWrapper,DimensionLabelsSearchDto dto){
        queryWrapper.eq("tpd.channel",dto.getChannel());
-       if(StrUtil.isNotBlank(dto.getProdCategory())){
-           queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
+       if(StrUtil.isNotBlank(dto.getProdCategory2nd())){
+           queryWrapper.eq("tpd.prod_category2nd",dto.getProdCategory2nd());
        }else {
-           queryWrapper.isNullStr("tpd.prod_category");
+           queryWrapper.isNullStr("tpd.prod_category2nd");
        }
-       queryWrapper.eq("tpd.prod_category2nd",dto.getProdCategory2nd());
+       queryWrapper.eq("tpd.prod_category",dto.getProdCategory());
+
        queryWrapper.eq("tpd.planning_season_id",dto.getPlanningSeasonId());
        queryWrapper.eq("tpd.coefficient_flag",BaseGlobal.YES);
        queryWrapper.eq("tpd.del_flag",BaseGlobal.NO);

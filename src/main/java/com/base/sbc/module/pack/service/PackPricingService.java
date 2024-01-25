@@ -32,7 +32,14 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
 
     Map<String, BigDecimal> calculateCosts(PackCommonSearchDto dto);
 
-    BigDecimal formula(String formula, Map<String, Object> itemVal);
+    /**
+     * 计算价格
+     * @param formula
+     * @param itemVal
+     * @param decimal 保留小数点
+     * @return
+     */
+    BigDecimal formula(String formula, Map<String, Object> itemVal,Integer decimal);
 
     PackPricingVo saveByDto(PackPricingDto dto);
 
@@ -43,7 +50,7 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
      * @param flag
      * @return
      */
-    BigDecimal countTotalPrice(String packInfoId,String flag);
+    BigDecimal countTotalPrice(String packInfoId,String flag,Integer decimal);
 
     void asyncCost(String foreignId);
 

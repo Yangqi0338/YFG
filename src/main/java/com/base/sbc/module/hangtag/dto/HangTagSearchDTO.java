@@ -5,8 +5,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @Author xhj
  * @Date 2023/6/26 17:53
@@ -93,4 +91,10 @@ public class HangTagSearchDTO extends Page {
 
     @ApiModelProperty(value = "包装形式")
     private String  packagingFormCode;
+
+    @ApiModelProperty(value = "是否导图片")
+    private String  imgFlag;
+
+    @ApiModelProperty(value = "年份")
+    private String  year;
 }

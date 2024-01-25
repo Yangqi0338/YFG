@@ -1,5 +1,6 @@
 package com.base.sbc.module.common.convert;
 
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
@@ -11,6 +12,7 @@ import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.LanguageSaveDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.standard.dto.StandardColumnSaveDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -38,5 +40,12 @@ public interface MoreLanguageConvert {
             @Mapping(target = "countryLanguageType",source = "type")
     })
     LanguageSaveDto copy2Save(CountryLanguage source);
+
+    @Mappings({
+            @Mapping(target = "model", ignore = true),
+    })
+    void copy2Entity(StandardColumnSaveDto source, @MappingTarget StandardColumn target);
+    BasicsdatumSize copyMyself(BasicsdatumSize source);
+    StandardColumnCountryTranslate copyMyself(StandardColumnCountryTranslate source);
 
 }

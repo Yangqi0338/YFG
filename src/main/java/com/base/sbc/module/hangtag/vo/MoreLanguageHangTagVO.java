@@ -65,22 +65,35 @@ public class MoreLanguageHangTagVO extends HangTagVO {
             MapUtil.entry("DP11", new MoreLanguageCodeMapping<>(HangTagIngredient::getTypeCode, HangTagIngredient::getType).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
             MapUtil.entry("DP13", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientSecondCode, HangTagIngredient::getIngredientSecondName).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
 
-            MapUtil.entry("DP12", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList)),
+            MapUtil.entry("DP12", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList).setSearchStandardColumnCode("DP06")),
+            MapUtil.entry("DP16", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo, MoreLanguageHangTagVO::getBulkStyleNo)),
 
             MapUtil.entry("XM01", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWarmTipsCode, MoreLanguageHangTagVO::getWarmTips)),
+            MapUtil.entry("XM02", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientCode, HangTagIngredient::getIngredientName).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
+            MapUtil.entry("XM03", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientDescriptionCode, HangTagIngredient::getIngredientDescription).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
+            MapUtil.entry("XM04", new MoreLanguageCodeMapping<>(HangTagIngredient::getTypeCode, HangTagIngredient::getType).setListFunc(MoreLanguageHangTagVO::getIngredientList)),
             MapUtil.entry("XM06", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getWashingLabelName, MoreLanguageHangTagVO::getWashingLabelName)),
-            MapUtil.entry("XM07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getStorageDemand, MoreLanguageHangTagVO::getStorageDemandName))
+            MapUtil.entry("XM07", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getStorageDemand, MoreLanguageHangTagVO::getStorageDemandName)),
+            MapUtil.entry("XM08", new MoreLanguageCodeMapping<>(ModelType::getUniqueCode, ModelType::getName).setListFunc(MoreLanguageHangTagVO::getSizeList)),
+            MapUtil.entry("XM09", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getColorCode, MoreLanguageHangTagVO::getColor)),
+            MapUtil.entry("XM10", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getBulkStyleNo, MoreLanguageHangTagVO::getBulkStyleNo)),
+            MapUtil.entry("XM11", new MoreLanguageCodeMapping<>(HangTagIngredient::getIngredientSecondCode, HangTagIngredient::getIngredientSecondName).setListFunc(MoreLanguageHangTagVO::getIngredientList))
     );
 
     @Data
     @AllArgsConstructor
     public static class HangTagMoreLanguageGroup {
         private String standColumnCode;
+        private String standColumnName;
         private Function<MoreLanguageHangTagVO, String> content;
 
         private String separator = "\n";
 
-        public HangTagMoreLanguageGroup(String standColumnCode, Function<MoreLanguageHangTagVO, String> content) {
+        public HangTagMoreLanguageGroup(Function<MoreLanguageHangTagVO, String> content) {
+            this.content = content;
+        }
+
+        public HangTagMoreLanguageGroup(String standColumnCode, String standColumnName, Function<MoreLanguageHangTagVO, String> content) {
             this.standColumnCode = standColumnCode;
             this.content = content;
         }
@@ -111,9 +124,15 @@ public class MoreLanguageHangTagVO extends HangTagVO {
     @Getter
     public class MoreLanguageCodeMapping<K> extends Pair<Function<K, String>, Function<K, String>> {
         private Function<MoreLanguageHangTagVO, List<K>> listFunc = (moreLanguageHangTagVO)-> (List<K>) moreLanguageHangTagVO.getMySelfList();
+        private String searchStandardColumnCode;
 
         public MoreLanguageCodeMapping<K> setListFunc(Function<MoreLanguageHangTagVO, List<K>> listFunc) {
             this.listFunc = listFunc;
+            return this;
+        }
+
+        public MoreLanguageCodeMapping<K> setSearchStandardColumnCode(String searchStandardColumnCode) {
+            this.searchStandardColumnCode = searchStandardColumnCode;
             return this;
         }
 

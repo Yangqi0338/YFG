@@ -36,7 +36,7 @@ public class RedisEnhanceTemplate extends RedisTemplate<String, Object> {
 	public String message;
 
 	// 可以使用配置文件修改
-	private TimeUnit timeUnit = TimeUnit.SECONDS;
+	private final TimeUnit timeUnit = TimeUnit.SECONDS;
 
 	public Boolean expire(String key,long time) {
 		if(time>0){

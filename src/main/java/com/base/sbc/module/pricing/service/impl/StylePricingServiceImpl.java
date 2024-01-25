@@ -53,6 +53,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -244,8 +245,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                 stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
                 // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
+               /*优先展示手数的数据*/
+                if(stylePricingVO.getControlPlanCost() != null){
+                    stylePricingVO.setPlanCost((stylePricingVO.getControlPlanCost()));
+                }else {
                 //目前逻辑修改为取计控实际成本取总成本
                 stylePricingVO.setPlanCost(stylePricingVO.getTotalCost());
+                }
                 //计控实际倍率 = 吊牌价/计控实际成本
                 stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
                 //实际倍率 = 吊牌价/总成本
@@ -283,6 +289,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         return stylePricingList.get(0);
     }
 
+    @Transactional
     @Override
     public void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode) {
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);

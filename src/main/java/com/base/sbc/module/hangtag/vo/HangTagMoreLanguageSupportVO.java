@@ -36,13 +36,6 @@ public class HangTagMoreLanguageSupportVO {
     private String standardColumnId;
 
     /**
-     * 标准列码
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "标准列码")
-    private String standardColumnCode;
-
-    /**
      * 标准列模型
      */
     @JsonIgnore
@@ -90,6 +83,13 @@ public class HangTagMoreLanguageSupportVO {
     @JsonIgnore
     @ApiModelProperty(value = "是组合的")
     protected Boolean isGroup = false;
+
+    /**
+     * 有语言的
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "有语言的")
+    protected Boolean hasLanguage = true;
 
     /**
      * 分类列表

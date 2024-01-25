@@ -152,6 +152,26 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
     }
 
     /**
+     * 判断时间区间 或者时间是否为空
+     * @param columns
+     * @param val
+     * @param flag
+     * @return
+     */
+    public QueryWrapper<T> dateBetweenOrIsNull(String columns, String val, String flag) {
+        if (!StringUtils.isEmpty(val)) {
+            return this.between(columns, val.split(","));
+        }
+        if(StrUtil.equals(flag, BaseGlobal.IN)){
+            return this.isNull(columns);
+        }
+        if(StrUtil.equals(flag,BaseGlobal.YES)){
+            return this.isNotNull(columns);
+        }
+        return this;
+    }
+
+    /**
      * 模糊搜索一个字段为集合
      * @param columns
      * @param val

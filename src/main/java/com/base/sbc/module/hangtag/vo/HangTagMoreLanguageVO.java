@@ -52,6 +52,10 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "标准列翻译")
     private String standardColumnContent = "";
 
+    public String getStandardColumnContent() {
+        return StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent: "";
+    }
+
     /**
      * 不能找到标准列翻译
      */
@@ -74,6 +78,22 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "具体数据的翻译")
     private String propertiesContent = "";
+
+    /**
+     * 具体数据翻译
+     */
+    @ApiModelProperty(value = "具体数据翻译")
+    public String getPropertiesContent() {
+//        String propertiesContent = this.contentList.stream().map(HangTagMoreContentVO::getPropertiesContent).collect(Collectors.joining("\n"));
+//        if (StrUtil.isNotBlank(propertiesTemplate)) {
+//            this.contentList.forEach(it-> {
+//                propertiesTemplate = propertiesTemplate.replaceAll(it.getPropertiesName(), it.getPropertiesContent());
+//            });
+//            propertiesContent = propertiesTemplate;
+//        }
+//        return propertiesContent;
+        return cannotFindPropertiesContent || StrUtil.isBlank(this.propertiesContent) ? "" : this.propertiesContent;
+    }
 
     /**
      * 不能找到数据翻译
@@ -100,27 +120,13 @@ public class HangTagMoreLanguageVO {
     protected Boolean isGroup = false;
 
     /**
-     * 具体数据翻译
-     */
-    @ApiModelProperty(value = "具体数据翻译")
-    public String getPropertiesContent() {
-//        String propertiesContent = this.contentList.stream().map(HangTagMoreContentVO::getPropertiesContent).collect(Collectors.joining("\n"));
-//        if (StrUtil.isNotBlank(propertiesTemplate)) {
-//            this.contentList.forEach(it-> {
-//                propertiesTemplate = propertiesTemplate.replaceAll(it.getPropertiesName(), it.getPropertiesContent());
-//            });
-//            propertiesContent = propertiesTemplate;
-//        }
-//        return propertiesContent;
-        return StrUtil.isNotBlank(this.propertiesContent) ? this.propertiesContent : "";
-    }
-
-    /**
      * 全量数据翻译
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        return String.format("%s%s%s", StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":" : "", this.isGroup ? "\n" : " ", getPropertiesContent());
+        String title = getStandardColumnContent();
+        String value = getPropertiesContent();
+        return String.format("%s%s%s%s", title, StrUtil.isBlank(title) && StrUtil.isBlank(value) ? "" : ":", this.isGroup ? "\n" : " ", value);
     }
 
     @JsonIgnore
