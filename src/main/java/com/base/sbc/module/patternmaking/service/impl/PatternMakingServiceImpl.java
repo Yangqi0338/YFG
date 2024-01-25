@@ -24,6 +24,7 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -83,6 +84,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
@@ -1306,6 +1308,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
+
+        packQueryWrapper(dto, qw);
+
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.notEmptyEq("p.prm_send_status",dto.getPrmSendStatus());
@@ -1450,6 +1455,27 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
         return objects.toPageInfo();
+    }
+
+    private static void packQueryWrapper(PatternMakingCommonPageSearchDto dto, BaseQueryWrapper<SampleBoardVo> qw) {
+        Field[] declaredFields = dto.getClass().getDeclaredFields();
+        for (Field field : declaredFields) {
+            //开启权限
+            try {
+                field.setAccessible(true);
+                TableField annotation = field.getAnnotation(TableField.class);
+                if (annotation != null) {
+                    Object o = field.get(dto);
+                    if (ObjectUtil.isNotEmpty(o) ) {
+                        qw.like(annotation.value(),o);
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }finally {
+                field.setAccessible(false);
+            }
+        }
     }
 
     /**
