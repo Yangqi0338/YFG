@@ -1282,13 +1282,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	 */
 	@Override
 	public PageInfo getInspectReport(InspectCompanyDto dto) {
-		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
-		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
-		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year", dto.getYear());
-
 		/*查询基础资料-品类测量组数据*/
 		Page<BasicsdatumCategoryMeasureVo> objects = PageHelper.startPage(dto);
-		escmMaterialCompnentInspectCompanyService.list(queryWrapper);
+		/*查询物料的最新检查报告*/
+		escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
 		return objects.toPageInfo();
 	}
 
