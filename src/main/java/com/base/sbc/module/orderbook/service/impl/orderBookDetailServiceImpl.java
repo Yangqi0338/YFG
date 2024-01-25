@@ -288,6 +288,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.total_production", dto.getTotalProduction());
         queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCoefficientCode());
         queryWrapper.notEmptyLike("tobl.status", dto.getStatus());
+        queryWrapper.notNullEq("tobl.audit_status", dto.getAuditStatus());
 
         // queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCost());
         queryWrapper.notEmptyLike("tobl.target_time", dto.getTargetTime());
@@ -553,6 +554,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         List<String> orderBookIdList = orderBookDetails.stream().map(OrderBookDetail::getOrderBookId).distinct().collect(Collectors.toList());
         orderBookService.update(new LambdaUpdateWrapper<OrderBook>()
                 .set(OrderBook::getStatus, OrderBookStatusEnum.NOT_CONFIRM)
+                .set(OrderBook::getUpdateDate, new Date())
                 .in(OrderBook::getId,orderBookIdList));
     }
 

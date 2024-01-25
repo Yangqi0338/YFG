@@ -1,6 +1,7 @@
 package com.base.sbc.module.orderbook.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -58,6 +59,7 @@ public class OrderBookDetailQueryDto extends Page {
      * 状态
      */
     private String status;
+    private OrderBookDetailAuditStatusEnum auditStatus;
 
     /**
      * 生产紧急程度

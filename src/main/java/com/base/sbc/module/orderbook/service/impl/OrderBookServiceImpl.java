@@ -47,12 +47,12 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
 
     @Autowired
     private PlanningSeasonService planningSeasonService;
+//
+//    @Autowired
+//    private DataPermissionsService dataPermissionsService;
 
-    @Autowired
-    private DataPermissionsService dataPermissionsService;
-
-    @Autowired
-    private OrderBookDetailMapper orderBookDetailMapper;
+//    @Autowired
+//    private OrderBookDetailMapper orderBookDetailMapper;
 
     /**
      * @param dto
@@ -70,17 +70,17 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
     @Override
     public List<OrderBookVo> queryList(QueryWrapper<OrderBook> queryWrapper, OrderBookQueryDto dto) {
         List<OrderBookVo> voList = this.baseMapper.queryList(queryWrapper, dto);
-        if (CollectionUtil.isNotEmpty(voList)) {
-            BaseQueryWrapper<OrderBookDetail> baseCountQuery = new BaseQueryWrapper<>();
-            dataPermissionsService.getDataPermissionsForQw(baseCountQuery, "style_order_book", "tobl.");
-            QueryWrapper<OrderBookDetail> ew = baseCountQuery.clone().in("tobl.order_book_id", voList.stream().map(OrderBookVo::getId).collect(Collectors.toList()));
-            List<Map<String, Object>> countList = orderBookDetailMapper.queryCountByOrderBookId(ew);
-            voList.forEach(vo-> {
-                countList.stream().filter(it-> it.getOrDefault("orderBookId","").equals(vo.getId())).findFirst().ifPresent(map-> {
-                    vo.setCount(Integer.parseInt(map.getOrDefault("count","0").toString()));
-                });
-            });
-        }
+//        if (CollectionUtil.isNotEmpty(voList)) {
+//            BaseQueryWrapper<OrderBookDetail> baseCountQuery = new BaseQueryWrapper<>();
+//            dataPermissionsService.getDataPermissionsForQw(baseCountQuery, "style_order_book", "tobl.");
+//            QueryWrapper<OrderBookDetail> ew = baseCountQuery.clone().in("tobl.order_book_id", voList.stream().map(OrderBookVo::getId).collect(Collectors.toList()));
+//            List<Map<String, Object>> countList = orderBookDetailMapper.queryCountByOrderBookId(ew);
+//            voList.forEach(vo-> {
+//                countList.stream().filter(it-> it.getOrDefault("orderBookId","").equals(vo.getId())).findFirst().ifPresent(map-> {
+//                    vo.setCount(Integer.parseInt(map.getOrDefault("count","0").toString()));
+//                });
+//            });
+//        }
         return voList;
     }
 
