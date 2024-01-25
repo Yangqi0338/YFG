@@ -934,7 +934,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<HangTagMoreLanguageBaseVO> resultList = new ArrayList<>();
 
 		// 根据国家分组
-		countryLanguageList.stream().collect(Collectors.groupingBy(CountryLanguage::getCode)).forEach((code, sameCodeList)-> {
+		countryLanguageList.stream().collect(CommonUtils.groupingBy(CountryLanguage::getCode)).forEach((code, sameCodeList)-> {
 			// 封装基础VO
 			HangTagMoreLanguageBaseVO baseCountryLanguageVO = HANG_TAG_CV.copy2MoreLanguageBaseVO(sameCodeList.get(0));
 			HangTagMoreLanguageBaseVO moreLanguageBaseVO = HANG_TAG_CV.copyMyself(baseCountryLanguageVO);
