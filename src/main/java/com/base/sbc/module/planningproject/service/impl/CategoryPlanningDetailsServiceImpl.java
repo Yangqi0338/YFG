@@ -80,22 +80,23 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             JSONObject object = new JSONObject();
             String[] split = skcCount.split(",");
             int i = 0;
-            for (String string : bandName.split(",")) {
+
                 for (String s : prodCategoryName.split(",")) {
                     if (StringUtils.isBlank(prodCategory2ndName)) {
-                        String s1 = object.getString(string + "-" + s);
-                        if (StringUtils.isBlank(s1)){
-                            object.put(string + "-" + s ,split[i]);
-                        }else {
-                            int i1 = Integer.parseInt(s1);
-                            i1 = i1 + Integer.parseInt(split[i]);
-                            object.put(string + "-" + s , String.valueOf(i1));
+                        for (String string : bandName.split(",")) {
+                            String s1 = object.getString(string + "-" + s);
+                            if (StringUtils.isBlank(s1)) {
+                                object.put(string + "-" + s, split[i]);
+                            } else {
+                                int i1 = Integer.parseInt(s1);
+                                i1 = i1 + Integer.parseInt(split[i]);
+                                object.put(string + "-" + s, String.valueOf(i1));
+                            }
                         }
-
                         i++;
                     } else {
                         for (String s1 : prodCategory2ndName.split(",")) {
-
+                            for (String string : bandName.split(",")) {
                             String s2 = object.getString(string + "-" + s+ "-" + s1);
                             if (StringUtils.isBlank(s2)){
                                 object.put(string + "-" + s + "-" + s1, split[i]);
@@ -107,6 +108,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                             }
                             i++;
                         }
+
                     }
                 }
             }
