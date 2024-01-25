@@ -40,6 +40,9 @@ public class PlanningProjectDimension {
     /** 中类名称 */
     @ApiModelProperty(value = "中类名称"  )
     private String prodCategory2ndName;
+    /** 品类维度明细id */
+    @ApiModelProperty(value = "品类维度明细id"  )
+    private String categoryPlanningDetailsId;
     /** 第一维度id */
     @ApiModelProperty(value = "第一维度id"  )
     private String dimensionId;

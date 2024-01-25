@@ -70,10 +70,12 @@ public class PlanningSummaryController extends BaseController{
         // 获取企划看板-规划-坑位
         List<String> planningProjectDimensionIds = planningProjectDimensions.stream().map(PlanningProjectDimension::getId).collect(Collectors.toList());
 
+        if(planningProjectDimensionIds.isEmpty()){
+            return ApiResult.error("坑位下没有数据", 10000);
+        }
         BaseQueryWrapper<PlanningProjectPlank> queryWrapper3 = new BaseQueryWrapper<>();
         queryWrapper3.in("planning_project_dimension_id", planningProjectDimensionIds);
         List<PlanningProjectPlank> planningProjectPlanks = planningProjectPlankService.list(queryWrapper3);
-        System.out.println(planningProjectPlanks.size());
 
 
         // 获取产品季下下单的订货本
@@ -82,9 +84,6 @@ public class PlanningSummaryController extends BaseController{
         queryWrapper.eq("tobl.is_order", "1");
         queryWrapper.notEmptyEq("ts.prod_category", dto.getCategoryCode());
         List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper, null);
-        System.out.println(orderBookDetailVos.size());
-
-
 
 
         Map<String, Integer> map = new HashMap<>();
