@@ -11,9 +11,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
@@ -81,6 +83,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final PackInfoService packInfoService;
     private final PackBomService packBomService;
     private final PackBomVersionService packBomVersionService;
+    private final AmcFeignService amcFeignService;
 
     private final OrderBookService orderBookService;
 
@@ -420,6 +423,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         List<OrderBookDetail> orderBookDetails = baseMapper.selectBatchIds(ids);
         /*设置设计师*/
         orderBookDetails.forEach(o -> {
+            if (o.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT)
+                throw new OtherException("已经发起审核,无法分配设计师");
             OrderBookDetailSaveDto orderBookDetailSaveDto = map.get(o.getId());
             if (ObjectUtil.isNotEmpty(orderBookDetailSaveDto)) {
                 o.setDesignerId(orderBookDetailSaveDto.getDesignerId());
@@ -447,7 +452,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public Map<String, Object> queryCount(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "tobl.");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         List<OrderBookDetailVo> querylistAll = this.getBaseMapper().queryPage(queryWrapper);
         HashMap<String, Object> hashMap =new HashMap<>();
         float materialSum = 0;
@@ -514,6 +519,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         hashMap.put("totalProductionSum", totalProductionSum);
         hashMap.put("onlineProductionSum", onlineProductionSum);
         hashMap.put("offlineProductionSum", offlineProductionSum);
+        hashMap.put("total", querylistAll.size());
         return hashMap;
     }
 
@@ -528,11 +534,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT){
                 throw new OtherException("已经发起审核,请勿重复提交");
             }
-            if (StrUtil.isBlank(orderBookDetail.getBusinessId())) {
-                throw new OtherException("还未分配商企");
-            }
             if (StrUtil.isBlank(orderBookDetail.getDesignerCode())) {
                 throw new OtherException("还未分配设计师");
+            }
+            if (StrUtil.isBlank(orderBookDetail.getBusinessId())) {
+                throw new OtherException("还未分配商企");
             }
             String totalProduction = orderBookDetail.getTotalProduction();
             if (StringUtils.isEmpty(totalProduction) || "0".equals(totalProduction)) {
@@ -559,7 +565,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
-            if (OrderBookDetailStatusEnum.NOT_AUDIT != orderBookDetail.getStatus()){
+            if (OrderBookDetailAuditStatusEnum.NOT_COMMIT == orderBookDetail.getAuditStatus()){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+"未提交审核，不能驳回审核");
             }
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT_SUSPEND);
@@ -574,7 +580,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         for (String orderBookId : orderBookIdList) {
             LambdaQueryWrapper<OrderBookDetail> ew = new LambdaQueryWrapper<OrderBookDetail>().eq(OrderBookDetail::getOrderBookId, orderBookId);
             long totalCount = this.count(ew);
-            long rightStatusCount = this.count(ew.eq(OrderBookDetail::getIsOrder, YesOrNoEnum.NO));
+            long rightStatusCount = this.count(ew.and(it-> it.eq(OrderBookDetail::getIsOrder, YesOrNoEnum.NO).or().isNull(OrderBookDetail::getIsOrder)));
 
             orderBookService.update(new LambdaUpdateWrapper<OrderBook>()
                     .set(OrderBook::getStatus,OrderBookStatusEnum.NOT_COMMIT)
@@ -593,9 +599,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
-            if (orderBookDetail.getStatus() != OrderBookDetailStatusEnum.NOT_AUDIT){
-                throw new OtherException(orderBookDetail.getBulkStyleNo()+
-                        (orderBookDetail.getStatus().greatThan(OrderBookDetailStatusEnum.NOT_AUDIT) ? "已审核,请勿重复提交" : "未审核，不能下单"));
+            if (orderBookDetail.getStatus() == OrderBookDetailStatusEnum.AUDIT){
+                throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已审核,请勿重复提交");
+            } else if (orderBookDetail.getStatus() != OrderBookDetailStatusEnum.NOT_AUDIT){
+                throw new OtherException(orderBookDetail.getBulkStyleNo()+ "未审核，不能下单");
             }
         }
 
@@ -629,6 +636,33 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             colorDto.setId(orderBookDetail.getStyleColorId());
             styleColorService.updateOrderFlag(colorDto);
         });
+        return b;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean assignPersonnel(OrderBookDetailSaveDto dto) {
+        List<String> idList = StringUtils.convertList(dto.getIds());
+        List<OrderBookDetail> orderBookDetailList = this.listByIds(idList);
+        if (orderBookDetailList.size() < idList.size()){
+            throw new OtherException("订货本详情不存在");
+        }
+        orderBookDetailList.forEach(orderBookDetail -> {
+            if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT)
+                throw new OtherException("已经发起审核,无法分配商企");
+            orderBookDetail.setBusinessId("1");
+            orderBookDetail.setStatus(OrderBookDetailStatusEnum.BUSINESS);
+        });
+
+        boolean b = this.saveOrUpdateBatch(orderBookDetailList);
+        if (b) {
+            // 发送通知消息给对应的人员
+            List<UserCompany> userCompanies = amcFeignService.getTeamUserListByPost(dto.getPlanningSeasonId(), "商企");
+            if (!userCompanies.isEmpty()){
+                List<String> list = userCompanies.stream().map(UserCompany::getUserId).collect(Collectors.toList());
+                messageUtils.sendCommonMessage(StringUtils.join(list, ","), "您有新的订货本消息待处理", "/styleManagement/orderBook", stylePicUtils.getGroupUser());
+            }
+        }
         return b;
     }
 

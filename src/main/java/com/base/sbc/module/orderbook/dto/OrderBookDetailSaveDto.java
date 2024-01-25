@@ -3,6 +3,7 @@ package com.base.sbc.module.orderbook.dto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -61,6 +62,7 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
 
     private String planningSeasonId;
 
+    @NotEmpty(message = "id未传入",groups = {AssignPersonnel.class})
     private String ids;
 
     private String bandName;
@@ -68,4 +70,6 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
     private String bandCode;
 
     private String totalCommissioningSize;
+
+    public interface AssignPersonnel{}
 }

@@ -15,6 +15,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -45,6 +46,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -255,24 +257,8 @@ public class OrderBookDetailController extends BaseController {
     @ApiOperation(value = "订货本详情-分配商企")
     @PostMapping("/assignPersonnel")
     @DuplicationCheck
-    @Transactional(rollbackFor = Exception.class)
-    public ApiResult assignPersonnel(@Valid @RequestBody OrderBookDetailSaveDto dto) {
-        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
-        if (orderBookDetail==null){
-            throw new OtherException("订货本详情不存在");
-        }
-        orderBookDetail.setBusinessId("1");
-        orderBookDetail.setStatus(OrderBookDetailStatusEnum.BUSINESS);
-        boolean b = orderBookDetailService.updateById(orderBookDetail);
-        if (b) {
-            // 发送通知消息给对应的人员
-            List<UserCompany> userCompanies = amcFeignService.getTeamUserListByPost(dto.getPlanningSeasonId(), "商企");
-            if (!userCompanies.isEmpty()){
-                List<String> list = userCompanies.stream().map(UserCompany::getUserId).collect(Collectors.toList());
-                messageUtils.sendCommonMessage(StringUtils.join(list, ","), "您有新的订货本消息待处理", "/styleManagement/orderBook", stylePicUtils.getGroupUser());
-            }
-        }
-        return updateSuccess(b);
+    public ApiResult assignPersonnel(@Validated({OrderBookDetailSaveDto.AssignPersonnel.class}) @RequestBody OrderBookDetailSaveDto dto) {
+        return updateSuccess(orderBookDetailService.assignPersonnel(dto));
     }
 
     @ApiOperation(value = "订货本详情-设计师分配")

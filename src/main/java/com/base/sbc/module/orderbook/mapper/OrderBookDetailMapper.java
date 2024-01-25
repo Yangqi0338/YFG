@@ -16,4 +16,5 @@ import java.util.Map;
 @Mapper
 public interface OrderBookDetailMapper extends BaseEnhanceMapper<OrderBookDetail> {
      List<OrderBookDetailVo> queryPage(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
+     List<Map<String, Object>> queryCountByOrderBookId(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
 }

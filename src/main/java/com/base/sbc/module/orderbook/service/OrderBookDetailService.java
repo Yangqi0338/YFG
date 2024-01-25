@@ -76,4 +76,6 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     void placeAnOrderReject(OrderBookDetailQueryDto dto);
 
     boolean placeAnOrder(OrderBookDetailQueryDto dto, String orderBookId);
+
+    boolean assignPersonnel(OrderBookDetailSaveDto dto);
 }

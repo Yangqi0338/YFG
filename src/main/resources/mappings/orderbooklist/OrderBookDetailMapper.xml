@@ -51,4 +51,17 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
+
+    <select id="queryCountByOrderBookId" resultType="java.util.Map">
+        SELECT
+        tobl.order_book_id as orderBookId,
+        count(tobl.order_book_id) as count
+        FROM
+        t_order_book_detail tobl
+        where tobl.del_flag='0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        group by tobl.order_book_id
+    </select>
 </mapper>

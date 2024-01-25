@@ -1,6 +1,7 @@
 package com.base.sbc.module.orderbook.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,5 +21,5 @@ public class OrderBookQueryDto extends Page {
     private String  seasonId;
     private String name;
     private OrderBookOrderStatusEnum orderStatus;
-    private OrderBookDetailStatusEnum detailStatus;
+    private OrderBookDetailAuditStatusEnum detailStatus;
 }
