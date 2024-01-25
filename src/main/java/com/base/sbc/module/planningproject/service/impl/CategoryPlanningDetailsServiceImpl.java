@@ -114,6 +114,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             }
             String dataJson = categoryPlanningDetailsVo.getDataJson();
             if (StringUtils.isNotBlank(dataJson)){
+                JSONArray jsonArrays =new JSONArray();
                 JSONArray jsonArray = JSON.parseArray(dataJson);
                 //查询当前详情生成所有品类维度
                 QueryWrapper<PlanningProjectDimension> queryWrapper1 = new QueryWrapper<>();
@@ -121,6 +122,56 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                 List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper1);
                 for (int i1 = 0; i1 < jsonArray.size(); i1++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i1);
+                    JSONObject jsonObject1 = jsonObject.getJSONObject("band");
+                    if (jsonObject1 != null){
+                        JSONArray jsonArray1 = jsonObject1.getJSONArray("bandCode");
+                        List<String>  bandCodes =new ArrayList<>();
+                        for (int i11 = 0; i11 < jsonArray1.size(); i11++) {
+                            bandCodes.add(jsonArray1.getString(i11));
+                        }
+
+                        JSONArray jsonArray3 = jsonObject1.getJSONArray("number");
+                        List<Integer>  numbers =new ArrayList<>();
+                        for (int i11 = 0; i11 < jsonArray3.size(); i11++) {
+                            numbers.add(0);
+                        }
+
+                        //重新计算数量
+                        for (int i11 = 0; i11 < bandCodes.size(); i11++) {
+                            String bandCodeStr = bandCodes.get(i11);
+
+                            String prodCategory1stCodes = jsonObject.getString("prodCategory1stCode");
+                            String prodCategory2ndCodes = jsonObject.getString("prodCategory2ndCode");
+                            String prodCategoryCodes = jsonObject.getString("prodCategoryCode");
+
+                            String dimensionIds = jsonObject.getString("dimensionId");
+                            String dimensionNames = jsonObject.getString("dimensionName");
+                            String dimensionCodes = jsonObject.getString("dimensionCode");
+                            String dimensionValues = jsonObject.getString("dimensionValue");
+                            String dimensionTypeCodes = jsonObject.getString("dimensionTypeCode");
+                            for (PlanningProjectDimension planningProjectDimension : list) {
+                                if (planningProjectDimension.getBandCode().equals(bandCodeStr) && planningProjectDimension.getDimensionCode().equals(dimensionCodes)
+                                && planningProjectDimension.getDimensionValue().equals(dimensionValues) && planningProjectDimension.getDimensionName().equals(dimensionNames)
+                                && planningProjectDimension.getDimensionTypeCode().equals(dimensionTypeCodes) && dimensionIds.equals(planningProjectDimension.getDimensionId())
+                                 && prodCategory1stCodes.equals(planningProjectDimension.getProdCategory1stCode()) && prodCategoryCodes.equals(planningProjectDimension.getProdCategoryCode())){
+
+                                    if (StringUtils.isNotBlank(prodCategory2ndCodes)){
+                                        if (planningProjectDimension.getProdCategory2ndCode().equals(prodCategory2ndCodes)){
+                                            numbers.set(i11, Integer.valueOf(planningProjectDimension.getNumber()));
+                                        }
+                                    }else {
+                                        numbers.set(i11, Integer.valueOf(planningProjectDimension.getNumber()));
+                                    }
+                                }
+                            }
+                        }
+                        JSONArray jsonArray2 = (JSONArray) JSON.toJSON(numbers);
+                        jsonObject1.put("number",jsonArray2);
+                        jsonObject.put("band",jsonObject1);
+                        jsonArrays.add(jsonObject);
+                    }
+
+                    categoryPlanningDetailsVo.setDataJson(jsonArrays.toJSONString());
 
 
                 }
@@ -201,7 +252,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
 
         CategoryPlanningDetails categoryPlanningDetails1 = this.getById(categoryPlanningDetailsVo.getId());
         if (StringUtils.isNotBlank(categoryPlanningDetails1.getDataJson())){
-            throw  new RuntimeException("数据已经存在,无法修改");
+            // throw  new RuntimeException("数据已经存在,无法修改");
         }
 
         //修改数据
