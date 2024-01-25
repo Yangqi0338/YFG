@@ -76,6 +76,13 @@ public class CategoryPlanningController extends BaseController {
         for (CategoryPlanningDetails categoryPlanningDetail : categoryPlanningDetails) {
             categoryPlanningDetail.setId(null);
             categoryPlanningDetail.setCategoryPlanningId(categoryPlanning.getId());
+            categoryPlanningDetail.setCreateDate(null);
+            categoryPlanningDetail.setCreateId(null);
+            categoryPlanningDetail.setCreateName(null);
+            categoryPlanningDetail.setUpdateDate(null);
+            categoryPlanningDetail.setUpdateId(null);
+            categoryPlanningDetail.setUpdateName(null);
+
             categoryPlanningDetail.setCategoryPlanningName(categoryPlanning.getName());
         }
         categoryPlanningDetailsService.saveBatch(categoryPlanningDetails);

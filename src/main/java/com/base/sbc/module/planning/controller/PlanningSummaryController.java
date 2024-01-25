@@ -24,10 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,10 +49,16 @@ public class PlanningSummaryController extends BaseController{
      */
     @RequestMapping("/queryList")
     public ApiResult queryList(PlanningSummaryQueryDto dto) {
+        String createId = dto.getCreateId();
+        List<String> ids=null;
+        if (StringUtils.isNotBlank(createId)){
+            ids= Arrays.asList(createId.split(","));
+        }
         // 获取产品季下坑位总数量
         BaseQueryWrapper<PlanningProject> queryWrapper1 = new BaseQueryWrapper<>();
         queryWrapper1.eq("season_id", dto.getPlanningSeasonId());
         queryWrapper1.eq("status", "0");
+        queryWrapper1.in(ids!=null,"create_id", ids);
         List<PlanningProject> list = planningProjectService.list(queryWrapper1);
         List<String> planningProjectIds = list.stream().map(PlanningProject::getId).collect(Collectors.toList());
         if(planningProjectIds.isEmpty()){
@@ -65,6 +68,8 @@ public class PlanningSummaryController extends BaseController{
         BaseQueryWrapper<PlanningProjectDimension> queryWrapper2 = new BaseQueryWrapper<>();
         queryWrapper2.in("planning_project_id", planningProjectIds);
         queryWrapper2.notEmptyEq("prod_category_code", dto.getCategoryCode());
+        //企划看板有可能是别人创建的
+        // queryWrapper2.in(ids!=null,"create_id", ids);
         List<PlanningProjectDimension> planningProjectDimensions = planningProjectDimensionService.list(queryWrapper2);
 
         // 获取企划看板-规划-坑位
@@ -75,8 +80,8 @@ public class PlanningSummaryController extends BaseController{
         }
         BaseQueryWrapper<PlanningProjectPlank> queryWrapper3 = new BaseQueryWrapper<>();
         queryWrapper3.in("planning_project_dimension_id", planningProjectDimensionIds);
+        queryWrapper3.in(ids!=null,"create_id", ids);
         List<PlanningProjectPlank> planningProjectPlanks = planningProjectPlankService.list(queryWrapper3);
-
 
         // 获取产品季下下单的订货本
         BaseQueryWrapper<OrderBookDetail> queryWrapper = new BaseQueryWrapper<>();
@@ -84,7 +89,6 @@ public class PlanningSummaryController extends BaseController{
         queryWrapper.eq("tobl.is_order", "1");
         queryWrapper.notEmptyEq("ts.prod_category", dto.getCategoryCode());
         List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper, null);
-
 
         Map<String, Integer> map = new HashMap<>();
         for (PlanningProjectDimension planningProjectDimension : planningProjectDimensions) {
@@ -109,7 +113,6 @@ public class PlanningSummaryController extends BaseController{
             Integer num = map.get(bandName);
             sum+=num;
         }
-
 
         List<PlanningSummaryQueryVo>  planningSummaryQueryVos=new ArrayList<>();
         for (String bandName : map.keySet()) {

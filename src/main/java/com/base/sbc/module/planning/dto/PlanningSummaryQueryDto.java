@@ -18,4 +18,8 @@ public class PlanningSummaryQueryDto extends BaseDto {
      * 品类编码
      */
     String categoryCode;
+    /**
+     * 创建人
+     */
+    String createId;
 }

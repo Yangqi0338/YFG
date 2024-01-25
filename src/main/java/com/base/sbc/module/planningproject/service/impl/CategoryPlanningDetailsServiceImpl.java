@@ -252,7 +252,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
 
         CategoryPlanningDetails categoryPlanningDetails1 = this.getById(categoryPlanningDetailsVo.getId());
         if (StringUtils.isNotBlank(categoryPlanningDetails1.getDataJson())){
-            // throw  new RuntimeException("数据已经存在,无法修改");
+            throw  new RuntimeException("数据已经存在,无法修改");
         }
 
         //修改数据
