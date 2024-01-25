@@ -91,10 +91,12 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             planningDimensionalityList = baseMapper.selectList(qw);
         } else {
             //坑位、款式页面先按中类查，中类没有再查品类
-            dto.setCategoryFlag("1");
-            PlanningUtils.dimensionCommonQw(qw, dto);
-            qw.orderByAsc("sort");
-            planningDimensionalityList = baseMapper.selectList(qw);
+            if(StrUtil.isNotBlank(dto.getProdCategory2nd())){
+                dto.setCategoryFlag("1");
+                PlanningUtils.dimensionCommonQw(qw, dto);
+                qw.orderByAsc("sort");
+                planningDimensionalityList = baseMapper.selectList(qw);
+            }
             if (CollUtil.isEmpty(planningDimensionalityList) && StrUtil.isBlank(dto.getConfigPageFlag())) {
                 qw = new BaseQueryWrapper<>();
                 dto.setCategoryFlag("0");
