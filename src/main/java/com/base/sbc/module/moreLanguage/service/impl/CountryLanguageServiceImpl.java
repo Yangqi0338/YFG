@@ -198,14 +198,18 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                     AtomicInteger sort = new AtomicInteger();
                     for (String languageCode : languageCodeList) {
                         CountryLanguage countryLanguage = oldCountryLanguageList.stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst().orElse(null);
-                        countryLanguage.setSort(sort.getAndIncrement());
+
                         if (countryLanguage == null) {
                             BasicBaseDict basicBaseDict = dictInfoToList.stream().filter(dict -> dict.getValue().equals(languageCode)).findFirst().orElse(new BasicBaseDict());
                             initLanguage(Arrays.asList(basicBaseDict));
                             countryLanguage = BeanUtil.copyProperties(countryTypeLanguage, CountryLanguage.class);
                             countryLanguage.setLanguageCode(languageCode);
                             countryLanguage.setLanguageName(basicBaseDict.getName());
+                            countryLanguage.setSort(sort.getAndIncrement());
                             this.save(countryLanguage);
+                        }else {
+                            countryLanguage.setSort(sort.getAndIncrement());
+                            this.updateById(countryLanguage);
                         }
 
                         String countryId = countryLanguage.getId();
