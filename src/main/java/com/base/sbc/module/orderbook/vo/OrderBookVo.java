@@ -15,6 +15,6 @@ public class OrderBookVo extends OrderBook {
      * 款数
      */
     @ApiModelProperty(value = "款数")
-    private Integer count;
+    private Integer count = 0;
 
 }
