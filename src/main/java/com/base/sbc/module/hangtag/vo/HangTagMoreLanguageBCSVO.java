@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.vo;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -106,7 +107,9 @@ public class HangTagMoreLanguageBCSVO {
                 if (!hasLanguage) return Opt.ofNullable(this.getCountryName()).orElse("") +"不存在该语种";
             } else {
                 String messageFormat = "%s未翻译";
-                StringJoiner message = new StringJoiner("/",this.getStandardColumnName(),"").setEmptyValue("");
+                CountryLanguageType countryLanguageType = CountryLanguageType.findByStandardColumnType(this.type);
+                String typeText = Opt.ofNullable(countryLanguageType).map(CountryLanguageType::getText).orElse("");
+                StringJoiner message = new StringJoiner("/",typeText + this.getStandardColumnName(),"").setEmptyValue("");
                 this.getLanguageList().forEach(language-> {
                     StringJoiner languageMsg = new StringJoiner("、");
                     if (language.getCannotFindStandardColumnContent()) languageMsg.add(String.format(messageFormat, "字段"));
