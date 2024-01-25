@@ -112,8 +112,19 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     }
                 }
             }
+            String dataJson = categoryPlanningDetailsVo.getDataJson();
+            if (StringUtils.isNotBlank(dataJson)){
+                JSONArray jsonArray = JSON.parseArray(dataJson);
+                //查询当前详情生成所有品类维度
+                QueryWrapper<PlanningProjectDimension> queryWrapper1 = new QueryWrapper<>();
+                queryWrapper1.eq("category_planning_details_id",id);
+                List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper1);
+                for (int i1 = 0; i1 < jsonArray.size(); i1++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i1);
 
-            if (StringUtils.isNotBlank(categoryPlanningDetailsVo.getDataJson())){
+
+                }
+
                 return categoryPlanningDetailsVo;
             }
             //获取第一维度与纬度值
@@ -263,6 +274,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                         planningProjectDimension.setProdCategory1stName(jsonObject.getString("prodCategory1stName"));
                         planningProjectDimension.setProdCategory2ndCode(jsonObject.getString("prodCategory2ndCode"));
                         planningProjectDimension.setProdCategory2ndName(jsonObject.getString("prodCategory2ndName"));
+                        planningProjectDimension.setCategoryPlanningDetailsId(categoryPlanningDetailsVo.getId());
                         planningProjectDimension.setProdCategoryCode(jsonObject.getString("prodCategoryCode"));
                         planningProjectDimension.setProdCategoryName(jsonObject.getString("prodCategoryName"));
 
