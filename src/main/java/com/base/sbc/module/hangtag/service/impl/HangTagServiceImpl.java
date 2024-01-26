@@ -768,12 +768,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 执行标准
 				tagPrinting.setOPStandard(hangTag.getExecuteStandard());
 				// 品控部确认
-				tagPrinting.setApproved(HangTagStatusEnum.FINISH == hangTag.getStatus());
+				tagPrinting.setApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.QC_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
+				// 翻译确认
+				tagPrinting.setTranslateApproved(HangTagStatusEnum.FINISH == hangTag.getStatus());
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
 				tagPrinting
-						.setTechApproved(Integer.parseInt(hangTag.getStatus().getCode()) > 2 && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
+						.setTechApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注
