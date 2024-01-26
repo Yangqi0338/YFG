@@ -19,4 +19,17 @@
 		materials_no
 
 	</select>
+	<select id="getList" resultType="com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto">
+
+		select
+		temcic.*
+		from  t_hang_tag_inspect_company thtic
+	    left join 	t_escm_material_component_inspect_company temcic on (thtic.inspect_company_id = temcic.id and temcic.del_flag='0')
+	    where
+		thtic.del_flag ='0'
+		<if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+			${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+		</if>
+
+	</select>
 </mapper>

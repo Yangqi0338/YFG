@@ -1,6 +1,8 @@
 package com.base.sbc.open.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -21,4 +23,13 @@ public interface EscmMaterialCompnentInspectCompanyMapper extends BaseMapper<Esc
      * @return
      */
     List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(@Param("materialsNos") List<String> materialsNos);
+
+
+
+    /**
+     * 查询最新的检测报告
+     * @param qw
+     * @return
+     */
+    List<EscmMaterialCompnentInspectCompanyDto> getList(@Param(Constants.WRAPPER) QueryWrapper qw);
 }

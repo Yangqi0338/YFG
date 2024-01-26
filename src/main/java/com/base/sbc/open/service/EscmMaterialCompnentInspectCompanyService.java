@@ -20,4 +20,13 @@ public interface EscmMaterialCompnentInspectCompanyService extends BaseService<E
      * @return
      */
     List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper);
+
+
+    /**
+     * 查询吊牌中的检查报告
+     * @param queryWrapper
+     * @return
+     */
+    List<EscmMaterialCompnentInspectCompanyDto>  getList(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper);
+
 }

@@ -341,6 +341,12 @@ public class HangTagVO extends HangTag {
     private String repIngredient;
 
     /**
+     * bom状态
+     */
+    @ApiModelProperty(value = "bom状态")
+    private String bomStatus;
+
+    /**
      * 附件
      */
     private String attachment;

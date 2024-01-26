@@ -65,6 +65,7 @@ import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
@@ -335,6 +336,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (packInfo != null) {
 			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
 			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
+			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
 			List<PackBom> packBomList = packBomService.list(queryWrapper);
 			if (!packBomList.isEmpty()) {
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());

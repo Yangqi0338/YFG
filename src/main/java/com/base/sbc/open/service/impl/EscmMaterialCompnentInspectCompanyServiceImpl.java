@@ -52,4 +52,16 @@ public class EscmMaterialCompnentInspectCompanyServiceImpl extends BaseServiceIm
                 }).filter(Objects::nonNull).collect(Collectors.toList());
         return inspectCompanyDtoList;
     }
+
+    /**
+     * 查询吊牌中的检查报告
+     *
+     * @param queryWrapper
+     * @return
+     */
+    @Override
+    public List<EscmMaterialCompnentInspectCompanyDto> getList(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper) {
+        /*查询检查报告*/
+        return  baseMapper.getList(queryWrapper);
+    }
 }
