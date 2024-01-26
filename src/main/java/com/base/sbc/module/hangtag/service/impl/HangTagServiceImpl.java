@@ -253,7 +253,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					} else {
 						// 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认
 
-						if (HangTagStatusEnum.QC_SUSPEND != e.getStatus()) {
+						if (HangTagStatusEnum.SUSPEND != e.getStatus()) {
 							switch (flowRecordVo.getName()) {
 							case "大货工艺员确认":
 								e.setStatus(HangTagStatusEnum.DESIGN_CHECK);
@@ -380,7 +380,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		String id = hangTag.getId();
 
 		// 成分检查
-		if (HangTagStatusEnum.NOT_INPUT != hangTagDTO.getStatus() && HangTagStatusEnum.NOT_COMMIT != hangTagDTO.getStatus()) {
+		if (hangTagDTO.getStatus().lessThan(HangTagStatusEnum.DESIGN_CHECK)) {
 			strictCheckIngredientPercentage(Collections.singletonList(id));
 		}
 
@@ -425,7 +425,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
 
-		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK == hangTagDTO.getCheckType()) {
+		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.TRANSLATE_CHECK == hangTagDTO.getCheckType()) {
 			hangTag = this.getById(hangTag.getId());
 			// 发起审批
 			flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(),
@@ -512,13 +512,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				) {
 					throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
 				}
-				// if (HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(e.getStatus())
-				// &&
-				// !HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus()))
-				// {
-				// throw new OtherException("已提交审核,请等待");
-				// }
-
 				if (HangTagStatusEnum.TECH_CHECK == e.getStatus()
 						&&
 					HangTagStatusEnum.QC_CHECK != hangTagUpdateStatusDTO.getStatus()) {
@@ -529,11 +522,19 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					HangTagStatusEnum.TRANSLATE_CHECK != hangTagUpdateStatusDTO.getStatus()) {
 					throw new OtherException("存在待品控确认数据，请先品控确认");
 				}
+				if (HangTagStatusEnum.TRANSLATE_CHECK != e.getStatus()
+						&&
+						HangTagStatusEnum.FINISH != hangTagUpdateStatusDTO.getStatus()) {
+					throw new OtherException("存在待翻译确认数据，请先翻译确认");
+				}
 			}
 			HangTag hangTag = new HangTag();
 			hangTag.setId(e.getId());
 			hangTag.updateInit();
 			hangTag.setStatus(hangTagUpdateStatusDTO.getStatus());
+			if (HangTagStatusEnum.FINISH == hangTagUpdateStatusDTO.getStatus()) {
+				hangTag.setTranslateConfirmDate(new Date());
+			}
 			if (HangTagStatusEnum.TRANSLATE_CHECK == hangTagUpdateStatusDTO.getStatus()) {
 				hangTag.setConfirmDate(new Date());
 			}
@@ -553,7 +554,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case QC_CHECK:
 				type = 2;
 				break;
-			case TRANSLATE_CHECK:
+			case FINISH:
             default:
 				type = 3;
 		}
@@ -729,12 +730,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 执行标准
 				tagPrinting.setOPStandard(hangTag.getExecuteStandard());
 				// 品控部确认
-				tagPrinting.setApproved(HangTagStatusEnum.TRANSLATE_CHECK == hangTag.getStatus());
+				tagPrinting.setApproved(HangTagStatusEnum.FINISH == hangTag.getStatus());
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
 				tagPrinting
-						.setTechApproved(Integer.parseInt(hangTag.getStatus().getCode()) > 2 && HangTagStatusEnum.QC_SUSPEND != hangTag.getStatus());
+						.setTechApproved(Integer.parseInt(hangTag.getStatus().getCode()) > 2 && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注

@@ -23,7 +23,7 @@ public enum HangTagStatusEnum {
     TECH_CHECK("待技术员确认"),
     QC_CHECK("待品控确认"),
     TRANSLATE_CHECK("待翻译确认"),
-    QC_SUSPEND("品控不通过"),
+    SUSPEND("不通过"),
     FINISH("已确认"),
     ;
     /** 编码 */
@@ -45,6 +45,14 @@ public enum HangTagStatusEnum {
 
     public static HangTagStatusEnum findByCode(String code){
         return Arrays.stream(HangTagStatusEnum.values()).filter(it-> it.code.equals(code)).findFirst().orElse(null);
+    }
+
+    public boolean lessThan(HangTagStatusEnum statusEnum){
+        return this.code.compareTo(statusEnum.code) < 0;
+    }
+
+    public boolean greatThan(HangTagStatusEnum statusEnum){
+        return this.code.compareTo(statusEnum.code) > 0;
     }
 
 }

@@ -262,7 +262,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                             /*判断款式定价的状态全部都通过*/
                             HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
                             if(ObjectUtils.isNotEmpty(hangTag)){
-                                if (hangTag.getStatus() == HangTagStatusEnum.TRANSLATE_CHECK || hangTag.getStatus() == HangTagStatusEnum.FINISH) {
+                                if (hangTag.getStatus() == HangTagStatusEnum.FINISH) {
                                     //发送消息
                                     messageUtils.sendMessage("",hangTag.getCreateId(),packInfo.getStyleNo()+"大货款号，物料已替换请注意查收","/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods","",baseController.getUser());
                                 }
@@ -535,10 +535,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         PackInfo packInfo = packInfoService.get(byId.getForeignId(), byId.getPackType());
         HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
         /*不是在未填写，未提交阶段时提示不能修改*/
-        if(hangTag.getStatus() != HangTagStatusEnum.NOT_INPUT && hangTag.getStatus() != HangTagStatusEnum.NOT_COMMIT){
+        if(hangTag.getStatus().lessThan(HangTagStatusEnum.DESIGN_CHECK)){
             throw new OtherException("吊牌已提交无法停用");
         }
-        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
+        BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED);
         // 校验版本
         packBomVersionService.checkVersion(byId.getBomVersionId());
         UpdateWrapper<PackBom> uw = new UpdateWrapper<>();

@@ -1399,7 +1399,7 @@ public class SmpService {
                 String bulkStyleNo = hangTag.getBulkStyleNo();
                 if (HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL.getCode() == type) {
                     //当status 等于4 待品控确认反审核只取消上一级
-                    if(HangTagStatusEnum.QC_CHECK == hangTag.getStatus()){
+                    if(HangTagStatusEnum.TRANSLATE_CHECK == hangTag.getStatus()){
                         //反审
                         tagConfirmDateDto.setStyleNo(bulkStyleNo);
                         tagConfirmDateDto.setTechnicalConfirm(0);

@@ -177,11 +177,11 @@ public class HangTagController extends BaseController {
         HangTag hangTag = hangTagService.getOne(new QueryWrapper<HangTag>().eq("bulk_style_no", dto.getBusinessKey()));
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
             //审核通过
-            hangTag.setStatus(HangTagStatusEnum.TRANSLATE_CHECK);
-            hangTag.setConfirmDate(new Date());
+            hangTag.setStatus(HangTagStatusEnum.FINISH);
+            hangTag.setTranslateConfirmDate(new Date());
         } else {
             //审核不通过
-            hangTag.setStatus(HangTagStatusEnum.QC_SUSPEND);
+            hangTag.setStatus(HangTagStatusEnum.SUSPEND);
         }
         return hangTagService.updateById(hangTag);
     }
@@ -192,11 +192,11 @@ public class HangTagController extends BaseController {
     @PostMapping("/counterReview")
     public ApiResult counterReview(@RequestBody HangTag hangTag) {
         HangTag hangTag1 = hangTagService.getById(hangTag.getId());
-        if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.QC_SUSPEND, HangTagStatusEnum.TRANSLATE_CHECK).contains(hangTag.getStatus())) {
+        if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(hangTag.getStatus())) {
             hangTag1.setStatus(HangTagStatusEnum.DESIGN_CHECK);
         }
-        if (HangTagStatusEnum.QC_CHECK == hangTag.getStatus()) {
-            hangTag1.setStatus(HangTagStatusEnum.TECH_CHECK);
+        if (HangTagStatusEnum.TRANSLATE_CHECK == hangTag.getStatus()) {
+            hangTag1.setStatus(HangTagStatusEnum.QC_CHECK);
         }
 
         smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), 0, 0);
