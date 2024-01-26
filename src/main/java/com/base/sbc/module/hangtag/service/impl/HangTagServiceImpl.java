@@ -555,12 +555,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					HangTagStatusEnum.QC_CHECK != hangTagUpdateStatusDTO.getStatus()) {
 					throw new OtherException("存在待技术员确认数据，请先技术员确认");
 				}
-				if (HangTagStatusEnum.QC_CHECK != e.getStatus()
+				if (HangTagStatusEnum.QC_CHECK == e.getStatus()
 						&&
 					HangTagStatusEnum.TRANSLATE_CHECK != hangTagUpdateStatusDTO.getStatus()) {
 					throw new OtherException("存在待品控确认数据，请先品控确认");
 				}
-				if (HangTagStatusEnum.TRANSLATE_CHECK != e.getStatus()
+				if (HangTagStatusEnum.TRANSLATE_CHECK == e.getStatus()
 						&&
 						HangTagStatusEnum.FINISH != hangTagUpdateStatusDTO.getStatus()) {
 					throw new OtherException("存在待翻译确认数据，请先翻译确认");
