@@ -1232,6 +1232,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				// 假定单国家
+				if (resultList.stream().map(it-> CountryLanguageType.findByStandardColumnType(it.getType())).anyMatch(it-> it == CountryLanguageType.WASHING)) {
+					if (tagPrinting.getApproved()) {
+						tagPrinting.setTranslateApproved(true);
+					}
+				}
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
 					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
 					// 获取所有的语言
