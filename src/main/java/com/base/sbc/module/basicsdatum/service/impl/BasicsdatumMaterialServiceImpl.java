@@ -211,22 +211,23 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             basicsdatumMaterialPageVo.setIds(stringList.get(index));
             index++;
             String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
-            EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getOne(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
+            /*查询物料的最新检测报告*/
+           List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
             List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = materialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode));
             List<String> collect = basicsdatumMaterialWidths.stream().map(BasicsdatumMaterialWidth::getName).collect(Collectors.toList());
             basicsdatumMaterialPageVo.setWithName(String.join(",", collect));
 
-            if (escmMaterialCompnentInspectCompanyDto != null) {
+            if ( CollUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto)) {
 
 
-                basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.getRemark());
-                basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.getCompanyFullName());
-                basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.getArriveDate());
+                basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.get(0).getRemark());
+                basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.get(0).getCompanyFullName());
+                basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.get(0).getArriveDate());
                 basicsdatumMaterialPageVo
-                        .setCheckValidDate(Integer.valueOf(escmMaterialCompnentInspectCompanyDto.getValidityTime()));
-                basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.getSendInspectContent());
-                basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.getMakerByName());
-                basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.getFileUrl());
+                        .setCheckValidDate(Integer.valueOf(escmMaterialCompnentInspectCompanyDto.get(0).getValidityTime()));
+                basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.get(0).getSendInspectContent());
+                basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.get(0).getMakerByName());
+                basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.get(0).getFileUrl());
             }
 
         }
