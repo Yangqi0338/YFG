@@ -5,27 +5,21 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
-import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.business.RFIDType;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：款式-款式配色 实体类
  *
@@ -282,6 +276,7 @@ public class StyleColor extends BaseDataEntity<String> {
     /**
      * rfid标记(0否 1是)
      */
+
     @ApiModelProperty(value = "rfid类型")
     private RFIDType rfidType;
     /**

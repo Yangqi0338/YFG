@@ -189,14 +189,18 @@ public class OpenSmpController extends BaseController {
             basicsdatumMaterialIngredient.setCompanyCode(BaseConstant.DEF_COMPANY_CODE);
             String say = "";
             if(StringUtils.isNotEmpty(inspectContent.getRemark())){
-                 say = inspectContent.getRemark().replace("（", "(").replace("）", ")");
-                basicsdatumMaterialIngredient.setSay(say);
+//                 say = inspectContent.getRemark().replace("（", "(").replace("）", ")");
+                say = "("+inspectContent.getRemark()+")";
+                basicsdatumMaterialIngredient.setSay(inspectContent.getRemark());
             }
             String contentProportion = inspectContent.getContentProportion().replace("%", "");
             if (StrUtil.isNotBlank(contentProportion)) {
                 basicsdatumMaterialIngredient.setRatio(BigDecimal.valueOf(Float.parseFloat(contentProportion)));
             }
-
+/*清掉%*/
+            if(StrUtil.equals(inspectContent.getContentProportion(), "%")){
+                inspectContent.setContentProportion("");
+            }
             basicsdatumMaterialIngredient.setType("0");
             basicsdatumMaterialIngredient.setName(inspectContent.getInspectContent());
             String kindCode = inspectContent.getKindCode();

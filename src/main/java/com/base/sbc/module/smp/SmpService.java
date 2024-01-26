@@ -491,6 +491,19 @@ public class SmpService {
             smpGoodsDto.setStyleSpecFabricList(styleSpecFabricList);
             //endregion
 
+            //region 增加二检包装形式
+            //
+            QueryWrapper<HangTag> hangTagQueryWrapper = new QueryWrapper();
+            hangTagQueryWrapper.eq("bulk_style_no",styleColor.getStyleNo());
+            hangTagQueryWrapper.eq("del_flag","0");
+            hangTagQueryWrapper.last("limit 1");
+            HangTag hangTag = hangTagService.getOne(hangTagQueryWrapper);
+            if (hangTag != null) {
+                smpGoodsDto.setSecondPackagingForm(hangTag.getSecondPackagingForm());
+                smpGoodsDto.setSecondPackagingFormCode(hangTag.getSecondPackagingFormCode());
+            }
+            //endregion
+
             // if (true){
             //     return null;
             // }

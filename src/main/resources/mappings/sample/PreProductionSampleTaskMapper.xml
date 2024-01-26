@@ -24,7 +24,8 @@
         p.style_no,
         p.color,
         p.prod_category_name,
-
+        tht.technologist_name technologistName,
+        tht.grading_name gradingName,
         s.style_pic,
         s.pattern_design_name,
         s.pattern_design_id,
@@ -35,8 +36,8 @@
         (t_style s,
         t_pre_production_sample_task t,
         t_pack_info p)
-        left join t_pattern_making tpm ON (tpm.sample_bar_code = t.sample_bar_code and tpm.sample_bar_code!=null and
-        tpm.sample_bar_code !='')
+        left join t_pattern_making tpm ON (tpm.sample_bar_code = t.sample_bar_code and tpm.sample_bar_code!=null and  tpm.sample_bar_code !='')
+        left join t_hang_tag  tht  on (tht.bulk_style_no = p.style_no  )
         WHERE
         s.id = t.style_id and p.id=t.pack_info_id
         AND s.del_flag = '0'

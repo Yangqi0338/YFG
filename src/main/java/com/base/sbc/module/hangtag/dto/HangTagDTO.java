@@ -146,6 +146,17 @@ public class HangTagDTO {
      */
     @ApiModelProperty(value = "包装形式")
     private String packagingForm;
+
+    /**
+     * 包装形式编码
+     */
+    @ApiModelProperty(value = "二检包装形式编码")
+    private String secondPackagingFormCode;
+    /**
+     * 包装形式
+     */
+    @ApiModelProperty(value = "二检包装形式")
+    private String secondPackagingForm;
     /**
      * 包装袋标准编码
      */

@@ -211,17 +211,24 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
 		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
-			hangTagDTO.setDesignNos(StringUtils.split(hangTagDTO.getDesignNo(),","));
+			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
 		}
 
 		if(StrUtil.isNotBlank(hangTagDTO.getProductCode())){
-			hangTagDTO.setProductCodes(StringUtils.split(hangTagDTO.getProductCode(),","));
+			hangTagDTO.setProductCodes(hangTagDTO.getProductCode().split(","));
 		}
 
 		if(StrUtil.isNotBlank(hangTagDTO.getProdCategory())){
-			hangTagDTO.setProdCategorys(StringUtils.split(hangTagDTO.getProdCategory(),","));
+			hangTagDTO.setProdCategorys(hangTagDTO.getProdCategory().split(","));
+		}
+
+		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
+			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
+		if(StrUtil.equals(hangTagDTO.getDeriveFlag(),BaseGlobal.YES)&& hangTagListVOS.size() > 1000){
+			throw new OtherException("最多导出1000条数据");
+		}
 		minioUtils.setObjectUrlToList(hangTagListVOS, "washingLabel");
 		if (hangTagListVOS.isEmpty()) {
 			return new PageInfo<>(hangTagListVOS);
@@ -308,6 +315,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	public void deriveExcel(HttpServletResponse response, HangTagSearchDTO hangTagSearchDTO, String userCompany)
 			throws IOException {
 		/* 查询吊牌数据 */
+		hangTagSearchDTO.setDeriveFlag(BaseGlobal.YES);
 		List<HangTagListVO> list = queryPageInfo(hangTagSearchDTO, userCompany).getList();
 		List<HangTagVoExcel> hangTagVoExcels = BeanUtil.copyToList(list, HangTagVoExcel.class);
 		ExcelUtils.exportExcel(hangTagVoExcels, HangTagVoExcel.class, "吊牌.xlsx", new ExportParams(), response);
@@ -366,7 +374,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				("style_no", hangTag.getBulkStyleNo()).eq("company_code", userCompany).select("id"));
 */
 
-		boolean flag = false;
+		/*boolean flag = false;
 		if(StringUtils.isEmpty(hangTagDTO.getId())){
 			flag = true;
 		}else {
@@ -374,7 +382,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			if(!hangTag1.getProductName().equals(hangTag.getProductName())){
 				flag = true;
 			}
-		}
+		}*/
+
 
 		super.saveOrUpdate(hangTag, "吊牌管理");
 		String id = hangTag.getId();
@@ -449,6 +458,35 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}catch (Exception ignored){
 		}
         return id;
+	}
+
+	@Transactional
+	@Override
+	public void updateSecondPackagingFormById(HangTagDTO hangTagDTO) {
+		if (StrUtil.isNotEmpty(hangTagDTO.getId())) {
+			HangTag hangTag = this.getById(hangTagDTO.getId());
+			if (hangTag != null) {
+				String code = hangTag.getSecondPackagingFormCode();
+				if (StrUtil.isBlank(code)) {
+					code = "-1";
+				}
+
+				hangTag.setSecondPackagingForm(hangTagDTO.getSecondPackagingForm());
+				hangTag.setSecondPackagingFormCode(hangTagDTO.getSecondPackagingFormCode());
+				this.updateById(hangTag);
+
+				StyleColor styleColor = styleColorService.getByOne("style_no", hangTag.getBulkStyleNo());
+				if (styleColor != null) {
+					String secondPackagingFormCode = hangTagDTO.getSecondPackagingFormCode();
+					if (StrUtil.isBlank(code)) {
+						secondPackagingFormCode = "-1";
+					}
+					if (!code.equals(secondPackagingFormCode)) {
+						smpService.goods(styleColor.getId().split(","));
+					}
+				}
+			}
+		}
 	}
 
 	private void strictCheckIngredientPercentage(List<String> hangTagIdList){

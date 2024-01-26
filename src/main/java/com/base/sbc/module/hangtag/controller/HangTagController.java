@@ -91,6 +91,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "导出", notes = "")
     @GetMapping("/deriveExcel")
+    @DuplicationCheck(type = 1,message = "服务正在导出请稍等",time = 60)
     public void deriveExcel(HttpServletResponse response, HangTagSearchDTO hangTagSearchDTO) throws IOException {
         hangTagService.deriveExcel(response,hangTagSearchDTO, super.getUserCompany());
     }
@@ -115,6 +116,14 @@ public class HangTagController extends BaseController {
     public ApiResult save(@RequestBody HangTagDTO hangTagDTO) {
         String id = hangTagService.save(hangTagDTO, super.getUserCompany());
         return ApiResult.success("保存成功", id);
+    }
+
+    @ApiOperation(value = "修改二检包装形式")
+    @PostMapping("/updateSecondPackagingFormById")
+    @DuplicationCheck
+    public ApiResult updateSecondPackagingFormById(@RequestBody HangTagDTO hangTagDTO) {
+        hangTagService.updateSecondPackagingFormById(hangTagDTO);
+        return ApiResult.success("修改成功");
     }
 
     /**
