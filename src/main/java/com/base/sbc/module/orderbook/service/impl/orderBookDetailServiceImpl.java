@@ -535,12 +535,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT){
                 throw new OtherException("已经发起审核,请勿重复提交");
             }
-            if (StrUtil.isBlank(orderBookDetail.getDesignerCode())) {
-                throw new OtherException("还未分配设计师");
-            }
-            if (StrUtil.isBlank(orderBookDetail.getBusinessId())) {
-                throw new OtherException("还未分配商企");
-            }
+//            if (StrUtil.isBlank(orderBookDetail.getDesignerCode())) {
+//                throw new OtherException("还未分配设计师");
+//            }
+//            if (StrUtil.isBlank(orderBookDetail.getBusinessId())) {
+//                throw new OtherException("还未分配商企");
+//            }
             String totalProduction = orderBookDetail.getTotalProduction();
             if (StringUtils.isEmpty(totalProduction) || "0".equals(totalProduction)) {
                 throw new OtherException("下单数量不能为空或者0");
