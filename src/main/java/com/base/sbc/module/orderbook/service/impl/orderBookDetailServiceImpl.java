@@ -692,7 +692,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 /*获取款式定价的数据*/
                 StylePricingVO stylePricingVO = map.get(orderBookDetailVo.getBulkStyleNo());
                 if (!ObjectUtil.isEmpty(stylePricingVO)) {
-                    orderBookDetailVo.setStylePricingId(stylePricingVO.getId());
+                    orderBookDetailVo.setStylePricingId(stylePricingVO.getStylePricingId());
 
                     if ("CMT".equals(orderBookDetailVo.getDevtTypeName())){
                         orderBookDetailVo.setCmtCost(stylePricingVO.getTotalCost());

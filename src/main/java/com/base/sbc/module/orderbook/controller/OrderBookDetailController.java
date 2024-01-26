@@ -199,7 +199,7 @@ public class OrderBookDetailController extends BaseController {
         stylePricingSaveDTO.setPackId(dto.getPackInfoId());
         stylePricingSaveDTO.setPlanningRate(dto.getRate());
         stylePricingSaveDTO.setProductStyle(dto.getProductStyleName());
-        stylePricingService.insertOrUpdate(stylePricingSaveDTO,null);
+        stylePricingService.updateById(stylePricingSaveDTO);
 
         return insertSuccess(orderBookDetailService.updateById(dto));
     }
