@@ -123,4 +123,9 @@ public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String
 
     @TableField(exist = false)
     private String inspectCompanyId;
+
+    /*年份集合*/
+    @TableField(exist = false)
+    private List<EscmMaterialCompnentInspectCompanyDto> companyDtoList;
+
 }

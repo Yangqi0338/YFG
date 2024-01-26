@@ -12,6 +12,7 @@ import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -111,7 +112,7 @@ public interface HangTagService extends BaseService<HangTag> {
      * @param dto
      * @return
      */
-    PageInfo getInspectReport(InspectCompanyDto dto);
+    List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

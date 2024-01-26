@@ -1,5 +1,6 @@
 package com.base.sbc.open.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 
@@ -15,8 +16,8 @@ public interface EscmMaterialCompnentInspectCompanyService extends BaseService<E
 
     /**
      * 查询最新的检测报告
-     * @param materialsNos
+     * @param queryWrapper
      * @return
      */
-    List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(List<String> materialsNos);
+    List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper);
 }

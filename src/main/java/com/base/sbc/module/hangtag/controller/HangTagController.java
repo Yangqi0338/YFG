@@ -24,6 +24,7 @@ import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +41,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类描述：吊牌表 Controller类
@@ -210,7 +212,7 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "通过物料编码获取检查报告")
     @GetMapping("/getInspectReport")
-    public PageInfo getInspectReport(InspectCompanyDto dto) {
+    public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto) {
         return hangTagService.getInspectReport(dto);
     }
 

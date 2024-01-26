@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Data
-public class InspectCompanyDto extends Page {
+public class InspectCompanyDto {
     /**
      * 文件地址
      */

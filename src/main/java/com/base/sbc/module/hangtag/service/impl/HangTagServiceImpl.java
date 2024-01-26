@@ -340,7 +340,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
 				if (!codes.isEmpty()) {
 					/*查询物料*/
-					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(codes);
+					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes));
 /*					List<BasicsdatumMaterial> list = basicsdatumMaterialService
 							.list(new QueryWrapper<BasicsdatumMaterial>().in("material_code", codes));*/
 					hangTagVO.setCompnentInspectCompanyDtoList(list);
@@ -394,6 +394,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		/*检测报告*/
 		List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagDTO.getHangTagInspectCompanyList();
 		if(CollUtil.isNotEmpty(hangTagInspectCompanyList)){
+			/*先删除之前的数据*/
+				hangTagInspectCompanyService.remove(new QueryWrapper<HangTagInspectCompany>().eq("hang_tag_id",hangTag.getId()));
 			for (HangTagInspectCompany hangTagInspectCompany : hangTagInspectCompanyList) {
 				hangTagInspectCompany.setHangTagId(hangTag.getId());
 				hangTagInspectCompany.insertInit();
@@ -1281,12 +1283,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	 * @return
 	 */
 	@Override
-	public PageInfo getInspectReport(InspectCompanyDto dto) {
+	public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto) {
+		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
+		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
+		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year",dto.getYear());
+		queryWrapper.eq(StrUtil.isNotBlank(dto.getMaterialsName()),"materials_name", dto.getMaterialsName());
 		/*查询基础资料-品类测量组数据*/
-		Page<BasicsdatumCategoryMeasureVo> objects = PageHelper.startPage(dto);
-		/*查询物料的最新检查报告*/
-		escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
-		return objects.toPageInfo();
+
+		List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(queryWrapper);
+		return list;
 	}
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
