@@ -1286,6 +1286,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	 */
 	@Override
 	public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto) {
+		if(StrUtil.isEmpty(dto.getMaterialsNo())){
+			throw new OtherException("物料编码不能为空");
+		}
 		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
 		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
 		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year",dto.getYear());
