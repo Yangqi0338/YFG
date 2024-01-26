@@ -24,6 +24,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String year;
 
     @ApiModelProperty(value = "季节", example = "S")
+    @TableField(value = "season")
     private String season;
 
     @ApiModelProperty(value = "月份", example = "1")
@@ -48,8 +49,8 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @ApiModelProperty(value = "导出标记")
     private String deriveflag;
 
-    @TableField
-    private String patternNo;
+
+    //private String patternNo;
 
     //private String sampleType;
 
@@ -73,7 +74,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String patternParts;
 
     @ApiModelProperty(value = "创建指令时间")
-    @TableField(value = "pmCreateDate")
+    @TableField(value = "p.create_date", property = "date")
     private String pmCreateDate;
     @ApiModelProperty(value = "紧急程度")
     @TableField(value = "urgency")
@@ -116,10 +117,11 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String patternDesignerName;
 
     @ApiModelProperty(value = "设计收到时间")
-    @TableField(value = "receive_sample_date")
+    @TableField(value = "receive_sample_date", property = "date")
     private String receiveSampleDate;
 
     @ApiModelProperty(value = "设计款号")
+    @TableField(value = "design_no")
     private String designNo;
 
     @ApiModelProperty(value = "大货款号")
@@ -139,17 +141,17 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String stylePic;//	款图
     @TableField(value = "sample_type")
     private String sampleType;//	打版类型
-    @TableField(value = "pat_diff_name")
+    @TableField(value = "p.pat_diff_name")
     private String patDiffName;//	打版难度
-    @TableField(value = "pat_seq_name")
+    @TableField(value = "p.pat_seq_name")
     private String patSeqName;//	打版顺序
     @TableField(value = "technician_kitting")
     private String technicianKitting;//	设计确认是否齐套
-    @TableField(value = "technician_kitting_date")
+    @TableField(value = "technician_kitting_date" , property = "date")
     private String technicianKittingDate;//	设计确认是否齐套时间
-    @TableField(value = "pattern_req_date")
+    @TableField(value = "pattern_req_date" , property = "date")
     private String patternReqDate;//	纸样需求完成日期
-    @TableField(value = "demand_finish_date")
+    @TableField(value = "p.demand_finish_date" , property = "date")
     private String demandFinishDate;//	样衣需求完成日期
     @TableField(value = "jssdrq")
     private String jssdrq;//	技术收到日期
@@ -162,7 +164,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String revisionReason;//	改版原因
     @TableField(value = "bfzgxfsj")
     private String bfzgxfsj;//	版房主管下发时间
-    @TableField(value = "pattern_design_name")
+    @TableField(value = "s.pattern_design_name")
     private String patternDesignName;//	版师
     @TableField(value = "bsjssj")
     private String bsjssj;//	版师接收时间
@@ -211,7 +213,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String reviewedDesignName;//	审版设计师
     @TableField(value = "prod_category_name")
     private String prodCategoryName;//	品类
-    @TableField(value = "prodCategory_2nd_name")
+    @TableField(value = "prod_category2nd_name")
     private String prodCategory2ndName;//	中类
     @TableField(value = "prodCategory_3rd_name")
     private String prodCategory3rdName;//	小类
@@ -219,7 +221,8 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String patternFinishNum;//	纸样完成件数
     @TableField(value = "default_size")
     private String defaultSize;//	尺码
-    //private String urgency;//	紧急程度
+    @TableField(value = "urgencyName")
+    private String urgencyName;//	紧急程度
     //private String pmCreateDate;//	创建指令时间
     //private String patternParts;//	部件编码
     @TableField(value = "sample_finish_num")
@@ -233,13 +236,14 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @TableField(value = "second_processing")
     private String secondProcessing;//	二次加工
     //private String pmStatus;//	状态
-    @TableField(value = "prm_send_date")
+    @TableField(value = "prm_send_date" , property = "date")
     private String prmSendDate;//	下发给样衣组长时间
     //private String prmSendStatus;//	下发给样衣组长状态
-    //private String patternNo;//	样版号
+    @TableField(value = "pattern_no")
+    private String patternNo;//	样版号 c
     @TableField(value = "grading_name")
     private String gradingName;//	放码师
-    @TableField(value = "grading_date")
+    @TableField(value = "grading_date", property = "date")
     private String gradingDate;//	放码时间
     //private String bandName;//	波段
     //private String sampleBarCode;//	样衣码

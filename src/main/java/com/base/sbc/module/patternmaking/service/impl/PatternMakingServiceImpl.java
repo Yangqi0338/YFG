@@ -1315,35 +1315,84 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         String columnHeard = dto.getColumnHeard();
 
         Field[] declaredFields = dto.getClass().getDeclaredFields();
-        for (Field field : declaredFields) {
-            //开启权限
-            try {
-                field.setAccessible(true);
-                TableField annotation = field.getAnnotation(TableField.class);
-                if (annotation != null) {
-                    Object o = field.get(dto);
-                    if (ObjectUtil.isNotEmpty(o) && StrUtil.isNotEmpty(columnHeard)) {
-                        qw.select(" DISTINCT " + annotation.value());
-                        break;
-                    } else if (ObjectUtil.isNotEmpty(o)) {
-                        qw.like(annotation.value(), o);
+
+        //启用模糊查询  并且查询小漏斗
+        boolean isPage = true;
+        if (StrUtil.isNotEmpty(columnHeard)) {
+            for (Field field : declaredFields) {
+                //开启权限
+                try {
+                    field.setAccessible(true);
+                    TableField annotation = field.getAnnotation(TableField.class);
+                    if (annotation != null) {
+                        Object o = field.get(dto);
+                        //小漏斗筛选
+                        if (ObjectUtil.isNotEmpty(o) && StrUtil.isNotEmpty(columnHeard) && field.getName().equals(columnHeard)) {
+                            String property = annotation.property();
+                            if (StrUtil.isNotEmpty(property)) {
+                                String s = String.valueOf(o);
+                                String[] split = s.split(",");
+                                if (StrUtil.isNotEmpty(split[0]) && StrUtil.isNotEmpty(split[1]) ) {
+                                    split[0] = split[0] + " 00:00:00";
+                                    split[1] = split[1] + " 23:59:59";
+                                    qw.between(annotation.value(), split);
+                                    break;
+                                }
+                            }
+                            qw.in(annotation.value(), o.toString().split(","));
+                            break;
+                        }
+                        if (StrUtil.isNotEmpty(columnHeard) && field.getName().equals(columnHeard)) {
+                            qw.select(" DISTINCT " + annotation.value());
+                            break;
+                        }
+                        //记得排序
                     }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    field.setAccessible(false);
                 }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } finally {
-                field.setAccessible(false);
+            }
+        }else{
+            for (Field field : declaredFields) {
+                //开启权限
+                try {
+                    field.setAccessible(true);
+                    TableField annotation = field.getAnnotation(TableField.class);
+                    if (annotation != null) {
+                        Object o = field.get(dto);
+                        if (ObjectUtil.isNotEmpty(o)) {
+                            String s = String.valueOf(o);
+                            System.out.println(s);
+                            String[] split = s.split(",");
+
+                            String property = annotation.property();
+                            if (StrUtil.isNotEmpty(property)) {
+                                if (StrUtil.isNotEmpty(split[0]) && StrUtil.isNotEmpty(split[1]) ) {
+                                    split[0] = split[0] + " 00:00:00";
+                                    split[1] = split[1] + " 23:59:59";
+                                    qw.between(annotation.value(), split);
+                                    break;
+                                }
+                            }
+                            qw.in(annotation.value(), split);
+                        }
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    field.setAccessible(false);
+                }
             }
         }
-
-
 
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.notEmptyEq("p.prm_send_status",dto.getPrmSendStatus());
         qw.notEmptyEq("p.break_off_pattern",dto.getBreakOffPattern());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
-        qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
+        //qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
         qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "s.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
@@ -1455,6 +1504,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
         }
 
+        //region 列头漏斗过滤
+        /*if (isPage == false) {
+            dto.setPageNum(0);
+            dto.setPageSize(0);
+        }*/
+        //endregion
+
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
         if(!StringUtils.isBlank(dto.getDeriveflag())){
@@ -1471,15 +1527,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
 
-
-
+        //region 列头漏斗过滤
         if (StrUtil.isNotEmpty(columnHeard)) {
-            dto.setPageNum(0);
-            dto.setPageSize(0);
-            Page<SampleBoardVo> headPage = PageHelper.startPage(dto);
             return objects.toPageInfo();
         }
-
+        //endregion
 
         //region 导出去掉设计师编码
         list.forEach(item->{
