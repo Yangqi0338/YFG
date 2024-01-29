@@ -75,6 +75,14 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             String bandName = categoryPlanningDetailsVo.getBandName();
             String prodCategoryName = categoryPlanningDetailsVo.getProdCategoryName();
             String prodCategory2ndName = categoryPlanningDetailsVo.getProdCategory2ndName();
+            String[] split2 = prodCategory2ndName.split(",");
+            List<String> arr =new ArrayList<>();
+            for (String s : split2) {
+                if (StringUtils.isBlank(s)) {
+                    arr.add(s);
+                }
+            }
+            prodCategory2ndName=StringUtils.convertListToString(arr);
             String prodCategory2ndCode = categoryPlanningDetailsVo.getProdCategory2ndCode();
             String skcCount = categoryPlanningDetailsVo.getSkcCount();
             JSONObject object = new JSONObject();
