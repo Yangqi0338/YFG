@@ -80,7 +80,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         // this.match(list);
         List<TableColumnVo> tableColumnVos =new ArrayList<>();
         Map<String, Integer> map =new TreeMap<>();
-
+        Map<String, JSONObject> map1 =new TreeMap<>();
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             //获取所有波段,当作列
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getBandName())){
@@ -98,6 +98,14 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                     map.put(planningProjectPlankVo.getBandName(), i);
                 }
             }
+            //获取所有维度
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("dimensionId", planningProjectPlankVo.getDimensionId());
+            jsonObject.put("dimensionValue", planningProjectPlankVo.getDimensionValue());
+            jsonObject.put("dimensionName", planningProjectPlankVo.getDimensionName());
+            jsonObject.put("dimensionCode", planningProjectPlankVo.getDimensionCode());
+            map1.put(planningProjectPlankVo.getDimensionValue()+planningProjectPlankVo.getDimensionCode()+planningProjectPlankVo.getDimensionName()+planningProjectPlankVo.getDimensionId(), jsonObject);
+
 
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
                 List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(planningProjectPlankVo.getStyleColorId());
@@ -122,10 +130,15 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             tableColumnVos.add(tableColumnVo);
         }
 
+        List<JSONObject> jsonObjects =new ArrayList<>();
+        for (String s : map1.keySet()) {
+            jsonObjects.add(map1.get(s));
+        }
 
         stylePicUtils.setStyleColorPic2(list, "pic");
         hashMap.put("list",list);
         hashMap.put("tableColumnVos",tableColumnVos);
+        hashMap.put("map",jsonObjects);
         return hashMap;
     }
 
