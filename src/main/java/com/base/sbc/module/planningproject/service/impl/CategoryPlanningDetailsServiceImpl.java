@@ -193,7 +193,15 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             queryWrapper1.eq("dimensionality_grade","1");
             if (StringUtils.isNotBlank(prodCategory2ndCode)){
                 String[] split1 = prodCategory2ndCode.split(",");
-                queryWrapper1.in("prod_category2nd",Arrays.asList(split1));
+                List<String> list =new ArrayList<>();
+                for (String s : split1) {
+                    if (StringUtils.isNotBlank(s)) {
+                        list.add(s);
+                    }
+                }
+                if (!list.isEmpty()){
+                    queryWrapper1.in("prod_category2nd",Arrays.asList(split1));
+                }
             }
             List<JSONObject> jsonObjects =new ArrayList<>();
             List<PlanningDimensionality> list = planningDimensionalityService.list(queryWrapper1);
