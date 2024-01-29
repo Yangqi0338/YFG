@@ -24,7 +24,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String year;
 
     @ApiModelProperty(value = "季节", example = "S")
-    @TableField(value = "season")
+    @TableField(value = "CONCAT(s.year_name,s.season_name,s.brand_name)")
     private String season;
 
     @ApiModelProperty(value = "月份", example = "1")
@@ -98,7 +98,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @TableField(value = "p.status")
     private String pmStatus;
 
-    @TableField(value = "p.prm_send_status")
+    @TableField(value = "IF(p.prm_send_status = 0 , '未发送' ,'已发送')")
     private String prmSendStatus;
 
     private String breakOffPattern;
@@ -145,7 +145,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String patDiffName;//	打版难度
     @TableField(value = "p.pat_seq_name")
     private String patSeqName;//	打版顺序
-    @TableField(value = "technician_kitting")
+    @TableField(value = "IF(p.technician_kitting = 0 , '否' ,'是')")
     private String technicianKitting;//	设计确认是否齐套
     @TableField(value = "technician_kitting_date" , property = "date")
     private String technicianKittingDate;//	设计确认是否齐套时间
@@ -162,7 +162,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     //private String season;//	季节
     @TableField(value = "revision_reason")
     private String revisionReason;//	改版原因
-    @TableField(value = "bfzgxfsj")
+    //@TableField(value = "bfzgxfsj")
     private String bfzgxfsj;//	版房主管下发时间
     @TableField(value = "s.pattern_design_name")
     private String patternDesignName;//	版师
@@ -185,7 +185,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String cjwcsj;//	裁剪完成时间
     @TableField(value = "cutter_finish_num")
     private String cutterFinishNum;//	裁剪完成件数
-    @TableField(value = "sgl_kitting")
+    @TableField(value = "IF(p.sgl_kitting = 0 , '否' ,'是')")
     private String sglKitting;//	样衣组长确认齐套
     @TableField(value = "stitcher_remark")
     private String stitcherRemark;//	备注
@@ -205,7 +205,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @TableField(value = "designer")
     private String designer;//	设计师
     //private String patternDesignerName;//	打样设计师
-    @TableField
+    @TableField(value = "merch_design_name")
     private String merchDesignName;//	跟款设计师
     @TableField(value = "revised_design_name")
     private String revisedDesignName;//	改款设计师
@@ -215,13 +215,13 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String prodCategoryName;//	品类
     @TableField(value = "prod_category2nd_name")
     private String prodCategory2ndName;//	中类
-    @TableField(value = "prodCategory_3rd_name")
+    @TableField(value = "prod_category3rd_name")
     private String prodCategory3rdName;//	小类
     @TableField(value = "pattern_finish_num")
     private String patternFinishNum;//	纸样完成件数
     @TableField(value = "default_size")
     private String defaultSize;//	尺码
-    @TableField(value = "urgency_name")
+    @TableField(value = "urgency_name",condition = "urgency")
     private String urgencyName;//	紧急程度
     //private String pmCreateDate;//	创建指令时间
     //private String patternParts;//	部件编码
