@@ -1343,7 +1343,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                             break;
                         }
                         if (StrUtil.isNotEmpty(columnHeard) && field.getName().equals(columnHeard)) {
-                            qw.select(" DISTINCT " + annotation.value());
+                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + annotation.value());
+                            //qw.select(" DISTINCT  " + annotation.value());
                             break;
                         }
                         //记得排序
@@ -1503,13 +1504,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')  order by start_date desc"
                     , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
         }
-
-        //region 列头漏斗过滤
-        /*if (isPage == false) {
-            dto.setPageNum(0);
-            dto.setPageSize(0);
-        }*/
-        //endregion
 
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");

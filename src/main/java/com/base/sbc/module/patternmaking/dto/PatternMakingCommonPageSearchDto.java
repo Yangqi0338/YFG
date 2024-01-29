@@ -221,7 +221,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String patternFinishNum;//	纸样完成件数
     @TableField(value = "default_size")
     private String defaultSize;//	尺码
-    @TableField(value = "urgencyName")
+    @TableField(value = "urgency_name")
     private String urgencyName;//	紧急程度
     //private String pmCreateDate;//	创建指令时间
     //private String patternParts;//	部件编码
