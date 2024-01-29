@@ -19,12 +19,19 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import cn.hutool.log.Log;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -32,30 +39,40 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
+import com.base.sbc.module.hangtag.mapper.HangTagMapper;
+import com.base.sbc.module.hangtag.vo.HangTagListVO;
+import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.EasyPoiMapExportParam;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageTableTitle;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.mapper.StandardColumnCountryTranslateMapper;
+import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
 import com.base.sbc.module.moreLanguage.service.CountryModelService;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext;
 import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext.MoreLanguageTableTitleHandlerEnum;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
@@ -63,6 +80,7 @@ import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Function;
 import lombok.SneakyThrows;
 import org.apache.bcel.generic.BREAKPOINT;
 import org.apache.poi.ss.usermodel.Cell;
@@ -78,6 +96,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -127,16 +146,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
     private CountryLanguageService countryLanguageService;
 
     @Autowired
-    private CountryModelService countryModelService;
-
-    @Autowired
     private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
-
-    @Autowired
-    private StandardColumnTranslateService standardColumnTranslateService;
-
-    @Autowired
-    private StandardColumnCountryRelationService relationService;
 
     @Autowired
     private StandardColumnService standardColumnService;

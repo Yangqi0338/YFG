@@ -9,6 +9,7 @@ import java.util.Date;
 
 import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.google.common.collect.Maps;
 
@@ -400,6 +401,13 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         // 要清除Redis? TODO
 
         // 创建翻译(使用翻译软件做基础翻译? TODO)
+    }
+
+    @Override
+    public List<CountryDTO> getAllCountry() {
+        List<CountryLanguage> languageList = list(new LambdaQueryWrapper<CountryLanguage>()
+                .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO).groupBy(CountryLanguage::getCode));
+        return languageList.stream().map(it-> new CountryDTO(it.getCode(), it.getCountryCode(), it.getCountryName())).collect(Collectors.toList());
     }
 
 // 自定义方法区 不替换的区域【other_start】

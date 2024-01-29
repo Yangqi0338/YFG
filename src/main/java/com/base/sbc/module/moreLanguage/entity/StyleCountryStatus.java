@@ -38,18 +38,15 @@ public class StyleCountryStatus extends BaseDataEntity<String> {
     /** 款式编码 */
     @ApiModelProperty(value = "款式编码"  )
     private String bulkStyleNo;
-    /** 国家标准列关系id */
-    @ApiModelProperty(value = "国家标准列关系id"  )
-    private String countryRelationId;
     /** 状态 */
     @ApiModelProperty(value = "状态"  )
     private StyleCountryStatusEnum status;
-    /** 国家语言id */
-    @ApiModelProperty(value = "国家语言id"  )
-    private String countryLanguageId;
-    /** 标准列编码 */
-    @ApiModelProperty(value = "标准列编码"  )
-    private String standardColumnCode;
+    /** 国家编码 */
+    @ApiModelProperty(value = "国家编码"  )
+    private String countryCode;
+    /** 检查详情Json */
+    @ApiModelProperty(value = "检查详情Json"  )
+    private String checkDetailJson;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
 }

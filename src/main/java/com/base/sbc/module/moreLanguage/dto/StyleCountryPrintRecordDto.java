@@ -21,15 +21,9 @@ import java.util.stream.Collectors;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StyleCountryPrintRecordDto {
+public class StyleCountryPrintRecordDto extends CountryDTO {
 
     private String bulkStyleNo;
-
-    private String code;
-
-    private String countryCode;
-
-    private String countryName;
 
     private List<TypeLanguageDto> typeLanguageDtoList;
 

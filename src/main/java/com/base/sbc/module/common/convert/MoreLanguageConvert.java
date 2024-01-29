@@ -10,8 +10,11 @@ import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.LanguageSaveDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCountryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelResultDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.standard.dto.StandardColumnSaveDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import org.mapstruct.Mapper;
@@ -47,5 +50,19 @@ public interface MoreLanguageConvert {
     void copy2Entity(StandardColumnSaveDto source, @MappingTarget StandardColumn target);
     BasicsdatumSize copyMyself(BasicsdatumSize source);
     StandardColumnCountryTranslate copyMyself(StandardColumnCountryTranslate source);
+    List<MoreLanguageStatusExcelResultDTO> copyList2ResultDTO(List<String> source);
+
+    default MoreLanguageStatusExcelResultDTO copy2ResultDTO(String source) {
+        return new MoreLanguageStatusExcelResultDTO(source);
+    }
+
+    List<MoreLanguageStatusCountryDto> copyList2CountryDTO(List<StyleCountryStatus> source);
+
+    @Mappings({
+            @Mapping(target = "statusCode", source = "status"),
+            @Mapping(target = "time", source = "updateDate"),
+            @Mapping(target = "person", source = "updateName"),
+    })
+    MoreLanguageStatusCountryDto copy2CountryDTO(StyleCountryStatus source);
 
 }
