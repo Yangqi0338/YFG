@@ -511,7 +511,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		hangTagIngredientList.stream().filter(HangTagIngredient::checkPercentageRequired)
 				.collect(Collectors.groupingBy(HangTagIngredient::getHangTagId)).forEach((hangTagId, sameHangTagIdList)-> {
-					sameHangTagIdList.stream().collect(Collectors.groupingBy(it-> it.getTypeCode() + "-" + it.getIngredientSecondCode())).forEach((code, list)-> {
+					sameHangTagIdList.stream().collect(Collectors.groupingBy(it-> it.getTypeCode() + "-" + Opt.ofNullable(it.getIngredientSecondCode()).orElse(""))).forEach((code, list)-> {
 						StringJoiner stringJoiner = new StringJoiner("-");
 						String type = list.get(0).getType();
 						stringJoiner.add(type);
