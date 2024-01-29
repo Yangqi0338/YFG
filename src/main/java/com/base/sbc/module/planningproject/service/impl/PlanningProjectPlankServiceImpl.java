@@ -27,6 +27,7 @@ import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorVo;
@@ -101,6 +102,15 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
                 List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(planningProjectPlankVo.getStyleColorId());
                 planningProjectPlankVo.setFieldManagementVos(fieldManagementVos);
+            }
+
+            if (StringUtils.isNotEmpty(planningProjectPlankVo.getHisDesignNo())) {
+                StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlankVo.getHisDesignNo()).select("style_color_pic"));
+                StyleColorVo styleColorVo =new StyleColorVo();
+                BeanUtil.copyProperties(styleColor,styleColorVo);
+                String styleUrl = stylePicUtils.getStyleUrl(styleColorVo.getStyleColorPic());
+                styleColorVo.setStyleColorPic(styleUrl);
+                planningProjectPlankVo.setOldStyleColor(styleColorVo);
             }
         }
 
