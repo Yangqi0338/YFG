@@ -84,18 +84,18 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             //获取所有波段,当作列
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getBandName())){
-                Integer i = map.get(planningProjectPlankVo.getBandName());
+                Integer i = map.get(planningProjectPlankVo.getBandName()+","+planningProjectPlankVo.getBandCode());
                 if (i == null) {
                     if (StringUtils.isNotEmpty(planningProjectPlankVo.getId())){
-                        map.put(planningProjectPlankVo.getBandName(), 1);
+                        map.put(planningProjectPlankVo.getBandName()+","+planningProjectPlankVo.getBandCode(), 1);
                     }else {
-                        map.put(planningProjectPlankVo.getBandName(), 0);
+                        map.put(planningProjectPlankVo.getBandName()+","+planningProjectPlankVo.getBandCode(), 0);
                     }
                 }else {
                     if (StringUtils.isNotEmpty(planningProjectPlankVo.getId())){
                         i++;
                     }
-                    map.put(planningProjectPlankVo.getBandName(), i);
+                    map.put(planningProjectPlankVo.getBandName()+","+planningProjectPlankVo.getBandCode(), i);
                 }
             }
             //获取所有维度
@@ -104,6 +104,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             jsonObject.put("dimensionValue", planningProjectPlankVo.getDimensionValue());
             jsonObject.put("dimensionName", planningProjectPlankVo.getDimensionName());
             jsonObject.put("dimensionCode", planningProjectPlankVo.getDimensionCode());
+            jsonObject.put("planningProjectDimensionId",planningProjectPlankVo.getPlanningProjectDimensionId());
             map1.put(planningProjectPlankVo.getDimensionValue()+planningProjectPlankVo.getDimensionCode()+planningProjectPlankVo.getDimensionName()+planningProjectPlankVo.getDimensionId(), jsonObject);
 
 
@@ -125,7 +126,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         //生成表格列
         for (Map.Entry<String, Integer> stringStringEntry : map.entrySet()) {
             TableColumnVo tableColumnVo =new TableColumnVo();
-            tableColumnVo.setTitle(stringStringEntry.getKey());
+            String[] split = stringStringEntry.getKey().split(",");
+            tableColumnVo.setTitle(split[0]);
+            tableColumnVo.setColKey(split[1]);
             tableColumnVo.setNum(String.valueOf(stringStringEntry.getValue()));
             tableColumnVos.add(tableColumnVo);
         }
