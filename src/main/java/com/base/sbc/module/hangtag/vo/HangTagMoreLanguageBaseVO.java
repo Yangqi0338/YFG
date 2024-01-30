@@ -8,6 +8,7 @@ package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.business.StandardColumnModel;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -64,6 +65,15 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
      */
     @ApiModelProperty(value = "具体数据")
     private String propertiesName;
+
+    /**
+     * 审核状态
+     */
+    @ApiModelProperty(value = "审核状态")
+    protected StyleCountryStatusEnum getAuditStatus(){
+         return getLanguageList().stream().anyMatch(it-> it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK)
+                 ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
+    };
 
     /**
      * 全量数据

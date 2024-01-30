@@ -8,6 +8,7 @@ package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.business.StandardColumnModel;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -133,5 +134,11 @@ public class HangTagMoreLanguageVO {
     protected Date createTime;
     @JsonIgnore
     protected Date updateTime;
+
+    /**
+     * 审核状态
+     */
+    @ApiModelProperty(value = "审核状态")
+    protected StyleCountryStatusEnum auditStatus = StyleCountryStatusEnum.UNCHECK;
 
 }

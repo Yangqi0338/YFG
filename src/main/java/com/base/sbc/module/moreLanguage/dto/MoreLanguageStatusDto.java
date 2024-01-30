@@ -16,11 +16,10 @@ import java.util.List;
  * @author 卞康
  * @date 2023/3/24 17:16:34
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MoreLanguageStatusDto extends Page {
+public class MoreLanguageStatusDto {
 
     @NotEmpty(message = "款号列表")
     @ApiModelProperty(value = "款号")

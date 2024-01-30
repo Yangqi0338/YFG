@@ -29,7 +29,6 @@ import java.util.List;
 @NoArgsConstructor
 public class MoreLanguageStatusQueryDto extends Page {
 
-    @NotEmpty(message = "款号列表")
     @ApiModelProperty(value = "款号列表")
     private List<String> bulkStyleNoList;
 

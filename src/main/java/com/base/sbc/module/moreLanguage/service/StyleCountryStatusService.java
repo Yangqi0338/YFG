@@ -40,6 +40,8 @@ public interface StyleCountryStatusService extends BaseService<StyleCountryStatu
 
     PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto);
 
+    boolean updateStatus(List<StyleCountryStatus> updateStatus);
+
 // 自定义方法区 不替换的区域【other_end】
 
 	

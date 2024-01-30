@@ -14,6 +14,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.exception.RightException;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageOperaLogDTO;
@@ -22,6 +23,7 @@ import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelResultDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusQueryDto;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.listener.MoreLanguageImportListener;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
@@ -41,6 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -72,19 +75,18 @@ public class MoreLanguageStatusController extends BaseController {
     /**
      * 导入吊牌款号
      */
-    @SneakyThrows
     @PostMapping("/importExcel")
     @ApiOperation(value = "导入吊牌款号", notes = "导入吊牌款号")
     @DuplicationCheck(type = 1, time = 999)
     public ApiResult importExcel(@RequestParam("file") MultipartFile file) {
+        List<MoreLanguageStatusExcelResultDTO> result = new ArrayList<>();
         try {
             // 暂且使用匿名内部类, 如果要处理的字段多了,需要单独拿出一个listener
-            List<MoreLanguageStatusExcelResultDTO> result = new ArrayList<>();
             AtomicInteger num = new AtomicInteger(1);
             EasyExcel.read(file.getInputStream(), MoreLanguageStatusExcelDTO.class,
                     new PageReadListener<MoreLanguageStatusExcelDTO>(dataList-> {
                         if (num.get() > 3) {
-                            throw new OtherException("仅能导入60条数据,后续款号不执行");
+                            throw new RightException("仅能导入60条数据,后续款号不执行");
                         }
                         List<MoreLanguageStatusExcelResultDTO> resultDTOList = styleCountryStatusService.importExcel(dataList);
                         if (CollUtil.isNotEmpty(resultDTOList)) {
@@ -98,6 +100,8 @@ public class MoreLanguageStatusController extends BaseController {
                     }, 20)).sheet().doRead();
             // 存入redis, 方便接口查询
             return ApiResult.success("导入成功", result);
+        }catch (RightException e){
+            return ApiResult.success(e.getMessage(), result);
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.error(e.getMessage(), 0);
@@ -109,7 +113,6 @@ public class MoreLanguageStatusController extends BaseController {
      * 导出吊牌款号
      */
     @GetMapping("/exportExcel")
-    @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "导出吊牌款号", notes = "导出吊牌款号")
     @DuplicationCheck(type = 1,time = 999)
     public ApiResult exportExcel(String template) {
@@ -140,5 +143,14 @@ public class MoreLanguageStatusController extends BaseController {
             throw new OtherException("参数不能为空");
         }
         return selectSuccess(styleCountryStatusService.listQuery(statusQueryDto));
+    }
+
+    /**
+     * 查询列表
+     */
+    @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
+    @PostMapping("/updateStatus")
+    public ApiResult updateStatus(@RequestBody List<StyleCountryStatus> updateStatus) {
+        return updateSuccess(styleCountryStatusService.updateStatus(updateStatus));
     }
 }

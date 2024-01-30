@@ -59,10 +59,12 @@ public interface MoreLanguageConvert {
     List<MoreLanguageStatusCountryDto> copyList2CountryDTO(List<StyleCountryStatus> source);
 
     @Mappings({
+            @Mapping(target = "code", source = "countryCode"),
             @Mapping(target = "statusCode", source = "status"),
             @Mapping(target = "time", source = "updateDate"),
             @Mapping(target = "person", source = "updateName"),
     })
     MoreLanguageStatusCountryDto copy2CountryDTO(StyleCountryStatus source);
+    StyleCountryStatus copyMyself(StyleCountryStatus source);
 
 }

@@ -1,11 +1,14 @@
 package com.base.sbc.module.moreLanguage.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.utils.CopyUtil;
@@ -15,13 +18,19 @@ import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.mapper.HangTagMapper;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
+import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelResultDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusQueryDto;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
@@ -34,6 +43,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.common.convert.ConvertContext.BASE_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
@@ -140,8 +150,8 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                 .notEmptyIn(StyleCountryStatus::getCountryCode, statusQueryDto.getCodeList())
                 .notEmptyIn(StyleCountryStatus::getStatus, statusQueryDto.getStatusList())
                 .between(StyleCountryStatus::getUpdateDate, statusQueryDto.getConfirmTime())
-                .in(bulkStyleNoFunc, statusQueryDto.getBulkStyleNoList())
-                .select(bulkStyleNoFunc).groupBy(bulkStyleNoFunc);
+                .notEmptyIn(bulkStyleNoFunc, statusQueryDto.getBulkStyleNoList())
+                .select(bulkStyleNoFunc).orderByDesc(StyleCountryStatus::getUpdateDate).groupBy(bulkStyleNoFunc);
         Page<StyleCountryStatus> page = statusQueryDto.startPage();
         List<StyleCountryStatus> list = this.list(ew);
 
@@ -156,6 +166,45 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         }).collect(Collectors.toList());
 
         return BASE_CV.copy(page.toPageInfo(), moreLanguageStatusList);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateStatus(List<StyleCountryStatus> updateStatusList) {
+        if (CollectionUtil.isEmpty(updateStatusList)) {
+            return false;
+        }
+        List<String> bulkStyleNoList = updateStatusList.stream().map(StyleCountryStatus::getBulkStyleNo).distinct().collect(Collectors.toList());
+        List<String> countryCodeList = updateStatusList.stream().map(StyleCountryStatus::getCountryCode).distinct().collect(Collectors.toList());
+        LambdaQueryWrapper<StyleCountryStatus> ew = new BaseLambdaQueryWrapper<StyleCountryStatus>()
+                .in(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList)
+                .in(StyleCountryStatus::getCountryCode, countryCodeList)
+                ;
+        List<StyleCountryStatus> styleCountryStatusList = this.list(ew);
+
+        // 获取当前国家的语言
+        CountryQueryDto queryDto = new CountryQueryDto();
+        queryDto.setCode(String.join(COMMA,countryCodeList));
+        List<CountryLanguageDto> languageDtoList = countryLanguageService.listQuery(queryDto);
+        List<String> standardColumnCodeList = Arrays.stream(CountryLanguageType.values())
+                .flatMap(type -> countryCodeList.stream().flatMap(code-> countryLanguageService.findStandardColumnCodeList(code, type, false).stream()))
+                .collect(Collectors.toList());
+
+        List<StyleCountryStatus> statusList = updateStatusList.stream().map(updateStatus -> {
+            StyleCountryStatus status = styleCountryStatusList.stream().filter(it ->
+                            it.getBulkStyleNo().equals(updateStatus.getBulkStyleNo())
+                                    &&
+                                    it.getCountryCode().equals(updateStatus.getCountryCode()))
+                    .findFirst().map(MORE_LANGUAGE_CV::copyMyself).orElse(updateStatus);
+            status.setStatus(updateStatus.getStatus());
+            List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageDtoList.stream()
+                    .map(languageDto -> new MoreLanguageStatusCheckDetailDTO(languageDto.getLanguageCode(), standardColumnCodeList))
+                    .collect(Collectors.toList());
+            status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
+            return status;
+        }).collect(Collectors.toList());
+
+        return this.saveOrUpdateBatch(statusList);
     }
 
 }

@@ -18,11 +18,10 @@ import java.util.List;
  * @author 卞康
  * @date 2023/3/24 17:16:34
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MoreLanguageStatusCountryDto extends Page {
+public class MoreLanguageStatusCountryDto {
 
     @ApiModelProperty(value = "国家语言编码")
     private String code;

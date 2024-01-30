@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.json.JSONUtil;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 
@@ -29,6 +30,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
@@ -45,11 +47,14 @@ import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageG
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.entity.TagPrinting;
@@ -188,16 +193,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private CountryLanguageService countryLanguageService;
 
 	@Autowired
-	private StandardColumnService standardColumnService;
-
-	@Autowired
-	private StandardColumnCountryRelationService standardColumnCountryRelationService;
-
-	@Autowired
 	private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
 
 	@Autowired
-	private SizeBulkStyleService sizeBulkStyleService;
+	private StyleCountryStatusService styleCountryStatusService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -939,6 +938,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<String> sizeCodeList  = hangTagVOList.stream().map(HangTagVO::getModelType).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
 		List<BasicsdatumModelType> modelTypeList = basicsdatumModelTypeService.list(new BaseLambdaQueryWrapper<BasicsdatumModelType>().notEmptyIn(BasicsdatumModelType::getCode,sizeCodeList));
 
+		// 获取吊牌状态
+		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusService.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
+
 		// 获得要翻译的标准列码集合
 		Map<String, List<StandardColumn>> standardColumnMap = new HashMap<>(codeList.size());
 		codeList.forEach(code-> {
@@ -1022,6 +1025,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						.collect(Collectors.toList()));
 				hangTagVO.setSizeList(modelTypeList.stream().filter(it-> it.getCode().equals(hangTagVO.getModelType())).collect(Collectors.toList()));
 
+				// 获取状态
+				List<MoreLanguageStatusCheckDetailDTO> statusCheckDetailList = new ArrayList<>();
+				if (CollectionUtil.isNotEmpty(styleCountryStatusList)) {
+					String checkDetailJson = styleCountryStatusList.stream().filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()) && code.equals(it.getCountryCode()))
+							.findFirst().map(StyleCountryStatus::getCheckDetailJson).orElse("[]");
+					statusCheckDetailList.addAll(JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailDTO.class));
+				}
+
 				// 循环配置在CodeMapping的标准列数据
 				List<HangTagMoreLanguageBaseVO> result = new ArrayList<>();
 				List<CountryLanguageDto> finalSameCodeList = sameCodeList;
@@ -1078,8 +1089,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							countryLanguageDtoList.forEach(countryLanguageDto -> {
 								String countryLanguageId = countryLanguageDto.getId();
+								String languageCode = countryLanguageDto.getLanguageCode();
 								// 获取单语言的id
-								String singleLanguageId = singleLanguageTypeList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode()))
+								String singleLanguageId = singleLanguageTypeList.stream().filter(it -> it.getLanguageCode().equals(languageCode))
 										.findFirst().map(CountryLanguage::getId).orElse("");
 								List<String> languageIdList = Arrays.asList(countryLanguageId, singleLanguageId);
 								// 复制基础 languageVo
@@ -1087,6 +1099,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								// 设置标准列模式用于判断
 								languageVO.setModel(standardColumn.getModel());
 								languageVO.setPropertiesContent(hangTagMoreLanguageBaseVO.getPropertiesName());
+								// 已审核包含这个标准类, 修正审核状态
+								if (statusCheckDetailList.stream().filter(it-> languageCode.equals(it.getLanguageCode()))
+										.anyMatch(it-> it.getStandardColumnCodeList().contains(standardColumnCode))) {
+									languageVO.setAuditStatus(StyleCountryStatusEnum.CHECK);
+								}
 								// 获取标题名翻译
 								titleTranslateList.stream().filter(it->
 										languageIdList.contains(it.getCountryLanguageId())

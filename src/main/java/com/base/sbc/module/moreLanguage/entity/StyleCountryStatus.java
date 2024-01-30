@@ -13,6 +13,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * 类描述：款式国家打印表 实体类
@@ -37,12 +40,15 @@ public class StyleCountryStatus extends BaseDataEntity<String> {
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 款式编码 */
     @ApiModelProperty(value = "款式编码"  )
+    @NotBlank(message = "款式编码不能为空")
     private String bulkStyleNo;
     /** 状态 */
     @ApiModelProperty(value = "状态"  )
+    @NotNull(message = "状态不能为空")
     private StyleCountryStatusEnum status;
     /** 国家编码 */
     @ApiModelProperty(value = "国家编码"  )
+    @NotBlank(message = "国家不能为空")
     private String countryCode;
     /** 检查详情Json */
     @ApiModelProperty(value = "检查详情Json"  )
