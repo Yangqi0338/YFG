@@ -110,7 +110,7 @@ public class StyleCountryPrintRecordServiceImpl extends BaseServiceImpl<StyleCou
         List<String> countryLanguageIdList = countryLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList());
         List<StyleCountryPrintRecord> oldPrintRecordList = this.list(new LambdaQueryWrapper<StyleCountryPrintRecord>()
                 .eq(StyleCountryPrintRecord::getBulkStyleNo, bulkStyleNo)
-                .eq(StyleCountryPrintRecord::getCountryLanguageId, countryLanguageIdList)
+                .in(StyleCountryPrintRecord::getCountryLanguageId, countryLanguageIdList)
         );
         List<StyleCountryPrintRecord> recordList = countryLanguageDtoList.stream().map(countryLanguageDto -> {
             String countryLanguageId = countryLanguageDto.getId();
