@@ -153,7 +153,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String patternReqDate;//	纸样需求完成日期
     @TableField(value = "p.demand_finish_date" , property = "date")
     private String demandFinishDate;//	样衣需求完成日期
-    @TableField(value = "jssdrq")
+    //@TableField(value = "jssdrq")
     private String jssdrq;//	技术收到日期
     @TableField(value = "shortage_remarks")
     private String shortageRemarks;//	备注
@@ -166,11 +166,11 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String bfzgxfsj;//	版房主管下发时间
     @TableField(value = "s.pattern_design_name")
     private String patternDesignName;//	版师
-    @TableField(value = "bsjssj")
+    //@TableField(value = "bsjssj")
     private String bsjssj;//	版师接收时间
     @TableField(value = "requirement_num")
     private String requirementNum;//	需求数量
-    @TableField(value = "zywcsj")
+    //@TableField(value = "zywcsj")
     private String zywcsj;//	纸样完成时间
     @TableField(value = "suspend_remarks")
     private String suspendRemarks;//	延迟打版原因
@@ -178,10 +178,10 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String patternMakingScore;//	版师工作量评分
     @TableField(value = "cutter_name")
     private String cutterName;//	裁剪工
-    @TableField(value = "cjkssj")
+    //@TableField(value = "cjkssj")
     private String cjkssj;//	裁剪开始时间
     //private String designNo;//	款号
-    @TableField(value = "cjwcsj")
+    //@TableField(value = "cjwcsj")
     private String cjwcsj;//	裁剪完成时间
     @TableField(value = "cutter_finish_num")
     private String cutterFinishNum;//	裁剪完成件数
@@ -191,11 +191,11 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String stitcherRemark;//	备注
     @TableField(value = "stitcher")
     private String stitcher;//	车缝工名称
-    @TableField(value = "cfkssj")
+    //@TableField(value = "cfkssj")
     private String cfkssj;//	车缝开始时间
-    @TableField(value = "cfwcsj")
+    //@TableField(value = "cfwcsj")
     private String cfwcsj;//	车缝完成时间
-    @TableField(value = "yywcsj")
+    //@TableField(value = "yywcsj")
     private String yywcsj;//	样衣完成时间
     @TableField(value = "technician_name")
     private String technicianName;//	工艺员

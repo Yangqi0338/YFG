@@ -1326,8 +1326,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     Object o = field.get(dto);
                     //小漏斗筛选
                     if (ObjectUtil.isNotEmpty(o) && StrUtil.isNotEmpty(columnHeard) && field.getName().equals(columnHeard)) {
-                        //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名
-
+                        //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
+                        qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
                         qw.like(annotationValue, o);
                         isColumnHeard = true;
                     } else if (ObjectUtil.isNotEmpty(o) && field.getName().equals(o) && StrUtil.isEmpty(columnHeard)) {
@@ -1354,7 +1354,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                                 qw.in(annotation.value(), lenStrArr);
                             }
                         }
-                        isColumnHeard = false;
                     }
                     //记得排序
                 }
