@@ -1338,17 +1338,24 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                         //3 选中数据查询，列名不为空，并且值不为空
                         //时间区间过滤
                         String property = annotation.property();
+                        String s = String.valueOf(o);
                         if (StrUtil.isNotEmpty(property) && "date".equals(property)) {
-                            String s = String.valueOf(o);
                             String[] dateArr = s.split(",");
                             if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
                                 dateArr[0] = dateArr[0] + " 00:00:00";
                                 dateArr[1] = dateArr[1] + " 23:59:59";
                                 qw.between(annotation.value(), dateArr);
                             }
+//                        }else if("isNull".equals(s) && "date".equals(property)) {
+//                            qw.isNullStr(annotation.value());
+//                        }else if("isNotNull".equals(s) && "date".equals(property)) {
+//                            qw.isNotNullStr(annotation.value());
+                        }else if("isNull".equals(s)) {
+                            qw.isNullStr(annotation.value());
+                        }else if("isNotNull".equals(s)) {
+                            qw.isNotNullStr(annotation.value());
                         }else{
                             //正常保留历史条件查询
-                            String s = String.valueOf(o);
                             String[] lenStrArr = s.split(",");
                             if (lenStrArr.length > 0) {
                                 qw.in(annotation.value(), lenStrArr);
@@ -1407,13 +1414,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
 */
         //region 临时注释 2024-01-29
-        /*if(StringUtils.isNotBlank(dto.getOrderBy())){
+        if(StringUtils.isNotBlank(dto.getOrderBy())){
             dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
         }else {
             dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
-        }*/
+        }
         //endregion
-        if(StrUtil.isNotBlank(dto.getPmCreateDate())){
+        /*if(StrUtil.isNotBlank(dto.getPmCreateDate())){
             String[] s = dto.getPmCreateDate().split(",");
             s[0] = s[0] + " 00:00:00";
             s[1] = s[1] + " 23:59:59";
@@ -1424,7 +1431,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             s1[0] = s1[0] + " 00:00:00";
             s1[1] = s1[1] + " 23:59:59";
             qw.between("p.receive_sample_date",s1);
-        }
+        }*/
 
         if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.IN)){
             qw.isNull("p.receive_sample_date");
@@ -1440,10 +1447,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }*/
 
 
-        if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
+        /*if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
             qw.ge(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "   date_format(p.technician_kitting_date,'%Y-%m-%d')    ", dto.getTechnicianKittingDate().split(",")[0]);
             qw.le(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "date_format(p.technician_kitting_date,'%Y-%m-%d')", dto.getTechnicianKittingDate().split(",")[1]);
-        }
+        }*/
+
         if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getBfzgxfsj()),
                     "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
@@ -1524,11 +1532,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         //endregion
 
         //region 导出去掉设计师编码
-        list.forEach(item->{
+        /*list.forEach(item->{
             if (StrUtil.isNotEmpty(item.getDesigner())) {
                 item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
             }
-        });
+        });*/
         //endregion
         stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
