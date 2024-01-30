@@ -4,6 +4,7 @@ import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +35,7 @@ public class MoreLanguageStatusCountryDto {
     private StyleCountryStatusEnum statusCode;
 
     @DateTimeFormat("yyyy/MM/dd hh:mm:ss")
+    @JsonFormat(pattern = "yyyy/MM/dd hh:mm:ss")
     private Date time;
 
     private String person;

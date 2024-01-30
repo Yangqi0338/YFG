@@ -1038,8 +1038,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				List<CountryLanguageDto> finalSameCodeList = sameCodeList;
 				standardColumnList.stream().filter(it -> codeMap.containsKey(it.getCode())).forEach(standardColumn -> {
 					// 获取与标准类相同类型的国家语言列表
+					CountryLanguageType standardColumnType = CountryLanguageType.findByStandardColumnType(standardColumn.getType());
 					List<CountryLanguageDto> countryLanguageDtoList = finalSameCodeList.stream()
-							.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
+							.filter(it -> standardColumnType == it.getType()).collect(Collectors.toList());
 
 					String standardColumnCode = standardColumn.getCode();
 					// 从codeMapping 获取 处理Func
@@ -1052,6 +1053,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						HANG_TAG_CV.standardColumn2MoreLanguageBaseVO(standardColumn, hangTagMoreLanguageBaseVO);
 						List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
 						hangTagMoreLanguageBaseVO.setLanguageList(languageList);
+						hangTagMoreLanguageBaseVO.setCountryLanguageType(standardColumnType);
 
 						// 获取翻译的code和name
 						String propertiesCode = Opt.ofNullable(codeFunc.getKey().apply(data)).orElse("");
@@ -1077,7 +1079,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 						if (CollectionUtil.isNotEmpty(countryLanguageDtoList)) {
 							List<CountryLanguageDto> singleLanguageTypeList = singleLanguageDtoList.stream()
-									.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
+									.filter(it -> standardColumnType == it.getType()).collect(Collectors.toList());
 							if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
 								translateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
 										.eq(StandardColumnCountryTranslate::getTitleCode, searchStandardColumnCode)
@@ -1100,7 +1102,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								languageVO.setModel(standardColumn.getModel());
 								languageVO.setPropertiesContent(hangTagMoreLanguageBaseVO.getPropertiesName());
 								// 已审核包含这个标准类, 修正审核状态
-								if (statusCheckDetailList.stream().filter(it-> languageCode.equals(it.getLanguageCode()))
+								if (statusCheckDetailList.stream().filter(it-> languageCode.equals(it.getLanguageCode()) && it.getType().equals(standardColumnType.getCode()))
 										.anyMatch(it-> it.getStandardColumnCodeList().contains(standardColumnCode))) {
 									languageVO.setAuditStatus(StyleCountryStatusEnum.CHECK);
 								}
@@ -1249,7 +1251,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				// 假定单国家
-				if (resultList.stream().map(it-> CountryLanguageType.findByStandardColumnType(it.getType())).anyMatch(it-> it == CountryLanguageType.WASHING)) {
+				if (resultList.stream().map(HangTagMoreLanguageBaseVO::getCountryLanguageType).anyMatch(it-> it == CountryLanguageType.WASHING)) {
 					if (tagPrinting.getApproved()) {
 						tagPrinting.setTranslateApproved(true);
 					}

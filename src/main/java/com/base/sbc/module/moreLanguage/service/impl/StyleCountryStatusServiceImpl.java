@@ -2,6 +2,8 @@ package com.base.sbc.module.moreLanguage.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -40,7 +42,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -124,7 +129,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
             // 获取所有国家
             if (CollectionUtil.isEmpty(countryList.get())) {
-                countryList.set(countryLanguageService.getAllCountry());
+                countryList.set(countryLanguageService.getAllCountry(null));
             }
             List<CountryDTO> allCountry = countryList.get();
 
@@ -147,23 +152,30 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
     public PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto) {
         SFunction<StyleCountryStatus, String> bulkStyleNoFunc = StyleCountryStatus::getBulkStyleNo;
         LambdaQueryWrapper<StyleCountryStatus> ew = new BaseLambdaQueryWrapper<StyleCountryStatus>()
-                .notEmptyIn(StyleCountryStatus::getCountryCode, statusQueryDto.getCodeList())
-                .notEmptyIn(StyleCountryStatus::getStatus, statusQueryDto.getStatusList())
+                .notEmptyIn(StyleCountryStatus::getCountryCode, statusQueryDto.getCountryCode())
+                .notEmptyIn(StyleCountryStatus::getStatus, Arrays.stream(
+                        Opt.ofNullable(statusQueryDto.getStatus()).orElse("").split(COMMA)
+                ).map(StyleCountryStatusEnum::findByCode).filter(Objects::nonNull).collect(Collectors.toList()))
                 .between(StyleCountryStatus::getUpdateDate, statusQueryDto.getConfirmTime())
-                .notEmptyIn(bulkStyleNoFunc, statusQueryDto.getBulkStyleNoList())
+                .notEmptyIn(bulkStyleNoFunc, statusQueryDto.getBulkStyleNo())
                 .select(bulkStyleNoFunc).orderByDesc(StyleCountryStatus::getUpdateDate).groupBy(bulkStyleNoFunc);
         Page<StyleCountryStatus> page = statusQueryDto.startPage();
         List<StyleCountryStatus> list = this.list(ew);
 
-        List<StyleCountryStatus> allList = this.list(new LambdaQueryWrapper<StyleCountryStatus>()
-                .in(bulkStyleNoFunc, list.stream().map(bulkStyleNoFunc).collect(Collectors.toList())));
-        List<MoreLanguageStatusDto> moreLanguageStatusList = list.stream().map(styleCountryStatus -> {
-            String bulkStyleNo = bulkStyleNoFunc.apply(styleCountryStatus);
-            List<StyleCountryStatus> statusList = allList.stream()
-                    .filter(it -> bulkStyleNo.equals(bulkStyleNoFunc.apply(it)))
-                    .collect(Collectors.toList());
-            return new MoreLanguageStatusDto(bulkStyleNo, MORE_LANGUAGE_CV.copyList2CountryDTO(statusList));
-        }).collect(Collectors.toList());
+        List<MoreLanguageStatusDto> moreLanguageStatusList = new ArrayList<>();
+        if (CollectionUtil.isNotEmpty(list)) {
+            List<StyleCountryStatus> allList = this.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+                    .notEmptyIn(StyleCountryStatus::getCountryCode, statusQueryDto.getCountryCode())
+                    .in(bulkStyleNoFunc, list.stream().map(bulkStyleNoFunc).collect(Collectors.toList()))
+            );
+           list.forEach(styleCountryStatus -> {
+                String bulkStyleNo = bulkStyleNoFunc.apply(styleCountryStatus);
+                List<StyleCountryStatus> statusList = allList.stream()
+                        .filter(it -> bulkStyleNo.equals(bulkStyleNoFunc.apply(it)))
+                        .collect(Collectors.toList());
+               moreLanguageStatusList.add(new MoreLanguageStatusDto(bulkStyleNo, MORE_LANGUAGE_CV.copyList2CountryDTO(statusList)));
+            });
+        }
 
         return BASE_CV.copy(page.toPageInfo(), moreLanguageStatusList);
     }
@@ -175,33 +187,53 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             return false;
         }
         List<String> bulkStyleNoList = updateStatusList.stream().map(StyleCountryStatus::getBulkStyleNo).distinct().collect(Collectors.toList());
-        List<String> countryCodeList = updateStatusList.stream().map(StyleCountryStatus::getCountryCode).distinct().collect(Collectors.toList());
+        List<String> countryCodeList = updateStatusList.stream().map(StyleCountryStatus::getCountryCode)
+                .filter(Objects::nonNull).distinct().collect(Collectors.toList());
         LambdaQueryWrapper<StyleCountryStatus> ew = new BaseLambdaQueryWrapper<StyleCountryStatus>()
+                .notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
                 .in(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList)
-                .in(StyleCountryStatus::getCountryCode, countryCodeList)
                 ;
         List<StyleCountryStatus> styleCountryStatusList = this.list(ew);
 
         // 获取当前国家的语言
-        CountryQueryDto queryDto = new CountryQueryDto();
-        queryDto.setCode(String.join(COMMA,countryCodeList));
-        List<CountryLanguageDto> languageDtoList = countryLanguageService.listQuery(queryDto);
-        List<String> standardColumnCodeList = Arrays.stream(CountryLanguageType.values())
-                .flatMap(type -> countryCodeList.stream().flatMap(code-> countryLanguageService.findStandardColumnCodeList(code, type, false).stream()))
-                .collect(Collectors.toList());
+        List<CountryDTO> countryDTOList = countryLanguageService.getAllCountry(String.join(COMMA,countryCodeList));
 
-        List<StyleCountryStatus> statusList = updateStatusList.stream().map(updateStatus -> {
-            StyleCountryStatus status = styleCountryStatusList.stream().filter(it ->
-                            it.getBulkStyleNo().equals(updateStatus.getBulkStyleNo())
-                                    &&
-                                    it.getCountryCode().equals(updateStatus.getCountryCode()))
-                    .findFirst().map(MORE_LANGUAGE_CV::copyMyself).orElse(updateStatus);
-            status.setStatus(updateStatus.getStatus());
-            List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageDtoList.stream()
-                    .map(languageDto -> new MoreLanguageStatusCheckDetailDTO(languageDto.getLanguageCode(), standardColumnCodeList))
-                    .collect(Collectors.toList());
-            status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
-            return status;
+        Map<String, Map<CountryLanguageType, List<String>>> map = new HashMap<>(countryDTOList.size());
+
+        countryDTOList.forEach(countryDTO -> {
+            String code = countryDTO.getCode();
+            Map<CountryLanguageType, List<String>> typeMap = map.getOrDefault(code, new HashMap<>());
+            Arrays.stream(CountryLanguageType.values()).forEach(type-> {
+                List<String> standardColumnCodeList = typeMap.getOrDefault(type, new ArrayList<>());
+                standardColumnCodeList.addAll(countryLanguageService.findStandardColumnCodeList(code, type, false));
+                typeMap.put(type,standardColumnCodeList);
+            });
+            map.put(code,typeMap);
+        });
+
+        List<StyleCountryStatus> statusList = updateStatusList.stream().flatMap(updateStatus -> {
+            return countryDTOList.stream()
+                    .filter(it-> StrUtil.isBlank(updateStatus.getCountryCode()) || it.getCode().equals(updateStatus.getCountryCode()))
+                    .map(countryDTO -> {
+                        String code = countryDTO.getCode();
+                        StyleCountryStatus status = styleCountryStatusList.stream().filter(it ->
+                                        it.getBulkStyleNo().equals(updateStatus.getBulkStyleNo())
+                                                && it.getCountryCode().equals(code)
+                                ).findFirst().map(MORE_LANGUAGE_CV::copyMyself).orElse(updateStatus);
+                        status = MORE_LANGUAGE_CV.copyMyself(status);
+                        status.setCountryCode(code);
+                        status.setStatus(updateStatus.getStatus());
+
+                        Map<CountryLanguageType, List<String>> typeMap = map.getOrDefault(code, new HashMap<>());
+                        List<MoreLanguageStatusCheckDetailDTO> checkDetailList = new ArrayList<>();
+                        countryDTO.getLanguageCodeTypeMap().forEach((type, languageCodeList)-> {
+                            checkDetailList.addAll(languageCodeList.stream().map(languageCode->
+                                    new MoreLanguageStatusCheckDetailDTO(languageCode, type.getCode(), typeMap.getOrDefault(type,new ArrayList<>()))
+                            ).collect(Collectors.toList()));
+                        });
+                        status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
+                        return status;
+                    });
         }).collect(Collectors.toList());
 
         return this.saveOrUpdateBatch(statusList);

@@ -70,7 +70,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
      * 审核状态
      */
     @ApiModelProperty(value = "审核状态")
-    protected StyleCountryStatusEnum getAuditStatus(){
+    public StyleCountryStatusEnum getAuditStatus(){
          return getLanguageList().stream().anyMatch(it-> it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK)
                  ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
     };

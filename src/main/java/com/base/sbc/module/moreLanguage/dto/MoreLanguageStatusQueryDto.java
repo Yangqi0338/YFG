@@ -30,13 +30,10 @@ import java.util.List;
 public class MoreLanguageStatusQueryDto extends Page {
 
     @ApiModelProperty(value = "款号列表")
-    private List<String> bulkStyleNoList;
+    private String bulkStyleNo;
 
     @ApiModelProperty(value = "国家编码列表")
-    private List<String> codeList;
-
-    @ApiModelProperty(value = "状态列表")
-    private List<StyleCountryStatusEnum> statusList;
+    private String countryCode;
 
     @ApiModelProperty(value = "品控确认时间")
     private String[] confirmTime;

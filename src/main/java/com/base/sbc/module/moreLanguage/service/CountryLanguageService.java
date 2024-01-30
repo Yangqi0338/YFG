@@ -42,7 +42,7 @@ public interface CountryLanguageService extends BaseService<CountryLanguage>{
     String cancelSave(String code);
 
     void initLanguage(List<BasicBaseDict> dictList);
-    List<CountryDTO> getAllCountry();
+    List<CountryDTO> getAllCountry(String code);
 
 // 自定义方法区 不替换的区域【other_start】
 

@@ -1,6 +1,7 @@
 package com.base.sbc.module.moreLanguage.dto;
 
 import com.alibaba.excel.annotation.format.DateTimeFormat;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,9 @@ public class MoreLanguageStatusCheckDetailDTO {
 
     @ApiModelProperty(value = "语言编码")
     private String languageCode;
+
+    @ApiModelProperty(value = "国家类型")
+    private String type;
 
     @ApiModelProperty(value = "标准列编码集合")
     private List<String> standardColumnCodeList;

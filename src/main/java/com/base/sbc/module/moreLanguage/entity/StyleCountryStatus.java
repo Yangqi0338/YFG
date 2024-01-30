@@ -48,7 +48,6 @@ public class StyleCountryStatus extends BaseDataEntity<String> {
     private StyleCountryStatusEnum status;
     /** 国家编码 */
     @ApiModelProperty(value = "国家编码"  )
-    @NotBlank(message = "国家不能为空")
     private String countryCode;
     /** 检查详情Json */
     @ApiModelProperty(value = "检查详情Json"  )

@@ -59,6 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -404,10 +405,18 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     }
 
     @Override
-    public List<CountryDTO> getAllCountry() {
-        List<CountryLanguage> languageList = list(new LambdaQueryWrapper<CountryLanguage>()
-                .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO).groupBy(CountryLanguage::getCode));
-        return languageList.stream().map(it-> new CountryDTO(it.getCode(), it.getCountryCode(), it.getCountryName())).collect(Collectors.toList());
+    public List<CountryDTO> getAllCountry(String code) {
+        List<CountryLanguage> languageList = list(new BaseLambdaQueryWrapper<CountryLanguage>()
+                .notEmptyIn(CountryLanguage::getCode, code)
+                .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO));
+        List<CountryDTO> result = new ArrayList<>();
+        languageList.stream().collect(Collectors.groupingBy(CountryLanguage::getCode)).forEach((groupCode,sameCodeList)-> {
+            CountryLanguage countryLanguage = sameCodeList.get(0);
+            result.add(new CountryDTO(groupCode, countryLanguage.getCountryCode(), countryLanguage.getCountryName(),
+                    sameCodeList.stream().collect(Collectors.groupingBy(CountryLanguage::getType,
+                            Collectors.mapping(CountryLanguage::getLanguageCode, Collectors.toList())))));
+        });
+        return result;
     }
 
 // 自定义方法区 不替换的区域【other_start】

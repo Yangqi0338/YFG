@@ -155,8 +155,8 @@ public class CountryLanguageController extends BaseController {
      */
     @ApiOperation(value = "获取所有创建的国家", notes = "获取国家")
     @GetMapping("/getAllCountry")
-    public ApiResult getAllCountry() {
-        return selectSuccess(countryLanguageService.getAllCountry());
+    public ApiResult getAllCountry(String code) {
+        return selectSuccess(countryLanguageService.getAllCountry(code));
     }
 
 }
