@@ -1433,11 +1433,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.isNotNull("p.receive_sample_date");
         }
 
-        qw.findInSet("s.pattern_parts", dto.getPatternParts());
+        /*qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
             String[] split = dto.getDesignerIds().split(",");
             qw.in("s.designer_id", Arrays.asList(split));
-        }
+        }*/
+
 
         if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
             qw.ge(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "   date_format(p.technician_kitting_date,'%Y-%m-%d')    ", dto.getTechnicianKittingDate().split(",")[0]);
@@ -1448,36 +1449,51 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getBfzgxfsj().split(",")[0], dto.getBfzgxfsj().split(",")[1]);
         }
+        //jssdrq 技术收到日期
+        if (StrUtil.isNotBlank(dto.getJssdrq()) && dto.getJssdrq().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getBsjssj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='已接收' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getBsjssj().split(",")[0], dto.getBsjssj().split(",")[1]);
+        }
         // bsjssj
         if (StrUtil.isNotBlank(dto.getBsjssj()) && dto.getBsjssj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getBsjssj()),
                     "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='已接收' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getBsjssj().split(",")[0], dto.getBsjssj().split(",")[1]);
         }
-        //zysj
-        if (StrUtil.isNotBlank(dto.getZysj()) && dto.getZysj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getZysj()),
+        //zywcsj
+        if (StrUtil.isNotBlank(dto.getZywcsj()) && dto.getZywcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getZywcsj()),
                     "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='打版完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
-                    , dto.getZysj().split(",")[0], dto.getZysj().split(",")[1]);
+                    , dto.getZywcsj().split(",")[0], dto.getZywcsj().split(",")[1]);
         }
-        //cjsj
-        if (StrUtil.isNotBlank(dto.getCjsj()) && dto.getCjsj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and date_format(start_date,'%Y-%m-%d') >={0}"
-                    , dto.getCjsj().split(",")[0]);
-            qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= date_format(start_date,'%Y-%m-%d')"
-                    , dto.getCjsj().split(",")[1]);
+        //cjkssj
+        if (StrUtil.isNotBlank(dto.getCjkssj()) && dto.getCjkssj().split(",").length > 1) {
+
+            qw.exists(StrUtil.isNotBlank(dto.getCjkssj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCjkssj().split(",")[0], dto.getCjkssj().split(",")[1]);
         }
-        //cfsj
-        if (StrUtil.isNotBlank(dto.getCfsj()) && dto.getCfsj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and date_format(start_date,'%Y-%m-%d') >={0}"
-                    , dto.getCfsj().split(",")[0]);
-            qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= date_format(start_date,'%Y-%m-%d')"
-                    , dto.getCfsj().split(",")[1]);
+        //cjwcsj
+        if (StrUtil.isNotBlank(dto.getCjwcsj()) && dto.getCjwcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCjwcsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCjwcsj().split(",")[0], dto.getCjwcsj().split(",")[1]);
         }
+        //cfjxzsj
+        if (StrUtil.isNotBlank(dto.getCfkssj()) && dto.getCfkssj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfkssj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCfkssj().split(",")[0], dto.getCfkssj().split(",")[1]);
+        }
+
+        //cfwcsj
+        if (StrUtil.isNotBlank(dto.getCfwcsj()) && dto.getCfwcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfwcsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCfwcsj().split(",")[0], dto.getCfwcsj().split(",")[1]);
+        }
+
         // yywcsj
         if (StrUtil.isNotBlank(dto.getYywcsj()) && dto.getYywcsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getYywcsj()),
