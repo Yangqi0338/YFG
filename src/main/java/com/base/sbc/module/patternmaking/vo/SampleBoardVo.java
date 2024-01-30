@@ -322,8 +322,12 @@ public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "当前节点")
     private String node;
 
-    @ApiModelProperty(value = "当前状态")
+    @ApiModelProperty(value = "状态")
     private String  pmStatus;
+
+
+    @ApiModelProperty(value = "当前状态")
+    private String pStatus;
 
     private String patternDesignerName;
 

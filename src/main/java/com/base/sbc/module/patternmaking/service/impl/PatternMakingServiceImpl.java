@@ -49,8 +49,6 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessNodeService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialExcelVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -61,7 +59,6 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
-import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.patternmaking.dto.*;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.entity.ScoreConfig;
@@ -1370,7 +1367,17 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 field.setAccessible(false);
             }
         }
+        /*if (StrUtil.isNotEmpty(dto.getPrmSendStatus()) && dto.getPrmSendStatus().length() > 1) {
+            qw.eq("p.prm_send_status",dto.getPrmSendStatus());
+        }else if(!isColumnHeard){
+            qw.eq("p.prm_send_status","1");
+        }
 
+        if (StrUtil.isNotEmpty(dto.getBreakOffPattern())) {
+            qw.eq("p.break_off_pattern",dto.getBreakOffPattern());
+        }else if(!isColumnHeard){
+            qw.eq("p.break_off_pattern","0");
+        }*/
         /*qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.notEmptyEq("p.prm_send_status",dto.getPrmSendStatus());

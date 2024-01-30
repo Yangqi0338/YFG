@@ -94,9 +94,10 @@ public class PatternMakingCommonPageSearchDto extends Page {
      * 1样衣中断
      * 2打板中断
      * */
-    @ApiModelProperty(value = "状态")
-    @TableField(value = "p.status")
+    @ApiModelProperty(value = "打版状态")
+    @TableField(value = "IF(p.break_off_Pattern = '1','打板中断', IF(p.break_off_sample = '1', '样衣中断', '启用'))")
     private String pmStatus;
+
 
     @TableField(value = "IF(p.prm_send_status = 0 , '未发送' ,'已发送')")
     private String prmSendStatus;

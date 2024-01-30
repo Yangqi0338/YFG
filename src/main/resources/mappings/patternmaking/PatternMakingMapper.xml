@@ -218,8 +218,11 @@
             p.sample_bar_code,
             p.receive_sample_date,
             s.devt_type_name,
+            IF(p.break_off_Pattern = '1','打板中断', IF(p.break_off_sample = '1', '样衣中断', '启用')) pmStatus,
 
-            p.status pmStatus,
+            p.break_off_Pattern,
+            p.break_off_sample,
+            p.status pStatus,
             p.create_date as `pmCreateDate`,
             p.demand_finish_date as demandFinishDate
         </if>
