@@ -6,6 +6,10 @@ import lombok.Data;
 @Data
 public class BasicsdatumMaterialPageAndStyleDto extends Page {
     /**
+     * 物料清单id
+     */
+    private String packBomId;
+    /**
      * bom阶段
      */
     private String bomPhase;

@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class BasicsdatumMaterialPageAndStyleVo {
     /**
+     * 物料清单id
+     */
+    private String packBomId;
+    /**
      * 物料图片
      */
     private String materialsImageUrl;

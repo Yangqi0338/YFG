@@ -211,6 +211,7 @@
 								 ts.style_pic as stylePic,
 								 tsc.style_color_pic as styleColorPic,
 								 tsc.bom_status as bomStatus,
+								 tpb.id as packBomId,
 								 tbm.category_id,
 								 tbm.category1_code,
 								 tbm.category2_code,
