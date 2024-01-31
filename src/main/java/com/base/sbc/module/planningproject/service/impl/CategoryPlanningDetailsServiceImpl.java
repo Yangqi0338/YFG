@@ -78,7 +78,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             String[] split2 = prodCategory2ndName.split(",");
             List<String> arr =new ArrayList<>();
             for (String s : split2) {
-                if (StringUtils.isBlank(s)) {
+                if (StringUtils.isNotBlank(s)) {
                     arr.add(s);
                 }
             }
