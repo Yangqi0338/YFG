@@ -236,7 +236,7 @@ public class PlanningProjectPlankController extends BaseController {
             planningProjectPlank1.setBulkStyleNo(planningProjectPlank.getBulkStyleNo());
             StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlank.getHisDesignNo()));
             planningProjectPlank1.setStyleColorId(styleColor.getId());
-            planningProjectPlank1.setPic(styleColor.getStyleColorPic());
+            // planningProjectPlank1.setPic(styleColor.getStyleColorPic());
         } else {
             //不是是历史款就更换历史款号
             planningProjectPlank1.setHisDesignNo(planningProjectPlank.getHisDesignNo());
