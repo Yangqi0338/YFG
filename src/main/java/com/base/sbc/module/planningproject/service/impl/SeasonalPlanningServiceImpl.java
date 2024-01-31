@@ -351,6 +351,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         //拆分成中类维度
         List<SeasonalPlanningDetails> list1 =new ArrayList<>();
         List<SeasonalPlanningDetails> list2 =new ArrayList<>();
+        List<SeasonalPlanningDetails> list3 =new ArrayList<>();
         for (SeasonalPlanningDetails seasonalPlanningDetails : detailsList) {
             String prodCategory2ndCode = seasonalPlanningDetails.getProdCategory2ndCode();
             if (StringUtils.isNotBlank(prodCategory2ndCode)&& prodCategory2ndCode.split(",").length>1) {
@@ -394,11 +395,13 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             String bandCode = seasonalPlanningDetails.getBandCode();
 
             OrderBookDetailQueryDto dto = new OrderBookDetailQueryDto();
-            dto.setBandCode(bandCode);
+            // dto.setBandCode(bandCode);
             dto.setPlanningSeasonId(seasonalPlanningVo.getSeasonId());
             dto.setCategoryCode(prodCategoryCode);
             dto.setProdCategory1st(prodCategory1stCode);
-            dto.setProdCategory2ndCode(prodCategory2ndCode);
+            if (StringUtils.isNotBlank(prodCategory2ndCode)){
+                dto.setProdCategory2ndCode(prodCategory2ndCode);
+            }
             dto.setIsOrder("1");
             BaseQueryWrapper<OrderBookDetail> bookDetailBaseQueryWrapper = orderBookDetailService.buildQueryWrapper(dto);
             bookDetailBaseQueryWrapper.orderByDesc("commissioning_date");
@@ -414,21 +417,41 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             seasonalPlanningDetails.setOrderTime("");
             seasonalPlanningDetails.setLaunchTime("");
             List<OrderBookDetailVo> bookDetailVos = orderBookDetailService.querylist(bookDetailBaseQueryWrapper, null);
-
-            if (!bookDetailVos.isEmpty()){
-                // System.out.println(bookDetailVos.size());
-                // for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
-                //     System.out.println(bookDetailVo.getBulkStyleNo());
-                // }
-                if (bookDetailVos.get(0).getCommissioningDate()!=null){
-                    SimpleDateFormat simpleDateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String format = simpleDateFormat.format(bookDetailVos.get(0).getCommissioningDate());
-                    seasonalPlanningDetails.setOrderTime(format);
-                    seasonalPlanningDetails.setLaunchTime(format);
+            int z=0;
+            Map<String,Integer> map = new HashMap<>();
+            for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
+                if (bookDetailVo.getBandCode().equals(bandCode)) {
+                    z++;
+                    if (bookDetailVo.getCommissioningDate() != null) {
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        String format = simpleDateFormat.format(bookDetailVo.getCommissioningDate());
+                        seasonalPlanningDetails.setOrderTime(format);
+                        seasonalPlanningDetails.setLaunchTime(format);
+                    }
+                }else {
+                    String band = bookDetailVo.getBandCode()+"_"+bookDetailVo.getBandName();
+                    map.merge(band, 1, Integer::sum);
                 }
-                seasonalPlanningDetails.setSkcCount(String.valueOf(bookDetailVos.size()));
+                System.out.println(map);
+                for (String band : map.keySet()) {
+                    if (StringUtils.isNotBlank(band)){
+                        String[] split = band.split("_");
+                        if (split.length>1){
+                            SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
+                            BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
+                            seasonalPlanningDetails1.setBandCode(split[0]);
+                            seasonalPlanningDetails1.setBandName(split[1]);
+                            seasonalPlanningDetails1.setSkcCount(String.valueOf(map.get(band)));
+                            list3.add(seasonalPlanningDetails1);
+                        }
+                    }
+                }
             }
+
+            seasonalPlanningDetails.setSkcCount(String.valueOf(z));
+
         }
+        list2.addAll(list3);
         seasonalPlanningVo.setSeasonalPlanningDetailsList(list2);
         return seasonalPlanningVo;
     }
