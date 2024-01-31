@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 public class StyleColorsDto extends Page {
 
+    private String search;
+
     @ApiModelProperty(value = "大货编号多个使用，分割"  )
     private String styleNo;
 

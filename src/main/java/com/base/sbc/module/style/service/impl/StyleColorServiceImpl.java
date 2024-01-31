@@ -1750,6 +1750,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
         styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
         styleQueryWrapper.in("tsc.id",list2);
+        if (StringUtils.isNotBlank(dto.getSearch())){
+            styleQueryWrapper.and(wrapper -> {
+                wrapper.like("tsc.style_no",dto.getSearch());
+                wrapper.or().like("ts.design_no",dto.getSearch());
+            });
+        }
         if (!list.isEmpty()) {
             List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
             styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
