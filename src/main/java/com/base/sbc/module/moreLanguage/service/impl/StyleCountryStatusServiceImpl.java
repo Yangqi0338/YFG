@@ -74,11 +74,13 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
     @Autowired
     private UserUtils userUtils;
 
+    private final static SFunction<StyleCountryStatus, String> bulkStyleNoFunc = StyleCountryStatus::getBulkStyleNo;
+
     @Override
     public List<MoreLanguageStatusExcelDTO> exportExcel() {
-        return findHangTagList(new HangTagSearchDTO()).stream()
-                .map(it-> new MoreLanguageStatusExcelDTO(it.getBulkStyleNo()))
-                .distinct().collect(Collectors.toList());
+        LambdaQueryWrapper<StyleCountryStatus> ew = buildGroupQueryWrapper(new MoreLanguageStatusQueryDto());
+        List<String> bulkStyleNo = listOneField(ew, bulkStyleNoFunc);
+        return bulkStyleNo.stream().map(MoreLanguageStatusExcelDTO::new).collect(Collectors.toList());
     }
 
     private List<HangTagListVO> findHangTagList(HangTagSearchDTO searchDTO){
@@ -100,7 +102,6 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         long count = getBaseMapper().countByBulkStyleNo(bulkStyleNoList);
         if (count == bulkStyleNoList.size()) return result;
         else {
-            SFunction<StyleCountryStatus, String> bulkStyleNoFunc = StyleCountryStatus::getBulkStyleNo;
             List<String> dbBulkStyleNoList = this.listOneField(new LambdaQueryWrapper<StyleCountryStatus>()
                     .groupBy(bulkStyleNoFunc), bulkStyleNoFunc);
             result.addAll(MORE_LANGUAGE_CV.copyList2ResultDTO(dbBulkStyleNoList));
@@ -122,7 +123,8 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                     .collect(Collectors.toList());
             if (CollectionUtil.isNotEmpty(notRightHangTagList)) {
                 result.addAll(notRightHangTagList.stream()
-                        .map(hangTag-> new MoreLanguageStatusExcelResultDTO(hangTag.getBulkStyleNo(), 1, "成功,审核流程仅进行到"+hangTag.getStatus().getText()))
+                        .map(hangTag-> new MoreLanguageStatusExcelResultDTO(hangTag.getBulkStyleNo(), 1,
+                                "成功,审核流程仅进行到"+Opt.ofNullable(hangTag.getStatus()).orElse(HangTagStatusEnum.NOT_INPUT).getText()))
                         .collect(Collectors.toList()));
                 voList.removeAll(notRightHangTagList);
             }
@@ -133,10 +135,10 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             }
             List<CountryDTO> allCountry = countryList.get();
 
-            List<StyleCountryStatus> styleCountryStatusList = bulkStyleNoList.stream().flatMap(bulkStyleNo ->
+            List<StyleCountryStatus> styleCountryStatusList = voList.stream().flatMap(hangTagListVO ->
                     allCountry.stream().map(countryDTO -> {
                         StyleCountryStatus status = new StyleCountryStatus();
-                        status.setBulkStyleNo(bulkStyleNo);
+                        status.setBulkStyleNo(hangTagListVO.getBulkStyleNo());
                         status.setStatus(StyleCountryStatusEnum.UNCHECK);
                         status.setCountryCode(countryDTO.getCode());
                         return status;
@@ -148,9 +150,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         }
     }
 
-    @Override
-    public PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto) {
-        SFunction<StyleCountryStatus, String> bulkStyleNoFunc = StyleCountryStatus::getBulkStyleNo;
+    private LambdaQueryWrapper<StyleCountryStatus> buildGroupQueryWrapper(MoreLanguageStatusQueryDto statusQueryDto){
         LambdaQueryWrapper<StyleCountryStatus> ew = new BaseLambdaQueryWrapper<StyleCountryStatus>()
                 .notEmptyIn(StyleCountryStatus::getCountryCode, statusQueryDto.getCountryCode())
                 .notEmptyIn(StyleCountryStatus::getStatus, Arrays.stream(
@@ -159,8 +159,13 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                 .between(StyleCountryStatus::getUpdateDate, statusQueryDto.getConfirmTime())
                 .notEmptyIn(bulkStyleNoFunc, statusQueryDto.getBulkStyleNo())
                 .select(bulkStyleNoFunc).orderByDesc(StyleCountryStatus::getUpdateDate).groupBy(bulkStyleNoFunc);
+        return ew;
+    }
+
+    @Override
+    public PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto) {
         Page<StyleCountryStatus> page = statusQueryDto.startPage();
-        List<StyleCountryStatus> list = this.list(ew);
+        List<StyleCountryStatus> list = this.list(buildGroupQueryWrapper(statusQueryDto));
 
         List<MoreLanguageStatusDto> moreLanguageStatusList = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(list)) {
@@ -186,12 +191,12 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         if (CollectionUtil.isEmpty(updateStatusList)) {
             return false;
         }
-        List<String> bulkStyleNoList = updateStatusList.stream().map(StyleCountryStatus::getBulkStyleNo).distinct().collect(Collectors.toList());
+        List<String> bulkStyleNoList = updateStatusList.stream().map(bulkStyleNoFunc).distinct().collect(Collectors.toList());
         List<String> countryCodeList = updateStatusList.stream().map(StyleCountryStatus::getCountryCode)
                 .filter(Objects::nonNull).distinct().collect(Collectors.toList());
         LambdaQueryWrapper<StyleCountryStatus> ew = new BaseLambdaQueryWrapper<StyleCountryStatus>()
                 .notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
-                .in(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList)
+                .in(bulkStyleNoFunc, bulkStyleNoList)
                 ;
         List<StyleCountryStatus> styleCountryStatusList = this.list(ew);
 
