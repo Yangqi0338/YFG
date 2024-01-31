@@ -271,7 +271,7 @@ public class PlanningProjectController extends BaseController {
                     }
                     planningProjectPlank.setBulkStyleNo(styleColor.getStyleNo());
                     planningProjectPlank.setStyleColorId(styleColor.getId());
-                    planningProjectPlank.setPic(styleColor.getStyleColorPic());
+                    // planningProjectPlank.setPic(styleColor.getStyleColorPic());
                     planningProjectPlank.setMatchingStyleStatus("3");
                     planningProjectPlank.setHisDesignNo(styleColor.getStyleNo());
                     BasicsdatumColourLibrary colourLibrary = basicsdatumColourLibraryService.getOne(new QueryWrapper<BasicsdatumColourLibrary>().eq("colour_code", styleColor.getColorCode()));
