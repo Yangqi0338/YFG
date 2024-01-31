@@ -1756,7 +1756,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             MultipartFile multipartFile = null;
             Boolean uploadStatus = false;
             try {
-                multipartFile = uploadFileService.downloadImage(styleColorPic, updateStyleNoBandDto.getStyleNo() + ".jpg");
+                multipartFile = uploadFileService.downloadImage(styleColorPic+"&opacity=0", updateStyleNoBandDto.getStyleNo() + ".jpg");
                 uploadStylePicDto.setFile(multipartFile);
                 uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
             } catch (Exception e) {
