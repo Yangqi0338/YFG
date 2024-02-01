@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -1110,19 +1111,21 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
+        String updateStyleNo = updateStyleNoBandDto.getStyleNo().replaceAll(" ","");
+        Assert.isFalse(updateStyleNo.length() > 18,"大货款号不能超过18位");
         StyleColor styleColor1 = new StyleColor();
         styleColor1.setStyleNo(styleNo);
         if (ObjectUtils.isEmpty(sampleStyleColor)) {
             throw new OtherException("id错误");
         }
         /*修改大货款号*/
-        if (StringUtils.isNotBlank(sampleStyleColor.getStyleNo()) && StringUtils.isNotBlank(updateStyleNoBandDto.getStyleNo()) && !sampleStyleColor.getStyleNo().equals(updateStyleNoBandDto.getStyleNo())) {
+        if (StringUtils.isNotBlank(sampleStyleColor.getStyleNo()) && StringUtils.isNotBlank(updateStyleNo) && !sampleStyleColor.getStyleNo().equals(updateStyleNo)) {
 
           /*  if (!updateStyleNoBandDto.getStyleNo().substring(0, 1).equals(sampleStyleColor.getStyleNo().substring(0, 1))) {
                 throw new OtherException("无法修改大货款号前1位");
             }*/
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("style_no", updateStyleNoBandDto.getStyleNo());
+            queryWrapper.eq("style_no", updateStyleNo);
             StyleColor styleColor = baseMapper.selectOne(queryWrapper);
             if (!ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException("大货款号已存在");
@@ -1130,17 +1133,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             /**
              * 修改下放大货款号
              */
-            baseMapper.reviseAllStyleNo(sampleStyleColor.getStyleNo(), updateStyleNoBandDto.getStyleNo());
+            baseMapper.reviseAllStyleNo(sampleStyleColor.getStyleNo(), updateStyleNo);
 
             /*修改关联的BOM名称*/
             if (StringUtils.isNotBlank(sampleStyleColor.getBom())) {
-                packInfoService.updateBomName(sampleStyleColor.getBom(),updateStyleNoBandDto.getStyleNo());
+                packInfoService.updateBomName(sampleStyleColor.getBom(), updateStyleNo);
             }
             /*只会记录最开始的大货款号*/
             if (StringUtils.isBlank(sampleStyleColor.getHisStyleNo())) {
                 sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
             }
-            sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo().replaceAll(" ", ""));
+            sampleStyleColor.setStyleNo(updateStyleNo.replaceAll(" ", ""));
         }
         /*修改波段*/
     /*    if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
@@ -1151,7 +1154,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }*/
         baseMapper.updateById(sampleStyleColor);
         StyleColor styleColor = new StyleColor();
-        styleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
+        styleColor.setStyleNo(updateStyleNo);
         this.saveOperaLog("修改大货款号", "款式配色", sampleStyleColor.getColorName(), sampleStyleColor.getStyleNo(), styleColor, styleColor1);
         /*重新下发配色*/
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
