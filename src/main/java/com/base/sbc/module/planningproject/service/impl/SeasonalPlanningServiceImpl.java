@@ -432,18 +432,18 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     String band = bookDetailVo.getBandCode()+"_"+bookDetailVo.getBandName();
                     map.merge(band, 1, Integer::sum);
                 }
-                System.out.println(map);
-                for (String band : map.keySet()) {
-                    if (StringUtils.isNotBlank(band)){
-                        String[] split = band.split("_");
-                        if (split.length>1){
-                            SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
-                            BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
-                            seasonalPlanningDetails1.setBandCode(split[0]);
-                            seasonalPlanningDetails1.setBandName(split[1]);
-                            seasonalPlanningDetails1.setSkcCount(String.valueOf(map.get(band)));
-                            list3.add(seasonalPlanningDetails1);
-                        }
+
+            }
+            for (String band : map.keySet()) {
+                if (StringUtils.isNotBlank(band)){
+                    String[] split = band.split("_");
+                    if (split.length>1){
+                        SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
+                        BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
+                        seasonalPlanningDetails1.setBandCode(split[0]);
+                        seasonalPlanningDetails1.setBandName(split[1]);
+                        seasonalPlanningDetails1.setSkcCount(String.valueOf(map.get(band)));
+                        list3.add(seasonalPlanningDetails1);
                     }
                 }
             }
