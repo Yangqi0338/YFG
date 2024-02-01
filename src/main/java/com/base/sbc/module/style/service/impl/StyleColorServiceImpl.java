@@ -1112,7 +1112,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
-        String updateStyleNo = updateStyleNoBandDto.getStyleNo().replaceAll(" ","");
+        String updateStyleNo = StringUtils.keepStrByType(updateStyleNoBandDto.getStyleNo(), "空大货款号",MatchStrType.LETTER, MatchStrType.NUMBER, MatchStrType.BARRE);
         Assert.isFalse(updateStyleNo.length() > 18,"大货款号不能超过18位");
         StyleColor styleColor1 = new StyleColor();
         styleColor1.setStyleNo(styleNo);
