@@ -158,7 +158,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
     }
 
     private LambdaQueryWrapper<StyleCountryStatus> buildGroupQueryWrapper(MoreLanguageStatusQueryDto statusQueryDto){
-        LambdaQueryWrapper<StyleCountryStatus> ew = new BaseLambdaQueryWrapper<StyleCountryStatus>()
+        return new BaseLambdaQueryWrapper<StyleCountryStatus>()
                 .notEmptyIn(StyleCountryStatus::getCountryCode, statusQueryDto.getCountryCode())
                 .notEmptyIn(StyleCountryStatus::getStatus, Arrays.stream(
                         Opt.ofNullable(statusQueryDto.getStatus()).orElse("").split(COMMA)
@@ -166,7 +166,6 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                 .between(StyleCountryStatus::getUpdateDate, statusQueryDto.getConfirmTime())
                 .notEmptyIn(bulkStyleNoFunc, statusQueryDto.getBulkStyleNo())
                 .select(bulkStyleNoFunc).orderByDesc(StyleCountryStatus::getUpdateDate).orderByAsc(StyleCountryStatus::getId).groupBy(bulkStyleNoFunc);
-        return ew;
     }
 
     @Override

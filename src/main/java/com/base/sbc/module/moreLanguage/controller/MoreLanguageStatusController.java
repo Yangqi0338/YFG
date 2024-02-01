@@ -89,8 +89,12 @@ public class MoreLanguageStatusController extends BaseController {
                             throw new RightException("仅能导入60条数据,后续款号不执行");
                         }
                         List<MoreLanguageStatusExcelResultDTO> resultDTOList = styleCountryStatusService.importExcel(dataList);
+                        // 根据导入数据的顺序排序处理后的数据
                         if (CollUtil.isNotEmpty(resultDTOList)) {
-                            result.addAll(resultDTOList);
+                            result.addAll(dataList.stream().map(excelDto->
+                                    resultDTOList.stream().filter(it-> it.getBulkStyleNo().equals(excelDto.getBulkStyleNo()))
+                                            .findFirst().orElse(MORE_LANGUAGE_CV.copy2ResultDTO(excelDto.getBulkStyleNo()))
+                            ).collect(Collectors.toList()));
                         }else {
                             result.addAll(MORE_LANGUAGE_CV.copyList2ResultDTO(
                                     dataList.stream().map(MoreLanguageStatusExcelDTO::getBulkStyleNo).collect(Collectors.toList())
