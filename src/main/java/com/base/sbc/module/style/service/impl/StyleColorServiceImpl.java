@@ -35,6 +35,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StringUtils.MatchStrType;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
@@ -1111,7 +1112,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
-        String updateStyleNo = updateStyleNoBandDto.getStyleNo().replaceAll(" ","");
+        String updateStyleNo = StringUtils.keepStrByType(updateStyleNoBandDto.getStyleNo(), "检查大货款号,仅允许字母数字",MatchStrType.LETTER, MatchStrType.NUMBER, MatchStrType.BARRE);
         Assert.isFalse(updateStyleNo.length() > 18,"大货款号不能超过18位");
         StyleColor styleColor1 = new StyleColor();
         styleColor1.setStyleNo(styleNo);
