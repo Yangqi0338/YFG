@@ -384,37 +384,38 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             isUpdate=true;
         }
 
-        /*当颜色修改时同时修改配色和bom的颜色*/
-        if(!StrUtil.equals(styleColor.getColorCode(),dto.getColorCode()) || !StrUtil.equals(styleColor.getColorName(),dto.getColorName())){
-            isUpdate=true;
-            styleColor.setColorName(dto.getColorName());
-            styleColor.setColorCode(dto.getColorCode());
-            /*修改bom的颜色*/
-            PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
-            if(!ObjectUtils.isEmpty(packInfo)){
-                packInfo.setColorCode(styleColor.getColorCode());
-                packInfo.setColor(styleColor.getColorName());
-                packInfoService.updateById(packInfo);
+        /*修改bom的颜色*/
+        PackInfo packInfo = packInfoService.getByOne("style_no",styleColor.getStyleNo());
+        if(!ObjectUtils.isEmpty(packInfo)){
+            /*当颜色修改时同时修改配色和bom的颜色*/
+            if(!StrUtil.equals(styleColor.getColorCode(),dto.getColorCode()) || !StrUtil.equals(styleColor.getColorName(),dto.getColorName())){
+                isUpdate=true;
+                styleColor.setColorName(dto.getColorName());
+                styleColor.setColorCode(dto.getColorCode());
+            }
 
-                String packType = "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
-                PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
-                if (enableVersion != null) {
-                    PackBom packBom = packBomService.findOne(new QueryWrapper<PackBom>()
-                            .eq("bom_version_id", enableVersion.getId())
-                            .eq("main_flag", "1")
-                    );
-                    if (packBom != null ) {
-                        if (StrUtil.isNotBlank(dto.getFabricState())) {
-                            packBom.setStatus(dto.getFabricState());
-                            packBomService.updateById(packBom);
-                        }
+            packInfo.setColorCode(styleColor.getColorCode());
+            packInfo.setColor(styleColor.getColorName());
+            packInfoService.updateById(packInfo);
 
-                        if (StrUtil.isNotBlank(dto.getFabricFactoryColorNumber())) {
-                            basicsdatumMaterialColorService.update(new UpdateWrapper<BasicsdatumMaterialColor>().set("supplier_color_code",dto.getFabricFactoryColorNumber())
-                                    .eq("material_code", packBom.getMaterialCode())
-                                    .eq("color_code", packBom.getColorCode())
-                            );
-                        }
+            String packType = "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
+            PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
+            if (enableVersion != null) {
+                PackBom packBom = packBomService.findOne(new QueryWrapper<PackBom>()
+                        .eq("bom_version_id", enableVersion.getId())
+                        .eq("main_flag", "1")
+                );
+                if (packBom != null ) {
+                    if (StrUtil.isNotBlank(dto.getFabricState())) {
+                        packBom.setStatus(dto.getFabricState());
+                        packBomService.updateById(packBom);
+                    }
+
+                    if (StrUtil.isNotBlank(dto.getFabricFactoryColorNumber())) {
+                        basicsdatumMaterialColorService.update(new UpdateWrapper<BasicsdatumMaterialColor>().set("supplier_color_code",dto.getFabricFactoryColorNumber())
+                                .eq("material_code", packBom.getMaterialCode())
+                                .eq("color_code", packBom.getColorCode())
+                        );
                     }
                 }
             }
