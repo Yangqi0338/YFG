@@ -6,10 +6,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.ccm.entity.BasicStructureTree;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
+import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FieldOptionConfig;
+import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
@@ -48,6 +54,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     @Resource
     @Lazy
     private  CategoryPlanningService categoryPlanningService;
+    private final FieldManagementService fieldManagementService;
+    private final CcmFeignService ccmFeignService;
 
     @Override
     public PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto) {
@@ -141,7 +149,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                         JSONArray jsonArray3 = jsonObject1.getJSONArray("number");
                         List<Integer>  numbers =new ArrayList<>();
                         for (int i11 = 0; i11 < jsonArray3.size(); i11++) {
-                            numbers.add(0);
+                            numbers.add(jsonArray3.getInteger(i11));
                         }
 
                         //重新计算数量
@@ -219,7 +227,33 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     QueryWrapper<FieldOptionConfig> queryWrapper2 =new QueryWrapper<>();
                     queryWrapper2.eq("field_management_id",planningDimensionality.getFieldId());
                     List<FieldOptionConfig> list1 = fieldOptionConfigService.list(queryWrapper2);
-                    if (!list1.isEmpty()){
+                    //如果没有配置就去全部的字段值
+                    FieldManagement fieldManagement = fieldManagementService.getById(planningDimensionality.getFieldId());
+
+                    if (list1.isEmpty()) {
+                        String isOption = fieldManagement.getIsOption();
+
+                        if ("1".equals(isOption)){
+                            //从字典获取
+                            String dimensionTypeCode = fieldManagement.getFieldTypeCoding();
+                            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap(dimensionTypeCode);
+                            System.out.println(dictInfoToMap);
+                        }
+                        if ("2".equals(isOption)){
+                            String optionDictKey = fieldManagement.getOptionDictKey();
+                            List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode(optionDictKey, null, "0");
+                            List<FieldOptionConfig> fieldOptionConfigs =new ArrayList<>();
+                            for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVos) {
+                                FieldOptionConfig fieldOptionConfig = new FieldOptionConfig();
+                                fieldOptionConfig.setOptionName(basicStructureTreeVo.getName());
+                                fieldOptionConfig.setOptionCode(basicStructureTreeVo.getValue());
+                                fieldOptionConfig.setFieldManagementId(fieldManagement.getId());
+                                fieldOptionConfigs.add(fieldOptionConfig);
+                            }
+                            list1=fieldOptionConfigs;
+                        }
+
+                    }
                         List<String> nameList = list1.stream().map(FieldOptionConfig::getOptionName).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());;
                         // List<String> codeList =  list1.stream().map(FieldOptionConfig::getOptionCode).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
                         // List<String> ids =  list1.stream().map(FieldOptionConfig::getFieldManagementId).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
@@ -233,13 +267,13 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                     jsonObject.put("dimensionValue", fieldOptionConfig.getOptionCode());
                                     jsonObject.put("dimensionId", planningDimensionality.getFieldId());
                                     jsonObject.put("dimensionName", planningDimensionality.getDimensionalityName());
-                                    jsonObject.put("dimensionTypeCode", fieldOptionConfig.getFormTypeId());
+                                    jsonObject.put("dimensionTypeCode", fieldManagement.getFormTypeId());
                                     jsonObject.put("skuCount",categoryPlanningDetailsVo.getSkcCount());
                                     jsonObject.put("prodCategory1stName", prodCategory1stName);
                                     jsonObject.put("prodCategory1stCode", prodCategory1stCode);
                                     jsonObject.put("maxSum",object.toJSONString());
-                                    jsonObject.put("prodCategoryCode", fieldOptionConfig.getCategoryCode());
-                                    jsonObject.put("prodCategoryName", fieldOptionConfig.getCategoryName());
+                                    jsonObject.put("prodCategoryCode", planningDimensionality.getProdCategory());
+                                    jsonObject.put("prodCategoryName", planningDimensionality.getProdCategoryName());
 
                                     jsonObject.put("prodCategory2ndCode", planningDimensionality.getProdCategory2nd());
                                     jsonObject.put("prodCategory2ndName", planningDimensionality.getProdCategory2ndName());
@@ -250,7 +284,6 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
 
                         }
 
-                    }
                 }
                 categoryPlanningDetailsVo.setDataJson(JSON.toJSONString(jsonObjects,SerializerFeature.WriteNullStringAsEmpty));
             }
