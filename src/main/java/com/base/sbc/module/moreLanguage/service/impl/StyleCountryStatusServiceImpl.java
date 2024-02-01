@@ -165,7 +165,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                 ).map(StyleCountryStatusEnum::findByCode).filter(Objects::nonNull).collect(Collectors.toList()))
                 .between(StyleCountryStatus::getUpdateDate, statusQueryDto.getConfirmTime())
                 .notEmptyIn(bulkStyleNoFunc, statusQueryDto.getBulkStyleNo())
-                .select(bulkStyleNoFunc).orderByDesc(StyleCountryStatus::getUpdateDate).groupBy(bulkStyleNoFunc);
+                .select(bulkStyleNoFunc).orderByDesc(StyleCountryStatus::getUpdateDate).orderByAsc(StyleCountryStatus::getId).groupBy(bulkStyleNoFunc);
         return ew;
     }
 
@@ -244,6 +244,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                             ).collect(Collectors.toList()));
                         });
                         status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
+                        status.updateClear();
                         return status;
                     });
         }).collect(Collectors.toList());
