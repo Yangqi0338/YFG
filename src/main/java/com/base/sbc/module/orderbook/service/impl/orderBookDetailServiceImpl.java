@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -357,7 +358,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * @return
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean designConfirm(OrderBookDetailSaveDto dto) {
         if(StrUtil.isEmpty(dto.getStyleColorId())){
             throw new RuntimeException("配色id为空");
@@ -394,6 +395,28 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 packInfo.setColorCode(styleColor.getColorCode());
                 packInfo.setColor(styleColor.getColorName());
                 packInfoService.updateById(packInfo);
+
+                String packType = "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
+                PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
+                if (enableVersion != null) {
+                    PackBom packBom = packBomService.findOne(new QueryWrapper<PackBom>()
+                            .eq("bom_version_id", enableVersion.getId())
+                            .eq("main_flag", "1")
+                    );
+                    if (packBom != null ) {
+                        if (StrUtil.isNotBlank(dto.getFabricState())) {
+                            packBom.setStatus(dto.getFabricState());
+                            packBomService.updateById(packBom);
+                        }
+
+                        if (StrUtil.isNotBlank(dto.getFabricFactoryColorNumber())) {
+                            basicsdatumMaterialColorService.update(new UpdateWrapper<BasicsdatumMaterialColor>().set("supplier_color_code",dto.getFabricFactoryColorNumber())
+                                    .eq("material_code", packBom.getMaterialCode())
+                                    .eq("color_code", packBom.getColorCode())
+                            );
+                        }
+                    }
+                }
             }
         }
 
