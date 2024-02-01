@@ -132,16 +132,18 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             }
             if (CollectionUtil.isEmpty(voList)) return result;
 
+            bulkStyleNoList = voList.stream().map(HangTagListVO::getBulkStyleNo).collect(Collectors.toList());
+            result.addAll(MORE_LANGUAGE_CV.copyList2ResultDTO(bulkStyleNoList));
             // 获取所有国家
             if (CollectionUtil.isEmpty(countryList.get())) {
                 countryList.set(countryLanguageService.getAllCountry(null));
             }
             List<CountryDTO> allCountry = countryList.get();
 
-            List<StyleCountryStatus> styleCountryStatusList = voList.stream().flatMap(hangTagListVO ->
+            List<StyleCountryStatus> styleCountryStatusList = bulkStyleNoList.stream().flatMap(bulkStyleNo ->
                     allCountry.stream().map(countryDTO -> {
                         StyleCountryStatus status = new StyleCountryStatus();
-                        status.setBulkStyleNo(hangTagListVO.getBulkStyleNo());
+                        status.setBulkStyleNo(bulkStyleNo);
                         status.setStatus(StyleCountryStatusEnum.UNCHECK);
                         status.setCountryCode(countryDTO.getCode());
                         return status;
