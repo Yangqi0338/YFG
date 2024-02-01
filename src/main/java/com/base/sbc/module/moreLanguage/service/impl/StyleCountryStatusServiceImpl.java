@@ -112,7 +112,9 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             // 检查是否存在于吊牌列表
             HangTagSearchDTO searchDTO = new HangTagSearchDTO();
             searchDTO.setBulkStyleNos(bulkStyleNoList.toArray(new String[]{}));
+            // 模糊查询, 要去掉不相等的
             List<HangTagListVO> voList = findHangTagList(searchDTO);
+            voList.removeIf(hangTagListVO-> bulkStyleNoList.stream().anyMatch(bulkStyleNo-> hangTagListVO.getBulkStyleNo().contains(bulkStyleNo) && !hangTagListVO.getBulkStyleNo().equals(bulkStyleNo)));
             bulkStyleNoList.removeIf(bulkStyleNo-> voList.stream().anyMatch(it-> it.getBulkStyleNo().equals(bulkStyleNo)));
             if (CollectionUtil.isNotEmpty(bulkStyleNoList)) {
                 result.addAll(bulkStyleNoList.stream()
@@ -132,15 +134,15 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             }
             if (CollectionUtil.isEmpty(voList)) return result;
 
-            bulkStyleNoList = voList.stream().map(HangTagListVO::getBulkStyleNo).collect(Collectors.toList());
-            result.addAll(MORE_LANGUAGE_CV.copyList2ResultDTO(bulkStyleNoList));
+            List<String> handlerBulkStyleNoList = voList.stream().map(HangTagListVO::getBulkStyleNo).collect(Collectors.toList());
+            result.addAll(MORE_LANGUAGE_CV.copyList2ResultDTO(handlerBulkStyleNoList));
             // 获取所有国家
             if (CollectionUtil.isEmpty(countryList.get())) {
                 countryList.set(countryLanguageService.getAllCountry(null));
             }
             List<CountryDTO> allCountry = countryList.get();
 
-            List<StyleCountryStatus> styleCountryStatusList = bulkStyleNoList.stream().flatMap(bulkStyleNo ->
+            List<StyleCountryStatus> styleCountryStatusList = handlerBulkStyleNoList.stream().flatMap(bulkStyleNo ->
                     allCountry.stream().map(countryDTO -> {
                         StyleCountryStatus status = new StyleCountryStatus();
                         status.setBulkStyleNo(bulkStyleNo);
