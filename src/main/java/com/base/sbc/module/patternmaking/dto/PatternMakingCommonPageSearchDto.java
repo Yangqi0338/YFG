@@ -70,7 +70,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @TableField(value = "sample_bar_code")
     private String sampleBarCode;
     //模板部件
-    @TableField(value = "pattern_parts")
+    @TableField(value = "pattern_parts", property = "replace")
     private String patternParts;
 
     @ApiModelProperty(value = "创建指令时间")
@@ -95,11 +95,11 @@ public class PatternMakingCommonPageSearchDto extends Page {
      * 2打板中断
      * */
     @ApiModelProperty(value = "打版状态")
-    @TableField(value = "IF(p.break_off_Pattern = '1','打板中断', IF(p.break_off_sample = '1', '样衣中断', '启用'))")
+    @TableField(value = " (CASE WHEN p.break_off_Pattern = '1' THEN '打板中断' WHEN p.break_off_sample = '1' THEN '样衣中断' ELSE '启用' END)")
     private String pmStatus;
 
 
-    @TableField(value = "IF(p.prm_send_status = 0 , '未发送' ,'已发送')")
+    @TableField(value = "(CASE WHEN p.prm_send_status = 0 THEN '未发送' ELSE '已发送' END)")
     private String prmSendStatus;
 
     private String breakOffPattern;
@@ -146,7 +146,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String patDiffName;//	打版难度
     @TableField(value = "p.pat_seq_name")
     private String patSeqName;//	打版顺序
-    @TableField(value = "IF(p.technician_kitting = 0 , '否' ,'是')")
+    @TableField(value = "(CASE WHEN p.technician_kitting = 0 THEN '否' ELSE '是' END)")
     private String technicianKitting;//	设计确认是否齐套
     @TableField(value = "technician_kitting_date" , property = "date")
     private String technicianKittingDate;//	设计确认是否齐套时间
@@ -186,7 +186,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     private String cjwcsj;//	裁剪完成时间
     @TableField(value = "cutter_finish_num")
     private String cutterFinishNum;//	裁剪完成件数
-    @TableField(value = "IF(p.sgl_kitting = 0 , '否' ,'是')")
+    @TableField(value = "(CASE WHEN p.sgl_kitting = 0 THEN '否' ELSE '是' END)")
     private String sglKitting;//	样衣组长确认齐套
     @TableField(value = "stitcher_remark")
     private String stitcherRemark;//	备注
@@ -203,7 +203,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
     //private String patternTechnicianName;//	打样工艺员
     @TableField(value = "sample_pic")
     private String samplePic;//	样衣图
-    @TableField(value = "designer")
+    @TableField(value = "(CASE WHEN s.designer != '' THEN SUBSTRING_INDEX(s.designer, ',', -1) ELSE '' END)")
     private String designer;//	设计师
     //private String patternDesignerName;//	打样设计师
     @TableField(value = "merch_design_name")
