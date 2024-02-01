@@ -692,7 +692,7 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 			}
 		}
 		String result = resultBuilder.toString();
-		if (StrUtil.isNotBlank(warningMsg) && StrUtil.isBlank(result)) {
+		if (StrUtil.isNotBlank(warningMsg) && result.length() != str.length()) {
 			throw new OtherException(warningMsg);
 		}
 		return result;
