@@ -258,7 +258,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @NotNull
     private BaseQueryWrapper getBaseQueryWrapper(QueryStyleColorDto queryDto) {
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.findInSet()
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStyleId()), "tsc.style_id", queryDto.getStyleId());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getIsTrim()), "tsc.is_trim", queryDto.getIsTrim());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getColorSpecification()), "tsc.color_specification", queryDto.getColorSpecification());
