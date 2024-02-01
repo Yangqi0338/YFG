@@ -130,6 +130,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                         .collect(Collectors.toList()));
                 voList.removeAll(notRightHangTagList);
             }
+            if (CollectionUtil.isEmpty(voList)) return result;
 
             // 获取所有国家
             if (CollectionUtil.isEmpty(countryList.get())) {
