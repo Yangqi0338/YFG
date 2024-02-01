@@ -169,14 +169,23 @@ public class StylePricingController extends BaseController {
         List<StylePricing> stylePricings = stylePricingService.listByIds(list);
         for (StylePricing stylePricing : stylePricings) {
 
-            if ("1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
+            if ("1".equals(dto.getWagesConfirm()) &&"1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
                 throw new OtherException("存在已经提交审核");
+            }
+            if ("1".equals(dto.getControlConfirm()) && "0".equals(stylePricing.getWagesConfirm())){
+                throw new OtherException("工时部确认后计控才能确认成本");
             }
             if ("1".equals(dto.getProductHangtagConfirm()) && "0".equals(stylePricing.getControlConfirm())){
                 throw new OtherException("请先计控确认");
             }
             if ("1".equals(dto.getControlHangtagConfirm()) && ("0".equals(stylePricing.getProductHangtagConfirm())  || "0".equals(stylePricing.getControlConfirm()))){
                 throw new OtherException("请先商品吊牌确认");
+            }
+            if (!StringUtils.isEmpty(dto.getWagesConfirm())){
+                if (dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
+                    throw new OtherException("请勿重复提交");
+                }
+                stylePricing.setWagesConfirm(dto.getWagesConfirm());
             }
             if (!StringUtils.isEmpty(dto.getControlConfirm())){
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){

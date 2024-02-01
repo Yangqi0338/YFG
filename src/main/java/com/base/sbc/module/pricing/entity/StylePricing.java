@@ -45,6 +45,9 @@ public class StylePricing extends BaseDataEntity<String> {
     /** 企划倍率 */
     @ApiModelProperty(value = "企划倍率"  )
     private BigDecimal planningRate;
+    /** 工时部确认工价 0.否、1.是 */
+    @ApiModelProperty(value = "工时部确认工价 0.否、1.是"  )
+    private String wagesConfirm;
     /** 是否计控确认 0.否、1.是 */
     @ApiModelProperty(value = "是否计控确认 0.否、1.是"  )
     private String controlConfirm;
