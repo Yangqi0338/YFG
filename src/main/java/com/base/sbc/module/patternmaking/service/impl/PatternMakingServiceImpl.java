@@ -1336,7 +1336,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                         //时间区间过滤
                         String property = annotation.property();
                         String s = String.valueOf(o);
-                        if (StrUtil.isNotEmpty(property) && "date".equals(property)) {
+                        if (StrUtil.isNotEmpty(property) && "date".equals(property) && !"isNull".equals(s) && !"isNotNull".equals(s)) {
                             String[] dateArr = s.split(",");
                             if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
                                 dateArr[0] = dateArr[0] + " 00:00:00";
@@ -1443,12 +1443,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.between("p.receive_sample_date",s1);
         }*/
 
-        if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.IN)){
+        /*if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.IN)){
             qw.isNull("p.receive_sample_date");
         }
         if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.YES)){
             qw.isNotNull("p.receive_sample_date");
-        }
+        }*/
 
         /*qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
