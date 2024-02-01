@@ -103,9 +103,11 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         if (count == bulkStyleNoList.size()) return result;
         else {
             List<String> dbBulkStyleNoList = this.listOneField(new LambdaQueryWrapper<StyleCountryStatus>()
+                    .in(bulkStyleNoFunc,bulkStyleNoList)
                     .groupBy(bulkStyleNoFunc), bulkStyleNoFunc);
             result.addAll(MORE_LANGUAGE_CV.copyList2ResultDTO(dbBulkStyleNoList));
             bulkStyleNoList.removeIf(dbBulkStyleNoList::contains);
+            if (CollectionUtil.isEmpty(bulkStyleNoList)) return result;
 
             // 检查是否存在于吊牌列表
             HangTagSearchDTO searchDTO = new HangTagSearchDTO();
