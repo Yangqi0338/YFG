@@ -1,6 +1,10 @@
 package com.base.sbc.module.moreLanguage.dto;
 
+import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.afterturn.easypoi.excel.annotation.ExcelIgnore;
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
+import com.alibaba.excel.converters.date.DateStringConverter;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
@@ -24,20 +28,22 @@ import java.util.List;
 @NoArgsConstructor
 public class MoreLanguageStatusCountryDto {
 
+    @ExcelIgnore
     @ApiModelProperty(value = "国家语言编码")
     private String code;
 
-    @ApiModelProperty(value = "状态")
-    public String getStatus(){
-        return statusCode.getText();
-    }
+    @Excel(name = "国家", width = 10.0)
+    @ApiModelProperty(value = "国家名称")
+    private String countryName;
 
-    private StyleCountryStatusEnum statusCode;
+    @Excel(name = "审核状态", width = 15.0)
+    private String status;
 
-    @DateTimeFormat("yyyy/MM/dd hh:mm:ss")
+    @Excel(name = "审核时间", format = "yyyy/MM/dd hh:mm:ss", width = 30.0)
     @JsonFormat(pattern = "yyyy/MM/dd hh:mm:ss", timezone = "GMT+8")
     private Date time;
 
+    @Excel(name = "审核人", width = 15.0)
     private String person;
 
 }

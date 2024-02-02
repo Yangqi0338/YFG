@@ -78,9 +78,9 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
     @Override
     public List<MoreLanguageStatusExcelDTO> exportExcel() {
-        LambdaQueryWrapper<StyleCountryStatus> ew = buildGroupQueryWrapper(new MoreLanguageStatusQueryDto());
-        List<String> bulkStyleNo = listOneField(ew, bulkStyleNoFunc);
-        return bulkStyleNo.stream().map(MoreLanguageStatusExcelDTO::new).collect(Collectors.toList());
+        MoreLanguageStatusQueryDto queryDto = new MoreLanguageStatusQueryDto();
+        queryDto.reset2QueryList();
+        return MORE_LANGUAGE_CV.copyList2ExcelDTO(listQuery(queryDto).getList());
     }
 
     private List<HangTagListVO> findHangTagList(HangTagSearchDTO searchDTO){
@@ -148,6 +148,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                         status.setBulkStyleNo(bulkStyleNo);
                         status.setStatus(StyleCountryStatusEnum.UNCHECK);
                         status.setCountryCode(countryDTO.getCode());
+                        status.setCountryName(countryDTO.getCountryName());
                         return status;
                     })
             ).collect(Collectors.toList());
