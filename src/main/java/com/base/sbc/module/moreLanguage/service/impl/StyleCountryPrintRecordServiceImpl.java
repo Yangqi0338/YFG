@@ -2,6 +2,7 @@ package com.base.sbc.module.moreLanguage.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -105,7 +106,7 @@ public class StyleCountryPrintRecordServiceImpl extends BaseServiceImpl<StyleCou
                 .eq(StyleCountryStatus::getBulkStyleNo, bulkStyleNo)
                 .eq(StyleCountryStatus::getCountryCode, code), StyleCountryStatus::getStatus
         );
-        recordDto.setStatusCode(status);
+        recordDto.setStatusCode(Opt.ofNullable(status).orElse(StyleCountryStatusEnum.UNCHECK));
 
         return recordDto;
     }
