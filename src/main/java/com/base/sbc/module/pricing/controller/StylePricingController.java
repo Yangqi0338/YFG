@@ -208,10 +208,10 @@ public class StylePricingController extends BaseController {
         List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
         List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*迁移数据不能操作*/
-        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
-        if(count > 0){
-            throw new OtherException("历史数据不能操作");
-        }
+//        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
+//        if(count > 0){
+//            throw new OtherException("历史数据不能操作");
+//        }
 
         stylePricingService.updateBatchById(stylePricings);
         /*计控确认成本消息通知*/

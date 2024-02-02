@@ -739,9 +739,9 @@ public class SmpService {
                 throw new OtherException(packBom.getMaterialName() +":"+packBom.getMaterialCode()+ "行Id不能为空,请联系运维人员");
             }
             //旧数据不允许下发
-            if ("1".equals(packBom.getHistoricalData())) {
-                throw new OtherException(packBom.getMaterialName() + "为旧数据,不允许下发");
-            }
+//            if ("1".equals(packBom.getHistoricalData())) {
+//                throw new OtherException(packBom.getMaterialName() + "为旧数据,不允许下发");
+//            }
             //如果是主面料,则判断是否和配色颜色一致 ,已改为前端提示,不做必须校验
             // if ("1".equals(packBom.getMainFlag())){
             //     PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
