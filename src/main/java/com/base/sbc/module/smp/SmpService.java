@@ -1357,6 +1357,9 @@ public class SmpService {
                 if (CollUtil.isNotEmpty(packSizeList)) {
                     List<BomSizeAndProcessDto.BomSize> bomSizeList = new ArrayList<>();
                     for (PackSize packSize : packSizeList) {
+                        if("1".equals(packSize.getStatus())){
+                            continue;
+                        }
                         BomSizeAndProcessDto.BomSize bomSize = new BomSizeAndProcessDto.BomSize();
                         bomSize.setId(packSize.getId());
                         bomSize.setPartName(packSize.getPartName());
