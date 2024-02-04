@@ -182,7 +182,7 @@ public class SmpService {
         for (StyleColor styleColor : styleColors) {
             //判断是否是旧系统数据
             if ("1".equals(styleColor.getHistoricalData())) {
-                throw new OtherException("旧系统数据不允许下发");
+                // throw new OtherException("旧系统数据不允许下发");
             }
         }
 
