@@ -17,6 +17,7 @@ import lombok.Data;
 @Data
 @ApiModel("打版管理通用分页筛选类Dto PatternMakingCommonPageSearchDto ")
 public class PatternMakingCommonPageSearchDto extends Page {
+    private String pmStatus;
     @ApiModelProperty(value = "关键字筛选", example = "1")
     private String search;
     @ApiModelProperty(value = "年份", example = "2022")
@@ -88,7 +89,7 @@ public class PatternMakingCommonPageSearchDto extends Page {
      * 2打板中断
      * */
     @ApiModelProperty(value = "状态")
-    private String  pmStatus;
+    private String  nePmStatus;
 
 
     private String prmSendStatus;
