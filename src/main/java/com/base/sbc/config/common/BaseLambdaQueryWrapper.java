@@ -72,7 +72,8 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
     public <R> BaseLambdaQueryWrapper<T> between(SFunction<T, R> column, String[] dates) {
         if (!Arrays.isNullOrEmpty(dates)) {
             this.and(i-> {
-                i.ge(!StringUtils.isEmpty(dates[0]), column, dates[0]);
+                String date = dates[0];
+                i.ge(!StringUtils.isEmpty(date), column, date);
                 if (dates.length > 1) {
                     i.le(!StringUtils.isEmpty(dates[1]), column, dates[1]);
                 }

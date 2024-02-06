@@ -10,6 +10,7 @@ import java.util.Date;
 import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.google.common.collect.Maps;
 
@@ -59,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -406,6 +408,21 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         // 要清除Redis? TODO
 
         // 创建翻译(使用翻译软件做基础翻译? TODO)
+    }
+
+    @Override
+    public List<CountryDTO> getAllCountry(String code) {
+        List<CountryLanguage> languageList = list(new BaseLambdaQueryWrapper<CountryLanguage>()
+                .notEmptyIn(CountryLanguage::getCode, code)
+                .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO));
+        List<CountryDTO> result = new ArrayList<>();
+        languageList.stream().collect(Collectors.groupingBy(CountryLanguage::getCode)).forEach((groupCode,sameCodeList)-> {
+            CountryLanguage countryLanguage = sameCodeList.get(0);
+            result.add(new CountryDTO(groupCode, countryLanguage.getCountryCode(), countryLanguage.getCountryName(),
+                    sameCodeList.stream().collect(Collectors.groupingBy(CountryLanguage::getType,
+                            Collectors.mapping(CountryLanguage::getLanguageCode, Collectors.toList())))));
+        });
+        return result;
     }
 
 // 自定义方法区 不替换的区域【other_start】

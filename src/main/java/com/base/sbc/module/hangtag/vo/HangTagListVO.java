@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.vo;
 import java.math.BigDecimal;
 import java.util.Date;
 
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -128,10 +129,10 @@ public class HangTagListVO extends HangTag {
     private String modelTypeName;
 
     /**
-     * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
-     */
-    @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认")
-    private String status;
+     * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认
+     * */
+    @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认"  )
+    private HangTagStatusEnum status;
 
     @ApiModelProperty(value = "当前审核用户")
     private String  examineUserNema;
@@ -144,6 +145,12 @@ public class HangTagListVO extends HangTag {
     @ApiModelProperty(value = "确认时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date confirmDate;
+    /**
+     * 翻译确认时间
+     */
+    @ApiModelProperty(value = "翻译确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date translateConfirmDate;
 
     /**
      * 品名编码

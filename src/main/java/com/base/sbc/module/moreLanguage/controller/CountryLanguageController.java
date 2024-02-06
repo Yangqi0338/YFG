@@ -150,4 +150,13 @@ public class CountryLanguageController extends BaseController {
         return updateSuccess(countryLanguageService.cancelSave(code));
     }
 
+    /**
+     * 获取国家
+     */
+    @ApiOperation(value = "获取所有创建的国家", notes = "获取国家")
+    @GetMapping("/getAllCountry")
+    public ApiResult getAllCountry(String code) {
+        return selectSuccess(countryLanguageService.getAllCountry(code));
+    }
+
 }

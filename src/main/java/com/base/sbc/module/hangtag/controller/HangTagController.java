@@ -14,6 +14,7 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
@@ -185,11 +186,11 @@ public class HangTagController extends BaseController {
         HangTag hangTag = hangTagService.getOne(new QueryWrapper<HangTag>().eq("bulk_style_no", dto.getBusinessKey()));
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
             //审核通过
-            hangTag.setStatus("5");
-            hangTag.setConfirmDate(new Date());
+            hangTag.setStatus(HangTagStatusEnum.FINISH);
+            hangTag.setTranslateConfirmDate(new Date());
         } else {
             //审核不通过
-            hangTag.setStatus("6");
+            hangTag.setStatus(HangTagStatusEnum.SUSPEND);
         }
         return hangTagService.updateById(hangTag);
     }
@@ -200,17 +201,11 @@ public class HangTagController extends BaseController {
     @PostMapping("/counterReview")
     public ApiResult counterReview(@RequestBody HangTag hangTag) {
         HangTag hangTag1 = hangTagService.getById(hangTag.getId());
-        if ("6".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
+        if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(hangTag.getStatus())) {
+            hangTag1.setStatus(HangTagStatusEnum.DESIGN_CHECK);
         }
-        if ("5".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
-        }
-        if ("4".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("3");
-        }
-        if ("3".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
+        if (HangTagStatusEnum.TRANSLATE_CHECK == hangTag.getStatus()) {
+            hangTag1.setStatus(HangTagStatusEnum.QC_CHECK);
         }
 
         smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), 0, 0);

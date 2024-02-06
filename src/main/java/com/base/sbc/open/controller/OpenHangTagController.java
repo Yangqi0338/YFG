@@ -143,7 +143,7 @@ public class OpenHangTagController extends BaseController {
      */
     @ApiOperation(value = "保存打印记录", notes = "保存打印记录")
     @PostMapping("/savePrintRecord")
-    public ApiResult savePrintRecord(@Valid HangTagMoreLanguageSystemDTO languageDTO) {
+    public ApiResult savePrintRecord(@Valid @RequestBody HangTagMoreLanguageSystemDTO languageDTO) {
         printRecordService.savePrintRecord(languageDTO);
         return updateSuccess(true);
     }

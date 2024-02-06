@@ -43,6 +43,14 @@ public class MoreLanguageTagPrintingList {
         return tagPrintingList.stream().allMatch(MoreLanguageTagPrinting::getTechApproved);
     }
 
+    /**
+     * 翻译确认
+     */
+    @JsonProperty(value = "TranslateApproved")
+    private Boolean getTranslateApproved(){
+        return tagPrintingList.stream().allMatch(MoreLanguageTagPrinting::getTranslateApproved);
+    }
+
     public String getC8_Colorway_WareCode() {
         return tagPrintingList.stream().findFirst().map(MoreLanguageTagPrinting::getC8_Colorway_WareCode).orElse("");
     }
