@@ -1,16 +1,13 @@
 package com.base.sbc.module.basicsdatum.controller;
 
-import com.base.sbc.config.annotation.OperaLog;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.enums.OperationType;
 import com.base.sbc.module.basicsdatum.dto.AddRevampProcessDatabaseDto;
 import com.base.sbc.module.basicsdatum.dto.ProcessDatabasePageDto;
 import com.base.sbc.module.basicsdatum.entity.ProcessDatabase;
 import com.base.sbc.module.basicsdatum.service.ProcessDatabaseService;
 import com.base.sbc.module.common.dto.RemoveDto;
-import com.base.sbc.module.pack.utils.PackUtils;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -22,9 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -67,6 +63,17 @@ public class ProcessDatabaseController extends BaseController {
     public ApiResult listPage(ProcessDatabasePageDto pageDto) {
         PageInfo<ProcessDatabase> pageInfo= processDatabaseService.listPage(pageDto);
         return selectSuccess(pageInfo);
+    }
+
+
+    /**
+     * 根据列表
+     */
+    @ApiOperation(value = "查询工艺资料库")
+    @GetMapping("/listAllDistinct")
+    public ApiResult listAllDistinct(ProcessDatabasePageDto pageDto) {
+        Map<String, String> map= processDatabaseService.listAllDistinct(pageDto);
+        return selectSuccess(map);
     }
 
     /**
