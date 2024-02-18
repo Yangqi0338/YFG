@@ -225,6 +225,14 @@ public class BasicsdatumMaterialController extends BaseController {
         basicsdatumMaterialService.exportBasicsdatumMaterial(response, dto);
     }
 
+    @ApiOperation(value = "物料BOM：按筛选条件导出")
+    @DuplicationCheck(type = 1,message = "服务正在导出请稍等",time = 60)
+    @GetMapping("/exportBasicsdatumMaterialBom")
+    public void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto)
+            throws Exception {
+        basicsdatumMaterialService.exportBasicsdatumMaterialAndStyle(response, dto);
+    }
+
     @ApiOperation(value = "主物料:查询物料详情(不包括颜色、规格、报价、旧料号)")
     @GetMapping("/getBasicsdatumMaterial")
     public BasicsdatumMaterialVo getBasicsdatumMaterial(
@@ -490,6 +498,12 @@ public class BasicsdatumMaterialController extends BaseController {
         }
 
         return true;
+    }
+
+    @ApiOperation(value = "物料清单款式报表列表")
+    @GetMapping("/getMaterialsBomStylePage")
+    public PageInfo<BasicsdatumMaterialPageAndStyleVo> materialsBomStylePage(BasicsdatumMaterialPageAndStyleDto dto) {
+        return basicsdatumMaterialService.materialsBomStylePage(dto);
     }
 
 
