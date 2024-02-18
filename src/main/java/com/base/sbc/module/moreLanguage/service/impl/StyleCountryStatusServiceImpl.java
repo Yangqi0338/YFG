@@ -13,11 +13,15 @@ import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
+import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.mapper.HangTagMapper;
+import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
@@ -70,6 +74,9 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
     @Autowired
     private HangTagMapper hangTagMapper;
+
+    @Autowired
+    private HangTagService hangTagService;
 
     @Autowired
     private UserUtils userUtils;
@@ -195,10 +202,10 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateStatus(List<StyleCountryStatus> updateStatusList) {
-        if (CollectionUtil.isEmpty(updateStatusList)) {
+        List<String> bulkStyleNoList = updateStatusList.stream().map(bulkStyleNoFunc).distinct().collect(Collectors.toList());
+        if (CollectionUtil.isEmpty(bulkStyleNoList)) {
             return false;
         }
-        List<String> bulkStyleNoList = updateStatusList.stream().map(bulkStyleNoFunc).distinct().collect(Collectors.toList());
         List<String> countryCodeList = updateStatusList.stream().map(StyleCountryStatus::getCountryCode)
                 .filter(Objects::nonNull).distinct().collect(Collectors.toList());
         LambdaQueryWrapper<StyleCountryStatus> ew = new BaseLambdaQueryWrapper<StyleCountryStatus>()
@@ -206,6 +213,20 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                 .in(bulkStyleNoFunc, bulkStyleNoList)
                 ;
         List<StyleCountryStatus> styleCountryStatusList = this.list(ew);
+
+        // 获取吊牌状态
+        HangTagSearchDTO searchDTO = new HangTagSearchDTO();
+        searchDTO.setBulkStyleNos(bulkStyleNoList.toArray(new String[]{}));
+        List<HangTagListVO> hangTagList = findHangTagList(searchDTO);
+
+        // check
+        bulkStyleNoList.forEach(bulkStyleNo-> {
+            HangTagListVO hangTagListVO = hangTagList.stream().filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()))
+                    .findFirst().orElseThrow(() -> new OtherException("bulkStyleNo未找到有效吊牌数据"));
+            if (!Arrays.asList(HangTagStatusEnum.TRANSLATE_CHECK, HangTagStatusEnum.FINISH).contains(hangTagListVO.getStatus())) {
+                throw new OtherException("吊牌状态必须为待翻译确认或已审核");
+            }
+        });
 
         // 获取当前国家的语言
         List<CountryDTO> countryDTOList = countryLanguageService.getAllCountry(String.join(COMMA,countryCodeList));
@@ -224,12 +245,14 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         });
 
         List<StyleCountryStatus> statusList = updateStatusList.stream().flatMap(updateStatus -> {
+            String countryCode = updateStatus.getCountryCode();
+            String bulkStyleNo = updateStatus.getBulkStyleNo();
             return countryDTOList.stream()
-                    .filter(it-> StrUtil.isBlank(updateStatus.getCountryCode()) || it.getCode().equals(updateStatus.getCountryCode()))
+                    .filter(it-> StrUtil.isBlank(countryCode) || it.getCode().equals(countryCode))
                     .map(countryDTO -> {
                         String code = countryDTO.getCode();
                         StyleCountryStatus status = styleCountryStatusList.stream().filter(it ->
-                                        it.getBulkStyleNo().equals(updateStatus.getBulkStyleNo())
+                                        it.getBulkStyleNo().equals(bulkStyleNo)
                                                 && it.getCountryCode().equals(code)
                                 ).findFirst().map(MORE_LANGUAGE_CV::copyMyself).orElse(updateStatus);
                         status = MORE_LANGUAGE_CV.copyMyself(status);
@@ -249,7 +272,16 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                     });
         }).collect(Collectors.toList());
 
-        return this.saveOrUpdateBatch(statusList);
+        boolean updateBatch = this.saveOrUpdateBatch(statusList);
+
+        List<String> hangTagIdList = hangTagList.stream().map(HangTagListVO::getId).distinct().collect(Collectors.toList());
+        HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
+        statusDTO.setIds(hangTagIdList);
+        statusDTO.setStatus(HangTagStatusEnum.FINISH);
+        statusDTO.setUserCompany(getCompanyCode());
+        hangTagService.updateStatus(statusDTO,true);
+
+        return updateBatch;
     }
 
 }

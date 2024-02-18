@@ -42,5 +42,7 @@ public class HangTagUpdateStatusDTO {
 
     private HangTagStatusCheckEnum checkType;
 
+    private String userCompany;
+
 }
 

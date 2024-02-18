@@ -24,6 +24,7 @@ import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
@@ -154,7 +155,8 @@ public class HangTagController extends BaseController {
     @ApiOperation(value = "提交审核")
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(@Valid @RequestBody HangTagUpdateStatusDTO dto) {
-        hangTagService.updateStatus(dto, super.getUserCompany());
+        dto.setUserCompany(super.getUserCompany());
+        hangTagService.updateStatus(dto, false);
         return updateSuccess("更新成功");
     }
 
@@ -200,16 +202,8 @@ public class HangTagController extends BaseController {
      */
     @PostMapping("/counterReview")
     public ApiResult counterReview(@RequestBody HangTag hangTag) {
-        HangTag hangTag1 = hangTagService.getById(hangTag.getId());
-        if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(hangTag.getStatus())) {
-            hangTag1.setStatus(HangTagStatusEnum.DESIGN_CHECK);
-        }
-        if (HangTagStatusEnum.TRANSLATE_CHECK == hangTag.getStatus()) {
-            hangTag1.setStatus(HangTagStatusEnum.QC_CHECK);
-        }
+        boolean update = hangTagService.counterReview(hangTag);
 
-        smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), 0, 0);
-        hangTagService.updateById(hangTag1);
         return updateSuccess("反审成功");
     }
 }

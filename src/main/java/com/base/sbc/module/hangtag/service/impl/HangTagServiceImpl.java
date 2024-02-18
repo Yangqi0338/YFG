@@ -5,43 +5,65 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service.impl;
-import java.util.Date;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.json.JSONUtil;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
-import com.base.sbc.config.enums.business.CountryLanguageType;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletResponse;
-
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
-import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
+import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
-import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
-import com.base.sbc.module.basicsdatum.service.SizeBulkStyleService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.hangtag.dto.HangTagDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
+import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
+import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.entity.HangTagIngredient;
+import com.base.sbc.module.hangtag.entity.HangTagLog;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
+import com.base.sbc.module.hangtag.enums.OperationDescriptionEnum;
+import com.base.sbc.module.hangtag.mapper.HangTagMapper;
+import com.base.sbc.module.hangtag.service.HangTagIngredientService;
+import com.base.sbc.module.hangtag.service.HangTagLogService;
+import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
+import com.base.sbc.module.hangtag.vo.HangTagVO;
+import com.base.sbc.module.hangtag.vo.HangTagVoExcel;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageGroup;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
@@ -51,20 +73,34 @@ import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
+import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
-import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
-import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
+import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.module.style.entity.StyleMainAccessories;
-import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.standard.entity.StandardColumn;
-import com.base.sbc.module.standard.service.StandardColumnService;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleMainAccessories;
+import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
+import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.open.dto.MoreLanguageTagPrinting;
 import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
 import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,58 +111,24 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
-import com.base.sbc.client.amc.service.DataPermissionsService;
-import com.base.sbc.client.flowable.service.FlowableService;
-import com.base.sbc.client.flowable.vo.FlowRecordVo;
-import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
-import com.base.sbc.module.common.service.UploadFileService;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.hangtag.dto.HangTagDTO;
-import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
-import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
-import com.base.sbc.module.hangtag.entity.HangTag;
-import com.base.sbc.module.hangtag.entity.HangTagIngredient;
-import com.base.sbc.module.hangtag.entity.HangTagLog;
-import com.base.sbc.module.hangtag.enums.OperationDescriptionEnum;
-import com.base.sbc.module.hangtag.mapper.HangTagMapper;
-import com.base.sbc.module.hangtag.service.HangTagIngredientService;
-import com.base.sbc.module.hangtag.service.HangTagLogService;
-import com.base.sbc.module.hangtag.service.HangTagService;
-import com.base.sbc.module.hangtag.vo.HangTagListVO;
-import com.base.sbc.module.hangtag.vo.HangTagVO;
-import com.base.sbc.module.hangtag.vo.HangTagVoExcel;
-import com.base.sbc.module.pack.entity.PackBom;
-import com.base.sbc.module.pack.entity.PackInfo;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pricing.service.StylePricingService;
-import com.base.sbc.module.pricing.vo.StylePricingVO;
-import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleService;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
-import com.google.common.collect.Lists;
-
-import cn.hutool.core.bean.BeanUtil;
-import lombok.RequiredArgsConstructor;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
@@ -196,7 +198,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
 
 	@Autowired
-	private StyleCountryStatusService styleCountryStatusService;
+	private StyleCountryStatusMapper styleCountryStatusMapper;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -451,7 +453,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			smpService.sendTageComposition(Collections.singletonList(id));
 
 			//region 2023-12-06 吊牌保存需要修改工艺员确认状态
-			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode(), 1);
+			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM, 1);
 			//endregion
 
 		}catch (Exception ignored){
@@ -517,7 +519,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	@Override
-	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, String userCompany) {
+	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate) {
+		String userCompany = hangTagUpdateStatusDTO.getUserCompany();
 		logger.info("HangTagService#updateStatus 更新状态 hangTagUpdateStatusDTO:{}, userCompany:{}",
 				JSON.toJSONString(hangTagUpdateStatusDTO), userCompany);
 		LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda().in(HangTag::getId,
@@ -531,72 +534,80 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		strictCheckIngredientPercentage(hangTags.stream().map(HangTag::getId).collect(Collectors.toList()));
 
 		ArrayList<HangTag> updateHangTags = Lists.newArrayList();
+		HangTagStatusEnum updateStatus = hangTagUpdateStatusDTO.getStatus();
 		hangTags.forEach(e -> {
-			if (HangTagStatusEnum.NOT_COMMIT != hangTagUpdateStatusDTO.getStatus()) {
-				if (HangTagStatusEnum.FINISH == e.getStatus()) {
-					throw new OtherException("存在已通过审核数据，请反审");
-				}
-				if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
-						&&
-					HangTagStatusEnum.DESIGN_CHECK != hangTagUpdateStatusDTO.getStatus()
-				) {
-					throw new OtherException("存在待提交数据，请先提交");
-				}
-
-				if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
-						&&
-					HangTagStatusEnum.TECH_CHECK != hangTagUpdateStatusDTO.getStatus()
-				) {
-					throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
-				}
-				if (HangTagStatusEnum.TECH_CHECK == e.getStatus()
-						&&
-					HangTagStatusEnum.QC_CHECK != hangTagUpdateStatusDTO.getStatus()) {
-					throw new OtherException("存在待技术员确认数据，请先技术员确认");
-				}
-				if (HangTagStatusEnum.QC_CHECK == e.getStatus()
-						&&
-					HangTagStatusEnum.TRANSLATE_CHECK != hangTagUpdateStatusDTO.getStatus()) {
-					throw new OtherException("存在待品控确认数据，请先品控确认");
-				}
-				if (HangTagStatusEnum.TRANSLATE_CHECK == e.getStatus()
-						&&
-						HangTagStatusEnum.FINISH != hangTagUpdateStatusDTO.getStatus()) {
-					throw new OtherException("存在待翻译确认数据，请先翻译确认");
+			if (HangTagStatusEnum.NOT_COMMIT != updateStatus) {
+				try {
+					if (HangTagStatusEnum.FINISH == e.getStatus()) {
+						throw new OtherException("存在已通过审核数据，请反审");
+					}
+					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
+							&&
+							HangTagStatusEnum.DESIGN_CHECK != updateStatus
+					) {
+						throw new OtherException("存在待提交数据，请先提交");
+					}
+					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.TECH_CHECK != updateStatus
+					) {
+						throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
+					}
+					if (HangTagStatusEnum.TECH_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.QC_CHECK != updateStatus) {
+						throw new OtherException("存在待技术员确认数据，请先技术员确认");
+					}
+					if (HangTagStatusEnum.QC_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.TRANSLATE_CHECK != updateStatus) {
+						throw new OtherException("存在待品控确认数据，请先品控确认");
+					}
+					if (HangTagStatusEnum.TRANSLATE_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.FINISH != updateStatus) {
+						throw new OtherException("存在待翻译确认数据，请先翻译确认");
+					}
+				}catch (OtherException ex) {
+					if (!repeatUpdate || !e.getStatus().equals(updateStatus)) {
+						throw ex;
+					}
 				}
 			}
 			HangTag hangTag = new HangTag();
 			hangTag.setId(e.getId());
 			hangTag.updateInit();
-			hangTag.setStatus(hangTagUpdateStatusDTO.getStatus());
-			if (HangTagStatusEnum.FINISH == hangTagUpdateStatusDTO.getStatus()) {
+			hangTag.setStatus(updateStatus);
+			if (HangTagStatusEnum.FINISH == updateStatus) {
+				// 新增一个状态数据
 				hangTag.setTranslateConfirmDate(new Date());
 			}
-			if (HangTagStatusEnum.TRANSLATE_CHECK == hangTagUpdateStatusDTO.getStatus()) {
+			if (HangTagStatusEnum.TRANSLATE_CHECK == updateStatus) {
 				hangTag.setConfirmDate(new Date());
 			}
-			if (HangTagStatusEnum.DESIGN_CHECK == hangTagUpdateStatusDTO.getStatus()) {
+			if (HangTagStatusEnum.DESIGN_CHECK == updateStatus) {
 				hangTag.setConfirmDate(null);
 			}
 			updateHangTags.add(hangTag);
 		});
 		super.updateBatchById(updateHangTags);
-		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(), hangTagUpdateStatusDTO.getStatus().getText(), userCompany);
+		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(), updateStatus.getText(), userCompany);
 
-		int type;
-		switch (hangTagUpdateStatusDTO.getStatus()) {
+		HangTagDeliverySCMStatusEnum type;
+		switch (updateStatus) {
 			case TECH_CHECK:
-				type = 1;
+				type = HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM;
 				break;
 			case QC_CHECK:
-				type = 2;
+				type = HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM;
 				break;
 			case FINISH:
             default:
-				type = 3;
+				type = HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM;
 		}
 
 		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
+		// 貌似无用, checkType前端不传
 		if (HangTagStatusCheckEnum.QC_CHECK == hangTagUpdateStatusDTO.getCheckType()) {
 			// 发送审批
 			List<HangTag> hangTags1 = this.listByIds(hangTagUpdateStatusDTO.getIds());
@@ -939,7 +950,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<BasicsdatumModelType> modelTypeList = basicsdatumModelTypeService.list(new BaseLambdaQueryWrapper<BasicsdatumModelType>().notEmptyIn(BasicsdatumModelType::getCode,sizeCodeList));
 
 		// 获取吊牌状态
-		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusService.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusMapper.selectList(new BaseLambdaQueryWrapper<StyleCountryStatus>()
 				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
 
 		// 获得要翻译的标准列码集合
@@ -1300,6 +1311,28 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				return tagPrintingResultList;
 			default: throw new IllegalStateException("Unexpected value: " + source);
 		}
+	}
+
+	@Override
+	public boolean counterReview(HangTag reviewHangTag) {
+		HangTagStatusEnum status = reviewHangTag.getStatus();
+
+		HangTag hangTag = this.getById(reviewHangTag.getId());
+		if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(status)) {
+			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
+		}
+		if (HangTagStatusEnum.TRANSLATE_CHECK == status) {
+			hangTag.setStatus(HangTagStatusEnum.QC_CHECK);
+		}else {
+			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
+		}
+
+		smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL, 0);
+		boolean update = this.updateById(hangTag);
+
+		// 删除审核状态
+		styleCountryStatusMapper.delete(new BaseLambdaQueryWrapper<StyleCountryStatus>().eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo()));
+		return update;
 	}
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
