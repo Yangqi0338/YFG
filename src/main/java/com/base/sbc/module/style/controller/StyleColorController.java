@@ -6,14 +6,14 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.service.impl.SpecificationExcelDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
@@ -34,7 +34,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.net.URLEncoder;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -255,7 +257,7 @@ public class StyleColorController {
 	@ApiOperation(value = "mango导出Excel")
 	@GetMapping("/mangoExportExcel")
 	public void exportExcel(HttpServletResponse response) throws Exception {
-		//ExcelUtils.exportExcel(list, SpecificationExcelDto.class, "规格/门幅.xlsx", new ExportParams(), response);
+		ExcelUtils.exportExcel(CollectionUtil.newArrayList(new MangoStyleColorExeclDto()), MangoStyleColorExeclDto.class, "代理货品资料模板.xlsx", new ExportParams(), response);
 	}
 
 }
