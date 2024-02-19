@@ -607,6 +607,18 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         update(updateWrapper);
     }
 
+    @Override
+    public List<String> stitcherList(PreProductionSampleTaskSearchDto dto) {
+        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
+        } else {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
+        }
+
+        return getBaseMapper().stitcherList(qw);
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }

@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 /**
  * 类描述：产前样 Controller类
@@ -77,6 +78,12 @@ public class PreProductionSampleController extends BaseController{
     @GetMapping("/task")
     public PageInfo<PreProductionSampleTaskVo> taskList(PreProductionSampleTaskSearchDto dto) {
         return preProductionSampleTaskService.taskList(dto);
+    }
+
+    @ApiOperation(value = "车缝工所有")
+    @GetMapping("/stitcher")
+    public List<String> stitcherList(PreProductionSampleTaskSearchDto dto) {
+        return preProductionSampleTaskService.stitcherList(dto);
     }
 
     @ApiOperation(value = "任务-列表导出")
