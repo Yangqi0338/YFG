@@ -34,4 +34,6 @@ public interface Constants {
     String LAST = "last";
     String SKIP_NUM = "skipNum";
     String B_2_B = "B2B类型";
+    String SQL_RIGHT_FILL = "1=1";
+    String SQL_ERROR_FILL = "1<>1";
 }
