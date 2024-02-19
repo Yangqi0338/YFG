@@ -82,88 +82,92 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     break;
                 case 1:
                     // 上市波段
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                    int s =0;
+                    //防止顺序错乱,不能用jsonObject.keySet()
+                    while (jsonObject.containsKey(String.valueOf(s))){
+                        if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
                             // System.out.println("上市波段:" + jsonObject.getString(s));
-                            bandNames.add(jsonObject.getString(s));
-                            bandNames.add(jsonObject.getString(s));
+                            bandNames.add(jsonObject.getString(String.valueOf(s)));
+                            bandNames.add(jsonObject.getString(String.valueOf(s)));
                         }
-                        integerTreeSet.add(i1);
+                        integerTreeSet.add(s);
+                        s++;
                     }
                     break;
                 case 2:
+                     s =0;
                     // 下单时间
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            // System.out.println("下单时间:" + jsonObject.getString(s));
-                            orders.add(jsonObject.getString(s));
-                            orders.add(jsonObject.getString(s));
+                    while (jsonObject.containsKey(String.valueOf(s))){
+                        if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
+                            orders.add(jsonObject.getString(String.valueOf(s)));
+                            orders.add(jsonObject.getString(String.valueOf(s)));
                         }
-                        orderTime.add(i1);
+                        orderTime.add(s);
+                        s++;
                     }
                     break;
                 case 3:
                     // 上市时间
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
-                            // System.out.println("上市时间:" + jsonObject.getString(s));
-                            markets.add(jsonObject.getString(s));
-                            markets.add(jsonObject.getString(s));
+                     s =0;
+                    while (jsonObject.containsKey(String.valueOf(s))){
+                        if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
+                            markets.add(jsonObject.getString(String.valueOf(s)));
+                            markets.add(jsonObject.getString(String.valueOf(s)));
                         }
-                        listingTime.add(i1);
+                        listingTime.add(s);
+                        s++;
                     }
                     break;
                 case 4:
                     // 款式类别
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
-                        if (i1 > 2) {
-                            // System.out.println("样式类别:" + jsonObject.getString(s));
-                            styleCategorieList.add(jsonObject.getString(s));
+                     s=0;
+                    while (jsonObject.containsKey(String.valueOf(s))){
+                        if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
+                            styleCategorieList.add(jsonObject.getString(String.valueOf(s)));
                         }
-                        styleCategories.add(i1);
+                        styleCategories.add(s);
+                        s++;
                     }
                     break;
                 default:
                     List<BasicCategoryDot> categoryDotList = new ArrayList<>();
-
                     // int sum = 0;
-                    for (String s : jsonObject.keySet()) {
-                        int i1 = Integer.parseInt(s);
+                    s=0;
 
-                        if (i1 == 0 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                    while (jsonObject.containsKey(String.valueOf(s))){
+
+                        if (s == 0 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
                             // System.out.println("大类:" + jsonObject.getString(s));
 
-                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(s), "0");
+                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(String.valueOf(s)), "0");
                             if (list != null && !list.isEmpty()) {
                                 categoryDotList.add(list.get(0));
                             }
                         }
-                        if (i1 == 1 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                        if (s == 1 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
                             // System.out.println("品类:" + jsonObject.getString(s));
-                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(s), "1");
+                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(String.valueOf(s)), "1");
                             if (list != null && !list.isEmpty()) {
                                 categoryDotList.add(list.get(0));
                             }
 
                         }
-                        if (i1 == 2) {
+                        if (s == 2) {
                             // System.out.println("中类:" + jsonObject.getString(s));
-                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(s), "2");
+                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(String.valueOf(s)), "2");
                             if (list != null && !list.isEmpty()) {
                                 categoryDotList.add(list.get(0));
                             }
                         }
-                        if (i1 > 2 && StringUtils.isNotBlank(jsonObject.getString(s))) {
+                        if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
                             // System.out.println("数量:" + jsonObject.getString(s));
                             // sum += Integer.parseInt(jsonObject.getString(s));
-                            sums.add(String.valueOf(jsonObject.getString(s)));
+                            sums.add(String.valueOf(jsonObject.getString(String.valueOf(s))));
                         }
-                        middleClassSet.add(i1);
+                        middleClassSet.add(s);
+                        s++;
                     }
+
                     // System.out.println("SKC数量"+sum);
 
 
