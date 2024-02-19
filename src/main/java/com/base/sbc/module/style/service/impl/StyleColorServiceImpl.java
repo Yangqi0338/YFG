@@ -1888,5 +1888,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return new PageInfo<>(styleMarkingCheckVos);
     }
 
+    @Override
+    public void mangoExeclImportTemplateDownload() {
+
+    }
+
 
 }

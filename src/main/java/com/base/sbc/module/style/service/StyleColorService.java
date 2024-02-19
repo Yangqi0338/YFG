@@ -248,6 +248,11 @@ public interface StyleColorService extends BaseService<StyleColor> {
 
     PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto);
 
+    /**
+     * mango品牌Execl导入模板下载
+     */
+    void mangoExeclImportTemplateDownload();
+
 
 // 自定义方法区 不替换的区域【other_end】
 
