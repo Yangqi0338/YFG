@@ -41,7 +41,7 @@ public interface PreProductionSampleTaskMapper extends BaseMapper<PreProductionS
 
     long countByQw(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> countQc);
 
-    List<String> stitcherList(BaseQueryWrapper<PreProductionSampleTask> qw);
+    List<String> stitcherList(@Param(Constants.WRAPPER) BaseQueryWrapper<PreProductionSampleTask> qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }
