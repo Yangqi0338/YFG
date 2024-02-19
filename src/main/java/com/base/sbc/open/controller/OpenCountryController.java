@@ -60,6 +60,7 @@ public class OpenCountryController extends BaseController {
             case PDM:
                 return selectSuccess("");
             case BCS:
+            case ESCM:
             case PRINT:
                 return result;
             default:
