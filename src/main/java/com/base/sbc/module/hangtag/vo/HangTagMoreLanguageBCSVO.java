@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.vo;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -79,11 +80,12 @@ public class HangTagMoreLanguageBCSVO {
         return message.toString();
     }
 
-    public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList) {
+    public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList, boolean cnCheck) {
         HangTagMoreLanguageBCSChildrenBaseVO groupChildrenVO = childrenList.get(0);
         this.countryCode = groupChildrenVO.getCountryCode();
         this.countryName = groupChildrenVO.getCountryName();
         this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageBaseVO::getBulkStyleNo).distinct().collect(Collectors.joining(","));
+        childrenList.forEach(it-> it.setCnCheck(cnCheck));
         childrenList.stream().collect(Collectors.groupingBy(it-> StrUtil.isBlank(it.getPrinterCheckMessage()))).forEach((isSuccess,successFailureList)-> {
             if (isSuccess) {
                 this.successList = successFailureList;
@@ -91,6 +93,10 @@ public class HangTagMoreLanguageBCSVO {
                 this.failureList = successFailureList;
             }
         });
+    }
+
+    public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList) {
+        this(childrenList, MoreLanguageProperties.internalCheck);
     }
 
     public static class HangTagMoreLanguageBCSChildrenBaseVO extends HangTagMoreLanguageBaseVO {
@@ -112,10 +118,13 @@ public class HangTagMoreLanguageBCSVO {
                 StringJoiner message = new StringJoiner("/",typeText + this.getStandardColumnName(),"").setEmptyValue("");
                 this.getLanguageList().forEach(language-> {
                     StringJoiner languageMsg = new StringJoiner("、");
-                    if (language.getCannotFindStandardColumnContent()) languageMsg.add(String.format(messageFormat, "字段"));
-                    if (language.getCannotFindPropertiesContent())  languageMsg.add(String.format(messageFormat, "内容"));
-                    if (languageMsg.length() > 0) {
-                        message.add(language.getLanguageName() + languageMsg);
+                    // 是否强制判断语言为中文,不进行校验
+                    if (!MoreLanguageProperties.internalLanguageCode.equals(language.getLanguageCode()) || cnCheck) {
+                        if (language.getCannotFindStandardColumnContent()) languageMsg.add(String.format(messageFormat, "字段"));
+                        if (language.getCannotFindPropertiesContent())  languageMsg.add(String.format(messageFormat, "内容"));
+                        if (languageMsg.length() > 0) {
+                            message.add(language.getLanguageName() + languageMsg);
+                        }
                     }
                 });
                 return message.toString();
