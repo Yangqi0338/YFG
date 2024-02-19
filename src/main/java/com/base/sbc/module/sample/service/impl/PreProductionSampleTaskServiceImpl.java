@@ -210,6 +210,20 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
          qw.notEmptyEq("s.prod_category", dto.getProdCategory());
+        qw.notEmptyLike("t.stitcher",dto.getStitcher());
+        //cfjxzsj
+        if (StrUtil.isNotBlank(dto.getCfkssj()) && dto.getCfkssj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfkssj()),
+                    "select 1 from t_node_status where t.id=data_id and node ='样衣任务' and status='车缝进行中' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCfkssj().split(",")[0], dto.getCfkssj().split(",")[1]);
+        }
+
+        //cfwcsj
+        if (StrUtil.isNotBlank(dto.getCfwcsj()) && dto.getCfwcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfwcsj()),
+                    "select 1 from t_node_status where t.id=data_id and node ='样衣任务' and status='车缝完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCfwcsj().split(",")[0], dto.getCfwcsj().split(",")[1]);
+        }
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");

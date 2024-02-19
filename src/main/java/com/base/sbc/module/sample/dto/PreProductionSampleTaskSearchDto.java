@@ -45,4 +45,13 @@ public class PreProductionSampleTaskSearchDto extends Page {
 
     /*导出标记*/
     private String excelFlag;
+
+    /**
+     * 车缝工名称
+     */
+    @ApiModelProperty(value = "车缝工名称")
+    private String stitcher;
+
+    private String cfkssj;//	车缝开始时间
+    private String cfwcsj;//	车缝完成时间
 }
