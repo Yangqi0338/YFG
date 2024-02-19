@@ -68,6 +68,7 @@
         AND s.del_flag = '0'
         AND t.del_flag = '0'
         and t.stitcher is not null
+        and t.stitcher != ''
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
