@@ -145,7 +145,7 @@ public class MoreLanguageStatusController extends BaseController {
             List<?> dataList;
             if (YesOrNoEnum.YES.getValueStr().equals(template)) {
                 entityClass = MoreLanguageStatusExcelTemplateDTO.class;
-                dataList = new ArrayList<>();
+                dataList = CollUtil.newArrayList(new MoreLanguageStatusExcelTemplateDTO());
             }else {
                 entityClass = MoreLanguageStatusExcelDTO.class;
                 dataList = styleCountryStatusService.exportExcel();
