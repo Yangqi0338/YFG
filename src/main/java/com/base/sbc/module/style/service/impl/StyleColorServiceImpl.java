@@ -78,8 +78,10 @@ import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleColorAgent;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.service.StyleColorAgentService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
@@ -149,6 +151,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private StyleColorAgentService styleColorAgentService;
 
     @Autowired
     private StyleColorService styleColorService;
@@ -1898,6 +1903,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.notEmptyLike("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
         queryWrapper.notEmptyLike("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
 
+        queryWrapper.eq("brand","MANGO");
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
@@ -1905,17 +1911,43 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Override
     public void agentDelete(String id) {
-
+        //状态校验
+        StyleColorAgent byId = styleColorAgentService.getById(id);
+        if("".equals(byId.getStatus())){
+            throw new OtherException("该状态不允许删除");
+        }
+        styleColorAgentService.removeById(id);
     }
 
     @Override
     public void agentStop(String id) {
+        //状态校验
+        StyleColorAgent byId = styleColorAgentService.getById(id);
+        if("".equals(byId.getStatus())){
+            throw new OtherException("该状态不允许停用");
+        }
+        LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColorAgent::getStatus,"-1");
+        updateWrapper.eq(StyleColorAgent::getId,id);
+        styleColorAgentService.update(updateWrapper);
+    }
 
+    @Override
+    public void agentUnlock(String id) {
+        //状态校验
+        StyleColorAgent byId = styleColorAgentService.getById(id);
+        if("".equals(byId.getStatus())){
+            throw new OtherException("该状态不允许解锁");
+        }
+        LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColorAgent::getStatus,"2");
+        updateWrapper.eq(StyleColorAgent::getId,id);
+        styleColorAgentService.update(updateWrapper);
     }
 
     @Override
     public void agentSync(String[] ids) {
-
+        smpService.goodsAgent(ids);
     }
 
     @Override

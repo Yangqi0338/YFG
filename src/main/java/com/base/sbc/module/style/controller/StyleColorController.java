@@ -281,6 +281,13 @@ public class StyleColorController {
 		return ApiResult.success();
 	}
 
+	@ApiOperation(value = "代理货品资料-解锁")
+	@GetMapping("/agentUnlock")
+	public ApiResult agentUnlock(String id) {
+		styleColorService.agentUnlock(id);
+		return ApiResult.success();
+	}
+
 	@ApiOperation(value = "代理货品资料-停用")
 	@GetMapping("/agentStop")
 	public ApiResult agentStop(String id) {

@@ -265,4 +265,5 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void agentSync(String[] ids);
 
 
+    void agentUnlock(String id);
 }

@@ -1524,5 +1524,9 @@ public class SmpService {
         }
         return index;
     }
+
+    public void goodsAgent(String[] ids) {
+
+    }
 }
 

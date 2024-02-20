@@ -282,7 +282,8 @@
     </select>
 
     <select id="agentList" resultType="com.base.sbc.module.style.vo.StyleColorAgentVo">
-        select tsc.id,
+        select tsca.id,
+               tsc.id                    styleColorId,
                ts.year,
                ts.year_name,-- 年份
                ts.brand,
@@ -305,22 +306,26 @@
                ts.prod_category1st_name,-- 大类
                ts.prod_category2nd,
                ts.prod_category2nd_name,-- 中类
-               ''                        sizeCode,-- 尺码组
+               tsca.size_code            sizeCode,-- 尺码组
                ts.size_range,
                ts.size_range_name,-- 号型类型
                concat(tsc.ware_code,
                       tsc.color_code,
                       tbs.sort)          defaultBarCode,-- 默认条形码
-               ''                        outsideBarcode,-- 合作方条形码
+               tsca.outside_barcode      outsideBarcode,-- 合作方条形码
                ts.devt_type,
                ts.devt_type_name,-- 生产类型
                tsc.create_date,-- 创建时间
                tsc.create_id,
-               tsc.create_name-- 创建人
-               -- 状态
-               -- 发送状态
-        FROM t_style ts
-                 LEFT JOIN t_style_color tsc ON (ts.id = tsc.style_id AND tsc.del_flag = '0')
+               tsc.create_name,-- 创建人
+               tsc.status,-- 状态
+               tsca.status               sendStatus,-- 发送状态
+               ts.band_code,
+               ts.band_name,-- 波段
+               tsc.tag_price -- 吊牌价
+        FROM t_style_color_agent tsca
+                 LEFT JOIN t_style_color tsc ON tsca.style_color_id = tsc.id AND tsc.del_flag = '0'
+                 left join t_style ts on ts.id = tsc.style_id and ts.del_flag = '0'
                  left join t_basicsdatum_size tbs
                            ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 and
                               tbs.hangtags = ts.default_size
