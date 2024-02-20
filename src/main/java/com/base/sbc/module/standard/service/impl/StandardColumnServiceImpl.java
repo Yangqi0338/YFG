@@ -140,6 +140,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         if (removeSuccess) {
             standardColumnCountryRelationService.remove(new BaseLambdaQueryWrapper<StandardColumnCountryRelation>()
                     .in(StandardColumnCountryRelation::getStandardColumnCode, standColumnCodeList));
+            RedisStaticFunUtils.del(RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.build());
         }
         RedisStaticFunUtils.del(RedisKeyConstant.STANDARD_COLUMN_LIST.build());
         // 不能删除系统默认标准
