@@ -1529,21 +1529,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return pageInfo;
     }
 
-    @Override
-    public void agentDelete(String id) {
-
-    }
-
-    @Override
-    public void agentStop(String id) {
-
-    }
-
-    @Override
-    public void agentSync(String[] ids) {
-
-    }
-
 
 
     /**
@@ -1916,6 +1901,21 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public void agentDelete(String id) {
+
+    }
+
+    @Override
+    public void agentStop(String id) {
+
+    }
+
+    @Override
+    public void agentSync(String[] ids) {
+
     }
 
     @Override
