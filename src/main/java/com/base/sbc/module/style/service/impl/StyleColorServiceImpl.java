@@ -68,7 +68,6 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.pricing.entity.StylePricing;
@@ -108,7 +107,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -1525,6 +1527,21 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         PageInfo<StyleColorVo> pageInfo = new PageInfo<>(styleColorVoList);
         return pageInfo;
+    }
+
+    @Override
+    public void agentDelete(String id) {
+
+    }
+
+    @Override
+    public void agentStop(String id) {
+
+    }
+
+    @Override
+    public void agentSync(String[] ids) {
+
     }
 
 

@@ -6,7 +6,6 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
-import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
@@ -20,7 +19,6 @@ import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -263,7 +261,7 @@ public class StyleColorController {
 		ExcelUtils.exportExcel(CollectionUtil.newArrayList(new MangoStyleColorExeclDto()), MangoStyleColorExeclDto.class, "代理货品资料模板.xlsx", new ExportParams(), response);
 	}
 
-	@ApiOperation(value = "分页查询")
+	@ApiOperation(value = "代理货品资料-分页查询")
 	@GetMapping("/agentPageList")
 	public PageInfo<StyleColorAgentVo> agentPageList(QueryStyleColorAgentDto querySampleStyleColorDto) {
 		return styleColorService.agentPageList(querySampleStyleColorDto);
@@ -276,5 +274,26 @@ public class StyleColorController {
 		styleColorService.mangoExeclImport(list);
 		return ApiResult.success();
 	}
+	@ApiOperation(value = "代理货品资料-删除")
+	@GetMapping("/agentDelete")
+	public ApiResult agentDelete(String id) {
+		styleColorService.agentDelete(id);
+		return ApiResult.success();
+	}
+
+	@ApiOperation(value = "代理货品资料-停用")
+	@GetMapping("/agentStop")
+	public ApiResult agentStop(String id) {
+		styleColorService.agentStop(id);
+		return ApiResult.success();
+	}
+
+	@ApiOperation(value = "代理货品资料-同步")
+	@GetMapping("/agentSync")
+	public ApiResult agentSync(String[] ids) {
+		styleColorService.agentSync(ids);
+		return ApiResult.success();
+	}
+
 }
 

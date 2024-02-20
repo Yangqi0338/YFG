@@ -258,5 +258,11 @@ public interface StyleColorService extends BaseService<StyleColor> {
 
 // 自定义方法区 不替换的区域【other_end】
 
+    void agentDelete(String id);
+
+    void agentStop(String id);
+
+    void agentSync(String[] ids);
+
 
 }
