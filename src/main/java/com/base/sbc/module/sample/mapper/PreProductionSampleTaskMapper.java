@@ -9,6 +9,7 @@ package com.base.sbc.module.sample.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -39,6 +40,8 @@ public interface PreProductionSampleTaskMapper extends BaseMapper<PreProductionS
     List<PreProductionSampleTaskVo> taskList(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> qw);
 
     long countByQw(@Param(Constants.WRAPPER) QueryWrapper<PreProductionSampleTask> countQc);
+
+    List<String> stitcherList(@Param(Constants.WRAPPER) BaseQueryWrapper<PreProductionSampleTask> qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }

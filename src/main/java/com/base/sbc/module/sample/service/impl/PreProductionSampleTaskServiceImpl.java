@@ -210,6 +210,20 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
          qw.notEmptyEq("s.prod_category", dto.getProdCategory());
+        qw.notEmptyLike("t.stitcher",dto.getStitcher());
+        //cfjxzsj
+        if (StrUtil.isNotBlank(dto.getCfkssj()) && dto.getCfkssj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfkssj()),
+                    "select 1 from t_node_status where t.id=data_id and node ='产前样衣任务' and status='车缝进行中' and start_date >={0} and {1} >= start_date"
+                    , dto.getCfkssj().split(",")[0], dto.getCfkssj().split(",")[1]);
+        }
+
+        //cfwcsj
+        if (StrUtil.isNotBlank(dto.getCfwcsj()) && dto.getCfwcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfwcsj()),
+                    "select 1 from t_node_status where t.id=data_id and node ='产前样衣任务' and status='车缝完成' and start_date >={0} and {1} >= start_date"
+                    , dto.getCfwcsj().split(",")[0], dto.getCfwcsj().split(",")[1]);
+        }
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
@@ -591,6 +605,18 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         updateWrapper.set(PreProductionSampleTask::getUpdateDate, new Date());
         updateWrapper.eq(PreProductionSampleTask::getId, task.getId());
         update(updateWrapper);
+    }
+
+    @Override
+    public List<String> stitcherList(PreProductionSampleTaskSearchDto dto) {
+        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
+        } else {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
+        }
+
+        return getBaseMapper().stitcherList(qw);
     }
 
 // 自定义方法区 不替换的区域【other_end】
