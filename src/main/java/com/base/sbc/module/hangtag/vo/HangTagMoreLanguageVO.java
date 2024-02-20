@@ -54,7 +54,7 @@ public class HangTagMoreLanguageVO {
     private String standardColumnContent = "";
 
     public String getStandardColumnContent() {
-        return StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent: "";
+        return (StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent: "") + ":";
     }
 
     /**
@@ -127,7 +127,7 @@ public class HangTagMoreLanguageVO {
     public String getContent() {
         String title = getStandardColumnContent();
         String value = getPropertiesContent();
-        return String.format("%s%s%s%s", title, StrUtil.isBlank(title) && StrUtil.isBlank(value) ? "" : ":", this.isGroup ? "\n" : " ", value);
+        return String.format("%s%s%s", title, this.isGroup ? "\n" : " ", value);
     }
 
     @JsonIgnore

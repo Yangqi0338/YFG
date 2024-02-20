@@ -1,13 +1,17 @@
 package com.base.sbc.config.constant;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.base.sbc.config.enums.business.RFIDType;
+import com.base.sbc.config.exception.OtherException;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * {@code 描述：生成工艺单属性}
@@ -35,6 +40,8 @@ public class MoreLanguageProperties {
     public static String multiSeparator = "\n";
     public static String fieldValueSeparator = ":";
     public static Integer styleCountryStatusImportMaxSize = 60;
+    public static Integer importExecutePoolSize = 12;
+    public static Pair<Integer,Integer> styleCountryStatusImportCountRange = Pair.of(20,200);
     public static String countryLanguageCodePrefix = "GY";
     public static Integer countryLanguageCodeZeroFill = 10;
     public static String languageCodePrefix = "Y";
@@ -45,8 +52,51 @@ public class MoreLanguageProperties {
             "2、请不要删除表头信息。\n" +
             "3、请不要删除翻译语言内自带信息。\n";
 
-    public static String styleCountryStatusMainDbAlias = "tsd.";
-    public static List<MoreLanguageMsgEnum> msgEnumList = CollUtil.list(false,MoreLanguageMsgEnum.values());
+    public static String hangTagMainDbAlias = "tsd.";
+
+    public static Integer excelDataRowNum = 2;
+    public static Map<String,String> msgEnumMap = CollUtil.list(false,MoreLanguageMsgEnum.values())
+            .stream().collect(Collectors.toMap(MoreLanguageMsgEnum::name,MoreLanguageMsgEnum::getText));
+
+    public static Boolean isInternalLanguageCode(String languageCode) {
+        return MoreLanguageProperties.internalLanguageCode.equals(languageCode);
+    }
+
+    public static String getMsg(MoreLanguageMsgEnum msgEnum, Object... param) {
+        return String.format(msgEnumMap.getOrDefault(msgEnum.name(), ""), param);
+    }
+
+    public static Integer calculateImportCount() {
+        return calculateImportCount(importExecutePoolSize);
+    }
+
+    public static Integer calculateImportCount(Integer poolSize) {
+        if (poolSize <= 0) return 1;
+        double count = (double) styleCountryStatusImportMaxSize / poolSize;
+        Integer minCount = styleCountryStatusImportCountRange.getKey();
+        Integer maxCount = styleCountryStatusImportCountRange.getValue();
+        if (count < minCount) {
+            return calculateImportCount(--poolSize);
+        }else if (count > maxCount) {
+            return calculateImportCount(++poolSize);
+        }
+        return poolSize;
+    }
+
+    public static Integer calculateCountryLanguageCodeZeroFill(Integer count) {
+        return countryLanguageCodeZeroFill;
+    }
+
+    public static Integer calculateLanguageCodeZeroFill(Integer count) {
+        return countryLanguageCodeZeroFill;
+    }
+
+    public static Integer calculateZeroFill(Integer count, Integer zeroFill) {
+        for (int i = 0; i < zeroFill / 10; i++) {
+
+        }
+        return countryLanguageCodeZeroFill;
+    }
 
     public void setInternalLanguageCode(String internalLanguageCode) {
         MoreLanguageProperties.internalLanguageCode = internalLanguageCode;
@@ -100,16 +150,33 @@ public class MoreLanguageProperties {
         MoreLanguageProperties.excelTitle = excelTitle;
     }
 
-    public void setStyleCountryStatusMainDbAlias(String styleCountryStatusMainDbAlias) {
-        MoreLanguageProperties.styleCountryStatusMainDbAlias = styleCountryStatusMainDbAlias;
+    public void setHangTagMainDbAlias(String hangTagMainDbAlias) {
+        MoreLanguageProperties.hangTagMainDbAlias = hangTagMainDbAlias;
     }
 
-    public void setMsgEnumList(List<MoreLanguageMsgEnum> msgEnumList) {
-        MoreLanguageProperties.msgEnumList = msgEnumList;
+    public void setMsgEnumMap(List<MoreLanguageMsgEnum> msgEnumList) {
+        if (CollUtil.isNotEmpty(msgEnumList)) {
+            msgEnumList.forEach(msgEnum-> {
+                MoreLanguageProperties.msgEnumMap.putIfAbsent(msgEnum.name(),msgEnum.getText());
+            });
+        }
     }
 
+    public void setExcelDataRowNum(String hangTagMainDbAlias) {
+        MoreLanguageProperties.hangTagMainDbAlias = hangTagMainDbAlias;
+    }
+
+    public void setImportExecutePoolSize(Integer importExecutePoolSize) {
+        MoreLanguageProperties.importExecutePoolSize = importExecutePoolSize;
+    }
+
+    public void setStyleCountryStatusImportCountRange(Pair<Integer, Integer> styleCountryStatusImportCountRange) {
+        MoreLanguageProperties.styleCountryStatusImportCountRange = styleCountryStatusImportCountRange;
+    }
+
+    @Getter
     public enum MoreLanguageMsgEnum {
-        NOT_INSERT("PDM未创建%s国家语言翻译"),
+        NOT_INSERT("PDM未创建%s国家语言数据"),
         HAVEN_T_TAG("不存在%s的吊牌信息"),
         HAVEN_T_LANGUAGE("%s不存在该语种"),
         HAVEN_T_CONTENT("%s未翻译"),
@@ -121,26 +188,21 @@ public class MoreLanguageProperties {
         HAVEN_T_BULK_TAG("大货款号: 不存在%s的吊牌信息"),
         SUCCESS_IMPORT("您的吊牌信息已经导入成功. %s"),
         CHECK_REIMPORT("%s, 请问是否需要导入?"),
-        FAILURE_IMPORT("导入失败, 请你根据导入规则进行导入\n"),
+        FAILURE_IMPORT("导入失败, 请你根据导入规则进行导入\n%s"),
         EXCESS_STATUS_IMPORT("仅能导入%s条数据,后续款号不执行"),
         INCORRECT_COUNTRY_LANGUAGE("国家对应不上,请清理缓存"),
         EXIST_COUNTRY_LANGUAGE("已存在对应国家"),
-        NOT_COMMIT("非法标准列code"),
+        INCORRECT_STANDARD_CODE("非法标准列code"),
         NOT_FOUND_COUNTRY_LANGUAGE("未找到对应的国家语言数据"),
-        WARN_COUNTRY_LANGUAGE("无效的国家或语言"),
         WARN_STANDARD_CODE("无效的标准列,请重新刷新页面"),
         NOT_EXIST_STANDARD_CODE("未设置表头,请找开发协助"),
         WARN_EXAMINE_STATUS("吊牌状态必须为待翻译确认或已审核"),
-        NOT_EXIST_STATUS_BULK("失败,没有找到对应款号"),
-        WARN_STATUS("成功,审核流程仅进行到%s"),
+        NOT_EXIST_BULK_STATUS("失败,没有找到对应款号"),
+        ERROR_STATUS("成功,审核流程仅进行到%s"),
         ;
-        /** 编码 */
-        private final String code;
         /** 文本 */
         private final String text;
         MoreLanguageMsgEnum(String text) {
-            String code = this.name().toLowerCase();
-            this.code = StrUtil.toCamelCase(code);
             this.text = text;
         }
     }

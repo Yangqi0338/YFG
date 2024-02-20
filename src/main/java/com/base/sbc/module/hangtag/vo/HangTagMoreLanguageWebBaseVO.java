@@ -35,7 +35,10 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
     public String getWarnMsg() {
         StringJoiner joiner = new StringJoiner("、", "【提示：", "为空】").setEmptyValue("");
         this.getLanguageList().stream().filter(it-> it.getCannotFindStandardColumnContent() || it.getCannotFindPropertiesContent()).forEach(languageVO-> {
-            joiner.add(languageVO.getLanguageName()+"翻译");
+            StringJoiner fillJoiner = new StringJoiner("+");
+            if (languageVO.getCannotFindStandardColumnContent()) fillJoiner.add("字段");
+            if (languageVO.getCannotFindPropertiesContent()) fillJoiner.add("内容");
+            joiner.add(languageVO.getLanguageName() + fillJoiner +"翻译");
         });
         return joiner.toString();
     }
