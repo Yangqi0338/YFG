@@ -1347,7 +1347,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 //                            qw.isNullStr(annotation.value());
 //                        }else if("isNotNull".equals(s) && "date".equals(property)) {
 //                            qw.isNotNullStr(annotation.value());
-                        }else if (StrUtil.isNotEmpty(property) && "replace".equals(property)) {
+                        }else if (StrUtil.isNotEmpty(property) && "replace".equals(property) && !"isNull".equals(s) && !"isNotNull".equals(s)) {
                             String[] split = s.split(";");
                             qw.in(annotation.value(), split);
                         }else if("isNull".equals(s)) {
