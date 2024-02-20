@@ -159,16 +159,73 @@
     </select>
     <select id="sampleBoardList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
         SELECT
-        p.id AS patternMakingId,
-        p.pattern_design_name ,
-        p.pattern_design_id ,
-        p.pat_diff,p.pat_diff_name,
-        p.sample_bar_code sampleBarCode,
-        s.*,
-        p.*,
-        p.status pmStatus,
-        p.create_date as `pmCreateDate`,
-        p.demand_finish_date as demandFinishDate
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            p.id AS patternMakingId,
+            p.pattern_design_id ,
+            p.pat_diff,p.pat_diff_name,
+            p.sample_bar_code sampleBarCode,
+
+            CONCAT(s.year_name,s.season_name,s.brand_name) as season,
+            s.style_pic,
+            p.sample_type,
+            p.pat_seq_name,
+            (CASE WHEN p.technician_kitting = 0 THEN '否' ELSE '是' END) as technician_kitting,
+            p.technician_kitting_date,
+            p.pattern_req_date,
+            p.demand_finish_date,
+            p.shortage_remarks,
+            p.revision_comments,
+            p.revision_reason,
+            s.pattern_design_name,
+            p.requirement_num,
+            p.suspend_remarks,
+            p.pattern_making_score,
+            p.cutter_name,
+            s.design_no,
+            p.cutter_finish_num,
+            (CASE WHEN p.sgl_kitting = 0 THEN '否' ELSE '是' END) as sgl_kitting,
+            p.stitcher_remark,
+            p.stitcher,
+            s.technician_name,
+            p.pattern_technician_name,
+            p.sample_pic,
+            (CASE WHEN s.designer != '' THEN SUBSTRING_INDEX(s.designer, ',', -1) ELSE '' END) as designer,
+            p.pattern_designer_name,
+            s.merch_design_name,
+            s.revised_design_name,
+            s.reviewed_design_name,
+            s.prod_category_name,
+            s.prod_category2nd_name,
+            s.prod_category3rd_name,
+            p.pattern_finish_num,
+            s.default_size,
+            p.urgency_name,
+            s.pattern_parts,
+            p.sample_finish_num,
+            p.pattern_making_quality_score,
+            p.sample_making_score,
+            p.sample_making_quality_score,
+            p.second_processing,
+            p.prm_send_date,
+            (CASE WHEN p.prm_send_status = 0 THEN '未发送' ELSE '已发送' END) as prm_send_status,
+            p.pattern_no,
+            p.grading_name,
+            p.grading_date,
+            s.band_name,
+            p.sample_bar_code,
+            p.receive_sample_date,
+            s.devt_type_name,
+            (CASE WHEN p.break_off_Pattern = '1' THEN '打板中断' WHEN p.break_off_sample = '1' THEN '样衣中断' ELSE '启用' END) as pmStatus,
+
+            p.break_off_Pattern,
+            p.break_off_sample,
+            p.status pStatus,
+            p.create_date as `pmCreateDate`,
+            p.demand_finish_date as demandFinishDate
+        </if>
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
@@ -178,6 +235,7 @@
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
+
     </select>
     <select id="getAllPatternDesignList" resultType="com.base.sbc.module.sample.vo.SampleUserVo">
         select DISTINCT pattern_design_id as user_id, pattern_design_name as name

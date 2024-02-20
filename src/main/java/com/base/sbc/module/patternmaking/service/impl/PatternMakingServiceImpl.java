@@ -24,6 +24,7 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -83,6 +84,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
@@ -1306,7 +1308,80 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+
+        String columnHeard = dto.getColumnHeard();
+
+        Field[] declaredFields = dto.getClass().getDeclaredFields();
+        boolean isColumnHeard = false;
+        for (Field field : declaredFields) {
+            //开启权限
+            try {
+                field.setAccessible(true);
+                TableField annotation = field.getAnnotation(TableField.class);
+                if (annotation != null && StrUtil.isNotEmpty(annotation.value())) {
+                    String annotationValue = annotation.value();
+                    Object o = field.get(dto);
+                    //小漏斗筛选
+                    if (ObjectUtil.isNotEmpty(o) && StrUtil.isNotEmpty(columnHeard) && field.getName().equals(columnHeard)) {
+                        //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
+                        qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
+                        qw.like(annotationValue, o);
+                        isColumnHeard = true;
+                    } else if (ObjectUtil.isNotEmpty(o) && field.getName().equals(o) && StrUtil.isEmpty(columnHeard)) {
+                        //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
+                        qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
+                        isColumnHeard = true;
+                    } else if (ObjectUtil.isNotEmpty(o)) {
+                        //3 选中数据查询，列名不为空，并且值不为空
+                        //时间区间过滤
+                        String property = annotation.property();
+                        String s = String.valueOf(o);
+                        if (StrUtil.isNotEmpty(property) && "date".equals(property) && !"isNull".equals(s) && !"isNotNull".equals(s)) {
+                            String[] dateArr = s.split(",");
+                            if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
+                                dateArr[0] = dateArr[0] + " 00:00:00";
+                                dateArr[1] = dateArr[1] + " 23:59:59";
+                                qw.between(annotation.value(), dateArr);
+                            }
+//                        }else if("isNull".equals(s) && "date".equals(property)) {
+//                            qw.isNullStr(annotation.value());
+//                        }else if("isNotNull".equals(s) && "date".equals(property)) {
+//                            qw.isNotNullStr(annotation.value());
+                        }else if (StrUtil.isNotEmpty(property) && "replace".equals(property)) {
+                            String[] split = s.split(";");
+                            qw.in(annotation.value(), split);
+                        }else if("isNull".equals(s)) {
+                            qw.isNullStr(annotation.value());
+                        }else if("isNotNull".equals(s)) {
+                            qw.isNotNullStr(annotation.value());
+                        }else{
+                            //正常保留历史条件查询
+                            String[] lenStrArr = s.split(",");
+                            if (lenStrArr.length > 0) {
+                                qw.in(annotation.value(), lenStrArr);
+                            }
+                        }
+                    }
+                    //记得排序
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } finally {
+                field.setAccessible(false);
+            }
+        }
+        /*if (StrUtil.isNotEmpty(dto.getPrmSendStatus()) && dto.getPrmSendStatus().length() > 1) {
+            qw.eq("p.prm_send_status",dto.getPrmSendStatus());
+        }else if(!isColumnHeard){
+            qw.eq("p.prm_send_status","1");
+        }
+
+        if (StrUtil.isNotEmpty(dto.getBreakOffPattern())) {
+            qw.eq("p.break_off_pattern",dto.getBreakOffPattern());
+        }else if(!isColumnHeard){
+            qw.eq("p.break_off_pattern","0");
+        }*/
+        /*qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.notEmptyEq("p.prm_send_status",dto.getPrmSendStatus());
         qw.notEmptyEq("p.break_off_pattern",dto.getBreakOffPattern());
@@ -1325,14 +1400,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
         qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
-        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
+        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));*/
 
-        if(StringUtils.isNotBlank(dto.getOrderBy())){
+        //region 临时注释 2024-01-29
+        /*if(StringUtils.isNotBlank(dto.getOrderBy())){
             dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
         }else {
             dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
-        }
-        qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
+        }*/
+        //endregion
+        /*qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
         qw.eq("p.disable_flag", BaseGlobal.NO);
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
 
@@ -1345,13 +1422,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.eq( "p.break_off_pattern", BaseGlobal.YES);
         }
         qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
-
+*/
+        //region 临时注释 2024-01-29
         if(StringUtils.isNotBlank(dto.getOrderBy())){
             dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
         }else {
             dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
         }
-        if(StrUtil.isNotBlank(dto.getPmCreateDate())){
+        //endregion
+        /*if(StrUtil.isNotBlank(dto.getPmCreateDate())){
             String[] s = dto.getPmCreateDate().split(",");
             s[0] = s[0] + " 00:00:00";
             s[1] = s[1] + " 23:59:59";
@@ -1362,29 +1441,37 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             s1[0] = s1[0] + " 00:00:00";
             s1[1] = s1[1] + " 23:59:59";
             qw.between("p.receive_sample_date",s1);
-        }
+        }*/
 
-        if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.IN)){
+        /*if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.IN)){
             qw.isNull("p.receive_sample_date");
         }
         if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.YES)){
             qw.isNotNull("p.receive_sample_date");
-        }
+        }*/
 
-        qw.findInSet("s.pattern_parts", dto.getPatternParts());
+        /*qw.findInSet("s.pattern_parts", dto.getPatternParts());
         if (StrUtil.isNotBlank(dto.getDesignerIds())) {
             String[] split = dto.getDesignerIds().split(",");
             qw.in("s.designer_id", Arrays.asList(split));
-        }
+        }*/
 
-        if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
+
+        /*if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
             qw.ge(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "   date_format(p.technician_kitting_date,'%Y-%m-%d')    ", dto.getTechnicianKittingDate().split(",")[0]);
             qw.le(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "date_format(p.technician_kitting_date,'%Y-%m-%d')", dto.getTechnicianKittingDate().split(",")[1]);
-        }
+        }*/
+
         if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getBfzgxfsj()),
                     "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getBfzgxfsj().split(",")[0], dto.getBfzgxfsj().split(",")[1]);
+        }
+        //jssdrq 技术收到日期
+        if (StrUtil.isNotBlank(dto.getJssdrq()) && dto.getJssdrq().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getBsjssj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='已接收' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getBsjssj().split(",")[0], dto.getBsjssj().split(",")[1]);
         }
         // bsjssj
         if (StrUtil.isNotBlank(dto.getBsjssj()) && dto.getBsjssj().split(",").length > 1) {
@@ -1392,30 +1479,39 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='已接收' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getBsjssj().split(",")[0], dto.getBsjssj().split(",")[1]);
         }
-        //zysj
-        if (StrUtil.isNotBlank(dto.getZysj()) && dto.getZysj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getZysj()),
+        //zywcsj
+        if (StrUtil.isNotBlank(dto.getZywcsj()) && dto.getZywcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getZywcsj()),
                     "select 1 from t_node_status where p.id=data_id and node ='打版任务' and status='打版完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
-                    , dto.getZysj().split(",")[0], dto.getZysj().split(",")[1]);
+                    , dto.getZywcsj().split(",")[0], dto.getZywcsj().split(",")[1]);
         }
-        //cjsj
-        if (StrUtil.isNotBlank(dto.getCjsj()) && dto.getCjsj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and date_format(start_date,'%Y-%m-%d') >={0}"
-                    , dto.getCjsj().split(",")[0]);
-            qw.exists(StrUtil.isNotBlank(dto.getCjsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and {0} >= date_format(start_date,'%Y-%m-%d')"
-                    , dto.getCjsj().split(",")[1]);
+        //cjkssj
+        if (StrUtil.isNotBlank(dto.getCjkssj()) && dto.getCjkssj().split(",").length > 1) {
+
+            qw.exists(StrUtil.isNotBlank(dto.getCjkssj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪开始' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCjkssj().split(",")[0], dto.getCjkssj().split(",")[1]);
         }
-        //cfsj
-        if (StrUtil.isNotBlank(dto.getCfsj()) && dto.getCfsj().split(",").length > 1) {
-            qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and date_format(start_date,'%Y-%m-%d') >={0}"
-                    , dto.getCfsj().split(",")[0]);
-            qw.exists(StrUtil.isNotBlank(dto.getCfsj()),
-                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and {0} >= date_format(start_date,'%Y-%m-%d')"
-                    , dto.getCfsj().split(",")[1]);
+        //cjwcsj
+        if (StrUtil.isNotBlank(dto.getCjwcsj()) && dto.getCjwcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCjwcsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='裁剪完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCjwcsj().split(",")[0], dto.getCjwcsj().split(",")[1]);
         }
+        //cfjxzsj
+        if (StrUtil.isNotBlank(dto.getCfkssj()) && dto.getCfkssj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfkssj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝进行中' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCfkssj().split(",")[0], dto.getCfkssj().split(",")[1]);
+        }
+
+        //cfwcsj
+        if (StrUtil.isNotBlank(dto.getCfwcsj()) && dto.getCfwcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfwcsj()),
+                    "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='车缝完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
+                    , dto.getCfwcsj().split(",")[0], dto.getCfwcsj().split(",")[1]);
+        }
+
         // yywcsj
         if (StrUtil.isNotBlank(dto.getYywcsj()) && dto.getYywcsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getYywcsj()),
@@ -1438,12 +1534,19 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             return objects.toPageInfo();
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
+
+        //region 列头漏斗过滤
+        if (isColumnHeard) {
+            return objects.toPageInfo();
+        }
+        //endregion
+
         //region 导出去掉设计师编码
-        list.forEach(item->{
+        /*list.forEach(item->{
             if (StrUtil.isNotEmpty(item.getDesigner())) {
                 item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
             }
-        });
+        });*/
         //endregion
         stylePicUtils.setStylePic(list, "stylePic");
         // 设置节点状态数据
