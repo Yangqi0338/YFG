@@ -60,4 +60,7 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "生产类型", width = 20)
     private String devtTypeName;
 
+    @Excel(name = "吊牌价", width = 20)
+    private String tagPrice;
+
 }
