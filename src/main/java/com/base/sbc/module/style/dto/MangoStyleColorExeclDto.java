@@ -24,7 +24,7 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "大货款号", width = 20)
     private String styleColorNo;
 
-    @Excel(name = "大货款号", width = 20)
+    @Excel(name = "款式配色图", width = 20)
     private String styleColorImage;
 
     @Excel(name = "合作方颜色名称", width = 20, orderNum = "20")

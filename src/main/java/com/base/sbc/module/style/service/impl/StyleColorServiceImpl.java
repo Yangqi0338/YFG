@@ -68,6 +68,7 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.vo.PlanningSeasonVo;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.pricing.entity.StylePricing;
@@ -1889,9 +1890,23 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     @Override
-    public void mangoExeclImportTemplateDownload() {
+    public void mangoExeclImport(List<MangoStyleColorExeclDto> list) {
+        Style style;
+        //设计表
+        for (MangoStyleColorExeclDto dto : list) {
+            style = new Style();
+//            style.setDesigner("陈太超");
+//            style.setDesignerId("1104794");
+            //根据产品季名称获取产品季id
+            PlanningSeason planningSeason = planningSeasonService.getByName(dto.getProductSeason(), baseController.getUserCompany());
+            if (planningSeason == null) {
+                throw new OtherException("找不到产品季信息");
+            }
+            style.setPlanningSeasonId(planningSeason.getId());
+            //坑位信息id 缺失
+            style.setCompanyCode(baseController.getUserCompany());
 
+            //大 中 小 品 类
+        }
     }
-
-
 }

@@ -251,8 +251,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
     /**
      * mango品牌Execl导入模板下载
      */
-    void mangoExeclImportTemplateDownload();
-
+    void mangoExeclImport(List<MangoStyleColorExeclDto> list);
 
 // 自定义方法区 不替换的区域【other_end】
 

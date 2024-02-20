@@ -7,7 +7,9 @@
 package com.base.sbc.module.style.controller;
 
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.collection.CollectionUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -18,6 +20,7 @@ import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -31,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -260,5 +264,12 @@ public class StyleColorController {
 		ExcelUtils.exportExcel(CollectionUtil.newArrayList(new MangoStyleColorExeclDto()), MangoStyleColorExeclDto.class, "代理货品资料模板.xlsx", new ExportParams(), response);
 	}
 
+	@ApiOperation(value = "mango导入Excel")
+	@PostMapping("/mangoImportExcel")
+	public ApiResult importExcel(@RequestParam("file") MultipartFile file,String userCompany) throws Exception {
+		List<MangoStyleColorExeclDto> list = ExcelImportUtil.importExcel(file.getInputStream(), MangoStyleColorExeclDto.class, new ImportParams());
+		styleColorService.mangoExeclImport(list);
+		return ApiResult.success();
+	}
 }
 
