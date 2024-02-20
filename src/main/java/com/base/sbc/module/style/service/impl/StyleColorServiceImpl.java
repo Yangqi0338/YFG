@@ -84,10 +84,7 @@ import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleColorExcel;
-import com.base.sbc.module.style.vo.StyleColorListExcel;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
+import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -1887,6 +1884,21 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         List<StyleMarkingCheckVo> styleMarkingCheckVos = baseMapper.markingCheckPage(queryWrapper);
         return new PageInfo<>(styleMarkingCheckVos);
+    }
+
+    @Override
+    public PageInfo<StyleColorAgentVo> agentPageList(QueryStyleColorAgentDto queryDto) {
+        Page<Object> objects = PageHelper.startPage(queryDto);
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        queryWrapper.notEmptyLikeOrIsNull("ts.year_name", queryDto.getYearName());
+        queryWrapper.notEmptyEqOrIsNull("ts.prod_category_name", queryDto.getProdCategoryName());
+        queryWrapper.notEmptyEqOrIsNull("ts.prod_category", queryDto.getProdCategory());
+        queryWrapper.notEmptyLike("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
+        queryWrapper.notEmptyLike("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
+
+        List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        return new PageInfo<>(list);
     }
 
     @Override

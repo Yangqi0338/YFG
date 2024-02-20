@@ -15,6 +15,7 @@ import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.vo.StyleColorAgentVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.PageInfo;
@@ -247,6 +248,8 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void markingDeriveExcel(Principal user, HttpServletResponse response, QueryStyleColorDto dto);
 
     PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto);
+
+    PageInfo<StyleColorAgentVo> agentPageList(QueryStyleColorAgentDto querySampleStyleColorDto);
 
     /**
      * mango品牌Execl导入模板下载
