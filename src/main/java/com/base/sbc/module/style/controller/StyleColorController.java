@@ -6,7 +6,6 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
-import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.collection.CollectionUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -21,6 +20,7 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.vo.StyleColorAgentVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.PageInfo;
@@ -34,9 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.net.URLEncoder;
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -258,6 +256,12 @@ public class StyleColorController {
 	@GetMapping("/mangoExportExcel")
 	public void exportExcel(HttpServletResponse response) throws Exception {
 		ExcelUtils.exportExcel(CollectionUtil.newArrayList(new MangoStyleColorExeclDto()), MangoStyleColorExeclDto.class, "代理货品资料模板.xlsx", new ExportParams(), response);
+	}
+
+	@ApiOperation(value = "分页查询")
+	@GetMapping("/agentPageList")
+	public PageInfo<StyleColorAgentVo> agentPageList(QueryStyleColorAgentDto querySampleStyleColorDto) {
+		return styleColorService.agentPageList(querySampleStyleColorDto);
 	}
 
 }

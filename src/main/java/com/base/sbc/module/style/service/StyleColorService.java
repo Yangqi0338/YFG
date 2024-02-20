@@ -15,6 +15,7 @@ import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.vo.StyleColorAgentVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.PageInfo;
@@ -252,6 +253,8 @@ public interface StyleColorService extends BaseService<StyleColor> {
      * mango品牌Execl导入模板下载
      */
     void mangoExeclImportTemplateDownload();
+
+    PageInfo<StyleColorAgentVo> agentPageList(QueryStyleColorAgentDto querySampleStyleColorDto);
 
 
 // 自定义方法区 不替换的区域【other_end】
