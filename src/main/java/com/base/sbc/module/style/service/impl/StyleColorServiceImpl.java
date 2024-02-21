@@ -1903,6 +1903,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if(StringUtils.isNotBlank(queryDto.getDesignNo())){
             queryWrapper.likeList("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
         }
+        queryWrapper.eq("tsca.status",queryDto.getSendStatus());
 
         queryWrapper.eq("ts.brand","MANGO");
         objects.setOrderBy("tsc.create_date,tsc.style_no,tsca.size_id");
