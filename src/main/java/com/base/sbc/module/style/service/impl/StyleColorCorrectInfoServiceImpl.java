@@ -109,6 +109,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
         queryWrapper.notEmptyEq("tsc.id", page.getStyleColorId());
         queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
+        queryWrapper.eq("tsc.del_flag","0");
         List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);
 
         /*查询款式图*/
