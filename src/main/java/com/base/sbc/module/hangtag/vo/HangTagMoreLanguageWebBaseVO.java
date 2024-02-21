@@ -8,6 +8,7 @@ package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -18,6 +19,8 @@ import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
 
 /**
  * 类描述：吊牌表 实体类
@@ -33,17 +36,20 @@ import java.util.stream.Collectors;
 public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
     public String getWarnMsg() {
-        StringJoiner joiner = new StringJoiner("、", "【提示：", "为空】").setEmptyValue("");
+        StringJoiner joiner = new StringJoiner(MoreLanguageProperties.checkMsgItemSeparator).setEmptyValue("");
+        // 检查是否存在未翻译的数据
         this.getLanguageList().stream().filter(it-> it.getCannotFindStandardColumnContent() || it.getCannotFindPropertiesContent()).forEach(languageVO-> {
-            StringJoiner fillJoiner = new StringJoiner("+");
-            if (languageVO.getCannotFindStandardColumnContent()) fillJoiner.add("字段");
-            if (languageVO.getCannotFindPropertiesContent()) fillJoiner.add("内容");
-            joiner.add(languageVO.getLanguageName() + fillJoiner +"翻译");
+            // 合并提示信息
+            StringJoiner fillJoiner = new StringJoiner(MoreLanguageProperties.checkMultiItemSeparator);
+            if (languageVO.getCannotFindStandardColumnContent()) fillJoiner.add(FIELD.getText());
+            if (languageVO.getCannotFindPropertiesContent()) fillJoiner.add(CONTENT.getText());
+            joiner.add(languageVO.getLanguageName() + fillJoiner + TRANSLATE.getText());
         });
-        return joiner.toString();
+        return MoreLanguageProperties.getMsg(NOT_EXIST_CONTENT,joiner.toString());
     }
 
     public Map<String, String> getContent() {
+        // 返回每个语言对应的翻译
         Map<String, String> map = new HashMap<>(this.getLanguageList().size() + 1);
         this.getLanguageList().forEach(languageVo-> {
             map.put(languageVo.getLanguageCode(), languageVo.getContent());
@@ -51,34 +57,27 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         return map;
     }
 
-    public String getMergedContent() {
-        StringJoiner joiner = new StringJoiner("\n");
+    private String getMergedContent(Function<HangTagMoreLanguageVO, String> function){
+        // 返回合并内容
+        StringJoiner joiner = new StringJoiner(MoreLanguageProperties.multiSeparator);
         joiner.add(this.getSourceContent());
         this.getLanguageList().forEach(languageVO-> {
-            joiner.add("（" + languageVO.getLanguageName() + "）");
-            joiner.add(languageVO.getContent());
+            joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));
+            joiner.add(function.apply(languageVO));
         });
         return joiner.toString();
+    }
+
+    public String getMergedContent() {
+        return getMergedContent(HangTagMoreLanguageVO::getContent);
     }
 
     public String getMergedPrefixContent() {
-        StringJoiner joiner = new StringJoiner("\n");
-        joiner.add(this.getStandardColumnName());
-        this.getLanguageList().forEach(languageVO-> {
-            joiner.add("（" + languageVO.getLanguageName() + "）");
-            joiner.add(languageVO.getStandardColumnContent());
-        });
-        return joiner.toString();
+        return getMergedContent(HangTagMoreLanguageVO::getStandardColumnContent);
     }
 
     public String getMergedContentWithoutPrefix() {
-        StringJoiner joiner = new StringJoiner("\n");
-        joiner.add(this.getPropertiesName());
-        this.getLanguageList().forEach(languageVO-> {
-            joiner.add("（" + languageVO.getLanguageName() + "）");
-            joiner.add(languageVO.getPropertiesContent());
-        });
-        return joiner.toString();
+        return getMergedContent(HangTagMoreLanguageVO::getPropertiesContent);
     }
 
 }

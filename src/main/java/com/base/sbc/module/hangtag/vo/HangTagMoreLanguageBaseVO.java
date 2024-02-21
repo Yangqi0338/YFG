@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.lang.Opt;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,6 +17,8 @@ import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.CONTENT_FORMAT;
 
 /**
  * 类描述：吊牌表 实体类
@@ -71,7 +74,8 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
      */
     @ApiModelProperty(value = "审核状态")
     public StyleCountryStatusEnum getAuditStatus(){
-         return getLanguageList().stream().anyMatch(it-> it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK)
+        // 内部有一个未审核,那就是未审核
+        return getLanguageList().stream().anyMatch(it-> it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK)
                  ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
     };
 
@@ -80,7 +84,12 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
      */
     @ApiModelProperty(value = "全量数据")
     public String getSourceContent() {
-        return String.format("%s:%s %s", Opt.ofNullable(this.standardColumnName).orElse(""), this.isGroup ? "\n" : "", Opt.ofNullable(this.propertiesName).orElse(""));
+        // 名字
+        return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
+                Opt.ofNullable(this.standardColumnName).orElse(""),
+                this.isGroup ? MoreLanguageProperties.multiSeparator : "",
+                Opt.ofNullable(this.propertiesName).orElse("")
+        );
     }
 
 }

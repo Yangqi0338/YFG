@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,6 +18,8 @@ import lombok.Data;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.CONTENT_FORMAT;
 
 /**
  * 类描述：吊牌表 实体类
@@ -63,13 +67,6 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "不能找到标准列翻译")
     protected Boolean cannotFindStandardColumnContent = true;
 
-//    @JsonIgnore
-//    @ApiModelProperty(value = "具体数据模板")
-//    private String propertiesTemplate;
-//
-//    @JsonIgnore
-//    private List<HangTagMoreContentVO> contentList;
-
     public Boolean getCannotFindStandardColumnContent() {
         return this.cannotFindStandardColumnContent && !isGroup;
     }
@@ -85,14 +82,6 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "具体数据翻译")
     public String getPropertiesContent() {
-//        String propertiesContent = this.contentList.stream().map(HangTagMoreContentVO::getPropertiesContent).collect(Collectors.joining("\n"));
-//        if (StrUtil.isNotBlank(propertiesTemplate)) {
-//            this.contentList.forEach(it-> {
-//                propertiesTemplate = propertiesTemplate.replaceAll(it.getPropertiesName(), it.getPropertiesContent());
-//            });
-//            propertiesContent = propertiesTemplate;
-//        }
-//        return propertiesContent;
         return cannotFindPropertiesContent || StrUtil.isBlank(this.propertiesContent) ? "" : this.propertiesContent;
     }
 
@@ -103,6 +92,7 @@ public class HangTagMoreLanguageVO {
     private Boolean cannotFindPropertiesContent = false;
 
     public Boolean getCannotFindPropertiesContent() {
+        // 若类型是文本,则直接为已翻译
         return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
     }
 
@@ -127,7 +117,11 @@ public class HangTagMoreLanguageVO {
     public String getContent() {
         String title = getStandardColumnContent();
         String value = getPropertiesContent();
-        return String.format("%s%s%s", title, this.isGroup ? "\n" : " ", value);
+        return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
+                title,
+                this.isGroup ? MoreLanguageProperties.multiSeparator : "",
+                value
+        );
     }
 
     @JsonIgnore

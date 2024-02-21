@@ -6,8 +6,14 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisKeyBuilder;
+import com.base.sbc.config.redis.RedisKeyConstant;
+import com.base.sbc.config.redis.RedisStaticFunUtils;
+import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.standard.entity.StandardColumn;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +26,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.INCORRECT_STANDARD_CODE;
 
 /**
  * {@code 描述：生成工艺单属性}
@@ -36,9 +44,14 @@ public class MoreLanguageProperties {
     public static String internalLanguageCode = "ZH";
     public static Boolean internalCheck = false;
     public static String languageDictCode = "language";
-    public static Map removeConditionMap = MapUtil.ofEntries(MapUtil.entry("10","DP02"));
+    public static String saftyStandardCode = "DP02";
     public static String multiSeparator = "\n";
-    public static String fieldValueSeparator = ":";
+    public static String fieldValueSeparator = "：";
+    public static String showInfoLanguageSeparator = "；";
+    public static String checkItemSeparator = "/";
+    public static String checkMsgItemSeparator = "、";
+    public static String checkMergedSeparator = "（%s）";
+    public static String checkMultiItemSeparator = "+";
     public static Integer styleCountryStatusImportMaxSize = 60;
     public static Integer importExecutePoolSize = 12;
     public static Pair<Integer,Integer> styleCountryStatusImportCountRange = Pair.of(20,200);
@@ -83,19 +96,28 @@ public class MoreLanguageProperties {
         return poolSize;
     }
 
-    public static Integer calculateCountryLanguageCodeZeroFill(Integer count) {
-        return countryLanguageCodeZeroFill;
+    public static String getCountryZeroFill(Integer count) {
+        return MoreLanguageProperties.calculateZeroFill(count, MoreLanguageProperties.countryLanguageCodeZeroFill) + count;
     }
 
-    public static Integer calculateLanguageCodeZeroFill(Integer count) {
-        return countryLanguageCodeZeroFill;
+    public static String getLanguageZeroFill(Integer count) {
+        return MoreLanguageProperties.calculateZeroFill(count, MoreLanguageProperties.languageCodeZeroFill) + count;
     }
 
-    public static Integer calculateZeroFill(Integer count, Integer zeroFill) {
-        for (int i = 0; i < zeroFill / 10; i++) {
-
+    public static String calculateZeroFill(Integer count, Integer zeroFill) {
+        int square = (int) Math.log10(zeroFill);
+        int countSquare = (int) Math.log10(count);
+        StringBuilder fill = new StringBuilder();
+        for (int i = 0; i < square - countSquare; i++) {
+            fill.append("0");
         }
-        return countryLanguageCodeZeroFill;
+        return fill.toString();
+    }
+
+    public static StandardColumn getStandardColumn(BaseService<?> businessService, CountryLanguageType type, String standardColumnCode) {
+        // 从redis标准列数据,若没有查询DB,若没有报设置的Message
+        RedisStaticFunUtils.setBusinessService(businessService).setMessage(MoreLanguageProperties.getMsg(INCORRECT_STANDARD_CODE));
+        return (StandardColumn) RedisStaticFunUtils.hget(RedisKeyConstant.STANDARD_COLUMN_LIST.build(), type.getCode() + RedisKeyBuilder.COMMA + standardColumnCode);
     }
 
     public void setInternalLanguageCode(String internalLanguageCode) {
@@ -110,8 +132,8 @@ public class MoreLanguageProperties {
         MoreLanguageProperties.languageDictCode = languageDictCode;
     }
 
-    public void setRemoveConditionMap(Map removeConditionMap) {
-        MoreLanguageProperties.removeConditionMap = removeConditionMap;
+    public void setSaftyStandardCode(String saftyStandardCode) {
+        MoreLanguageProperties.saftyStandardCode = saftyStandardCode;
     }
 
     public void setMultiSeparator(String multiSeparator) {
@@ -120,6 +142,26 @@ public class MoreLanguageProperties {
 
     public void setFieldValueSeparator(String fieldValueSeparator) {
         MoreLanguageProperties.fieldValueSeparator = fieldValueSeparator;
+    }
+
+    public void setShowInfoLanguageSeparator(String showInfoLanguageSeparator) {
+        MoreLanguageProperties.showInfoLanguageSeparator = showInfoLanguageSeparator;
+    }
+
+    public void setCheckItemSeparator(String checkItemSeparator) {
+        MoreLanguageProperties.checkItemSeparator = checkItemSeparator;
+    }
+
+    public void setCheckMsgItemSeparator(String checkMsgItemSeparator) {
+        MoreLanguageProperties.checkMsgItemSeparator = checkMsgItemSeparator;
+    }
+
+    public void setCheckMultiItemSeparator(String checkMultiItemSeparator) {
+        MoreLanguageProperties.checkMultiItemSeparator = checkMultiItemSeparator;
+    }
+
+    public void setCheckMergedSeparator(String checkMergedSeparator) {
+        MoreLanguageProperties.checkMergedSeparator = checkMergedSeparator;
     }
 
     public void setStyleCountryStatusImportMaxSize(Integer styleCountryStatusImportMaxSize) {
@@ -162,8 +204,8 @@ public class MoreLanguageProperties {
         }
     }
 
-    public void setExcelDataRowNum(String hangTagMainDbAlias) {
-        MoreLanguageProperties.hangTagMainDbAlias = hangTagMainDbAlias;
+    public void setExcelDataRowNum(Integer excelDataRowNum) {
+        MoreLanguageProperties.excelDataRowNum = excelDataRowNum;
     }
 
     public void setImportExecutePoolSize(Integer importExecutePoolSize) {
@@ -182,10 +224,10 @@ public class MoreLanguageProperties {
         HAVEN_T_CONTENT("%s未翻译"),
         FIELD("字段"),
         CONTENT("内容"),
-        FIELD_FORMAT("%s:%s %s"),
-        CONTENT_FORMAT("%s%s%s%s"),
+        TIME("时间"),
+        TRANSLATE("翻译"),
+        CONTENT_FORMAT("%s%s%s"),
         HAVEN_T_COUNTRY_LANGUAGE("未查询到国家语言"),
-        HAVEN_T_BULK_TAG("大货款号: 不存在%s的吊牌信息"),
         SUCCESS_IMPORT("您的吊牌信息已经导入成功. %s"),
         CHECK_REIMPORT("%s, 请问是否需要导入?"),
         FAILURE_IMPORT("导入失败, 请你根据导入规则进行导入\n%s"),
@@ -194,11 +236,16 @@ public class MoreLanguageProperties {
         EXIST_COUNTRY_LANGUAGE("已存在对应国家"),
         INCORRECT_STANDARD_CODE("非法标准列code"),
         NOT_FOUND_COUNTRY_LANGUAGE("未找到对应的国家语言数据"),
-        WARN_STANDARD_CODE("无效的标准列,请重新刷新页面"),
         NOT_EXIST_STANDARD_CODE("未设置表头,请找开发协助"),
         WARN_EXAMINE_STATUS("吊牌状态必须为待翻译确认或已审核"),
         NOT_EXIST_BULK_STATUS("失败,没有找到对应款号"),
         ERROR_STATUS("成功,审核流程仅进行到%s"),
+        EXIST_STANDARD("已存在相同的标准表"),
+        INCORRECT_IMPORT_MAPPING_KEY("%s隐藏列的关键映射值被修改,请重新导入"),
+        HAVEN_T_IMPORT_FIRST_ROW("请勿删除导出模板%s的首行数据,请重新导出一份"),
+        HAVEN_T_OPERA_LOG_NAME("缺少日志类型"),
+        NOT_EXIST_CONTENT("【提示：%s为空】"),
+        NOT_EXIST_HANG_TAG_TYPE("吊牌类型不能为空"),
         ;
         /** 文本 */
         private final String text;

@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.NOT_FOUND_COUNTRY_LANGUAGE;
 import static com.base.sbc.module.common.convert.ConvertContext.OPEN_CV;
 
 /**
@@ -59,16 +61,14 @@ public class StyleCountryPrintRecordServiceImpl extends BaseServiceImpl<StyleCou
     @Override
     public StyleCountryPrintRecordDto findPrintRecordByStyleNo(HangTagMoreLanguageDTO languageDTO) {
         String bulkStyleNo = languageDTO.getBulkStyleNo();
-//        HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(Collections.singletonList(bulkStyleNo), languageDTO.getUserCompany(), languageDTO.getSelectType())
-//                .stream().findFirst().orElse(null);
-//        if (hangTagVO == null) {
-//            throw new OtherException("大货款号:" + bulkStyleNo + " 不存在");
-//        }
+
+        // 查询国家
         CountryQueryDto countryQueryDto = BeanUtil.copyProperties(languageDTO,CountryQueryDto.class);
         List<CountryLanguageDto> countryLanguageDtoList = countryLanguageService.listQuery(countryQueryDto);
         if (CollectionUtil.isEmpty(countryLanguageDtoList)) {
-            throw new OtherException("无效的国家或语言");
+            throw new OtherException(MoreLanguageProperties.getMsg(NOT_FOUND_COUNTRY_LANGUAGE));
         }
+        // 封装基础数据
         CountryLanguageDto baseCountryLanguageDto = countryLanguageDtoList.get(0);
         String code = baseCountryLanguageDto.getCode();
 
@@ -80,18 +80,22 @@ public class StyleCountryPrintRecordServiceImpl extends BaseServiceImpl<StyleCou
 
         List<TypeLanguageDto> typeLanguageDtoList = new ArrayList<>();
 
+        // 查询DB打印记录
         List<String> countryLanguageIdList = countryLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList());
         List<StyleCountryPrintRecord> printRecordList = this.list(new LambdaQueryWrapper<StyleCountryPrintRecord>()
                 .eq(StyleCountryPrintRecord::getBulkStyleNo, bulkStyleNo)
                 .in(StyleCountryPrintRecord::getCountryLanguageId, countryLanguageIdList)
         );
 
+        // 根据类型排序分组, 封装该款号拥有的LanguageList
         countryLanguageDtoList.stream().sorted(CommonUtils.comparing(CountryLanguage::getType))
                 .collect(CommonUtils.groupingBy(CountryLanguageDto::getType)).forEach((type, sameTypeList)-> {
             TypeLanguageDto typeLanguageDto = new TypeLanguageDto();
             typeLanguageDto.setType(type);
             typeLanguageDto.setLanguageList( sameTypeList.stream().map(languageSaveDto -> {
+                // 深拷贝
                 LanguageSaveDto saveDto = ConvertContext.MORE_LANGUAGE_CV.copy2Save(languageSaveDto);
+                // 找到更新时间最大的数据
                 Date printTime = printRecordList.stream().filter(it -> it.getCountryLanguageId().equals(languageSaveDto.getId()))
                         .findFirst().map(StyleCountryPrintRecord::getUpdateDate).orElse(null);
                 saveDto.setPrintTime(printTime);
@@ -101,7 +105,7 @@ public class StyleCountryPrintRecordServiceImpl extends BaseServiceImpl<StyleCou
         });
         recordDto.setTypeLanguageDtoList(typeLanguageDtoList);
 
-        // 获取状态
+        // 获取审核状态
         StyleCountryStatusEnum status = styleCountryStatusService.findOneField(new LambdaQueryWrapper<StyleCountryStatus>()
                 .eq(StyleCountryStatus::getBulkStyleNo, bulkStyleNo)
                 .eq(StyleCountryStatus::getCountryCode, code), StyleCountryStatus::getStatus
@@ -115,18 +119,21 @@ public class StyleCountryPrintRecordServiceImpl extends BaseServiceImpl<StyleCou
     @Transactional(rollbackFor = Exception.class)
     public void savePrintRecord(HangTagMoreLanguageSystemDTO languageDTO) {
         String bulkStyleNo = languageDTO.getBulkStyleNo();
+        // 查询国家
         CountryQueryDto countryQueryDto = OPEN_CV.copy2CountryQuery(languageDTO);
         List<CountryLanguageDto> countryLanguageDtoList = countryLanguageService.listQuery(countryQueryDto);
         if (CollectionUtil.isEmpty(countryLanguageDtoList)) {
-            log.error("无效的国家或语言");
+            log.error(MoreLanguageProperties.getMsg(NOT_FOUND_COUNTRY_LANGUAGE));
             return;
         }
 
+        // 获取DB对应的打印记录
         List<String> countryLanguageIdList = countryLanguageDtoList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList());
         List<StyleCountryPrintRecord> oldPrintRecordList = this.list(new LambdaQueryWrapper<StyleCountryPrintRecord>()
                 .eq(StyleCountryPrintRecord::getBulkStyleNo, bulkStyleNo)
                 .in(StyleCountryPrintRecord::getCountryLanguageId, countryLanguageIdList)
         );
+        // 新增或修改
         List<StyleCountryPrintRecord> recordList = countryLanguageDtoList.stream().map(countryLanguageDto -> {
             String countryLanguageId = countryLanguageDto.getId();
             StyleCountryPrintRecord countryPrintRecord = oldPrintRecordList.stream()
