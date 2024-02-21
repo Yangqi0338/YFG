@@ -291,6 +291,16 @@ public class SmpGoodsDto extends SmpBaseDto {
     private Date processDepartmentDate;
 
     /**
+     * 货品停用标识
+     */
+    private String goodsFlag;
+
+    /**
+     * 颜色停用标识
+     */
+    private String goodsColorFlag;
+
+    /**
      * 指定面料集合
      */
     private List<StyleSpecFabric> styleSpecFabricList;

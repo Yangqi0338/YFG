@@ -262,8 +262,10 @@ public interface StyleColorService extends BaseService<StyleColor> {
 
     void agentStop(String id);
 
-    void agentSync(String[] ids);
+    ApiResult agentSync(String[] ids);
 
 
-    void agentUnlock(String id);
+    void agentUnlock(String[] ids);
+
+    void agentEnable(String id);
 }
