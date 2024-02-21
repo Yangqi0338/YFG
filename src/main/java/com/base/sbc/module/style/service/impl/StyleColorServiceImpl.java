@@ -109,10 +109,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -1904,6 +1901,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.notEmptyLike("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
 
         queryWrapper.eq("brand","MANGO");
+        objects.setOrderBy("tsc.create_date,tsc.style_no,tsca.size_code");
+
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
@@ -1913,8 +1912,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void agentDelete(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if("".equals(byId.getStatus())){
-            throw new OtherException("该状态不允许删除");
+        if("0".equals(byId.getStatus())){
+            throw new OtherException("只有未下发时才能删除");
         }
         styleColorAgentService.removeById(id);
     }
@@ -1923,8 +1922,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void agentStop(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if("".equals(byId.getStatus())){
-            throw new OtherException("该状态不允许停用");
+        if("2".equals(byId.getStatus())){
+            throw new OtherException("只有重新打开时才能停用");
         }
         LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.set(StyleColorAgent::getStatus,"-1");
@@ -1936,8 +1935,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void agentUnlock(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if("".equals(byId.getStatus())){
-            throw new OtherException("该状态不允许解锁");
+        if("1".equals(byId.getStatus())){
+            throw new OtherException("只有已下发时才能解锁");
         }
         LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.set(StyleColorAgent::getStatus,"2");
@@ -1947,7 +1946,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Override
     public void agentSync(String[] ids) {
+        //状态校验，校验不通过的不走同步逻辑
+        List<StyleColorAgent> styleColorAgents = styleColorAgentService.listByIds(Arrays.asList(ids));
+
+        List<StyleColorAgent> collect = styleColorAgents.stream().filter(o -> "".equals(o.getStatus())).collect(Collectors.toList());
+
+
+        //同步时，判断是否所有尺码停用，根据
         smpService.goodsAgent(ids);
+
     }
 
     @Override
