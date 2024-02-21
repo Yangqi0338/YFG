@@ -222,7 +222,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
                         // 重置关联
                         removeRelation(countryId);
-                        List<StandardColumnCountryRelation> countryRelationList = standardColumnCodeList.stream().skip(1).map(standardColumnCode -> {
+                        List<StandardColumnCountryRelation> countryRelationList = standardColumnCodeList.stream().map(standardColumnCode -> {
                             // 从redis标准列数据
                             RedisStaticFunUtils.setBusinessService(standardColumnService).setMessage(MoreLanguageProperties.getMsg(INCORRECT_STANDARD_CODE));
                             StandardColumn standardColumn = (StandardColumn)
