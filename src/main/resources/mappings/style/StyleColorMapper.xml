@@ -318,7 +318,7 @@
                tsc.create_date,-- 创建时间
                tsc.create_id,
                tsc.create_name,-- 创建人
-               tsc.status,-- 状态
+               ts.enable_status          status,-- 状态
                tsca.status               sendStatus,-- 发送状态
                ts.band_code,
                ts.band_name,-- 波段
