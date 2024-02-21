@@ -1897,11 +1897,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.notEmptyLikeOrIsNull("ts.year_name", queryDto.getYearName());
         queryWrapper.notEmptyEqOrIsNull("ts.prod_category_name", queryDto.getProdCategoryName());
         queryWrapper.notEmptyEqOrIsNull("ts.prod_category", queryDto.getProdCategory());
-        queryWrapper.notEmptyLike("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
-        queryWrapper.notEmptyLike("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
+        if(StringUtils.isNotBlank(queryDto.getStyleNo())){
+            queryWrapper.likeList("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
+        }
+        if(StringUtils.isNotBlank(queryDto.getDesignNo())){
+            queryWrapper.likeList("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
+        }
 
-        queryWrapper.eq("brand","MANGO");
-        objects.setOrderBy("tsc.create_date,tsc.style_no,tsca.size_code");
+        queryWrapper.eq("ts.brand","MANGO");
+        objects.setOrderBy("tsc.create_date,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
