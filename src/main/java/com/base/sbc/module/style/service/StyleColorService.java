@@ -268,4 +268,6 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void agentUnlock(String[] ids);
 
     void agentEnable(String id);
+
+    void exportAgentExcel(HttpServletResponse response, QueryStyleColorAgentDto querySampleStyleColorDto);
 }

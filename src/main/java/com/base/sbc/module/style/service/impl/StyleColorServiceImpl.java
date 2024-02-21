@@ -1986,6 +1986,54 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     @Override
+    public void exportAgentExcel(HttpServletResponse response, QueryStyleColorAgentDto dto) {
+
+
+        dto.setPageSize(Integer.MAX_VALUE);
+        PageInfo<StyleColorAgentVo> styleColorAgentVoPageInfo = styleColorService.agentPageList(dto);
+        List<StyleColorAgentVo> styleColorAgentVoList = styleColorAgentVoPageInfo.getList();
+
+        List<MangoStyleColorExeclDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclDto.class);
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                .build();
+
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(styleColorAgentVoList) && styleColorAgentVoList.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                stylePicUtils.setStylePic(list, "styleColorPic",30);
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (MangoStyleColorExeclDto mangoStyleColorExeclDto : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String styleColorPic = mangoStyleColorExeclDto.getStyleColorPic();
+                            mangoStyleColorExeclDto.setStyleColorPic1(HttpUtil.downloadBytes(styleColorPic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list, MangoStyleColorExeclDto.class, "代理货品资料导出.xlsx", new ExportParams("代理货品资料导出", "代理货品资料导出", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    @Override
     public ApiResult agentSync(String[] ids) {
         int i = smpService.goodsAgent(ids,true);
 

@@ -1543,7 +1543,7 @@ public class SmpService {
         List<StyleColorAgent> styleColorAgents = styleColorAgentService.listByField("style_color_id", Arrays.asList(ids));
 
         for (StyleColorAgent styleColorAgent : styleColorAgents) {
-            if(!StrUtil.equals(styleColorAgent.getStatus(),"0") || !StrUtil.equals(styleColorAgent.getStatus(),"2")){
+            if(!StrUtil.equals(styleColorAgent.getStatus(),"0") && !StrUtil.equals(styleColorAgent.getStatus(),"2")){
                 throw new OtherException("只有状态为未下发或者重新打开时才能下发");
             }
         }

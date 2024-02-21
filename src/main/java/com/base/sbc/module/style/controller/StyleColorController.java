@@ -274,6 +274,13 @@ public class StyleColorController {
 		styleColorService.mangoExeclImport(list);
 		return ApiResult.success();
 	}
+
+	@ApiOperation(value = "mango数据导出Excel")
+	@GetMapping("/exportAgentExcel")
+	public void exportAgentExcel(HttpServletResponse response,QueryStyleColorAgentDto querySampleStyleColorDto) throws Exception {
+		styleColorService.exportAgentExcel(response,querySampleStyleColorDto);
+	}
+
 	@ApiOperation(value = "代理货品资料-删除")
 	@GetMapping("/agentDelete")
 	public ApiResult agentDelete(String id) {
