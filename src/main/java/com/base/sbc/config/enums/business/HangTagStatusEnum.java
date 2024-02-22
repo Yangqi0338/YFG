@@ -25,6 +25,7 @@ public enum HangTagStatusEnum {
     TRANSLATE_CHECK("待翻译确认"),
     SUSPEND("不通过"),
     FINISH("已确认"),
+    PART_TRANSLATE_CHECK("部分翻译确认"),
     ;
     /** 编码 */
     @EnumValue

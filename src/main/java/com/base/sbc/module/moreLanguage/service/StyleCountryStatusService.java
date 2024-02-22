@@ -9,6 +9,7 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
@@ -40,7 +41,7 @@ public interface StyleCountryStatusService extends BaseService<StyleCountryStatu
 
     PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto);
 
-    boolean updateStatus(List<StyleCountryStatus> updateStatus);
+    boolean updateStatus(List<StyleCountryStatus> updateStatus, List<HangTag> hangTagList, boolean needUpdateHangTag);
 
 // 自定义方法区 不替换的区域【other_end】
 

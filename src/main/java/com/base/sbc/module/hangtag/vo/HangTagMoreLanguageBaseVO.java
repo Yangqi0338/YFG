@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
@@ -78,6 +79,10 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
         return getLanguageList().stream().anyMatch(it-> it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK)
                  ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
     };
+
+    protected String findStandardColumnName() {
+        return (StrUtil.isNotBlank(this.standardColumnName) ? this.standardColumnName + MoreLanguageProperties.fieldValueSeparator: "");
+    }
 
     /**
      * 全量数据

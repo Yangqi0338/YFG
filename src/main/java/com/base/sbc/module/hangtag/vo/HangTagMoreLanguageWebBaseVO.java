@@ -57,27 +57,27 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         return map;
     }
 
-    private String getMergedContent(Function<HangTagMoreLanguageVO, String> function){
+    private String getMergedContent(Function<HangTagMoreLanguageBaseVO, String> fieldFunc, Function<HangTagMoreLanguageVO, String> contentFunc){
         // 返回合并内容
         StringJoiner joiner = new StringJoiner(MoreLanguageProperties.multiSeparator);
-        joiner.add(this.getSourceContent());
+        joiner.add(fieldFunc.apply(this));
         this.getLanguageList().forEach(languageVO-> {
             joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));
-            joiner.add(function.apply(languageVO));
+            joiner.add(contentFunc.apply(languageVO));
         });
         return joiner.toString();
     }
 
     public String getMergedContent() {
-        return getMergedContent(HangTagMoreLanguageVO::getContent);
+        return getMergedContent(HangTagMoreLanguageBaseVO::getSourceContent, HangTagMoreLanguageVO::getContent);
     }
 
     public String getMergedPrefixContent() {
-        return getMergedContent(HangTagMoreLanguageVO::getStandardColumnContent);
+        return getMergedContent(HangTagMoreLanguageBaseVO::findStandardColumnName, HangTagMoreLanguageVO::findStandardColumnContent);
     }
 
     public String getMergedContentWithoutPrefix() {
-        return getMergedContent(HangTagMoreLanguageVO::getPropertiesContent);
+        return getMergedContent(HangTagMoreLanguageBaseVO::getPropertiesName, HangTagMoreLanguageVO::getPropertiesContent);
     }
 
 }

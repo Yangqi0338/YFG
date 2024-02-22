@@ -156,7 +156,7 @@ public class HangTagController extends BaseController {
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(@Valid @RequestBody HangTagUpdateStatusDTO dto) {
         dto.setUserCompany(super.getUserCompany());
-        hangTagService.updateStatus(dto, false);
+        hangTagService.updateStatus(dto, false, new ArrayList<>());
         return updateSuccess("更新成功");
     }
 

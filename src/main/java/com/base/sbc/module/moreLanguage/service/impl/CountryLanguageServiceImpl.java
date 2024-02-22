@@ -434,6 +434,15 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         return result;
     }
 
+    @Override
+    public long getAllCountrySize() {
+        return this.list(new BaseLambdaQueryWrapper<CountryLanguage>()
+                        .select(CountryLanguage::getCode)
+                .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO)
+                .groupBy(CountryLanguage::getCode)
+        ).size();
+    }
+
 // 自定义方法区 不替换的区域【other_start】
 
 

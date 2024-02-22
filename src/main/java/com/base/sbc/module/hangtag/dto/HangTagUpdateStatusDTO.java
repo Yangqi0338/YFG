@@ -42,6 +42,10 @@ public class HangTagUpdateStatusDTO {
 
     private HangTagStatusCheckEnum checkType;
 
+    /** 国家编码 */
+    @ApiModelProperty(value = "国家编码"  )
+    private String countryCode;
+
     private String userCompany;
 
 }

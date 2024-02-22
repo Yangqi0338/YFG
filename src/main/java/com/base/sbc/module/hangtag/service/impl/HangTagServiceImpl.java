@@ -17,6 +17,7 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.flowable.service.FlowableService;
@@ -77,6 +78,7 @@ import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
@@ -112,6 +114,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -202,6 +205,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Autowired
 	private StyleCountryStatusMapper styleCountryStatusMapper;
 
+	@Resource
+	@Lazy
+	private StyleCountryStatusService styleCountryStatusService;
+
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
@@ -274,6 +281,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							case "品控确认":
 								e.setStatus(HangTagStatusEnum.QC_CHECK);
 								break;
+							case "翻译确认":
+								e.setStatus(HangTagStatusEnum.TRANSLATE_CHECK);
+								break;
 							default:
 								break;
 							}
@@ -303,6 +313,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			for (HangTagListVO hangTagListVO : hangTagListVOS) {
 				hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBulkStyleNo()));
 			}
+		}
+		// 如果之前完成了,但是新加了一个国家，就要改回到部分翻译
+		if (hangTagListVOS.stream().anyMatch(it-> it.getStatus() == HangTagStatusEnum.FINISH)) {
+			long size = countryLanguageService.getAllCountrySize();
+			hangTagListVOS.stream().filter(it-> it.getStatus() == HangTagStatusEnum.FINISH).forEach(hangTag-> {
+				if (styleCountryStatusService.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+						.eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
+						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)) < size) {
+					hangTag.setStatus(HangTagStatusEnum.PART_TRANSLATE_CHECK);
+				}
+			});
 		}
 
 		return new PageInfo<>(hangTagListVOS);
@@ -521,22 +542,49 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	@Override
-	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate) {
+	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate, List<HangTag> hangTags) {
 		String userCompany = hangTagUpdateStatusDTO.getUserCompany();
 		logger.info("HangTagService#updateStatus 更新状态 hangTagUpdateStatusDTO:{}, userCompany:{}",
 				JSON.toJSONString(hangTagUpdateStatusDTO), userCompany);
-		LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda().in(HangTag::getId,
-				hangTagUpdateStatusDTO.getIds());
-		// .eq(HangTag::getCompanyCode, userCompany);
-		List<HangTag> hangTags = super.list(queryWrapper);
+		if (CollectionUtils.isEmpty(hangTags)) {
+			LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda().in(HangTag::getId,
+					hangTagUpdateStatusDTO.getIds());
+			// .eq(HangTag::getCompanyCode, userCompany);
+			hangTags.addAll(super.list(queryWrapper));
+			// 检查
+			strictCheckIngredientPercentage(hangTags.stream().map(HangTag::getId).collect(Collectors.toList()));
+		}
 		if (CollectionUtils.isEmpty(hangTags)) {
 			throw new OtherException("存在未填写数据，请先填写");
 		}
-		// 检查
-		strictCheckIngredientPercentage(hangTags.stream().map(HangTag::getId).collect(Collectors.toList()));
+		HangTagStatusEnum updateStatus = hangTagUpdateStatusDTO.getStatus();
+
+		// 如果当前是部分确认,且部分确认,仅当部分确认
+		if (HangTagStatusEnum.PART_TRANSLATE_CHECK == updateStatus) {
+			List<HangTag> partCheckTranslateList = hangTags.stream()
+					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, HangTagStatusEnum.TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
+			if (CollectionUtil.isNotEmpty(partCheckTranslateList)) {
+				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
+				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
+
+				partCheckTranslateList.stream().collect(Collectors.groupingBy(it-> it.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK)).forEach((multiCheck, multiCheckList)-> {
+					styleCountryStatusService.updateStatus(partCheckTranslateList.stream().map(hangTag-> {
+						StyleCountryStatus status = new StyleCountryStatus();
+						status.setBulkStyleNo(hangTag.getBulkStyleNo());
+						status.setCountryCode(countryCode);
+						status.setStatus(StyleCountryStatusEnum.CHECK);
+						return status;
+					}).collect(Collectors.toList()), multiCheckList, multiCheck);
+					if (multiCheck) {
+						hangTags.removeAll(multiCheckList);
+					}
+				});
+			}
+		}
+
+		if (CollectionUtil.isEmpty(hangTags)) return;
 
 		ArrayList<HangTag> updateHangTags = Lists.newArrayList();
-		HangTagStatusEnum updateStatus = hangTagUpdateStatusDTO.getStatus();
 		hangTags.forEach(e -> {
 			if (HangTagStatusEnum.NOT_COMMIT != updateStatus) {
 				try {
@@ -567,8 +615,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					}
 					if (HangTagStatusEnum.TRANSLATE_CHECK == e.getStatus()
 							&&
-							HangTagStatusEnum.FINISH != updateStatus) {
+							HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus) {
 						throw new OtherException("存在待翻译确认数据，请先翻译确认");
+					}
+					if (HangTagStatusEnum.PART_TRANSLATE_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.FINISH != updateStatus) {
+						throw new OtherException("存在部分翻译数据，请先全部翻译确认");
 					}
 				}catch (OtherException ex) {
 					if (!repeatUpdate || !e.getStatus().equals(updateStatus)) {
@@ -580,15 +633,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTag.setId(e.getId());
 			hangTag.updateInit();
 			hangTag.setStatus(updateStatus);
-			if (HangTagStatusEnum.FINISH == updateStatus) {
-				// 新增一个状态数据
-				hangTag.setTranslateConfirmDate(new Date());
-			}
-			if (HangTagStatusEnum.TRANSLATE_CHECK == updateStatus) {
-				hangTag.setConfirmDate(new Date());
-			}
-			if (HangTagStatusEnum.DESIGN_CHECK == updateStatus) {
+			if (updateStatus.lessThan(HangTagStatusEnum.TRANSLATE_CHECK)) {
 				hangTag.setConfirmDate(null);
+			}else if (updateStatus == HangTagStatusEnum.TRANSLATE_CHECK) {
+				hangTag.setConfirmDate(new Date());
+			}else {
+				hangTag.setTranslateConfirmDate(new Date());
 			}
 			updateHangTags.add(hangTag);
 		});
@@ -603,9 +653,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case QC_CHECK:
 				type = HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM;
 				break;
-			case FINISH:
-            default:
+			case TRANSLATE_CHECK:
 				type = HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM;
+				break;
+            default:
+				type = HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM;
 		}
 
 		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
@@ -782,7 +834,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 品控部确认
 				tagPrinting.setApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.QC_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 翻译确认
-				tagPrinting.setTranslateApproved(HangTagStatusEnum.FINISH == hangTag.getStatus());
+				tagPrinting.setTranslateApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.TRANSLATE_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
@@ -1244,23 +1296,27 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public boolean counterReview(HangTag reviewHangTag) {
-		HangTagStatusEnum status = reviewHangTag.getStatus();
+//		HangTagStatusEnum status = reviewHangTag.getStatus();
 
 		HangTag hangTag = this.getById(reviewHangTag.getId());
-		if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(status)) {
+//		if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(status)) {
 			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
-		}
-		if (HangTagStatusEnum.TRANSLATE_CHECK == status) {
-			hangTag.setStatus(HangTagStatusEnum.QC_CHECK);
-		}else {
-			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
-		}
+//		}
+//		if (HangTagStatusEnum.TRANSLATE_CHECK == status) {
+//			hangTag.setStatus(HangTagStatusEnum.QC_CHECK);
+//		}else {
+//			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
+//		}
 
 		smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL, 0);
 		boolean update = this.updateById(hangTag);
 
 		// 删除审核状态
-		styleCountryStatusMapper.delete(new BaseLambdaQueryWrapper<StyleCountryStatus>().eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo()));
+		styleCountryStatusMapper.update(null, new LambdaUpdateWrapper<StyleCountryStatus>()
+				.set(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
+				.eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
+				.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
+		);
 		return update;
 	}
 

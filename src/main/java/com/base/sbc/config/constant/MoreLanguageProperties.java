@@ -237,7 +237,7 @@ public class MoreLanguageProperties {
         INCORRECT_STANDARD_CODE("非法标准列code"),
         NOT_FOUND_COUNTRY_LANGUAGE("未找到对应的国家语言数据"),
         NOT_EXIST_STANDARD_CODE("未设置表头,请找开发协助"),
-        WARN_EXAMINE_STATUS("吊牌状态必须为待翻译确认或已审核"),
+        WARN_EXAMINE_STATUS("吊牌状态必须为待翻译确认之后"),
         NOT_EXIST_BULK_STATUS("失败,没有找到对应款号"),
         ERROR_STATUS("成功,审核流程仅进行到%s"),
         EXIST_STANDARD("已存在相同的标准表"),

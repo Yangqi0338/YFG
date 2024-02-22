@@ -79,7 +79,7 @@ public interface HangTagService extends BaseService<HangTag> {
      * @param hangTagUpdateStatusDTO
      * @param repeatUpdate
      */
-    void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate);
+    void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate, List<HangTag> hangTagList);
 
 
     /**

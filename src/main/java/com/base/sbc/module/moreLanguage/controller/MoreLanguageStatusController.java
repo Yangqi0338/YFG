@@ -202,6 +202,6 @@ public class MoreLanguageStatusController extends BaseController {
     @ApiOperation(value = "修改审核状态", notes = "修改审核状态")
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(@RequestBody List<StyleCountryStatus> updateStatus) {
-        return updateSuccess(styleCountryStatusService.updateStatus(updateStatus));
+        return updateSuccess(styleCountryStatusService.updateStatus(updateStatus, new ArrayList<>(), true));
     }
 }

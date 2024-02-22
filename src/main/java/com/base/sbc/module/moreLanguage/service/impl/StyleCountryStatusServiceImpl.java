@@ -1,5 +1,7 @@
 package com.base.sbc.module.moreLanguage.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
@@ -22,6 +24,7 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.mapper.HangTagMapper;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
@@ -43,11 +46,14 @@ import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +84,8 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
     @Autowired
     private HangTagMapper hangTagMapper;
 
-    @Autowired
+    @Resource
+    @Lazy
     private HangTagService hangTagService;
 
     @Autowired
@@ -223,15 +230,15 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean updateStatus(List<StyleCountryStatus> updateStatusList) {
+    public boolean updateStatus(List<StyleCountryStatus> updateStatusList, List<HangTag> hangTagList, boolean needUpdateHangTag) {
         // 空值判断
         List<String> bulkStyleNoList = updateStatusList.stream().map(bulkStyleNoFunc).distinct().collect(Collectors.toList());
         if (CollectionUtil.isEmpty(bulkStyleNoList)) {
             return false;
         }
         // 获取需要更新的国家编码列表, 查询DB已存在的数据
-        List<String> countryCodeList = updateStatusList.stream().map(StyleCountryStatus::getCountryCode)
-                .filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        String countryCodeList = updateStatusList.stream().map(StyleCountryStatus::getCountryCode)
+                .filter(Objects::nonNull).distinct().collect(Collectors.joining(COMMA));
         LambdaQueryWrapper<StyleCountryStatus> ew = new BaseLambdaQueryWrapper<StyleCountryStatus>()
                 .notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
                 .in(bulkStyleNoFunc, bulkStyleNoList)
@@ -240,21 +247,26 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         List<StyleCountryStatus> styleCountryStatusList = this.list(ew);
 
         // 获取吊牌状态
-        HangTagSearchDTO searchDTO = new HangTagSearchDTO();
-        searchDTO.setBulkStyleNos(bulkStyleNoList.toArray(new String[]{}));
-        List<HangTagListVO> hangTagList = findHangTagList(searchDTO);
+        if (CollectionUtil.isEmpty(hangTagList)) {
+            HangTagSearchDTO searchDTO = new HangTagSearchDTO();
+            searchDTO.setBulkStyleNos(bulkStyleNoList.toArray(new String[]{}));
+            hangTagList.addAll(BeanUtil.copyToList(findHangTagList(searchDTO), HangTag.class));
+        }
+
 
         // 都为正确状态才能更新
         bulkStyleNoList.forEach(bulkStyleNo-> {
-            HangTagListVO hangTagListVO = hangTagList.stream().filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()))
+            HangTag hangTag = hangTagList.stream().filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()))
                     .findFirst().orElseThrow(() -> new OtherException(MoreLanguageProperties.getMsg(HAVEN_T_TAG,bulkStyleNo)));
-            if (!Arrays.asList(HangTagStatusEnum.TRANSLATE_CHECK, HangTagStatusEnum.FINISH).contains(hangTagListVO.getStatus())) {
+            if (!Arrays.asList(HangTagStatusEnum.TRANSLATE_CHECK,HangTagStatusEnum.PART_TRANSLATE_CHECK, HangTagStatusEnum.FINISH).contains(hangTag.getStatus())) {
                 throw new OtherException(MoreLanguageProperties.getMsg(WARN_EXAMINE_STATUS));
             }
         });
 
         // 获取当前国家的语言
-        List<CountryDTO> countryDTOList = countryLanguageService.getAllCountry(String.join(COMMA,countryCodeList));
+        List<CountryDTO> countryDTOList = countryLanguageService.getAllCountry(countryCodeList);
+        long size = countryLanguageService.getAllCountrySize();
+
 
         // 转化为 国家码-(国家类型-关联的标准列编码列表)
         Map<String, Map<CountryLanguageType, List<String>>> map = new HashMap<>(countryDTOList.size());
@@ -275,21 +287,26 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         List<StyleCountryStatus> statusList = updateStatusList.stream().flatMap(updateStatus -> {
             String countryCode = updateStatus.getCountryCode();
             String bulkStyleNo = updateStatus.getBulkStyleNo();
+            StyleCountryStatus baseStatus = BeanUtil.copyProperties(updateStatus, StyleCountryStatus.class);
+            baseStatus.setStatus(StyleCountryStatusEnum.UNCHECK);
             // 若没有指定更新某个国家,就获取所有国家
             return countryDTOList.stream()
-                    .filter(it-> StrUtil.isBlank(countryCode) || it.getCode().equals(countryCode))
+                    .filter(it-> StrUtil.isBlank(countryCode) || countryCode.contains(it.getCode()))
                     .map(countryDTO -> {
                         String code = countryDTO.getCode();
                         // 获取已存在的数据或直接使用空数据
                         StyleCountryStatus status = styleCountryStatusList.stream().filter(it ->
                                         it.getBulkStyleNo().equals(bulkStyleNo)
                                                 && it.getCountryCode().equals(code)
-                                ).findFirst().orElse(updateStatus);
+                                ).findFirst().orElse(baseStatus);
                         // 深拷贝
                         status = MORE_LANGUAGE_CV.copyMyself(status);
+                        // 如果状态一样,就不修改
+                        if (status.getStatus() == updateStatus.getStatus()) return null;
                         // 设置国家编码和状态
                         status.setCountryCode(code);
                         status.setStatus(updateStatus.getStatus());
+                        status.setCountryName(countryDTO.getCountryName());
 
                         // 获取对应的标准列编码列表,并封装检查专用的详情json (用作审核之后,翻译新增了一个标准列关联,可以做对应的标记以及反审)
                         Map<CountryLanguageType, List<String>> typeMap = map.getOrDefault(code, new HashMap<>());
@@ -303,18 +320,39 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                         // 清除更新标志
                         status.updateClear();
                         return status;
-                    });
+                    }).filter(Objects::nonNull);
         }).collect(Collectors.toList());
 
         boolean updateBatch = this.saveOrUpdateBatch(statusList);
 
-        // 直接调用吊牌更新接口, 将吊牌状态修改为完成
-        List<String> hangTagIdList = hangTagList.stream().map(HangTagListVO::getId).distinct().collect(Collectors.toList());
-        HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
-        statusDTO.setIds(hangTagIdList);
-        statusDTO.setStatus(HangTagStatusEnum.FINISH);
-        statusDTO.setUserCompany(getCompanyCode());
-        hangTagService.updateStatus(statusDTO,true);
+
+        if (needUpdateHangTag) {
+            // 可能存在未处理的状态,需要筛选
+            List<String> rightBulkStyleNoList = statusList.stream().map(StyleCountryStatus::getBulkStyleNo).collect(Collectors.toList());
+            hangTagList.stream().filter(it-> rightBulkStyleNoList.contains(it.getBulkStyleNo())).map(hangTag-> {
+                HangTagStatusEnum status = HangTagStatusEnum.PART_TRANSLATE_CHECK;
+                if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
+                    if (this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+                            .eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
+                            .ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)) >= size) {
+                        status = HangTagStatusEnum.FINISH;
+                    }
+                }
+                return Pair.of(status, hangTag);
+            }).collect(Collectors.groupingBy(Pair::getKey, Collectors.mapping(Pair::getValue, Collectors.toList()))).forEach((status,sameStatusHangTagList)-> {
+                // 直接调用吊牌更新接口, 将吊牌状态修改为完成
+                HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
+                statusDTO.setIds(sameStatusHangTagList.stream().map(HangTag::getId).distinct().collect(Collectors.toList()));
+                statusDTO.setStatus(status);
+                statusDTO.setUserCompany(getCompanyCode());
+                statusDTO.setCountryCode(countryCodeList);
+                // 设置为translate_check 打破循环
+                if (status == HangTagStatusEnum.PART_TRANSLATE_CHECK) {
+                    sameStatusHangTagList.forEach(it-> it.setStatus(HangTagStatusEnum.TRANSLATE_CHECK));
+                }
+                hangTagService.updateStatus(statusDTO,true, sameStatusHangTagList);
+            });
+        }
 
         return updateBatch;
     }
