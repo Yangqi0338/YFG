@@ -297,8 +297,8 @@
                ts.prod_category_name,-- 品类
                tsc.style_no,-- 大货款号
                tsc.style_color_pic,-- 款式配色图
-               ''                        outsideColorName,-- 合作方颜色名称
-               ''                        outsideColorCode,-- 合作方颜色编码
+               tsca.outside_color_name   outsideColorName,-- 合作方颜色名称
+               tsca.outside_color_code   outsideColorCode,-- 合作方颜色编码
                tsc.color_name,-- 颜色名称
                tsc.color_code,-- 颜色代码
                ts.style_type,

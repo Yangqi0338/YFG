@@ -235,7 +235,21 @@ public class QueryStyleColorAgentDto extends Page {
     /*导出标记*/
     private String excelFlag;
 
-
+    /**
+     * 外部颜色code
+     */
+    @ApiModelProperty(value = "外部颜色code")
+    private String outsideColorCode;
+    /**
+     * 外部颜色名称
+     */
+    @ApiModelProperty(value = "外部颜色名称")
+    private String outsideColorName;
+    /**
+     * 外部尺码code
+     */
+    @ApiModelProperty(value = "外部尺码code")
+    private String outsideSizeCode;
 
     /**
      * 工艺师

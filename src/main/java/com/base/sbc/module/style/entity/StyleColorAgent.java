@@ -56,6 +56,21 @@ public class StyleColorAgent extends BaseDataEntity<String> {
     @ApiModelProperty(value = "尺码code")
     private String sizeCode;
     /**
+     * 外部颜色code
+     */
+    @ApiModelProperty(value = "外部颜色code")
+    private String outsideColorCode;
+    /**
+     * 外部颜色名称
+     */
+    @ApiModelProperty(value = "外部颜色名称")
+    private String outsideColorName;
+    /**
+     * 外部尺码code
+     */
+    @ApiModelProperty(value = "外部尺码code")
+    private String outsideSizeCode;
+    /**
      * 合作方条码
      */
     @ApiModelProperty(value = "合作方条码")

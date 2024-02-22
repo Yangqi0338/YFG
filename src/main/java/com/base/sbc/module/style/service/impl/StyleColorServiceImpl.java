@@ -1926,7 +1926,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void agentDelete(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if("0".equals(byId.getStatus())){
+        if(!"0".equals(byId.getStatus())){
             throw new OtherException("只有未下发时才能删除");
         }
         styleColorAgentService.removeById(id);
@@ -1936,13 +1936,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void agentStop(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if("2".equals(byId.getStatus())) {
+        if(!"2".equals(byId.getStatus())) {
             throw new OtherException("只有重新打开时才能停用");
         }
         StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
         String styleId = styleColor.getStyleId();
         Style style = styleService.getById(styleId);
-        if("1".equals(style.getStatus())){
+        if("1".equals(style.getEnableStatus())){
             throw new OtherException("该款已经停用");
         }
 
@@ -1960,7 +1960,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         //状态校验
         List<StyleColorAgent> list = styleColorAgentService.listByIds(Arrays.asList(ids));
         for (StyleColorAgent styleColorAgent : list) {
-            if("1".equals(styleColorAgent.getStatus())){
+            if(!"1".equals(styleColorAgent.getStatus())){
                 throw new OtherException("只有已下发时才能解锁");
             }
         }
@@ -1975,13 +1975,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void agentEnable(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if("2".equals(byId.getStatus())) {
+        if(!"2".equals(byId.getStatus())) {
             throw new OtherException("只有重新打开时才能启用");
         }
         StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
         String styleId = styleColor.getStyleId();
         Style style = styleService.getById(styleId);
-        if("0".equals(style.getStatus())){
+        if("0".equals(style.getEnableStatus())){
             throw new OtherException("该款已经启用");
         }
 
