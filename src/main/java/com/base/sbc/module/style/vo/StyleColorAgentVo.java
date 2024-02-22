@@ -41,9 +41,13 @@ public class StyleColorAgentVo {
     private String packInfoId;
 
     private String styleId;
+
+    private String styleColorId;
     /** 产品季节id */
     @ApiModelProperty(value = "产品季节id"  )
     private String planningSeasonId;
+
+    private String planningSeason;
     /**
      * 款式图
      */
@@ -156,6 +160,15 @@ public class StyleColorAgentVo {
     @ApiModelProperty(value = "颜色库编码"  )
     private String colorCode;
 
+    @ApiModelProperty(value = "合作方颜色编码")
+    private String outsideColorCode;
+
+    @ApiModelProperty(value = "合作方颜色名称")
+    private String outsideColorName;
+
+    @ApiModelProperty(value = "尺码组")
+    private String sizeCode;
+
     /*BOM阶段*/
     @ApiModelProperty(value = "BOM阶段"  )
     private String bomStatus;
@@ -224,6 +237,11 @@ public class StyleColorAgentVo {
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+
+    private String enableStatus;
+
+    /** 发送状态 */
+    private String sendStatus;
 
     /** 创建时间 */
     @ApiModelProperty(value = "创建时间"  )
@@ -456,6 +474,12 @@ public class StyleColorAgentVo {
      * 默认条形码  唯一码  wareCode  +颜色编码  colorCode  +默认尺码的尺码编号[取设计属性中的默认尺码]
      */
     private String defaultBarCode;
+
+    /**
+     * 合作方条形码
+     */
+    @ApiModelProperty(value = "合作方条形码")
+    private String outsideBarcode;
 
     /**
      * 正确样样衣码

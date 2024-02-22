@@ -274,10 +274,24 @@ public class StyleColorController {
 		styleColorService.mangoExeclImport(list);
 		return ApiResult.success();
 	}
+
+	@ApiOperation(value = "mango数据导出Excel")
+	@GetMapping("/exportAgentExcel")
+	public void exportAgentExcel(HttpServletResponse response,QueryStyleColorAgentDto querySampleStyleColorDto) throws Exception {
+		styleColorService.exportAgentExcel(response,querySampleStyleColorDto);
+	}
+
 	@ApiOperation(value = "代理货品资料-删除")
 	@GetMapping("/agentDelete")
 	public ApiResult agentDelete(String id) {
 		styleColorService.agentDelete(id);
+		return ApiResult.success();
+	}
+
+	@ApiOperation(value = "代理货品资料-解锁")
+	@GetMapping("/agentUnlock")
+	public ApiResult agentUnlock(String[] ids) {
+		styleColorService.agentUnlock(ids);
 		return ApiResult.success();
 	}
 
@@ -288,11 +302,17 @@ public class StyleColorController {
 		return ApiResult.success();
 	}
 
+	@ApiOperation(value = "代理货品资料-启用")
+	@GetMapping("/agentEnable")
+	public ApiResult agentEnable(String id) {
+		styleColorService.agentEnable(id);
+		return ApiResult.success();
+	}
+
 	@ApiOperation(value = "代理货品资料-同步")
 	@GetMapping("/agentSync")
 	public ApiResult agentSync(String[] ids) {
-		styleColorService.agentSync(ids);
-		return ApiResult.success();
+		return styleColorService.agentSync(ids);
 	}
 
 }

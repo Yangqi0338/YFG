@@ -114,10 +114,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -156,6 +153,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private StyleColorAgentService styleColorAgentService;
 
     @Autowired
     private StyleColorService styleColorService;
@@ -1906,8 +1906,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.notEmptyLikeOrIsNull("ts.year_name", queryDto.getYearName());
         queryWrapper.notEmptyEqOrIsNull("ts.prod_category_name", queryDto.getProdCategoryName());
         queryWrapper.notEmptyEqOrIsNull("ts.prod_category", queryDto.getProdCategory());
-        queryWrapper.notEmptyLike("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
-        queryWrapper.notEmptyLike("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
+        if(StringUtils.isNotBlank(queryDto.getStyleNo())){
+            queryWrapper.likeList("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
+        }
+        if(StringUtils.isNotBlank(queryDto.getDesignNo())){
+            queryWrapper.likeList("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
+        }
+        queryWrapper.notEmptyEq("tsca.status",queryDto.getSendStatus());
+
+        queryWrapper.eq("ts.brand_name","MANGO");
+        objects.setOrderBy("tsc.create_date,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
@@ -1916,17 +1924,133 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Override
     public void agentDelete(String id) {
-
+        //状态校验
+        StyleColorAgent byId = styleColorAgentService.getById(id);
+        if("0".equals(byId.getStatus())){
+            throw new OtherException("只有未下发时才能删除");
+        }
+        styleColorAgentService.removeById(id);
     }
 
     @Override
     public void agentStop(String id) {
+        //状态校验
+        StyleColorAgent byId = styleColorAgentService.getById(id);
+        if("2".equals(byId.getStatus())) {
+            throw new OtherException("只有重新打开时才能停用");
+        }
+        StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
+        String styleId = styleColor.getStyleId();
+        Style style = styleService.getById(styleId);
+        if("1".equals(style.getStatus())){
+            throw new OtherException("该款已经停用");
+        }
 
+        LambdaUpdateWrapper<Style> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(Style::getEnableStatus,"1");
+        updateWrapper.eq(Style::getId,styleId);
+        styleService.update(updateWrapper);
+
+        //同步下游系统
+        smpService.goodsAgent(new String[]{styleColor.getId()},true);
     }
 
     @Override
-    public void agentSync(String[] ids) {
+    public void agentUnlock(String[] ids) {
+        //状态校验
+        List<StyleColorAgent> list = styleColorAgentService.listByIds(Arrays.asList(ids));
+        for (StyleColorAgent styleColorAgent : list) {
+            if("1".equals(styleColorAgent.getStatus())){
+                throw new OtherException("只有已下发时才能解锁");
+            }
+        }
 
+        LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColorAgent::getStatus,"2");
+        updateWrapper.in(StyleColorAgent::getId, Arrays.asList(ids));
+        styleColorAgentService.update(updateWrapper);
+    }
+
+    @Override
+    public void agentEnable(String id) {
+        //状态校验
+        StyleColorAgent byId = styleColorAgentService.getById(id);
+        if("2".equals(byId.getStatus())) {
+            throw new OtherException("只有重新打开时才能启用");
+        }
+        StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
+        String styleId = styleColor.getStyleId();
+        Style style = styleService.getById(styleId);
+        if("0".equals(style.getStatus())){
+            throw new OtherException("该款已经启用");
+        }
+
+        LambdaUpdateWrapper<Style> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(Style::getEnableStatus,"0");
+        updateWrapper.eq(Style::getId,styleId);
+        styleService.update(updateWrapper);
+
+        //同步下游系统
+        smpService.goodsAgent(new String[]{styleColor.getId()},true);
+    }
+
+    @Override
+    public void exportAgentExcel(HttpServletResponse response, QueryStyleColorAgentDto dto) {
+
+
+        dto.setPageSize(Integer.MAX_VALUE);
+        PageInfo<StyleColorAgentVo> styleColorAgentVoPageInfo = styleColorService.agentPageList(dto);
+        List<StyleColorAgentVo> styleColorAgentVoList = styleColorAgentVoPageInfo.getList();
+
+        List<MangoStyleColorExeclDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclDto.class);
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                .build();
+
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(styleColorAgentVoList) && styleColorAgentVoList.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                stylePicUtils.setStylePic(list, "styleColorPic",30);
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (MangoStyleColorExeclDto mangoStyleColorExeclDto : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String styleColorPic = mangoStyleColorExeclDto.getStyleColorPic();
+                            mangoStyleColorExeclDto.setStyleColorPic1(HttpUtil.downloadBytes(styleColorPic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list, MangoStyleColorExeclDto.class, "代理货品资料导出.xlsx", new ExportParams("代理货品资料导出", "代理货品资料导出", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    @Override
+    public ApiResult agentSync(String[] ids) {
+        int i = smpService.goodsAgent(ids,true);
+
+        if (ids.length== i) {
+            return ApiResult.success("下发：" + ids.length + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
     }
 
     @Transactional

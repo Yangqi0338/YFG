@@ -102,6 +102,8 @@ public class QueryStyleColorAgentDto extends Page {
     @ApiModelProperty(value = "状态")
     private String status;
 
+    private String sendStatus;
+
     @ApiModelProperty(value = "创建时间")
     private String[] createDate;
 
