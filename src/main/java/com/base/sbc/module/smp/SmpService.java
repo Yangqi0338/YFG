@@ -1662,7 +1662,7 @@ public class SmpService {
 
                 smpSize.setSkuFiller(downContent);
                 smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
-                smpSize.setOutsideBarcode(sizeMap.get(styleColor.getStyleId()+basicsdatumSize.getCode()));
+                smpSize.setOutsideBarcode(sizeMap.get(styleColor.getId()+basicsdatumSize.getCode()));
                 smpSizes.add(smpSize);
             }
             smpGoodsDto.setItemList(smpSizes);
