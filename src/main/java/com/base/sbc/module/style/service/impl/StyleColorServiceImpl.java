@@ -198,8 +198,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private  PlanningSeasonService planningSeasonService;
     @Autowired
-    private StyleColorAgentService styleColorAgentService;
-    @Autowired
     private BasicsdatumModelTypeService basicsdatumModelTypeService;
 
     Pattern pattern = Pattern.compile("[a-z||A-Z]");
