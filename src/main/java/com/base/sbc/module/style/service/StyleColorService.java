@@ -13,6 +13,7 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorAgentVo;
@@ -257,6 +258,8 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void mangoExeclImport(List<MangoStyleColorExeclDto> list);
 
 // 自定义方法区 不替换的区域【other_end】
+
+    List<TagPrinting> agentListByStyleNo(String styleNo, boolean likeQueryFlag);
 
     void agentDelete(String id);
 

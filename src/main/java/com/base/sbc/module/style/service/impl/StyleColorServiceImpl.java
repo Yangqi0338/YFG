@@ -41,7 +41,6 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
@@ -80,6 +79,7 @@ import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
+import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -1918,6 +1918,47 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public List<TagPrinting> agentListByStyleNo(String styleNo, boolean likeQueryFlag) {
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        if (likeQueryFlag) {
+            queryWrapper.eq("tsc.style_no", styleNo);
+        } else {
+            queryWrapper.like("tsc.style_no", styleNo);
+        }
+
+        queryWrapper.eq("ts.brand_name", "MANGO");
+        queryWrapper.last("order by tsc.create_date,tsc.style_no,tsca.size_id");
+
+        List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
+
+        Map<String, List<StyleColorAgentVo>> collect = list.stream().collect(Collectors.groupingBy(o -> o.getStyleNo() + o.getColorCode()));
+
+        List<TagPrinting> tagPrintings = new ArrayList<>();
+        for (Map.Entry<String, List<StyleColorAgentVo>> entry : collect.entrySet()) {
+            List<StyleColorAgentVo> value = entry.getValue();
+            StyleColorAgentVo styleColorAgentVo1 = value.get(0);
+
+            TagPrinting tagPrinting = new TagPrinting();
+            tagPrinting.setStyleCode(styleColorAgentVo1.getStyleNo());
+            tagPrinting.setColorCode(styleColorAgentVo1.getOutsideColorCode());
+            tagPrinting.setColorDescription(styleColorAgentVo1.getOutsideColorName());
+
+            List<TagPrinting.Size> sizes = new ArrayList<>();
+            for (StyleColorAgentVo styleColorAgentVo : value) {
+                TagPrinting.Size size = new TagPrinting.Size();
+                size.setSORTCODE(styleColorAgentVo.getOutsideSizeCode());
+                size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
+                sizes.add(size);
+            }
+            tagPrinting.setSize(sizes);
+            tagPrintings.add(tagPrinting);
+        }
+
+        //大货款号+供应商颜色编码+外部尺码code+供应商条码
+        return tagPrintings;
     }
 
     @Override

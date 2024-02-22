@@ -160,6 +160,9 @@ public class StyleColorAgentVo {
     @ApiModelProperty(value = "颜色库编码"  )
     private String colorCode;
 
+    @ApiModelProperty(value = "外部尺码code")
+    private String outsideSizeCode;
+
     @ApiModelProperty(value = "合作方颜色编码")
     private String outsideColorCode;
 

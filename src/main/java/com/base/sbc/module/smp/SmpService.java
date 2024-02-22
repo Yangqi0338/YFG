@@ -1673,18 +1673,17 @@ public class SmpService {
             if (aBoolean) {
                 i++;
                 styleColor.setScmSendFlag("1");
+                if(isSync){
+                    //只有同步时，才修改所有状态为 已下发，   停用或者启用时，单独修改状态
+                    LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+                    updateWrapper.set(StyleColorAgent::getStatus,"1");
+                    updateWrapper.eq(StyleColorAgent::getStyleColorId,styleColor.getId());
+                    styleColorAgentService.update(updateWrapper);
+                }
             } else {
                 styleColor.setScmSendFlag("2");
             }
             styleColorService.updateById(styleColor);
-
-            if(isSync){
-                //只有同步时，才修改所有状态为 已下发，   停用或者启用时，单独修改状态
-                LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
-                updateWrapper.set(StyleColorAgent::getStatus,"1");
-                updateWrapper.eq(StyleColorAgent::getStyleColorId,styleColor.getId());
-                styleColorAgentService.update(updateWrapper);
-            }
         }
         return i;
     }
