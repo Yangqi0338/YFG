@@ -1564,12 +1564,11 @@ public class SmpService {
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
                 throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
             }
+
             if( StrUtil.equals(style.getEnableStatus(),BaseGlobal.YES)){
-                smpGoodsDto.setGoodsFlag("1");
-                smpGoodsDto.setGoodsColorFlag("1");
+                smpGoodsDto.setBomPhase("Sample");
             }else{
-                smpGoodsDto.setGoodsFlag("0");
-                smpGoodsDto.setGoodsColorFlag("0");
+                smpGoodsDto.setBomPhase("Production");
             }
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
