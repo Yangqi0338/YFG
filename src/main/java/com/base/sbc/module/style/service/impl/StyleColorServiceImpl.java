@@ -18,7 +18,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -44,7 +43,6 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
@@ -91,7 +89,10 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleColorAgent;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
-import com.base.sbc.module.style.service.*;
+import com.base.sbc.module.style.service.StyleColorAgentService;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
+import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -1920,7 +1921,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.notEmptyEq("tsca.status",queryDto.getSendStatus());
 
         queryWrapper.eq("ts.brand_name","MANGO");
-        objects.setOrderBy("tsc.create_date,tsc.style_no,tsca.size_id");
+        objects.setOrderBy("tsc.create_date desc,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
@@ -1937,7 +1938,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
 
         queryWrapper.eq("ts.brand_name", "MANGO");
-        queryWrapper.last("order by tsc.create_date,tsc.style_no,tsca.size_id");
+        queryWrapper.last("order by tsc.create_date desc,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
 
