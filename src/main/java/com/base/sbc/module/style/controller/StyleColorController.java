@@ -269,10 +269,9 @@ public class StyleColorController {
 
 	@ApiOperation(value = "mango导入Excel")
 	@PostMapping("/mangoImportExcel")
-	public ApiResult importExcel(@RequestParam("file") MultipartFile file,String userCompany) throws Exception {
+	public ApiResult importExcel(@RequestParam("file") MultipartFile file,@RequestParam(value = "isUpdate", required = false, defaultValue = "false") Boolean isUpdate) throws Exception {
 		List<MangoStyleColorExeclDto> list = ExcelImportUtil.importExcel(file.getInputStream(), MangoStyleColorExeclDto.class, new ImportParams());
-		styleColorService.mangoExeclImport(list);
-		return ApiResult.success();
+		return styleColorService.mangoExeclImport(list,isUpdate);
 	}
 
 	@ApiOperation(value = "mango数据导出Excel")
