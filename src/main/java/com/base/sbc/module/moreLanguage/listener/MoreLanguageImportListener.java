@@ -255,7 +255,9 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     countryTranslate.setContent(valueList[Math.min(valueList.length - 1, i)]);
                 }
             });
-            translateList.add(countryTranslate);
+            if (StrUtil.isNotBlank(countryTranslate.getContent())) {
+                translateList.add(countryTranslate);
+            }
         });
 
         exportMapping.setSourceData(translateList);
