@@ -293,7 +293,7 @@
                ts.season_name,-- 季节
                concat(ts.year_name,
                       ' ', ts.season_name,
-                      ' ', ts.band_name) planningSeason,-- 产品季
+                      ' ', ts.brand_name) planningSeason,-- 产品季
                ts.prod_category_name,-- 品类
                tsc.style_no,-- 大货款号
                tsc.style_color_pic,-- 款式配色图
