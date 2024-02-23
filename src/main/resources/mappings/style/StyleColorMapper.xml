@@ -324,10 +324,13 @@
                tsca.status               sendStatus,-- 发送状态
                ts.band_code,
                ts.band_name,-- 波段
-               tsc.tag_price -- 吊牌价
+               tsc.tag_price, -- 吊牌价
+               tpp.control_plan_cost
         FROM t_style_color_agent tsca
                  LEFT JOIN t_style_color tsc ON tsca.style_color_id = tsc.id AND tsc.del_flag = '0'
                  left join t_style ts on ts.id = tsc.style_id and ts.del_flag = '0'
+                 left join t_pack_info tpi on ts.id = tpi.foreign_id and tpi.del_flag = '0'
+                 left join t_style_pricing tpp on tpi.id = tpp.pack_id and tpp.del_flag = '0'
                  left join t_basicsdatum_size tbs
                            ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 and
                               tbs.hangtags = ts.default_size

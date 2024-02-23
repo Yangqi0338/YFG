@@ -325,6 +325,10 @@ public class StyleColorAgentVo {
     @ApiModelProperty(value = "吊牌价"  )
     private String tagPrice;
 
+    /** 成本价 */
+    @ApiModelProperty(value = "成本价"  )
+    private String controlPlanCost;
+
     /** 产品风格 */
     @ApiModelProperty(value = "产品风格"  )
     private String  styleFlavourName;
