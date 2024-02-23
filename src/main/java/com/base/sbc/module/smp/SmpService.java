@@ -1565,11 +1565,11 @@ public class SmpService {
                 throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
             }
 
-            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
+            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("foreign_id", style.getId()));
             if (packInfo != null) {
                 //款式定价
                 StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfo.getId(), style.getCompanyCode());
-                smpGoodsDto.setCost(stylePricingVO.getControlPlanCost());
+                smpGoodsDto.setPlanCost(stylePricingVO.getControlPlanCost());
             }
 
             if( StrUtil.equals(style.getEnableStatus(),BaseGlobal.YES)){
