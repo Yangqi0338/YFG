@@ -284,28 +284,28 @@ public class StyleColorController {
 	@GetMapping("/agentDelete")
 	public ApiResult agentDelete(String id) {
 		styleColorService.agentDelete(id);
-		return ApiResult.success();
+		return ApiResult.success("操作成功");
 	}
 
 	@ApiOperation(value = "代理货品资料-解锁")
 	@GetMapping("/agentUnlock")
 	public ApiResult agentUnlock(String[] ids) {
 		styleColorService.agentUnlock(ids);
-		return ApiResult.success();
+		return ApiResult.success("操作成功");
 	}
 
 	@ApiOperation(value = "代理货品资料-停用")
 	@GetMapping("/agentStop")
 	public ApiResult agentStop(String id) {
 		styleColorService.agentStop(id);
-		return ApiResult.success();
+		return ApiResult.success("操作成功");
 	}
 
 	@ApiOperation(value = "代理货品资料-启用")
 	@GetMapping("/agentEnable")
 	public ApiResult agentEnable(String id) {
 		styleColorService.agentEnable(id);
-		return ApiResult.success();
+		return ApiResult.success("操作成功");
 	}
 
 	@ApiOperation(value = "代理货品资料-同步")
