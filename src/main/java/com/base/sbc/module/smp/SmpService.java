@@ -1659,17 +1659,19 @@ public class SmpService {
 
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
-                SmpSize smpSize = new SmpSize();
-                smpSize.setSize(basicsdatumSize.getModel());
-                smpSize.setSizeNumber(basicsdatumSize.getSort());
-                smpSize.setCode(basicsdatumSize.getCode());
-                smpSize.setProductSizeName(basicsdatumSize.getHangtags());
-                smpSize.setBaseSize(StringUtils.isNoneBlank(style.getDefaultSize()) && style.getDefaultSize().equals(basicsdatumSize.getHangtags()));
+                if(sizeMap.containsKey(styleColor.getId()+basicsdatumSize.getCode())){
+                    SmpSize smpSize = new SmpSize();
+                    smpSize.setSize(basicsdatumSize.getModel());
+                    smpSize.setSizeNumber(basicsdatumSize.getSort());
+                    smpSize.setCode(basicsdatumSize.getCode());
+                    smpSize.setProductSizeName(basicsdatumSize.getHangtags());
+                    smpSize.setBaseSize(StringUtils.isNoneBlank(style.getDefaultSize()) && style.getDefaultSize().equals(basicsdatumSize.getHangtags()));
 
-                smpSize.setSkuFiller(downContent);
-                smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
-                smpSize.setOutsideBarcode(sizeMap.get(styleColor.getId()+basicsdatumSize.getCode()));
-                smpSizes.add(smpSize);
+                    smpSize.setSkuFiller(downContent);
+                    smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
+                    smpSize.setOutsideBarcode(sizeMap.get(styleColor.getId()+basicsdatumSize.getCode()));
+                    smpSizes.add(smpSize);
+                }
             }
             smpGoodsDto.setItemList(smpSizes);
 
