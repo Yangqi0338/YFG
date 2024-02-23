@@ -466,11 +466,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					"/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null,
 					BeanUtil.beanToMap(hangTag));
 		}
-		// 如果提交审核默认通过第一个审核
-		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
-			hangTag.setStatus(HangTagStatusEnum.TECH_CHECK);
-			this.updateById(hangTag);
-		}
+//		// 如果提交审核默认通过第一个审核
+//		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
+//			hangTag.setStatus(HangTagStatusEnum.TECH_CHECK);
+//			this.updateById(hangTag);
+//		}
 		try {
 			//下发成分
 			smpService.sendTageComposition(Collections.singletonList(id));
