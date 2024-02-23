@@ -569,7 +569,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	private void strictCheckIngredientPercentage(List<String> hangTagIdList){
-		List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
+		if (CollectionUtil.isEmpty(hangTagIdList)) return;;
+		List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(new BaseLambdaQueryWrapper<HangTagIngredient>()
 				.in(HangTagIngredient::getHangTagId, hangTagIdList)
 				.eq(HangTagIngredient::getStrictCheck, YesOrNoEnum.YES.getValueStr())
 		);
@@ -1293,16 +1294,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case PRINT:
 				// 假定为只传一个款
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
+				String bulkStyleNo = tagPrinting.getStyleCode();
 //				List<HangTagMoreLanguagePrinterBaseVO> hangTagMoreLanguagePrinterBaseVOS = HANG_TAG_CV.copyList2Print(resultList);
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				// 假定单国家
-				if (resultList.stream().map(HangTagMoreLanguageBaseVO::getCountryLanguageType).anyMatch(it-> it == CountryLanguageType.WASHING)) {
-					if (tagPrinting.getApproved()) {
-						tagPrinting.setTranslateApproved(true);
-					}
-				}
+				List<String> countryCodeList = resultList.stream().map(HangTagMoreLanguageBaseVO::getCode).collect(Collectors.toList());
+				List<StyleCountryStatus> countryStatusList = styleCountryStatusService.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+						.notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
+						.eq(StyleCountryStatus::getBulkStyleNo, bulkStyleNo)
+						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
+				);
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
 					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
 					// 获取所有的语言
@@ -1340,6 +1343,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							printing.setLanguageName(languageVO.getLanguageName());
 						}
+
+						printing.setTranslateApproved(countryStatusList.stream().anyMatch(it->
+								it.getBulkStyleNo().equals(bulkStyleNo) && it.getCountryCode().equals(code))
+						);
 						tagPrintingList.add(printing);
 					});
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
