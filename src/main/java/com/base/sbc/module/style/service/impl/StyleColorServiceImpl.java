@@ -1921,6 +1921,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.notEmptyEq("tsca.status",queryDto.getSendStatus());
 
         queryWrapper.eq("ts.brand_name","MANGO");
+        queryWrapper.eq("tsca.del_flag","0");
         objects.setOrderBy("tsc.create_date desc,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
@@ -1938,6 +1939,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
 
         queryWrapper.eq("ts.brand_name", "MANGO");
+        queryWrapper.eq("tsca.del_flag","0");
         queryWrapper.last("order by tsc.create_date desc,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
