@@ -59,7 +59,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
-    public BaseLambdaQueryWrapper<T> notEmptyIn(SFunction<T, String> column, String str) {
+    public BaseLambdaQueryWrapper<T> notEmptyIn(SFunction<T, ?> column, String str) {
         this.in(StrUtil.isNotBlank(str), column, StrUtil.split(str, CharUtil.COMMA));
         return this;
     }

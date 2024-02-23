@@ -1,6 +1,7 @@
 package com.base.sbc.module.moreLanguage.dto;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.operalog.dto.OperaLogDto;
@@ -12,6 +13,8 @@ import org.hibernate.validator.constraints.NotBlank;
 
 import java.time.OffsetDateTime;
 import java.util.StringJoiner;
+
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_OPERA_LOG_NAME;
 
 /**
  * 类描述：资料包-公共筛选条件
@@ -50,7 +53,7 @@ public class MoreLanguageOperaLogDTO extends OperaLogDto {
         }
         this.setContent(joiner.toString());
         if (StrUtil.isBlank(this.getName())) {
-            throw new OtherException("缺少日志类型");
+            throw new OtherException(MoreLanguageProperties.getMsg(HAVEN_T_OPERA_LOG_NAME));
         }
         super.init();
     }

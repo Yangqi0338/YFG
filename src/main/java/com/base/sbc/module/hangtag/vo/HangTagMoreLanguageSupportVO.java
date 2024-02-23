@@ -100,6 +100,13 @@ public class HangTagMoreLanguageSupportVO {
     protected Boolean hasLanguage = true;
 
     /**
+     * 中文检查
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "中文检查")
+    protected Boolean cnCheck = true;
+
+    /**
      * 分类列表
      */
     @ApiModelProperty(value = "分类列表")

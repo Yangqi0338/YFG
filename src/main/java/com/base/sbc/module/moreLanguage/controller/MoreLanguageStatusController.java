@@ -1,55 +1,27 @@
 package com.base.sbc.module.moreLanguage.controller;
 
-import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.util.PoiPublicUtil;
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.read.listener.ModelBuildEventListener;
 import com.alibaba.excel.read.listener.PageReadListener;
-import com.alibaba.excel.support.ExcelTypeEnum;
-import com.alibaba.excel.util.MapUtils;
-import com.alibaba.excel.write.style.row.SimpleRowHeightStyleStrategy;
-import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.exception.RightException;
 import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.basicsdatum.dto.ColorModelNumberExcelDto;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageOperaLogDTO;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageOperaLogEntity;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelResultDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelTemplateDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusQueryDto;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
-import com.base.sbc.module.moreLanguage.listener.MoreLanguageImportListener;
-import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
-import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext;
-import com.base.sbc.module.operalog.entity.OperaLogEntity;
-import com.base.sbc.module.operalog.service.OperaLogService;
-import com.base.sbc.module.standard.dto.StandardColumnDto;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,20 +30,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
@@ -98,10 +64,15 @@ public class MoreLanguageStatusController extends BaseController {
         try {
             // 暂且使用匿名内部类, 如果要处理的字段多了,需要单独拿出一个listener
             AtomicInteger num = new AtomicInteger(1);
+            // 获取总数和循环次数
+            Integer count = MoreLanguageProperties.calculateImportCount();
+            Integer size = (int) Math.ceil((double) MoreLanguageProperties.styleCountryStatusImportMaxSize / count);
             EasyExcel.read(file.getInputStream(), MoreLanguageStatusExcelDTO.class,
+                    // 分页读取, 可以添加多线程 TODO
                     new PageReadListener<MoreLanguageStatusExcelDTO>(dataList-> {
-                        if (num.get() > 3) {
-                            throw new RightException("仅能导入60条数据,后续款号不执行");
+                        // 若数量超过,
+                        if (num.get() > count) {
+                            throw new RightException(MoreLanguageProperties.getMsg(EXCESS_STATUS_IMPORT, count * size));
                         }
                         List<MoreLanguageStatusExcelResultDTO> resultDTOList = styleCountryStatusService.importExcel(dataList);
                         // 根据导入数据的顺序排序处理后的数据
@@ -111,12 +82,13 @@ public class MoreLanguageStatusController extends BaseController {
                                             .findFirst().orElse(MORE_LANGUAGE_CV.copy2ResultDTO(excelDto.getBulkStyleNo()))
                             ).collect(Collectors.toList()));
                         }else {
+                            // 若没有返回结果,就是都成功,直接封装款号
                             result.addAll(MORE_LANGUAGE_CV.copyList2ResultDTO(
                                     dataList.stream().map(MoreLanguageStatusExcelDTO::getBulkStyleNo).collect(Collectors.toList())
                             ));
                         }
                         num.incrementAndGet();
-                    }, 20)).sheet().doRead();
+                    }, size)).sheet().doRead();
             // 存入redis, 方便接口查询
             return ApiResult.success("导入成功", result);
         }catch (RightException e){
@@ -145,7 +117,7 @@ public class MoreLanguageStatusController extends BaseController {
             List<?> dataList;
             if (YesOrNoEnum.YES.getValueStr().equals(template)) {
                 entityClass = MoreLanguageStatusExcelTemplateDTO.class;
-                dataList = new ArrayList<>();
+                dataList = CollUtil.newArrayList(new MoreLanguageStatusExcelTemplateDTO());
             }else {
                 entityClass = MoreLanguageStatusExcelDTO.class;
                 dataList = styleCountryStatusService.exportExcel();
@@ -230,6 +202,6 @@ public class MoreLanguageStatusController extends BaseController {
     @ApiOperation(value = "修改审核状态", notes = "修改审核状态")
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(@RequestBody List<StyleCountryStatus> updateStatus) {
-        return updateSuccess(styleCountryStatusService.updateStatus(updateStatus));
+        return updateSuccess(styleCountryStatusService.updateStatus(updateStatus, new ArrayList<>(), true));
     }
 }
