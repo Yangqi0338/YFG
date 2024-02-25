@@ -1166,7 +1166,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								HangTagMoreLanguageVO languageVO = HANG_TAG_CV.copy2MoreLanguageVO(countryLanguageDto);
 								// 设置标准列模式用于判断
 								languageVO.setModel(standardColumn.getModel());
-//								languageVO.setPropertiesContent(hangTagMoreLanguageBaseVO.getPropertiesName());
+								if (!languageVO.forceFindContent()) {
+									languageVO.setPropertiesContent(hangTagMoreLanguageBaseVO.getPropertiesName());
+								}
 								// 已审核包含这个标准类, 修正审核状态
 								if (statusCheckDetailList.stream().filter(it-> languageCode.equals(it.getLanguageCode()) && it.getType().equals(standardColumnType.getCode()))
 										.anyMatch(it-> it.getStandardColumnCodeList().contains(standardColumnCode))) {
@@ -1381,9 +1383,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								}else {
 									propertiesName = sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesName).distinct().collect(Collectors.joining(separator));
 								}
-								groupVO.getLanguageList().forEach(languageVo-> languageVo.setPropertiesContent(propertiesName));
+								groupVO.getLanguageList().forEach(languageVo-> {
+									languageVo.setPropertiesContent(propertiesName);
+									languageVo.setCannotFindPropertiesContent(false);
+								});
 								groupVO.getLanguageList().forEach(languageVo-> {
 									languageVo.setIsGroup(true);
+									String propertiesContent = languageVo.getPropertiesContent();
 									List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
 										String sourcePropertiesName = source.getPropertiesName();
 										// 获取源数据中对应原本的翻译
@@ -1394,8 +1400,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 									rightLanguageMap.forEach(map-> {
 										// 进行组合
-										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
+										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(propertiesContent, key, value)));
 									});
+									// 若还是和之前一样，那就是没找到翻译
+									if (propertiesContent.equals(languageVo.getPropertiesContent())) {
+										languageVo.setCannotFindPropertiesContent(true);
+									}
 								});
 								groupVO.setPropertiesName(propertiesName);
 

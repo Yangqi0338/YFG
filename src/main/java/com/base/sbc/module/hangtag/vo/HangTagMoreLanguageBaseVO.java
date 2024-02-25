@@ -91,7 +91,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     public String getSourceContent() {
         // 名字
         return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
-                Opt.ofNullable(this.standardColumnName).orElse(""),
+                findStandardColumnName(),
                 this.isGroup ? MoreLanguageProperties.multiSeparator : "",
                 Opt.ofNullable(this.propertiesName).orElse("")
         );

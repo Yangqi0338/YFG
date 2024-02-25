@@ -93,7 +93,7 @@ public class HangTagMoreLanguageVO {
 
     public Boolean getCannotFindPropertiesContent() {
         // 若类型是文本,则直接为已翻译
-        return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
+        return this.cannotFindPropertiesContent && forceFindContent();
     }
 
     /**
@@ -102,6 +102,11 @@ public class HangTagMoreLanguageVO {
     @JsonIgnore
     @ApiModelProperty(value = "标准列模型")
     protected StandardColumnModel model;
+
+    @JsonIgnore
+    public Boolean forceFindContent(){
+        return this.model != StandardColumnModel.TEXT;
+    }
 
     /**
      * 是组合的
