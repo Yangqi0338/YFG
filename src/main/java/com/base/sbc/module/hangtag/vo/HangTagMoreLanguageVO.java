@@ -82,7 +82,7 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "具体数据翻译")
     public String getPropertiesContent() {
-        return cannotFindPropertiesContent || StrUtil.isBlank(this.propertiesContent) ? "" : this.propertiesContent;
+        return getCannotFindPropertiesContent() || StrUtil.isBlank(this.propertiesContent) ? "" : this.propertiesContent;
     }
 
     /**

@@ -1455,7 +1455,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 									rightLanguageMap.forEach(map-> {
 										// 进行组合
-										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(propertiesContent, key, value)));
+										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
 									});
 									// 若还是和之前一样，那就是没找到翻译
 									if (propertiesContent.equals(languageVo.getPropertiesContent())) {
