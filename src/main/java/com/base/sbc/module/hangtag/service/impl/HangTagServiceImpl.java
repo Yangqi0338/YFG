@@ -5,29 +5,19 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.hangtag.service.impl;
-import java.util.Date;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.lang.Pair;
-import cn.hutool.core.map.MapUtil;
-import com.base.sbc.config.common.BaseLambdaQueryWrapper;
-import com.base.sbc.config.enums.business.CountryLanguageType;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletResponse;
-
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
@@ -44,11 +34,15 @@ import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageG
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
+import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.patternmaking.dto.TechnologyCenterTaskExcelDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.entity.TagPrinting;
@@ -58,54 +52,83 @@ import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import com.base.sbc.open.dto.MoreLanguageTagPrinting;
 import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
-import com.base.sbc.open.dto.TagPrintingSupportVO;
 import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.module.hangtag.entity.HangTagLog;
-import com.base.sbc.module.hangtag.enums.HangTagStatusEnum;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.enums.OperationDescriptionEnum;
 import com.base.sbc.module.hangtag.mapper.HangTagMapper;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.hangtag.vo.HangTagVoExcel;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageGroup;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
+import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
+import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
+import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
@@ -114,20 +137,55 @@ import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.open.dto.MoreLanguageTagPrinting;
+import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
+import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
-
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.core.bean.BeanUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
 
 /**
@@ -192,16 +250,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private CountryLanguageService countryLanguageService;
 
 	@Autowired
-	private StandardColumnService standardColumnService;
-
-	@Autowired
-	private StandardColumnCountryRelationService standardColumnCountryRelationService;
-
-	@Autowired
 	private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
 
 	@Autowired
-	private SizeBulkStyleService sizeBulkStyleService;
+	private StyleCountryStatusMapper styleCountryStatusMapper;
+
+	@Resource
+	@Lazy
+	private StyleCountryStatusService styleCountryStatusService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -267,18 +323,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 //                    e.setConfirmDate(flowRecordVo.getEndTime());
 						// e.setStatus("5"); 不需要设置为通过,通过或者不通过会在回调页面设置
 					} else {
-						// 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
+						// 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认
 
-						if (!"6".equals(e.getStatus())) {
+						if (HangTagStatusEnum.SUSPEND != e.getStatus()) {
 							switch (flowRecordVo.getName()) {
 							case "大货工艺员确认":
-								e.setStatus("2");
+								e.setStatus(HangTagStatusEnum.DESIGN_CHECK);
 								break;
 							case "后技术确认":
-								e.setStatus("3");
+								e.setStatus(HangTagStatusEnum.TECH_CHECK);
 								break;
 							case "品控确认":
-								e.setStatus("4");
+								e.setStatus(HangTagStatusEnum.QC_CHECK);
+								break;
+							case "翻译确认":
+								e.setStatus(HangTagStatusEnum.TRANSLATE_CHECK);
 								break;
 							default:
 								break;
@@ -310,6 +369,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTagListVO.setBomStatus(hashMap.get(hangTagListVO.getBulkStyleNo()));
 			}
 		}*/
+		// 如果之前完成了,但是新加了一个国家，就要改回到部分翻译
+		if (hangTagListVOS.stream().anyMatch(it-> it.getStatus() == HangTagStatusEnum.FINISH)) {
+			long size = countryLanguageService.getAllCountrySize();
+			hangTagListVOS.stream().filter(it-> it.getStatus() == HangTagStatusEnum.FINISH).forEach(hangTag-> {
+				if (styleCountryStatusService.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+						.eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
+						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)) < size) {
+					hangTag.setStatus(HangTagStatusEnum.PART_TRANSLATE_CHECK);
+				}
+			});
+		}
 
 		return new PageInfo<>(hangTagListVOS);
 	}
@@ -340,7 +410,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		hangTagVO.setStyleColorPic(stylePicUtils.getStyleUrl(hangTagVO.getStyleColorPic()));
 		minioUtils.setObjectUrlToObject(hangTagVO, "washingLabel");
 		if (StringUtils.isEmpty(hangTagVO.getStatus())) {
-			hangTagVO.setStatus(HangTagStatusEnum.NOT_SUBMIT.getK());
+			hangTagVO.setStatus(HangTagStatusEnum.NOT_COMMIT);
 		}
 		// 查询检测报告
 		PackInfo packInfo = packInfoService
@@ -398,7 +468,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		String id = hangTag.getId();
 
 		// 成分检查
-		if (!"0".equals(hangTagDTO.getStatus()) && !"1".equals(hangTagDTO.getStatus())) {
+		if (hangTagDTO.getStatus().lessThan(HangTagStatusEnum.DESIGN_CHECK)) {
 			strictCheckIngredientPercentage(Collections.singletonList(id));
 		}
 
@@ -443,7 +513,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
 
-		if ("2".equals(hangTag.getStatus()) && "2".equals(hangTagDTO.getCheckType())) {
+		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.TRANSLATE_CHECK == hangTagDTO.getCheckType()) {
 			hangTag = this.getById(hangTag.getId());
 			// 发起审批
 			flowableService.start(FlowableService.HANGING_TAG_REVIEW + hangTag.getBulkStyleNo(),
@@ -451,17 +521,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					"/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null,
 					BeanUtil.beanToMap(hangTag));
 		}
-		// 如果提交审核默认通过第一个审核
-		if ("2".equals(hangTag.getStatus()) && !"2".equals(hangTagDTO.getCheckType())) {
-			hangTag.setStatus("3");
-			this.updateById(hangTag);
-		}
+//		// 如果提交审核默认通过第一个审核
+//		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
+//			hangTag.setStatus(HangTagStatusEnum.TECH_CHECK);
+//			this.updateById(hangTag);
+//		}
 		try {
 			//下发成分
 			smpService.sendTageComposition(Collections.singletonList(id));
 
 			//region 2023-12-06 吊牌保存需要修改工艺员确认状态
-			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM.getCode(), 1);
+			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM, 1);
 			//endregion
 
 		}catch (Exception ignored){
@@ -499,7 +569,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	private void strictCheckIngredientPercentage(List<String> hangTagIdList){
-		List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(new LambdaQueryWrapper<HangTagIngredient>()
+		if (CollectionUtil.isEmpty(hangTagIdList)) return;;
+		List<HangTagIngredient> hangTagIngredientList = hangTagIngredientService.list(new BaseLambdaQueryWrapper<HangTagIngredient>()
 				.in(HangTagIngredient::getHangTagId, hangTagIdList)
 				.eq(HangTagIngredient::getStrictCheck, YesOrNoEnum.YES.getValueStr())
 		);
@@ -527,87 +598,127 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	@Override
-	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, String userCompany) {
+	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate, List<HangTag> hangTags) {
+		String userCompany = hangTagUpdateStatusDTO.getUserCompany();
 		logger.info("HangTagService#updateStatus 更新状态 hangTagUpdateStatusDTO:{}, userCompany:{}",
 				JSON.toJSONString(hangTagUpdateStatusDTO), userCompany);
-		LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda().in(HangTag::getId,
-				hangTagUpdateStatusDTO.getIds());
-		// .eq(HangTag::getCompanyCode, userCompany);
-		List<HangTag> hangTags = super.list(queryWrapper);
+		if (CollectionUtils.isEmpty(hangTags)) {
+			LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda().in(HangTag::getId,
+					hangTagUpdateStatusDTO.getIds());
+			// .eq(HangTag::getCompanyCode, userCompany);
+			hangTags.addAll(super.list(queryWrapper));
+			// 检查
+			strictCheckIngredientPercentage(hangTags.stream().map(HangTag::getId).collect(Collectors.toList()));
+		}
 		if (CollectionUtils.isEmpty(hangTags)) {
 			throw new OtherException("存在未填写数据，请先填写");
 		}
-		// 检查
-		strictCheckIngredientPercentage(hangTags.stream().map(HangTag::getId).collect(Collectors.toList()));
+		HangTagStatusEnum updateStatus = hangTagUpdateStatusDTO.getStatus();
+
+		// 如果当前是部分确认,且部分确认,仅当部分确认
+		if (HangTagStatusEnum.PART_TRANSLATE_CHECK == updateStatus) {
+			List<HangTag> partCheckTranslateList = hangTags.stream()
+					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, HangTagStatusEnum.TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
+			if (CollectionUtil.isNotEmpty(partCheckTranslateList)) {
+				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
+				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
+
+				partCheckTranslateList.stream().collect(Collectors.groupingBy(it-> it.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK)).forEach((multiCheck, multiCheckList)-> {
+					styleCountryStatusService.updateStatus(partCheckTranslateList.stream().map(hangTag-> {
+						StyleCountryStatus status = new StyleCountryStatus();
+						status.setBulkStyleNo(hangTag.getBulkStyleNo());
+						status.setCountryCode(countryCode);
+						status.setStatus(StyleCountryStatusEnum.CHECK);
+						return status;
+					}).collect(Collectors.toList()), multiCheckList, multiCheck);
+					if (multiCheck) {
+						hangTags.removeAll(multiCheckList);
+					}
+				});
+			}
+		}
+
+		if (CollectionUtil.isEmpty(hangTags)) return;
 
 		ArrayList<HangTag> updateHangTags = Lists.newArrayList();
 		hangTags.forEach(e -> {
-			if (!HangTagStatusEnum.NOT_SUBMIT.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-				if (HangTagStatusEnum.CONFIRMED.getK().equals(e.getStatus())) {
-					throw new OtherException("存在已通过审核数据，请反审");
-				}
-				if (HangTagStatusEnum.NOT_SUBMIT.getK().equals(e.getStatus())
-						&& !HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK()
-								.equals(hangTagUpdateStatusDTO.getStatus())) {
-					throw new OtherException("存在待提交数据，请先提交");
-				}
-
-				if (HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(e.getStatus())
-						&& !HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK()
-								.equals(hangTagUpdateStatusDTO.getStatus())) {
-					throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
-				}
-				// if (HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(e.getStatus())
-				// &&
-				// !HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus()))
-				// {
-				// throw new OtherException("已提交审核,请等待");
-				// }
-
-				if (HangTagStatusEnum.TO_TECHNOLOGIST_CONFIRMED.getK().equals(e.getStatus())
-						&& !HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK()
-								.equals(hangTagUpdateStatusDTO.getStatus())) {
-					throw new OtherException("存在待技术员确认数据，请先技术员确认");
-				}
-				if (HangTagStatusEnum.TO_QUALITY_CONTROL_CONFIRMED.getK().equals(e.getStatus())
-						&& !HangTagStatusEnum.CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-					throw new OtherException("存在待品控确认数据，请先品控确认");
+			if (HangTagStatusEnum.NOT_COMMIT != updateStatus) {
+				try {
+					if (HangTagStatusEnum.FINISH == e.getStatus()) {
+						throw new OtherException("存在已通过审核数据，请反审");
+					}
+					if (HangTagStatusEnum.NOT_COMMIT == e.getStatus()
+							&&
+							HangTagStatusEnum.DESIGN_CHECK != updateStatus
+					) {
+						throw new OtherException("存在待提交数据，请先提交");
+					}
+					if (HangTagStatusEnum.DESIGN_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.TECH_CHECK != updateStatus
+					) {
+						throw new OtherException("存在待工艺员确认数据，请先待工艺员确认");
+					}
+					if (HangTagStatusEnum.TECH_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.QC_CHECK != updateStatus) {
+						throw new OtherException("存在待技术员确认数据，请先技术员确认");
+					}
+					if (HangTagStatusEnum.QC_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.TRANSLATE_CHECK != updateStatus) {
+						throw new OtherException("存在待品控确认数据，请先品控确认");
+					}
+					if (HangTagStatusEnum.TRANSLATE_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.PART_TRANSLATE_CHECK != updateStatus) {
+						throw new OtherException("存在待翻译确认数据，请先翻译确认");
+					}
+					if (HangTagStatusEnum.PART_TRANSLATE_CHECK == e.getStatus()
+							&&
+							HangTagStatusEnum.FINISH != updateStatus) {
+						throw new OtherException("存在部分翻译数据，请先全部翻译确认");
+					}
+				}catch (OtherException ex) {
+					if (!repeatUpdate || !e.getStatus().equals(updateStatus)) {
+						throw ex;
+					}
 				}
 			}
 			HangTag hangTag = new HangTag();
 			hangTag.setId(e.getId());
 			hangTag.updateInit();
-			hangTag.setStatus(hangTagUpdateStatusDTO.getStatus());
-			if (HangTagStatusEnum.CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
-				hangTag.setConfirmDate(new Date());
-			}
-			if (HangTagStatusEnum.TO_TECHNICIANS_CONFIRMED.getK().equals(hangTagUpdateStatusDTO.getStatus())) {
+			hangTag.setStatus(updateStatus);
+			if (updateStatus.lessThan(HangTagStatusEnum.TRANSLATE_CHECK)) {
 				hangTag.setConfirmDate(null);
+			}else if (updateStatus == HangTagStatusEnum.TRANSLATE_CHECK) {
+				hangTag.setConfirmDate(new Date());
+			}else {
+				hangTag.setTranslateConfirmDate(new Date());
 			}
 			updateHangTags.add(hangTag);
 		});
 		super.updateBatchById(updateHangTags);
-		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(),
-				OperationDescriptionEnum.getV(hangTagUpdateStatusDTO.getStatus()), userCompany);
+		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(), updateStatus.getText(), userCompany);
 
-		String status = hangTagUpdateStatusDTO.getStatus();
-		int type;
-		switch (status) {
-			case "3":
-				type = 1;
+		HangTagDeliverySCMStatusEnum type;
+		switch (updateStatus) {
+			case TECH_CHECK:
+				type = HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM;
 				break;
-			case "4":
-				type = 2;
+			case QC_CHECK:
+				type = HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM;
 				break;
-			case "5":
-				type = 3;
+			case TRANSLATE_CHECK:
+				type = HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM;
 				break;
-			default:
-				type = 3;
+            default:
+				type = HangTagDeliverySCMStatusEnum.TRANSLATE_CONFIRM;
 		}
 
 		smpService.tagConfirmDates(hangTagUpdateStatusDTO.getIds(),type,1);
-		if ("2".equals(hangTagUpdateStatusDTO.getCheckType())) {
+		// 貌似无用, checkType前端不传
+		if (HangTagStatusCheckEnum.QC_CHECK == hangTagUpdateStatusDTO.getCheckType()) {
 			// 发送审批
 			List<HangTag> hangTags1 = this.listByIds(hangTagUpdateStatusDTO.getIds());
 			for (HangTag tag : hangTags1) {
@@ -622,6 +733,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
 	public List<TagPrinting> hangTagPrinting(String styleNo, boolean likeQueryFlag) {
 		BaseQueryWrapper<HangTag> baseQueryWrapper = new BaseQueryWrapper<>();
 
@@ -776,16 +888,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 执行标准
 				tagPrinting.setOPStandard(hangTag.getExecuteStandard());
 				// 品控部确认
-				tagPrinting.setApproved("5".equals(hangTag.getStatus()));
+				tagPrinting.setApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.QC_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
+				// 翻译确认
+				tagPrinting.setTranslateApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.TRANSLATE_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
 				tagPrinting
-						.setTechApproved(Integer.parseInt(hangTag.getStatus()) > 2 && !"6".equals(hangTag.getStatus()));
+						.setTechApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注
-				tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarksName());
 				// 贮藏要求
 				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemandName());
 				// 产地
@@ -887,7 +1000,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			/* 存在吊牌时 复制吊牌 */
 			hangTag.setId(null);
 			hangTag.setBulkStyleNo(newStyleNo);
-			hangTag.setStatus(BaseGlobal.STATUS_CLOSE);
+			hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
 			save(hangTag);
 			/* 查询成分 */
 			queryWrapper.clear();
@@ -909,7 +1022,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO, boolean needHandle, boolean mergeWarnMsg) {
-		Set<String> codeList = CollUtil.set(false, hangTagMoreLanguageDTO.getCode().split(","));
+		Set<String> codeList = CollUtil.set(false, hangTagMoreLanguageDTO.getCode().split(COMMA));
 
 		// 多国家语言 多款号
 		Boolean likeQueryFlag = hangTagMoreLanguageDTO.getLikeQueryFlag();
@@ -919,14 +1032,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			// 模糊查询 TODO
 			bulkStyleNoList = new ArrayList<>();
 		}else {
-			bulkStyleNoList = Arrays.asList(hangTagMoreLanguageDTO.getBulkStyleNo().split(","));
+			bulkStyleNoList = Arrays.asList(hangTagMoreLanguageDTO.getBulkStyleNo().split(COMMA));
 		}
 		SystemSource source = hangTagMoreLanguageDTO.getSource();
 
 		// 查询国家语言
 		CountryQueryDto countryQueryDto = HANG_TAG_CV.copy2CountryQuery(hangTagMoreLanguageDTO);
 		List<CountryLanguageDto> countryLanguageList = countryLanguageService.listQuery(countryQueryDto);
-		if (CollectionUtil.isEmpty(countryLanguageList)) throw new OtherException("未查询到国家语言");
+		if (CollectionUtil.isEmpty(countryLanguageList)) throw new OtherException(MoreLanguageProperties.getMsg(HAVEN_T_COUNTRY_LANGUAGE));
 
 		// 获取全局 吊牌类型、国家语言Id、语言编码
 		List<CountryLanguageType> typeList = countryLanguageList.stream().map(CountryLanguageDto::getType).distinct().collect(Collectors.toList());
@@ -945,6 +1058,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// 获取吊牌的modelType
 		List<String> sizeCodeList  = hangTagVOList.stream().map(HangTagVO::getModelType).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
 		List<BasicsdatumModelType> modelTypeList = basicsdatumModelTypeService.list(new BaseLambdaQueryWrapper<BasicsdatumModelType>().notEmptyIn(BasicsdatumModelType::getCode,sizeCodeList));
+
+		// 获取吊牌状态
+		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusMapper.selectList(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
 
 		// 获得要翻译的标准列码集合
 		Map<String, List<StandardColumn>> standardColumnMap = new HashMap<>(codeList.size());
@@ -990,7 +1107,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			List<HangTagMoreLanguageCheckDTO> codeMappingList = hangTagMoreLanguageDTO.getHangTagMoreLanguageCheckDTOList();
 			if (CollectionUtil.isNotEmpty(codeMappingList)) {
 				List<HangTagMoreLanguageCheckDTO> mappingList = codeMappingList.stream().filter(it -> it.getCode().equals(code)).collect(Collectors.toList());
-				countryMappingBulkStyleNoList = mappingList.stream().flatMap(it-> Arrays.stream(it.getBulkStyleNo().split(","))).collect(Collectors.toList());
+				countryMappingBulkStyleNoList = mappingList.stream().flatMap(it-> Arrays.stream(it.getBulkStyleNo().split(COMMA))).collect(Collectors.toList());
 				sameCodeList = sameCodeList.stream().filter(it-> mappingList.stream().anyMatch(codeMapping->
 						it.getType().equals(codeMapping.getType()) &&
 								(StrUtil.isBlank(codeMapping.getLanguageCode()) || it.getLanguageCode().equals(codeMapping.getLanguageCode())))).collect(Collectors.toList());
@@ -1007,7 +1124,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				if (!hangTagVoOpt.isPresent()) {
 					// 如果不需要合并错误信息,直接报错
 					if (!mergeWarnMsg) {
-						throw new OtherException("大货款号:" + bulkStyleNo + " 不存在吊牌信息");
+						throw new OtherException(MoreLanguageProperties.getMsg(HAVEN_T_TAG, bulkStyleNo));
 					}else {
 						resultList.add(HANG_TAG_CV.copyMyself(moreLanguageBaseVO));
 						continue;
@@ -1020,7 +1137,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 				// 安全标题没选择安全技术类别,删除
 				if (sameCodeList.stream().noneMatch(it-> it.getType() == CountryLanguageType.TAG) && "10".equals(hangTagVO.getSaftyTitleCode())) {
-					codeMap.remove("DP02");
+					codeMap.remove(MoreLanguageProperties.saftyStandardCode);
 				}
 
 				// 设置当前款号的额外数据
@@ -1029,13 +1146,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						.collect(Collectors.toList()));
 				hangTagVO.setSizeList(modelTypeList.stream().filter(it-> it.getCode().equals(hangTagVO.getModelType())).collect(Collectors.toList()));
 
+				// 获取状态
+				List<MoreLanguageStatusCheckDetailDTO> statusCheckDetailList = new ArrayList<>();
+				if (CollectionUtil.isNotEmpty(styleCountryStatusList)) {
+					String checkDetailJson = styleCountryStatusList.stream().filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()) && code.equals(it.getCountryCode()))
+							.findFirst().map(StyleCountryStatus::getCheckDetailJson).orElse("[]");
+					statusCheckDetailList.addAll(JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailDTO.class));
+				}
+
 				// 循环配置在CodeMapping的标准列数据
 				List<HangTagMoreLanguageBaseVO> result = new ArrayList<>();
 				List<CountryLanguageDto> finalSameCodeList = sameCodeList;
 				standardColumnList.stream().filter(it -> codeMap.containsKey(it.getCode())).forEach(standardColumn -> {
 					// 获取与标准类相同类型的国家语言列表
+					CountryLanguageType standardColumnType = CountryLanguageType.findByStandardColumnType(standardColumn.getType());
 					List<CountryLanguageDto> countryLanguageDtoList = finalSameCodeList.stream()
-							.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
+							.filter(it -> standardColumnType == it.getType()).collect(Collectors.toList());
 
 					String standardColumnCode = standardColumn.getCode();
 					// 从codeMapping 获取 处理Func
@@ -1048,6 +1174,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						HANG_TAG_CV.standardColumn2MoreLanguageBaseVO(standardColumn, hangTagMoreLanguageBaseVO);
 						List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
 						hangTagMoreLanguageBaseVO.setLanguageList(languageList);
+						hangTagMoreLanguageBaseVO.setCountryLanguageType(standardColumnType);
 
 						// 获取翻译的code和name
 						String propertiesCode = Opt.ofNullable(codeFunc.getKey().apply(data)).orElse("");
@@ -1056,9 +1183,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						hangTagMoreLanguageBaseVO.setPropertiesName(propertiesName);
 
 						// 封装多值的Code
-						List<String> propertiesCodeList = Arrays.asList(propertiesCode.split("\n"));
+						List<String> propertiesCodeList = Arrays.asList(propertiesCode.split(MoreLanguageProperties.multiSeparator));
 						if (propertiesCodeList.size() <= 1) {
-							propertiesCodeList = Arrays.asList(propertiesCode.split(","));
+							propertiesCodeList = Arrays.asList(propertiesCode.split(COMMA));
 						}
 						// 检查是否要\n合并
 						boolean needFeed = propertiesCodeList.size() > 1;
@@ -1073,7 +1200,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 						if (CollectionUtil.isNotEmpty(countryLanguageDtoList)) {
 							List<CountryLanguageDto> singleLanguageTypeList = singleLanguageDtoList.stream()
-									.filter(it -> CountryLanguageType.findByStandardColumnType(standardColumn.getType()) == it.getType()).collect(Collectors.toList());
+									.filter(it -> standardColumnType == it.getType()).collect(Collectors.toList());
 							if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
 								translateList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
 										.eq(StandardColumnCountryTranslate::getTitleCode, searchStandardColumnCode)
@@ -1085,15 +1212,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							countryLanguageDtoList.forEach(countryLanguageDto -> {
 								String countryLanguageId = countryLanguageDto.getId();
+								String languageCode = countryLanguageDto.getLanguageCode();
 								// 获取单语言的id
-								String singleLanguageId = singleLanguageTypeList.stream().filter(it -> it.getLanguageCode().equals(countryLanguageDto.getLanguageCode()))
+								String singleLanguageId = singleLanguageTypeList.stream().filter(it -> it.getLanguageCode().equals(languageCode))
 										.findFirst().map(CountryLanguage::getId).orElse("");
 								List<String> languageIdList = Arrays.asList(countryLanguageId, singleLanguageId);
 								// 复制基础 languageVo
 								HangTagMoreLanguageVO languageVO = HANG_TAG_CV.copy2MoreLanguageVO(countryLanguageDto);
 								// 设置标准列模式用于判断
 								languageVO.setModel(standardColumn.getModel());
-								languageVO.setPropertiesContent(hangTagMoreLanguageBaseVO.getPropertiesName());
+//								languageVO.setPropertiesContent(hangTagMoreLanguageBaseVO.getPropertiesName());
+								// 已审核包含这个标准类, 修正审核状态
+								if (statusCheckDetailList.stream().filter(it-> languageCode.equals(it.getLanguageCode()) && it.getType().equals(standardColumnType.getCode()))
+										.anyMatch(it-> it.getStandardColumnCodeList().contains(standardColumnCode))) {
+									languageVO.setAuditStatus(StyleCountryStatusEnum.CHECK);
+								}
 								// 获取标题名翻译
 								titleTranslateList.stream().filter(it->
 										languageIdList.contains(it.getCountryLanguageId())
@@ -1124,7 +1257,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									String content;
 									// 需要合并 就多个合并
 									if (needFeed) {
-										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining("\n"));
+										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining(MoreLanguageProperties.multiSeparator));
 									} else {
 										content = translate.getContent();
 									}
@@ -1138,80 +1271,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					});
 				});
 
-//					// 成分信息专属
-//					String ingredient = hangTagVO.getIngredient();
-//
-//					if (StrUtil.isNotBlank(ingredient)) {
-//						HangTagMoreLanguageBaseVO ingredientMoreLanguageVO = BeanUtil.copyProperties(baseCountryLanguageVO, HangTagMoreLanguageBaseVO.class);
-//						ingredientMoreLanguageVO.setBulkStyleNo(bulkStyleNo);
-//						ingredientMoreLanguageVO.setStandardColumnId("1730154821870800898");
-//						ingredientMoreLanguageVO.setStandardColumnCode("DP09,DP11,DP10");
-//						ingredientMoreLanguageVO.setStandardColumnName("成分信息");
-//						ingredientMoreLanguageVO.setIsGroup(true);
-//						ingredientMoreLanguageVO.setModel(StandardColumnModel.RADIO);
-//						result.add(ingredientMoreLanguageVO);
-//
-//
-//						BaseLambdaQueryWrapper<HangTagIngredient> queryWrapper = new BaseLambdaQueryWrapper<>();
-//						queryWrapper.eq(HangTagIngredient::getHangTagId, hangTagVO.getId());
-//						List<HangTagIngredient> list = hangTagIngredientService.list(queryWrapper);
-//
-//						List<StandardColumnCountryTranslate> ingredientContentList = new ArrayList<>();
-//						List<String> ingredientCodeList = list.stream().flatMap(it -> Stream.of(it.getIngredientCode(), it.getIngredientDescriptionCode(), it.getTypeCode(), it.getIngredientSecondCode()))
-//								.filter(StrUtil::isNotBlank).collect(Collectors.toList());
-//
-//						if (CollectionUtil.isNotEmpty(ingredientCodeList)) {
-//							// 需要做个严格模式, 任意条件不满足直接返回空, 而不是condition删减(或者通过严格模式指定queryWrapper是emptyWhere就返回默认值) TODO
-//							ingredientContentList.addAll(standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-//											.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-//											.in(StandardColumnCountryTranslate::getTitleCode, Arrays.asList(ingredientMoreLanguageVO.getStandardColumnCode().split(",")))
-//											.in(StandardColumnCountryTranslate::getPropertiesCode, ingredientCodeList))
-//									.stream().filter(Objects::nonNull)
-//									.sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList()));
-//						}
-//
-//						for (StandardColumnCountryTranslate content : ingredientContentList) {
-//							ingredient = ingredient.replaceAll(content.getPropertiesName(), content.getContent());
-//							BeanUtil.copyProperties(content, ingredientMoreLanguageVO);
-//						}
-//						ingredientMoreLanguageVO.setPropertiesCode(null);
-//						ingredientMoreLanguageVO.setPropertiesName(hangTagVO.getIngredient());
-//						ingredientMoreLanguageVO.setPropertiesContent(ingredient);
-//						ingredientMoreLanguageVO.setCannotFindPropertiesContent(ingredientCodeList.size() > ingredientContentList.size());
-//					}
-//
-//					// 充绒量
-//					HangTagMoreLanguageBaseVO woolFillMoreLanguageVO = result.stream().filter(it -> "DP12".equals(it.getStandardColumnCode())).findFirst().orElse(null);
-//
-//					if (woolFillMoreLanguageVO != null) {
-//						String downContent = woolFillMoreLanguageVO.getPropertiesContent();
-//
-//						if (StrUtil.isNotBlank(downContent)) {
-//
-//
-//							List<String> woolFillSizeCodeList = Arrays.stream(downContent.split("\n")).map(it -> it.split(":")[0]).collect(Collectors.toList());
-//							List<StandardColumnCountryTranslate> woolFillContentList = woolFillSizeCodeList.stream().map(it -> {
-//								int sizeIndex = sizeNameList.indexOf(it);
-//								String sizeCode = sizeCodeList.get(sizeIndex);
-//								return standardColumnCountryTranslateService.findOne(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-//										.eq(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageId)
-//										.eq(StandardColumnCountryTranslate::getTitleCode, "DP06")
-//										.eq(StandardColumnCountryTranslate::getPropertiesCode, sizeCode + "-" + modelType.getCode()));
-//							}).filter(Objects::nonNull).sorted(Comparator.nullsLast(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate))).collect(Collectors.toList());
-//
-//							for (StandardColumnCountryTranslate content : woolFillContentList) {
-//								downContent = downContent.replaceAll(content.getPropertiesName(), content.getContent());
-//								BeanUtil.copyProperties(content, woolFillMoreLanguageVO);
-//							}
-//
-//							woolFillMoreLanguageVO.setModel(StandardColumnModel.RADIO);
-//							woolFillMoreLanguageVO.setPropertiesCode(null);
-//							woolFillMoreLanguageVO.setPropertiesName(hangTagVO.getDownContent());
-//							woolFillMoreLanguageVO.setPropertiesContent(downContent);
-//							woolFillMoreLanguageVO.setCannotFindPropertiesContent(woolFillSizeCodeList.size() > woolFillContentList.size());
-//						}
-//					}
-
 				resultList.addAll(result);
 			}
 		});
@@ -1222,7 +1281,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case PDM:
 				List<HangTagMoreLanguageWebBaseVO> webBaseList = HANG_TAG_CV.copyList2Web(resultList);
 				decorateWebList(hangTagVOList, webBaseList);
-				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> "ZH".equals(it.getLanguageCode())));
+				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> MoreLanguageProperties.isInternalLanguageCode(it.getLanguageCode())));
                 return webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getType));
 			case BCS:
 			case ESCM:
@@ -1235,11 +1294,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case PRINT:
 				// 假定为只传一个款
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
+				String bulkStyleNo = tagPrinting.getStyleCode();
 //				List<HangTagMoreLanguagePrinterBaseVO> hangTagMoreLanguagePrinterBaseVOS = HANG_TAG_CV.copyList2Print(resultList);
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				// 假定单国家
+				List<String> countryCodeList = resultList.stream().map(HangTagMoreLanguageBaseVO::getCode).collect(Collectors.toList());
+				List<StyleCountryStatus> countryStatusList = styleCountryStatusService.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+						.notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
+						.eq(StyleCountryStatus::getBulkStyleNo, bulkStyleNo)
+						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
+				);
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
 					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
 					// 获取所有的语言
@@ -1259,7 +1325,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 							if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
 
-							String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse("ZH".equals(languageCode) ? result.getStandardColumnName() : "");
+							String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(MoreLanguageProperties.isInternalLanguageCode(languageCode) ? result.getStandardColumnName() : "");
 							printing.getTitleMap().put(codeMapping.getTitleCode(), titleContent);
 
 							if (codeMapping.getMapping() != null) {
@@ -1277,6 +1343,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							printing.setLanguageName(languageVO.getLanguageName());
 						}
+
+						printing.setTranslateApproved(countryStatusList.stream().anyMatch(it->
+								it.getBulkStyleNo().equals(bulkStyleNo) && it.getCountryCode().equals(code))
+						);
 						tagPrintingList.add(printing);
 					});
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
@@ -1286,16 +1356,46 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 	}
 
+	@Override
+	public boolean counterReview(HangTag reviewHangTag) {
+//		HangTagStatusEnum status = reviewHangTag.getStatus();
+
+		HangTag hangTag = this.getById(reviewHangTag.getId());
+//		if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(status)) {
+			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
+//		}
+//		if (HangTagStatusEnum.TRANSLATE_CHECK == status) {
+//			hangTag.setStatus(HangTagStatusEnum.QC_CHECK);
+//		}else {
+//			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
+//		}
+
+		smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL, 0);
+		boolean update = this.updateById(hangTag);
+
+		// 删除审核状态
+		styleCountryStatusMapper.update(null, new LambdaUpdateWrapper<StyleCountryStatus>()
+				.set(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
+				.eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
+				.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
+		);
+		return update;
+	}
+
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
+		// 设置分组
 		Map<String, HangTagMoreLanguageGroup> groupMap = MapUtil.ofEntries(
 				MapUtil.entry("DP16", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", "成分信息",MoreLanguageHangTagVO::getIngredient)),
 				MapUtil.entry("DP06", new HangTagMoreLanguageGroup(null)),
 				MapUtil.entry("DP12", new HangTagMoreLanguageGroup(MoreLanguageHangTagVO::getDownContent))
 		);
 		List<HangTagMoreLanguageWebBaseVO> groupList = new ArrayList<>();
+		// 根据标准列编码分组
 		webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getCode)).forEach((code, sameCodeList)-> {
+			// 遍历分组设置
 			groupMap.forEach((groupName, group)-> {
 				String standColumnCode = group.getStandColumnCode();
+				// 获取数据中存在与分组名相同或分组标准列包含的列表
 				List<HangTagMoreLanguageWebBaseVO> sameStandardColumnCodeList = webBaseList.stream()
 						.filter(it -> groupName.equals(it.getStandardColumnCode())).collect(Collectors.toList());
 				boolean notChoose = CollectionUtil.isEmpty(sameStandardColumnCodeList);
@@ -1304,23 +1404,29 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							.filter(it -> StrUtil.contains(standColumnCode, it.getStandardColumnCode())).collect(Collectors.toList()));
 				}
 				if (CollectionUtil.isNotEmpty(sameStandardColumnCodeList)) {
+					// 源数据先移除
 					webBaseList.removeAll(sameStandardColumnCodeList);
+					// 根据款号分组
 					sameStandardColumnCodeList.stream()
 							.collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getBulkStyleNo, LinkedHashMap::new, Collectors.toList()))
 							.forEach((bulkStyleNo, sameBulkList)-> {
+								// 再次获取吊牌数据
 								MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst().get();
 								HangTagMoreLanguageWebBaseVO webBaseVO = sameBulkList.get(0);
 
+								// 深拷贝 + 基础设置
 								HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
 								groupVO.setIsGroup(true);
 								groupVO.setStandardColumnCode(groupName);
 								if (notChoose) {
+									// 如果是分组名没对上,分组标准列码对上了,进行设置基础的名字和翻译
 									groupVO.setStandardColumnName(group.getStandColumnName());
 									groupVO.getLanguageList().forEach(languageVo-> {
 										languageVo.setStandardColumnContent(group.getStandColumnName());
 									});
 								}
-								groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(",")));
+								// 一一设置对应的属性码属性名
+								groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(COMMA)));
 
 								String separator = group.getSeparator();
 								Function<MoreLanguageHangTagVO, String> content = group.getContent();
@@ -1335,12 +1441,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									languageVo.setIsGroup(true);
 									List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
 										String sourcePropertiesName = source.getPropertiesName();
+										// 获取源数据中对应原本的翻译
 										return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
 												.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
 												.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
 									}).collect(Collectors.toList());
 
 									rightLanguageMap.forEach(map-> {
+										// 进行组合
 										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
 									});
 								});

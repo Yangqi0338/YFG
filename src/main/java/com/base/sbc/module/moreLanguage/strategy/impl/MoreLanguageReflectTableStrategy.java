@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.constant.BusinessProperties;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
@@ -40,24 +41,28 @@ public class MoreLanguageReflectTableStrategy implements MoreLanguageTableStrate
 
     @Override
     public boolean isThisStrategy(StandardColumn standardColumn) {
+        // tableName属性不为空且不是t_开头
         String tableName = standardColumn.getTableName();
-        return standardColumn.getModel() == StandardColumnModel.RADIO && StrUtil.isNotBlank(tableName) && !tableName.startsWith("t_");
+        return standardColumn.getModel() == StandardColumnModel.RADIO && StrUtil.isNotBlank(tableName) && !tableName.startsWith(BusinessProperties.tablePrefix);
     }
 
     @Override
     public PageInfo<Map<String,Object>> findChildrenPage(Page page, StandardColumn standardColumn) {
         // findStandardColumn
         String tableName = standardColumn.getTableName();
+        // 获取反射方法入参
         String param = MoreLanguageTableContext.findParam(standardColumn.getTableCode());
         try {
             Class<?> clazz = moreLanguageService.getClass();
             Method[] declaredMethods = clazz.getDeclaredMethods();
+            // 找到方法
             Method invokeMethod = Arrays.stream(declaredMethods).filter(it -> it.getName().equals(tableName)).findFirst().orElse(null);
             if (invokeMethod != null) {
                 com.github.pagehelper.Page startPage = page.startPage();
+                // 执行方法并进行分页
                 List<Object> returnValue = (List<Object>) invokeMethod.invoke(moreLanguageService, param);
                 PageInfo<Map<String,Object>> pageInfo = startPage.toPageInfo();
-                // 或者改成对tableField的解析
+                // 转为map
                 List<Map<String, Object>> mapList = returnValue.stream()
                         .map(it-> BeanUtil.beanToMap(it, true, true))
                         .collect(Collectors.toList());

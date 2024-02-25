@@ -98,6 +98,16 @@ public class PatternMakingCommonPageSearchDto extends Page {
     @TableField(value = " (CASE WHEN p.break_off_Pattern = '1' THEN '打板中断' WHEN p.break_off_sample = '1' THEN '样衣中断' ELSE '启用' END)")
     private String pmStatus;
 
+    /*
+     * 0 启用
+     * 样衣没中断
+     * 打板没中断
+     * 1样衣中断
+     * 2打板中断
+     * */
+    @ApiModelProperty(value = "状态")
+    private String  nePmStatus;
+
 
     @TableField(value = "(CASE WHEN p.prm_send_status = 0 THEN '未发送' ELSE '已发送' END)")
     private String prmSendStatus;

@@ -3,6 +3,7 @@ package com.base.sbc.module.moreLanguage.strategy.impl;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.base.sbc.config.constant.BusinessProperties;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageTableTitle;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
@@ -17,6 +18,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.constant.Constants.SQL_RIGHT_FILL;
 
 /**
  * {@code 描述：多语言获取子数据的策略}
@@ -34,7 +38,8 @@ public class MoreLanguageDbTableStrategy implements MoreLanguageTableStrategy {
     @Override
     public boolean isThisStrategy(StandardColumn standardColumn) {
         String tableName = standardColumn.getTableName();
-        return standardColumn.getModel() == StandardColumnModel.RADIO && StrUtil.isNotBlank(tableName) && tableName.startsWith("t_");
+        // tableName属性是否有值
+        return standardColumn.getModel() == StandardColumnModel.RADIO && StrUtil.isNotBlank(tableName) && tableName.startsWith(BusinessProperties.tablePrefix);
     }
 
     @Override
@@ -43,9 +48,10 @@ public class MoreLanguageDbTableStrategy implements MoreLanguageTableStrategy {
         // 解析表头
         String json = standardColumn.getTableTitleJson();
         List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(json, MoreLanguageTableTitle.class);
-        String tableFields = tableTitleList.stream().map(it-> StrUtil.toUnderlineCase(it.getCode())).collect(Collectors.joining(","));
+        String tableFields = tableTitleList.stream().map(it-> StrUtil.toUnderlineCase(it.getCode())).collect(Collectors.joining(COMMA));
         com.github.pagehelper.Page<Map<String,Object>> startPage = page.startPage();
-        moreLanguageService.listAllByTable(tableFields, standardColumn.getTableName(), Opt.ofNullable(standardColumn.getTableCode()).orElse("1=1"));
+        // 直接分页查询动态数据库
+        moreLanguageService.listAllByTable(tableFields, standardColumn.getTableName(), Opt.ofNullable(standardColumn.getTableCode()).orElse(SQL_RIGHT_FILL));
         return startPage.toPageInfo();
     }
 

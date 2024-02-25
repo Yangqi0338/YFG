@@ -412,7 +412,7 @@ public class BasicsdatumMaterialController extends BaseController {
             return selectSuccess(new PageInfo<>(new ArrayList<>()));
         }
         PageHelper.startPage(pageNum, pageSize);
-        List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type","packBigGoods").eq("bom_version_id", packBomVersion.getId()));
+        List<PackBom> packBomList = packBomService.list(new BaseQueryWrapper<PackBom>().eq("foreign_id", packInfo.getId()).eq("pack_type","packBigGoods").eq("bom_version_id", packBomVersion.getId()).eq("unusable_flag", "0"));
         List<String> collect = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
         List<BasicsdatumMaterial> list = basicsdatumMaterialService.list(new QueryWrapper<BasicsdatumMaterial>().in("material_code", collect));
         for (PackBom packBom : packBomList) {

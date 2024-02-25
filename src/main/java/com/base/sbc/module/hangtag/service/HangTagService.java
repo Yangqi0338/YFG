@@ -77,9 +77,9 @@ public interface HangTagService extends BaseService<HangTag> {
      * 更新状态
      *
      * @param hangTagUpdateStatusDTO
-     * @param userCompany
+     * @param repeatUpdate
      */
-    void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, String userCompany);
+    void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate, List<HangTag> hangTagList);
 
 
     /**
@@ -107,6 +107,8 @@ public interface HangTagService extends BaseService<HangTag> {
     Boolean copyPack(String styleNo, String newStyleNo);
 
     Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO, boolean needHandle, boolean mergeWarnMsg);
+
+    boolean counterReview(HangTag reviewHangTag);
 
 // 自定义方法区 不替换的区域【other_end】
 

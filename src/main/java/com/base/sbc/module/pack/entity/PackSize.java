@@ -157,6 +157,8 @@ public class PackSize extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否是迁移历史数据")
     private String historicalData;
+
+    private String status;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

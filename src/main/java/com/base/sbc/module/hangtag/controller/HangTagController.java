@@ -14,6 +14,7 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
@@ -23,6 +24,7 @@ import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
@@ -153,7 +155,8 @@ public class HangTagController extends BaseController {
     @ApiOperation(value = "提交审核")
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(@Valid @RequestBody HangTagUpdateStatusDTO dto) {
-        hangTagService.updateStatus(dto, super.getUserCompany());
+        dto.setUserCompany(super.getUserCompany());
+        hangTagService.updateStatus(dto, false, new ArrayList<>());
         return updateSuccess("更新成功");
     }
 
@@ -185,11 +188,11 @@ public class HangTagController extends BaseController {
         HangTag hangTag = hangTagService.getOne(new QueryWrapper<HangTag>().eq("bulk_style_no", dto.getBusinessKey()));
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
             //审核通过
-            hangTag.setStatus("5");
-            hangTag.setConfirmDate(new Date());
+            hangTag.setStatus(HangTagStatusEnum.FINISH);
+            hangTag.setTranslateConfirmDate(new Date());
         } else {
             //审核不通过
-            hangTag.setStatus("6");
+            hangTag.setStatus(HangTagStatusEnum.SUSPEND);
         }
         return hangTagService.updateById(hangTag);
     }
@@ -199,22 +202,8 @@ public class HangTagController extends BaseController {
      */
     @PostMapping("/counterReview")
     public ApiResult counterReview(@RequestBody HangTag hangTag) {
-        HangTag hangTag1 = hangTagService.getById(hangTag.getId());
-        if ("6".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
-        }
-        if ("5".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
-        }
-        if ("4".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("3");
-        }
-        if ("3".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
-        }
+        boolean update = hangTagService.counterReview(hangTag);
 
-        smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), 0, 0);
-        hangTagService.updateById(hangTag1);
         return updateSuccess("反审成功");
     }
 }
