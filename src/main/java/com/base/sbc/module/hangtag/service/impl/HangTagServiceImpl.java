@@ -565,14 +565,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			List<HangTag> partCheckTranslateList = hangTags.stream()
 					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, HangTagStatusEnum.TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
 			if (CollectionUtil.isNotEmpty(partCheckTranslateList)) {
-				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
-				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
+//				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
+//				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
 
 				partCheckTranslateList.stream().collect(Collectors.groupingBy(it-> it.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK)).forEach((multiCheck, multiCheckList)-> {
 					styleCountryStatusService.updateStatus(partCheckTranslateList.stream().map(hangTag-> {
 						StyleCountryStatus status = new StyleCountryStatus();
 						status.setBulkStyleNo(hangTag.getBulkStyleNo());
-						status.setCountryCode(countryCode);
+						status.setCountryCode(hangTagUpdateStatusDTO.getCountryCode());
 						status.setStatus(StyleCountryStatusEnum.CHECK);
 						return status;
 					}).collect(Collectors.toList()), multiCheckList, multiCheck);
