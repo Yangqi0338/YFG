@@ -262,10 +262,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                                         it.insertInit();
                                         it.setCountryLanguageId(countryId);
                                     });
+                                    standardColumnCountryTranslateService.saveOrUpdateBatch(contentList);
                                 }
                             }
-
-
                         }
                     }
 
