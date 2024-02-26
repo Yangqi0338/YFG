@@ -2,6 +2,7 @@ package com.base.sbc.module.hangtag.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
@@ -57,6 +58,7 @@ public class HangTagIngredientController extends BaseController{
 
     @PostMapping("/saveList")
     @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
     public ApiResult saveList(@RequestBody HangTagDTO hangTagDTO){
 
         List<HangTagIngredient> hangTagIngredients = hangTagDTO.getHangTagIngredients();
