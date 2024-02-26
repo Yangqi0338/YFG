@@ -1424,7 +1424,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								});
 								groupVO.getLanguageList().forEach(languageVo-> {
 									languageVo.setIsGroup(true);
-									String propertiesContent = languageVo.getPropertiesContent();
 									List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
 										String sourcePropertiesName = source.getPropertiesName();
 										// 获取源数据中对应原本的翻译
@@ -1433,14 +1432,32 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 												.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
 									}).collect(Collectors.toList());
 
+									if (rightLanguageMap.stream().noneMatch(it-> it.containsKey(languageVo.getStandardColumnContent()))) {
+										languageVo.setStandardColumnContent("");
+									}
 									rightLanguageMap.forEach(map-> {
 										// 进行组合
-										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value + MoreLanguageProperties.showInfoLanguageSeparator)));
+										map.forEach((key,value)-> {
+											String replacePropertiesContent = StrUtil.replace(languageVo.getPropertiesContent(), key, value);
+											if (languageVo.getPropertiesContent().equals(replacePropertiesContent)) {
+												languageVo.setCannotFindPropertiesContent(true);
+											}
+											languageVo.setPropertiesContent(replacePropertiesContent);
+
+											String replaceStandardColumnContent = StrUtil.replace(languageVo.getStandardColumnContent(), key, value);
+											if (languageVo.getStandardColumnContent().equals(replaceStandardColumnContent)) {
+												languageVo.setCannotFindStandardColumnContent(true);
+											}
+											languageVo.setStandardColumnContent(replaceStandardColumnContent);
+										});
 									});
 									// 若还是和之前一样，那就是没找到翻译
-									if (propertiesContent.equals(languageVo.getPropertiesContent())) {
-										languageVo.setCannotFindPropertiesContent(true);
+									String fillSeparator = MoreLanguageProperties.showInfoLanguageSeparator + MoreLanguageProperties.multiSeparator;
+									String groupContent = StrUtil.replace(languageVo.getPropertiesContent(), MoreLanguageProperties.multiSeparator, fillSeparator);
+									if (!groupContent.endsWith(MoreLanguageProperties.showInfoLanguageSeparator) && !groupContent.endsWith(fillSeparator)) {
+										groupContent += MoreLanguageProperties.showInfoLanguageSeparator;
 									}
+									languageVo.setPropertiesContent(groupContent);
 								});
 								groupVO.setPropertiesName(propertiesName);
 

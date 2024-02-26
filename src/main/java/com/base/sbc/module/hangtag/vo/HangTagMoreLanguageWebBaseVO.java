@@ -52,11 +52,11 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
     }
 
     public Boolean getCannotFindStandardColumnContent(){
-        return this.getLanguageList().stream().allMatch(HangTagMoreLanguageVO::getCannotFindStandardColumnContent);
+        return this.getLanguageList().stream().anyMatch(HangTagMoreLanguageVO::getCannotFindStandardColumnContent);
     }
 
     public Boolean getCannotFindPropertiesContent(){
-        return this.getLanguageList().stream().allMatch(HangTagMoreLanguageVO::getCannotFindPropertiesContent);
+        return this.getLanguageList().stream().anyMatch(HangTagMoreLanguageVO::getCannotFindPropertiesContent);
     }
 
     public Map<String, String> getContent() {
