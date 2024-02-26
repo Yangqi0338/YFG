@@ -12,6 +12,7 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.xpath.operations.Bool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,6 +49,14 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         });
         if (joiner.length()<=0) return "";
         return MoreLanguageProperties.getMsg(NOT_EXIST_CONTENT,joiner.toString());
+    }
+
+    public Boolean getCannotFindStandardColumnContent(){
+        return this.getLanguageList().stream().allMatch(HangTagMoreLanguageVO::getCannotFindStandardColumnContent);
+    }
+
+    public Boolean getCannotFindPropertiesContent(){
+        return this.getLanguageList().stream().allMatch(HangTagMoreLanguageVO::getCannotFindPropertiesContent);
     }
 
     public Map<String, String> getContent() {
