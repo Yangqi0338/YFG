@@ -64,7 +64,7 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         StringJoiner joiner = new StringJoiner(MoreLanguageProperties.multiSeparator);
         joiner.add(Opt.ofNullable(fieldFunc.apply(this)).orElse(""));
         this.getLanguageList().forEach(languageVO-> {
-            joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));·
+            joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));
             joiner.add(contentFunc.apply(languageVO));
         });
         return joiner.toString();
