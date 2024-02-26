@@ -2889,14 +2889,22 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         List<StyleColor> styleColorList = listByField("style_no", styleNos);
         Map<String, List<StyleColor>> styleColorMap = styleColorList.stream().collect(Collectors.groupingBy(StyleColor::getStyleNo));
+        List<StyleColorAgent> styleColorAgents = styleColorAgentService.listByField("style_color_no", styleNos);
+        Map<String, List<StyleColorAgent>> styleColorAgentMap = styleColorAgents.stream().collect(Collectors.groupingBy(StyleColorAgent::getStyleColorNo));
 
         List<String> list1 = new ArrayList<>();
         List<String> list2 = new ArrayList<>();
         List<String> list3 = new ArrayList<>();
+        List<String> list4 = new ArrayList<>();
 
         for (Map.Entry<String, MultipartFile> stringMultipartFileEntry : map.entrySet()) {
             String styleNo = stringMultipartFileEntry.getKey();
-            if(styleColorMap.containsKey(styleNo)){
+            if(styleColorMap.containsKey(styleNo) && styleColorAgentMap.containsKey(styleNo)){
+                String status = styleColorAgentMap.get(styleNo).get(0).getStatus();
+                if(!StrUtil.equals(status,"0") && !StrUtil.equals(status,"2")){
+                    list4.add(styleNo);
+                    continue;
+                }
                 StyleColor styleColor = styleColorMap.get(styleNo).get(0);
                 String id = styleColor.getId();
                 String styleId = styleColor.getStyleId();
@@ -2926,6 +2934,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         resultMap.put("修改失败", String.join(",", list1));
         resultMap.put("修改成功",String.join(",", list2));
         resultMap.put("大货款号不存在",String.join(",", list3));
+        resultMap.put("大货款号状态不允许修改",String.join(",", list4));
         return ApiResult.success("成功",resultMap);
     }
 
