@@ -2236,22 +2236,36 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 rowText += "第"+(i+1)+"行"+"【" +styleColorNo + "】" + "已下发到下游业务系统，需先解锁再导入数据！\n";
             }
 
-            //存在已发送状态
-            /*QueryWrapper styleColorAgentQueryBarcodeWrapper = new QueryWrapper<StyleColorAgent>();
+            QueryWrapper styleColorAgentQueryBarcodeWrapper = new QueryWrapper<StyleColorAgent>();
             styleColorAgentQueryBarcodeWrapper.eq("style_color_no",styleColorNo);
             styleColorAgentQueryBarcodeWrapper.eq("outside_barcode",entity.getOutsideBarcode());
-            styleColorAgentQueryBarcodeWrapper.eq("outside_size_code",entity.getOutsideSizeCode());
-            styleColorAgentQueryBarcodeWrapper.eq("size_id",entity.getSizeCode());
+            styleColorAgentQueryBarcodeWrapper.ne("outside_size_code",entity.getOutsideSizeCode());
+            styleColorAgentQueryBarcodeWrapper.ne("size_id",entity.getSizeCode());
             styleColorAgentQueryBarcodeWrapper.last("limit 1");
             StyleColorAgent styleColorAgentExit = styleColorAgentService.getOne(styleColorAgentQueryBarcodeWrapper);
             if (styleColorAgentExit != null) {
                 rowText += "第"+(i+1)+"行"+"【" +styleColorNo + "】,【"+entity.getOutsideColorCode()+"】"+ "数据库存在重复数据请确认后再导入数据！\n";
-            }*/
+            }
+
+            QueryWrapper styleColorAgentBracodeQueryBarcodeWrapper = new QueryWrapper<StyleColorAgent>();
+            styleColorAgentBracodeQueryBarcodeWrapper.ne("style_color_no",styleColorNo);
+            styleColorAgentBracodeQueryBarcodeWrapper.eq("outside_barcode",entity.getOutsideBarcode());
+            styleColorAgentBracodeQueryBarcodeWrapper.last("limit 1");
+            StyleColorAgent styleColorAgentBracodeExit = styleColorAgentService.getOne(styleColorAgentBracodeQueryBarcodeWrapper);
+            if (styleColorAgentBracodeExit != null) {
+                rowText += "第"+(i+1)+"行,合作方条码【"+entity.getOutsideBarcode()+"】"+ "数据库已存在请确认后再导入数据！\n";
+            }
+
+
 
             //根据产品季名称获取产品季id
-            PlanningSeason planningSeason = planningSeasonService.getByName(entity.getProductSeason(), baseController.getUserCompany());
+            String year = entity.getYear();
+            String season = entity.getSeason();
+            String brandName = entity.getBrandName();
+            String productSeason =year+" "+season+" "+brandName;
+            PlanningSeason planningSeason = planningSeasonService.getByName(productSeason, baseController.getUserCompany());
             if (planningSeason == null) {
-                rowText += "第"+(i+1)+"行"+"【" + entity.getProductSeason() + "】" + "数据库找不到对应产品季信息！\n";
+                rowText += "第"+(i+1)+"行"+"【" + productSeason + "】" + "数据库找不到对应产品季信息！\n";
             }
             List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
             //获取品类的code
@@ -2333,7 +2347,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         Map<String,String> updateStyleColorMap = new HashMap<>();
 
         //设计表
-        for (MangoStyleColorExeclDto dto : list) {
+        for (int i = 0; i < list.size(); i++) {
+            MangoStyleColorExeclDto dto = list.get(i);
             style = new Style();
             styleColor = new StyleColor();
             styleColorAgent = new StyleColorAgent();
@@ -2354,10 +2369,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             //如果存在做更新，不存在则新增
             if (validStyleColorAgent == null) {
+                String year = dto.getYear();
+                String season = dto.getSeason();
+                String brandName = dto.getBrandName();
+                String productSeason =year+" "+season+" "+brandName;
                 //根据产品季名称获取产品季id
-                PlanningSeason planningSeason = planningSeasonService.getByName(dto.getProductSeason(), baseController.getUserCompany());
+                PlanningSeason planningSeason = planningSeasonService.getByName(productSeason, baseController.getUserCompany());
                 if (planningSeason == null) {
-                    throw new OtherException("找不到产品季信息");
+                    throw new OtherException("第"+(i+1)+"行,找不到产品季信息");
                 }
                 style.setPlanningSeasonId(planningSeason.getId());
                 style.setYear(planningSeason.getYear());
@@ -2381,7 +2400,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     style.setStyleType(styleTypeListDictList.get(0).getValue());
                     style.setStyleTypeName(styleTypeListDictList.get(0).getName());
                 } else {
-                    throw new OtherException("找不到对应的款式类型");
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的款式类型");
                 }
 
 
@@ -2412,7 +2431,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     style.setProdCategory(prodCategoryNameList.get(0).getValue());
                 } else {
                     //报错
-                    throw new OtherException("找不到对应的品类");
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的品类");
 
                 }
 
@@ -2425,7 +2444,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     style.setProdCategory1st(prodCategory1stNameList.get(0).getValue());
                 } else {
                     //报错
-                    throw new OtherException("找不到对应的大类");
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的大类");
                 }
 
                 List<BasicCategoryDot> basicCategoryDotList2 = ccmFeignService.getTreeByNamelList("品类", "2");
@@ -2436,12 +2455,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     style.setProdCategory2nd(prodCategory2ndNameList.get(0).getValue());
                 } else {
                     //报错
-                    throw new OtherException("找不到对应的中类");
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的中类");
                 }
                 System.out.println(JSONObject.toJSONString(basicCategoryDotList));
                 //新增款式设计
-                //styleService.save(style);
-
                 //配色
 
                 String colorName = dto.getColorName();
@@ -2457,11 +2474,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 } else {
                     BasicsdatumColourLibrary colorNameData = basicsdatumColourLibraryServicel.getByOne("colour_name", colorName);
                     if (colorNameData == null) {
-                        throw new OtherException("找不到对应的颜色名称："+colorName);
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的颜色名称："+colorName);
                     }
                     BasicsdatumColourLibrary colorCodeData = basicsdatumColourLibraryServicel.getByOne("colour_code", colorCode);
                     if (colorNameData == null) {
-                        throw new OtherException("找不到对应的颜色编码："+colorCode);
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的颜色编码："+colorCode);
                     }
                 }
 
@@ -2486,7 +2503,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     style.setDevtTypeName(devtTypeNameList.get(0).getName());
 
                 } else {
-                    throw new OtherException("找不到对应的生产类型");
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的生产类型");
                 }
 
                 styleColor.setProductName(style.getProdCategoryName());
@@ -2515,9 +2532,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         String[] sizeSplit = sizes.split(",");
                         String[] sizeCodeSplit = sizeCodes.split(",");
 
-                        for (int i = 0; i < sizeSplit.length; i++) {
-                            if (sizeSplit[i].contains(dto.getSizeCode())) {
-                                styleColorAgent.setSizeId(sizeCodeSplit[i]);
+                        for (int j = 0; j < sizeSplit.length; j++) {
+                            if (sizeSplit[j].contains(dto.getSizeCode())) {
+                                styleColorAgent.setSizeId(sizeCodeSplit[j]);
                                 styleColorAgent.setSizeCode(dto.getSizeCode());
                                 style.setSizeRange(basicsdatumModelType.getCode());
                                 style.setSizeRangeName(dto.getSizeRangeName());
@@ -2528,14 +2545,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             }
                         }
                     } else {
-                        throw new OtherException("该号型类型【" + basicsdatumModelType.getModelType() + "】找不到" + dto.getSizeCode());
+                        throw new OtherException("第"+(i+1)+"行,该号型类型【" + basicsdatumModelType.getModelType() + "】找不到" + dto.getSizeCode());
                     }
                     styleColorAgent.setOutsideBarcode(outsideBarcode);
                     styleColorAgent.setOutsideColorCode(dto.getOutsideColorCode());
                     styleColorAgent.setOutsideColorName(dto.getOutsideColorName());
                     styleColorAgent.setOutsideSizeCode(dto.getOutsideSizeCode());
                 } else {
-                    throw new OtherException("找不到对应的号型类型");
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的号型类型");
                 }
 
                 //styleColorAgentService.save(styleColorAgent);
@@ -2628,7 +2645,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 styleColorUpdate.setProductCode(prodCategoryNameList.get(0).getValue());
                             } else {
                                 //报错
-                                throw new OtherException("找不到对应的品类");
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的品类");
 
                             }
 
@@ -2641,7 +2658,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 styleUpdate.setProdCategory1st(prodCategory1stNameList.get(0).getValue());
                             } else {
                                 //报错
-                                throw new OtherException("找不到对应的大类");
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的大类");
                             }
 
                             List<BasicCategoryDot> basicCategoryDotList2 = ccmFeignService.getTreeByNamelList("品类", "2");
@@ -2652,15 +2669,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 styleUpdate.setProdCategory2nd(prodCategory2ndNameList.get(0).getValue());
                             } else {
                                 //报错
-                                throw new OtherException("找不到对应的中类");
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的中类");
                             }
                         }
-
+                        String year = dto.getYear();
+                        String season = dto.getSeason();
+                        String brandName = dto.getBrandName();
+                        String productSeason =year+" "+season+" "+brandName;
 
                         //根据产品季名称获取产品季id
-                        PlanningSeason planningSeason = planningSeasonService.getByName(dto.getProductSeason(), baseController.getUserCompany());
+                        PlanningSeason planningSeason = planningSeasonService.getByName(productSeason, baseController.getUserCompany());
                         if (planningSeason == null) {
-                            throw new OtherException("找不到产品季信息");
+                            throw new OtherException("第"+(i+1)+"行,找不到产品季信息");
                         }
                         if (!planningSeason.getId().equals(styleUpdate.getPlanningSeasonId())) {
                             styleUpdate.setPlanningSeasonId(planningSeason.getId());
@@ -2682,13 +2702,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 styleUpdate.setStyleType(styleTypeListDictList.get(0).getValue());
                                 styleUpdate.setStyleTypeName(styleTypeListDictList.get(0).getName());
                             } else {
-                                throw new OtherException("找不到对应的款式类型");
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的款式类型");
                             }
                         }
 
 
                     }else{
-                        throw new OtherException("找不到对应的设计款信息");
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的设计款信息");
                     }
 
 
@@ -2719,9 +2739,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 String[] sizeSplit = sizes.split(",");
                                 String[] sizeCodeSplit = sizeCodes.split(",");
 
-                                for (int i = 0; i < sizeSplit.length; i++) {
-                                    if (sizeSplit[i].equals(dto.getSizeCode())) {
-                                        validStyleColorAgent.setSizeId(sizeCodeSplit[i]);
+                                for (int j = 0; j < sizeSplit.length; j++) {
+                                    if (sizeSplit[j].equals(dto.getSizeCode())) {
+                                        validStyleColorAgent.setSizeId(sizeCodeSplit[j]);
                                         validStyleColorAgent.setSizeCode(dto.getSizeCode());
                                         style.setSizeRange(basicsdatumModelType.getCode());
                                         style.setSizeRangeName(dto.getSizeRangeName());
@@ -2735,7 +2755,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 throw new OtherException("该号型类型【" + basicsdatumModelType.getModelType() + "】找不到" + dto.getSizeCode());
                             }
                         } else {
-                            throw new OtherException("找不到对应的号型类型");
+                            throw new OtherException("第"+(i+1)+"行,找不到对应的号型类型");
                         }
                     }
                     validStyleColorAgent.setOutsideBarcode(dto.getOutsideBarcode());
@@ -2760,10 +2780,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 stylePricingUpdate.setControlPlanCost(planCostPriceDecimal);
                             }
                         }else{
-                            throw new OtherException("找不到对应的款式定价包信息");
+                            throw new OtherException("第"+(i+1)+"行,找不到对应的款式定价包信息");
                         }
                     }else{
-                        throw new OtherException("找不到对应的资料包信息");
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的资料包信息");
                     }
 
 
@@ -2821,4 +2841,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             msg+="修改"+updateStyleColorAgentList.size()+"条。";
         return ApiResult.success(msg);
     }
+
+
 }

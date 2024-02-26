@@ -19,9 +19,9 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*季节", width = 20)
     private String season;
 
-    @ApiModelProperty(name = "产品季")
+    /*@ApiModelProperty(name = "产品季")
     @Excel(name = "*产品季", width = 20)
-    private String productSeason;
+    private String productSeason;*/
 
     @ApiModelProperty(name = "品类")
     @Excel(name = "*品类", width = 20)
