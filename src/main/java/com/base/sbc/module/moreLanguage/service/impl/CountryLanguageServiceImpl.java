@@ -262,6 +262,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                                 ));
                                 if (CollectionUtil.isNotEmpty(contentList)) {
                                     contentList.forEach(it-> {
+                                        it.setId(null);
                                         it.setCountryLanguageId(countryId);
                                     });
                                     standardColumnCountryTranslateService.saveOrUpdateBatch(contentList);
