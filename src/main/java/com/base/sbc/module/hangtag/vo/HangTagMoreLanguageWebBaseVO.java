@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import lombok.Data;
@@ -45,6 +46,7 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
             if (languageVO.getCannotFindPropertiesContent()) fillJoiner.add(CONTENT.getText());
             joiner.add(languageVO.getLanguageName() + fillJoiner + TRANSLATE.getText());
         });
+        if (joiner.length()<=0) return "";
         return MoreLanguageProperties.getMsg(NOT_EXIST_CONTENT,joiner.toString());
     }
 
@@ -60,7 +62,7 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
     private String getMergedContent(Function<HangTagMoreLanguageBaseVO, String> fieldFunc, Function<HangTagMoreLanguageVO, String> contentFunc){
         // 返回合并内容
         StringJoiner joiner = new StringJoiner(MoreLanguageProperties.multiSeparator);
-        joiner.add(fieldFunc.apply(this));
+        joiner.add(Opt.ofNullable(fieldFunc.apply(this)).orElse(""));
         this.getLanguageList().forEach(languageVO-> {
             joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));
             joiner.add(contentFunc.apply(languageVO));
