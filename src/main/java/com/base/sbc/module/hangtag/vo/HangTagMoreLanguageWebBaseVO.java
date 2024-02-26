@@ -54,7 +54,7 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         // 返回每个语言对应的翻译
         Map<String, String> map = new HashMap<>(this.getLanguageList().size() + 1);
         this.getLanguageList().forEach(languageVo-> {
-            map.put(languageVo.getLanguageCode(), languageVo.getContent());
+            map.put(languageVo.getLanguageCode(), StrUtil.isBlank(languageVo.getContent()) ? MoreLanguageProperties.fieldValueSeparator : languageVo.getContent());
         });
         return map;
     }
@@ -64,7 +64,7 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         StringJoiner joiner = new StringJoiner(MoreLanguageProperties.multiSeparator);
         joiner.add(Opt.ofNullable(fieldFunc.apply(this)).orElse(""));
         this.getLanguageList().forEach(languageVO-> {
-            joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));
+            joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));·
             joiner.add(contentFunc.apply(languageVO));
         });
         return joiner.toString();
