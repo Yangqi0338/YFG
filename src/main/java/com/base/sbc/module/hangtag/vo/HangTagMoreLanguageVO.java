@@ -124,7 +124,7 @@ public class HangTagMoreLanguageVO {
         String value = getPropertiesContent();
         return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
                 title,
-                this.isGroup ? MoreLanguageProperties.multiSplitSeparator : "",
+                this.isGroup ? MoreLanguageProperties.multiSeparator : "",
                 value
         );
     }

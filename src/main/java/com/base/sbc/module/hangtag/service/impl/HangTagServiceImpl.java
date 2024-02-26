@@ -1204,7 +1204,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									String content;
 									// 需要合并 就多个合并
 									if (needFeed) {
-										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining(MoreLanguageProperties.multiSplitSeparator));
+										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining(MoreLanguageProperties.multiSeparator));
 									} else {
 										content = translate.getContent();
 									}
@@ -1400,7 +1400,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 									rightLanguageMap.forEach(map-> {
 										// 进行组合
-										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
+										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value + MoreLanguageProperties.showInfoLanguageSeparator)));
 									});
 									// 若还是和之前一样，那就是没找到翻译
 									if (propertiesContent.equals(languageVo.getPropertiesContent())) {

@@ -45,7 +45,6 @@ public class MoreLanguageProperties {
     public static Boolean internalCheck = false;
     public static String languageDictCode = "language";
     public static String saftyStandardCode = "DP02";
-    public static String multiSplitSeparator = ";\n";
     public static String multiSeparator = "\n";
     public static String fieldValueSeparator = "：";
     public static String showInfoLanguageSeparator = "；";
@@ -135,10 +134,6 @@ public class MoreLanguageProperties {
 
     public void setSaftyStandardCode(String saftyStandardCode) {
         MoreLanguageProperties.saftyStandardCode = saftyStandardCode;
-    }
-
-    public void setMultiSplitSeparator(String multiSplitSeparator) {
-        MoreLanguageProperties.multiSplitSeparator = multiSplitSeparator;
     }
 
     public void setMultiSeparator(String multiSeparator) {
