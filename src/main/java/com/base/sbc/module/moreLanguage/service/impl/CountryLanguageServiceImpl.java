@@ -227,6 +227,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                         RedisStaticFunUtils.set(RedisKeyConstant.COUNTRY_LANGUAGE.addEnd(cache, code, type.getCode(), countryId), countryLanguage);
 
                         // 重置关联
+                        List<String> existRelationStandardColumnList = relationService.listOneField(new LambdaQueryWrapper<StandardColumnCountryRelation>()
+                                .eq(StandardColumnCountryRelation::getCountryLanguageId, countryId), StandardColumnCountryRelation::getStandardColumnCode
+                        );
                         removeRelation(countryId);
                         List<StandardColumnCountryRelation> countryRelationList = standardColumnCodeList.stream().map(standardColumnCode -> {
                             // 从redis标准列数据
@@ -238,7 +241,8 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
                         relationService.saveBatch(countryRelationList);
 
-                        if (!countryLanguageOpt.isPresent()) {
+                        List<String> newRelationList = standardColumnCodeList.stream().filter(it -> !existRelationStandardColumnList.contains(it)).collect(Collectors.toList());
+                        if (CollectionUtil.isNotEmpty(newRelationList)) {
                             // 检查新增是否有单语言翻译, 拿过来
                             String languageId = this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                                             .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES)
@@ -249,17 +253,15 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                                 List<StandardColumnCountryTranslate> contentList = standardColumnCountryTranslateService.list(
                                         new LambdaQueryWrapper<StandardColumnCountryTranslate>()
                                                 .eq(StandardColumnCountryTranslate::getCountryLanguageId, languageId)
-                                                .in(StandardColumnCountryTranslate::getTitleCode, standardColumnCodeList)
+                                                .in(StandardColumnCountryTranslate::getTitleCode, newRelationList)
                                 );
                                 contentList.addAll(standardColumnCountryTranslateService.list(
                                         new LambdaQueryWrapper<StandardColumnCountryTranslate>()
                                                 .eq(StandardColumnCountryTranslate::getCountryLanguageId, languageId)
-                                                .in(StandardColumnCountryTranslate::getPropertiesCode, standardColumnCodeList)
+                                                .in(StandardColumnCountryTranslate::getPropertiesCode, newRelationList)
                                 ));
                                 if (CollectionUtil.isNotEmpty(contentList)) {
                                     contentList.forEach(it-> {
-                                        it.updateInit();
-                                        it.insertInit();
                                         it.setCountryLanguageId(countryId);
                                     });
                                     standardColumnCountryTranslateService.saveOrUpdateBatch(contentList);
