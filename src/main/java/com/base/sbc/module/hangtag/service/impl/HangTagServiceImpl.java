@@ -1128,7 +1128,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						hangTagMoreLanguageBaseVO.setPropertiesName(propertiesName);
 
 						// 封装多值的Code
-						List<String> propertiesCodeList = Arrays.asList(propertiesCode.split("\n"));
+						List<String> propertiesCodeList = Arrays.asList(propertiesCode.split(MoreLanguageProperties.multiSeparator));
 						if (propertiesCodeList.size() <= 1) {
 							propertiesCodeList = Arrays.asList(propertiesCode.split(COMMA));
 						}
@@ -1204,7 +1204,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									String content;
 									// 需要合并 就多个合并
 									if (needFeed) {
-										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining(MoreLanguageProperties.multiSeparator));
+										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining(MoreLanguageProperties.multiSplitSeparator));
 									} else {
 										content = translate.getContent();
 									}
