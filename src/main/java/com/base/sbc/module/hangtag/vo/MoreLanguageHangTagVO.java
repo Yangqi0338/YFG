@@ -99,6 +99,7 @@ public class MoreLanguageHangTagVO extends HangTagVO {
         public HangTagMoreLanguageGroup(String standColumnCode, String standColumnName, Function<MoreLanguageHangTagVO, String> content) {
             this.standColumnCode = standColumnCode;
             this.content = content;
+            this.standColumnName = standColumnName;
         }
     }
 

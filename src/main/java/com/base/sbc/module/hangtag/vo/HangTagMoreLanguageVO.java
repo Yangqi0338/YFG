@@ -67,10 +67,6 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "不能找到标准列翻译")
     protected Boolean cannotFindStandardColumnContent = true;
 
-    public Boolean getCannotFindStandardColumnContent() {
-        return this.cannotFindStandardColumnContent && !isGroup;
-    }
-
     /**
      * 具体数据的翻译
      */
@@ -82,7 +78,7 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "具体数据翻译")
     public String getPropertiesContent() {
-        return getCannotFindPropertiesContent() || StrUtil.isBlank(this.propertiesContent) ? "" : this.propertiesContent;
+        return (getCannotFindPropertiesContent() && !isGroup) || StrUtil.isBlank(this.propertiesContent) ? "" : this.propertiesContent;
     }
 
     /**
