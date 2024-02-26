@@ -839,11 +839,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
-				tagPrinting
-						.setTechApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
+				tagPrinting.setTechApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注
+				tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarksName());
 				// 贮藏要求
 				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemandName());
 				// 产地
