@@ -171,6 +171,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         // 一个保存同步锁, 因为上面的code是程序计算, 解决连点导致的code重复
         saveLock.lock();
         try {
+            List<StandardColumnCountryTranslate> needInsertTranslateList = new ArrayList<>();
             // 根据国家类型进行分组
             countryTypeLanguageSaveDto.getTypeLanguage().stream().sorted(CommonUtils.comparing(TypeLanguageSaveDto::getType)).forEach(typeLanguageSaveDto-> {
                 CountryLanguageType type = typeLanguageSaveDto.getType();
@@ -265,7 +266,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                                         it.setId(null);
                                         it.setCountryLanguageId(countryId);
                                     });
-                                    standardColumnCountryTranslateService.saveOrUpdateBatch(contentList);
+                                    needInsertTranslateList.addAll(contentList);
                                 }
                             }
                         }
@@ -274,6 +275,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                     RedisStaticFunUtils.sSet(redisKey, standardColumnCodeList.stream().collect(Collectors.toList()));
                 }
             });
+            if (CollectionUtil.isNotEmpty(needInsertTranslateList)) {
+                standardColumnCountryTranslateService.saveOrUpdateBatch(needInsertTranslateList);
+            }
         }finally {
             saveLock.unlock();
         }
