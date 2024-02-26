@@ -480,11 +480,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					"/pdm/api/saas/hangTag/toExamine", "/pdm/api/saas/hangTag/toExamine", null,
 					BeanUtil.beanToMap(hangTag));
 		}
-//		// 如果提交审核默认通过第一个审核
-//		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
-//			hangTag.setStatus(HangTagStatusEnum.TECH_CHECK);
-//			this.updateById(hangTag);
-//		}
+		// 如果提交审核默认通过第一个审核
+		if (HangTagStatusEnum.DESIGN_CHECK == hangTag.getStatus() && HangTagStatusCheckEnum.QC_CHECK != hangTagDTO.getCheckType()) {
+			hangTag.setStatus(HangTagStatusEnum.TECH_CHECK);
+			this.updateById(hangTag);
+		}
 		try {
 			//下发成分
 			smpService.sendTageComposition(Collections.singletonList(id));
@@ -579,14 +579,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			List<HangTag> partCheckTranslateList = hangTags.stream()
 					.filter(it -> Arrays.asList(HangTagStatusEnum.FINISH, HangTagStatusEnum.TRANSLATE_CHECK, HangTagStatusEnum.PART_TRANSLATE_CHECK).contains(it.getStatus())).collect(Collectors.toList());
 			if (CollectionUtil.isNotEmpty(partCheckTranslateList)) {
-				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
-				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
+//				String countryCode = hangTagUpdateStatusDTO.getCountryCode();
+//				if (StrUtil.isBlank(countryCode)) throw new OtherException("未选择需要翻译的国家");
 
 				partCheckTranslateList.stream().collect(Collectors.groupingBy(it-> it.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK)).forEach((multiCheck, multiCheckList)-> {
 					styleCountryStatusService.updateStatus(partCheckTranslateList.stream().map(hangTag-> {
 						StyleCountryStatus status = new StyleCountryStatus();
 						status.setBulkStyleNo(hangTag.getBulkStyleNo());
-						status.setCountryCode(countryCode);
+						status.setCountryCode(hangTagUpdateStatusDTO.getCountryCode());
 						status.setStatus(StyleCountryStatusEnum.CHECK);
 						return status;
 					}).collect(Collectors.toList()), multiCheckList, multiCheck);
@@ -853,11 +853,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
-				tagPrinting
-						.setTechApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
+				tagPrinting.setTechApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.DESIGN_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 安全标题
 				tagPrinting.setSaftyTitle(hangTag.getSaftyTitle());
 				// 洗唛材质备注
+				tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarksName());
 				// 贮藏要求
 				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemandName());
 				// 产地
@@ -1435,7 +1435,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 									rightLanguageMap.forEach(map-> {
 										// 进行组合
-										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
+										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value + MoreLanguageProperties.showInfoLanguageSeparator)));
 									});
 									// 若还是和之前一样，那就是没找到翻译
 									if (propertiesContent.equals(languageVo.getPropertiesContent())) {

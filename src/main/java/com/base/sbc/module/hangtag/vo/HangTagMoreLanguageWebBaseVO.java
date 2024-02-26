@@ -7,10 +7,12 @@
 package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.xpath.operations.Bool;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,14 +47,23 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
             if (languageVO.getCannotFindPropertiesContent()) fillJoiner.add(CONTENT.getText());
             joiner.add(languageVO.getLanguageName() + fillJoiner + TRANSLATE.getText());
         });
+        if (joiner.length()<=0) return "";
         return MoreLanguageProperties.getMsg(NOT_EXIST_CONTENT,joiner.toString());
+    }
+
+    public Boolean getCannotFindStandardColumnContent(){
+        return this.getLanguageList().stream().allMatch(HangTagMoreLanguageVO::getCannotFindStandardColumnContent);
+    }
+
+    public Boolean getCannotFindPropertiesContent(){
+        return this.getLanguageList().stream().allMatch(HangTagMoreLanguageVO::getCannotFindPropertiesContent);
     }
 
     public Map<String, String> getContent() {
         // 返回每个语言对应的翻译
         Map<String, String> map = new HashMap<>(this.getLanguageList().size() + 1);
         this.getLanguageList().forEach(languageVo-> {
-            map.put(languageVo.getLanguageCode(), languageVo.getContent());
+            map.put(languageVo.getLanguageCode(), StrUtil.isBlank(languageVo.getContent()) ? MoreLanguageProperties.fieldValueSeparator : languageVo.getContent());
         });
         return map;
     }
@@ -60,7 +71,7 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
     private String getMergedContent(Function<HangTagMoreLanguageBaseVO, String> fieldFunc, Function<HangTagMoreLanguageVO, String> contentFunc){
         // 返回合并内容
         StringJoiner joiner = new StringJoiner(MoreLanguageProperties.multiSeparator);
-        joiner.add(fieldFunc.apply(this));
+        joiner.add(Opt.ofNullable(fieldFunc.apply(this)).orElse(""));
         this.getLanguageList().forEach(languageVO-> {
             joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));
             joiner.add(contentFunc.apply(languageVO));

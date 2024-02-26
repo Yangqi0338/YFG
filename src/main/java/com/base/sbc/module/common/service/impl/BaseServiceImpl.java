@@ -759,7 +759,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
             TableInfo tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
             if (maxSize <= batchSize) affectRow = ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(entityList);
             else {
-                for (int i = 0; i < forCount; i++) {
+                for (int i = 0; i <= forCount; i++) {
                     List<T> executeList = CollUtil.sub(entityList, i * batchSize, Math.min((i + 1) * batchSize, maxSize));
                     affectRow += ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(executeList);
                 }

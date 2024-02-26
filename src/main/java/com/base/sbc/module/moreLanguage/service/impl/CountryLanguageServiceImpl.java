@@ -44,9 +44,11 @@ import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.dto.TypeLanguageSaveDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
+import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.mapper.CountryLanguageMapper;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.base.sbc.module.standard.dto.StandardColumnQueryDto;
 import com.base.sbc.module.standard.entity.StandardColumn;
@@ -64,6 +66,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
@@ -87,6 +90,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
     @Autowired
     private StandardColumnService standardColumnService;
+
+    @Autowired
+    private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
 
     @Autowired
     private CcmFeignService ccmFeignService;
@@ -173,6 +179,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         // 一个保存同步锁, 因为上面的code是程序计算, 解决连点导致的code重复
         saveLock.lock();
         try {
+            List<StandardColumnCountryTranslate> needInsertTranslateList = new ArrayList<>();
             // 根据国家类型进行分组
             countryTypeLanguageSaveDto.getTypeLanguage().stream().sorted(CommonUtils.comparing(TypeLanguageSaveDto::getType)).forEach(typeLanguageSaveDto-> {
                 CountryLanguageType type = typeLanguageSaveDto.getType();
@@ -211,8 +218,8 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                     // 计算语言的排序,用于回显
                     AtomicInteger sort = new AtomicInteger();
                     for (String languageCode : languageCodeList) {
-                        CountryLanguage countryLanguage = oldCountryLanguageList.stream().filter(it -> languageCode.equals(it.getLanguageCode()))
-                                .findFirst().orElse(BeanUtil.copyProperties(countryTypeLanguage, CountryLanguage.class));
+                        Optional<CountryLanguage> countryLanguageOpt = oldCountryLanguageList.stream().filter(it -> languageCode.equals(it.getLanguageCode())).findFirst();
+                        CountryLanguage countryLanguage = countryLanguageOpt.orElse(BeanUtil.copyProperties(countryTypeLanguage, CountryLanguage.class));
 
                         countryLanguage.setLanguageCode(languageCode);
                         countryLanguage.setSort(sort.getAndIncrement());
@@ -229,6 +236,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                         RedisStaticFunUtils.set(RedisKeyConstant.COUNTRY_LANGUAGE.addEnd(cache, code, type.getCode(), countryId), countryLanguage);
 
                         // 重置关联
+                        List<String> existRelationStandardColumnList = relationService.listOneField(new LambdaQueryWrapper<StandardColumnCountryRelation>()
+                                .eq(StandardColumnCountryRelation::getCountryLanguageId, countryId), StandardColumnCountryRelation::getStandardColumnCode
+                        );
                         removeRelation(countryId);
                         List<StandardColumnCountryRelation> countryRelationList = standardColumnCodeList.stream().map(standardColumnCode -> {
                             // 从redis标准列数据
@@ -239,11 +249,43 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                         }).collect(Collectors.toList());
 
                         relationService.saveBatch(countryRelationList);
+
+                        List<String> newRelationList = standardColumnCodeList.stream().filter(it -> !existRelationStandardColumnList.contains(it)).collect(Collectors.toList());
+                        if (CollectionUtil.isNotEmpty(newRelationList)) {
+                            // 检查新增是否有单语言翻译, 拿过来
+                            String languageId = this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
+                                            .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES)
+                                            .eq(CountryLanguage::getLanguageCode, languageCode)
+                                            .eq(CountryLanguage::getType, type)
+                                    , CountryLanguage::getId);
+                            if (StrUtil.isNotBlank(languageId)) {
+                                List<StandardColumnCountryTranslate> contentList = standardColumnCountryTranslateService.list(
+                                        new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                                                .eq(StandardColumnCountryTranslate::getCountryLanguageId, languageId)
+                                                .in(StandardColumnCountryTranslate::getTitleCode, newRelationList)
+                                );
+                                contentList.addAll(standardColumnCountryTranslateService.list(
+                                        new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                                                .eq(StandardColumnCountryTranslate::getCountryLanguageId, languageId)
+                                                .in(StandardColumnCountryTranslate::getPropertiesCode, newRelationList)
+                                ));
+                                if (CollectionUtil.isNotEmpty(contentList)) {
+                                    contentList.forEach(it-> {
+                                        it.setId(null);
+                                        it.setCountryLanguageId(countryId);
+                                    });
+                                    needInsertTranslateList.addAll(contentList);
+                                }
+                            }
+                        }
                     }
 
                     RedisStaticFunUtils.sSet(redisKey, standardColumnCodeList.stream().collect(Collectors.toList()));
                 }
             });
+            if (CollectionUtil.isNotEmpty(needInsertTranslateList)) {
+                standardColumnCountryTranslateService.saveOrUpdateBatch(needInsertTranslateList);
+            }
         }finally {
             saveLock.unlock();
         }
