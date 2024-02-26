@@ -308,6 +308,13 @@ public class StyleColorController {
 		return ApiResult.success("操作成功");
 	}
 
+	@ApiOperation(value = "代理货品资料-编辑")
+	@PostMapping("/agentUpdate")
+	public ApiResult agentUpdate(StyleColorAgentVo styleColorAgentVo) {
+		styleColorService.agentUpdate(styleColorAgentVo);
+		return ApiResult.success("操作成功");
+	}
+
 	@ApiOperation(value = "代理货品资料-同步")
 	@GetMapping("/agentSync")
 	public ApiResult agentSync(String[] ids) {

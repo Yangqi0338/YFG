@@ -2007,7 +2007,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public void agentUnlock(String[] ids) {
         //状态校验
-        List<StyleColorAgent> list = styleColorAgentService.listByIds(Arrays.asList(ids));
+        List<StyleColorAgent> list = styleColorAgentService.listByField("style_color_id",Arrays.asList(ids));
         for (StyleColorAgent styleColorAgent : list) {
             if(!"1".equals(styleColorAgent.getStatus())){
                 throw new OtherException("只有已下发时才能解锁");
@@ -2016,7 +2016,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.set(StyleColorAgent::getStatus,"2");
-        updateWrapper.in(StyleColorAgent::getId, Arrays.asList(ids));
+        updateWrapper.in(StyleColorAgent::getStyleColorId, Arrays.asList(ids));
         styleColorAgentService.update(updateWrapper);
     }
 
@@ -2051,7 +2051,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PageInfo<StyleColorAgentVo> styleColorAgentVoPageInfo = styleColorService.agentPageList(dto);
         List<StyleColorAgentVo> styleColorAgentVoList = styleColorAgentVoPageInfo.getList();
 
-        List<MangoStyleColorExeclDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclDto.class);
+        List<MangoStyleColorExeclExportDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclExportDto.class);
 
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
@@ -2067,7 +2067,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
                 stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
-                for (MangoStyleColorExeclDto mangoStyleColorExeclDto : list) {
+                for (MangoStyleColorExeclExportDto mangoStyleColorExeclDto : list) {
                     executor.submit(() -> {
                         try {
                             final String styleColorPic = mangoStyleColorExeclDto.getStyleColorPic();
@@ -2083,7 +2083,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
                 countDownLatch.await();
             }
-            ExcelUtils.exportExcel(list, MangoStyleColorExeclDto.class, "代理货品资料导出.xlsx", new ExportParams("代理货品资料导出", "代理货品资料导出", ExcelType.HSSF), response);
+            ExcelUtils.exportExcel(list, MangoStyleColorExeclExportDto.class, "代理货品资料导出.xlsx", new ExportParams("代理货品资料导出", "代理货品资料导出", ExcelType.HSSF), response);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
         } finally {
@@ -2821,4 +2821,31 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             msg+="修改"+updateStyleColorAgentList.size()+"条。";
         return ApiResult.success(msg);
     }
+
+    @Override
+    @Transactional
+    public void agentUpdate(StyleColorAgentVo styleColorAgentVo) {
+        String styleColorId = styleColorAgentVo.getStyleColorId();
+        if(StrUtil.isNotBlank(styleColorId)){
+            LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StyleColor::getTagPrice,styleColorAgentVo.getTagPrice());
+            updateWrapper.set(StyleColor::getUpdateId, getUserId());
+            updateWrapper.set(StyleColor::getUpdateName, getUserName());
+            updateWrapper.set(StyleColor::getUpdateDate, new Date());
+            updateWrapper.eq(StyleColor::getId,styleColorId);
+            update(updateWrapper);
+        }
+
+        String stylePricingId = styleColorAgentVo.getStylePricingId();
+        if(StrUtil.isNotBlank(stylePricingId)){
+            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StylePricing::getControlPlanCost,styleColorAgentVo.getControlPlanCost());
+            updateWrapper.set(StylePricing::getUpdateId, getUserId());
+            updateWrapper.set(StylePricing::getUpdateName, getUserName());
+            updateWrapper.set(StylePricing::getUpdateDate, new Date());
+            updateWrapper.eq(StylePricing::getId,stylePricingId);
+            stylePricingService.update(updateWrapper);
+        }
+    }
+
 }
