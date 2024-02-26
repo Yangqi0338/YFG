@@ -12,6 +12,7 @@ import java.util.List;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cn.hutool.core.util.StrUtil;
@@ -35,6 +36,9 @@ public class HangTagVO extends HangTag {
     private String id;
 
     private List<BasicsdatumMaterial> basicsdatumMaterials;
+
+    /*检测报告*/
+    private List<EscmMaterialCompnentInspectCompanyDto> compnentInspectCompanyDtoList;
 
     private String prodCategory1stName;
 
@@ -344,6 +348,12 @@ public class HangTagVO extends HangTag {
     /** 开发分类名称 */
     @ApiModelProperty(value = "开发分类名称"  )
     private String devClassName;
+
+    /**
+     * bom状态
+     */
+    @ApiModelProperty(value = "bom状态")
+    private String bomStatus;
 
     /**
      * 附件

@@ -7,14 +7,12 @@
 package com.base.sbc.module.hangtag.service;
 
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.hangtag.dto.HangTagDTO;
-import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
-import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
-import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
+import com.base.sbc.module.hangtag.dto.*;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -109,6 +107,13 @@ public interface HangTagService extends BaseService<HangTag> {
     Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO, boolean needHandle, boolean mergeWarnMsg);
 
     boolean counterReview(HangTag reviewHangTag);
+
+    /**
+     * 通过物料编码获取检查报告
+     * @param dto
+     * @return
+     */
+    List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

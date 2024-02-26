@@ -1,16 +1,15 @@
-package com.base.sbc.open.entity;
+package com.base.sbc.module.hangtag.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.Page;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectContent;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
 
 @Data
-@TableName("t_escm_material_component_inspect_company")
-public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String> {
+public class InspectCompanyDto {
     /**
      * 文件地址
      */
@@ -107,7 +106,7 @@ public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String
     private String materialsNo ;
 
 
-   /**
+    /**
      * 物料名称
      */
     private String materialsName ;
@@ -123,9 +122,5 @@ public class EscmMaterialCompnentInspectCompanyDto extends BaseDataEntity<String
 
     @TableField(exist = false)
     private String inspectCompanyId;
-
-    /*年份集合*/
-    @TableField(exist = false)
-    private List<EscmMaterialCompnentInspectCompanyDto> companyDtoList;
-
 }
+
