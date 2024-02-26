@@ -1412,7 +1412,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 											String replaceStandardColumnContent = StrUtil.replace(languageVo.getStandardColumnContent(), key, value);
 											if (languageVo.getStandardColumnContent().equals(replaceStandardColumnContent)) {
-												languageVo.setCannotFindPropertiesContent(true);
+												languageVo.setCannotFindStandardColumnContent(true);
 											}
 											languageVo.setStandardColumnContent(replaceStandardColumnContent);
 										});
