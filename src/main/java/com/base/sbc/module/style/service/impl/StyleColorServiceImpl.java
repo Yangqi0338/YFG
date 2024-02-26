@@ -2877,14 +2877,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         for (Map.Entry<String, MultipartFile> stringMultipartFileEntry : map.entrySet()) {
             String styleNo = stringMultipartFileEntry.getKey();
             if(styleColorMap.containsKey(styleNo)){
-                String id = styleColorMap.get(styleNo).get(0).getId();
-                DelStylePicDto delStylePicDto = new DelStylePicDto();
-                delStylePicDto.setStyleColorId(id);
-                uploadFileService.delStyleImage(delStylePicDto, user);
-                UploadStylePicDto picDto = new UploadStylePicDto();
-                picDto.setFile(stringMultipartFileEntry.getValue());
-                picDto.setStyleColorId(id);
+                StyleColor styleColor = styleColorMap.get(styleNo).get(0);
+                String id = styleColor.getId();
+                String styleId = styleColor.getStyleId();
                 try {
+                    DelStylePicDto delStylePicDto = new DelStylePicDto();
+                    delStylePicDto.setStyleColorId(id);
+                    delStylePicDto.setStyleId(styleId);
+                    uploadFileService.delStyleImage(delStylePicDto, user);
+                    UploadStylePicDto picDto = new UploadStylePicDto();
+                    picDto.setFile(stringMultipartFileEntry.getValue());
+                    picDto.setStyleColorId(id);
+                    picDto.setStyleId(styleId);
                     uploadFileService.uploadStyleImage(picDto, user);
                 } catch (Exception e) {
                     //修改失败
