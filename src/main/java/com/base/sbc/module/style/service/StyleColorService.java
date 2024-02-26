@@ -20,6 +20,7 @@ import com.base.sbc.module.style.vo.StyleColorAgentVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -275,4 +276,6 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void exportAgentExcel(HttpServletResponse response, QueryStyleColorAgentDto querySampleStyleColorDto);
 
     void agentUpdate(StyleColorAgentVo styleColorAgentVo);
+
+    ApiResult uploadStyleColorPics(Principal user, MultipartFile[] files);
 }
