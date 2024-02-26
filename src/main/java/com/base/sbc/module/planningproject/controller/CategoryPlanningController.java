@@ -54,6 +54,10 @@ public class CategoryPlanningController extends BaseController {
     public ApiResult generateCategoryPlanning(@RequestBody BaseDto baseDto) {
         // 生成品类企划
         SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(baseDto.getId());
+        String status = seasonalPlanning.getStatus();
+        if ("1".equals(status)){
+            throw new RuntimeException("已停用的季节企划不能生成品类企划");
+        }
         QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("status", "0");
         queryWrapper.eq("season_id", seasonalPlanning.getSeasonId());
