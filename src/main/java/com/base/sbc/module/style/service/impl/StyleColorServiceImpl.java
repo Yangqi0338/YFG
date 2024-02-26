@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.IdUtil;
@@ -35,11 +36,8 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.config.utils.StringUtils.MatchStrType;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -2007,7 +2005,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public void agentUnlock(String[] ids) {
         //状态校验
-        List<StyleColorAgent> list = styleColorAgentService.listByIds(Arrays.asList(ids));
+        List<StyleColorAgent> list = styleColorAgentService.listByField("style_color_id",Arrays.asList(ids));
         for (StyleColorAgent styleColorAgent : list) {
             if(!"1".equals(styleColorAgent.getStatus())){
                 throw new OtherException("只有已下发时才能解锁");
@@ -2016,7 +2014,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.set(StyleColorAgent::getStatus,"2");
-        updateWrapper.in(StyleColorAgent::getId, Arrays.asList(ids));
+        updateWrapper.in(StyleColorAgent::getStyleColorId, Arrays.asList(ids));
         styleColorAgentService.update(updateWrapper);
     }
 
@@ -2051,7 +2049,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PageInfo<StyleColorAgentVo> styleColorAgentVoPageInfo = styleColorService.agentPageList(dto);
         List<StyleColorAgentVo> styleColorAgentVoList = styleColorAgentVoPageInfo.getList();
 
-        List<MangoStyleColorExeclDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclDto.class);
+        List<MangoStyleColorExeclExportDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclExportDto.class);
 
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
@@ -2067,7 +2065,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
                 stylePicUtils.setStylePic(list, "styleColorPic",30);
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
-                for (MangoStyleColorExeclDto mangoStyleColorExeclDto : list) {
+                for (MangoStyleColorExeclExportDto mangoStyleColorExeclDto : list) {
                     executor.submit(() -> {
                         try {
                             final String styleColorPic = mangoStyleColorExeclDto.getStyleColorPic();
@@ -2083,7 +2081,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
                 countDownLatch.await();
             }
-            ExcelUtils.exportExcel(list, MangoStyleColorExeclDto.class, "代理货品资料导出.xlsx", new ExportParams("代理货品资料导出", "代理货品资料导出", ExcelType.HSSF), response);
+            ExcelUtils.exportExcel(list, MangoStyleColorExeclExportDto.class, "代理货品资料导出.xlsx", new ExportParams("代理货品资料导出", "代理货品资料导出", ExcelType.HSSF), response);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
         } finally {
@@ -2841,6 +2839,96 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             msg+="修改"+updateStyleColorAgentList.size()+"条。";
         return ApiResult.success(msg);
     }
+
+    @Override
+    @Transactional
+    public void agentUpdate(StyleColorAgentVo styleColorAgentVo) {
+        String styleColorId = styleColorAgentVo.getStyleColorId();
+        if(StrUtil.isNotBlank(styleColorId)){
+            LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StyleColor::getTagPrice,styleColorAgentVo.getTagPrice());
+            updateWrapper.set(StyleColor::getUpdateId, getUserId());
+            updateWrapper.set(StyleColor::getUpdateName, getUserName());
+            updateWrapper.set(StyleColor::getUpdateDate, new Date());
+            updateWrapper.eq(StyleColor::getId,styleColorId);
+            update(updateWrapper);
+        }
+
+        String stylePricingId = styleColorAgentVo.getStylePricingId();
+        if(StrUtil.isNotBlank(stylePricingId)){
+            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StylePricing::getControlPlanCost,styleColorAgentVo.getControlPlanCost());
+            updateWrapper.set(StylePricing::getUpdateId, getUserId());
+            updateWrapper.set(StylePricing::getUpdateName, getUserName());
+            updateWrapper.set(StylePricing::getUpdateDate, new Date());
+            updateWrapper.eq(StylePricing::getId,stylePricingId);
+            stylePricingService.update(updateWrapper);
+        }
+    }
+
+    @Override
+    public ApiResult uploadStyleColorPics(Principal user, MultipartFile[] files) {
+
+        List<String> styleNos = new ArrayList<>();
+        Map<String,MultipartFile> map = new HashMap<>();
+
+        for (MultipartFile file : files) {
+            //根据文件名  大货款号匹配数据   67065748_43 替换为-
+            //判断是否是图片
+            String originalFilename = file.getOriginalFilename();
+            CommonUtils.isImage(originalFilename, true);
+            String styleNo = FileUtil.mainName(originalFilename).replace("_","-");
+
+            if(styleNos.contains(styleNo)){
+                throw new OtherException("导入文件名不能重复");
+            }
+
+            styleNos.add(styleNo);
+            map.put(styleNo,file);
+        }
+
+        List<StyleColor> styleColorList = listByField("style_no", styleNos);
+        Map<String, List<StyleColor>> styleColorMap = styleColorList.stream().collect(Collectors.groupingBy(StyleColor::getStyleNo));
+
+        List<String> list1 = new ArrayList<>();
+        List<String> list2 = new ArrayList<>();
+        List<String> list3 = new ArrayList<>();
+
+        for (Map.Entry<String, MultipartFile> stringMultipartFileEntry : map.entrySet()) {
+            String styleNo = stringMultipartFileEntry.getKey();
+            if(styleColorMap.containsKey(styleNo)){
+                StyleColor styleColor = styleColorMap.get(styleNo).get(0);
+                String id = styleColor.getId();
+                String styleId = styleColor.getStyleId();
+                try {
+                    DelStylePicDto delStylePicDto = new DelStylePicDto();
+                    delStylePicDto.setStyleColorId(id);
+                    delStylePicDto.setStyleId(styleId);
+                    uploadFileService.delStyleImage(delStylePicDto, user);
+                    UploadStylePicDto picDto = new UploadStylePicDto();
+                    picDto.setFile(stringMultipartFileEntry.getValue());
+                    picDto.setStyleColorId(id);
+                    picDto.setStyleId(styleId);
+                    uploadFileService.uploadStyleImage(picDto, user);
+                } catch (Exception e) {
+                    //修改失败
+                    list1.add(styleNo);
+                    continue;
+                }
+                //修改成功
+                list2.add(styleNo);
+            }else{
+                //大货款号不存在
+                list3.add(styleNo);
+            }
+        }
+        Map<String,String> resultMap = new HashMap<>();
+        resultMap.put("修改失败", String.join(",", list1));
+        resultMap.put("修改成功",String.join(",", list2));
+        resultMap.put("大货款号不存在",String.join(",", list3));
+        return ApiResult.success("成功",resultMap);
+    }
+
 
 
 }

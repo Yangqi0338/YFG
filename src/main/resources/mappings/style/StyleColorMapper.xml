@@ -283,8 +283,9 @@
 
     <select id="agentList" resultType="com.base.sbc.module.style.vo.StyleColorAgentVo">
         select tsca.id,
-               tsc.id                    styleColorId,
-               ts.id                     styleId,
+               tsc.id                     styleColorId,
+               ts.id                      styleId,
+               tpp.id                     stylePricingId,
                ts.year,
                ts.year_name,-- 年份
                ts.brand,
@@ -297,9 +298,9 @@
                ts.prod_category_name,-- 品类
                tsc.style_no,-- 大货款号
                tsc.style_color_pic,-- 款式配色图
-               tsca.outside_size_code    outsideSizeCode,
-               tsca.outside_color_name   outsideColorName,-- 合作方颜色名称
-               tsca.outside_color_code   outsideColorCode,-- 合作方颜色编码
+               tsca.outside_size_code     outsideSizeCode,
+               tsca.outside_color_name    outsideColorName,-- 合作方颜色名称
+               tsca.outside_color_code    outsideColorCode,-- 合作方颜色编码
                tsc.color_name,-- 颜色名称
                tsc.color_code,-- 颜色代码
                ts.style_type,
@@ -308,20 +309,20 @@
                ts.prod_category1st_name,-- 大类
                ts.prod_category2nd,
                ts.prod_category2nd_name,-- 中类
-               tsca.size_code            sizeCode,-- 尺码组
+               tsca.size_code             sizeCode,-- 尺码组
                ts.size_range,
                ts.size_range_name,-- 号型类型
                concat(tsc.ware_code,
                       tsc.color_code,
-                      tbs.sort)          defaultBarCode,-- 默认条形码
-               tsca.outside_barcode      outsideBarcode,-- 合作方条形码
+                      tbs.sort)           defaultBarCode,-- 默认条形码
+               tsca.outside_barcode       outsideBarcode,-- 合作方条形码
                ts.devt_type,
                ts.devt_type_name,-- 生产类型
                tsc.create_date,-- 创建时间
                tsc.create_id,
                tsc.create_name,-- 创建人
                ts.enable_status,-- 状态
-               tsca.status               sendStatus,-- 发送状态
+               tsca.status                sendStatus,-- 发送状态
                ts.band_code,
                ts.band_name,-- 波段
                tsc.tag_price, -- 吊牌价

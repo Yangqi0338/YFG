@@ -40,6 +40,8 @@ public class StyleColorAgentVo {
     @ApiModelProperty(value = "bomId")
     private String packInfoId;
 
+    private String stylePricingId;
+
     private String styleId;
 
     private String styleColorId;
