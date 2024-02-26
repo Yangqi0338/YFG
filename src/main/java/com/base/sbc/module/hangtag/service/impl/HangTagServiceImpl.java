@@ -1402,8 +1402,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 										// 进行组合
 										map.forEach((key,value)-> languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), key, value)));
 									});
-									languageVo.setPropertiesContent(StrUtil.replace(languageVo.getPropertiesContent(), MoreLanguageProperties.multiSeparator,
-											MoreLanguageProperties.showInfoLanguageSeparator + MoreLanguageProperties.multiSeparator) + MoreLanguageProperties.showInfoLanguageSeparator);
+									String groupContent = StrUtil.replace(languageVo.getPropertiesContent(), MoreLanguageProperties.multiSeparator,
+											MoreLanguageProperties.showInfoLanguageSeparator + MoreLanguageProperties.multiSeparator);
+									if (!groupContent.endsWith(MoreLanguageProperties.showInfoLanguageSeparator)) {
+										groupContent += MoreLanguageProperties.showInfoLanguageSeparator;
+									}
+									languageVo.setPropertiesContent(groupContent);
 									// 若还是和之前一样，那就是没找到翻译
 									if (propertiesContent.equals(languageVo.getPropertiesContent())) {
 										languageVo.setCannotFindPropertiesContent(true);
