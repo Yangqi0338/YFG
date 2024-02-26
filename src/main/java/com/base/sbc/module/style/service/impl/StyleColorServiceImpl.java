@@ -2109,6 +2109,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         String errorInfo = "";
         Map<String,String> map = new HashMap<>();
         Map<String,String> map1 = new HashMap<>();
+        Map<String,String> map2 = new HashMap<>();
+        Map<String,String> map3 = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             MangoStyleColorExeclDto entity = list.get(i);
             Field[] declaredFields = entity.getClass().getDeclaredFields();
@@ -2151,7 +2153,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
             }
 
-            /*if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(outsideBarcode)) {
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(outsideBarcode)) {
                 String content = styleColorNo+outsideBarcode;
                 if (map1.containsKey(content)) {
                     String s = map1.get(content);
@@ -2159,7 +2161,27 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }else{
                     map1.put(content, (i + 1)+"");
                 }
-            }*/
+            }
+
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(sizeCode)) {
+                String content = styleColorNo+sizeCode;
+                if (map2.containsKey(content)) {
+                    String s = map2.get(content);
+                    map2.put(content, s + "," + (i + 1));
+                }else{
+                    map2.put(content, (i + 1)+"");
+                }
+            }
+
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(outsideSizeCode)) {
+                String content = styleColorNo+outsideSizeCode;
+                if (map3.containsKey(content)) {
+                    String s = map3.get(content);
+                    map3.put(content, s + "," + (i + 1));
+                }else{
+                    map3.put(content, (i + 1)+"");
+                }
+            }
 
         }
 
@@ -2168,11 +2190,22 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 errorInfo += "第"+value+"行:【大货款号】+【大小】+【合作方尺码】+【合作方条形码】 出现重复！ \n ";
             }
         }
-       /* for (String value : map1.values()) {
+
+        for (String value : map1.values()) {
             if (value.contains(",")) {
                 errorInfo += "第"+value+"行:【大货款号】+【合作方条形码】出现重复！ \n ";
             }
-        }*/
+        }
+        for (String value : map2.values()) {
+            if (value.contains(",")) {
+                errorInfo += "第"+value+"行:【大货款号】+【大小】出现重复！ \n ";
+            }
+        }
+        for (String value : map3.values()) {
+            if (value.contains(",")) {
+                errorInfo += "第"+value+"行:【大货款号】+【合作方尺码】出现重复！ \n ";
+            }
+        }
 
 
         if (StrUtil.isNotEmpty(errorInfo)) {
@@ -2251,7 +2284,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             List<BasicBaseDict> devtTypeNameList = devtTypeList.stream().filter(o -> o.getName() .equals(devtTypeName) ).collect(Collectors.toList());
 
             if (CollUtil.isEmpty(devtTypeNameList)) {
-                rowText += "第"+(i+1)+"行"+"【" + colorCode + "】" + "数据库找不到对应生产类型信息！\n";
+                rowText += "第"+(i+1)+"行"+"【" + devtTypeName + "】" + "数据库找不到对应生产类型信息！\n";
             }
 
             QueryWrapper basicsdatumModelTypeQueryWrapper = new QueryWrapper<BasicsdatumModelType>();
@@ -2263,11 +2296,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getOne(basicsdatumModelTypeQueryWrapper);
 
             if (basicsdatumModelType == null) {
-                rowText += "第"+(i+1)+"行"+"【" + colorCode + "】" + "数据库找不到对应号型类型信息！\n";
+                rowText += "第"+(i+1)+"行"+"【" + sizeRangeName + "】" + "数据库找不到对应号型类型信息！\n";
             }else{
                 String sizes = basicsdatumModelType.getSize();
                 if (!sizes.contains(sizeCode)) {
-                    rowText += "第"+(i+1)+"行"+"【" + colorCode + "】" + "【"+basicsdatumModelType.getModelType()+"】数据库找不到对应【"+sizeCode+"】信息！\n";
+                    rowText += "第"+(i+1)+"行"+"【" + sizeCode + "】" + "【"+basicsdatumModelType.getModelType()+"】数据库找不到对应【"+sizeCode+"】信息！\n";
                 }
             }
             errorInfo+=rowText;
