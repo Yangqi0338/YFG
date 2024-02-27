@@ -2611,18 +2611,47 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //存在已发送状态
             QueryWrapper styleColorAgentQueryWrapper = new QueryWrapper<StyleColorAgent>();
             styleColorAgentQueryWrapper.eq("style_color_no",styleColorNo);
-            styleColorAgentQueryWrapper.eq("status",1);
+            //styleColorAgentQueryWrapper.eq("status",1);
             styleColorAgentQueryWrapper.eq("del_flag",0);
             styleColorAgentQueryWrapper.last("limit 1");
             StyleColorAgent styleColorAgent = styleColorAgentService.getOne(styleColorAgentQueryWrapper);
 
-            rowText = commonPromptInfo(styleColorAgent != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "已下发到下游业务系统，需先解锁再导入数据！\n");
+
+            if (styleColorAgent != null) {
+                String status = styleColorAgent.getStatus();
+                if ("1".equals(status)) {
+                    rowText = commonPromptInfo(styleColorAgent != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "已下发到下游业务系统，需先运维人员解除卡控再导入数据！\n");
+                }else if ("2".equals(status)) {
+                    String styleColorId = styleColorAgent.getStyleColorId();
+                    StyleColor styleColor = styleColorService.getById(styleColorId);
+                    if (styleColor != null) {
+                        String styleId = styleColor.getStyleId();
+                        Style style = styleService.getById(styleId);
+                        if (style != null) {
+                            //品牌
+                            String brandNameData = style.getBrandName();
+                            //品类
+                            String prodCategoryData = style.getProdCategory();
+                            //大类
+                            String prodCategory1stNameData = style.getProdCategory1stName();
+                            //中类
+                            String prodCategory2ndNameData = style.getProdCategory2ndName();
+                        }
+                    }
+
+                }else{
+
+                }
+
+            }
+
 
             QueryWrapper styleColorAgentQueryBarcodeWrapper = new QueryWrapper<StyleColorAgent>();
             styleColorAgentQueryBarcodeWrapper.eq("style_color_no",styleColorNo);
             styleColorAgentQueryBarcodeWrapper.eq("outside_barcode",entity.getOutsideBarcode());
             styleColorAgentQueryBarcodeWrapper.ne("outside_size_code",entity.getOutsideSizeCode());
             styleColorAgentQueryBarcodeWrapper.ne("size_id",entity.getSizeCode());
+            styleColorAgentQueryBarcodeWrapper.eq("del_falg",0);
             styleColorAgentQueryBarcodeWrapper.last("limit 1");
             StyleColorAgent styleColorAgentExit = styleColorAgentService.getOne(styleColorAgentQueryBarcodeWrapper);
             rowText = commonPromptInfo(styleColorAgentExit != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】,【" + entity.getOutsideColorCode() + "】" + "数据库存在重复数据请确认后再导入数据！\n");
@@ -2761,9 +2790,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         }
 
-        errorInfo = checkMapInfo(map, errorInfo, "行:【大货款号】+【大小】+【合作方尺码】+【合作方条形码】 出现重复！ \n ");
+        errorInfo = checkMapInfo(map, errorInfo, "行:【大货款号】+【尺码】+【合作方尺码】+【合作方条形码】 出现重复！ \n ");
         errorInfo = checkMapInfo(map1, errorInfo, "行:【大货款号】+【合作方条形码】出现重复！ \n ");
-        errorInfo = checkMapInfo(map2, errorInfo, "行:【大货款号】+【大小】出现重复！ \n ");
+        errorInfo = checkMapInfo(map2, errorInfo, "行:【大货款号】+【尺码】出现重复！ \n ");
         errorInfo = checkMapInfo(map3, errorInfo, "行:【大货款号】+【合作方尺码】出现重复！ \n ");
         return errorInfo;
     }

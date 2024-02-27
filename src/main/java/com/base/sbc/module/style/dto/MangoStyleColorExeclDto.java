@@ -51,7 +51,7 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*合作方尺码", width = 20)
     private String outsideSizeCode;
 
-    @ApiModelProperty(name = "合作方条形码")
+    //@ApiModelProperty(name = "合作方条形码")
     @Excel(name = "*合作方条形码", width = 20)
     private String outsideBarcode;
 
@@ -79,8 +79,8 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*号型类型", width = 20)
     private String sizeRangeName;
 
-    @ApiModelProperty(name = "大小")
-    @Excel(name = "*大小", width = 20)
+    @ApiModelProperty(name = "尺码")
+    @Excel(name = "*尺码", width = 20)
     private String sizeCode;
 
     @ApiModelProperty(name = "生产类型")
