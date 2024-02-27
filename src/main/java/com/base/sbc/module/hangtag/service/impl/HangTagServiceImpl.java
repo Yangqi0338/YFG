@@ -1399,9 +1399,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 												.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
 									}).collect(Collectors.toList());
 
-									if (rightLanguageMap.stream().noneMatch(it-> it.containsKey(languageVo.getStandardColumnContent()))) {
-										languageVo.setStandardColumnContent("");
-									}
 									rightLanguageMap.forEach(map-> {
 										// 进行组合
 										map.forEach((key,value)-> {
@@ -1412,8 +1409,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 											languageVo.setPropertiesContent(replacePropertiesContent);
 
 											String replaceStandardColumnContent = StrUtil.replace(languageVo.getStandardColumnContent(), key, value);
-											if (languageVo.getStandardColumnContent().equals(replaceStandardColumnContent)) {
+											if (languageVo.getStandardColumnContent().equals(replaceStandardColumnContent) && replaceStandardColumnContent.equals(groupVO.getStandardColumnName())) {
 												languageVo.setCannotFindStandardColumnContent(true);
+											}else {
+												languageVo.setCannotFindStandardColumnContent(false);
 											}
 											languageVo.setStandardColumnContent(replaceStandardColumnContent);
 										});

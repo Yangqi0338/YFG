@@ -58,7 +58,7 @@ public class HangTagMoreLanguageVO {
     private String standardColumnContent = "";
 
     protected String findStandardColumnContent() {
-        return (StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + MoreLanguageProperties.fieldValueSeparator: "");
+        return (StrUtil.isNotBlank(this.standardColumnContent) && !getCannotFindStandardColumnContent() ? this.standardColumnContent + MoreLanguageProperties.fieldValueSeparator: "");
     }
 
     /**
