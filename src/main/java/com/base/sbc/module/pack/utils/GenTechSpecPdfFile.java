@@ -240,12 +240,12 @@ public class GenTechSpecPdfFile {
         config.setDefaultEncoding("UTF-8");
         config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-        config.setDirectoryForTemplateLoading(new File("D:\\project\\sjs_yfg_pdm\\src\\main\\resources"));
+//        config.setDirectoryForTemplateLoading(new File("D:\\project\\sjs_yfg_pdm\\src\\main\\resources"));
         Template template;
         if (this.fob) {
-            template = config.getTemplate("ftl\\process.html.fob.ftl");
+            template = config.getTemplate("ftl/process.html.fob.ftl");
         } else {
-            template = config.getTemplate("ftl\\process.html.ftl");
+            template = config.getTemplate("ftl/process.html.ftl");
         }
 
         String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
