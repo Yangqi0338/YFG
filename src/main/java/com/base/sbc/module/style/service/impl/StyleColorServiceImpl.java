@@ -2154,11 +2154,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             packInfo = new PackInfo();
 
             String styleColorNo = dto.getStyleColorNo();
-            String sizeCode = dto.getSizeCode();
+            String outsideSizeCode = dto.getOutsideSizeCode();
 
             QueryWrapper styleColorAgentQueryWrapper = new QueryWrapper<StyleColorAgent>();
             styleColorAgentQueryWrapper.eq("style_color_no",styleColorNo);
-            styleColorAgentQueryWrapper.eq("size_code",sizeCode);
+            styleColorAgentQueryWrapper.eq("outside_size_code",outsideSizeCode);
             styleColorAgentQueryWrapper.eq("del_flag",0);
             styleColorAgentQueryWrapper.last("limit 1");
             StyleColorAgent validStyleColorAgent = styleColorAgentService.getOne(styleColorAgentQueryWrapper);
@@ -2642,9 +2642,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             //合作方颜色 合作方尺码 后续加判断
                         }
                     }
-
                 }
-
             }
 
 
