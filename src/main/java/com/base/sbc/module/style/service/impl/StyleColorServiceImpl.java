@@ -1918,14 +1918,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if(StringUtils.isNotBlank(queryDto.getDesignNo())){
             queryWrapper.likeList("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
         }
-        queryWrapper.notEmptyEq("tsca.status",queryDto.getSendStatus());
+        queryWrapper.notEmptyIn("tsca.status",queryDto.getSendStatus());
 
         queryWrapper.eq("ts.brand_name","MANGO");
         queryWrapper.eq("tsca.del_flag","0");
         objects.setOrderBy("tsc.create_date desc,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
-        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        if(StrUtil.isBlank(queryDto.getExcelFlag()) || !"1".equals(queryDto.getExcelFlag())){
+            stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        }
         return new PageInfo<>(list);
     }
 
@@ -2048,6 +2050,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
         dto.setPageSize(Integer.MAX_VALUE);
+        dto.setExcelFlag("1");
         PageInfo<StyleColorAgentVo> styleColorAgentVoPageInfo = styleColorService.agentPageList(dto);
         List<StyleColorAgentVo> styleColorAgentVoList = styleColorAgentVoPageInfo.getList();
 
