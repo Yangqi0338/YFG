@@ -1401,8 +1401,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									sameBulkList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getPropertiesName))
 											.forEach((key, sameNameLanguageList)-> {
 												// 获取源数据中对应原本的翻译
-												String value = sameNameLanguageList.get(0).getLanguageList().stream().filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
-														.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse("");
+												String value = sameNameLanguageList.get(0).getLanguageList().stream()
+														.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
+														.map(HangTagMoreLanguageVO::getPropertiesContent)
+														.filter(StrUtil::isNotBlank).findFirst().orElse(" ");
 												// 进行组合
 												String s = languageVo.getPropertiesContent();
 												String s1 = StrUtil.replace(s, key, value);
