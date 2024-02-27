@@ -192,7 +192,7 @@
             s.technician_name,
             p.pattern_technician_name,
             p.sample_pic,
-            (CASE WHEN s.designer != '' THEN SUBSTRING_INDEX(s.designer, ',', -1) ELSE '' END) as designer,
+            (CASE WHEN s.designer != '' THEN SUBSTRING_INDEX(s.designer, ',', 1) ELSE '' END) as designer,
             p.pattern_designer_name,
             s.merch_design_name,
             s.revised_design_name,
