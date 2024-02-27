@@ -255,10 +255,30 @@ public class StyleColorController {
 		return styleColorService.markingCheckPage(dto);
 	}
 
-	@ApiOperation(value = "mango导出Excel")
+	@ApiOperation(value = "mango导出Excel模板")
 	@GetMapping("/mangoExportExcel")
 	public void exportExcel(HttpServletResponse response) throws Exception {
-		ExcelUtils.exportExcel(CollectionUtil.newArrayList(new MangoStyleColorExeclDto()), MangoStyleColorExeclDto.class, "代理货品资料模板.xlsx", new ExportParams(), response);
+		MangoStyleColorExeclDto mangoStyleColorExeclDto = new MangoStyleColorExeclDto();
+		mangoStyleColorExeclDto.setYear("2099");
+		mangoStyleColorExeclDto.setSeason("S");
+		mangoStyleColorExeclDto.setBrandName("MANGO");
+		mangoStyleColorExeclDto.setProdCategoryName("裤子1");
+		mangoStyleColorExeclDto.setStyleColorNo("大货款号");
+		mangoStyleColorExeclDto.setOutsideColorCode("9");
+		mangoStyleColorExeclDto.setOutsideColorName("蓝色");
+		mangoStyleColorExeclDto.setOutsideSizeCode("34");
+		mangoStyleColorExeclDto.setOutsideBarcode("8447034227768");
+		mangoStyleColorExeclDto.setColorCode("101");
+		mangoStyleColorExeclDto.setColorName("本白色");
+		mangoStyleColorExeclDto.setStyleTypeName("服装");
+		mangoStyleColorExeclDto.setProdCategory1stName("下装");
+		mangoStyleColorExeclDto.setProdCategory2ndName("牛仔裤");
+		mangoStyleColorExeclDto.setSizeRangeName("男裤");
+		mangoStyleColorExeclDto.setSizeCode("185/96A");
+		mangoStyleColorExeclDto.setDevtTypeName("代销");
+		mangoStyleColorExeclDto.setTagPrice("299");
+		mangoStyleColorExeclDto.setPlanCostPrice("199");
+		ExcelUtils.exportExcel(CollectionUtil.newArrayList(mangoStyleColorExeclDto), MangoStyleColorExeclDto.class, "代理货品资料模板.xlsx", new ExportParams(), response);
 	}
 
 	@ApiOperation(value = "代理货品资料-分页查询")
