@@ -1205,7 +1205,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									String content;
 									// 需要合并 就多个合并
 									if (needFeed) {
-										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining(MoreLanguageProperties.multiSeparator));
+										content = countryTranslateList.stream().filter(CommonUtils.distinctByKey(StandardColumnCountryTranslate::getPropertiesCode))
+												.map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining(MoreLanguageProperties.multiSeparator));
 									} else {
 										content = translate.getContent();
 									}
