@@ -83,9 +83,9 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*尺码", width = 20)
     private String sizeCode;
 
-    @ApiModelProperty(name = "生产类型")
+    /*@ApiModelProperty(name = "生产类型")
     @Excel(name = "*生产类型", width = 20)
-    private String devtTypeName;
+    private String devtTypeName;*/
 
     @ApiModelProperty(name = "吊牌价")
     @Excel(name = "*吊牌价", width = 20)

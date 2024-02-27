@@ -2273,20 +2273,19 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 styleColor.setTagPrice(new BigDecimal(dto.getTagPrice()));
 
 
-                List<BasicBaseDict> devtTypeList = ccmFeignService.getDictInfoToList("DevtType");
+               /* List<BasicBaseDict> devtTypeList = ccmFeignService.getDictInfoToList("DevtType");
                 String devtTypeName = dto.getDevtTypeName();
 
                 List<BasicBaseDict> devtTypeNameList = devtTypeList.stream().filter(o -> o.getName() .equals(devtTypeName) ).collect(Collectors.toList());
-
-                if (CollUtil.isNotEmpty(devtTypeNameList)) {
-                    styleColor.setDevtType(devtTypeNameList.get(0).getValue());
-                    styleColor.setDevtTypeName(devtTypeNameList.get(0).getName());
-                    style.setDevtType(devtTypeNameList.get(0).getValue());
-                    style.setDevtTypeName(devtTypeNameList.get(0).getName());
-
-                } else {
+                */
+                //if (CollUtil.isNotEmpty(devtTypeNameList)) {
+                    styleColor.setDevtType("999");
+                    styleColor.setDevtTypeName("代销");
+                    style.setDevtType("999");
+                    style.setDevtTypeName("代销");
+                /*} else {
                     throw new OtherException("第"+(i+1)+"行,找不到对应的生产类型");
-                }
+                }*/
 
                 styleColor.setProductName(style.getProdCategoryName());
                 styleColor.setProductCode(style.getProdCategory());
@@ -2391,7 +2390,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     styleColorUpdate.setColorName(dto.getColorName());
                     styleColorUpdate.setTagPrice(new BigDecimal(dto.getTagPrice()));
 
-                    String devtTypeName = dto.getDevtTypeName();
+                    /*String devtTypeName = dto.getDevtTypeName();
                     if (!devtTypeName.equals(styleColorUpdate.getDevtTypeName())) {
 
                         List<BasicBaseDict> devtTypeNameList = getBasicBaseDicts("DevtType",devtTypeName);
@@ -2400,7 +2399,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             styleColorUpdate.setDevtType(devtTypeNameList.get(0).getValue());
                             styleColorUpdate.setDevtTypeName(devtTypeNameList.get(0).getName());
                         }
-                    }
+                    }*/
 
 
                     String styleId = styleColorUpdate.getStyleId();
@@ -2474,12 +2473,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         }
 
                         if (!styleUpdate.getStyleTypeName().equals(dto.getStyleTypeName())) {
-//                            List<BasicBaseDict> styleTYpeList = ccmFeignService.getDictInfoToList("StyleType");
-//                            String styleTypeName = dto.getStyleTypeName();
+  //                          List<BasicBaseDict> styleTYpeList = ccmFeignService.getDictInfoToList("StyleType");
+                            String styleTypeName = dto.getStyleTypeName();
 //
 //                            List<BasicBaseDict> styleTypeListDictList = styleTYpeList.stream().filter(o -> o.getName() .equals(styleTypeName) ).collect(Collectors.toList());
 
-                            List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts("StyleType",devtTypeName);
+                            List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts("StyleType",styleTypeName);
 
                             if (CollUtil.isNotEmpty(styleTypeListDictList)) {
                                 styleUpdate.setStyleType(styleTypeListDictList.get(0).getValue());
@@ -2607,7 +2606,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String prodCategory2ndName = entity.getProdCategory2ndName();
             String colorCode = entity.getColorCode();
             String colorName = entity.getColorName();
-            String devtTypeName = entity.getDevtTypeName();
             String sizeRangeName = entity.getSizeRangeName();
             String rowText = "";
 
@@ -2632,17 +2630,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         Style style = styleService.getById(styleId);
                         if (style != null) {
                             //品牌
-                            String brandNameData = style.getBrandName();
+                            rowText = commonPromptInfo(! style.getBrandName().equals(entity.getBrandName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getBrandName() + "】 品牌不允许修改！\n");
                             //品类
-                            String prodCategoryData = style.getProdCategory();
+                            rowText = commonPromptInfo(!style.getProdCategoryName().equals(entity.getProdCategoryName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategoryName() + "】 品类不允许修改！\n");
                             //大类
-                            String prodCategory1stNameData = style.getProdCategory1stName();
+                            rowText = commonPromptInfo(!style.getProdCategory1stName().equals(entity.getProdCategory1stName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory1stName() + "】 大类不允许修改！\n");
                             //中类
-                            String prodCategory2ndNameData = style.getProdCategory2ndName();
+                            rowText = commonPromptInfo(!style.getProdCategory2ndName().equals(entity.getProdCategory2ndName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory2ndName() + "】 中类不允许修改！\n");
+                            //号型类型
+                            rowText = commonPromptInfo(!style.getSizeRangeName().equals(entity.getSizeRangeName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getSizeRangeName() + "】 号型类型不允许修改！\n");
+                            //合作方颜色 合作方尺码 后续加判断
                         }
                     }
-
-                }else{
 
                 }
 
@@ -2692,9 +2691,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //颜色id
             rowText = commonPromptInfo(name == null, rowText, "第" + (i + 1) + "行" + "【" + colorName + "-" + colorCode + "】" + "数据库找不到对应颜色信息！\n");
 
-            List<BasicBaseDict> devtTypeNameList = getBasicBaseDicts("DevtType",devtTypeName);
+            //List<BasicBaseDict> devtTypeNameList = getBasicBaseDicts("DevtType",devtTypeName);
 
-            rowText = commonPromptInfo(CollUtil.isEmpty(devtTypeNameList), rowText, "第" + (i + 1) + "行" + "【" + devtTypeName + "】" + "数据库找不到对应生产类型信息！\n");
+            //rowText = commonPromptInfo(CollUtil.isEmpty(devtTypeNameList), rowText, "第" + (i + 1) + "行" + "【" + devtTypeName + "】" + "数据库找不到对应生产类型信息！\n");
 
             QueryWrapper basicsdatumModelTypeQueryWrapper = new QueryWrapper<BasicsdatumModelType>();
             basicsdatumModelTypeQueryWrapper.eq("model_type", sizeRangeName);

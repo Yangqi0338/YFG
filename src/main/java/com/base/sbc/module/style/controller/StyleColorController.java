@@ -275,7 +275,6 @@ public class StyleColorController {
 		mangoStyleColorExeclDto.setProdCategory2ndName("牛仔裤");
 		mangoStyleColorExeclDto.setSizeRangeName("男裤");
 		mangoStyleColorExeclDto.setSizeCode("185/96A");
-		mangoStyleColorExeclDto.setDevtTypeName("代销");
 		mangoStyleColorExeclDto.setTagPrice("299");
 		mangoStyleColorExeclDto.setPlanCostPrice("199");
 		ExcelUtils.exportExcel(CollectionUtil.newArrayList(mangoStyleColorExeclDto), MangoStyleColorExeclDto.class, "代理货品资料模板.xlsx", new ExportParams(), response);
