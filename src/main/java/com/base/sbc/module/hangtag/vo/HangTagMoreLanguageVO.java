@@ -57,8 +57,8 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "标准列翻译")
     private String standardColumnContent = "";
 
-    protected String findStandardColumnContent() {
-        return (StrUtil.isNotBlank(this.standardColumnContent) && !getCannotFindStandardColumnContent() ? this.standardColumnContent + MoreLanguageProperties.fieldValueSeparator: "");
+    public String findStandardColumnContent() {
+        return getCannotFindStandardColumnContent() || StrUtil.isBlank(this.standardColumnContent) ? "" : this.standardColumnContent + MoreLanguageProperties.fieldValueSeparator;
     }
 
     /**
@@ -89,7 +89,7 @@ public class HangTagMoreLanguageVO {
 
     public Boolean getCannotFindPropertiesContent() {
         // 若类型是文本,则直接为已翻译
-        return this.cannotFindPropertiesContent && forceFindContent();
+        return forceFindContent() && this.cannotFindPropertiesContent;
     }
 
     /**
