@@ -1398,24 +1398,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									languageVo.setIsGroup(true);
 								});
 								groupVO.getLanguageList().forEach(languageVo-> {
-									Map<String, String> rightLanguageMap = sameBulkList.stream().collect(Collectors.toMap(HangTagMoreLanguageWebBaseVO::getPropertiesName,(source)-> {
-										// 获取源数据中对应原本的翻译
-										return source.getLanguageList().stream()
-												.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
-												.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse("");
-									}));
-									// 进行组合
-									rightLanguageMap.forEach((key,value)-> {
-										String s = languageVo.getPropertiesContent();
-										String s1 = StrUtil.replace(s, key, value);
-										if (StrUtil.isBlank(value) || s.equals(s1)) {
-											languageVo.setCannotFindPropertiesContent(true);
-										}
-										languageVo.setPropertiesContent(s1);
-										if (notChoose) {
-											languageVo.setStandardColumnContent(StrUtil.replace(languageVo.getStandardColumnContent(), key, value));
-										}
-									});
+									sameBulkList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getPropertiesName))
+											.forEach((key, sameNameLanguageList)-> {
+												// 获取源数据中对应原本的翻译
+												String value = sameNameLanguageList.get(0).getLanguageList().stream().filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
+														.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse("");
+												// 进行组合
+												String s = languageVo.getPropertiesContent();
+												String s1 = StrUtil.replace(s, key, value);
+												if (StrUtil.isBlank(value) || s.equals(s1)) {
+													languageVo.setCannotFindPropertiesContent(true);
+												}
+												languageVo.setPropertiesContent(s1);
+												if (notChoose) {
+													languageVo.setStandardColumnContent(StrUtil.replace(languageVo.getStandardColumnContent(), key, value));
+												}
+											});
 									if (languageVo.getStandardColumnContent().equals(group.getStandColumnName())) {
 										languageVo.setCannotFindStandardColumnContent(true);
 									}
