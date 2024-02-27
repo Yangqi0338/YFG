@@ -310,7 +310,7 @@ public class StyleColorController {
 
 	@ApiOperation(value = "代理货品资料-编辑")
 	@PostMapping("/agentUpdate")
-	public ApiResult agentUpdate(StyleColorAgentVo styleColorAgentVo) {
+	public ApiResult agentUpdate(@RequestBody StyleColorAgentVo styleColorAgentVo) {
 		styleColorService.agentUpdate(styleColorAgentVo);
 		return ApiResult.success("操作成功");
 	}
