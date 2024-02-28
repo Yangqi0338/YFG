@@ -142,6 +142,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(String.valueOf(s)), "0");
                             if (list != null && !list.isEmpty()) {
                                 categoryDotList.add(list.get(0));
+                            }else {
+                                throw new RuntimeException("大类:"+jsonObject.getString(String.valueOf(s))+"不存在");
                             }
                         }
                         if (s == 1 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
@@ -149,6 +151,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(String.valueOf(s)), "1");
                             if (list != null && !list.isEmpty()) {
                                 categoryDotList.add(list.get(0));
+                            }else {
+                                throw new RuntimeException("品类:"+jsonObject.getString(String.valueOf(s))+"不存在");
                             }
 
                         }
@@ -157,12 +161,25 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(String.valueOf(s)), "2");
                             if (list != null && !list.isEmpty()) {
                                 categoryDotList.add(list.get(0));
+                            }else {
+                                throw new RuntimeException("中类:"+jsonObject.getString(String.valueOf(s))+"不存在");
                             }
                         }
                         if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
                             // System.out.println("数量:" + jsonObject.getString(s));
                             // sum += Integer.parseInt(jsonObject.getString(s));
-                            sums.add(String.valueOf(jsonObject.getString(String.valueOf(s))));
+                            String s1 = jsonObject.getString(String.valueOf(s));
+
+                            int i1 = 0;
+                            try {
+                                i1 = Integer.parseInt(s1);
+                            } catch (NumberFormatException e) {
+                                throw new RuntimeException("输入的数字不规范");
+                            }
+                            if (i1<0){
+                                throw new RuntimeException("数量不能小于0");
+                            }
+                            sums.add(s1);
                         }
                         middleClassSet.add(s);
                         s++;
@@ -307,13 +324,13 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             seasonalPlanningDetails.setBandName(String.join(",", bandNames));
             seasonalPlanningDetails.setStyleCategory(String.join(",", styleCategorieList));
             List<String> bandCodes = new ArrayList<>();
+            Map<String, BasicBaseDict> dictMap = c8Band.stream().collect(Collectors.toMap(BasicBaseDict::getName, band -> band));
             for (String bandName : bandNames) {
-                for (BasicBaseDict basicBaseDict : c8Band) {
-                    if (basicBaseDict.getName().equals(bandName)) {
-                        bandCodes.add(basicBaseDict.getValue());
-                        break;
-                    }
+                BasicBaseDict basicBaseDict = dictMap.get(bandName);
+                if (basicBaseDict == null) {
+                    throw new RuntimeException("找不到"+bandName+"的编码");
                 }
+                bandCodes.add(basicBaseDict.getValue());
             }
 
             seasonalPlanningDetails.setBandCode(String.join(",", bandCodes));
