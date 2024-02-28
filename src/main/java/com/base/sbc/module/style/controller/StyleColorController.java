@@ -327,6 +327,20 @@ public class StyleColorController {
 		return ApiResult.success("操作成功");
 	}
 
+	@ApiOperation(value = "代理货品资料-卡控")
+	@GetMapping("/agentControl")
+	public ApiResult agentControl(String id) {
+		styleColorService.agentControl(id);
+		return ApiResult.success("操作成功");
+	}
+
+	@ApiOperation(value = "代理货品资料-解控")
+	@GetMapping("/agentUnControl")
+	public ApiResult agentUnControl(String id) {
+		styleColorService.agentUnControl(id);
+		return ApiResult.success("操作成功");
+	}
+
 	@ApiOperation(value = "代理货品资料-编辑")
 	@PostMapping("/agentUpdate")
 	public ApiResult agentUpdate(@RequestBody StyleColorAgentVo styleColorAgentVo) {

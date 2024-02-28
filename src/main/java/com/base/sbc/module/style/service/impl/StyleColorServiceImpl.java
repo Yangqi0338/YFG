@@ -2986,6 +2986,37 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return ApiResult.success("成功",resultMap);
     }
 
+    @Override
+    public void agentControl(String id) {
+        //状态校验
+        List<StyleColorAgent> list = styleColorAgentService.listByField("style_color_id", Collections.singletonList(id));
+        for (StyleColorAgent styleColorAgent : list) {
+            if(!"3".equals(styleColorAgent.getStatus())){
+                throw new OtherException("只有可编辑时才能卡控");
+            }
+        }
+
+        LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColorAgent::getStatus,"2");
+        updateWrapper.in(StyleColorAgent::getStyleColorId, Collections.singletonList(id));
+        styleColorAgentService.update(updateWrapper);
+    }
+
+    @Override
+    public void agentUnControl(String id) {
+        //状态校验
+        List<StyleColorAgent> list = styleColorAgentService.listByField("style_color_id",Collections.singletonList(id));
+        for (StyleColorAgent styleColorAgent : list) {
+            if(!"2".equals(styleColorAgent.getStatus())){
+                throw new OtherException("只有重新打开时才能解控");
+            }
+        }
+
+        LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColorAgent::getStatus,"3");
+        updateWrapper.in(StyleColorAgent::getStyleColorId, Collections.singletonList(id));
+        styleColorAgentService.update(updateWrapper);
+    }
 
 
 }

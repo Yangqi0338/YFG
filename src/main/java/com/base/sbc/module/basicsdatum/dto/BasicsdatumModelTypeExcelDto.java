@@ -80,5 +80,11 @@ public class BasicsdatumModelTypeExcelDto  {
     private String sizeIds;
     @ApiModelProperty(value = "尺码编码"  )
     private String  sizeCode;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
 
 }

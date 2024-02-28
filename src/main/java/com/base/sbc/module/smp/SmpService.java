@@ -1548,7 +1548,7 @@ public class SmpService {
             }
         }
 
-        Map<String, String> sizeMap = styleColorAgents.stream().collect(Collectors.toMap(o -> o.getStyleColorId() + o.getSizeId(), StyleColorAgent::getOutsideBarcode));
+        Map<String, StyleColorAgent> sizeMap = styleColorAgents.stream().collect(Collectors.toMap(o -> o.getStyleColorId() + o.getSizeId(), o->o));
 
         for (StyleColor styleColor : styleColors) {
             //判断是否是旧系统数据
@@ -1669,7 +1669,9 @@ public class SmpService {
 
                     smpSize.setSkuFiller(downContent);
                     smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
-                    smpSize.setOutsideBarcode(sizeMap.get(styleColor.getId()+basicsdatumSize.getCode()));
+                    StyleColorAgent styleColorAgent = sizeMap.get(styleColor.getId() + basicsdatumSize.getCode());
+                    smpSize.setOutsideBarcode(styleColorAgent.getOutsideBarcode());
+                    smpSize.setOutsideSizeCode(styleColorAgent.getOutsideSizeCode());
                     smpSizes.add(smpSize);
                 }
             }
