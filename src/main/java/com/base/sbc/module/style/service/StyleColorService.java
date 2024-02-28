@@ -278,4 +278,8 @@ public interface StyleColorService extends BaseService<StyleColor> {
     void agentUpdate(StyleColorAgentVo styleColorAgentVo);
 
     ApiResult uploadStyleColorPics(Principal user, MultipartFile[] files);
+
+    void agentControl(String id);
+
+    void agentUnControl(String id);
 }
