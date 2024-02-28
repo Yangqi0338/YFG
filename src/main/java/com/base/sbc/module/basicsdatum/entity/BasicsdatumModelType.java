@@ -5,8 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.entity;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -100,6 +99,12 @@ public class BasicsdatumModelType extends BaseDataEntity<String> {
     /** 尺码标签id */
     @ApiModelProperty(value = "尺码标签id"  )
     private String sizeLabelId;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
