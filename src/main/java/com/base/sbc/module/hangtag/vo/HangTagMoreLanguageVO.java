@@ -58,7 +58,7 @@ public class HangTagMoreLanguageVO {
     private String standardColumnContent = "";
 
     public String findStandardColumnContent() {
-        return getCannotFindStandardColumnContent() || StrUtil.isBlank(this.standardColumnContent) ? "" : this.standardColumnContent + MoreLanguageProperties.fieldValueSeparator;
+        return getCannotFindStandardColumnContent() || StrUtil.isBlank(this.standardColumnContent) ? "" : this.standardColumnContent;
     }
 
     /**
@@ -71,7 +71,7 @@ public class HangTagMoreLanguageVO {
      * 具体数据的翻译
      */
     @ApiModelProperty(value = "具体数据的翻译")
-    private String propertiesContent = "";
+    public String propertiesContent = "";
 
     /**
      * 具体数据翻译
@@ -116,12 +116,12 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        String title = findStandardColumnContent();
-        String value = getPropertiesContent();
+        String title = findStandardColumnContent() + MoreLanguageProperties.fieldValueSeparator;
+        String value = getPropertiesContent().trim();
         return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
                 title,
                 this.isGroup ? MoreLanguageProperties.multiSeparator : "",
-                value
+                StrUtil.endWith(value, MoreLanguageProperties.showInfoLanguageSeparator) ? value : value + MoreLanguageProperties.showInfoLanguageSeparator
         );
     }
 
