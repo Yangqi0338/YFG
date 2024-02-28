@@ -2213,8 +2213,46 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 String prodCategory1stName = dto.getProdCategory1stName();
                 String prodCategory2ndName = dto.getProdCategory2ndName();
 
+                //获取大类的code
+                List<BasicCategoryDot> prodCategory1stList = ccmFeignService.getTreeByNamelList("品类", "0");
+                List<BasicCategoryDot> prodCategory1stNameList = prodCategory1stList.stream().filter(o -> o.getName().equals(prodCategory1stName)).collect(Collectors.toList());
+                //根据大类找品类
+                if (CollUtil.isNotEmpty(prodCategory1stNameList)) {
+                    style.setProdCategory1stName(prodCategory1stNameList.get(0).getName());
+                    style.setProdCategory1st(prodCategory1stNameList.get(0).getValue());
+                    //根据大类找品类
+                    List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode("品类", prodCategory1stNameList.get(0).getValue(), "1");
+                    if (CollUtil.isNotEmpty(basicStructureTreeVos)) {
+                        //找中类
+                        List<BasicStructureTreeVo> children = basicStructureTreeVos.get(0).getChildren();
+                        if (CollUtil.isEmpty(children)) {
+                            throw new OtherException("第"+(i+1)+"行,找不到对应的品类");
+                        }
+                        //获取品类的code
+                        List<BasicStructureTreeVo> children2 = children.stream().filter(o -> o.getName().equals(prodCategoryName)).collect(Collectors.toList());
+                        if (CollUtil.isNotEmpty(children2)) {
+                            style.setProdCategory2ndName(children2.get(0).getName());
+                            style.setProdCategory2nd(children2.get(0).getValue());
+                            List<BasicStructureTreeVo> basicStructureTreeVoList2 = ccmFeignService.basicStructureTreeByCode("品类", children2.get(0).getValue(), "2");
+                            if (CollUtil.isNotEmpty(basicStructureTreeVoList2)) {
+                                List<BasicStructureTreeVo> children3 = basicStructureTreeVoList2.get(0).getChildren();
+                                List<BasicStructureTreeVo> collect = children3.stream().filter(o -> o.getName().equals(prodCategory2ndName)).collect(Collectors.toList());
+                                if (CollUtil.isEmpty(collect)) {
+                                    throw new OtherException("第"+(i+1)+"行,找不到对应的中类");                                }else{
+                                    style.setProdCategory2ndName(collect.get(0).getName());
+                                    style.setProdCategory2nd(collect.get(0).getValue());
+                                }
+                            }else{
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的品类");                            }
+                        }
+                    }
+                }else{
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的大类");
+                }
 
-                List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
+
+
+              /*  List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
                 //获取品类的code
                 List<BasicCategoryDot> prodCategoryNameList = basicCategoryDotList.stream().filter(o -> o.getName().equals(prodCategoryName)).collect(Collectors.toList());
                 if (CollUtil.isNotEmpty(prodCategoryNameList)) {
@@ -2246,7 +2284,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 } else {
                     //报错
                     throw new OtherException("第"+(i+1)+"行,找不到对应的中类");
-                }
+                }*/
                 //新增款式设计
                 //配色
 
@@ -2305,6 +2343,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 basicsdatumModelTypeQueryWrapper.eq("model_type", dto.getSizeRangeName());
                 basicsdatumModelTypeQueryWrapper.eq("status", "0");
                 basicsdatumModelTypeQueryWrapper.eq("del_flag", "0");
+                basicsdatumModelTypeQueryWrapper.like("brand", planningSeason.getBrand());
                 basicsdatumModelTypeQueryWrapper.last(" limit 1");
 
                 BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getOne(basicsdatumModelTypeQueryWrapper);
@@ -2335,6 +2374,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     } else {
                         throw new OtherException("第"+(i+1)+"行,该号型类型【" + basicsdatumModelType.getModelType() + "】找不到" + dto.getSizeCode());
                     }*/
+
+
                     styleColorAgent.setOutsideBarcode(outsideBarcode);
                     styleColorAgent.setOutsideColorCode(dto.getOutsideColorCode());
                     styleColorAgent.setOutsideColorName(dto.getOutsideColorName());
@@ -2521,30 +2562,30 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getOne(basicsdatumModelTypeQueryWrapper);
 
                         if (basicsdatumModelType != null) {
-                            String sizes = basicsdatumModelType.getSize();
-                            String sizeCodes = basicsdatumModelType.getSizeCode();
-
-                            /*if (sizes.contains(dto.getSizeCode())) {
-                                String[] sizeSplit = sizes.split(",");
-                                String[] sizeCodeSplit = sizeCodes.split(",");
-
-                                for (int j = 0; j < sizeSplit.length; j++) {
-                                    if (sizeSplit[j].equals(dto.getSizeCode())) {
-                                        validStyleColorAgent.setSizeId(sizeCodeSplit[j]);
-                                        validStyleColorAgent.setSizeCode(dto.getSizeCode());
-                                        style.setSizeRange(basicsdatumModelType.getCode());
-                                        style.setSizeRangeName(dto.getSizeRangeName());
-                                        style.setDefaultSize(basicsdatumModelType.getBasicsSize());
-                                        style.setSizeIds(basicsdatumModelType.getSizeIds());
-                                        style.setSizeCodes(sizeCodes);
-                                        style.setProductSizes(sizes);
-                                    }
+                            // /** 翻译名称 */  对应欧码
+                            //    private String translateName;
+                            //    /** 欧码 */  对应外部尺码
+                            //    private String europeanSize;
+                            //号型类型尺码
+                            //获取所有尺码插入所有尺码的条数
+                            String code = basicsdatumModelType.getCode();
+                            QueryWrapper<BasicsdatumSize> basicsdatumSizeQueryWrapper = new QueryWrapper();
+                            basicsdatumSizeQueryWrapper.like("model_type_code",code);
+                            basicsdatumSizeQueryWrapper.like("model_type",dto.getSizeRangeName());
+                            List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list(basicsdatumSizeQueryWrapper);
+                            if (CollUtil.isNotEmpty(basicsdatumSizeList)) {
+                                for (BasicsdatumSize basicsdatumSize : basicsdatumSizeList) {
+                                    validStyleColorAgent.setSizeId(basicsdatumSize.getCode());
+                                    validStyleColorAgent.setSizeCode(basicsdatumSize.getEuropeanSize());
+                                    style.setSizeRange(basicsdatumModelType.getCode());
+                                    style.setSizeRangeName(dto.getSizeRangeName());
+                                    style.setDefaultSize(basicsdatumModelType.getBasicsSize());
+                                    style.setSizeIds(basicsdatumModelType.getSizeIds());
+                                    style.setSizeCodes(basicsdatumModelType.getSizeCode());
+                                    style.setProductSizes(basicsdatumModelType.getSize());
                                 }
-                            } else {
-                                throw new OtherException("该号型类型【" + basicsdatumModelType.getModelType() + "】找不到" + dto.getSizeCode());
-                            }*/
-                        } else {
-                            throw new OtherException("第"+(i+1)+"行,找不到对应的号型类型");
+                            }
+                        }else{
                         }
                     }
                     validStyleColorAgent.setOutsideBarcode(dto.getOutsideBarcode());
