@@ -281,4 +281,26 @@
                 ts.sales_type_name
     </select>
 
+    <select id="getStyleDesignerInfo" resultType="com.base.sbc.module.style.vo.StyleNoUserInfoVo">
+        select *
+        from (select t.style_id,
+                     t1.design_no,
+                     t.style_no as styleNo,
+                     IF(t1.designer != '', SUBSTRING_INDEX(t1.designer, ',', 1), '') as designer,
+                     t2.pattern_design_name as patternDesignName,
+                     t2.stitcher
+              from t_style_color t
+                       INNER JOIN t_style t1 ON t.style_id = t1.id
+                       LEFT JOIN t_pattern_making t2 on t1.id = t2.style_id
+              ORDER BY t2.create_date DESC) t
+        where
+         1=1
+        <if test="styleNos !=null and styleNos.size >0">
+            and  t.styleNo in
+            <foreach collection="styleNos" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY t.style_id
+    </select>
 </mapper>

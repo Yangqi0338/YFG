@@ -87,6 +87,7 @@ import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleColorListExcel;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
+import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -1688,6 +1689,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         updateWrapper.set(StyleColor::getUpdateDate, new Date());
         updateWrapper.eq(StyleColor::getId, styleColor.getId());
         update(updateWrapper);
+    }
+
+    @Override
+    public List<StyleNoUserInfoVo> getDesignerInfo(String styleNo) {
+        return baseMapper.getStyleDesignerInfo(Arrays.asList(styleNo.split(",")));
     }
 
     /**

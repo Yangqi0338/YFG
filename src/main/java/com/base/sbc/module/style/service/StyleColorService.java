@@ -17,6 +17,7 @@ import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
+import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -249,7 +250,13 @@ public interface StyleColorService extends BaseService<StyleColor> {
     PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto);
 
 
-// 自定义方法区 不替换的区域【other_end】
+        /**
+         * 根据大货款获取设计师，版师，样衣工信息
+         * @param styleNo
+         * @return
+         */
+        List<StyleNoUserInfoVo> getDesignerInfo(String styleNo);
+    // 自定义方法区 不替换的区域【other_end】
 
 
 }
