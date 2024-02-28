@@ -276,7 +276,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 if(CollUtil.isEmpty(fvList)){
                     fvList = fieldValService.list(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);;
                 }
-                Map<String, String> oldFvMap = fvList.stream().collect(Collectors.toMap(FieldVal::getFieldName, FieldVal::getVal));
+                Map<String, String> oldFvMap = fvList.stream().collect(Collectors.toMap(FieldVal::getFieldName, FieldVal::getVal,(a, b) -> b));
                 if(plateType.equals(oldFvMap.getOrDefault("plateType","")) && GarmentWash.equals(oldFvMap.getOrDefault("GarmentWash",""))){
                     isPushScm = false;
                 }
