@@ -26,6 +26,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
@@ -2651,7 +2652,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColorAgentQueryBarcodeWrapper.eq("outside_barcode",entity.getOutsideBarcode());
             styleColorAgentQueryBarcodeWrapper.ne("outside_size_code",entity.getOutsideSizeCode());
             styleColorAgentQueryBarcodeWrapper.ne("size_id",entity.getSizeCode());
-            styleColorAgentQueryBarcodeWrapper.eq("del_falg",0);
+            styleColorAgentQueryBarcodeWrapper.eq("del_flag",0);
             styleColorAgentQueryBarcodeWrapper.last("limit 1");
             StyleColorAgent styleColorAgentExit = styleColorAgentService.getOne(styleColorAgentQueryBarcodeWrapper);
             rowText = commonPromptInfo(styleColorAgentExit != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】,【" + entity.getOutsideColorCode() + "】" + "数据库存在重复数据请确认后再导入数据！\n");
@@ -2671,28 +2672,45 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String productSeason =year+" "+season+" "+brandName;
             PlanningSeason planningSeason = planningSeasonService.getByName(productSeason, baseController.getUserCompany());
             rowText = commonPromptInfo(planningSeason == null, rowText, "第" + (i + 1) + "行" + "【" + productSeason + "】" + "数据库找不到对应产品季信息！\n");
-            List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
-            //获取品类的code
-            List<BasicCategoryDot> prodCategoryNameList = basicCategoryDotList.stream().filter(o -> o.getName().equals(prodCategoryName)).collect(Collectors.toList());
-            rowText = commonPromptInfo(CollUtil.isEmpty(prodCategoryNameList), rowText, "第" + (i + 1) + "行" + "【" + prodCategoryName + "】" + "数据库找不到对应品类信息！\n");
-            List<BasicCategoryDot> basicCategoryDotList1 = ccmFeignService.getTreeByNamelList("品类", "0");
+
+
             //获取大类的code
-            List<BasicCategoryDot> prodCategory1stNameList = basicCategoryDotList1.stream().filter(o -> o.getName().equals(prodCategory1stName)).collect(Collectors.toList());
+            List<BasicCategoryDot> prodCategory1stList = ccmFeignService.getTreeByNamelList("品类", "0");
+            List<BasicCategoryDot> prodCategory1stNameList = prodCategory1stList.stream().filter(o -> o.getName().equals(prodCategory1stName)).collect(Collectors.toList());
             rowText = commonPromptInfo(CollUtil.isEmpty(prodCategory1stNameList), rowText, "第" + (i + 1) + "行" + "【" + prodCategory1stName + "】" + "数据库找不到对应大类信息！\n");
 
-            List<BasicCategoryDot> basicCategoryDotList2 = ccmFeignService.getTreeByNamelList("品类", "2");
-            //获取中类的code
-            List<BasicCategoryDot> prodCategory2ndNameList = basicCategoryDotList2.stream().filter(o -> o.getName().equals(prodCategory2ndName)).collect(Collectors.toList());
-            rowText = commonPromptInfo(CollUtil.isEmpty(prodCategory2ndNameList), rowText, "第" + (i + 1) + "行" + "【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
+            //根据大类找品类
+            if (CollUtil.isNotEmpty(prodCategory1stNameList)) {
+                //根据大类找品类
+                List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode("品类", prodCategory1stNameList.get(0).getValue(), "1");
+                if (CollUtil.isNotEmpty(basicStructureTreeVos)) {
+                    //找中类
+                    List<BasicStructureTreeVo> children = basicStructureTreeVos.get(0).getChildren();
+                    if (CollUtil.isEmpty(children)) {
+                        rowText = commonPromptInfo(CollUtil.isEmpty(children), rowText, "第" + (i + 1) + "行" + "【" + prodCategoryName + "】" + "数据库找不到对应品类信息！\n");
+                    }
+                    //获取品类的code
+                    List<BasicStructureTreeVo> children2 = children.stream().filter(o -> o.getName().equals(prodCategoryName)).collect(Collectors.toList());
+                    if (CollUtil.isNotEmpty(children2)) {
+                        List<BasicStructureTreeVo> basicStructureTreeVoList2 = ccmFeignService.basicStructureTreeByCode("品类", children2.get(0).getValue(), "2");
+                        if (CollUtil.isNotEmpty(basicStructureTreeVoList2)) {
+                            List<BasicStructureTreeVo> collect = basicStructureTreeVoList2.stream().filter(o -> o.getName().equals(prodCategory2ndName)).collect(Collectors.toList());
+                            if (CollUtil.isEmpty(collect)) {
+                                rowText = commonPromptInfo(CollUtil.isEmpty(children2), rowText, "第" + (i + 1) + "行" + "【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
+                            }
+                        }else{
+                            rowText = commonPromptInfo(CollUtil.isEmpty(children2), rowText, "第" + (i + 1) + "行" + "【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
+                        }
+                    }
+                }
+            }
 
             BasicsdatumColourLibrary name = basicsdatumColourLibraryServicel.getByOne("colour_specification", colorName+colorCode);
             //颜色id
             rowText = commonPromptInfo(name == null, rowText, "第" + (i + 1) + "行" + "【" + colorName + "-" + colorCode + "】" + "数据库找不到对应颜色信息！\n");
 
-            //List<BasicBaseDict> devtTypeNameList = getBasicBaseDicts("DevtType",devtTypeName);
 
-            //rowText = commonPromptInfo(CollUtil.isEmpty(devtTypeNameList), rowText, "第" + (i + 1) + "行" + "【" + devtTypeName + "】" + "数据库找不到对应生产类型信息！\n");
-
+            //TODO 对应号型类型品牌
             QueryWrapper basicsdatumModelTypeQueryWrapper = new QueryWrapper<BasicsdatumModelType>();
             basicsdatumModelTypeQueryWrapper.eq("model_type", sizeRangeName);
             basicsdatumModelTypeQueryWrapper.eq("status", "0");
@@ -2773,7 +2791,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             rowText = checkExeclIsNullData(entity, declaredFields, rowText);
 
-            errorInfo = commonPromptInfo(StrUtil.isNotBlank(rowText), errorInfo, "第" + (i + 1) + "行:【" + rowText.substring(0, rowText.length() - 1) + "】内容不能为空！ \n ");
+            if (StrUtil.isNotEmpty(rowText)) {
+                errorInfo += "第" + (i + 1) + "行:【" + rowText.substring(0, rowText.length() - 1) + "】内容不能为空！ \n ";
+            }
 
             String styleColorNo = entity.getStyleColorNo();
             String sizeCode = entity.getSizeCode();
