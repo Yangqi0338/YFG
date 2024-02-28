@@ -276,25 +276,24 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         // System.out.println(hashMapList);
         //如果品类相同,则只存一个,并且将中类内容用逗号分开相加
         List<HashMap<String, String> > hashMapList1 = new ArrayList<>();
-        HashMap<String,String> hashMap1 = new HashMap<>();
-        for (HashMap<String, String> stringStringHashMap : hashMapList) {
-            String  prodCategoryCode = stringStringHashMap.get("品类编码");
-            String s = hashMap1.get(prodCategoryCode);
-            if (s != null) {
-                hashMap1.put(stringStringHashMap.get("品类编码"),s+","+stringStringHashMap.get("品类编码"));
-                hashMap1.put(stringStringHashMap.get("品类名称"),s+","+stringStringHashMap.get("品类名称"));
-                hashMap1.put("中类名称",hashMap1.get("中类名称")+","+stringStringHashMap.get("中类名称"));
-                hashMap1.put("中类编码",hashMap1.get("中类编码")+","+stringStringHashMap.get("中类编码"));
-                hashMap1.put("大类名称",stringStringHashMap.get("大类名称"));
-                hashMap1.put("大类编码",stringStringHashMap.get("大类编码"));
-                hashMap1.put("品类名称",stringStringHashMap.get("品类名称"));
-                hashMap1.put("品类编码",stringStringHashMap.get("品类编码"));
+        HashMap<String, HashMap<String,String>> hashMap1 =new HashMap<>();
+        for (HashMap<String, String> hashMap2 : hashMapList) {
+            String name =hashMap2.get("大类名称")+","+hashMap2.get("品类名称");
+            if (hashMap1.containsKey(name)) {
+                HashMap<String, String> stringStringHashMap = hashMap1.get(name);
+                String prodCategoryCode2Name = stringStringHashMap.get("中类名称")+","+hashMap2.get("中类名称");
+                String prodCategoryCode2Code = stringStringHashMap.get("中类编码")+","+hashMap2.get("中类编码");
+                hashMap2.put("中类名称",prodCategoryCode2Name);
+                hashMap2.put("中类编码",prodCategoryCode2Code);
+                hashMap1.put(name,hashMap2);
             }else {
-                hashMap1.put(stringStringHashMap.get("品类编码"),stringStringHashMap.get("品类编码"));
-                hashMap1.put(stringStringHashMap.get("品类名称"),stringStringHashMap.get("品类名称"));
-                hashMap1.putAll(stringStringHashMap);
-                hashMapList1.add(hashMap1);
+                hashMap1.put(name,hashMap2);
             }
+
+        }
+
+        for (String s : hashMap1.keySet()) {
+            hashMapList1.add(hashMap1.get(s));
         }
 
         for (HashMap<String, String> stringStringHashMap : hashMapList1) {
