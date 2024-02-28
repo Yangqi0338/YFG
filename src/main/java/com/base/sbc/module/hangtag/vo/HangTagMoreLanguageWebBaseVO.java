@@ -15,6 +15,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.xpath.operations.Bool;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -72,10 +73,16 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         // 返回合并内容
         StringJoiner joiner = new StringJoiner(MoreLanguageProperties.multiSeparator);
         joiner.add(Opt.ofNullable(fieldFunc.apply(this)).orElse(""));
-        this.getLanguageList().forEach(languageVO-> {
+        List<HangTagMoreLanguageVO> languageList = this.getLanguageList();
+        for (int i = 0, languageListSize = languageList.size(); i < languageListSize; i++) {
+            HangTagMoreLanguageVO languageVO = languageList.get(i);
             joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));
-            joiner.add(contentFunc.apply(languageVO));
-        });
+            String content = contentFunc.apply(languageVO);
+            joiner.add(content);
+            if (StrUtil.isBlank(content) && i == languageListSize - 1) {
+                joiner.add("");
+            }
+        }
         return joiner.toString();
     }
 
