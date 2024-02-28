@@ -317,8 +317,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (CollectionUtils.isEmpty(styleColorList)) {
                 throw new OtherException("该大货款号已经同步，请解锁后保存下发");
             }
-            StyleColorService styleColorService = SpringContextHolder.getBean("styleColorService");
-            styleColorService.issueScm(dto.getStyleColorId());
+            StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
+            try {
+                styleColorService.issueScm(dto.getStyleColorId());
+            }catch (Exception e){
+                log.error("同步SCM失败",e);
+                throw new OtherException("同步SCM失败："+e.getMessage());
+            }
         }
 
         return style;
