@@ -31,9 +31,9 @@ public class MangoStyleColorExeclDto {
     private String styleColorImage;*/
 
     //@Excel(name = "款式配色图",imageType = 2,type = 2,width = 20)
-    private byte[] styleColorPic1;
+    //private byte[] styleColorPic1;
 
-    private String styleColorPic;
+    //private String styleColorPic;
 
     @ApiModelProperty(name = "大货款号")
     @Excel(name = "*大货款号", width = 20)
@@ -79,9 +79,9 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*号型类型", width = 20)
     private String sizeRangeName;
 
-    @ApiModelProperty(name = "尺码")
+    /*@ApiModelProperty(name = "尺码")
     @Excel(name = "*尺码", width = 20)
-    private String sizeCode;
+    private String sizeCode;*/
 
     /*@ApiModelProperty(name = "生产类型")
     @Excel(name = "*生产类型", width = 20)
