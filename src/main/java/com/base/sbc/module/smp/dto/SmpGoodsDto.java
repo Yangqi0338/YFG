@@ -294,4 +294,17 @@ public class SmpGoodsDto extends SmpBaseDto {
      * 指定面料集合
      */
     private List<StyleSpecFabric> styleSpecFabricList;
+
+    /**
+     * 自主研发版型
+     */
+    @ApiModelProperty(value = "自主研发版型")
+    private String plateType;
+
+    /**
+     * 成分水洗
+     */
+    @ApiModelProperty(value = "成分水洗")
+    private String garmentWash;
+
 }
