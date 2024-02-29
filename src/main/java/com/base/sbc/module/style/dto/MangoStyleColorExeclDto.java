@@ -23,9 +23,31 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*产品季", width = 20)
     private String productSeason;*/
 
+    @ApiModelProperty(name = "大货款号")
+    @Excel(name = "*大货款号", width = 20)
+    private String styleColorNo;
+
+    @ApiModelProperty(name = "大类")
+    @Excel(name = "*大类", width = 20)
+    private String prodCategory1stName;
+
     @ApiModelProperty(name = "品类")
     @Excel(name = "*品类", width = 20)
     private String prodCategoryName;
+
+    @ApiModelProperty(name = "中类")
+    @Excel(name = "*中类", width = 20)
+    private String prodCategory2ndName;
+
+    @ApiModelProperty(name = "款式类型")
+    @Excel(name = "*款式类型", width = 20)
+    private String styleTypeName;
+
+
+
+    @ApiModelProperty(name = "号型类型")
+    @Excel(name = "*号型类型", width = 20)
+    private String sizeRangeName;
 
     /*@Excel(name = "款式配色图", width = 20)
     private String styleColorImage;*/
@@ -35,49 +57,31 @@ public class MangoStyleColorExeclDto {
 
     //private String styleColorPic;
 
-    @ApiModelProperty(name = "大货款号")
-    @Excel(name = "*大货款号", width = 20)
-    private String styleColorNo;
-
-    @ApiModelProperty(name = "合作方颜色编码")
-    @Excel(name = "*合作方颜色编码", width = 20)
-    private String outsideColorCode;
-
-    @ApiModelProperty(name = "合作方颜色名称")
-    @Excel(name = "*合作方颜色名称", width = 20)
-    private String outsideColorName;
-
-    @ApiModelProperty(name = "合作方尺码")
-    @Excel(name = "*合作方尺码", width = 20)
+    @ApiModelProperty(name = "外部尺码")
+    @Excel(name = "*外部尺码", width = 20)
     private String outsideSizeCode;
 
+    @ApiModelProperty(name = "外部颜色编码")
+    @Excel(name = "*外部颜色编码", width = 20)
+    private String outsideColorCode;
+
+    @ApiModelProperty(name = "外部颜色名称")
+    @Excel(name = "*外部颜色名称", width = 20)
+    private String outsideColorName;
+
     //@ApiModelProperty(name = "合作方条形码")
-    @Excel(name = "*合作方条形码", width = 20)
+    @Excel(name = "外部条形码", width = 20)
     private String outsideBarcode;
 
-    @ApiModelProperty(name = "颜色名称")
+    /*@ApiModelProperty(name = "颜色名称")
     @Excel(name = "*颜色名称", width = 20)
     private String colorName;
 
     @ApiModelProperty(name = "颜色代码")
     @Excel(name = "*颜色代码", width = 20)
-    private String colorCode;
+    private String colorCode;*/
 
-    @ApiModelProperty(name = "款式类型")
-    @Excel(name = "*款式类型", width = 20)
-    private String styleTypeName;
 
-    @ApiModelProperty(name = "大类")
-    @Excel(name = "*大类", width = 20)
-    private String prodCategory1stName;
-
-    @ApiModelProperty(name = "中类")
-    @Excel(name = "*中类", width = 20)
-    private String prodCategory2ndName;
-
-    @ApiModelProperty(name = "号型类型")
-    @Excel(name = "*号型类型", width = 20)
-    private String sizeRangeName;
 
     /*@ApiModelProperty(name = "尺码")
     @Excel(name = "*尺码", width = 20)

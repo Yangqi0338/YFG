@@ -268,8 +268,6 @@ public class StyleColorController {
 		mangoStyleColorExeclDto.setOutsideColorName("蓝色");
 		mangoStyleColorExeclDto.setOutsideSizeCode("34");
 		mangoStyleColorExeclDto.setOutsideBarcode("8447034227768");
-		mangoStyleColorExeclDto.setColorCode("101");
-		mangoStyleColorExeclDto.setColorName("本白色");
 		mangoStyleColorExeclDto.setStyleTypeName("服装");
 		mangoStyleColorExeclDto.setProdCategory1stName("下装");
 		mangoStyleColorExeclDto.setProdCategory2ndName("牛仔裤");
