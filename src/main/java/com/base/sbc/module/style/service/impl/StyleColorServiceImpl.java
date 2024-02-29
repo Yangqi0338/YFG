@@ -2682,6 +2682,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             rowText = commonPromptInfo(StrUtil.isNotBlank(styleColorAgent.getOutsideBarcode()) && !styleColorAgent.getOutsideBarcode().equals(entity.getOutsideBarcode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getOutsideBarcode()+"】 数据已下发过，外部条形码不允许修改！\n");
                         }
                     }
+                }else if ("3".equals(status)){
+                    StyleColor styleColor = styleColorService.getById(styleColorAgent.getId());
+                    if(styleColor != null){
+                        rowText = commonPromptInfo("0".equals(styleColor.getStatus()), rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "解除卡控后，请先停用后再导入数据！\n");
+                    }else{
+                        rowText = commonPromptInfo(true, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "找不到对应的配色信息！\n");
+
+                    }
                 }
             }
 
