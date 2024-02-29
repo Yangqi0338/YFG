@@ -1143,11 +1143,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 						// 封装多值的Code
 						List<String> propertiesCodeList = Arrays.asList(propertiesCode.split(MoreLanguageProperties.multiSeparator));
+
 						if (propertiesCodeList.size() <= 1) {
 							propertiesCodeList = Arrays.asList(propertiesCode.split(COMMA));
 						}
+						int propertiesCodeSize = propertiesCodeList.size();
 						// 检查是否要\n合并
-						boolean needFeed = propertiesCodeList.size() > 1;
+						boolean needFeed = propertiesCodeSize > 1;
 
 						// 查询具体翻译
 						List<StandardColumnCountryTranslate> translateList = new ArrayList<>();
@@ -1218,7 +1220,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									String content;
 									// 需要合并 就多个合并
 									if (needFeed) {
-										content = countryTranslateList.stream().map(StandardColumnCountryTranslate::getContent).collect(Collectors.joining(MoreLanguageProperties.multiSeparator));
+										List<String> propertiesCountryTranslateList = countryTranslateList.stream()
+												.filter(CommonUtils.distinctByKey(StandardColumnCountryTranslate::getPropertiesCode))
+												.map(StandardColumnCountryTranslate::getContent).collect(Collectors.toList());
+										if (propertiesCountryTranslateList.size() < propertiesCodeSize) {
+											languageVO.setCannotFindPropertiesContent(true);
+										}
+										content = String.join(MoreLanguageProperties.multiSeparator, propertiesCountryTranslateList);
 									} else {
 										content = translate.getContent();
 									}
@@ -1421,42 +1429,33 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								groupVO.getLanguageList().forEach(languageVo-> {
 									languageVo.setPropertiesContent(propertiesName);
 									languageVo.setCannotFindPropertiesContent(false);
+									languageVo.setIsGroup(true);
 								});
 								groupVO.getLanguageList().forEach(languageVo-> {
-									languageVo.setIsGroup(true);
-									List<Map<String, String>> rightLanguageMap = sameBulkList.stream().map(source-> {
-										String sourcePropertiesName = source.getPropertiesName();
-										// 获取源数据中对应原本的翻译
-										return MapUtil.of(sourcePropertiesName, source.getLanguageList().stream()
-												.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
-												.findFirst().map(HangTagMoreLanguageVO::getPropertiesContent).orElse(""));
-									}).collect(Collectors.toList());
-
-									if (rightLanguageMap.stream().noneMatch(it-> it.containsKey(languageVo.getStandardColumnContent()))) {
-										languageVo.setStandardColumnContent("");
+									sameBulkList.stream().collect(Collectors.groupingBy((it)-> StrUtil.isNotBlank(it.getPropertiesName()) ? it.getPropertiesName() : ""))
+											.forEach((key, sameNameLanguageList)-> {
+												// 获取源数据中对应原本的翻译
+												String value = sameNameLanguageList.get(0).getLanguageList().stream()
+														.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
+														.map(HangTagMoreLanguageVO::getPropertiesContent)
+														.filter(StrUtil::isNotBlank).findFirst().orElse(" ");
+												// 进行组合
+												String s = languageVo.getPropertiesContent();
+												String s1 = StrUtil.replace(s, key, value);
+												if (StrUtil.isBlank(value) || s.equals(s1)) {
+													languageVo.setCannotFindPropertiesContent(true);
+												}
+												languageVo.setPropertiesContent(s1);
+												if (notChoose) {
+													languageVo.setStandardColumnContent(StrUtil.replace(languageVo.getStandardColumnContent(), key, value));
+												}
+											});
+									if (languageVo.getStandardColumnContent().equals(group.getStandColumnName())) {
+										languageVo.setCannotFindStandardColumnContent(true);
 									}
-									rightLanguageMap.forEach(map-> {
-										// 进行组合
-										map.forEach((key,value)-> {
-											String replacePropertiesContent = StrUtil.replace(languageVo.getPropertiesContent(), key, value);
-											if (languageVo.getPropertiesContent().equals(replacePropertiesContent)) {
-												languageVo.setCannotFindPropertiesContent(true);
-											}
-											languageVo.setPropertiesContent(replacePropertiesContent);
-
-											String replaceStandardColumnContent = StrUtil.replace(languageVo.getStandardColumnContent(), key, value);
-											if (languageVo.getStandardColumnContent().equals(replaceStandardColumnContent)) {
-												languageVo.setCannotFindStandardColumnContent(true);
-											}
-											languageVo.setStandardColumnContent(replaceStandardColumnContent);
-										});
-									});
 									// 若还是和之前一样，那就是没找到翻译
 									String fillSeparator = MoreLanguageProperties.showInfoLanguageSeparator + MoreLanguageProperties.multiSeparator;
-									String groupContent = StrUtil.replace(languageVo.getPropertiesContent(), MoreLanguageProperties.multiSeparator, fillSeparator);
-									if (!groupContent.endsWith(MoreLanguageProperties.showInfoLanguageSeparator) && !groupContent.endsWith(fillSeparator)) {
-										groupContent += MoreLanguageProperties.showInfoLanguageSeparator;
-									}
+									String groupContent = StrUtil.replace(languageVo.propertiesContent, MoreLanguageProperties.multiSeparator, fillSeparator);
 									languageVo.setPropertiesContent(groupContent);
 								});
 								groupVO.setPropertiesName(propertiesName);
