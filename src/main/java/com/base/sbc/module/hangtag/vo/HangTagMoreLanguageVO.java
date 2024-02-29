@@ -57,8 +57,8 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "标准列翻译")
     private String standardColumnContent = "";
 
-    protected String findStandardColumnContent() {
-        return (StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + MoreLanguageProperties.fieldValueSeparator: "");
+    public String findStandardColumnContent() {
+        return getCannotFindStandardColumnContent() || StrUtil.isBlank(this.standardColumnContent) ? "" : this.standardColumnContent;
     }
 
     /**
@@ -71,7 +71,7 @@ public class HangTagMoreLanguageVO {
      * 具体数据的翻译
      */
     @ApiModelProperty(value = "具体数据的翻译")
-    private String propertiesContent = "";
+    public String propertiesContent = "";
 
     /**
      * 具体数据翻译
@@ -89,7 +89,7 @@ public class HangTagMoreLanguageVO {
 
     public Boolean getCannotFindPropertiesContent() {
         // 若类型是文本,则直接为已翻译
-        return this.cannotFindPropertiesContent && forceFindContent();
+        return forceFindContent() && this.cannotFindPropertiesContent;
     }
 
     /**
@@ -116,12 +116,12 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        String title = findStandardColumnContent();
-        String value = getPropertiesContent();
+        String title = findStandardColumnContent() + MoreLanguageProperties.fieldValueSeparator;
+        String value = getPropertiesContent().trim();
         return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
                 title,
                 this.isGroup ? MoreLanguageProperties.multiSeparator : "",
-                value
+                StrUtil.endWith(value, MoreLanguageProperties.showInfoLanguageSeparator) ? value : value + MoreLanguageProperties.showInfoLanguageSeparator
         );
     }
 

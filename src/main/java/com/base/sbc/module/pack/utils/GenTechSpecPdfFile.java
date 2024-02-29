@@ -1,6 +1,7 @@
 package com.base.sbc.module.pack.utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
@@ -239,6 +240,7 @@ public class GenTechSpecPdfFile {
         config.setDefaultEncoding("UTF-8");
         config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+//        config.setDirectoryForTemplateLoading(new File("D:\\project\\sjs_yfg_pdm\\src\\main\\resources"));
         Template template;
         if (this.fob) {
             template = config.getTemplate("ftl/process.html.fob.ftl");
