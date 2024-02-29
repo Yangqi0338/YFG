@@ -2653,43 +2653,42 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             if (styleColorAgent != null) {
                 String status = styleColorAgent.getStatus();
-                if ("1".equals(status)) {
+
+                StyleColor styleColor = styleColorService.getById(styleColorAgent.getStyleColorId());
+
+                if (styleColor == null) {
+                    rowText = commonPromptInfo(true, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "找不到对应的配色信息！\n");
+                }
+                boolean styleStatus = "0".equals(styleColor.getStatus());
+                if ("1".equals(status) && !styleStatus) {
                     rowText = commonPromptInfo(styleColorAgent != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "已下发到下游业务系统，需先运维人员解除卡控再导入数据！\n");
-                }else if ("2".equals(status)) {
-                    String styleColorId = styleColorAgent.getStyleColorId();
-                    StyleColor styleColor = styleColorService.getById(styleColorId);
+                }else if ("2".equals(status) && !styleStatus) {
                     if (styleColor != null) {
                         String styleId = styleColor.getStyleId();
                         Style style = styleService.getById(styleId);
                         if (style != null) {
                             //品牌
-                            rowText = commonPromptInfo(! style.getBrandName().equals(entity.getBrandName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getBrandName() + "】 数据已下发过，品牌不允许修改！\n");
+                            rowText = commonPromptInfo( ! style.getBrandName().equals(entity.getBrandName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getBrandName() + "】 数据已下发过，品牌不允许修改！\n");
                             //品类
-                            rowText = commonPromptInfo(!style.getProdCategoryName().equals(entity.getProdCategoryName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategoryName() + "】 数据已下发过，品类不允许修改！\n");
+                            rowText = commonPromptInfo( !style.getProdCategoryName().equals(entity.getProdCategoryName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategoryName() + "】 数据已下发过，品类不允许修改！\n");
                             //大类
-                            rowText = commonPromptInfo(!style.getProdCategory1stName().equals(entity.getProdCategory1stName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory1stName() + "】 数据已下发过，大类不允许修改！\n");
+                            rowText = commonPromptInfo( !style.getProdCategory1stName().equals(entity.getProdCategory1stName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory1stName() + "】 数据已下发过，大类不允许修改！\n");
                             //中类
-                            rowText = commonPromptInfo(!style.getProdCategory2ndName().equals(entity.getProdCategory2ndName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory2ndName() + "】 数据已下发过，中类不允许修改！\n");
+                            rowText = commonPromptInfo( !style.getProdCategory2ndName().equals(entity.getProdCategory2ndName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory2ndName() + "】 数据已下发过，中类不允许修改！\n");
                             //号型类型
-                            rowText = commonPromptInfo(!style.getSizeRangeName().equals(entity.getSizeRangeName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getSizeRangeName() + "】 数据已下发过，号型类型不允许修改！\n");
+                            rowText = commonPromptInfo( !style.getSizeRangeName().equals(entity.getSizeRangeName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getSizeRangeName() + "】 数据已下发过，号型类型不允许修改！\n");
                             //合作方尺码
-                            rowText = commonPromptInfo(!styleColorAgent.getOutsideSizeCode().equals(entity.getOutsideSizeCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideSizeCode() + "】 数据已下发过，合作方尺码不允许修改！\n");
+                            rowText = commonPromptInfo( !styleColorAgent.getOutsideSizeCode().equals(entity.getOutsideSizeCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideSizeCode() + "】 数据已下发过，合作方尺码不允许修改！\n");
                             //合作方颜色
-                            rowText = commonPromptInfo(!styleColorAgent.getOutsideColorCode().equals(entity.getOutsideColorCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideColorCode() + "】 数据已下发过，合作方颜色编码不允许修改！\n");
+                            rowText = commonPromptInfo( !styleColorAgent.getOutsideColorCode().equals(entity.getOutsideColorCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideColorCode() + "】 数据已下发过，合作方颜色编码不允许修改！\n");
                             //合作方颜色名称
-                            rowText = commonPromptInfo(!styleColorAgent.getOutsideColorName().equals(entity.getOutsideColorName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideColorName() + "】 数据已下发过，合作方颜色名称不允许修改！\n");
+                            rowText = commonPromptInfo( !styleColorAgent.getOutsideColorName().equals(entity.getOutsideColorName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideColorName() + "】 数据已下发过，合作方颜色名称不允许修改！\n");
                             //外部条形码
                             rowText = commonPromptInfo(StrUtil.isNotBlank(styleColorAgent.getOutsideBarcode()) && !styleColorAgent.getOutsideBarcode().equals(entity.getOutsideBarcode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getOutsideBarcode()+"】 数据已下发过，外部条形码不允许修改！\n");
                         }
                     }
-                }else if ("3".equals(status)){
-                    StyleColor styleColor = styleColorService.getById(styleColorAgent.getId());
-                    if(styleColor != null){
-                        rowText = commonPromptInfo("0".equals(styleColor.getStatus()), rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "解除卡控后，请先停用后再导入数据！\n");
-                    }else{
-                        rowText = commonPromptInfo(true, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "找不到对应的配色信息！\n");
-
-                    }
+                }else if ("3".equals(status) && styleStatus){
+                        rowText = commonPromptInfo(true, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "解除卡控后，请先停用后再导入数据！\n");
                 }
             }
 
