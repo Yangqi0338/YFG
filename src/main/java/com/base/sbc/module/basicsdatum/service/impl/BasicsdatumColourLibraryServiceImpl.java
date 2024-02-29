@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -311,6 +312,14 @@ public class BasicsdatumColourLibraryServiceImpl extends BaseServiceImpl<Basicsd
         qw.ne("del_flag", BaseGlobal.YES);
         return this.getBaseMapper().getAllColourSpecification(qw);
 
+    }
+
+    @Override
+    public List<BasicsdatumColourLibrary> listByCode(List<String> colourCodeList){
+        LambdaQueryWrapper<BasicsdatumColourLibrary> qw = new LambdaQueryWrapper<>();
+        qw.eq(BasicsdatumColourLibrary::getCompanyCode, getCompanyCode());
+        qw.in(BasicsdatumColourLibrary::getColourCode, colourCodeList);
+        return list(qw);
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/
