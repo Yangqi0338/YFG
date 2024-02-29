@@ -5,24 +5,39 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
+
+import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryAgentDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryAgentVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibraryAgent;
+import com.github.pagehelper.PageInfo;
+import org.springframework.web.multipart.MultipartFile;
 
-/** 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
  * 类描述：基础资料-颜色库 service类
- * @address com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryAgentService
+ *
  * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryAgentService
  * @email your email
  * @date 创建时间：2024-2-28 16:13:32
- * @version 1.0  
  */
-public interface BasicsdatumColourLibraryAgentService extends BaseService<BasicsdatumColourLibraryAgent>{
+public interface BasicsdatumColourLibraryAgentService extends BaseService<BasicsdatumColourLibraryAgent> {
 
-// 自定义方法区 不替换的区域【other_start】
+    PageInfo<BasicsdatumColourLibraryAgentVo> findPage(QueryBasicsdatumColourLibraryAgentDto dto);
 
+    ApiResult importExcel(MultipartFile file) throws Exception;
 
+    void exportExcel(HttpServletResponse response, QueryBasicsdatumColourLibraryAgentDto dto) throws IOException;
 
-// 自定义方法区 不替换的区域【other_end】
+    void statusUpdate(StartStopDto startStopDto);
 
-	
+    void del(String id);
+
+    void saveOrUpdateMian(BasicsdatumColourLibraryAgent basicsdatumColourLibraryAgent);
 }

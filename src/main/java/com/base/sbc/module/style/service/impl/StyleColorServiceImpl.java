@@ -1994,8 +1994,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void agentStop(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if(!"2".equals(byId.getStatus())) {
-            throw new OtherException("只有重新打开时才能停用");
+        if(!"2".equals(byId.getStatus()) && !"3".equals(byId.getStatus())) {
+            throw new OtherException("只有重新打开或可编辑时才能停用");
         }
         StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
         String styleId = styleColor.getStyleId();
@@ -2033,8 +2033,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public void agentEnable(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if(!"2".equals(byId.getStatus())) {
-            throw new OtherException("只有重新打开时才能启用");
+        if(!"2".equals(byId.getStatus()) && !"3".equals(byId.getStatus())) {
+            throw new OtherException("只有重新打开或可编辑时才能启用");
         }
         StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
         String styleId = styleColor.getStyleId();
@@ -2964,6 +2964,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     @Transactional
     public void agentUpdate(StyleColorAgentVo styleColorAgentVo) {
+        String id = styleColorAgentVo.getId();
+        if(StrUtil.isNotBlank(id)){
+            LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StyleColorAgent::getOutsideBarcode,styleColorAgentVo.getOutsideBarcode());
+            updateWrapper.set(StyleColorAgent::getUpdateId, getUserId());
+            updateWrapper.set(StyleColorAgent::getUpdateName, getUserName());
+            updateWrapper.set(StyleColorAgent::getUpdateDate, new Date());
+            updateWrapper.eq(StyleColorAgent::getId,id);
+            styleColorAgentService.update(updateWrapper);
+        }
+
         String styleColorId = styleColorAgentVo.getStyleColorId();
         if(StrUtil.isNotBlank(styleColorId)){
             LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();

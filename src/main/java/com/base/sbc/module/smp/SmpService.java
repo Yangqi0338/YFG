@@ -1543,8 +1543,8 @@ public class SmpService {
         List<StyleColorAgent> styleColorAgents = styleColorAgentService.listByField("style_color_id", Arrays.asList(ids));
 
         for (StyleColorAgent styleColorAgent : styleColorAgents) {
-            if(!StrUtil.equals(styleColorAgent.getStatus(),"0") && !StrUtil.equals(styleColorAgent.getStatus(),"2")){
-                throw new OtherException("只有状态为未下发或者重新打开时才能下发");
+            if(!StrUtil.equals(styleColorAgent.getStatus(),"0") && !StrUtil.equals(styleColorAgent.getStatus(),"2") && !StrUtil.equals(styleColorAgent.getStatus(),"3")){
+                throw new OtherException("只有状态为未下发、重新打开、可编辑时才能下发");
             }
         }
 
@@ -1659,21 +1659,20 @@ public class SmpService {
 
             List<SmpSize> smpSizes = new ArrayList<>();
             for (BasicsdatumSize basicsdatumSize : basicsdatumSizes) {
+                SmpSize smpSize = new SmpSize();
+                smpSize.setSize(basicsdatumSize.getModel());
+                smpSize.setSizeNumber(basicsdatumSize.getSort());
+                smpSize.setCode(basicsdatumSize.getCode());
+                smpSize.setProductSizeName(basicsdatumSize.getHangtags());
+                smpSize.setBaseSize(StringUtils.isNoneBlank(style.getDefaultSize()) && style.getDefaultSize().equals(basicsdatumSize.getHangtags()));
+                smpSize.setSkuFiller(downContent);
+                smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
                 if(sizeMap.containsKey(styleColor.getId()+basicsdatumSize.getCode())){
-                    SmpSize smpSize = new SmpSize();
-                    smpSize.setSize(basicsdatumSize.getModel());
-                    smpSize.setSizeNumber(basicsdatumSize.getSort());
-                    smpSize.setCode(basicsdatumSize.getCode());
-                    smpSize.setProductSizeName(basicsdatumSize.getHangtags());
-                    smpSize.setBaseSize(StringUtils.isNoneBlank(style.getDefaultSize()) && style.getDefaultSize().equals(basicsdatumSize.getHangtags()));
-
-                    smpSize.setSkuFiller(downContent);
-                    smpSize.setSpecialSpec(basicsdatumSize.getInternalSize());
                     StyleColorAgent styleColorAgent = sizeMap.get(styleColor.getId() + basicsdatumSize.getCode());
                     smpSize.setOutsideBarcode(styleColorAgent.getOutsideBarcode());
                     smpSize.setOutsideSizeCode(styleColorAgent.getOutsideSizeCode());
-                    smpSizes.add(smpSize);
                 }
+                smpSizes.add(smpSize);
             }
             smpGoodsDto.setItemList(smpSizes);
 

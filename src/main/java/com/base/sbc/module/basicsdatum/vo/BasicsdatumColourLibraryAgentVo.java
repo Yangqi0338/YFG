@@ -4,9 +4,8 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.basicsdatum.entity;
+package com.base.sbc.module.basicsdatum.vo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -27,7 +26,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_basicsdatum_colour_library_agent")
 @ApiModel("基础资料-颜色库 BasicsdatumColourLibraryAgent")
-public class BasicsdatumColourLibraryAgent extends BaseDataEntity<String> {
+public class BasicsdatumColourLibraryAgentVo extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -142,9 +141,7 @@ public class BasicsdatumColourLibraryAgent extends BaseDataEntity<String> {
     @ApiModelProperty(value = "关联集团颜色")
     private String colorId;
 
-    @TableField(exist = false)
     private String sysColorCode;
-    @TableField(exist = false)
     private String sysColorName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
