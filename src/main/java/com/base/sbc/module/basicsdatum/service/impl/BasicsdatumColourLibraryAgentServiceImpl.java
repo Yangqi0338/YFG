@@ -77,25 +77,25 @@ public class BasicsdatumColourLibraryAgentServiceImpl extends BaseServiceImpl<Ba
     @Override
     public PageInfo<BasicsdatumColourLibraryAgentVo> findPage(QueryBasicsdatumColourLibraryAgentDto dto) {
         BaseQueryWrapper<BasicsdatumColourLibraryAgent> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq("company_code", baseController.getUserCompany());
-        queryWrapper.notEmptyEq("status", dto.getStatus());
-        queryWrapper.notEmptyLike("create_name", dto.getCreateName());
-        queryWrapper.between("create_date", dto.getCreateDate());
-        queryWrapper.notEmptyLike("colour_code", dto.getColourCode());
-        queryWrapper.notEmptyLike("colour_specification", dto.getColourSpecification());
-        queryWrapper.notEmptyLike("colour_name", dto.getColourName());
-        queryWrapper.notEmptyLike("library", dto.getLibrary());
-        queryWrapper.notEmptyEq("is_style", dto.getIsStyle());
-        queryWrapper.notEmptyEq("is_materials", dto.getIsMaterials());
-        queryWrapper.notEmptyLike("pantone", dto.getPantone());
-        queryWrapper.notEmptyLike("color_type", dto.getColorType());
-        queryWrapper.notEmptyIn("scm_send_flag", StringUtils.convertList(dto.getScmSendFlag()));
-        queryWrapper.andLike(dto.getSearch(), "colour_code", "colour_name");
-        queryWrapper.notEmptyEq("brand", dto.getBrand());
+        queryWrapper.eq("t.company_code", baseController.getUserCompany());
+        queryWrapper.notEmptyEq("t.status", dto.getStatus());
+        queryWrapper.notEmptyLike("t.create_name", dto.getCreateName());
+        queryWrapper.between("t.create_date", dto.getCreateDate());
+        queryWrapper.notEmptyLike("t.colour_code", dto.getColourCode());
+        queryWrapper.notEmptyLike("t.colour_specification", dto.getColourSpecification());
+        queryWrapper.notEmptyLike("t.colour_name", dto.getColourName());
+        queryWrapper.notEmptyLike("t.library", dto.getLibrary());
+        queryWrapper.notEmptyEq("t.is_style", dto.getIsStyle());
+        queryWrapper.notEmptyEq("t.is_materials", dto.getIsMaterials());
+        queryWrapper.notEmptyLike("t.pantone", dto.getPantone());
+        queryWrapper.notEmptyLike("t.color_type", dto.getColorType());
+        queryWrapper.notEmptyIn("t.scm_send_flag", StringUtils.convertList(dto.getScmSendFlag()));
+        queryWrapper.andLike(dto.getSearch(), "t.colour_code", "t.colour_name");
+        queryWrapper.notEmptyEq("t.brand", dto.getBrand());
 
-        queryWrapper.orderByDesc("create_date");
+        queryWrapper.orderByDesc("t.create_date");
         Page<BasicsdatumColourLibraryAgentVo> objects = PageHelper.startPage(dto);
-        list(queryWrapper);
+        getBaseMapper().findList(queryWrapper);
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "picture");
         return objects.toPageInfo();
     }

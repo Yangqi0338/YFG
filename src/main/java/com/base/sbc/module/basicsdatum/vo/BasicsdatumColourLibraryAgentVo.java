@@ -140,5 +140,8 @@ public class BasicsdatumColourLibraryAgentVo extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "关联集团颜色")
     private String colorId;
+
+    private String sysColorCode;
+    private String sysColorName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
