@@ -489,6 +489,11 @@ public class StyleColorAgentVo {
      */
     @ApiModelProperty(value = "合作方条形码")
     private String outsideBarcode;
+    /**
+     * 合作方款号
+     */
+    @ApiModelProperty(value = "合作方款号")
+    private String outsideStyleNo;
 
     /**
      * 正确样样衣码

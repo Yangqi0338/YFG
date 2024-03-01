@@ -1925,7 +1925,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.notEmptyEqOrIsNull("ts.prod_category_name", queryDto.getProdCategoryName());
         queryWrapper.notEmptyEqOrIsNull("ts.prod_category", queryDto.getProdCategory());
         if(StringUtils.isNotBlank(queryDto.getStyleNo())){
-            queryWrapper.likeList("tsc.style_no",StringUtils.convertList(queryDto.getStyleNo()));
+            if (queryDto.getStyleNo().contains(" ")) {
+                queryWrapper.likeList("tsc.style_no", Arrays.asList(queryDto.getStyleNo().split(" ")));
+            } else {
+                queryWrapper.likeList("tsc.style_no", StringUtils.convertList(queryDto.getStyleNo()));
+            }
         }
         if(StringUtils.isNotBlank(queryDto.getDesignNo())){
             queryWrapper.likeList("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
