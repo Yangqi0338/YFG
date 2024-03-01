@@ -5,6 +5,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -56,6 +57,7 @@ import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
@@ -68,6 +70,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -121,13 +124,28 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         ExportParams exportParams = new ExportParams("订货本详情", "订货本详情", ExcelType.HSSF);
         ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
     }
-
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth) {
+        return querylist(queryWrapper, openDataAuth, false);
+    }
+
+    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth, boolean firstOrder) {
         if (null == openDataAuth) {
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
+        /*设置图片分辨路*/
+        stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
+        stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
+        if (firstOrder) {
+            List<OrderBookDetailVo> result = new ArrayList<>();
+            orderBookDetailVos.forEach(orderBookDetailVo -> {
+                OrderBookDetail orderBookDetail = JSONUtil.toBean(orderBookDetailVo.getFirstOrderDataJson(), OrderBookDetail.class);
+                BeanUtil.copyProperties(orderBookDetail, orderBookDetailVo);
+                result.add(orderBookDetailVo);
+            });
+        }
+
         //查询BOM版本
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
             QueryWrapper<PackBomVersion> queryWrapper1 =new BaseQueryWrapper<>();
@@ -144,10 +162,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         }
 
-
-        /*设置图片分辨路*/
-        stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
-        stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
         /*款式定价相关参数*/
         this.queryStylePrice(orderBookDetailVos,openDataAuth);
         /*按配色id获取到里面的围度数据*/
@@ -331,6 +345,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         //             or().eq("tobl.business_id", dto.getUserId())
         //             .or().eq("tobl.create_id", dto.getUserId()));
         // }
+        // 首单
+        if (dto.isFirstOrderCheck()) {
+            queryWrapper.isNullStr("tobl.first_order_data_json");
+            queryWrapper.orderByDesc("tobl.first_order_time");
+        }
 
         if(StrUtil.isNotBlank(dto.getPlanningSeasonId())){
             BaseQueryWrapper<OrderBook> baseQueryWrapper = new BaseQueryWrapper();
@@ -638,6 +657,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT);
             orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.FINISH);
             orderBookDetail.setCommissioningDate(new Date());
+            if (StrUtil.isBlank(orderBookDetail.getFirstOrderDataJson())) {
+                orderBookDetail.setFirstOrderDataJson(JSONUtil.toJsonStr(orderBookDetail));
+                orderBookDetail.setFirstOrderTime(LocalDateTime.now());
+            }
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);

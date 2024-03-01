@@ -13,12 +13,14 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -125,6 +127,17 @@ public class OrderBookDetailController extends BaseController {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
         return updateSuccess(orderBookDetailService.placeAnOrder(dto, ids));
+    }
+
+    /**
+     * 首单下单历史数据
+     */
+    @ApiModelProperty(value = "首单下单历史数据")
+    @GetMapping("/firstOrderHis")
+    public ApiResult firstOrderHis(@RequestBody OrderBookDetailQueryDto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        dto.setUserId(super.getUserId());
+        return updateSuccess(orderBookDetailService.queryPage(dto));
     }
 
     /**

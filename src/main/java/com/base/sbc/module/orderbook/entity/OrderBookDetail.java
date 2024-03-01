@@ -19,6 +19,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -346,6 +347,18 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "brand")
     private String brand;
+
+    /**
+     * 首单数据
+     */
+    @ApiModelProperty(value = "首单数据")
+    private String firstOrderDataJson;
+
+    /**
+     * 首单数据下单时间 - 排序
+     */
+    @ApiModelProperty(value = "首单数据下单时间")
+    private LocalDateTime firstOrderTime;
 
 }
 

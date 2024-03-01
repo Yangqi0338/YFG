@@ -35,7 +35,16 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "大货款号")
     private String bulkStyleNo;
-
+    /**
+     * 原大货款号
+     */
+    @ApiModelProperty(value = "原大货款号")
+    private String hisStyleNo;
+    /**
+     * 关联大货款名
+     */
+    @ApiModelProperty(value = "关联大货款名")
+    private String bomName;
     /**
      * 款式图
      */

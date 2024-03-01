@@ -23,6 +23,7 @@
         ts.plate_type_name as patternPositioningName,
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
+        tsc.his_style_no as hisStyleNo,
         ts.devt_type_name,
         tsc.band_name,
         tsc.band_code,
@@ -38,6 +39,7 @@
         ts.planning_season_id,
         tbcl.colour_code as supplierColor,
         tpi.id as packInfoId,
+        tpi.name as bomName
         IFNULL(tobl.material,0) * IFNULL(tsc.tag_price,0) as materialMoney
         FROM
         t_order_book_detail tobl
