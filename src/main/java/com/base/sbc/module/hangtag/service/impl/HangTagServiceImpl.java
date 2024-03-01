@@ -11,6 +11,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
@@ -425,6 +426,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			/*先删除之前的数据*/
 				hangTagInspectCompanyService.remove(new QueryWrapper<HangTagInspectCompany>().eq("hang_tag_id",hangTag.getId()));
 			for (HangTagInspectCompany hangTagInspectCompany : hangTagInspectCompanyList) {
+				hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
+				hangTagInspectCompany.setInspectCompanyId(hangTagInspectCompany.getId());
 				hangTagInspectCompany.setHangTagId(hangTag.getId());
 				hangTagInspectCompany.insertInit();
 			}
