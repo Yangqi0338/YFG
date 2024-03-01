@@ -7,12 +7,15 @@
 package com.base.sbc.module.sample.controller;
 
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.sample.dto.QueryDetailFabricDto;
 import com.base.sbc.module.sample.dto.QueryFabricInformationDto;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricBasicInformationDto;
 import com.base.sbc.module.sample.dto.SaveUpdateFabricDetailedInformationDto;
+import com.base.sbc.module.sample.entity.FabricBasicInformation;
+import com.base.sbc.module.sample.entity.FabricIngredientsInfo;
 import com.base.sbc.module.sample.service.FabricBasicInformationService;
 import com.base.sbc.module.sample.service.FabricDetailedInformationService;
 import com.base.sbc.module.sample.vo.FabricInformationVo;
@@ -28,6 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
 * 类描述：面料信息 Controller类
@@ -54,6 +61,26 @@ public class FabricInformationController {
 		return fabricBasicInformationService.getFabricInformationList(queryFabricInformationDto);
 	}
 
+	/**
+	 * 查询所有设计师
+	 * @return
+	 */
+	@ApiOperation(value = "查询所有设计师")
+	@GetMapping("/getDesignList")
+	public List<Map<String,String>> getDesignList() {
+		BaseQueryWrapper<FabricBasicInformation> queryWrapper =new BaseQueryWrapper<>();
+		queryWrapper.isNotNullStr("atactiform_stylist");
+		queryWrapper.groupBy("atactiform_stylist");
+		List<FabricBasicInformation> list = fabricBasicInformationService.list(queryWrapper);
+		List<Map<String,String>> designList=new ArrayList<>();
+		for (FabricBasicInformation fabricIngredientsInfo : list) {
+			Map<String,String> map =new HashMap<>();
+			map.put("name",fabricIngredientsInfo.getAtactiformStylist());
+			map.put("userId",fabricIngredientsInfo.getAtactiformStylistUserId());
+			designList.add(map);
+		}
+		return designList;
+	}
 
 	@ApiOperation(value = "/导出")
 	@GetMapping("/fabricInformationDeriveExcel")
