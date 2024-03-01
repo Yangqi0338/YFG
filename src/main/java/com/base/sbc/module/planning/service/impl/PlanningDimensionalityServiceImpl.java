@@ -203,6 +203,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         CheckMutexDto checkMutexDto = new CheckMutexDto();
         checkMutexDto.setChannel(dimensionalityDtoList.get(0).getChannel());
         checkMutexDto.setPlanningSeasonId(dimensionalityDtoList.get(0).getPlanningSeasonId());
+        checkMutexDto.setPlanningChannelId(dimensionalityDtoList.get(0).getPlanningChannelId());
         checkMutexDto.setProdCategory(dimensionalityDtoList.get(0).getProdCategory());
         checkMutexDto.setProdCategory2nd(dimensionalityDtoList.get(0).getProdCategory2nd());
         planningDemandService.checkMutex(checkMutexDto);

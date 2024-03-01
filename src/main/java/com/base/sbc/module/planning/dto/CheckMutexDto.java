@@ -23,6 +23,12 @@ public class CheckMutexDto {
     private String planningSeasonId;
 
     /**
+     * 渠道id
+     */
+    @ApiModelProperty(value = "渠道id")
+    private String planningChannelId;
+
+    /**
      * 中类code
      */
     @ApiModelProperty(value = "中类code")

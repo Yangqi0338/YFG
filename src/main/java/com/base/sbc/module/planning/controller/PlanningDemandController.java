@@ -144,6 +144,7 @@ public class PlanningDemandController {
 		CheckMutexDto checkMutexDto = new CheckMutexDto();
 		checkMutexDto.setChannel(updateDimensionalityDto.getChannel());
 		checkMutexDto.setPlanningSeasonId(updateDimensionalityDto.getPlanningSeasonId());
+		checkMutexDto.setPlanningChannelId(updateDimensionalityDto.getPlanningChannelId());
 		checkMutexDto.setProdCategory(updateDimensionalityDto.getProdCategory());
 		checkMutexDto.setProdCategory2nd(updateDimensionalityDto.getProdCategory2nd());
 		planningDemandService.checkMutex(checkMutexDto);
