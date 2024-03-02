@@ -434,7 +434,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         BaseQueryWrapper<CategoryPlanningDetails> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tcpd.category_planning_id",dto.getCategoryPlanningId());
         queryWrapper.notEmptyEq("tcpd.seasonal_planning_id",dto.getSeasonalPlanningId());
-        queryWrapper.notEmptyIn("tcpd.prod_category_names",dto.getProdCategoryNames());
+        queryWrapper.notEmptyIn("tcpd.prod_category_name",dto.getProdCategoryNames());
         return queryWrapper;
     }
 

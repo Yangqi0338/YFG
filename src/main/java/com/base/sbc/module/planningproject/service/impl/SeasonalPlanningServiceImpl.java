@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
@@ -314,9 +315,40 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         for (String s : hashMap1.keySet()) {
             hashMapList1.add(hashMap1.get(s));
         }
-
+        List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode("品类", null, "0,1,2");
+        Map<String, BasicStructureTreeVo> map = basicStructureTreeVos.stream().collect(Collectors.toMap(BasicStructureTreeVo::getValue, basicStructureTreeVo -> basicStructureTreeVo));
         for (HashMap<String, String> stringStringHashMap : hashMapList1) {
             SeasonalPlanningDetails seasonalPlanningDetails = new SeasonalPlanningDetails();
+            BasicStructureTreeVo basicStructureTreeVo = map.get(stringStringHashMap.get("大类编码"));
+            if (basicStructureTreeVo==null){
+                throw new RuntimeException("大类"+stringStringHashMap.get("大类名称")+"不存在");
+            }
+            if (basicStructureTreeVo.getChildren() ==null || basicStructureTreeVo.getChildren().isEmpty()){
+                throw new RuntimeException(stringStringHashMap.get("大类名称")+"下的品类"+ stringStringHashMap.get("品类名称")+"不存在");
+            }
+
+            Map<String, BasicStructureTreeVo> map1 = basicStructureTreeVo.getChildren().stream().collect(Collectors.toMap(BasicStructureTreeVo::getValue, basicStructureTreeVo1 -> basicStructureTreeVo1));
+            BasicStructureTreeVo basicStructureTreeVo1 = map1.get(stringStringHashMap.get("品类编码"));
+            if (basicStructureTreeVo1==null){
+                throw new RuntimeException(stringStringHashMap.get("大类名称")+"下的品类"+ stringStringHashMap.get("品类名称")+"不存在");
+            }
+
+            if (StringUtils.isNotBlank(stringStringHashMap.get("中类名称"))){
+                if (basicStructureTreeVo1.getChildren() ==null || basicStructureTreeVo1.getChildren().isEmpty()){
+                    throw new RuntimeException(stringStringHashMap.get("中类名称")+"下的中类"+ stringStringHashMap.get("中类名称")+"不存在");
+                }
+
+                Map<String, BasicStructureTreeVo> map2 = basicStructureTreeVo1.getChildren().stream().collect(Collectors.toMap(BasicStructureTreeVo::getValue, basicStructureTreeVo2 -> basicStructureTreeVo2));
+
+                for (String s : stringStringHashMap.get("中类编码").split(",")) {
+                    BasicStructureTreeVo basicStructureTreeVo2 = map2.get(s);
+                    if (basicStructureTreeVo2==null){
+                        throw new RuntimeException(stringStringHashMap.get("品类名称")+"下的中类"+ stringStringHashMap.get("中类名称")+"不存在");
+                    }
+                }
+
+            }
+
             seasonalPlanningDetails.setProdCategory1stCode(stringStringHashMap.get("大类编码"));
             seasonalPlanningDetails.setProdCategory1stName(stringStringHashMap.get("大类名称"));
             seasonalPlanningDetails.setProdCategory2ndCode(stringStringHashMap.get("中类编码"));
