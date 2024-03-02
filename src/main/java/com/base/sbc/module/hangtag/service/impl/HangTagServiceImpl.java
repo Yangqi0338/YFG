@@ -416,7 +416,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		String id = hangTag.getId();
 
 		// 成分检查
-		if (hangTagDTO.getStatus().lessThan(HangTagStatusEnum.DESIGN_CHECK)) {
+		if (hangTagDTO.getStatus().lessThan(HangTagStatusEnum.DESIGN_CHECK) && hangTagDTO.getStatus().greatThan(HangTagStatusEnum.NOT_INPUT)) {
 			strictCheckIngredientPercentage(Collections.singletonList(id));
 		}
 		/*检测报告*/
