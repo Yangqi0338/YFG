@@ -98,7 +98,6 @@ import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -812,7 +811,6 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             // 将文件id保存到状态表
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
             packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
-            packInfoStatus.setTechSpecFileGenTime(LocalDateTime.now());
             packInfoStatusService.updateById(packInfoStatus);
             return attachmentVo;
         } catch (Exception e) {

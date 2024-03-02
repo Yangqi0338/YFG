@@ -175,11 +175,6 @@ public class PackInfoStatus extends BaseDataEntity<String> {
     @ApiModelProperty(value = "工艺说明文件id(pdf)")
     private String techSpecFileId;
     /**
-     * 工艺说明文件生成时间(pdf)
-     */
-    @ApiModelProperty(value = "工艺说明文件生成时间(pdf)")
-    private LocalDateTime techSpecFileGenTime;
-    /**
      * 工艺说明视频文件id
      */
     @ApiModelProperty(value = "工艺说明视频文件id")
