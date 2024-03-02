@@ -61,6 +61,9 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     public PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto) {
         PageHelper.startPage(dto);
         List<CategoryPlanningDetailsVo> categoryPlanningDetailsVos = this.queryList(dto);
+        for (CategoryPlanningDetailsVo categoryPlanningDetailsVo : categoryPlanningDetailsVos) {
+            categoryPlanningDetailsVo.setDataJson(this.getDetailById(categoryPlanningDetailsVo.getId()).getDataJson());
+        }
         return new PageInfo<>(categoryPlanningDetailsVos);
     }
 
@@ -300,13 +303,13 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     public boolean updateDetail(CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
 
         CategoryPlanningDetails categoryPlanningDetails1 = this.getById(categoryPlanningDetailsVo.getId());
-        if (StringUtils.isNotBlank(categoryPlanningDetails1.getDataJson())){
-            throw  new RuntimeException("数据已经存在,无法修改");
+        if ("1".equals(categoryPlanningDetails1.getIsGenerate())){
+            throw  new RuntimeException("数据已经生成,无法修改");
         }
         if (StringUtils.isEmpty(categoryPlanningDetailsVo.getDataJson()) || "[]".equals(categoryPlanningDetailsVo.getDataJson())){
             return false;
         }
-
+        categoryPlanningDetailsVo.setIsGenerate("1");
         //修改数据
         boolean b = this.updateById(categoryPlanningDetailsVo);
 
@@ -431,6 +434,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         BaseQueryWrapper<CategoryPlanningDetails> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tcpd.category_planning_id",dto.getCategoryPlanningId());
         queryWrapper.notEmptyEq("tcpd.seasonal_planning_id",dto.getSeasonalPlanningId());
+        queryWrapper.notEmptyIn("tcpd.prod_category_names",dto.getProdCategoryNames());
         return queryWrapper;
     }
 

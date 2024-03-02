@@ -52,4 +52,9 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
     private String launchTime;
 
     private String dataJson;
+
+    /**
+     * 是否已生成数据
+     */
+    private String isGenerate;
 }

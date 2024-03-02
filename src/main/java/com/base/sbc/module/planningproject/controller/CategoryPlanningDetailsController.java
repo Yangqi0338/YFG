@@ -2,6 +2,7 @@ package com.base.sbc.module.planningproject.controller;
 
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
@@ -11,9 +12,15 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -37,6 +44,27 @@ public class CategoryPlanningDetailsController extends BaseController{
     }
 
     /**
+     * 获取所有的品类
+     */
+    @GetMapping("/getProdCategoryNameList")
+    public ApiResult getProdCategoryNameList(CategoryPlanningDetailsQueryDto dto) {
+        BaseQueryWrapper<CategoryPlanningDetails> baseQueryWrapper = new BaseQueryWrapper<>();
+        baseQueryWrapper.eq("category_planning_id", dto.getCategoryPlanningId());
+        baseQueryWrapper.groupBy("prod_category_name");
+        baseQueryWrapper.select("prod_category_code", "prod_category_name");
+        baseQueryWrapper.isNotNullStr("prod_category_name");
+        List<CategoryPlanningDetails> list = categoryPlanningDetailsService.list(baseQueryWrapper);
+        List<Map<String,String>> maps=new ArrayList<>();
+        for (CategoryPlanningDetails categoryPlanningDetails : list) {
+            Map<String,String> map =new HashMap<>();
+            map.put("code",categoryPlanningDetails.getProdCategoryCode());
+            map.put("name",categoryPlanningDetails.getProdCategoryName());
+            maps.add(map);
+        }
+        return selectSuccess(maps);
+    }
+
+    /**
      * 根据id查询明细详情
      */
     @RequestMapping("/getDetailById")
@@ -52,6 +80,18 @@ public class CategoryPlanningDetailsController extends BaseController{
     @DuplicationCheck
     public ApiResult updateDetail(@RequestBody CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
         categoryPlanningDetailsService.updateDetail(categoryPlanningDetailsVo);
+        return updateSuccess(categoryPlanningDetailsVo);
+    }
+
+    /**
+     * 暂存,不生成数据
+     */
+    @RequestMapping("/saveDetail")
+    public ApiResult saveDetail(@RequestBody CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
+        if ("1".equals(categoryPlanningDetailsVo.getIsGenerate())){
+            throw new RuntimeException("已经生成数据,无法保存");
+        }
+        categoryPlanningDetailsService.updateById(categoryPlanningDetailsVo);
         return updateSuccess(categoryPlanningDetailsVo);
     }
 }

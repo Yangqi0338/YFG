@@ -15,4 +15,5 @@ public class CategoryPlanningDetailsQueryDto extends BaseDto {
     private String  categoryPlanningId;
     @ApiModelProperty(value = "季节企划Id")
     private String  seasonalPlanningId;
+    private String prodCategoryNames;
 }

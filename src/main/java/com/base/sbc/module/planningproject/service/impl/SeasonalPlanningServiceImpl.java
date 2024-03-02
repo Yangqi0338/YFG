@@ -499,41 +499,42 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
         JSONObject object =new JSONObject();
         boolean b =false;
-        int z=0;
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
+
             if (i<=4){
                 jsonArray1.add(jsonObject);
                 continue;
             }
 
-            if (StringUtils.isNotBlank(jsonObject.getString("1")) || i== jsonArray.size()-1){
+            if (StringUtils.isNotBlank(jsonObject.getString("1"))){
                 if (b){
-                    object=new JSONObject();
                     object.put("2","合计");
                     jsonArray1.add(object);
-                    z++;
+                    object=new JSONObject();
                 }
                 b=true;
-
-
             }
+
             for (String s : jsonObject.keySet()) {
                 int si= Integer.parseInt(s);
                 if (si>2){
                     Integer integer = jsonObject.getInteger(s);
                     Integer integer1 = object.getInteger(s);
                     if (integer1==null){
-                        object.put(s,integer);
-                    }else {
-
-                            object.put(s,integer+integer1);
-
+                        object.put(s, integer);
+                    } else {
+                        object.put(s, integer + integer1);
                     }
                 }
             }
-            jsonArray1.add(jsonObject);
 
+            jsonArray1.add(jsonObject);
+            if (i== (jsonArray.size())-1){
+                object.put("2","合计");
+                jsonArray1.add(object);
+                object=new JSONObject();
+            }
         }
 
         return jsonArray1.toJSONString();
