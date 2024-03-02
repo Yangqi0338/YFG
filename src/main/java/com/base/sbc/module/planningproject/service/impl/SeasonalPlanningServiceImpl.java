@@ -368,6 +368,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         queryWrapper.eq("tsp.id",id);
         List<SeasonalPlanningVo> list = baseMapper.listByQueryWrapper(queryWrapper);
         SeasonalPlanningVo seasonalPlanningVo = list.get(0);
+        String dataJson = this.addTotal(seasonalPlanningVo.getDataJson());
+        seasonalPlanningVo.setDataJson(dataJson);
         List<SeasonalPlanningDetails> detailsList = seasonalPlanningDetailsService.listByField("seasonal_planning_id", seasonalPlanningVo.getId());
 
         //拆分成中类维度
@@ -485,5 +487,20 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         baseQueryWrapper.notEmptyEq("tsp.channel_code", seasonalPlanningQueryDto.getChannelCode());
         baseQueryWrapper.orderByDesc("tsp.id");
         return baseQueryWrapper;
+    }
+
+    /**
+     * 增加合计
+     */
+    private String addTotal(String dataJson) {
+        JSONArray jsonArray = JSON.parseArray(dataJson);
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            if (i>5 && StringUtils.isNotBlank(jsonObject.getString("2"))){
+
+            }
+        }
+
+        return dataJson;
     }
 }
