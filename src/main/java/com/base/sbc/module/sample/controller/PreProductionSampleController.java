@@ -181,10 +181,10 @@ public class PreProductionSampleController extends BaseController{
         return preProductionSampleTaskService.sampleMakingScore(user, dto.getId(), dto.getScore());
     }
 
-    @ApiOperation(value = "样衣制作评分", notes = "")
+    @ApiOperation(value = "样衣工的质量打分", notes = "")
     @PostMapping("/task/sampleQualityScore")
     public boolean sampleQualityScore(Principal user, @Validated @RequestBody ScoreDto dto) {
-        return preProductionSampleTaskService.sampleMakingScore(user, dto.getId(), dto.getScore());
+        return preProductionSampleTaskService.sampleQualityScore(user, dto.getId(), dto.getScore());
     }
 
     @ApiOperation(value = "后技术备注说明", notes = "")
