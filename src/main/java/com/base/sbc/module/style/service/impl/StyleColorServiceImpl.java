@@ -2186,7 +2186,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 String year = dto.getYear();
                 String season = dto.getSeason();
                 if (season.equals("春")) {
-                    season= "s";
+                    season= "S";
                 }else if(season.equals("夏")){
                     season= "X";
                 }else if(season.equals("秋")){
@@ -2802,6 +2802,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //根据产品季名称获取产品季id
             String year = entity.getYear();
             String season = entity.getSeason();
+            if (season.equals("春")) {
+                season= "S";
+            }else if(season.equals("夏")){
+                season= "X";
+            }else if(season.equals("秋")){
+                season= "A";
+            }else if(season.equals("冬")){
+                season= "W";
+            }
             String brandName = entity.getBrandName();
             String productSeason =year+" "+season+" "+brandName;
             PlanningSeason planningSeason = planningSeasonService.getByName(productSeason, baseController.getUserCompany());

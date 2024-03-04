@@ -328,8 +328,8 @@
                tsc.tag_price, -- 吊牌价
                tpp.control_plan_cost,
                SUBSTRING_INDEX(tsca.style_color_no, "-", 1) outsideStyleNo, -- 合作方款号
-               bsn.packaging_form,
-               bsn.packaging_form_code
+               tha.packaging_form,
+               tha.packaging_form_code
         FROM t_style_color_agent tsca
                  LEFT JOIN t_style_color tsc ON tsca.style_color_id = tsc.id AND tsc.del_flag = '0'
                  left join t_style ts on ts.id = tsc.style_id and ts.del_flag = '0'
@@ -338,7 +338,7 @@
                  left join t_basicsdatum_size tbs
                            ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 and
                               tbs.hangtags = ts.default_size
-                 left join bulk_style_no bsn on bsn.bulk_style_no = tsc.style_no and bsn.del_flag = '0'
+                 left join t_hang_tag tha on bsn.bulk_style_no = tsc.style_no and tha.del_flag = '0'
             ${ew.customSqlSegment}
     </select>
 
