@@ -31,7 +31,7 @@ import com.base.sbc.module.fabric.vo.BasicFabricLibraryVO;
 import com.base.sbc.module.fabric.vo.FabricDevMainVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.CollectionUtils;
+import cn.hutool.core.collection.CollUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -197,7 +197,7 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
 
     @Override
     public Map<String, BasicFabricLibraryListVO> getByMaterialCodes(List<String> materialCodes) {
-        if (CollectionUtils.isEmpty(materialCodes)) {
+        if (CollUtil.isEmpty(materialCodes)) {
             return new HashMap<>();
         }
         BasicFabricLibrarySearchDTO dto = new BasicFabricLibrarySearchDTO();
@@ -205,7 +205,7 @@ public class BasicFabricLibraryServiceImpl extends BaseServiceImpl<BasicFabricLi
         dto.setCompanyCode(super.getCompanyCode());
         List<BasicFabricLibraryListVO> basicFabricLibraryList = super.getBaseMapper().getBasicFabricLibraryList(dto);
 
-        return CollectionUtils.isEmpty(basicFabricLibraryList) ? new HashMap<>() : basicFabricLibraryList.stream()
+        return CollUtil.isEmpty(basicFabricLibraryList) ? new HashMap<>() : basicFabricLibraryList.stream()
                 .collect(Collectors.toMap(BasicFabricLibraryListVO::getMaterialCode, Function.identity(), (k1, k2) -> k2));
     }
 

@@ -32,7 +32,7 @@ import com.base.sbc.module.fabric.vo.FabricPoolListVO;
 import com.base.sbc.module.fabric.vo.FabricPoolVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.commons.collections.CollectionUtils;
+import cn.hutool.core.collection.CollUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +115,7 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
 
     @Override
     public void fabricPlanningSync(String fabricPlanningId, List<FabricPlanningItemSaveDTO> fabricPlanningItems) {
-        if (CollectionUtils.isEmpty(fabricPlanningItems)) {
+        if (CollUtil.isEmpty(fabricPlanningItems)) {
             return;
         }
         Map<String, List<String>> sourceIds = fabricPoolItemService.getSourceIdByFabricPlanningId(fabricPlanningId);
@@ -127,14 +127,14 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
         IdGen idGen = new IdGen();
         sourceIds.forEach((k, v) -> {
             fabricPlanningItems.forEach(e -> {
-                if ((CollectionUtils.isNotEmpty(v) && v.contains(e.getSourceId())) || !SourceEnum.MATERIAL.getK().equals(e.getSource())) {
+                if ((CollUtil.isNotEmpty(v) && v.contains(e.getSourceId())) || !SourceEnum.MATERIAL.getK().equals(e.getSource())) {
                     return;
                 }
                 FabricPoolItem fabricPoolItem = this.getFabricPoolItem(companyCode, k, idGen, e);
                 fabricPoolItems.add(fabricPoolItem);
             });
         });
-        if (CollectionUtils.isNotEmpty(fabricPoolItems)) {
+        if (CollUtil.isNotEmpty(fabricPoolItems)) {
             fabricPoolItemService.saveBatch(fabricPoolItems);
         }
 
@@ -155,7 +155,7 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
                 .in(FabricPool::getFabricPlanningId, fabricPlanningId.keySet());
         List<FabricPool> list = super.list(qw);
 
-        if (CollectionUtils.isEmpty(list)) {
+        if (CollUtil.isEmpty(list)) {
             return;
         }
 

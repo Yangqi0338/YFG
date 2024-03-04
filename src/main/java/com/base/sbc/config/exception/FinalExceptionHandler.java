@@ -8,12 +8,12 @@ import com.base.sbc.config.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.web.ErrorAttributes;
-import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.boot.web.servlet.error.ErrorAttributes;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
 import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,12 +27,12 @@ import java.util.Map;
 @ApiIgnore
 @RestController
 public class FinalExceptionHandler implements ErrorController {
-	
+
 	Logger log = LoggerFactory.getLogger(getClass());
-	
+
 	@Autowired
 	private LocaleMessages localeMessages;
-	
+
 	@Autowired
 	private ErrorAttributes errorAttributes;
 
@@ -40,7 +40,7 @@ public class FinalExceptionHandler implements ErrorController {
 	public String getErrorPath() {
 		return "/error";
 	}
-	
+
 	/**
 	 * 主要拦截所有错误请求返回页面    变成Json
 	 * 改变service异常的拦截
@@ -72,7 +72,7 @@ public class FinalExceptionHandler implements ErrorController {
 	}
 
 	private Map<String, Object> getErrorAttributes(HttpServletRequest request, boolean includeStackTrace) {
-		RequestAttributes requestAttributes = new ServletRequestAttributes(request);
+		WebRequest requestAttributes = new ServletWebRequest(request);
 		return errorAttributes.getErrorAttributes(requestAttributes, includeStackTrace);
 	}
 }
