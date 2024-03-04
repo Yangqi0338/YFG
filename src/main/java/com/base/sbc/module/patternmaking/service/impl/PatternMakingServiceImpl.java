@@ -2004,7 +2004,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public boolean patternMakingQualityScore(Principal user, String id, BigDecimal score) {
-        PatternMaking bean = getById(id);
+        PatternMaking bean = this.getById(id);
         if (bean == null) {
             throw new OtherException("打版信息为空");
         }
@@ -2023,7 +2023,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score) {
-        PatternMaking bean = getById(id);
+        PatternMaking bean = this.getById(id);
         if (bean == null) {
             throw new OtherException("打版信息为空");
         }
@@ -2031,7 +2031,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 校验是否是样衣组长
         boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
         if (!sampleTeamLeader) {
-            //throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
+            throw new OtherException("您不是" + bean.getPatternRoom() + "的样衣组长");
         }
         PatternMaking updateBean = new PatternMaking();
         updateBean.setSampleMakingQualityScore(score);
