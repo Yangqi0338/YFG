@@ -99,4 +99,7 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*成本价", width = 20)
     private String planCostPrice;
 
+    @Excel(name = "包装形式", width = 20)
+    private String packagingForm;
+
 }
