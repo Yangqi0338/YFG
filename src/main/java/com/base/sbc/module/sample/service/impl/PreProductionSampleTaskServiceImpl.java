@@ -584,6 +584,19 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         return update(updateBean, uw);
     }
 
+    @Override
+    public boolean techRemarks(Principal user, String id, String remark) {
+        PreProductionSampleTask bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        PreProductionSampleTask updateBean = new PreProductionSampleTask();
+        updateBean.setTechRemarks(remark);
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PreProductionSampleTask::getId, id);
+        return update(updateBean, uw);
+    }
+
     /**
      * @param dto
      * @return
