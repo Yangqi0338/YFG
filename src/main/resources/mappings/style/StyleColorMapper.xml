@@ -122,7 +122,7 @@
             ts.style_name,
             ts.style_flavour_name,
             ts.designer_id,
-            ts.designer,
+            IF(ts.designer != '', SUBSTRING_INDEX(ts.designer, ',', 1), '') as designer,
             ts.technician_id,
             ts.technician_name,
             ts.brand,
