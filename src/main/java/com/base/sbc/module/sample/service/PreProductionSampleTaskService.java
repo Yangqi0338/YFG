@@ -71,6 +71,7 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
     boolean updateByDto(PreProductionSampleTaskDto dto);
 
     boolean sampleMakingScore(Principal user, String id, BigDecimal score);
+    boolean sampleQualityScore(Principal user, String id, BigDecimal score);
 
     boolean techRemarks(Principal user, String id, String remark);
 
