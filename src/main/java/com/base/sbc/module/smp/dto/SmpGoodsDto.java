@@ -304,4 +304,14 @@ public class SmpGoodsDto extends SmpBaseDto {
      * 指定面料集合
      */
     private List<StyleSpecFabric> styleSpecFabricList;
+    /**
+     * 外部颜色code
+     */
+    @ApiModelProperty(value = "外部颜色code")
+    private String outsideColorCode;
+    /**
+     * 外部颜色名称
+     */
+    @ApiModelProperty(value = "外部颜色名称")
+    private String outsideColorName;
 }

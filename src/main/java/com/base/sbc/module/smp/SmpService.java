@@ -1671,6 +1671,8 @@ public class SmpService {
                     StyleColorAgent styleColorAgent = sizeMap.get(styleColor.getId() + basicsdatumSize.getCode());
                     smpSize.setOutsideBarcode(styleColorAgent.getOutsideBarcode());
                     smpSize.setOutsideSizeCode(styleColorAgent.getOutsideSizeCode());
+                    smpGoodsDto.setOutsideColorCode(styleColorAgent.getOutsideColorCode());
+                    smpGoodsDto.setOutsideColorName(styleColorAgent.getOutsideColorName());
                 }
                 smpSizes.add(smpSize);
             }
