@@ -169,7 +169,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             if (list != null && !list.isEmpty()) {
                                 categoryDotList.add(list.get(0));
                             }else {
-                                if (StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s))) && !"\\".equals(jsonObject.getString(String.valueOf(s))) && !"/".equals(jsonObject.getString(String.valueOf(s)))){
+                                if (!"\\".equals(jsonObject.getString(String.valueOf(s))) && !"/".equals(jsonObject.getString(String.valueOf(s)))){
                                     throw new RuntimeException("中类:"+jsonObject.getString(String.valueOf(s))+"不存在");
 
                                 }
@@ -340,7 +340,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 throw new RuntimeException(stringStringHashMap.get("大类名称")+"下的品类"+ stringStringHashMap.get("品类名称")+"不存在");
             }
 
-            if (StringUtils.isNotBlank(stringStringHashMap.get("中类名称")) && !"\\".equals(stringStringHashMap.get("中类名称")) && !"/".equals(stringStringHashMap.get("中类名称"))){
+            if (!"\\".equals(stringStringHashMap.get("中类名称")) && !"/".equals(stringStringHashMap.get("中类名称"))){
                 if (basicStructureTreeVo1.getChildren() ==null || basicStructureTreeVo1.getChildren().isEmpty()){
                     throw new RuntimeException(stringStringHashMap.get("中类名称")+"下的中类"+ stringStringHashMap.get("中类名称")+"不存在");
                 }
