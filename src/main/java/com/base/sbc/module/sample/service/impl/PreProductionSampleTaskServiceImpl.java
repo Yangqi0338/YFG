@@ -463,6 +463,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus1.setNode("产前样衣任务");
             nodeStatus1.setStatus("裁剪开始");
             nodeStatus1.setStartFlg("1");
+            nodeStatus1.setEndDate(dto.getCutterStartTime());
             nodeStatus1.setStartDate(dto.getCutterStartTime());
             nodeStatusService.saveOrUpdate(nodeStatus1, queryWrapper1);
         }else {
@@ -480,7 +481,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus2.setNode("产前样衣任务");
             nodeStatus2.setStatus("裁剪完成");
             nodeStatus2.setEndFlg("1");
+
             nodeStatus2.setStartDate(dto.getCutterEndTime());
+            nodeStatus2.setEndDate(dto.getCutterStartTime());
             nodeStatusService.saveOrUpdate(nodeStatus2, queryWrapper2);
         }else {
             nodeStatusService.remove(queryWrapper2);
@@ -496,6 +499,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
            nodeStatus3.setNode("产前样衣任务");
            nodeStatus3.setStatus("车缝进行中");
            nodeStatus3.setStartFlg("1");
+           nodeStatus3.setEndDate(dto.getCutterStartTime());
            nodeStatus3.setStartDate(dto.getStitchStartTime());
            nodeStatusService.saveOrUpdate(nodeStatus3, queryWrapper3);
        }else {
@@ -512,6 +516,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus4.setNode("产前样衣任务");
             nodeStatus4.setStatus("车缝完成");
             nodeStatus4.setEndFlg("1");
+            nodeStatus4.setEndDate(dto.getCutterStartTime());
             nodeStatus4.setStartDate(dto.getStitchEndTime());
             nodeStatusService.saveOrUpdate(nodeStatus4, queryWrapper4);
         }else {
