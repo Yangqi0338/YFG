@@ -93,6 +93,8 @@ public class BasicsdatumColourLibraryAgentServiceImpl extends BaseServiceImpl<Ba
         queryWrapper.andLike(dto.getSearch(), "t.colour_code", "t.colour_name");
         queryWrapper.notEmptyEq("t.brand", dto.getBrand());
 
+        queryWrapper.eq("t.del_flag","0");
+
         queryWrapper.orderByDesc("t.create_date");
         Page<BasicsdatumColourLibraryAgentVo> objects = PageHelper.startPage(dto);
         getBaseMapper().findList(queryWrapper);
