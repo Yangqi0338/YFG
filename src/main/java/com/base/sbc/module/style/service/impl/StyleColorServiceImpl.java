@@ -1986,12 +1986,40 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return tagPrintings;
     }
 
+    @Transactional
     @Override
     public void agentDelete(String id) {
         //状态校验
         StyleColorAgent byId = styleColorAgentService.getById(id);
-        if(!"0".equals(byId.getStatus())){
+        if (!"0".equals(byId.getStatus())) {
             throw new OtherException("只有未下发时才能删除");
+        }
+        String styleColorId = byId.getStyleColorId();
+        StyleColor styleColor = styleColorService.getById(styleColorId);
+        if (styleColor != null) {
+            //删除配色
+            styleColorService.removeById(styleColorId);
+            String styleId = styleColor.getStyleId();
+            //删除设计款
+            styleService.removeById(styleId);
+            QueryWrapper<PackInfo> packInfoQueryWrapper = new QueryWrapper<>();
+            packInfoQueryWrapper.eq("foreign_id", styleId);
+            packInfoQueryWrapper.last(" limit 1 ");
+            PackInfo packInfoUpdate = packInfoService.getOne(packInfoQueryWrapper);
+            if (packInfoUpdate != null) {
+                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfoUpdate.getId(), baseController.getUserCompany());
+                if (stylePricingVO != null) {
+                    //删除款式定价信息
+                    stylePricingService.removeById(stylePricingVO.getStylePricingId());
+                }
+                //删除大货资料包信息
+                packInfoService.removeById(packInfoUpdate.getId());
+            }
+
+            QueryWrapper<HangTag> hangTagQueryWrapper = new QueryWrapper<>();
+            hangTagQueryWrapper.eq("bulk_style_no", styleColor.getStyleNo());
+            //删除款式定价
+            hangTagService.remove(hangTagQueryWrapper);
         }
         styleColorAgentService.removeById(id);
     }

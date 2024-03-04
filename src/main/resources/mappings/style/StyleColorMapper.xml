@@ -338,7 +338,7 @@
                  left join t_basicsdatum_size tbs
                            ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 and
                               tbs.hangtags = ts.default_size
-                 left join t_hang_tag tha on bsn.bulk_style_no = tsc.style_no and tha.del_flag = '0'
+                 left join t_hang_tag tha on tha.bulk_style_no = tsc.style_no and tha.del_flag = '0'
             ${ew.customSqlSegment}
     </select>
 
