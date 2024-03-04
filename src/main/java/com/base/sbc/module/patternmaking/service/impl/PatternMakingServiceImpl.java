@@ -2004,7 +2004,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public boolean patternMakingQualityScore(Principal user, String id, BigDecimal score) {
-        PatternMaking bean = getById(id);
+        PatternMaking bean = this.getById(id);
         if (bean == null) {
             throw new OtherException("打版信息为空");
         }
@@ -2023,7 +2023,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public boolean sampleMakingQualityScore(Principal user, String id, BigDecimal score) {
-        PatternMaking bean = getById(id);
+        PatternMaking bean = this.getById(id);
         if (bean == null) {
             throw new OtherException("打版信息为空");
         }

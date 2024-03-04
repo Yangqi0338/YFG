@@ -22,6 +22,7 @@ import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.patternmaking.dto.ScoreDto;
+import com.base.sbc.module.patternmaking.dto.TechRemarksDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
@@ -178,6 +179,18 @@ public class PreProductionSampleController extends BaseController{
     @PostMapping("/task/sampleMakingScore")
     public boolean sampleMakingScore(Principal user, @Validated @RequestBody ScoreDto dto) {
         return preProductionSampleTaskService.sampleMakingScore(user, dto.getId(), dto.getScore());
+    }
+
+    @ApiOperation(value = "样衣工的质量打分", notes = "")
+    @PostMapping("/task/sampleQualityScore")
+    public boolean sampleQualityScore(Principal user, @Validated @RequestBody ScoreDto dto) {
+        return preProductionSampleTaskService.sampleQualityScore(user, dto.getId(), dto.getScore());
+    }
+
+    @ApiOperation(value = "后技术备注说明", notes = "")
+    @PostMapping("/task/techRemarks")
+    public boolean techRemarks(Principal user, @RequestBody TechRemarksDto dto) {
+        return preProductionSampleTaskService.techRemarks(user, dto.getId(), dto.getRemark());
     }
 
     @ApiOperation(value = "样衣图上传", notes = "")

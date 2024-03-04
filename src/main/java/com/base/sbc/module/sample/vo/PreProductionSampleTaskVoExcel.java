@@ -119,6 +119,13 @@ public class PreProductionSampleTaskVoExcel {
     private Date stitchEndTime;
 
     /**
+     * 样衣工作量评分
+     */
+    @ApiModelProperty(value = "样衣工作量评分")
+    @Excel(name = "样衣工作量评分")
+    private BigDecimal sampleMakingScore;
+
+    /**
      * 样衣质量评分
      */
     @ApiModelProperty(value = "样衣质量评分")
