@@ -37,6 +37,9 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
@@ -161,6 +164,7 @@ public class SmpService {
 
     private final BasicsdatumSupplierService basicsdatumSupplierService;
     private final HangTagServiceImpl hangTagService;
+    private final FieldValService fieldValService;
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -351,6 +355,20 @@ public class SmpService {
                     }
                 });
             }
+
+            //查询下单阶段动态字段  取 水洗字段和自主研发版型字段
+            List<FieldVal> fvList = fieldValService.list(styleColor.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+            if(CollUtil.isEmpty(fvList)){
+                fvList = fieldValService.list(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+            }
+            Map<String, String> oldFvMap = fvList.stream().collect(Collectors.toMap(FieldVal::getFieldName, FieldVal::getVal,(a, b) -> b));
+            if(oldFvMap.containsKey("plateType")){
+                smpGoodsDto.setPlateType(oldFvMap.get("plateType"));
+            }
+            if(oldFvMap.containsKey("GarmentWash")){
+                smpGoodsDto.setGarmentWash(oldFvMap.get("GarmentWash"));
+            }
+
             //生产类型
             smpGoodsDto.setProductionType(style.getDevtType());
             smpGoodsDto.setProductionTypeName(style.getDevtTypeName());
