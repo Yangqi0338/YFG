@@ -26,6 +26,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.business.style.BomStatus;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -1270,7 +1271,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyStyleColor.setBom(styleColor.getDesignNo() + StrUtil.DASHED + (count + 1));
         copyStyleColor.setWareCode(null);
         copyStyleColor.setScmSendFlag(BaseGlobal.NO);
-        copyStyleColor.setBomStatus(BaseGlobal.STATUS_NORMAL);
+        copyStyleColor.setBomStatus(BomStatus.SAMPLE);
         copyStyleColor.setPrincipalStyleNo("");
         copyStyleColor.setPrincipalStyle("");
         copyStyleColor.setAccessoryNo("");
@@ -1514,7 +1515,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         styleColor.setId(null);
         styleColor.setScmSendFlag(null);
         styleColor.setBom(null);
-        styleColor.setBomStatus(BaseGlobal.NO);
+        styleColor.setBomStatus(BomStatus.SAMPLE);
         styleColor.setStyleColorPic("");
 //        查询款式
         Style style = styleService.getById(styleColor.getStyleId());

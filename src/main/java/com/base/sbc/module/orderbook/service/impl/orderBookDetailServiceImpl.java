@@ -417,8 +417,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             packInfo.setColor(styleColor.getColorName());
             packInfoService.updateById(packInfo);
 
-            String packType = "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
-            PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
+            PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), styleColor.getBomStatus().getPackType().getCode());
             if (enableVersion != null) {
                 PackBom packBom = packBomService.findOne(new QueryWrapper<PackBom>()
                         .eq("bom_version_id", enableVersion.getId())

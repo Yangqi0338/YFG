@@ -274,15 +274,4 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
 
-    @Override
-    public String getFabricState(){
-        if(StrUtil.isBlank(this.fabricState)) return "";
-        switch (this.fabricState) {
-            case "0": return "库存";
-            case "1": return "现货";
-            case "2": return "做货";
-            default: return "";
-        }
-    }
-
 }

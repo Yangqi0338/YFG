@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.enums.business.style.BomStatus;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
@@ -183,7 +184,7 @@ public interface PackInfoService extends PackBaseService<PackInfo> {
      *
      * @param packInfoId
      */
-    void changeBomStatus(String packInfoId, String bomStatus);
+    void changeBomStatus(String packInfoId, BomStatus bomStatus);
 
     PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto);
 
