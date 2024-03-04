@@ -161,11 +161,18 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         }
                         if (s == 2) {
                             // System.out.println("中类:" + jsonObject.getString(s));
-                            List<BasicCategoryDot> list = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(String.valueOf(s)), "2");
+                            List<BasicCategoryDot> list =new ArrayList<>();
+                            if (StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))){
+                                list  = ccmFeignService.getCategorySByNameAndLevel("品类", jsonObject.getString(String.valueOf(s)), "2");
+
+                            }
                             if (list != null && !list.isEmpty()) {
                                 categoryDotList.add(list.get(0));
                             }else {
-                                throw new RuntimeException("中类:"+jsonObject.getString(String.valueOf(s))+"不存在");
+                                if (StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))){
+                                    throw new RuntimeException("中类:"+jsonObject.getString(String.valueOf(s))+"不存在");
+
+                                }
                             }
                         }
                         if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
