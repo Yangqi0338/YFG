@@ -522,4 +522,15 @@ public class StyleColorAgentVo {
     @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
     private String orderMarkingStatus;
 
+    /**
+     * 包装形式编码
+     */
+    @ApiModelProperty(value = "包装形式编码")
+    private String packagingFormCode;
+    /**
+     * 包装形式
+     */
+    @ApiModelProperty(value = "包装形式")
+    private String packagingForm;
+
 }
