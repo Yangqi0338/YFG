@@ -3033,7 +3033,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //判断是否是图片
             String originalFilename = file.getOriginalFilename();
             CommonUtils.isImage(originalFilename, true);
-            String styleNo = FileUtil.mainName(originalFilename).replace("_","-");
+            String styleNo = FileUtil.mainName(originalFilename);
 
             if(styleNos.contains(styleNo)){
                 throw new OtherException("导入文件名不能重复");
