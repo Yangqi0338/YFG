@@ -85,15 +85,17 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         queryWrapper.notEmptyLike("model", dto.getModel());
         queryWrapper.notEmptyLike("internal_size", dto.getInternalSize());
         queryWrapper.notEmptyLike("create_name", dto.getCreateName());
-        queryWrapper.notEmptyLike("model_type", dto.getModelType());
         queryWrapper.notEmptyEq("status", dto.getStatus());
         queryWrapper.between("create_date",dto.getCreateDate());
         if (StringUtils.isNotEmpty(dto.getAll())){
             if("0".equals(dto.getAll())){
                 queryWrapper.eq("model_type_code","").or().isNull("model_type_code");
             }else {
-                queryWrapper.like("model_type_code", dto.getModelType()).or().eq("model_type_code","").or().isNull("model_type_code");
-
+                if (StrUtil.isNotEmpty(dto.getModelTypeExt())) {
+                    queryWrapper.notEmptyLike("model_type_code", dto.getModelType()).like("model_type", dto.getModelTypeExt());
+                }else{
+                    queryWrapper.like("model_type_code", dto.getModelType()).or().eq("model_type_code","").or().isNull("model_type_code");
+                }
             }
         }
         queryWrapper.likeList(StrUtil.isNotBlank(dto.getModelTypeCode()),"model_type_code",StringUtils.convertList(dto.getModelTypeCode()));
