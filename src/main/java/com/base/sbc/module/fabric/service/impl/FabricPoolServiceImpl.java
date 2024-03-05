@@ -34,7 +34,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import cn.hutool.core.collection.CollUtil;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -179,8 +178,6 @@ public class FabricPoolServiceImpl extends BaseServiceImpl<FabricPoolMapper, Fab
         super.getBaseMapper().deleteById(id);
     }
 
-
-    @NotNull
     private FabricPoolItem getFabricPoolItem(String companyCode, String k, IdGen idGen, FabricPlanningItemSaveDTO e) {
         FabricPoolItem fabricPoolItem = CopyUtil.copy(e, FabricPoolItem.class);
         fabricPoolItem.setFabricPoolId(k);

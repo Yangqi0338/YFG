@@ -47,7 +47,6 @@ import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -287,7 +286,6 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         sampleItemService.updateBatchById(sampleItems);
     }
 
-    @NotNull
     private List<SampleItem> getSampleItems(List<String> sampleItemId) {
         List<SampleItem> sampleItems = sampleItemService.listByIds(sampleItemId);
         boolean flag = sampleItems.stream().anyMatch(e -> !SampleItemStatusEnum.IN_LIBRARY.getK().equals(e.getStatus()));
@@ -377,8 +375,6 @@ public class SampleServiceImpl extends BaseServiceImpl<SampleMapper, Sample> imp
         return count.equals(borrowCount) ? 0 : borrowCount < count ? 1 : 2;
     }
 
-
-    @NotNull
     private HashMap<String, Sample> updateSampleItem(List<SampleItem> sampleItems) {
         HashMap<String, Sample> sampleMap = new HashMap<>();
         sampleItems.forEach(sampleItem -> {

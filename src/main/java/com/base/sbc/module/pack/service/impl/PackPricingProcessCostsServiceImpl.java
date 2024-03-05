@@ -31,7 +31,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -156,7 +155,6 @@ public class PackPricingProcessCostsServiceImpl extends AbstractPackBaseServiceI
         super.saveOrUpdateBatch(packPricingProcessCostsList);
     }
 
-    @NotNull
     private Map<String, String> getIdBySourceIds(List<String> sourceIds, String foreignId) {
         if (CollectionUtils.isEmpty(sourceIds)) {
             return new HashMap<>();
