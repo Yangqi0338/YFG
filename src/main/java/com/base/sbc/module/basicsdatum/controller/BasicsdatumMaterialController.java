@@ -8,6 +8,7 @@ package com.base.sbc.module.basicsdatum.controller;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -21,9 +22,11 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.dto.*;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumIngredient;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumMaterialBizTypeEnum;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumIngredientService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceDetailService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.vo.*;
@@ -95,6 +98,8 @@ public class BasicsdatumMaterialController extends BaseController {
 
     private final CcmFeignService ccmFeignService;
 
+    private final BasicsdatumIngredientService ingredientService;
+
     Pattern pattern = Pattern.compile("^(.*?)([0-9]*\\.?[0-9]+)%?(.*?)(?:\\(([^)]*)\\))?$");
     Pattern pattern2 = Pattern.compile("(.*?)(\\S+?)(?:\\(([^)]*)\\))?\\s+([0-9]*\\.?[0-9]+)");
 
@@ -103,9 +108,11 @@ public class BasicsdatumMaterialController extends BaseController {
     public List<BasicsdatumMaterialIngredient> formatIngredient(
             @RequestParam(value = "value", required = false) String value,
             @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "materialCode", required = false) String materialCode) {
+            @RequestParam(value = "materialCode", required = false) String materialCode,
+            @RequestParam(value = "needCode", required = false) Boolean needCode
+    ) {
         //String str = IngredientUtils.format(value);
-        return formatToList(value, type, materialCode);
+        return formatToList(value, type, materialCode, needCode);
     }
 
     /**
@@ -114,7 +121,7 @@ public class BasicsdatumMaterialController extends BaseController {
      * @param str
      * @return
      */
-    public List<BasicsdatumMaterialIngredient> formatToList(String str, String type, String materialCode) {
+    public List<BasicsdatumMaterialIngredient> formatToList(String str, String type, String materialCode, Boolean needCode) {
         String[] strs = str.split(",");
         List<BasicsdatumMaterialIngredient> list = new ArrayList<>();
         List<BasicBaseDict> pd021DictList = ccmFeignService.getDictInfoToList(SecondIngredientController.uniqueDictCode);
@@ -129,8 +136,7 @@ public class BasicsdatumMaterialController extends BaseController {
                 String note = matcher.group(4) == null ? "" : matcher.group(4).trim();
                 in.setMaterialKindName(kindName);
                 if (StrUtil.isNotBlank(kindName)) {
-                    BasicBaseDict baseDict = pd021DictList.stream().filter(it -> it.getName().equals(kindName)).findFirst().orElseThrow(() -> new OtherException("非法的二级分类值"));
-                    in.setMaterialKindCode(baseDict.getValue());
+                    pd021DictList.stream().filter(it -> it.getName().equals(kindName)).findFirst().ifPresent(it-> in.setMaterialKindCode(it.getValue()));
                 }
                 in.setRatio(ratio);
                 in.setName(name);
@@ -152,8 +158,7 @@ public class BasicsdatumMaterialController extends BaseController {
                     BigDecimal ratio = BigDecimalUtil.valueOf(matcher.group(4));
                     in.setMaterialKindName(kindName);
                     if (StrUtil.isNotBlank(kindName)) {
-                        BasicBaseDict baseDict = pd021DictList.stream().filter(it -> it.getName().equals(kindName)).findFirst().orElseThrow(() -> new OtherException("非法的二级分类值"));
-                        in.setMaterialKindCode(baseDict.getValue());
+                        pd021DictList.stream().filter(it -> it.getName().equals(kindName)).findFirst().ifPresent(it-> in.setMaterialKindCode(it.getValue()));
                     }
                     in.setSay(note);
                     in.setRatio(ratio);
@@ -163,6 +168,27 @@ public class BasicsdatumMaterialController extends BaseController {
                     list.add(in);
                 }
             }
+        }
+        if (needCode) {
+            List<BasicBaseDict> ingredientsRemarksDictList = ccmFeignService.getDictInfoToList("IngredientsRemarks");
+            List<BasicsdatumIngredient> ingredientList = ingredientService.list(new LambdaQueryWrapper<BasicsdatumIngredient>()
+                    .select(BasicsdatumIngredient::getCode, BasicsdatumIngredient::getIngredient)
+                    .in(BasicsdatumIngredient::getIngredient, list.stream().map(BasicsdatumMaterialIngredient::getName).collect(Collectors.toList()))
+            );
+            list.forEach(materialIngredient-> {
+                // 成分名称
+                ingredientList.stream().filter(it->
+                    it.getIngredient().equals(materialIngredient.getName())
+                ).findFirst().ifPresent(ingredient-> {
+                    materialIngredient.setCode(ingredient.getCode());
+                });
+                // 成分备注
+                ingredientsRemarksDictList.stream().filter(it->
+                        it.getName().equals(materialIngredient.getSay())
+                ).findFirst().ifPresent(ingredientsRemarks-> {
+                    materialIngredient.setSayCode(ingredientsRemarks.getValue());
+                });
+            });
         }
         return list;
     }
