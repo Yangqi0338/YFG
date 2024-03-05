@@ -231,6 +231,11 @@ public class TagPrinting {
     private List<Size> size;
 
     /**
+     * 物料名称（多个使用,分割）
+     */
+    private String materialCodeNames;
+
+    /**
      * 尺码明细类
      */
     @Data

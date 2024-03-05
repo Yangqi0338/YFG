@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
@@ -88,6 +89,7 @@ import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
 import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -101,6 +103,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
+import sun.nio.cs.ext.PCK;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -743,6 +746,36 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					tagPrinting.setColorDescription(styleColor.getColorName());
 					// 颜色编码
 					tagPrinting.setColorCode(styleColor.getColorCode());
+					// 根据款号查询 styleColor
+					String materialCodeNames = null;
+					if ("1".equals(styleColor.getBomStatus())) {
+						materialCodeNames = "";
+						// 如果已经转大货了 才需要查询物料信息并返回
+						// 根据款式编码获取资料包信息
+						PackInfo packInfo = packInfoService.getOne(
+								new LambdaQueryWrapper<PackInfo>()
+										.eq(PackInfo::getStyleNo, styleColor.getStyleNo())
+						);
+                        if (ObjectUtil.isNotEmpty(packInfo)) {
+                            // 根据资料包的 id 查询物料信息
+                            List<PackBom> packBomList = packBomService.list(
+                                    new LambdaQueryWrapper<PackBom>()
+                                            .eq(PackBom::getForeignId, packInfo.getId())
+                                            .eq(PackBom::getPackType,"packBigGoods")
+                            );
+                            if (ObjectUtil.isNotEmpty(packBomList)) {
+								materialCodeNames = CollUtil.join(
+										packBomList
+												.stream()
+												.map(PackBom::getMaterialCodeName)
+												.filter(item -> item.contains("特殊吊牌"))
+												.collect(Collectors.toList()),
+										",");
+
+							}
+                        }
+					}
+					tagPrinting.setMaterialCodeNames(materialCodeNames);
 				}
 
 				// 大货款号
