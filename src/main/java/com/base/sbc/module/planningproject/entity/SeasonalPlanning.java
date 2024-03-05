@@ -24,6 +24,8 @@ public class SeasonalPlanning extends BaseDataEntity<String> {
     private String  seasonId;
     @ApiModelProperty(value = "产品季名称")
     private String seasonName;
+    @ApiModelProperty(value = "产品季编码")
+    private String seasonCode;
 
     @ApiModelProperty(value = "状态（0：启用，1：未启用）")
     private String status;

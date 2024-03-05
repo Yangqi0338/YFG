@@ -8,6 +8,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.entity.BasicDictDepend;
+import com.base.sbc.client.ccm.entity.BasicDictDependsQueryDto;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -34,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -50,6 +53,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
     private final OrderBookDetailService orderBookDetailService;
 
+
     @Override
     @Transactional
     public void importExcel(MultipartFile file, SeasonalPlanningSaveDto seasonalPlanningSaveDto) throws IOException {
@@ -57,6 +61,13 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
         JSONArray jsonArray = new JSONArray();
         List<BasicBaseDict> c8Band = ccmFeignService.getDictInfoToList("C8_Band");
+        BasicDictDependsQueryDto basicDictDependsQueryDto  = new BasicDictDependsQueryDto();
+        basicDictDependsQueryDto.setPageNum(1);
+        basicDictDependsQueryDto.setPageSize(9999);
+        basicDictDependsQueryDto.setDictTypeName("月份");
+        //获取字典依赖管理的配置
+        List<BasicDictDepend> dictDependsList = ccmFeignService.getDictDependsList(basicDictDependsQueryDto);
+        Map<String, String> dictDependsMap = dictDependsList.stream().collect(Collectors.toMap(BasicDictDepend::getDependCode, BasicDictDepend::getDictCode));
 
         List<String> bandNames = new ArrayList<>();
         List<String> orders = new ArrayList<>();
@@ -90,12 +101,25 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     while (jsonObject.containsKey(String.valueOf(s))){
                         if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
                             // System.out.println("上市波段:" + jsonObject.getString(s));
+                            String bandName = jsonObject.getString(String.valueOf(s));
+                            String s1 = bandName.split("")[0];
+                            if (Integer.parseInt(s1) <10){
+                                s1 ="0"+s1;
+                            }
+                            String seasonCode = seasonalPlanningSaveDto.getSeasonCode();
+                            String s2 = dictDependsMap.get(seasonCode + s1);
+
+                            if (StringUtils.isNotBlank(s2)){
+                                throw new RemoteException("波段"+bandName+"在字典依赖月份配置不存在");
+                            }
+
                             bandNames.add(jsonObject.getString(String.valueOf(s)));
                             bandNames.add(jsonObject.getString(String.valueOf(s)));
                         }
                         integerTreeSet.add(s);
                         s++;
                     }
+
                     break;
                 case 2:
                      s =0;
