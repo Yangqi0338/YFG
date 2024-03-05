@@ -815,7 +815,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packInfoStatusService.updateById(packInfoStatus);
             // 插入日志
             attachmentService.saveOperaLog("生成工艺说明PDF",packInfoStatus.getPackType() + StrUtil.DASHED + "工艺说明PDF",
-                    attachmentVo.getForeignId(), null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
+                    packInfoStatus.getForeignId(), null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
             return attachmentVo;
         } catch (Exception e) {
             e.printStackTrace();
