@@ -37,7 +37,6 @@ import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.RFIDType;
-import com.base.sbc.config.enums.business.style.BomStatus;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
@@ -529,7 +528,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             packInfoStatusService.updateById(packInfoStatus);
             //updateById(packInfo);
             //设置bom 状态
-            changeBomStatus(packInfo.getId(), BomStatus.BULK);
+            changeBomStatus(packInfo.getId(), BasicNumber.ONE.getNumber());
 
             /*配饰款会下发大货阶段的物料*/
             StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
@@ -557,7 +556,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void changeBomStatus(String packInfoId, BomStatus bomStatus) {
+    public void changeBomStatus(String packInfoId, String bomStatus) {
         PackInfo byId = getById(packInfoId);
         //修改配色的bom 状态
         if (byId == null) {
@@ -1286,11 +1285,11 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 bigGoodsPs.setToDesignDate(nowDate);
                 designPs.setToDesignDate(nowDate);
                 //设置bom 状态
-                changeBomStatus(packInfo.getId(), BomStatus.BULK);
+                changeBomStatus(packInfo.getId(), BasicNumber.ZERO.getNumber());
                 /*修改配色中的状态*/
-//                StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
-//                styleColor.setBomStatus(BasicNumber.ZERO.getNumber());
-//                styleColorMapper.updateById(styleColor);
+                StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
+                styleColor.setBomStatus(BasicNumber.ZERO.getNumber());
+                styleColorMapper.updateById(styleColor);
                 /*         PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
                  *//*反审后物料清单的状态改为可编辑*//*
                 UpdateWrapper updateWrapper = new UpdateWrapper();

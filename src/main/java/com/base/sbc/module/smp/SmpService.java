@@ -207,8 +207,7 @@ public class SmpService {
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
                 throw new OtherException(styleColor.getStyleNo()+"吊牌价不能为空或者等于0");
             }
-            String packType = styleColor.getBomStatus().getPackType().getCode();
-            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", packType));
+            PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", styleColor.getBom()).eq("pack_type", "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS));
             Style style = new Style();
             if (packInfo!=null){
                 //产前样查询 拿最早的工艺部接收正确样时间
@@ -434,6 +433,7 @@ public class SmpService {
                     smpGoodsDto.setSeriesName(stylePricingVO.getSeriesName());
                     smpGoodsDto.setComposition(stylePricingVO.getIngredient());
                 }
+                String packType = "0".equals(styleColor.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
                 PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
                 if (enableVersion != null) {
                     List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));

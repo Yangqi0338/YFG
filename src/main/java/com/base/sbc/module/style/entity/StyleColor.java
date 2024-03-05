@@ -11,8 +11,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.business.RFIDType;
-import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.config.enums.business.style.BomStatus;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -258,7 +256,7 @@ public class StyleColor extends BaseDataEntity<String> {
     private String meetFlag;
     /** bom状态:(0样品,1大货) */
     @ApiModelProperty(value = "bom状态:(0样品,1大货)"  )
-    private BomStatus bomStatus;
+    private String bomStatus;
     /** 下稿设计师 */
     @ApiModelProperty(value = "下稿设计师"  )
     private String senderDesignerId;
