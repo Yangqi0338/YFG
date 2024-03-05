@@ -761,9 +761,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                             List<PackBom> packBomList = packBomService.list(
                                     new LambdaQueryWrapper<PackBom>()
                                             .eq(PackBom::getForeignId, packInfo.getId())
+                                            .eq(PackBom::getPackType,"packBigGoods")
                             );
                             if (ObjectUtil.isNotEmpty(packBomList)) {
-								materialCodeNames = CollUtil.join(packBomList.stream().map(PackBom::getMaterialCodeName).collect(Collectors.toList()), ",");
+								materialCodeNames = CollUtil.join(
+										packBomList
+												.stream()
+												.map(PackBom::getMaterialCodeName)
+												.filter(item -> item.contains("特殊吊牌"))
+												.collect(Collectors.toList()),
+										",");
+
 							}
                         }
 					}
