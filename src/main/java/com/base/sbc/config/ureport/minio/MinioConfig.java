@@ -1,5 +1,6 @@
 package com.base.sbc.config.ureport.minio;
 
+import io.minio.MinioAsyncClient;
 import io.minio.MinioClient;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;

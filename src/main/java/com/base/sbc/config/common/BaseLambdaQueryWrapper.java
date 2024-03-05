@@ -1,6 +1,7 @@
 package com.base.sbc.config.common;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -12,9 +13,9 @@ import com.baomidou.mybatisplus.core.conditions.segments.NormalSegmentList;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import cn.hutool.core.lang.Pair;
-import org.bouncycastle.util.Arrays;
 import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +71,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
     }
 
     public <R> BaseLambdaQueryWrapper<T> between(SFunction<T, R> column, String[] dates) {
-        if (!Arrays.isNullOrEmpty(dates)) {
+        if (!ArrayUtil.isEmpty(dates)) {
             this.and(i-> {
                 i.ge(!StringUtils.isEmpty(dates[0]), column, dates[0]);
                 if (dates.length > 1) {

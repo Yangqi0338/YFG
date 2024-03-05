@@ -4,8 +4,6 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
-import net.sf.jmimemagic.Magic;
-import net.sf.jmimemagic.MagicMatch;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -218,8 +216,7 @@ public class ImgUtils {
                         file = new File(newPath);
                     }
 
-                    MagicMatch match = Magic.getMagicMatch(file, false, true);
-                    String contentType = match.getMimeType();
+					String contentType = FileUtil.getMimeType(file.toPath());
 
 					String strBuf = "\r\n" + "--" + BOUNDARY + "\r\n" +
 							"Content-Disposition: form-data; name=\"" + inputName + "\"; filename=\"" + filename + "\"\r\n" +
