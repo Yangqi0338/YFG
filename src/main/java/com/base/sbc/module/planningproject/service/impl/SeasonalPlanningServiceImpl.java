@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -67,7 +68,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         basicDictDependsQueryDto.setDictTypeName("月份");
         //获取字典依赖管理的配置
         List<BasicDictDepend> dictDependsList = ccmFeignService.getDictDependsList(basicDictDependsQueryDto);
-        Map<String, String> dictDependsMap = dictDependsList.stream().collect(Collectors.toMap(BasicDictDepend::getDependCode, BasicDictDepend::getDictCode));
+        Map<String, BasicDictDepend> dictDependsMap = dictDependsList.stream().collect(Collectors.toMap(map->map.getDictCode()+map.getDependCode(), Function.identity()));
 
         List<String> bandNames = new ArrayList<>();
         List<String> orders = new ArrayList<>();
@@ -107,9 +108,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                 s1 ="0"+s1;
                             }
                             String seasonCode = seasonalPlanningSaveDto.getSeasonCode();
-                            String s2 = dictDependsMap.get(seasonCode + s1);
+                            BasicDictDepend basicDictDepend = dictDependsMap.get(  s1+seasonCode);
 
-                            if (StringUtils.isNotBlank(s2)){
+                            if (basicDictDepend==null){
                                 throw new RemoteException("波段"+bandName+"在字典依赖月份配置不存在");
                             }
 

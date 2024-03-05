@@ -357,7 +357,7 @@ public class CcmFeignService {
         String dictDependsList = ccmService.getDictDependsList(basicDictDependsQueryDto.getDictTypeName(), basicDictDependsQueryDto.getPageNum(), basicDictDependsQueryDto.getPageSize());
         JSONObject jsonObject = JSON.parseObject(dictDependsList);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
-            list = jsonObject.getJSONArray("data").toJavaList(BasicDictDepend.class);
+            list = jsonObject.getJSONObject("data").getJSONArray("list").toJavaList(BasicDictDepend.class);
         }
         return list;
     }

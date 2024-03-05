@@ -1,5 +1,6 @@
 package com.base.sbc.module.planningproject.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,6 +26,7 @@ public class SeasonalPlanning extends BaseDataEntity<String> {
     @ApiModelProperty(value = "产品季名称")
     private String seasonName;
     @ApiModelProperty(value = "产品季编码")
+    @TableField(exist = false)
     private String seasonCode;
 
     @ApiModelProperty(value = "状态（0：启用，1：未启用）")
