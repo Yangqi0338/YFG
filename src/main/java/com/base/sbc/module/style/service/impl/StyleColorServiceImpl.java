@@ -2004,6 +2004,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleService.removeById(styleId);
             QueryWrapper<PackInfo> packInfoQueryWrapper = new QueryWrapper<>();
             packInfoQueryWrapper.eq("foreign_id", styleId);
+            packInfoQueryWrapper.eq("del_flag", 0);
             packInfoQueryWrapper.last(" limit 1 ");
             PackInfo packInfoUpdate = packInfoService.getOne(packInfoQueryWrapper);
             if (packInfoUpdate != null) {
@@ -2021,7 +2022,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //删除款式定价
             hangTagService.remove(hangTagQueryWrapper);
         }
-        styleColorAgentService.removeById(id);
+
+        styleColorAgentService.remove(new QueryWrapper<StyleColorAgent>().eq("style_color_id", styleColorId).eq("del_flag", 0));
     }
 
     @Override
@@ -3011,7 +3013,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     private static String checkData1(List<MangoStyleColorExeclDto> list, String errorInfo) {
         Map<String,String> map = new HashMap<>();
         Map<String,String> map1 = new HashMap<>();
-        Map<String,String> map2 = new HashMap<>();
         Map<String,String> map3 = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             MangoStyleColorExeclDto entity = list.get(i);
