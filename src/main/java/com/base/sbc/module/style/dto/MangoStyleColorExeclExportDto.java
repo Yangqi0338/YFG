@@ -96,4 +96,12 @@ public class MangoStyleColorExeclExportDto {
     @Excel(name = "成本价", width = 20)
     private String controlPlanCost;
 
+    @ApiModelProperty(value = "包装形式编码")
+    @Excel(name = "包装形式编码", width = 20)
+    private String packagingFormCode;
+
+    @ApiModelProperty(value = "包装形式")
+    @Excel(name = "包装形式", width = 20)
+    private String packagingForm;
+
 }

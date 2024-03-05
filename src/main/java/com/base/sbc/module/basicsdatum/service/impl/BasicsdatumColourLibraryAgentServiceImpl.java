@@ -10,6 +10,7 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -181,14 +182,16 @@ public class BasicsdatumColourLibraryAgentServiceImpl extends BaseServiceImpl<Ba
             libraryExcelDtoList.add(excelDto);
         }
 
-        List<BasicsdatumColourLibrary> colourLibraryList = colourLibraryService.listByCode(sysColorCodeList);
-        Map<String, BasicsdatumColourLibrary> colorMap = colourLibraryList.stream().collect(Collectors.toMap(BasicsdatumColourLibrary::getColourCode, o -> o));
-        for (BasicsdatumColourLibraryAgentExcelDto excelDto : libraryExcelDtoList) {
-            if (StrUtil.isNotBlank(excelDto.getSysColorCode())) {
-                if (colorMap.containsKey(excelDto.getSysColorCode())) {
-                    excelDto.setColorId(colorMap.get(excelDto.getSysColorCode()).getId());
-                } else {
-                    throw new OtherException("关联的集团颜色编码不存在"+excelDto.getSysColorCode());
+        if(CollUtil.isNotEmpty(sysColorCodeList)){
+            List<BasicsdatumColourLibrary> colourLibraryList = colourLibraryService.listByCode(sysColorCodeList);
+            Map<String, BasicsdatumColourLibrary> colorMap = colourLibraryList.stream().collect(Collectors.toMap(BasicsdatumColourLibrary::getColourCode, o -> o));
+            for (BasicsdatumColourLibraryAgentExcelDto excelDto : libraryExcelDtoList) {
+                if (StrUtil.isNotBlank(excelDto.getSysColorCode())) {
+                    if (colorMap.containsKey(excelDto.getSysColorCode())) {
+                        excelDto.setColorId(colorMap.get(excelDto.getSysColorCode()).getId());
+                    } else {
+                        throw new OtherException("关联的集团颜色编码不存在"+excelDto.getSysColorCode());
+                    }
                 }
             }
         }

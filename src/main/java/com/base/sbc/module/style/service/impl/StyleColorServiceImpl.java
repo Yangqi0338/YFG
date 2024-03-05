@@ -3151,6 +3151,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             updateWrapper.eq(StylePricing::getId,stylePricingId);
             stylePricingService.update(updateWrapper);
         }
+
+        String hangTagId = styleColorAgentVo.getHangTagId();
+        if(StrUtil.isNotBlank(hangTagId)){
+            LambdaUpdateWrapper<HangTag> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(HangTag::getPackagingForm,styleColorAgentVo.getPackagingForm());
+            updateWrapper.set(HangTag::getPackagingFormCode,styleColorAgentVo.getPackagingFormCode());
+            updateWrapper.set(HangTag::getUpdateId, getUserId());
+            updateWrapper.set(HangTag::getUpdateName, getUserName());
+            updateWrapper.set(HangTag::getUpdateDate, new Date());
+            updateWrapper.eq(HangTag::getId,hangTagId);
+            hangTagService.update(updateWrapper);
+        }
     }
 
     @Override

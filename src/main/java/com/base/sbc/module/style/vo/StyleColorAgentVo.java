@@ -533,4 +533,6 @@ public class StyleColorAgentVo {
     @ApiModelProperty(value = "包装形式")
     private String packagingForm;
 
+    private String hangTagId;
+
 }
