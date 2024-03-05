@@ -98,7 +98,7 @@ public class OpenSmpController extends BaseController {
     @PostMapping("/hrUserSave")
     @ApiOperation(value = "hr-人员新增或者修改", notes = "hr-人员新增或者修改")
     public ApiResult hrSave(@RequestBody JSONObject jsonObject) {
-        SmpUser smpUser = JSONObject.parseObject(jsonObject.toJSONString(), SmpUser.class);
+        SmpUser smpUser = JSONObject.parseObject(jsonObject.getJSONObject("content").toJSONString(), SmpUser.class);
         smpUser.preInsert();
         smpUser.setCreateName("smp请求");
         smpUser.setUpdateName("smp请求");

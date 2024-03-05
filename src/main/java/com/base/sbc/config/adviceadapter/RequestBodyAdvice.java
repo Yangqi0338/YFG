@@ -1,7 +1,6 @@
 package com.base.sbc.config.adviceadapter;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.module.httplog.entity.HttpLog;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
@@ -31,7 +30,7 @@ public class RequestBodyAdvice extends RequestBodyAdviceAdapter {
         if (inputMessage.getHeaders().getContentType().toString().contains("multipart/form-data")) {
             return body;
         }
-        httpLog.setReqBody(JSONObject.from(body).toJSONString());
+        httpLog.setReqBody(JSON.toJSONString(body));
         return body;
     }
 }
