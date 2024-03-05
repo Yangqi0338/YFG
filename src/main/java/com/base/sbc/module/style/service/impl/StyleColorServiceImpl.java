@@ -1990,11 +1990,25 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public void agentDelete(String id) {
         //状态校验
-        StyleColorAgent byId = styleColorAgentService.getById(id);
-        if (!"0".equals(byId.getStatus())) {
+        StyleColorAgent styleColorAgent = styleColorAgentService.getById(id);
+        if (!"0".equals(styleColorAgent.getStatus())) {
             throw new OtherException("只有未下发时才能删除");
         }
-        String styleColorId = byId.getStyleColorId();
+        QueryWrapper<StyleColorAgent> styleColorAgentQueryWrapper = new QueryWrapper<>();
+        styleColorAgentQueryWrapper.eq("style_color_id",styleColorAgent.getStyleColorId());
+        styleColorAgentQueryWrapper.eq("del_flag",0);
+        List<StyleColorAgent> styleColorAgentList = styleColorAgentService.list(styleColorAgentQueryWrapper);
+        if (CollUtil.isNotEmpty(styleColorAgentList)) {
+            for (StyleColorAgent colorAgent : styleColorAgentList) {
+                String status = colorAgent.getStatus();
+                if (!"0".equals(status)) {
+                    throw new OtherException("存在已下发到下游系统数据，不允许删除，只允许导入修改！");
+                }
+            }
+        }
+
+
+        String styleColorId = styleColorAgent.getStyleColorId();
         StyleColor styleColor = styleColorService.getById(styleColorId);
         if (styleColor != null) {
             //删除配色
