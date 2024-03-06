@@ -12,4 +12,5 @@ import lombok.Data;
 public class SeasonalPlanningQueryDto extends Page {
     private String seasonId;
     private String channelCode;
+    private String yearName;
 }

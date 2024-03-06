@@ -42,6 +42,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         BaseQueryWrapper<CategoryPlanning> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("channel_code", categoryPlanningQueryDto.getChannelCode());
         queryWrapper.notEmptyEq("season_id", categoryPlanningQueryDto.getSeasonId());
+        queryWrapper.notEmptyLike("name", categoryPlanningQueryDto.getYearName());
         queryWrapper.orderByDesc("id");
         return queryWrapper;
     }
