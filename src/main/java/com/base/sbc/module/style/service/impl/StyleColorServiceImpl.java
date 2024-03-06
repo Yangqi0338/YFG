@@ -2332,13 +2332,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
                 //配色
 
-                String outsideColorName = dto.getOutsideColorName();
                 String outsideColorCode = dto.getOutsideColorCode();
 
                 styleColor.setStyleNo(styleColorNo);
                 QueryWrapper<BasicsdatumColourLibraryAgent>  agentQueryWrapper = new QueryWrapper<>();
                 agentQueryWrapper.eq("colour_code",outsideColorCode);
-                agentQueryWrapper.eq("colour_name",outsideColorName);
                 agentQueryWrapper.eq("del_flag","0");
                 agentQueryWrapper.eq("status","0");
                 agentQueryWrapper.eq("brand",planningSeason.getBrand());
@@ -2347,6 +2345,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                 if (colourLibraryAgent != null) {
                     String colorId = colourLibraryAgent.getColorId();
+                    styleColorAgent.setOutsideColorName(colourLibraryAgent.getColourName());
                     BasicsdatumColourLibrary basicsdatumColour = basicsdatumColourLibraryServicel.getById(colorId);
                     if (basicsdatumColour != null) {
                         styleColor.setColourLibraryId(basicsdatumColour.getId());
@@ -2422,7 +2421,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                     styleColorAgent.setOutsideBarcode(outsideBarcode);
                     styleColorAgent.setOutsideColorCode(dto.getOutsideColorCode());
-                    styleColorAgent.setOutsideColorName(dto.getOutsideColorName());
+
                     styleColorAgent.setOutsideSizeCode(dto.getOutsideSizeCode());
                 } else {
                     throw new OtherException("第"+(i+1)+"行,找不到对应的号型类型");
@@ -2579,12 +2578,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         }
 
 
-                        String outsideColorName = dto.getOutsideColorName();
                         String outsideColorCode = dto.getOutsideColorCode();
 
                         QueryWrapper<BasicsdatumColourLibraryAgent>  agentQueryWrapper = new QueryWrapper<>();
                         agentQueryWrapper.eq("colour_code",outsideColorCode);
-                        agentQueryWrapper.eq("colour_name",outsideColorName);
                         agentQueryWrapper.eq("del_flag","0");
                         agentQueryWrapper.eq("status","0");
                         agentQueryWrapper.eq("brand",planningSeason.getBrand());
@@ -2592,12 +2589,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         BasicsdatumColourLibraryAgent colourLibraryAgent = colourLibraryAgentService.getOne(agentQueryWrapper);
 
                         if (colourLibraryAgent != null) {
+                            validStyleColorAgent.setOutsideColorName(colourLibraryAgent.getColourName());
                             String colorId = colourLibraryAgent.getColorId();
                             BasicsdatumColourLibrary basicsdatumColour = basicsdatumColourLibraryServicel.getById(colorId);
                             if (basicsdatumColour != null) {
                                 styleColorUpdate.setColourLibraryId(basicsdatumColour.getId());
-                                styleColorUpdate.setColorCode(colourLibraryAgent.getColourCode());
-                                styleColorUpdate.setColorName(colourLibraryAgent.getColourName());
+                                styleColorUpdate.setColorCode(basicsdatumColour.getColourCode());
+                                styleColorUpdate.setColorName(basicsdatumColour.getColourName());
                             }else{
                                 throw new OtherException("第"+(i+1)+"行,找不到对应的集团颜色名称或编码，确认外部颜色是否关联集团颜色");
                             }
@@ -2606,11 +2604,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         }
 
                         if (!styleUpdate.getStyleTypeName().equals(dto.getStyleTypeName())) {
-  //                          List<BasicBaseDict> styleTYpeList = ccmFeignService.getDictInfoToList("StyleType");
                             String styleTypeName = dto.getStyleTypeName();
-//
-//                            List<BasicBaseDict> styleTypeListDictList = styleTYpeList.stream().filter(o -> o.getName() .equals(styleTypeName) ).collect(Collectors.toList());
-
                             List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts("StyleType",styleTypeName);
 
                             if (CollUtil.isNotEmpty(styleTypeListDictList)) {
@@ -2692,7 +2686,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     }
                     validStyleColorAgent.setOutsideBarcode(dto.getOutsideBarcode());
                     validStyleColorAgent.setOutsideColorCode(dto.getOutsideColorCode());
-                    validStyleColorAgent.setOutsideColorName(dto.getOutsideColorName());
+
                     validStyleColorAgent.setOutsideSizeCode(dto.getOutsideSizeCode());
 
                     StylePricing stylePricingUpdate = null;
@@ -2799,7 +2793,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String prodCategory1stName = entity.getProdCategory1stName();
             String prodCategory2ndName = entity.getProdCategory2ndName();
             String outsideColorCode = entity.getOutsideColorCode();
-            String outsideColorName = entity.getOutsideColorName();
             String sizeRangeName = entity.getSizeRangeName();
             String rowText = "";
 
@@ -2842,8 +2835,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             rowText = commonPromptInfo( !styleColorAgent.getOutsideSizeCode().equals(entity.getOutsideSizeCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideSizeCode() + "】 数据已下发过，合作方尺码不允许修改！\n");
                             //合作方颜色
                             rowText = commonPromptInfo( !styleColorAgent.getOutsideColorCode().equals(entity.getOutsideColorCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideColorCode() + "】 数据已下发过，合作方颜色编码不允许修改！\n");
-                            //合作方颜色名称
-                            rowText = commonPromptInfo( !styleColorAgent.getOutsideColorName().equals(entity.getOutsideColorName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideColorName() + "】 数据已下发过，合作方颜色名称不允许修改！\n");
                             //外部条形码
                             rowText = commonPromptInfo(StrUtil.isNotBlank(styleColorAgent.getOutsideBarcode()) && !styleColorAgent.getOutsideBarcode().equals(entity.getOutsideBarcode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getOutsideBarcode()+"】 数据已下发过，外部条形码不允许修改！\n");
                         }
@@ -2929,7 +2920,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (planningSeason != null) {
                 QueryWrapper<BasicsdatumColourLibraryAgent>  agentQueryWrapper = new QueryWrapper<>();
                 agentQueryWrapper.eq("colour_code",outsideColorCode);
-                agentQueryWrapper.eq("colour_name",outsideColorName);
                 agentQueryWrapper.eq("del_flag","0");
                 agentQueryWrapper.eq("status","0");
                 agentQueryWrapper.eq("brand",planningSeason.getBrand());
@@ -2941,7 +2931,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             if (colourLibraryAgent != null) {
                 String colorId = colourLibraryAgent.getColorId();
-                rowText = commonPromptInfo(StrUtil.isEmpty(colorId), rowText, "第" + (i + 1) + "行" + "【" + outsideColorName + "-" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
+                rowText = commonPromptInfo(StrUtil.isEmpty(colorId), rowText, "第" + (i + 1) + "行" + "【" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
 
 
                 QueryWrapper<BasicsdatumColourLibrary>  basicsdatumColourLibraryQueryWrapper = new QueryWrapper<>();
@@ -2951,9 +2941,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                 BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryServicel.getOne(basicsdatumColourLibraryQueryWrapper);
 
-                rowText = commonPromptInfo(basicsdatumColourLibrary == null, rowText, "第" + (i + 1) + "行" + "【" + outsideColorName + "-" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
+                rowText = commonPromptInfo(basicsdatumColourLibrary == null, rowText, "第" + (i + 1) + "行" + "【" + "-" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
             }else{
-                rowText = commonPromptInfo(colourLibraryAgent == null, rowText, "第" + (i + 1) + "行" + "【" + outsideColorName + "-" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
+                rowText = commonPromptInfo(colourLibraryAgent == null, rowText, "第" + (i + 1) + "行" + "【" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
             }
 
             BasicsdatumModelType basicsdatumModelType = null;

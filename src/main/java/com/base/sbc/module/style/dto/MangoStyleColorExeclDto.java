@@ -67,9 +67,9 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*外部颜色编码", width = 20)
     private String outsideColorCode;
 
-    @ApiModelProperty(name = "外部颜色名称")
+    /*@ApiModelProperty(name = "外部颜色名称")
     @Excel(name = "*外部颜色名称", width = 20)
-    private String outsideColorName;
+    private String outsideColorName;*/
 
     //@ApiModelProperty(name = "合作方条形码")
     @Excel(name = "外部条形码", width = 20)
