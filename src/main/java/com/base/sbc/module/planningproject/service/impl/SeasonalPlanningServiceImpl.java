@@ -493,50 +493,92 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             dto.setIsOrder("1");
             BaseQueryWrapper<OrderBookDetail> bookDetailBaseQueryWrapper = orderBookDetailService.buildQueryWrapper(dto);
             bookDetailBaseQueryWrapper.orderByDesc("commissioning_date");
-            if (i%2==0){
-                bookDetailBaseQueryWrapper.like("tsc.style_no","Q");
-                seasonalPlanningDetails.setStyleCategory("高奢");
-            }else {
-                seasonalPlanningDetails.setStyleCategory("常规");
-                bookDetailBaseQueryWrapper.notLike("tsc.style_no","Q");
-            }
+            // if (i%2==0){
+            //     bookDetailBaseQueryWrapper.like("tsc.style_no","Q");
+            //     seasonalPlanningDetails.setStyleCategory("高奢");
+            // }else {
+            //     seasonalPlanningDetails.setStyleCategory("常规");
+            //     bookDetailBaseQueryWrapper.notLike("tsc.style_no","Q");
+            // }
 
             seasonalPlanningDetails.setSkcCount("0");
             seasonalPlanningDetails.setOrderTime("");
             seasonalPlanningDetails.setLaunchTime("");
             List<OrderBookDetailVo> bookDetailVos = orderBookDetailService.querylist(bookDetailBaseQueryWrapper, null);
             int z=0;
+            int c=0;
             Map<String,Integer> map = new HashMap<>();
+            Map<String,Integer> map1 = new HashMap<>();
             for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
-                if (bookDetailVo.getBandCode().equals(bandCode)) {
+                String bulkStyleNo = bookDetailVo.getBulkStyleNo();
+                String[] split = bulkStyleNo.split("-");
+                //大货款号有-,并且-往前三位是S,则是高奢款
+                if (split.length > 1 && split[0].length() > 3 && 'S' == split[0].charAt(3)) {
+                    seasonalPlanningDetails.setStyleCategory("高奢");
                     z++;
-                    if (bookDetailVo.getCommissioningDate() != null) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        String format = simpleDateFormat.format(bookDetailVo.getCommissioningDate());
-                        seasonalPlanningDetails.setOrderTime(format);
-                        seasonalPlanningDetails.setLaunchTime(format);
+                    if (bookDetailVo.getBandCode().equals(bandCode)) {
+                        if (bookDetailVo.getCommissioningDate() != null) {
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String format = simpleDateFormat.format(bookDetailVo.getCommissioningDate());
+                            seasonalPlanningDetails.setOrderTime(format);
+                            seasonalPlanningDetails.setLaunchTime(format);
+                        }
+                    }else {
+                        String band = bookDetailVo.getBandCode()+"_"+bookDetailVo.getBandName();
+                        map.merge(band, 1, Integer::sum);
                     }
-                }else {
-                    String band = bookDetailVo.getBandCode()+"_"+bookDetailVo.getBandName();
-                    map.merge(band, 1, Integer::sum);
+
+                    for (String band : map.keySet()) {
+                        if (StringUtils.isNotBlank(band)){
+                            String[] split1 = band.split("_");
+                            if (split1.length>1){
+                                SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
+                                BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
+                                seasonalPlanningDetails1.setBandCode(split1[0]);
+                                seasonalPlanningDetails1.setBandName(split1[1]);
+                                seasonalPlanningDetails1.setSkcCount(String.valueOf(map.get(band)));
+                                list3.add(seasonalPlanningDetails1);
+                            }
+                        }
+                    }
+                    seasonalPlanningDetails.setSkcCount(String.valueOf(z));
+
+                } else {
+                    c++;
+                    seasonalPlanningDetails.setStyleCategory("常规");
+                    if (bookDetailVo.getBandCode().equals(bandCode)) {
+                        if (bookDetailVo.getCommissioningDate() != null) {
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            String format = simpleDateFormat.format(bookDetailVo.getCommissioningDate());
+                            seasonalPlanningDetails.setOrderTime(format);
+                            seasonalPlanningDetails.setLaunchTime(format);
+                        }
+                    }else {
+                        String band = bookDetailVo.getBandCode()+"_"+bookDetailVo.getBandName();
+                        map1.merge(band, 1, Integer::sum);
+
+                    }
+                    for (String band : map1.keySet()) {
+                        if (StringUtils.isNotBlank(band)){
+                            String[] split1 = band.split("_");
+                            if (split1.length>1){
+                                SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
+                                BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
+                                seasonalPlanningDetails1.setBandCode(split1[0]);
+                                seasonalPlanningDetails1.setBandName(split1[1]);
+                                seasonalPlanningDetails1.setSkcCount(String.valueOf(map.get(band)));
+                                list3.add(seasonalPlanningDetails1);
+                            }
+                        }
+                    }
+
+                    seasonalPlanningDetails.setSkcCount(String.valueOf(c));
                 }
 
             }
-            for (String band : map.keySet()) {
-                if (StringUtils.isNotBlank(band)){
-                    String[] split = band.split("_");
-                    if (split.length>1){
-                        SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
-                        BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
-                        seasonalPlanningDetails1.setBandCode(split[0]);
-                        seasonalPlanningDetails1.setBandName(split[1]);
-                        seasonalPlanningDetails1.setSkcCount(String.valueOf(map.get(band)));
-                        list3.add(seasonalPlanningDetails1);
-                    }
-                }
-            }
 
-            seasonalPlanningDetails.setSkcCount(String.valueOf(z));
+
+
 
         }
         list2.addAll(list3);
