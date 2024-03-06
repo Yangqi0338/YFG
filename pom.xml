@@ -16,7 +16,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <druid-starter.version>1.2.6</druid-starter.version>
-        <swagger2.version>2.8.0</swagger2.version>
+        <!--    得升到SB 2.2.0才能升到2.10.0+    -->
+<!--        <swagger2.version>2.10.5</swagger2.version>-->
+        <swagger2.version>2.9.2</swagger2.version>
         <lombok.version>1.16.20</lombok.version>
         <poi.version>5.2.0</poi.version>
         <log4j2.version>2.17.2</log4j2.version>
@@ -421,11 +423,29 @@
             <version>1.13.1</version> <!-- 或者使用最新版本 -->
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.github.xiaoymin</groupId>-->
-<!--            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>-->
-<!--            <version>4.0.0</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+            <version>4.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>swagger-models</artifactId>
+                    <groupId>io.swagger</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>springfox-swagger2</artifactId>
+                    <groupId>io.springfox</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>springfox-spring-web</artifactId>
+                    <groupId>io.springfox</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>springfox-spi</artifactId>
+                    <groupId>io.springfox</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <dependency>
             <groupId>org.mapstruct</groupId>
