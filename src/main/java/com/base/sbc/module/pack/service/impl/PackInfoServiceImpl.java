@@ -14,10 +14,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.core.util.URLUtil;
+import cn.hutool.core.util.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -870,6 +867,18 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 }
                 // 版本有几个物料信息
                 Long versionBomCount = packBomService.countByVersion(packBomVersion1.getId());
+                // 查询版本最后一个数据的排序值
+                int targetSort = 0;
+                PackBom packBom = packBomService.getOne(new LambdaQueryWrapper<PackBom>()
+                        .eq(PackBom::getForeignId, dto.getTargetForeignId())
+                        .eq(PackBom::getPackType, dto.getTargetPackType())
+                        .eq(PackBom::getBomVersionId, packBomVersion1.getId())
+                        .orderByDesc(PackBom::getSort)
+                        .last("limit 1")
+                );
+                if (ObjectUtil.isNotEmpty(packBom)) {
+                    targetSort = packBom.getSort();
+                }
                 /*迁移数据时在那个阶段就复制那个阶段的数据*/
                 if (StringUtils.equals(dto.getOverlayFlag(), BaseGlobal.YES)) {
                     /*覆盖先删除再新增*/
@@ -927,7 +936,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                         String newId = snowflake.nextIdStr();
                         bom.setPackType(dto.getTargetPackType());
                         bom.setCode(null);
-                        bom.setSort(Math.toIntExact(versionBomCount+(i+1)));
+                        bom.setSort(Math.toIntExact(targetSort+(i+1)));
                         bom.setForeignId(dto.getTargetForeignId());
                         bom.setBomVersionId(packBomVersion1.getId());
                         bom.setScmSendFlag(BaseGlobal.NO);
