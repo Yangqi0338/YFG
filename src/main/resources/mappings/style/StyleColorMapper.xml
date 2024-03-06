@@ -325,6 +325,8 @@
                tsca.status                                  sendStatus,-- 发送状态
                ts.band_code,
                ts.band_name,-- 波段
+               ts.gender_name as genderType,--产品季性别
+               tbs.hangtags,
                tsc.tag_price, -- 吊牌价
                tpp.control_plan_cost,
                SUBSTRING_INDEX(tsca.style_color_no, "-", 1) outsideStyleNo, -- 合作方款号

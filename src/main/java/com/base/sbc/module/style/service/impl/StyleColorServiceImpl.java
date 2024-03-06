@@ -2262,6 +2262,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 //坑位信息暂时默认一个
                 style.setPlanningCategoryItemId("11111111");
 
+                //款式类型
                 List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts("StyleType",dto.getStyleTypeName());
 
                 if (CollUtil.isNotEmpty(styleTypeListDictList)) {
@@ -2270,6 +2271,19 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 } else {
                     throw new OtherException("第"+(i+1)+"行,找不到对应的款式类型");
                 }
+
+                //款式性别
+                if (StrUtil.isNotBlank(dto.getGender())) {
+                    List<BasicBaseDict> c8GenderList = getBasicBaseDicts("C8_Gender",dto.getGender());
+
+                    if (CollUtil.isNotEmpty(c8GenderList)) {
+                        style.setGenderType(c8GenderList.get(0).getValue());
+                        style.setGenderName(c8GenderList.get(0).getName());
+                    } else {
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的款式性别");
+                    }
+                }
+
 
                 //品类
                 String prodCategoryName = dto.getProdCategoryName();
@@ -2604,6 +2618,23 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 throw new OtherException("第"+(i+1)+"行,找不到对应的款式类型");
                             }
                         }
+
+                        if (!styleUpdate.getGenderName().equals(dto.getGender())) {
+                            //款式性别
+                            if (StrUtil.isNotBlank(dto.getGender())) {
+                                List<BasicBaseDict> c8GenderList = getBasicBaseDicts("C8_Gender",dto.getGender());
+                                if (CollUtil.isNotEmpty(c8GenderList)) {
+                                    style.setGenderType(c8GenderList.get(0).getValue());
+                                    style.setGenderName(c8GenderList.get(0).getName());
+                                } else {
+                                    throw new OtherException("第"+(i+1)+"行,找不到对应的款式性别");
+                                }
+                            }else{
+                                style.setGenderType("");
+                                style.setGenderName("");
+                            }
+                        }
+
                     }else {
                         throw new OtherException("第"+(i+1)+"行,找不到对应的设计款信息");
                     }

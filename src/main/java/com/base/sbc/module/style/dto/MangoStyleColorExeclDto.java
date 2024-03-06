@@ -43,7 +43,9 @@ public class MangoStyleColorExeclDto {
     @Excel(name = "*款式类型", width = 20)
     private String styleTypeName;
 
-
+    @ApiModelProperty(name = "产品季性别")
+    @Excel(name = "产品季性别", width = 20)
+    private String gender;
 
     @ApiModelProperty(name = "号型类型")
     @Excel(name = "*号型类型", width = 20)

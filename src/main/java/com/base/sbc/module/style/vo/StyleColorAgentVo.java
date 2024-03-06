@@ -248,6 +248,12 @@ public class StyleColorAgentVo {
     /** 发送状态 */
     private String sendStatus;
 
+    /**产品季性别*/
+    private String genderType;
+
+    /**吊牌显示*/
+    private String hangtags;
+
     /** 创建时间 */
     @ApiModelProperty(value = "创建时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
