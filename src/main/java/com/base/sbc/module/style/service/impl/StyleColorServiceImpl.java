@@ -2325,6 +2325,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                                 }
                             }else{
                                 throw new OtherException("第"+(i+1)+"行,找不到对应的品类");                            }
+                        }else{
+                            throw new OtherException("第"+(i+1)+"行,找不到对应的品类");
                         }
                     }
                 }else{
@@ -2522,7 +2524,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             } else {
                                 //报错
                                 throw new OtherException("第"+(i+1)+"行,找不到对应的品类");
-
                             }
 
                             List<BasicCategoryDot> basicCategoryDotList1 = ccmFeignService.getTreeByNamelList("品类", "0");
