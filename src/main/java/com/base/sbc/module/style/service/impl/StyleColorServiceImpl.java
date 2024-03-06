@@ -2273,14 +2273,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
 
                 //款式性别
-                if (StrUtil.isNotBlank(dto.getGender())) {
+                if (StrUtil.isEmpty(dto.getGender()) || StrUtil.isBlank(dto.getGender())) {
+                    style.setGenderType("");
+                    style.setGenderName("");
+                }else{
                     List<BasicBaseDict> c8GenderList = getBasicBaseDicts("C8_Gender",dto.getGender());
-
                     if (CollUtil.isNotEmpty(c8GenderList)) {
                         style.setGenderType(c8GenderList.get(0).getValue());
                         style.setGenderName(c8GenderList.get(0).getName());
                     } else {
-                        throw new OtherException("第"+(i+1)+"行,找不到对应的款式性别");
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的产品季式性别");
                     }
                 }
 
@@ -2619,22 +2621,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             }
                         }
 
-                        if (!styleUpdate.getGenderName().equals(dto.getGender())) {
-                            //款式性别
-                            if (StrUtil.isNotBlank(dto.getGender())) {
-                                List<BasicBaseDict> c8GenderList = getBasicBaseDicts("C8_Gender",dto.getGender());
-                                if (CollUtil.isNotEmpty(c8GenderList)) {
-                                    style.setGenderType(c8GenderList.get(0).getValue());
-                                    style.setGenderName(c8GenderList.get(0).getName());
-                                } else {
-                                    throw new OtherException("第"+(i+1)+"行,找不到对应的款式性别");
-                                }
-                            }else{
-                                style.setGenderType("");
-                                style.setGenderName("");
+                        if (StrUtil.isEmpty(dto.getGender()) || StrUtil.isBlank(dto.getGender())) {
+                            styleUpdate.setGenderType("");
+                            styleUpdate.setGenderName("");
+                        }else{
+                            List<BasicBaseDict> c8GenderList = getBasicBaseDicts("C8_Gender",dto.getGender());
+                            if (CollUtil.isNotEmpty(c8GenderList)) {
+                                styleUpdate.setGenderType(c8GenderList.get(0).getValue());
+                                styleUpdate.setGenderName(c8GenderList.get(0).getName());
+                            } else {
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的产品季式性别");
                             }
                         }
-
                     }else {
                         throw new OtherException("第"+(i+1)+"行,找不到对应的设计款信息");
                     }
