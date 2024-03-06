@@ -17,7 +17,7 @@ public class MangoStyleColorExeclExportDto {
 
     @ApiModelProperty(name = "季节")
     @Excel(name = "季节", width = 20)
-    private String season;
+    private String seasonName;
 
     @ApiModelProperty(name = "产品季")
     @Excel(name = "产品季", width = 20)
@@ -80,9 +80,13 @@ public class MangoStyleColorExeclExportDto {
     @Excel(name = "号型类型", width = 20)
     private String sizeRangeName;
 
-    @ApiModelProperty(name = "大小")
-    @Excel(name = "大小", width = 20)
+    @ApiModelProperty(name = "尺码")
+    @Excel(name = "尺码", width = 20)
     private String sizeCode;
+
+    @ApiModelProperty(name = "吊牌显示")
+    @Excel(name = "吊牌显示", width = 20)
+    private String hangtags;
 
     @ApiModelProperty(name = "生产类型")
     @Excel(name = "生产类型", width = 20)
@@ -103,5 +107,9 @@ public class MangoStyleColorExeclExportDto {
     @ApiModelProperty(value = "包装形式")
     @Excel(name = "包装形式", width = 20)
     private String packagingForm;
+
+    @ApiModelProperty(value = "产品季性别")
+    @Excel(name = "产品季性别", width = 20)
+    private String genderType;
 
 }
