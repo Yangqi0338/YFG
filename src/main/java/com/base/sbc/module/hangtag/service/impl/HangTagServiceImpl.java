@@ -67,8 +67,10 @@ import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -191,6 +193,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Autowired
 	private StyleCountryStatusMapper styleCountryStatusMapper;
+	@Autowired
+	private PackBomVersionService packBomVersionService;
 
 	@Resource
 	@Lazy
@@ -757,21 +761,26 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 										.eq(PackInfo::getStyleNo, styleColor.getStyleNo())
 						);
                         if (ObjectUtil.isNotEmpty(packInfo)) {
-                            // 根据资料包的 id 查询物料信息
-                            List<PackBom> packBomList = packBomService.list(
-                                    new LambdaQueryWrapper<PackBom>()
-                                            .eq(PackBom::getForeignId, packInfo.getId())
-                                            .eq(PackBom::getPackType,"packBigGoods")
-                            );
-                            if (ObjectUtil.isNotEmpty(packBomList)) {
-								materialCodeNames = CollUtil.join(
-										packBomList
-												.stream()
-												.map(PackBom::getMaterialCodeName)
-												.filter(item -> item.contains("特殊吊牌"))
-												.collect(Collectors.toList()),
-										",");
+							// 查看引用的版本
+							PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(packInfo.getId(), "packBigGoods");
+							if (ObjectUtil.isNotEmpty(packBomVersion)) {
+								// 根据资料包的 id 查询物料信息
+								List<PackBom> packBomList = packBomService.list(
+										new LambdaQueryWrapper<PackBom>()
+												.eq(PackBom::getForeignId, packInfo.getId())
+												.eq(PackBom::getPackType, "packBigGoods")
+												.eq(PackBom::getBomVersionId, packBomVersion.getId())
+								);
+								if (ObjectUtil.isNotEmpty(packBomList)) {
+									materialCodeNames = CollUtil.join(
+											packBomList
+													.stream()
+													.map(PackBom::getMaterialCodeName)
+													.filter(item -> item.contains("特殊吊牌"))
+													.collect(Collectors.toList()),
+											",");
 
+								}
 							}
                         }
 					}
