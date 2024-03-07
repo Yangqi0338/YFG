@@ -220,7 +220,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
            List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
             List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = materialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode));
             List<String> collect = basicsdatumMaterialWidths.stream().map(BasicsdatumMaterialWidth::getName).collect(Collectors.toList());
-            basicsdatumMaterialPageVo.setWithName(String.join(",", collect));
+            basicsdatumMaterialPageVo.setWidthName(String.join(",", collect));
 
             if ( CollUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto)) {
 
