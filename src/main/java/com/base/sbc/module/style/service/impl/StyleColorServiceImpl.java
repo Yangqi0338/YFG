@@ -1739,6 +1739,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //查询已下单的配色id
         QueryWrapper<OrderBookDetail> queryWrapper2 =new QueryWrapper<>();
+        if (styleColorIds.isEmpty()){
+            return new PageInfo<>(new ArrayList<>());
+        }
         queryWrapper2.in("style_color_id",styleColorIds);
         queryWrapper2.select("style_color_id");
         List<OrderBookDetail> list1 = orderBookDetailService.list(queryWrapper2);
