@@ -3043,6 +3043,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         Map<String,String> map = new HashMap<>();
         Map<String,String> map1 = new HashMap<>();
         Map<String,String> map3 = new HashMap<>();
+        Map<String,String> map4 = new HashMap<>();
+        Map<String,String> map5 = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             MangoStyleColorExeclDto entity = list.get(i);
             Field[] declaredFields = entity.getClass().getDeclaredFields();
@@ -3057,6 +3059,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String styleColorNo = entity.getStyleColorNo();
             String outsideBarcode = entity.getOutsideBarcode();
             String outsideSizeCode = entity.getOutsideSizeCode();
+            String tagPrice = entity.getTagPrice();
+            String planCostPrice = entity.getPlanCostPrice();
 
             checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo)  && StrUtil.isNotBlank(outsideBarcode) && StrUtil.isNotBlank(outsideSizeCode), styleColorNo  + outsideSizeCode + outsideBarcode, map, i);
 
@@ -3066,12 +3070,41 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(outsideSizeCode), styleColorNo + outsideSizeCode, map3, i);
 
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(tagPrice), styleColorNo + tagPrice, map4, i);
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(planCostPrice), styleColorNo + planCostPrice, map5, i);
+
+
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(tagPrice)) {
+
+                if (map4.containsKey(styleColorNo)) {
+                    String tagPriceValue = map4.get(styleColorNo);
+                    if (!tagPriceValue.equals(tagPrice)) {
+                        errorInfo += styleColorNo+ ":【大货款号】+【吊牌价】 出现不同的价格";
+                    }
+
+                }else{
+                    map4.put(styleColorNo,tagPrice);
+                }
+
+            }
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(planCostPrice)) {
+                if (StrUtil.isNotBlank(planCostPrice)) {
+                    String tagPriceValue = map5.get(styleColorNo);
+                    if (!tagPriceValue.equals(planCostPrice)) {
+                        errorInfo += styleColorNo+" :【大货款号】+【成本价】 出现不同的价格";
+                    }
+                }else{
+                    map5.put(styleColorNo,planCostPrice);
+                }
+            }
         }
+
 
         errorInfo = checkMapInfo(map, errorInfo, "行:【大货款号】+【合作方尺码】+【合作方条形码】 出现重复！ \n ");
         errorInfo = checkMapInfo(map1, errorInfo, "行:【大货款号】+【合作方条形码】出现重复！ \n ");
-        //errorInfo = checkMapInfo(map2, errorInfo, "行:【大货款号】+【尺码】出现重复！ \n ");
         errorInfo = checkMapInfo(map3, errorInfo, "行:【大货款号】+【合作方尺码】出现重复！ \n ");
+        errorInfo = checkMapInfo(map4, errorInfo, "行:【大货款号】+【吊牌价】出现不重复！ \n ");
+        errorInfo = checkMapInfo(map5, errorInfo, "行:【大货款号】+【成本价】出现不重复！ \n ");
         return errorInfo;
     }
 
