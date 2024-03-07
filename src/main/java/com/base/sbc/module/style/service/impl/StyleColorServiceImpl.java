@@ -3088,11 +3088,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             }
             if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(planCostPrice)) {
-                if (StrUtil.isNotBlank(planCostPrice)) {
-                    String tagPriceValue = map5.get(styleColorNo);
-                    if (!tagPriceValue.equals(planCostPrice)) {
-                        errorInfo += styleColorNo+" :【大货款号】+【成本价】 出现不同的价格";
+
+                if (map5.containsKey(styleColorNo)) {
+                    String planCostPriceValue = map5.get(styleColorNo);
+                    if (!planCostPriceValue.equals(planCostPrice)) {
+                        errorInfo += styleColorNo+ ":【大货款号】+【成本价】 出现不同的价格";
                     }
+
                 }else{
                     map5.put(styleColorNo,planCostPrice);
                 }
@@ -3103,8 +3105,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         errorInfo = checkMapInfo(map, errorInfo, "行:【大货款号】+【合作方尺码】+【合作方条形码】 出现重复！ \n ");
         errorInfo = checkMapInfo(map1, errorInfo, "行:【大货款号】+【合作方条形码】出现重复！ \n ");
         errorInfo = checkMapInfo(map3, errorInfo, "行:【大货款号】+【合作方尺码】出现重复！ \n ");
-        errorInfo = checkMapInfo(map4, errorInfo, "行:【大货款号】+【吊牌价】出现不重复！ \n ");
-        errorInfo = checkMapInfo(map5, errorInfo, "行:【大货款号】+【成本价】出现不重复！ \n ");
         return errorInfo;
     }
 
