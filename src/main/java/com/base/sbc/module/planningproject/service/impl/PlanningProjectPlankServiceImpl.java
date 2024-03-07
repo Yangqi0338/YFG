@@ -151,7 +151,10 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         hashMap.put("list",list);
         hashMap.put("tableColumnVos",tableColumnVos);
         hashMap.put("map",jsonObjects);
-        hashMap.put("map2",jsonObjects2);
+        QueryWrapper<PlanningProjectDimension> queryWrapper1 =new QueryWrapper<>();
+        queryWrapper1.eq("planning_project_id",dto.getPlanningProjectId());
+        List<PlanningProjectDimension> list1 = planningProjectDimensionService.list(queryWrapper1);
+        hashMap.put("map2",list1);
         return hashMap;
     }
 
