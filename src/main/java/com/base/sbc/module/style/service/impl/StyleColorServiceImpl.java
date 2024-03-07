@@ -2965,10 +2965,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (basicsdatumModelType == null) {
                 rowText += "第"+(i+1)+"行"+"【"+entity.getBrandName()+"】【" + sizeRangeName + "】" + "数据库找不到对应号型类型信息！\n";
             }else{
-                // /** 翻译名称 */  对应欧码
-                //    private String translateName;
-                //    /** 欧码 */  对应外部尺码
-                //    private String europeanSize;
                 //号型类型尺码
                 String code = basicsdatumModelType.getCode();
                 QueryWrapper<BasicsdatumSize> basicsdatumSizeQueryWrapper = new QueryWrapper();
@@ -2979,7 +2975,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 if (CollUtil.isEmpty(basicsdatumSizeList)) {
                     errorInfo += "第" + (i + 1) + "行" + "外部尺码【" + outsideSizeCode + "】" + "【" + basicsdatumModelType.getModelType() + "】号型类型数据库找不到对应外部尺码【" + outsideSizeCode + "】信息！\n";
                 }
-                //rowText = commonPromptInfo(!sizes.contains(sizeCode), rowText, "第" + (i + 1) + "行" + "【" + sizeCode + "】" + "【" + basicsdatumModelType.getModelType() + "】数据库找不到对应【" + sizeCode + "】信息！\n");
             }
             errorInfo +=rowText;
         }

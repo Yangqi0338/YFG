@@ -338,9 +338,7 @@
                  left join t_style ts on ts.id = tsc.style_id and ts.del_flag = '0'
                  left join t_pack_info tpi on ts.id = tpi.foreign_id and tpi.del_flag = '0'
                  left join t_style_pricing tpp on tpi.id = tpp.pack_id and tpp.del_flag = '0'
-                 left join t_basicsdatum_size tbs
-                           ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 and
-                              tbs.hangtags = ts.default_size
+                 left join t_basicsdatum_size tbs ON tsca.size_id = tbs.code
                  left join t_hang_tag tha on tha.bulk_style_no = tsc.style_no and tha.del_flag = '0'
             ${ew.customSqlSegment}
     </select>
