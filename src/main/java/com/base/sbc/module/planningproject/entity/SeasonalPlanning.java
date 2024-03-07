@@ -31,6 +31,8 @@ public class SeasonalPlanning extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "状态（0：启用，1：未启用）")
     private String status;
+    @ApiModelProperty(value = "是否已生产品类企划:0:否,1:是")
+    private String  isGenerate;
     @ApiModelProperty(value = "数据json")
     private String dataJson;
 }

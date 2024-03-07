@@ -16,6 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -51,10 +52,13 @@ public class CategoryPlanningController extends BaseController {
      * 根据季节企划生成品类企划,同时生成企划看板
      */
     @PostMapping("/generateCategoryPlanning")
+    @Transactional
     public ApiResult generateCategoryPlanning(@RequestBody BaseDto baseDto) {
         // 生成品类企划
         SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(baseDto.getId());
         String status = seasonalPlanning.getStatus();
+        seasonalPlanning.setIsGenerate("1");
+        seasonalPlanningService.updateById(seasonalPlanning);
         if ("1".equals(status)){
             throw new RuntimeException("已停用的季节企划不能生成品类企划");
         }
