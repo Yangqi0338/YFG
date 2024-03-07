@@ -81,6 +81,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         List<TableColumnVo> tableColumnVos =new ArrayList<>();
         Map<String, Integer> map =new TreeMap<>();
         Map<String, JSONObject> map1 =new TreeMap<>();
+        Map<String, JSONObject> map2 =new TreeMap<>();
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             //获取所有波段,当作列
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getBandName())){
@@ -105,7 +106,11 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             jsonObject.put("dimensionName", planningProjectPlankVo.getDimensionName());
             jsonObject.put("dimensionCode", planningProjectPlankVo.getDimensionCode());
             jsonObject.put("planningProjectDimensionId",planningProjectPlankVo.getPlanningProjectDimensionId());
+            jsonObject.put("bandName",planningProjectPlankVo.getBandName());
+            jsonObject.put("bandCode",planningProjectPlankVo.getBandCode());
+
             map1.put(planningProjectPlankVo.getDimensionValue()+planningProjectPlankVo.getDimensionCode()+planningProjectPlankVo.getDimensionName()+planningProjectPlankVo.getDimensionId(), jsonObject);
+            map2.put(planningProjectPlankVo.getDimensionValue()+planningProjectPlankVo.getDimensionCode()+planningProjectPlankVo.getDimensionName()+planningProjectPlankVo.getDimensionId()+planningProjectPlankVo.getBandName()+planningProjectPlankVo.getBandCode(), jsonObject);
 
 
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
@@ -134,14 +139,19 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         }
 
         List<JSONObject> jsonObjects =new ArrayList<>();
+        List<JSONObject> jsonObjects2 =new ArrayList<>();
         for (String s : map1.keySet()) {
             jsonObjects.add(map1.get(s));
+        }
+        for (String s : map2.keySet()) {
+            jsonObjects2.add(map2.get(s));
         }
 
         stylePicUtils.setStyleColorPic2(list, "pic");
         hashMap.put("list",list);
         hashMap.put("tableColumnVos",tableColumnVos);
         hashMap.put("map",jsonObjects);
+        hashMap.put("map2",jsonObjects2);
         return hashMap;
     }
 

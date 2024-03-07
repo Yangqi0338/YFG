@@ -209,8 +209,11 @@ public class PlanningProjectPlankController extends BaseController {
 
             if (StringUtils.isNotEmpty(planningProjectDimensionId)){
                 PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectDimensionId);
-                int i = Integer.parseInt(planningProjectDimension.getNumber());
-                planningProjectDimension.setNumber(String.valueOf(i+1));
+                QueryWrapper<PlanningProjectPlank> queryWrapper=new QueryWrapper<>();
+                queryWrapper.eq("planning_project_dimension_id", planningProjectDimensionId);
+                long l = planningProjectPlankService.count(queryWrapper);
+
+                planningProjectDimension.setNumber(String.valueOf(l));
                 planningProjectDimensionService.updateById(planningProjectDimension);
             }
             return insertSuccess("新增成功");
