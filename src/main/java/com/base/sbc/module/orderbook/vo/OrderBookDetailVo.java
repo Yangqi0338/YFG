@@ -3,6 +3,7 @@ package com.base.sbc.module.orderbook.vo;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -287,5 +288,12 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "渠道")
     private String channelName;
+
+    /**
+     * 尺码codes
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "尺码codes")
+    private String sizeCodes;
 
 }

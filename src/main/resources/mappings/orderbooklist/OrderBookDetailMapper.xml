@@ -25,6 +25,7 @@
         tsc.style_no as bulkStyleNo,
         tsc.his_style_no as hisStyleNo,
         ts.devt_type_name,
+        ts.size_codes,
         tsc.band_name,
         tsc.band_code,
         tsc.color_name,

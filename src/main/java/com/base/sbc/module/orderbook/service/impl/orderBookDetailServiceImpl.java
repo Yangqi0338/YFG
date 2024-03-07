@@ -16,6 +16,7 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -187,6 +188,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             // }
         // }
 
+        String sizeCodes = orderBookDetailVos.stream().flatMap(it-> Stream.of(it.getSizeCodes().split(COMMA))).distinct().collect(Collectors.joining(COMMA));
+        List<BasicsdatumSize> sizeList = sizeService.list(new BaseLambdaQueryWrapper<BasicsdatumSize>()
+                .notEmptyIn(BasicsdatumSize::getCode, sizeCodes)
+                .select(BasicsdatumSize::getModel, BasicsdatumSize::getInternalSize, BasicsdatumSize::getCode));
+
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
 
 
@@ -257,13 +263,28 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                                 basicsdatumMaterialColorQueryWrapper.eq("material_code", packBom.getMaterialCode());
                                 basicsdatumMaterialColorQueryWrapper.eq("color_code", packBom.getColorCode());
                                 BasicsdatumMaterialColor basicsdatumMaterialColor = basicsdatumMaterialColorService.getOne(basicsdatumMaterialColorQueryWrapper);
-                                orderBookDetailVo.setFabricFactoryColorNumber(basicsdatumMaterialColor.getSupplierColorCode());
+//                                orderBookDetailVo.setFabricFactoryColorNumber(basicsdatumMaterialColor.getSupplierColorCode());
                                 // orderBookDetailVo.setFabricCode(packBom.getMaterialCode());
                                 // orderBookDetailVo.setFabricComposition(packBom.getIngredient());
                             }
                         }
                     }
                 }
+            }
+
+            JSONObject jsonObject = JSON.parseObject(orderBookDetailVo.getCommissioningSize());
+            if (jsonObject!= null){
+                Map<String, String> sizeModelMap = sizeList.stream().filter(it -> orderBookDetailVo.getSizeCodes().contains(it.getCode()))
+                        .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
+                sizeModelMap.forEach((key,value)-> {
+                    if (jsonObject.containsKey(key)) {
+                        jsonObject.put(key+"Size",value);
+                    }
+                    if (jsonObject.containsKey(key+"1")){
+                        jsonObject.put(key+"1Size",value);
+                    }
+                });
+                orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
             }
         }
 
