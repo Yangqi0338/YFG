@@ -150,5 +150,11 @@ public class ColumnDefine extends BaseDataEntity<String> {
     @ApiModelProperty(value = "导出别名")
     private String exportAlias;
 
+    /**
+     * 表字段名
+     */
+    @ApiModelProperty(value = "表字段名")
+    private String sqlCode;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

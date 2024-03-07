@@ -1,7 +1,5 @@
 package com.base.sbc.config.annotation;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -21,4 +19,13 @@ public @interface QueryField {
      *
      */
     String type() default "eq";
+
+
+    //列头筛选字段
+
+    //字段名
+    String value() default "";
+
+    //类型处理，例如时间类型，或需要替换
+    String property() default "";
 }
