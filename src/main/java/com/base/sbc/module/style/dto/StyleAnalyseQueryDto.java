@@ -5,4 +5,7 @@ import lombok.Data;
 
 @Data
 public class StyleAnalyseQueryDto extends QueryFieldDto {
+
+    private String id;
+
 }

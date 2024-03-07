@@ -8,11 +8,6 @@ import java.util.Map;
 @Data
 public class QueryFieldDto extends Page {
 
-
-
-    private String search;
-
-
     //列头全量匹配
     private String columnHeard;
 

@@ -5,8 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.annotation.QueryField;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.dto.QueryFieldDto;
-import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnDefineService;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
@@ -15,7 +15,13 @@ import java.util.Map;
 
 public class QueryGenerator {
 
-
+    /**
+     * 特别注意，该方法中有查询  PageHelper 写到该方法下面
+     * @param qw
+     * @param dto
+     * @return
+     * @param <T>
+     */
     public static <T> boolean initQueryWrapper(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
         String columnHeard = dto.getColumnHeard();
 
@@ -77,13 +83,20 @@ public class QueryGenerator {
         return isColumnHeard;
     }
 
-    public static <T> boolean initQueryWrapper1(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
+    /**
+     * 特别注意，该方法中有查询  PageHelper 写到该方法下面
+     * @param qw
+     * @param dto
+     * @return
+     * @param <T>
+     */
+    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
         String columnHeard = dto.getColumnHeard();
         Map<String, String> fieldQueryMap = dto.getFieldQueryMap();
         boolean isColumnHeard = false;
 
-        RedisUtils redisUtils = SpringContextHolder.getBean("redisUtils");
-        List<ColumnDefine> list = (List<ColumnDefine>) redisUtils.get(dto.getTableCode());
+        ColumnDefineService columnDefineService = SpringContextHolder.getBean(ColumnDefineService.class);
+        List<ColumnDefine> list = columnDefineService.getByTableCode(dto.getTableCode(),false);
 
         for (ColumnDefine columnDefine : list) {
             String columnCode = columnDefine.getColumnCode();
