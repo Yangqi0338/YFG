@@ -1710,7 +1710,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     /**
-     * 复制配色
+     * 查询已下单的配色
      *
      * @param dto
      * @return
@@ -1735,7 +1735,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.select("foreign_id");
 
         List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
-        List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
+        List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).filter(StrUtil::isNotBlank).collect(Collectors.toList());
 
         //查询已下单的配色id
         QueryWrapper<OrderBookDetail> queryWrapper2 =new QueryWrapper<>();
