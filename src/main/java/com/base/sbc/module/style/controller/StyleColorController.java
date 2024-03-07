@@ -267,7 +267,9 @@ public class StyleColorController {
 		mangoStyleColorExeclDto.setOutsideColorCode("9");
 		mangoStyleColorExeclDto.setOutsideSizeCode("34");
 		mangoStyleColorExeclDto.setOutsideBarcode("8447034227768");
-		mangoStyleColorExeclDto.setStyleTypeName("服装");
+		mangoStyleColorExeclDto.setGender("男士/女士");
+		mangoStyleColorExeclDto.setPackagingForm("叠装/挂装");
+		mangoStyleColorExeclDto.setStyleTypeName("服装/配色");
 		mangoStyleColorExeclDto.setProdCategory1stName("下装");
 		mangoStyleColorExeclDto.setProdCategory2ndName("牛仔裤");
 		mangoStyleColorExeclDto.setSizeRangeName("男裤");
