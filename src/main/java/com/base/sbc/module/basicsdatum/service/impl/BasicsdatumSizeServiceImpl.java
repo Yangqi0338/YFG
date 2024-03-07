@@ -277,7 +277,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
                id.add(size.getId());
                name.add(size.getHangtags());
                sort.add(size.getSort());
-               code.add(size.getRealCode());
+               code.add(size.getCode());
            }
            map.put("ids",StringUtils.join(id,","));
            map.put("name",StringUtils.join(name,","));
