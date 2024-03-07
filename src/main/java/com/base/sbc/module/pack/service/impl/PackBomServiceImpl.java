@@ -539,12 +539,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         /*校验吊牌是否在审核中或已审核完成*/
         PackInfo packInfo = packInfoService.getById(byId.getForeignId());
         HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
-        /*不是在未填写，未提交阶段时提示不能修改*/
-        /*查询这个物料是否存在检查报告 存在是消息通知*/
-        List<EscmMaterialCompnentInspectCompanyDto> companyServiceList = escmMaterialCompnentInspectCompanyService.getList(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("thtic.hang_tag_id", hangTag.getId()).eq("temcic.materials_no", byId.getMaterialCode()));
-        if(CollUtil.isNotEmpty(companyServiceList)){
-            /*消息通知吊牌的创建人和新增人*/
-            messageUtils.sendMessage(null,hangTag.getCreateId()+","+hangTag.getUpdateId(),"物料变更检查报告通知","/hangTag/hangTagAdd?bulkStyleNo="+hangTag.getBulkStyleNo()+"&typeCode=编辑",null,baseController.getUser());
+        if (hangTag != null) {
+            /*不是在未填写，未提交阶段时提示不能修改*/
+            /*查询这个物料是否存在检查报告 存在是消息通知*/
+            List<EscmMaterialCompnentInspectCompanyDto> companyServiceList = escmMaterialCompnentInspectCompanyService.getList(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("thtic.hang_tag_id", hangTag.getId()).eq("temcic.materials_no", byId.getMaterialCode()));
+            if(CollUtil.isNotEmpty(companyServiceList)){
+                /*消息通知吊牌的创建人和新增人*/
+                messageUtils.sendMessage(null,hangTag.getCreateId()+","+hangTag.getUpdateId(),"物料变更检查报告通知","/hangTag/hangTagAdd?bulkStyleNo="+hangTag.getBulkStyleNo()+"&typeCode=编辑",null,baseController.getUser());
+            }
         }
         BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
         // 校验版本
