@@ -367,14 +367,14 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
             if (!"\\".equals(stringStringHashMap.get("中类名称")) && !"/".equals(stringStringHashMap.get("中类名称"))){
                 if (basicStructureTreeVo1.getChildren() ==null || basicStructureTreeVo1.getChildren().isEmpty()){
-                    throw new RuntimeException(stringStringHashMap.get("中类名称")+"下的中类"+ stringStringHashMap.get("中类名称")+"不存在");
+                    throw new RuntimeException(stringStringHashMap.get("品类名称")+"下的中类"+ stringStringHashMap.get("中类名称")+"不存在");
                 }
 
                 Map<String, BasicStructureTreeVo> map2 = basicStructureTreeVo1.getChildren().stream().collect(Collectors.toMap(BasicStructureTreeVo::getValue, basicStructureTreeVo2 -> basicStructureTreeVo2));
 
                 for (String s : stringStringHashMap.get("中类编码").split(",")) {
                     BasicStructureTreeVo basicStructureTreeVo2 = map2.get(s);
-                    if (basicStructureTreeVo2==null){
+                    if (basicStructureTreeVo2==null && StringUtils.isNotBlank(s)){
                         throw new RuntimeException(stringStringHashMap.get("品类名称")+"下的中类"+ stringStringHashMap.get("中类名称")+"不存在");
                     }
                 }
@@ -601,6 +601,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
      */
     private String addTotal(String dataJson) {
         JSONArray jsonArray = JSON.parseArray(dataJson);
+        JSONObject jsonObject1 = jsonArray.getJSONObject(jsonArray.size() - 1);
         jsonArray.remove(jsonArray.size()-1);
         JSONArray jsonArray1 =new JSONArray();
 
@@ -643,7 +644,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 object=new JSONObject();
             }
         }
-
+        jsonArray1.add(jsonObject1);
         return jsonArray1.toJSONString();
     }
 }
