@@ -32,6 +32,7 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.OrderBookFollowUp;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
@@ -81,6 +82,17 @@ public class OrderBookDetailController extends BaseController {
         OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(pageInfo,OrderBookDetailPageVo.class);
         pageVo.setTotalMap(orderBookDetailService.queryCount(dto));
         return selectSuccess(pageVo);
+    }
+
+    /**
+     * 页面配置
+     */
+    @ApiOperation(value = "订货本详情-页面配置")
+    @GetMapping("/pageConfig")
+    public ApiResult<Map<String, OrderBookDetailPageConfigVo>> pageConfig(OrderBookDetailQueryDto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        dto.setUserId(super.getUserId());
+        return selectSuccess(orderBookDetailService.pageConfig(dto));
     }
 
     /**

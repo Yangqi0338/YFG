@@ -40,6 +40,8 @@
         tbcl.colour_code as supplierColor,
         tpi.id as packInfoId,
         tpi.name as bomName,
+        tob.channel as channel,
+        tob.channel_name as channelName,
         IFNULL(tobl.material,0) * IFNULL(tsc.tag_price,0) as materialMoney
         FROM
         t_order_book_detail tobl

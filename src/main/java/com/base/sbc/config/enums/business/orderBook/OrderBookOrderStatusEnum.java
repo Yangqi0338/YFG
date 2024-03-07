@@ -17,9 +17,9 @@ import java.util.Arrays;
 @Getter
 @AllArgsConstructor
 public enum OrderBookOrderStatusEnum {
-    NOT_COMMIT("未下单"),
-    PART_ORDER("部分下单"),
-    ORDER("已下单"),
+    NOT_COMMIT("待投产"),
+    PART_ORDER("部分投产"),
+    ORDER("已投产"),
     ;
     /** 编码 */
     @EnumValue

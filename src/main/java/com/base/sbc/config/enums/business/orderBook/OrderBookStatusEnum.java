@@ -18,10 +18,10 @@ import java.util.Arrays;
 @Getter
 @AllArgsConstructor
 public enum OrderBookStatusEnum {
-    NOT_COMMIT("未提交"),
-    NOT_CONFIRM("未确认"),
-    CONFIRM("已确认"),
-    ORDER("已下单"),
+    NOT_COMMIT("待提交"),
+    NOT_CONFIRM("待审核"),
+    PART_CONFIRM("部分审核"),
+    CONFIRM("已审核"),
     SUSPEND("已驳回"),
     ;
     /** 编码 */

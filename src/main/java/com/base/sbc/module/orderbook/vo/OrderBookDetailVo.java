@@ -1,11 +1,13 @@
 package com.base.sbc.module.orderbook.vo;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class OrderBookDetailVo extends OrderBookDetail {
@@ -273,5 +275,17 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
+
+    /**
+     * 渠道编码
+     */
+    @ApiModelProperty(value = "渠道编码")
+    private String channel;
+
+    /**
+     * 渠道
+     */
+    @ApiModelProperty(value = "渠道")
+    private String channelName;
 
 }

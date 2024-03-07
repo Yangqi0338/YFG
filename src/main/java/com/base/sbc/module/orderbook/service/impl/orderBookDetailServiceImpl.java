@@ -19,6 +19,7 @@ import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
@@ -28,7 +29,9 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.dto.BasePageInfo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.service.FieldValService;
@@ -40,6 +43,7 @@ import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -74,6 +78,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 
@@ -98,6 +103,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final StyleColorService styleColorService;
 
     private final MessageUtils messageUtils;
+    private final BasicsdatumSizeService sizeService;
     @Resource
     @Lazy
     private SmpService smpService;
@@ -628,7 +634,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             long rightStatusCount = this.count(ew.and(it-> it.eq(OrderBookDetail::getIsOrder, YesOrNoEnum.NO).or().isNull(OrderBookDetail::getIsOrder)));
 
             orderBookService.update(new LambdaUpdateWrapper<OrderBook>()
-                    .set(OrderBook::getStatus,OrderBookStatusEnum.NOT_COMMIT)
+                    .set(OrderBook::getStatus,OrderBookStatusEnum.SUSPEND)
                     .set(OrderBook::getOrderStatus,totalCount == rightStatusCount ? OrderBookOrderStatusEnum.NOT_COMMIT : OrderBookOrderStatusEnum.PART_ORDER)
                     .eq(OrderBook::getId,orderBookId));
         }
@@ -672,10 +678,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         OrderBook orderBook = orderBookService.getById(dto.getOrderBookId());
         if (totalCount == rightStatusCount) {
-            orderBook.setStatus(OrderBookStatusEnum.ORDER);
+            orderBook.setStatus(OrderBookStatusEnum.CONFIRM);
             orderBook.setOrderStatus(OrderBookOrderStatusEnum.ORDER);
         }else {
-            orderBook.setStatus(OrderBookStatusEnum.CONFIRM);
+            orderBook.setStatus(OrderBookStatusEnum.PART_CONFIRM);
             orderBook.setOrderStatus(OrderBookOrderStatusEnum.PART_ORDER);
         }
         orderBookService.updateById(orderBook);
@@ -713,6 +719,26 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
         }
         return b;
+    }
+
+    @Override
+    public Map<String, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto) {
+        List<String> sizeRange = sizeService.listOneField(new LambdaQueryWrapper<BasicsdatumSize>()
+                .eq(BasicsdatumSize::getStatus, "1")
+                .eq(BasicsdatumSize::getCompanyCode, dto.getCompanyCode())
+                .orderByAsc(BasicsdatumSize::getSort), BasicsdatumSize::getInternalSize);
+        Set<String> sizeRangeSet = sizeRange.stream()
+                .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.toList()))
+                .keySet();
+        // 仅线上线下
+        return Stream.of("online","offline").map(channel-> {
+            // 找对应渠道配置
+            OrderBookDetailPageConfigVo vo = new OrderBookDetailPageConfigVo();
+            vo.setChannel(channel);
+            vo.setSizeRange(sizeRangeSet);
+            vo.setSameDesignCount(1);
+            return vo;
+        }).collect(Collectors.toMap(OrderBookDetailPageConfigVo::getChannel, Function.identity()));
     }
 
     /**

@@ -290,6 +290,18 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     private String braiding;
 
     /**
+     * 备料
+     */
+    @ApiModelProperty(value = "线上备料")
+    private String onlineMaterial;
+
+    /**
+     * 备胚
+     */
+    @ApiModelProperty(value = "线上备胚")
+    private String onlineBraiding;
+
+    /**
      * 总投产尺码
      */
     @ApiModelProperty(value = "总投产尺码")

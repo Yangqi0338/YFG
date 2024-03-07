@@ -7,6 +7,7 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.github.pagehelper.PageInfo;
 import org.springframework.transaction.annotation.Transactional;
@@ -78,4 +79,6 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     boolean placeAnOrder(OrderBookDetailQueryDto dto, String orderBookId);
 
     boolean assignPersonnel(OrderBookDetailSaveDto dto);
+
+    Map<String, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto);
 }
