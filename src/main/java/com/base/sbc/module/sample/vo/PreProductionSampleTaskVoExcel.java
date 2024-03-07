@@ -2,6 +2,8 @@ package com.base.sbc.module.sample.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.alibaba.excel.annotation.format.NumberFormat;
+import com.alibaba.excel.annotation.write.style.ContentStyle;
+import com.alibaba.excel.enums.poi.HorizontalAlignmentEnum;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.module.patternmaking.vo.NodeStatusVo;
@@ -132,6 +134,7 @@ public class PreProductionSampleTaskVoExcel {
     @ApiModelProperty(value = "样衣质量评分")
     @Excel(name = "样衣质量评分")
     @NumberFormat("#.##%")
+    @ContentStyle(dataFormat = 2)
     private BigDecimal sampleQualityScore;
 
     /**
