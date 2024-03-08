@@ -284,11 +284,10 @@ public class StyleColorController {
 		return styleColorService.agentPageList(querySampleStyleColorDto);
 	}
 
-	@ApiOperation(value = "代理货品资料-查询更新得图片")
-	@GetMapping("/agentPageList")
-	public List<String> agentPageList(List<String> styleNos) {
-
-		return null;
+	@ApiOperation(value = "代理货品资料-查询需要更新的图片")
+	@GetMapping("/agentStyleNoList")
+	public List<String> agentPageList() {
+		return styleColorService.agentStyleNoList();
 	}
 
 	@ApiOperation(value = "mango导入Excel")

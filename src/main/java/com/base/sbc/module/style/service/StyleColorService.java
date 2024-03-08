@@ -254,6 +254,12 @@ public interface StyleColorService extends BaseService<StyleColor> {
     PageInfo<StyleColorAgentVo> agentPageList(QueryStyleColorAgentDto querySampleStyleColorDto);
 
     /**
+     * 查询未发送，重新打开，已解控状态数据
+     * @return
+     */
+    List<String> agentStyleNoList();
+
+    /**
      * mango品牌Execl导入模板下载
      */
     ApiResult mangoExeclImport(List<MangoStyleColorExeclDto> list,Boolean isUpdate);
