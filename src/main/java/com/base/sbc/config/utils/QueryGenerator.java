@@ -1,5 +1,6 @@
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.annotation.QueryField;
@@ -93,6 +94,9 @@ public class QueryGenerator {
      * @return
      */
     public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
+        if(StrUtil.isEmpty(dto.getTableCode()) || MapUtil.isEmpty(dto.getFieldQueryMap())){
+            return false;
+        }
         String columnHeard = dto.getColumnHeard();
         Map<String, String> fieldQueryMap = dto.getFieldQueryMap();
         boolean isColumnHeard = false;
@@ -110,10 +114,11 @@ public class QueryGenerator {
                     //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
                     if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                         qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " like '%" + fieldValue + "%'"));
+                        qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + sqlCode);
                     } else {
                         qw.like(sqlCode, fieldValue);
+                        qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + columnCode);
                     }
-                    qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + columnCode);
                     isColumnHeard = true;
                 } else if (columnCode.equals(fieldValue) && StrUtil.isEmpty(columnHeard)) {
                     //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空

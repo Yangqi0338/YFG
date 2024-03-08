@@ -1,5 +1,6 @@
 package com.base.sbc.module.style.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -41,6 +42,10 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         Page<Object> objects = PageHelper.startPage(dto);
         List<StyleAnalyseVo> list = styleAnalyseMapper.findDesignPage(qw);
+
+        if(CollUtil.isEmpty(list)){
+            return new PageInfo<>(list);
+        }
 
         //根据查询出维度系数数据
         LambdaQueryWrapper<FieldVal> fieldValQueryWrapper = new LambdaQueryWrapper<>();
