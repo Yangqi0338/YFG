@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.style.vo.DemandOrderSkcVo;
+import com.base.sbc.module.style.vo.StyleColorAgentVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
@@ -95,6 +96,8 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      * @return
      */
     List<StyleNoUserInfoVo> getStyleDesignerInfo(@Param("styleNos") List<String> styleNos);
+
+    List<StyleColorAgentVo> agentList(@Param(Constants.WRAPPER) BaseQueryWrapper queryWrapper);
 
 // 自定义方法区 不替换的区域【other_end】
 }

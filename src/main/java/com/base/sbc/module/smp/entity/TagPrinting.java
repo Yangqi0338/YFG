@@ -285,6 +285,11 @@ public class TagPrinting {
          */
         private String SpecialSpec;
 
+        /**
+         * 合作方条形码
+         */
+        private String outsideBarcode;
+
         @JsonIgnore
         public String getSystemSizeName(){
             return this.SIZENAME + "(" + this.SIZECODE + ")";

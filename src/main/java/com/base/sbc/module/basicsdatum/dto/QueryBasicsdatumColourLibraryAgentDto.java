@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
-public class QueryBasicsdatumColourLibraryDto extends Page {
+public class QueryBasicsdatumColourLibraryAgentDto extends Page {
 
     private String id;
 
@@ -40,7 +40,6 @@ public class QueryBasicsdatumColourLibraryDto extends Page {
     /** 色度 */
     @ApiModelProperty(value = "色度"  )
     private String chroma;
-    private String chromaName;
     /** 英文名称 */
     @ApiModelProperty(value = "英文名称"  )
     private String englishName;
@@ -61,4 +60,7 @@ public class QueryBasicsdatumColourLibraryDto extends Page {
 
     @ApiModelProperty(value = "下发状态"  )
     private String  scmSendFlag;
+
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
 }

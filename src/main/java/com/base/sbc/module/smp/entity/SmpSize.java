@@ -1,5 +1,6 @@
 package com.base.sbc.module.smp.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -25,4 +26,11 @@ public class  SmpSize {
     private String skuFiller;
     /**特殊规格*/
     private String specialSpec;
+    /**合作方条形码*/
+    private String outsideBarcode;
+    /**
+     * 外部尺码code
+     */
+    @ApiModelProperty(value = "外部尺码code")
+    private String outsideSizeCode;
 }

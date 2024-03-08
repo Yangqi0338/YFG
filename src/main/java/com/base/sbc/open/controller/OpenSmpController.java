@@ -22,6 +22,7 @@ import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.entity.*;
@@ -58,6 +59,8 @@ public class OpenSmpController extends BaseController {
     private final AmcService amcService;
 
     private final HangTagService hangTagService;
+
+    private final StyleColorService styleColorService;
 
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
@@ -164,6 +167,16 @@ public class OpenSmpController extends BaseController {
     public ApiResult tagPrinting(String id, boolean bl) {
         List<TagPrinting> tagPrintings1 = hangTagService.hangTagPrinting(id, bl);
         return selectSuccess(tagPrintings1);
+    }
+
+    /**
+     * 代理吊牌打印
+     */
+    @GetMapping("/agentTagPrinting")
+    @ApiOperation(value = "吊牌打印获取", notes = "吊牌打印获取")
+    public ApiResult agentTagPrinting(String id, boolean bl) {
+        List<TagPrinting> tagPrintings = styleColorService.agentListByStyleNo(id, bl);
+        return selectSuccess(tagPrintings);
     }
 
 
