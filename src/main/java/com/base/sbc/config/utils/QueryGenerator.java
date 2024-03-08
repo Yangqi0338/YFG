@@ -17,10 +17,11 @@ public class QueryGenerator {
 
     /**
      * 特别注意，该方法中有查询  PageHelper 写到该方法下面
+     *
      * @param qw
      * @param dto
-     * @return
      * @param <T>
+     * @return
      */
     public static <T> boolean initQueryWrapper(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
         String columnHeard = dto.getColumnHeard();
@@ -85,10 +86,11 @@ public class QueryGenerator {
 
     /**
      * 特别注意，该方法中有查询  PageHelper 写到该方法下面
+     *
      * @param qw
      * @param dto
-     * @return
      * @param <T>
+     * @return
      */
     public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
         String columnHeard = dto.getColumnHeard();
@@ -96,17 +98,22 @@ public class QueryGenerator {
         boolean isColumnHeard = false;
 
         ColumnDefineService columnDefineService = SpringContextHolder.getBean(ColumnDefineService.class);
-        List<ColumnDefine> list = columnDefineService.getByTableCode(dto.getTableCode(),false);
+        List<ColumnDefine> list = columnDefineService.getByTableCode(dto.getTableCode(), false);
 
         for (ColumnDefine columnDefine : list) {
             String columnCode = columnDefine.getColumnCode();
             String sqlCode = columnDefine.getSqlCode();
             if (fieldQueryMap.containsKey(columnCode)) {
                 String fieldValue = fieldQueryMap.get(columnCode);
+                String property = columnDefine.getProperty();
                 if (StrUtil.isNotEmpty(columnHeard) && columnCode.equals(columnHeard)) {
                     //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
+                    if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                        qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " like '%" + fieldValue + "%'"));
+                    } else {
+                        qw.like(sqlCode, fieldValue);
+                    }
                     qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + columnCode);
-                    qw.like(sqlCode, fieldValue);
                     isColumnHeard = true;
                 } else if (columnCode.equals(fieldValue) && StrUtil.isEmpty(columnHeard)) {
                     //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
@@ -115,11 +122,20 @@ public class QueryGenerator {
                 } else {
                     //3 选中数据查询，列名不为空，并且值不为空
                     //时间区间过滤
-                    String property = columnDefine.getColumnFilter();
                     if ("isNull".equals(fieldValue)) {
-                        qw.isNullStr(sqlCode);
+                        if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                            qw.last(columnDefine.getColumnFilter().replace("?",
+                                    "(" + columnDefine.getColumnFilterExtent() + " = '' or " + columnDefine.getColumnFilterExtent() + "is null)"));
+                        } else {
+                            qw.isNullStr(sqlCode);
+                        }
                     } else if ("isNotNull".equals(fieldValue)) {
-                        qw.isNotNullStr(sqlCode);
+                        if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                            qw.last(columnDefine.getColumnFilter().replace("?",
+                                    "(" + columnDefine.getColumnFilterExtent() + " != '' or " + columnDefine.getColumnFilterExtent() + "is not null)"));
+                        } else {
+                            qw.isNotNullStr(sqlCode);
+                        }
                     } else if (StrUtil.isNotEmpty(property) && "date".equals(property)) {
                         String[] dateArr = fieldValue.split(",");
                         if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
@@ -129,6 +145,9 @@ public class QueryGenerator {
                         }
                     } else if (StrUtil.isNotEmpty(property) && "replace".equals(property)) {
                         qw.in(sqlCode, Arrays.asList(fieldValue.split(";")));
+                    } else if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                        String s = "'" + String.join("','", fieldValue.split(";")) + "'";
+                        qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " in (" + s + ")"));
                     } else {
                         //正常保留历史条件查询
                         qw.in(sqlCode, Arrays.asList(fieldValue.split(";")));

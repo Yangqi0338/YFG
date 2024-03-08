@@ -156,5 +156,17 @@ public class ColumnDefine extends BaseDataEntity<String> {
     @ApiModelProperty(value = "表字段名")
     private String sqlCode;
 
+    /**
+     * 列头筛选类型
+     */
+    @ApiModelProperty(value = "列头筛选类型")
+    private String property;
+
+    /**
+     * 过滤器扩展
+     */
+    @ApiModelProperty(value = "过滤器扩展")
+    private String columnFilterExtent;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
