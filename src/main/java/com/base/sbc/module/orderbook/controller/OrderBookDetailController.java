@@ -16,6 +16,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
@@ -89,7 +90,7 @@ public class OrderBookDetailController extends BaseController {
      */
     @ApiOperation(value = "订货本详情-页面配置")
     @GetMapping("/pageConfig")
-    public ApiResult<Map<String, OrderBookDetailPageConfigVo>> pageConfig(OrderBookDetailQueryDto dto) {
+    public ApiResult<Map<OrderBookChannelType, OrderBookDetailPageConfigVo>> pageConfig(OrderBookDetailQueryDto dto) {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
         return selectSuccess(orderBookDetailService.pageConfig(dto));

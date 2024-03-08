@@ -3,6 +3,7 @@ package com.base.sbc.module.orderbook.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
@@ -80,5 +81,5 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     boolean assignPersonnel(OrderBookDetailSaveDto dto);
 
-    Map<String, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto);
+    Map<OrderBookChannelType, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto);
 }

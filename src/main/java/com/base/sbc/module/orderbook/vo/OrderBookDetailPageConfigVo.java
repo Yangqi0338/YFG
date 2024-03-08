@@ -1,5 +1,6 @@
 package com.base.sbc.module.orderbook.vo;
 
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,7 +14,7 @@ import java.util.Set;
 public class OrderBookDetailPageConfigVo {
 
     @JsonIgnore
-    private String channel;
+    private OrderBookChannelType channel;
     private Set<String> sizeRange;
     private Integer sameDesignCount;
 

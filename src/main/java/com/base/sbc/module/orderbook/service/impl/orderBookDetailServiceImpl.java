@@ -3,6 +3,8 @@ package com.base.sbc.module.orderbook.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.func.Consumer3;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -141,6 +143,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
+        if (CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
         /*设置图片分辨路*/
         stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
         stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
@@ -152,6 +155,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 result.add(orderBookDetailVo);
             });
         }
+        OrderBookDetailQueryDto pageConfigQueryDto = new OrderBookDetailQueryDto();
+        pageConfigQueryDto.setCompanyCode(orderBookDetailVos.get(0).getCompanyCode());
+        Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig = pageConfig(pageConfigQueryDto);
 
         //查询BOM版本
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
@@ -277,12 +283,22 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 Map<String, String> sizeModelMap = sizeList.stream().filter(it -> orderBookDetailVo.getSizeCodes().contains(it.getCode()))
                         .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
                 sizeModelMap.forEach((key,value)-> {
-                    if (jsonObject.containsKey(key)) {
-                        jsonObject.put(key+"Size",value);
+                    String finalKey = key;
+                    if (jsonObject.containsKey(finalKey)) {
+                        jsonObject.put(finalKey+"Size",value);
                     }
-                    if (jsonObject.containsKey(key+"1")){
-                        jsonObject.put(key+"1Size",value);
+                    finalKey += "1";
+                    if (jsonObject.containsKey(finalKey)){
+                        jsonObject.put(finalKey+"Size",value);
                     }
+                });
+                channelPageConfig.forEach((channel, pageConfig)-> {
+                    Set<String> sizeRange = pageConfig.getSizeRange();
+                    if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
+                        sizeRange.forEach(size-> {
+                            jsonObject.put(size+ (channel == OrderBookChannelType.OFFLINE ? "" : channel.ordinal()) + "Status", sizeModelMap.containsKey(size) ? "0": "1");
+                        });
+                    };
                 });
                 orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
             }
@@ -743,7 +759,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
-    public Map<String, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto) {
+    public Map<OrderBookChannelType, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto) {
         List<String> sizeRange = sizeService.listOneField(new LambdaQueryWrapper<BasicsdatumSize>()
                 .eq(BasicsdatumSize::getStatus, "1")
                 .eq(BasicsdatumSize::getCompanyCode, dto.getCompanyCode())
@@ -752,7 +768,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.toList()))
                 .keySet();
         // 仅线上线下
-        return Stream.of("online","offline").map(channel-> {
+        return Arrays.stream(OrderBookChannelType.values()).map(channel-> {
             // 找对应渠道配置
             OrderBookDetailPageConfigVo vo = new OrderBookDetailPageConfigVo();
             vo.setChannel(channel);
