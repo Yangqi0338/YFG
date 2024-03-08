@@ -72,8 +72,6 @@ public class OpenSmpController extends BaseController {
 
     private final CcmService ccmService;
 
-    private final StyleColorService styleColorService;
-
     private final BasicsdatumGarmentInspectionService garmentInspectionService;
 
     /**
