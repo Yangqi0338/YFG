@@ -10,11 +10,11 @@ spring:
         namespace: test
         file-extension: yml # 假如不配置，则nacos远程配置文件的后缀为.properties
         ext-config:
-          - data-id: custom-pdm.yml
-            group: ${spring.application.name}
+          - data-id: common-pdm.yml
             refresh: true
+#          - data-id: dbSync-pdm.yml
+#            refresh: true
           - data-id: moreLanguage-pdm.yml
-            group: ${spring.application.name}
             refresh: true
 # 暂不打印
 #logging:
