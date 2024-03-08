@@ -802,15 +802,25 @@ public class SmpService {
             }
 
 
-            /*判断供应商报价是否停用*/
-            QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("is_supplier",BaseGlobal.YES);
-            queryWrapper.eq("supplier_code",packBom.getSupplierId());
-            List<BasicsdatumSupplier> basicsdatumSupplierList = basicsdatumSupplierService.list(queryWrapper);
+            /*判断供应商报价是否停用
+            * 1.报次款无需校验供应商停用
+            * 2.停用状态下的BOM物料无需要校验供应商停用
+            */
+            PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+            styleColor = styleColorService.getById(packInfo.getStyleColorId());
+            if (styleColor == null) {
+                throw new OtherException("未关联配色,无法下发");
+            }
+            if (StrUtil.isEmpty(styleColor.getDefectiveNo()) && BaseGlobal.NO.equals(packBom.getUnusableFlag())) {
+                QueryWrapper queryWrapper = new QueryWrapper();
+                queryWrapper.eq("is_supplier",BaseGlobal.YES);
+                queryWrapper.eq("supplier_code",packBom.getSupplierId());
+                List<BasicsdatumSupplier> basicsdatumSupplierList = basicsdatumSupplierService.list(queryWrapper);
 
-            if (CollUtil.isNotEmpty(basicsdatumSupplierList)) {
-                String collect = basicsdatumSupplierList.stream().map(BasicsdatumSupplier::getSupplier).collect(Collectors.joining(","));
-                throw new OtherException(packBom.getMaterialCode()+"_"+packBom.getMaterialName()+" "+collect+"供应商已停用");
+                if (CollUtil.isNotEmpty(basicsdatumSupplierList)) {
+                    String collect = basicsdatumSupplierList.stream().map(BasicsdatumSupplier::getSupplier).collect(Collectors.joining(","));
+                    throw new OtherException(packBom.getMaterialCode()+"_"+packBom.getMaterialName()+" "+collect+"供应商已停用");
+                }
             }
 
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
