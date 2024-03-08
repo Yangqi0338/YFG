@@ -1958,6 +1958,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     @Override
+    public List<String> agentStyleNoList() {
+        QueryWrapper<StyleColorAgent> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("del_flag","0");
+        queryWrapper.ne("status","1");
+        queryWrapper.select(" DISTINCT style_color_no ");
+        List<String> objects =(List<String>)(List) styleColorAgentService.listObjs(queryWrapper);
+        return objects;
+    }
+
+    @Override
     public List<TagPrinting> agentListByStyleNo(String styleNo, boolean likeQueryFlag) {
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
         if (likeQueryFlag) {

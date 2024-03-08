@@ -284,6 +284,12 @@ public class StyleColorController {
 		return styleColorService.agentPageList(querySampleStyleColorDto);
 	}
 
+	@ApiOperation(value = "代理货品资料-查询需要更新的图片")
+	@GetMapping("/agentStyleNoList")
+	public List<String> agentPageList() {
+		return styleColorService.agentStyleNoList();
+	}
+
 	@ApiOperation(value = "mango导入Excel")
 	@PostMapping("/mangoImportExcel")
 	public ApiResult importExcel(@RequestParam("file") MultipartFile file,@RequestParam(value = "isUpdate", required = false, defaultValue = "false") Boolean isUpdate) throws Exception {
