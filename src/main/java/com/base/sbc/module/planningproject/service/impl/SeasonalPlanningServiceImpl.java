@@ -99,10 +99,17 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     // 上市波段
                     int s =0;
                     //防止顺序错乱,不能用jsonObject.keySet()
+                    Map<String, String> bandMap = new HashMap<>();
                     while (jsonObject.containsKey(String.valueOf(s))){
                         if (s > 2 && StringUtils.isNotBlank(jsonObject.getString(String.valueOf(s)))) {
                             // System.out.println("上市波段:" + jsonObject.getString(s));
                             String bandName = jsonObject.getString(String.valueOf(s));
+                            if (bandMap.containsKey(bandName)){
+                                throw new RemoteException("上市波段重复:" + bandName);
+                            }else {
+                                bandMap.put(bandName,bandName);
+                            }
+
                             String s1 = bandName.split("")[0];
                             if (Integer.parseInt(s1) <10){
                                 s1 ="0"+s1;
