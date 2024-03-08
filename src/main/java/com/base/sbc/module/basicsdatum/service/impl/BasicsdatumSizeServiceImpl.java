@@ -43,10 +43,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -266,6 +263,8 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
         Map<String,String> map =new HashMap<>();
        if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
+           basicsdatumSizeList = basicsdatumSizeList.stream().sorted(Comparator.comparing(BasicsdatumSize::getCode).reversed()).collect(Collectors.toList());
+
 //           List<String> id =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
 //           List<String> name =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
 //           List<String> sort =  basicsdatumSizeList.stream().map(BasicsdatumSize::getSort).collect(Collectors.toList());
@@ -277,7 +276,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
                id.add(size.getId());
                name.add(size.getHangtags());
                sort.add(size.getSort());
-               code.add(size.getRealCode());
+               code.add(size.getCode());
            }
            map.put("ids",StringUtils.join(id,","));
            map.put("name",StringUtils.join(name,","));
