@@ -538,10 +538,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             List<StyleColor>  styleColorList =new ArrayList<>();
             for (StyleColor styleColor : styleColors) {
                 if (list2.size()%2!=0){
+                    seasonalPlanningDetails.setStyleCategory("高奢");
                     String[] split1 = styleColor.getStyleNo().split("-");
                     if(split1.length > 1 && split[0].length() > 3 && 'S' == split[0].charAt(3)){
                         styleColorList.add(styleColor);
-                        seasonalPlanningDetails.setStyleCategory("高奢");
                     }
                 }else {
                     styleColorList.add(styleColor);
