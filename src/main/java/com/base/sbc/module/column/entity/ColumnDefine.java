@@ -14,6 +14,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 /**
  * 类描述：系统级列自定义 实体类
  *
@@ -151,6 +153,12 @@ public class ColumnDefine extends BaseDataEntity<String> {
     private String exportAlias;
 
     /**
+     * 分组名称
+     */
+    @ApiModelProperty(value = "分组名称")
+    private String groupName;
+
+    /**
      * 表字段名
      */
     @ApiModelProperty(value = "表字段名")
@@ -167,6 +175,10 @@ public class ColumnDefine extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "过滤器扩展")
     private String columnFilterExtent;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "分组")
+    private List<ColumnDefine> children;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
