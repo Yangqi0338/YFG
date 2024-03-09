@@ -57,7 +57,8 @@
             t.devt_type_name, -- 生产类型
             t.registering_no, -- 套版款号
             t.sales_type,
-            t.sales_type_name -- 销售渠道
+            t.sales_type_name, -- 销售渠道
+            t.create_date
         </if>
         FROM t_style t
         ${ew.customSqlSegment}

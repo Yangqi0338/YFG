@@ -2,6 +2,7 @@ package com.base.sbc.module.style.vo;
 
 import lombok.Data;
 
+import java.util.Date;
 import java.util.Map;
 
 @Data
@@ -66,5 +67,7 @@ public class StyleAnalyseVo {
     private String styleBandName;
     private String styleNo;
     private String styleColorPic;
+
+    private Date createDate;
 
 }
