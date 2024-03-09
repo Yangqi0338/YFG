@@ -15,19 +15,29 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumDimensionalityDto;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
+import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.mapper.SeasonalPlanningMapper;
+import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningDetailsService;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
 import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -53,6 +63,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     private final CcmFeignService ccmFeignService;
     private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
     private final OrderBookDetailService orderBookDetailService;
+    private final PlanningProjectDimensionService planningProjectDimensionService;
+    private final StyleColorService styleColorService;
+    private final BasicsdatumDimensionalityService basicsdatumDimensionalityService;
+    private final StyleService styleService;
 
 
     @Override
@@ -446,17 +460,20 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         //拆分成中类维度
         List<SeasonalPlanningDetails> list1 =new ArrayList<>();
         List<SeasonalPlanningDetails> list2 =new ArrayList<>();
-        List<SeasonalPlanningDetails> list3 =new ArrayList<>();
+        // List<SeasonalPlanningDetails> list3 =new ArrayList<>();
         for (SeasonalPlanningDetails seasonalPlanningDetails : detailsList) {
             String prodCategory2ndCode = seasonalPlanningDetails.getProdCategory2ndCode();
             if (StringUtils.isNotBlank(prodCategory2ndCode)&& prodCategory2ndCode.split(",").length>1) {
                 String[] split = prodCategory2ndCode.split(",");
                 for (int i = 0; i < split.length; i++) {
-                    SeasonalPlanningDetails seasonalPlanningDetails1 =new SeasonalPlanningDetails();
-                    BeanUtil.copyProperties(seasonalPlanningDetails,seasonalPlanningDetails1);
-                    seasonalPlanningDetails1.setProdCategory2ndCode(split[i]);
-                    seasonalPlanningDetails1.setProdCategory2ndName(seasonalPlanningDetails.getProdCategory2ndName().split(",")[i]);
-                    list1.add(seasonalPlanningDetails1);
+                    if (StringUtils.isNotBlank(split[i])){
+                        SeasonalPlanningDetails seasonalPlanningDetails1 =new SeasonalPlanningDetails();
+                        BeanUtil.copyProperties(seasonalPlanningDetails,seasonalPlanningDetails1);
+                        seasonalPlanningDetails1.setProdCategory2ndCode(split[i]);
+                        seasonalPlanningDetails1.setProdCategory2ndName(seasonalPlanningDetails.getProdCategory2ndName().split(",")[i]);
+                        list1.add(seasonalPlanningDetails1);
+                    }
+
                 }
             } else  {
                 list1.add(seasonalPlanningDetails);
@@ -480,115 +497,67 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             }
         }
 
-        // System.out.println(list2);
-        //查询订货本下单的数据
-        for (int i = 0; i < list2.size(); i++) {
-            SeasonalPlanningDetails seasonalPlanningDetails = list2.get(i);
+        for (SeasonalPlanningDetails seasonalPlanningDetails : list2) {
+            seasonalPlanningDetails.setOrderTime("");
+            seasonalPlanningDetails.setSkcCount("0");
             String prodCategory2ndCode = seasonalPlanningDetails.getProdCategory2ndCode();
+            String[] split = prodCategory2ndCode.split(",");
+            for (String s : split) {
+                prodCategory2ndCode = s;
+            }
+
             String prodCategory1stCode = seasonalPlanningDetails.getProdCategory1stCode();
             String prodCategoryCode = seasonalPlanningDetails.getProdCategoryCode();
             String bandCode = seasonalPlanningDetails.getBandCode();
 
-            OrderBookDetailQueryDto dto = new OrderBookDetailQueryDto();
-            // dto.setBandCode(bandCode);
-            dto.setPlanningSeasonId(seasonalPlanningVo.getSeasonId());
-            dto.setCategoryCode(prodCategoryCode);
-            dto.setProdCategory1st(prodCategory1stCode);
-            if (StringUtils.isNotBlank(prodCategory2ndCode)){
-                dto.setProdCategory2ndCode(prodCategory2ndCode);
+            //查询设计款号
+            BaseQueryWrapper<Style> styleQueryWrapper = new BaseQueryWrapper<>();
+            styleQueryWrapper.select("id");
+            styleQueryWrapper.eq("planning_season_id",seasonalPlanningVo.getSeasonId());
+            styleQueryWrapper.eq("prod_category1st",prodCategory1stCode);
+            styleQueryWrapper.eq("prod_category",prodCategoryCode);
+            styleQueryWrapper.eq("band_code",bandCode);
+            styleQueryWrapper.notEmptyEq("prod_category2nd",prodCategory2ndCode);
+            List<Style> styles = styleService.list(styleQueryWrapper);
+            List<String> styleIds = styles.stream().map(Style::getId).collect(Collectors.toList());
+
+            if (styleIds.isEmpty()){
+                continue;
             }
-            dto.setIsOrder("1");
-            BaseQueryWrapper<OrderBookDetail> bookDetailBaseQueryWrapper = orderBookDetailService.buildQueryWrapper(dto);
-            bookDetailBaseQueryWrapper.orderByDesc("commissioning_date");
-            // if (i%2==0){
-            //     bookDetailBaseQueryWrapper.like("tsc.style_no","Q");
-            //     seasonalPlanningDetails.setStyleCategory("高奢");
-            // }else {
-            //     seasonalPlanningDetails.setStyleCategory("常规");
-            //     bookDetailBaseQueryWrapper.notLike("tsc.style_no","Q");
-            // }
+            //查询大货款号
+            QueryWrapper<StyleColor> styleColorQueryWrapper = new QueryWrapper<>();
+            styleColorQueryWrapper.select("id","style_no");
+            styleColorQueryWrapper.in("style_id",styleIds);
+            List<StyleColor> styleColors = styleColorService.list(styleColorQueryWrapper);
+            if (styleColors.isEmpty()){
+                continue;
+            }
 
-            seasonalPlanningDetails.setSkcCount("0");
-            seasonalPlanningDetails.setOrderTime("");
-            seasonalPlanningDetails.setLaunchTime("");
-            List<OrderBookDetailVo> bookDetailVos = orderBookDetailService.querylist(bookDetailBaseQueryWrapper, null);
-            int z=0;
-            int c=0;
-            Map<String,Integer> map = new HashMap<>();
-            Map<String,Integer> map1 = new HashMap<>();
-            for (OrderBookDetailVo bookDetailVo : bookDetailVos) {
-                String bulkStyleNo = bookDetailVo.getBulkStyleNo();
-                String[] split = bulkStyleNo.split("-");
-                //大货款号有-,并且-往前三位是S,则是高奢款
-                if (split.length > 1 && split[0].length() > 3 && 'S' == split[0].charAt(3)) {
-                    seasonalPlanningDetails.setStyleCategory("高奢");
-                    z++;
-                    if (bookDetailVo.getBandCode().equals(bandCode)) {
-                        if (bookDetailVo.getCommissioningDate() != null) {
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            String format = simpleDateFormat.format(bookDetailVo.getCommissioningDate());
-                            seasonalPlanningDetails.setOrderTime(format);
-                            seasonalPlanningDetails.setLaunchTime(format);
-                        }
-                    }else {
-                        String band = bookDetailVo.getBandCode()+"_"+bookDetailVo.getBandName();
-                        map.merge(band, 1, Integer::sum);
+            // highLuxuryItems
+            //大货款号有-,并且-往前三位是S,则是高奢款
+            List<StyleColor>  styleColorList =new ArrayList<>();
+            for (StyleColor styleColor : styleColors) {
+                if (list2.size()%2!=0){
+                    String[] split1 = styleColor.getStyleNo().split("-");
+                    if(split1.length > 1 && split[0].length() > 3 && 'S' == split[0].charAt(3)){
+                        styleColorList.add(styleColor);
+                        seasonalPlanningDetails.setStyleCategory("高奢");
                     }
-
-                    for (String band : map.keySet()) {
-                        if (StringUtils.isNotBlank(band)){
-                            String[] split1 = band.split("_");
-                            if (split1.length>1){
-                                SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
-                                BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
-                                seasonalPlanningDetails1.setBandCode(split1[0]);
-                                seasonalPlanningDetails1.setBandName(split1[1]);
-                                seasonalPlanningDetails1.setSkcCount(String.valueOf(map.get(band)));
-                                list3.add(seasonalPlanningDetails1);
-                            }
-                        }
-                    }
-                    seasonalPlanningDetails.setSkcCount(String.valueOf(z));
-
-                } else {
-                    c++;
+                }else {
+                    styleColorList.add(styleColor);
                     seasonalPlanningDetails.setStyleCategory("常规");
-                    if (bookDetailVo.getBandCode().equals(bandCode)) {
-                        if (bookDetailVo.getCommissioningDate() != null) {
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            String format = simpleDateFormat.format(bookDetailVo.getCommissioningDate());
-                            seasonalPlanningDetails.setOrderTime(format);
-                            seasonalPlanningDetails.setLaunchTime(format);
-                        }
-                    }else {
-                        String band = bookDetailVo.getBandCode()+"_"+bookDetailVo.getBandName();
-                        map1.merge(band, 1, Integer::sum);
-
-                    }
-                    for (String band : map1.keySet()) {
-                        if (StringUtils.isNotBlank(band)){
-                            String[] split1 = band.split("_");
-                            if (split1.length>1){
-                                SeasonalPlanningDetails seasonalPlanningDetails1 = new SeasonalPlanningDetails();
-                                BeanUtil.copyProperties(seasonalPlanningDetails, seasonalPlanningDetails1);
-                                seasonalPlanningDetails1.setBandCode(split1[0]);
-                                seasonalPlanningDetails1.setBandName(split1[1]);
-                                seasonalPlanningDetails1.setSkcCount(String.valueOf(map.get(band)));
-                                list3.add(seasonalPlanningDetails1);
-                            }
-                        }
-                    }
-
-                    seasonalPlanningDetails.setSkcCount(String.valueOf(c));
                 }
-
             }
-
-
-
-
+            List<String> styleColorIds = styleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
+            if (styleColorIds.isEmpty()){
+                continue;
+            }
+            BaseQueryWrapper<OrderBookDetail> bookDetailBaseQueryWrapper = new BaseQueryWrapper<>();
+            bookDetailBaseQueryWrapper.in("style_color_id",styleColorIds);
+            bookDetailBaseQueryWrapper.eq("is_order","1");
+            long l = orderBookDetailService.count(bookDetailBaseQueryWrapper);
+            seasonalPlanningDetails.setSkcCount(String.valueOf(l));
         }
-        list2.addAll(list3);
         seasonalPlanningVo.setSeasonalPlanningDetailsList(list2);
         return seasonalPlanningVo;
     }
