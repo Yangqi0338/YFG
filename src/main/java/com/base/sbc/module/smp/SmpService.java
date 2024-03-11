@@ -938,15 +938,19 @@ public class SmpService {
         // 3093 添加日志
         packInfoList.stream().findFirst().ifPresent(packInfo-> {
             com.alibaba.fastjson2.JSONArray jsonArray = new com.alibaba.fastjson2.JSONArray();
-            OperaLogEntity operaLog = packInfoService.genOperaLogEntity(packInfo, "下发同步");
+            OperaLogEntity log = new OperaLogEntity();
+            log.setType("下发同步");
+            log.setName("物料清单");
+            log.setPath(packType);
+            log.setParentId(packInfo.getForeignId());
             com.alibaba.fastjson2.JSONObject jsonObject = new com.alibaba.fastjson2.JSONObject();
-            jsonObject.put("name", "材料名称");
+            jsonObject.put("name", "物料名称");
             jsonObject.put("oldStr", "");
             jsonObject.put("newStr", value);
             jsonArray.add(jsonObject);
-            operaLog.setJsonContent(jsonArray.toJSONString());
-            operaLog.setPath(packType);
-            packInfoService.saveOperaLog(operaLog);
+            log.setJsonContent(jsonArray.toJSONString());
+            log.setPath(packType);
+            packInfoService.saveOperaLog(log);
         });
 
         return i;
