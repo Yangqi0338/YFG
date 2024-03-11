@@ -246,6 +246,9 @@ public class MoreLanguageProperties {
         HAVEN_T_OPERA_LOG_NAME("缺少日志类型"),
         NOT_EXIST_CONTENT("【提示：%s为空】"),
         NOT_EXIST_HANG_TAG_TYPE("吊牌类型不能为空"),
+        FILE_DOWNLOAD_FAILED("文件下载失败"),
+        THE_FILE_DOES_NOT_EXIST("文件不存在"),
+        FILE_EXPORT_FAILED("文件导出失败"),
         ;
         /** 文本 */
         private final String text;
