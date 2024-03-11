@@ -1,7 +1,6 @@
 package com.base.sbc.module.moreLanguage.controller;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.hutool.Hutool;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -17,35 +16,25 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.exception.RightException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelResultDTO;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelTemplateDTO;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusQueryDto;
+import com.base.sbc.module.moreLanguage.dto.*;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.EXCESS_STATUS_IMPORT;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
@@ -70,7 +59,9 @@ public class MoreLanguageStatusController extends BaseController {
     @ApiOperation(value = "导入吊牌款号", notes = "导入吊牌款号")
     @DuplicationCheck(type = 1, time = 999)
     public ApiResult importExcel(@RequestParam("file") MultipartFile file, HttpServletResponse response) {
+        MoreLanguageStatusExcelResultWarpDTO moreLanguageStatusExcelResultWarpDTO = new MoreLanguageStatusExcelResultWarpDTO();
         List<MoreLanguageStatusExcelResultDTO> result = new ArrayList<>();
+        moreLanguageStatusExcelResultWarpDTO.setResult(result);
         try {
             // 暂且使用匿名内部类, 如果要处理的字段多了,需要单独拿出一个listener
             AtomicInteger num = new AtomicInteger(1);
@@ -99,15 +90,15 @@ public class MoreLanguageStatusController extends BaseController {
                         }
                         num.incrementAndGet();
                     }, size)).sheet().doRead();
-            return ApiResult.success("导入成功", result);
+            saveFailData(moreLanguageStatusExcelResultWarpDTO);
+            return ApiResult.success("导入成功", moreLanguageStatusExcelResultWarpDTO);
         }catch (RightException e){
-            return ApiResult.success(e.getMessage(), result);
+            saveFailData(moreLanguageStatusExcelResultWarpDTO);
+            return ApiResult.success(e.getMessage(), moreLanguageStatusExcelResultWarpDTO);
         }catch (Exception e){
             e.printStackTrace();
             return ApiResult.error(e.getMessage(), 0);
         }finally {
-            // 保存失败的结果到 Redis
-            saveFailData(response, result);
             StyleCountryStatusService.countryList.remove();
         }
     }
@@ -115,11 +106,12 @@ public class MoreLanguageStatusController extends BaseController {
     /**
      * 保存失败的结果到 Redis
      *
-     * @param response 响应
-     * @param result 返回的导入结果集合
+     * @param warpDTO 返回的导入结果集合和唯一标识
      */
-    private void saveFailData(HttpServletResponse response, List<MoreLanguageStatusExcelResultDTO> result) {
+    private void saveFailData(MoreLanguageStatusExcelResultWarpDTO warpDTO) {
+        // 保存失败的结果到 Redis
         // 存入redis, 方便接口查询
+        List<MoreLanguageStatusExcelResultDTO> result = warpDTO.getResult();
         if (ObjectUtil.isNotEmpty(result)) {
             List<MoreLanguageStatusExcelResultDTO> failMoreLanguageStatusExcelResultDTO =
                     result.stream().filter(item -> item.getStatus().equals(2)).collect(Collectors.toList());
@@ -129,7 +121,7 @@ public class MoreLanguageStatusController extends BaseController {
                 String uniqueValue = IdUtil.getSnowflakeNextIdStr();
                 logger.info("*************** 导入吊牌款号生成的唯一标识是：「{}」 ***************", uniqueValue);
                 redisUtils.set("uniqueValue" + uniqueValue, JSONUtil.parse(failMoreLanguageStatusExcelResultDTO), 60 * 60 *24);
-                response.setHeader("X-unique-value", uniqueValue);
+                warpDTO.setUniqueValue(uniqueValue);
             }
         }
     }
