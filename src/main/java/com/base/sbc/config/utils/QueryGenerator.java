@@ -122,7 +122,12 @@ public class QueryGenerator {
                     isColumnHeard = true;
                 } else if (columnCode.equals(fieldValue) && StrUtil.isEmpty(columnHeard)) {
                     //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
-                    qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + columnCode);
+                    if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                        qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + sqlCode);
+                    } else {
+                        qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + columnCode);
+                    }
+
                     isColumnHeard = true;
                 } else {
                     //3 选中数据查询，列名不为空，并且值不为空

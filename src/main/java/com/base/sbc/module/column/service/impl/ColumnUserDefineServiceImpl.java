@@ -204,20 +204,23 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
 
         List<ColumnDefine> newList = new LinkedList<>();
         for (ColumnDefine columnDefine : columnDefines) {
-            if(StrUtil.isNotEmpty(columnDefine.getGroupName())){
-                if(lastGroupName != null && lastGroupName.equals(columnDefine.getGroupName())){
-                    ColumnDefine columnDefine1 = newList.get(newList.size()-1);
-                    columnDefine1.getChildren().add(columnDefine);
-                }else{
-                    ColumnDefine columnDefine1 = new ColumnDefine();
-                    columnDefine1.setGroupName(columnDefine.getGroupName());
-                    columnDefine1.setColumnName(columnDefine.getGroupName());
-                    columnDefine1.setChildren(new ArrayList<>(Collections.singletonList(columnDefine)));
-                    newList.add(columnDefine1);
+            if (BaseGlobal.YES.equals(columnDefine.getHidden())) {
+                if (StrUtil.isNotEmpty(columnDefine.getGroupName())) {
+                    if (lastGroupName != null && lastGroupName.equals(columnDefine.getGroupName())) {
+                        ColumnDefine columnDefine1 = newList.get(newList.size() - 1);
+                        columnDefine1.getChildren().add(columnDefine);
+                    } else {
+                        ColumnDefine columnDefine1 = new ColumnDefine();
+                        columnDefine1.setGroupName(columnDefine.getGroupName());
+                        columnDefine1.setColumnName(columnDefine.getGroupName());
+                        columnDefine1.setChildren(new ArrayList<>(Collections.singletonList(columnDefine)));
+                        newList.add(columnDefine1);
+                    }
+                    lastGroupName = columnDefine.getGroupName();
+                } else {
+                    lastGroupName = null;
+                    newList.add(columnDefine);
                 }
-                lastGroupName = columnDefine.getGroupName();
-            }else{
-                newList.add(columnDefine);
             }
         }
 
