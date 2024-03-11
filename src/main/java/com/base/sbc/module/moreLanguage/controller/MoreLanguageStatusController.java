@@ -131,8 +131,8 @@ public class MoreLanguageStatusController extends BaseController {
      * @param uniqueValue 唯一标识 用作 Redis 查询
      */
     @ApiOperation(value = "导出导入吊牌款号失败的数据")
-    @PostMapping("/exportImportExcelFailData")
-    public void exportImportExcelFailData(String uniqueValue, HttpServletResponse response) {
+    @GetMapping("/exportImportExcelFailData")
+    public void exportImportExcelFailData(@RequestParam("uniqueValue") String uniqueValue, HttpServletResponse response) {
         styleCountryStatusService.exportImportExcelFailData(uniqueValue, response);
     }
 

@@ -213,7 +213,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
      * 导出导入吊牌款号失败的数据
      * @param uniqueValue 唯一标识 用作 Redis 查询
      */
-    public void exportImportExcelFailData(@RequestParam("uniqueValue") String uniqueValue, HttpServletResponse response) {
+    public void exportImportExcelFailData(String uniqueValue, HttpServletResponse response) {
         if (ObjectUtil.isEmpty(uniqueValue)) {
             log.warn("*************** uniqueValues 传参为空 ***************");
             throw new RightException(MoreLanguageProperties.getMsg(FILE_DOWNLOAD_FAILED));
