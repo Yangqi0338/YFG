@@ -3,6 +3,7 @@ package com.base.sbc.module.planningproject.vo;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlankDimension;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.tablecolumn.entity.TableColumn;
@@ -67,4 +68,6 @@ public class PlanningProjectPlankVo extends PlanningProjectPlank {
      * 表头列
      */
     private List<TableColumnVo> columnVos;
+
+    private List<PlanningProjectPlankDimension> dimensionList;
 }

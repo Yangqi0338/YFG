@@ -20,8 +20,10 @@ import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlankDimension;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectPlankMapper;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
@@ -56,6 +58,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
     private final FieldValService fieldValService;
     private final PlanningProjectDimensionService planningProjectDimensionService;
+    private final PlanningProjectPlankDimensionService planningProjectPlankDimensionService;
     @Resource
     @Lazy
     private  PlanningProjectService planningProjectService ;
@@ -126,6 +129,12 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 styleColorVo.setStyleColorPic(styleUrl);
                 planningProjectPlankVo.setOldStyleColor(styleColorVo);
             }
+
+            //获取维度列表
+            QueryWrapper<PlanningProjectPlankDimension> dimensionQueryWrapper = new QueryWrapper<>();
+            dimensionQueryWrapper.eq("planning_project_plank_id", planningProjectPlankVo.getId());
+            List<PlanningProjectPlankDimension> list1 = planningProjectPlankDimensionService.list(dimensionQueryWrapper);
+            planningProjectPlankVo.setDimensionList(list1);
         }
 
         //生成表格列

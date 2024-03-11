@@ -332,6 +332,7 @@ public class PlanningProjectPlankController extends BaseController {
             FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
             fieldDisplayVo.setField(planningDimensionality.getDimensionalityName());
             fieldDisplayVo.setName(planningDimensionality.getDimensionalityName());
+            fieldDisplayVo.setField(planningDimensionality.getId());
             //设置是否显示
             String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ planningDimensionality.getDimensionalityName();
             if (redisUtils.hasKey(key)) {
