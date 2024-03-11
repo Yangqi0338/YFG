@@ -16,5 +16,5 @@ public class BasicProcessGalleryDto extends Page {
     private String typeCode;
     private String typeName;
     private String status;
-
+    private String createDate;
 }

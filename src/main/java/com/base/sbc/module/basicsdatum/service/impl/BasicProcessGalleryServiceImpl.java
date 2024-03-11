@@ -3,6 +3,7 @@ package com.base.sbc.module.basicsdatum.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicProcessGalleryDto;
 import com.base.sbc.module.basicsdatum.entity.BasicProcessGallery;
 import com.base.sbc.module.basicsdatum.mapper.BasicProcessGalleryMapper;
@@ -45,8 +46,12 @@ public class BasicProcessGalleryServiceImpl extends BaseServiceImpl<BasicProcess
         BaseQueryWrapper<BasicProcessGallery> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("code", basicProcessGalleryDto.getCode());
         queryWrapper.notEmptyEq("name", basicProcessGalleryDto.getName());
-        queryWrapper.notEmptyEq("typeName", basicProcessGalleryDto.getTypeName());
-        queryWrapper.notEmptyEq("typeCode", basicProcessGalleryDto.getTypeCode());
+        queryWrapper.notEmptyEq("type_name", basicProcessGalleryDto.getTypeName());
+        queryWrapper.notEmptyEq("type_code", basicProcessGalleryDto.getTypeCode());
+        if (StringUtils.isNotBlank(basicProcessGalleryDto.getCreateDate())){
+            queryWrapper.between("create_date", basicProcessGalleryDto.getCreateDate().split(","));
+        }
+
         queryWrapper.notEmptyEq("status", basicProcessGalleryDto.getStatus());
         queryWrapper.notEmptyEq("id", basicProcessGalleryDto.getId());
         return queryWrapper;
