@@ -16,7 +16,6 @@ public @interface QueryField {
     /**
      * BaseQueryWrapper 的方法名称
      * 查询类别 eq 等于 ne  大于 lt 小于 ge 大于等于 le 小于等于 like 模糊查询
-     *
      */
     String type() default "eq";
 
@@ -28,4 +27,9 @@ public @interface QueryField {
 
     //类型处理，例如时间类型，或需要替换
     String property() default "";
+
+    String columnFilter() default "";
+
+    String columnFilterExtent() default "";
+
 }

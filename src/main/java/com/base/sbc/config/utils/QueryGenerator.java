@@ -38,25 +38,44 @@ public class QueryGenerator {
                 if (annotation != null && StrUtil.isNotEmpty(annotation.value())) {
                     String annotationValue = annotation.value();
                     Object o = field.get(dto);
+                    String property = annotation.property();
                     //小漏斗筛选
                     if (ObjectUtil.isNotEmpty(o) && StrUtil.isNotEmpty(columnHeard) && field.getName().equals(columnHeard)) {
                         //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
-                        qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
-                        qw.like(annotationValue, o);
+                        if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                            qw.last(annotation.columnFilter().replace("?", annotation.columnFilterExtent() + " like '%" + o + "%'"));
+                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + annotation.value());
+                        } else {
+                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
+                            qw.like(annotationValue, o);
+                        }
                         isColumnHeard = true;
                     } else if (ObjectUtil.isNotEmpty(o) && field.getName().equals(o) && StrUtil.isEmpty(columnHeard)) {
                         //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
-                        qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
+                        if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + annotation.value());
+                        } else {
+                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
+                        }
                         isColumnHeard = true;
                     } else if (ObjectUtil.isNotEmpty(o)) {
                         //3 选中数据查询，列名不为空，并且值不为空
                         //时间区间过滤
-                        String property = annotation.property();
                         String s = String.valueOf(o);
                         if ("isNull".equals(s)) {
-                            qw.isNullStr(annotation.value());
+                            if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                                qw.last(annotation.columnFilter().replace("?",
+                                        "(" + annotation.columnFilterExtent() + " = '' or " + annotation.columnFilterExtent() + "is null)"));
+                            } else {
+                                qw.isNullStr(annotation.value());
+                            }
                         } else if ("isNotNull".equals(s)) {
-                            qw.isNotNullStr(annotation.value());
+                            if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                                qw.last(annotation.columnFilter().replace("?",
+                                        "(" + annotation.columnFilterExtent() + " != '' or " + annotation.columnFilterExtent() + "is not null)"));
+                            } else {
+                                qw.isNotNullStr(annotation.value());
+                            }
                         } else if (StrUtil.isNotEmpty(property) && "date".equals(property)) {
                             String[] dateArr = s.split(",");
                             if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
@@ -66,6 +85,9 @@ public class QueryGenerator {
                             }
                         } else if (StrUtil.isNotEmpty(property) && "replace".equals(property)) {
                             qw.in(annotation.value(), Arrays.asList(s.split(";")));
+                        } else if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
+                            String s1 = "'" + String.join("','", s.split(";")) + "'";
+                            qw.last(annotation.columnFilter().replace("?", annotation.columnFilterExtent() + " in (" + s1 + ")"));
                         } else {
                             //正常保留历史条件查询
                             String[] lenStrArr = s.split(",");
@@ -94,7 +116,7 @@ public class QueryGenerator {
      * @return
      */
     public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
-        if(StrUtil.isEmpty(dto.getTableCode()) || MapUtil.isEmpty(dto.getFieldQueryMap())){
+        if (StrUtil.isEmpty(dto.getTableCode()) || MapUtil.isEmpty(dto.getFieldQueryMap())) {
             return false;
         }
         String columnHeard = dto.getColumnHeard();
@@ -127,7 +149,6 @@ public class QueryGenerator {
                     } else {
                         qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + columnCode);
                     }
-
                     isColumnHeard = true;
                 } else {
                     //3 选中数据查询，列名不为空，并且值不为空
