@@ -70,4 +70,6 @@ public class StyleAnalyseVo {
 
     private Date createDate;
 
+    private Integer groupCount;
+
 }

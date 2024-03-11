@@ -44,18 +44,22 @@ public class QueryGenerator {
                         //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
                         if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                             qw.last(annotation.columnFilter().replace("?", annotation.columnFilterExtent() + " like '%" + o + "%'"));
-                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + annotation.value());
+                            qw.select(annotation.value(),"count(id) as groupCount");
+                            qw.groupBy(annotation.value());
                         } else {
-                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
                             qw.like(annotationValue, o);
+                            qw.select(annotation.value(),"count(id) as groupCount");
+                            qw.groupBy(annotation.value());
                         }
                         isColumnHeard = true;
                     } else if (ObjectUtil.isNotEmpty(o) && field.getName().equals(o) && StrUtil.isEmpty(columnHeard)) {
                         //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
                         if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + annotation.value());
+                            qw.select(annotation.value(),"count(id) as groupCount");
+                            qw.groupBy(annotation.value());
                         } else {
-                            qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
+                            qw.select(annotation.value(),"count(id) as groupCount");
+                            qw.groupBy(annotation.value());
                         }
                         isColumnHeard = true;
                     } else if (ObjectUtil.isNotEmpty(o)) {
@@ -136,18 +140,22 @@ public class QueryGenerator {
                     //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
                     if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                         qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " like '%" + fieldValue + "%'"));
-                        qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + sqlCode);
+                        qw.select(sqlCode,"count(id) as groupCount");
+                        qw.groupBy(sqlCode);
                     } else {
                         qw.like(sqlCode, fieldValue);
-                        qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + columnCode);
+                        qw.select(sqlCode,"count(id) as groupCount");
+                        qw.groupBy(sqlCode);
                     }
                     isColumnHeard = true;
                 } else if (columnCode.equals(fieldValue) && StrUtil.isEmpty(columnHeard)) {
                     //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
                     if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                        qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + sqlCode);
+                        qw.select(sqlCode,"count(id) as groupCount");
+                        qw.groupBy(sqlCode);
                     } else {
-                        qw.select(" DISTINCT  IFNULL(" + sqlCode + ", '') as " + columnCode);
+                        qw.select(sqlCode,"count(id) as groupCount");
+                        qw.groupBy(sqlCode);
                     }
                     isColumnHeard = true;
                 } else {
@@ -181,7 +189,7 @@ public class QueryGenerator {
                         qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " in (" + s + ")"));
                     } else {
                         //正常保留历史条件查询
-                        qw.in(sqlCode, Arrays.asList(fieldValue.split(";")));
+                        qw.in(sqlCode, Arrays.asList(fieldValue.split(",")));
                     }
                 }
                 //记得排序
