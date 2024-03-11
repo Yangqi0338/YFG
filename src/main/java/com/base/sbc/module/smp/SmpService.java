@@ -80,6 +80,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HANG_TAG_PRICING_LINE;
 
 
@@ -933,6 +934,7 @@ public class SmpService {
         }
 
         String value = list.stream().map(PackBom::getMaterialCodeName).collect(Collectors.joining("\n"));
+        String packType = list.stream().map(PackBom::getPackType).distinct().collect(Collectors.joining(COMMA));
         // 3093 添加日志
         packInfoList.stream().findFirst().ifPresent(packInfo-> {
             com.alibaba.fastjson2.JSONArray jsonArray = new com.alibaba.fastjson2.JSONArray();
@@ -943,6 +945,7 @@ public class SmpService {
             jsonObject.put("newStr", value);
             jsonArray.add(jsonObject);
             operaLog.setJsonContent(jsonArray.toJSONString());
+            operaLog.setPath(packType);
             packInfoService.saveOperaLog(operaLog);
         });
 
