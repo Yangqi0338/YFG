@@ -2,6 +2,7 @@ package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -928,6 +929,11 @@ public class SmpService {
         if (styleColor != null) {
             this.goods(new String[]{styleColor.getId()});
         }
+
+        // 3093 添加日志
+        packInfoService.saveOperaLog("下发同步","物料清单",null,null,
+                MapUtil.of("材料名称","->" + list.stream().map(PackBom::getMaterialCodeName).collect(Collectors.joining("\n")))
+        );
 
         return i;
     }
