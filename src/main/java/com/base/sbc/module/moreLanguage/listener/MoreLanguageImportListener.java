@@ -229,7 +229,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
         }
         StringJoiner nameJoiner = new StringJoiner("-");
         for (String name : baseSource.getPropertiesName().split("-")) {
-            if (!map.containsKey(name)) throw new OtherException(String.format("%s第%s行未获取到编码", sheetName, rowIndex));
+            if (!map.containsKey(name)) throw new OtherException(String.format("%s第%s行未获取到字段名字", sheetName, rowIndex));
             nameJoiner.add(map.remove(name));
         }
         String code = codeJoiner.toString();
@@ -248,11 +248,15 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             countryTranslate.setContent("");
             map.keySet().stream().filter(it-> it.contains(contentKey)).findFirst().ifPresent(key-> {
                 List<String> keyList = Arrays.asList(key.split(","));
-                int i = keyList.indexOf(contentKey);
                 String valueStr = map.get(key);
                 if (StrUtil.isNotBlank(valueStr)) {
-                    String[] valueList = valueStr.split(",");
-                    countryTranslate.setContent(valueList[Math.min(valueList.length - 1, i)]);
+                    if (keyList.size() > 1) {
+                        int i = keyList.indexOf(contentKey);
+                        String[] valueList = valueStr.split(",");
+                        countryTranslate.setContent(valueList[Math.min(valueList.length - 1, i)]);
+                    }else {
+                        countryTranslate.setContent(valueStr);
+                    }
                 }
             });
             if (StrUtil.isNotBlank(countryTranslate.getContent())) {
@@ -483,7 +487,9 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 translate.setTitleName(countryTranslate.getTitleName());
                 if (!StrUtil.equals(Opt.ofNullable(translate.getContent()).map(String::trim).orElse(null),
                         Opt.ofNullable(countryTranslate.getContent()).map(String::trim).orElse(null)
-                )) { updateNewTranslateList.add(translate);}
+                )) {
+                    updateNewTranslateList.add(translate);
+                }
             }else {
                 translate.setId(null);
                 addTranslateList.add(translate);
