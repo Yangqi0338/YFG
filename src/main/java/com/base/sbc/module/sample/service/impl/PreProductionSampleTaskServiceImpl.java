@@ -202,6 +202,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     public PageInfo<PreProductionSampleTaskVo> taskList(PreProductionSampleTaskSearchDto dto) {
         BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        QueryGenerator.initQueryWrapperByMap(qw,dto);
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
         qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
