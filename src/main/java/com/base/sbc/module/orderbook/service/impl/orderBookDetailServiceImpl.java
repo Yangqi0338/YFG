@@ -633,6 +633,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_AUDIT);
             orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.AWAIT);
+            // 检查投产数是否一致
+            JSONObject jsonObject = JSON.parseObject(orderBookDetail.getCommissioningSize());
+            int sumProduction = jsonObject.keySet().stream()
+                    .filter(it ->
+                            !it.endsWith("0") || !it.endsWith("2") || !it.endsWith("Size") || !it.endsWith("Status")
+                    ).mapToInt(jsonObject::getInteger)
+                    .sum();
+            if (sumProduction != Integer.parseInt(totalProduction)) {
+                throw new OtherException("尺码总数量与投产数量不一致，请重新填写");
+            }
         }
         this.updateBatchById(orderBookDetails);
 
