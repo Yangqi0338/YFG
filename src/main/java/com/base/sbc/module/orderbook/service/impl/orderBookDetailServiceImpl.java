@@ -67,6 +67,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -283,17 +284,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 Map<String, String> sizeModelMap = sizeList.stream().filter(it -> orderBookDetailVo.getSizeCodes().contains(it.getCode()))
                         .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
                 sizeModelMap.forEach((key,value)-> {
-                    String finalKey = key;
-                    if (jsonObject.containsKey(finalKey)) {
-                        jsonObject.put(finalKey+"Size",value);
-                    }
-                    finalKey += "1";
-                    if (jsonObject.containsKey(finalKey)){
-                        jsonObject.put(finalKey+"Size",value);
-                    }
+                    jsonObject.put(key+"Size",value);
+                    jsonObject.put(key+"1Size",value);
                 });
                 channelPageConfig.forEach((channel, pageConfig)-> {
-                    Set<String> sizeRange = pageConfig.getSizeRange();
+                    List<String> sizeRange = pageConfig.getSizeRange();
                     if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
                         sizeRange.forEach(size-> {
                             jsonObject.put(size+ (channel == OrderBookChannelType.OFFLINE ? "" : channel.ordinal()) + "Status", sizeModelMap.containsKey(size) ? "0": "1");
@@ -768,21 +763,24 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return b;
     }
 
+    @Value("${orderBook.sizeRange:XXS,XS,S,M,L,XL,XXL,XXXL}")
+    private String sizeRange;
+
     @Override
     public Map<OrderBookChannelType, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto) {
-        List<String> sizeRange = sizeService.listOneField(new LambdaQueryWrapper<BasicsdatumSize>()
-                .eq(BasicsdatumSize::getStatus, "1")
-                .eq(BasicsdatumSize::getCompanyCode, dto.getCompanyCode())
-                .orderByAsc(BasicsdatumSize::getSort), BasicsdatumSize::getInternalSize);
-        Set<String> sizeRangeSet = sizeRange.stream()
-                .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.toList()))
-                .keySet();
+//        List<String> sizeRange = sizeService.listOneField(new LambdaQueryWrapper<BasicsdatumSize>()
+//                .eq(BasicsdatumSize::getStatus, "1")
+//                .eq(BasicsdatumSize::getCompanyCode, dto.getCompanyCode())
+//                .orderByAsc(BasicsdatumSize::getSort), BasicsdatumSize::getInternalSize);
+//        Set<String> sizeRangeSet = sizeRange.stream()
+//                .collect(Collectors.groupingBy(Function.identity(), LinkedHashMap::new, Collectors.toList()))
+//                .keySet();
         // 仅线上线下
         return Arrays.stream(OrderBookChannelType.values()).map(channel-> {
             // 找对应渠道配置
             OrderBookDetailPageConfigVo vo = new OrderBookDetailPageConfigVo();
             vo.setChannel(channel);
-            vo.setSizeRange(sizeRangeSet);
+            vo.setSizeRange(Arrays.asList(sizeRange.split(",")));
             vo.setSameDesignCount(1);
             return vo;
         }).collect(Collectors.toMap(OrderBookDetailPageConfigVo::getChannel, Function.identity()));

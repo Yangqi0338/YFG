@@ -15,7 +15,7 @@ public class OrderBookDetailPageConfigVo {
 
     @JsonIgnore
     private OrderBookChannelType channel;
-    private Set<String> sizeRange;
+    private List<String> sizeRange;
     private Integer sameDesignCount;
 
 
