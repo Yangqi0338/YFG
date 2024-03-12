@@ -429,8 +429,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			/*先删除之前的数据*/
 				hangTagInspectCompanyService.remove(new QueryWrapper<HangTagInspectCompany>().eq("hang_tag_id",hangTag.getId()));
 			for (HangTagInspectCompany hangTagInspectCompany : hangTagInspectCompanyList) {
-				String hangTagInspectCompanyId = hangTagInspectCompany.getId();
-				hangTagInspectCompany.setInspectCompanyId(hangTagInspectCompanyId);
+				//前端传值，  保存操作：inspectCompanyId 有值，保存并添加：id 有值
+				hangTagInspectCompany.setInspectCompanyId(StrUtil.isNotEmpty(hangTagInspectCompany.getInspectCompanyId()) ? hangTagInspectCompany.getInspectCompanyId() : hangTagInspectCompany.getId());
 				hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
 				hangTagInspectCompany.setHangTagId(hangTag.getId());
 				hangTagInspectCompany.insertInit();
