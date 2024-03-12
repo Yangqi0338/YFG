@@ -60,8 +60,8 @@ public class ReportController {
     }
 
     @ApiOperation(value = "电商充绒量")
-    @GetMapping("/findStyleSizeReport1")
-    public PageInfo<HangTagReportVo> findStyleSize1(HangTagReportQueryDto dto) {
+    @GetMapping("/hangTagReport")
+    public PageInfo<HangTagReportVo> hangTagReport(HangTagReportQueryDto dto) {
         return reportService.getHangTagReortPage(dto);
     }
 
