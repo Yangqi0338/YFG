@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.func.Consumer3;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -279,7 +280,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 }
             }
 
-            JSONObject jsonObject = JSON.parseObject(orderBookDetailVo.getCommissioningSize());
+            JSONObject jsonObject = JSON.parseObject(Opt.ofBlankAble(orderBookDetailVo.getCommissioningSize()).orElse(""));
             if (jsonObject!= null){
                 Map<String, String> sizeModelMap = sizeList.stream().filter(it -> orderBookDetailVo.getSizeCodes().contains(it.getCode()))
                         .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
