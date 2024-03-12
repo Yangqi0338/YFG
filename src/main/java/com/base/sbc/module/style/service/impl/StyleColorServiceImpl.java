@@ -98,11 +98,6 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.*;
-import com.base.sbc.module.style.vo.StyleColorExcel;
-import com.base.sbc.module.style.vo.StyleColorListExcel;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
-import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -1199,7 +1194,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
 
         //region 20231219 huangqiang 修改大货款号将老款图片下载重新上传，上传成功后删除
-        if(StrUtil.isNotBlank(styleColor.getStyleColorPic())){
+        if(StrUtil.isNotBlank(sampleStyleColor.getStyleColorPic())){
             Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
             if (!result) {
                 throw new OtherException("图片上传失败！");
@@ -1576,22 +1571,36 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * @return
      */
     @Override
-    public Boolean copyStyleColor(IdDto idDto) {
-
+    public Boolean copyStyleColor(IdDto idDto, Principal user) {
         StyleColor styleColor = baseMapper.selectById(idDto.getId());
+        String styleNo = styleColor.getStyleNo();
         styleColor.insertInit();
         styleColor.setId(null);
         styleColor.setScmSendFlag(null);
         styleColor.setBom(null);
         styleColor.setBomStatus(BaseGlobal.NO);
-        styleColor.setStyleColorPic("");
-//        查询款式
+        // 查询款式
         Style style = styleService.getById(styleColor.getStyleId());
         styleColor.setStyleNo(getNextCode(style, StringUtils.isNotEmpty(styleColor.getBandName()) ? styleColor.getBandName() : style.getBandName(),  StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,styleColor.getIsLuxury(),  1));
         styleColor.setHisStyleNo(null);
         styleColor.setWareCode(null);
         styleColor.setHistoricalData(BaseGlobal.NO);
         baseMapper.insert(styleColor);
+
+        String styleColorPic = styleColor.getStyleColorPic();
+        UploadStylePicDto uploadStylePicDto = new UploadStylePicDto();
+        uploadStylePicDto.setStyleColorId(styleColor.getId());
+        try {
+            MultipartFile multipartFile = uploadFileService.downloadImage(styleColorPic, styleNo + ".jpg");
+            uploadStylePicDto.setFile(multipartFile);
+            Boolean uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
+            if (!uploadStatus) {
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("上传图片出错，出错原因：「{}」", e.getMessage(), e);
+            return false;
+        }
         return true;
     }
 
@@ -1803,7 +1812,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             MultipartFile multipartFile = null;
             Boolean uploadStatus = false;
             try {
-                multipartFile = uploadFileService.downloadImage(styleColorPic+"&opacity=0", updateStyleNoBandDto.getStyleNo() + ".jpg");
+                multipartFile = uploadFileService.downloadImage(styleColorPic, updateStyleNoBandDto.getStyleNo() + ".jpg");
                 uploadStylePicDto.setFile(multipartFile);
                 uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
             } catch (Exception e) {
