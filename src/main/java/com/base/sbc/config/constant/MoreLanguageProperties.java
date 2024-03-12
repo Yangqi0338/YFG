@@ -46,7 +46,7 @@ public class MoreLanguageProperties {
     public static String languageDictCode = "language";
     public static String saftyStandardCode = "DP02";
     public static String multiSeparator = "\n";
-    public static String fieldValueSeparator = "：";
+    public static String fieldValueSeparator = ":";
     public static String showInfoLanguageSeparator = "；";
     public static String checkItemSeparator = "/";
     public static String checkMsgItemSeparator = "、";
