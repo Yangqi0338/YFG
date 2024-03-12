@@ -89,4 +89,9 @@ public class HangTagReportVo {
      * 特殊规格
      */
     private String specialSpec;
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

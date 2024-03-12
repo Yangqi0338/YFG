@@ -129,4 +129,9 @@ public class MaterialSupplierQuoteVo {
      */
     private String seasonName;
 
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
+
 }
