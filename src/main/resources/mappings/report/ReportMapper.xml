@@ -37,7 +37,7 @@
     </select>
 
 
-    <select id="getMaterialSupplierQuoteReporList" resultType="com.base.sbc.module.report.vo.HangTagReportVo">
+    <select id="getMaterialSupplierQuoteReporList" resultType="com.base.sbc.module.report.vo.MaterialSupplierQuoteVo">
         select
         <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
             ${ew.sqlSelect}
@@ -60,9 +60,9 @@
             t1.QUOTATION_PRICE,
             t1.production_day,
             t1.order_day,
-            (case t.status when 0 then '启用' else '停用' end) as status,
+            t.status,
             t1.fob,
-            tss.search_term1,
+            tss.search_term1 as supplierNameShort,
             t1.minimum_order_quantity,
             t1.minimum_order_quantity_color,
             t.remarks,
@@ -70,12 +70,12 @@
             t1.supplier_id,
             t.gram_weight,
             t.material_code_old,
-            (case t.distribute when 0 then '未发送' when 1 then '已下发' when 2 then '发送失败' else '重新打开' end) as
-            distribute,
+            t.distribute,
             t.material_code,
             t.year_name,
             t.season_name
         </if>
+        FROM t_basicsdatum_material t
         INNER JOIN t_basicsdatum_material_price t1 ON t.MATERIAL_CODE = t1.MATERIAL_CODE
         INNER JOIN t_basicsdatum_material_color t2 ON t.MATERIAL_CODE = t2.material_code
         INNER JOIN t_smp_supplier tss ON t1.supplier_id = tss.partner

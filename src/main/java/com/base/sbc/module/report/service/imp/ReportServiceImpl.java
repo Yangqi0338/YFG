@@ -74,6 +74,4 @@ public class ReportServiceImpl implements ReportService {
         minioUtils.setObjectUrlToList(list, "materialsImageUrl");
         return new PageInfo<>(list);
     }
-
-
 }

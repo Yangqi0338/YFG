@@ -43,7 +43,7 @@ public class ReportController {
     }
 
     @ApiOperation(value = "材料请求与报价")
-    @GetMapping("/findMaterialsAndQuoteReport")
+    @GetMapping("/materialsAndQuoteReport")
     public PageInfo<MaterialSupplierQuoteVo> findMaterialsAndQuote(MaterialSupplierQuoteQueryDto dto) {
         return reportService.getMaterialSupplierQuoteReporPage(dto);
     }
