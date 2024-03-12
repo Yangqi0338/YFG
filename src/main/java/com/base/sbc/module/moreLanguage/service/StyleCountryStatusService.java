@@ -20,6 +20,7 @@ import com.base.sbc.module.moreLanguage.entity.StyleCountryPrintRecord;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +39,13 @@ public interface StyleCountryStatusService extends BaseService<StyleCountryStatu
 
     ThreadLocal<List<CountryDTO>> countryList = new TransmittableThreadLocal<>();
     List<MoreLanguageStatusExcelResultDTO> importExcel(List<MoreLanguageStatusExcelDTO> dataList);
+
+
+    /**
+     * 导出导入吊牌款号失败的数据
+     * @param uniqueValue 唯一标识 用作 Redis 查询
+     */
+    void exportImportExcelFailData(String uniqueValue, HttpServletResponse response);
 
     PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto);
 

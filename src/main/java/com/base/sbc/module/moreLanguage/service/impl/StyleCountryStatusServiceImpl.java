@@ -1,10 +1,13 @@
 package com.base.sbc.module.moreLanguage.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -18,7 +21,10 @@ import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.exception.RightException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -43,14 +49,21 @@ import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
+import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ImportSelector;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.data.repository.query.DefaultParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -73,6 +86,7 @@ import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV
  * @since 2023/12/28
  */
 @Service
+@Slf4j
 public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryStatusMapper, StyleCountryStatus> implements StyleCountryStatusService {
 
     @Autowired
@@ -90,6 +104,9 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
     @Autowired
     private UserUtils userUtils;
+
+    @Autowired
+    private RedisUtils redisUtils;
 
     private final static SFunction<StyleCountryStatus, String> bulkStyleNoFunc = StyleCountryStatus::getBulkStyleNo;
 
@@ -189,6 +206,38 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
             this.saveOrUpdateBatch(styleCountryStatusList);
             return result;
+        }
+    }
+
+    /**
+     * 导出导入吊牌款号失败的数据
+     * @param uniqueValue 唯一标识 用作 Redis 查询
+     */
+    public void exportImportExcelFailData(String uniqueValue, HttpServletResponse response) {
+        if (ObjectUtil.isEmpty(uniqueValue)) {
+            log.warn("*************** uniqueValues 传参为空 ***************");
+            throw new RightException(MoreLanguageProperties.getMsg(FILE_DOWNLOAD_FAILED));
+        }
+        // 根据唯一值从Redis 中读取要下载的文件信息
+        Object excelInfo = redisUtils.get("uniqueValue:" + uniqueValue);
+        if (ObjectUtil.isEmpty(excelInfo)) {
+            log.warn("*************** 未找到当前查询的导出信息 ***************");
+            throw new RightException(MoreLanguageProperties.getMsg(THE_FILE_DOES_NOT_EXIST));
+        }
+        List<MoreLanguageStatusExcelResultDTO> moreLanguageStatusExcelResultDTO =
+                JSONUtil.toList(String.valueOf(excelInfo), MoreLanguageStatusExcelResultDTO.class);
+
+        try {
+            ExcelUtils.exportExcel(
+                    moreLanguageStatusExcelResultDTO,
+                    MoreLanguageStatusExcelResultDTO.class,
+                    "导入吊牌款号失败数据.xlsx",
+                    new ExportParams("导入吊牌款号失败数据", "导入吊牌款号失败数据", ExcelType.HSSF),
+                    response
+            );
+        } catch (IOException e) {
+            log.error("数据「{}」导出失败，失败原因：「{}」", uniqueValue, e.getMessage(), e);
+            throw new RightException(MoreLanguageProperties.getMsg(FILE_EXPORT_FAILED));
         }
     }
 
