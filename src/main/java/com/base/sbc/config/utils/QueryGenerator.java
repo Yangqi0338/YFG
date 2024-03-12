@@ -90,7 +90,7 @@ public class QueryGenerator {
                         } else if (StrUtil.isNotEmpty(property) && "replace".equals(property)) {
                             qw.in(annotation.value(), Arrays.asList(s.split(";")));
                         } else if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                            String s1 = "'" + String.join("','", s.split(";")) + "'";
+                            String s1 = "'" + String.join("','", s.split(",")) + "'";
                             qw.last(annotation.columnFilter().replace("?", annotation.columnFilterExtent() + " in (" + s1 + ")"));
                         } else {
                             //正常保留历史条件查询
@@ -111,10 +111,6 @@ public class QueryGenerator {
         return isColumnHeard;
     }
 
-    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
-        return initQueryWrapperByMap(qw, dto, null);
-    }
-
     /**
      * 特别注意，该方法中有查询  PageHelper 写到该方法下面
      *
@@ -123,7 +119,7 @@ public class QueryGenerator {
      * @param <T>
      * @return
      */
-    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto, String queryField) {
+    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
         if (StrUtil.isEmpty(dto.getTableCode()) || MapUtil.isEmpty(dto.getFieldQueryMap())) {
             return false;
         }
@@ -146,6 +142,7 @@ public class QueryGenerator {
                         qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " like '%" + fieldValue + "%'"));
                         qw.select(sqlCode, "count(id) as groupCount");
                         qw.groupBy(sqlCode);
+                        dto.setQueryFieldColumn(columnCode);
                     } else {
                         qw.like(sqlCode, fieldValue);
                         qw.select(sqlCode, "count(id) as groupCount");
@@ -157,6 +154,7 @@ public class QueryGenerator {
                     if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                         qw.select(sqlCode, "count(id) as groupCount");
                         qw.groupBy(sqlCode);
+                        dto.setQueryFieldColumn(columnCode);
                     } else {
                         qw.select(sqlCode, "count(id) as groupCount");
                         qw.groupBy(sqlCode);
@@ -189,14 +187,17 @@ public class QueryGenerator {
                     } else if (StrUtil.isNotEmpty(property) && "replace".equals(property)) {
                         qw.in(sqlCode, Arrays.asList(fieldValue.split(";")));
                     } else if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                        String s = "'" + String.join("','", fieldValue.split(";")) + "'";
+                        String s = "'" + String.join("','", fieldValue.split(",")) + "'";
                         qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " in (" + s + ")"));
                     } else {
                         //正常保留历史条件查询
                         qw.in(sqlCode, Arrays.asList(fieldValue.split(",")));
                     }
                 }
-                //记得排序
+            }
+            //记得排序
+            if (StrUtil.isNotEmpty(dto.getOrderBy()) && dto.getOrderBy().equals(columnCode)) {
+                //qw.order(sqlCode);
             }
         }
         return isColumnHeard;
