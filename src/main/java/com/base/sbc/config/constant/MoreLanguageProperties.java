@@ -68,6 +68,8 @@ public class MoreLanguageProperties {
     public static String hangTagMainDbAlias = "tsd.";
 
     public static Integer excelDataRowNum = 2;
+
+    public static String notCheckStandardColumnCode = "DP14,XM02,XM03,XM04,XM05,XM08,XM09,XM10,XM11";
     public static Map<String,String> msgEnumMap = CollUtil.list(false,MoreLanguageMsgEnum.values())
             .stream().collect(Collectors.toMap(MoreLanguageMsgEnum::name,MoreLanguageMsgEnum::getText));
 
@@ -218,6 +220,10 @@ public class MoreLanguageProperties {
 
     public void setStyleCountryStatusImportCountRange(Pair<Integer, Integer> styleCountryStatusImportCountRange) {
         MoreLanguageProperties.styleCountryStatusImportCountRange = styleCountryStatusImportCountRange;
+    }
+
+    public void setNotCheckStandardColumnCode(String notCheckStandardColumnCode) {
+        MoreLanguageProperties.notCheckStandardColumnCode = notCheckStandardColumnCode;
     }
 
     @Getter
