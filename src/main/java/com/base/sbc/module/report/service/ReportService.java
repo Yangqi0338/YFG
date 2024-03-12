@@ -4,6 +4,7 @@ import com.base.sbc.module.report.dto.HangTagReportQueryDto;
 import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
 import com.base.sbc.module.report.vo.HangTagReportVo;
 import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
+import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
 import com.github.pagehelper.PageInfo;
 
 public interface ReportService {
@@ -17,6 +18,11 @@ public interface ReportService {
      * 材料供应商报价报表
      * @return
      */
-    PageInfo<MaterialSupplierQuoteVo> getMaterialSupplierQuoteReporPage(MaterialSupplierQuoteQueryDto dto);
+    PageInfo<MaterialSupplierQuoteVo> getMaterialSupplierQuoteReportPage(MaterialSupplierQuoteQueryDto dto);
+    /**
+     * 材料供应商报价报表
+     * @return
+     */
+    PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(MaterialSupplierQuoteQueryDto dto);
 
 }

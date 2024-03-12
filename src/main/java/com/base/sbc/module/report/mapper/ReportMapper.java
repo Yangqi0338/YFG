@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.report.vo.HangTagReportVo;
 import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
+import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -20,5 +21,6 @@ public interface ReportMapper{
 
     List<HangTagReportVo> getHangTagReortList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
     List<MaterialSupplierQuoteVo> getMaterialSupplierQuoteReporList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+    List<StylePackBomMaterialReportVo> getStylePackBomListReport(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }
 

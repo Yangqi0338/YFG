@@ -45,11 +45,11 @@ public class ReportController {
     @ApiOperation(value = "材料请求与报价")
     @GetMapping("/materialsAndQuoteReport")
     public PageInfo<MaterialSupplierQuoteVo> findMaterialsAndQuote(MaterialSupplierQuoteQueryDto dto) {
-        return reportService.getMaterialSupplierQuoteReporPage(dto);
+        return reportService.getMaterialSupplierQuoteReportPage(dto);
     }
 
     @ApiOperation(value = "BOM清单查询报表")
-    @GetMapping("/findStyleBomListReport")
+    @GetMapping("/stylePackBomMaterialReport")
     public PageInfo<StyleAnalyseVo> findStyleBomList(StyleAnalyseQueryDto dto) {
         return styleAnalyseService.findStylePage(dto);
     }
