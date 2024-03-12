@@ -2,11 +2,8 @@ package com.base.sbc.config;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.stereotype.Component;
-
-import javax.sql.DataSource;
 
 /**
  * {@code 描述：}
