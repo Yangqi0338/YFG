@@ -5,78 +5,92 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
-public class PackBomMaterialReportVo {
-
+public class StylePackBomMaterialReportVo {
     /**
      * 图片
      */
+
     private String styleColorPic;
     /**
      * 大货款号
      */
+
     private String styleNo;
     /**
      * 配色
      */
+
     private String colorName;
     /**
      * 大类
      */
+
     private String prodCategory1stName;
     /**
      * 品类
      */
+
     private String prodCategory2ndName;
     /**
      * 生产类型
      */
+
     private String devtTypeName;
     /**
      * 款式
      */
+
     private String styleName;
     /**
      * 款式类型
      */
+
     private String styleTypeName;
     /**
      * BOM阶段
      */
+
     private String bomPhase;
     /**
      * 材料图片
      */
+
     private String imageUrl;
     /**
      * 编码
      */
+
     private String materialCode;
     /**
-     * 供应商报价
+     * 供应商报价供应商物料号
      */
+
     private String supplierPrice;
     /**
-     * 供应商物料号
+     * 材料名称
      */
+
     private String supplierMaterialCode;
-    /**
-     * 克重(g/m2)
-     */
+    /**克重(g/m2)*/
+    ;
     private String gramWeight;
     /**
      * 材料成份
      */
+
     private String ingredient;
     /**
      * 材料成份备注
      */
+
     private String remarks;
     /**
-     * 材料年份
+     * 材料季节
      */
+
     private String yearName;
     /**
-     * 材料季节
+     * 材料年份
      */
     private String seasonName;
     /**
@@ -84,7 +98,7 @@ public class PackBomMaterialReportVo {
      */
     private String brandName;
     /**
-     * 材料类型
+     * 类型
      */
     private String category1Name;
     /**
@@ -96,7 +110,7 @@ public class PackBomMaterialReportVo {
      */
     private String category3Name;
     /**
-     * 供应商
+     * 供应商报价供应商
      */
     private String supplierName;
     /**
@@ -128,15 +142,15 @@ public class PackBomMaterialReportVo {
      */
     private String collocationName;
     /**
-     * 材料名称
+     * 材料启用
+     */
+    private String unusableFlag;
+    /**
+     * 材料
      */
     private String materialCodeName;
     /**
      * 可用
-     */
-    private String unusableFlag;
-    /**
-     * 启用
      */
     private String status;
     /**
@@ -151,6 +165,10 @@ public class PackBomMaterialReportVo {
      * 版师
      */
     private String patternDesignName;
+    /**
+     * 成份信息
+     */
+    private String tagIngredient;
     /**
      * 安全标题
      */
@@ -211,9 +229,6 @@ public class PackBomMaterialReportVo {
      * 品控部确认
      */
     private String qcCheckConfirm;
+    ;
 
-    /**
-     * 列头筛选数量
-     */
-    private Integer groupCount;
 }
