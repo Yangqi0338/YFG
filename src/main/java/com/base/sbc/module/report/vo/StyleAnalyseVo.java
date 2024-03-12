@@ -72,4 +72,6 @@ public class StyleAnalyseVo {
 
     private Integer groupCount;
 
+    private String valName;
+
 }

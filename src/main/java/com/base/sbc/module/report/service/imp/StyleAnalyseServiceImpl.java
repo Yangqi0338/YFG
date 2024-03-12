@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,25 +41,26 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         BaseQueryWrapper<StyleAnalyseQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
-        if(isColumnHeard && dto.getFieldQueryMap().containsKey(".")){
-            String columnHeard = dto.getColumnHeard();
-            if(StrUtil.isEmpty(columnHeard)){
-                for (String columnCode : dto.getFieldQueryMap().keySet()) {
-                    if(columnCode.equals(dto.getFieldQueryMap().get(columnCode))){
-                        columnHeard = columnCode;
-                        break;
-                    }
-                }
+        if (isColumnHeard && StrUtil.isNotEmpty(dto.getQueryFieldColumn())) {
+            String s = dto.getQueryFieldColumn().split("\\.")[1];
+            qw = new BaseQueryWrapper<>();
+            if(StrUtil.isNotEmpty(dto.getColumnHeard()) && dto.getQueryFieldColumn().equals(dto.getColumnHeard())){
+                qw.like("tfv.val_name", dto.getFieldQueryMap().get(dto.getQueryFieldColumn()));
             }
+            List<StyleAnalyseVo> list = styleAnalyseMapper.findPageField(qw, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, s);
 
-            List<StyleAnalyseVo> list = styleAnalyseMapper.findDesignPageField(qw);
+            for (StyleAnalyseVo styleAnalyseVo : list) {
+                Map<String, String> dynamicColumn = new HashMap<>();
+                dynamicColumn.put(s,styleAnalyseVo.getValName());
+                styleAnalyseVo.setDynamicColumn(dynamicColumn);
+            }
             return new PageInfo<>(list);
         }
 
         Page<Object> objects = PageHelper.startPage(dto);
         List<StyleAnalyseVo> list = styleAnalyseMapper.findDesignPage(qw);
 
-        if(CollUtil.isEmpty(list)){
+        if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
         }
 
@@ -91,8 +93,28 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         BaseQueryWrapper<StyleAnalyseQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        if (isColumnHeard && StrUtil.isNotEmpty(dto.getQueryFieldColumn())) {
+            String s = dto.getQueryFieldColumn().split("\\.")[1];
+            qw = new BaseQueryWrapper<>();
+            if(StrUtil.isNotEmpty(dto.getColumnHeard()) && dto.getQueryFieldColumn().equals(dto.getColumnHeard())){
+                qw.like("tfv.val_name", dto.getFieldQueryMap().get(dto.getQueryFieldColumn()));
+            }
+            List<StyleAnalyseVo> list = styleAnalyseMapper.findPageField(qw, FieldValDataGroupConstant.STYLE_MARKING_ORDER, s);
+
+            for (StyleAnalyseVo styleAnalyseVo : list) {
+                Map<String, String> dynamicColumn = new HashMap<>();
+                dynamicColumn.put(s,styleAnalyseVo.getValName());
+                styleAnalyseVo.setDynamicColumn(dynamicColumn);
+            }
+            return new PageInfo<>(list);
+        }
+
         Page<Object> objects = PageHelper.startPage(dto);
         List<StyleAnalyseVo> list = styleAnalyseMapper.findStylePage(qw);
+
+        if (CollUtil.isEmpty(list)) {
+            return new PageInfo<>(list);
+        }
 
         //根据查询出维度系数数据
         LambdaQueryWrapper<FieldVal> fieldValQueryWrapper = new LambdaQueryWrapper<>();

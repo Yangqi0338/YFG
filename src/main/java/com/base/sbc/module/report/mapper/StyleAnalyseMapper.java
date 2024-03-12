@@ -16,5 +16,5 @@ public interface StyleAnalyseMapper {
 
     List<StyleAnalyseVo> findStylePage(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
-    List<StyleAnalyseVo> findDesignPageField(@Param(Constants.WRAPPER) BaseQueryWrapper<StyleAnalyseQueryDto> qw);
+    List<StyleAnalyseVo> findPageField(@Param(Constants.WRAPPER) BaseQueryWrapper<StyleAnalyseQueryDto> qw, @Param("dataGroup") String dataGroup, @Param("fieldName") String fieldName);
 }

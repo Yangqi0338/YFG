@@ -17,4 +17,8 @@ public class QueryFieldDto extends Page {
     //列头code
     private String tableCode;
 
+    private String queryFieldColumn;
+
+    private String orderBy;
+
 }
