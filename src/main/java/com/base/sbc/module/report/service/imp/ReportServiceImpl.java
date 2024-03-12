@@ -2,12 +2,15 @@ package com.base.sbc.module.report.service.imp;
 
 import cn.hutool.core.collection.CollUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.report.dto.HangTagReportQueryDto;
+import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
 import com.base.sbc.module.report.mapper.ReportMapper;
 import com.base.sbc.module.report.service.ReportService;
 import com.base.sbc.module.report.vo.HangTagReportVo;
+import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +27,8 @@ public class ReportServiceImpl implements ReportService {
     private ReportMapper reportMapper;
     @Resource
     private StylePicUtils stylePicUtils;
+    @Resource
+    private MinioUtils minioUtils;
 
     @Override
     public PageInfo<HangTagReportVo> getHangTagReortPage(HangTagReportQueryDto dto) {
@@ -49,4 +54,26 @@ public class ReportServiceImpl implements ReportService {
 
         return new PageInfo<>(list);
     }
+
+    @Override
+    public PageInfo<MaterialSupplierQuoteVo> getMaterialSupplierQuoteReporPage(MaterialSupplierQuoteQueryDto dto) {
+        BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
+        qw.eq("t.del_flag", "0");
+        qw.eq("t1.del_flag", "0");
+        qw.eq("t2.del_flag", "0");
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        PageHelper.startPage(dto);
+        List<MaterialSupplierQuoteVo> list = reportMapper.getMaterialSupplierQuoteReporList(qw);
+
+        if (CollUtil.isEmpty(list)) {
+            return new PageInfo<>(list);
+        }
+        if (isColumnHeard) {
+            return new PageInfo<>(list);
+        }
+        minioUtils.setObjectUrlToList(list, "materialsImageUrl");
+        return new PageInfo<>(list);
+    }
+
+
 }

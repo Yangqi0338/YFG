@@ -35,4 +35,50 @@
         LEFT JOIN t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 and tbs.hangtags = ts.default_size
         ${ew.customSqlSegment}
     </select>
+
+
+    <select id="getMaterialSupplierQuoteReporList" resultType="com.base.sbc.module.report.vo.HangTagReportVo">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            t.image_url,
+            t.material_code_name,
+            t.create_date,
+            t.category1_name,
+            t.category2_name,
+            t.category3_name,
+            t1.width_name,
+            t.stock_unit_name,
+            t.factory_composition,
+            t.ingredient,
+            CONCAT(t2.color_name,'-',t2.color_code),
+            t2.supplier_color_code,
+            t1.supplier_name,
+            t1.SUPPLIER_MATERIAL_CODE,
+            t1.QUOTATION_PRICE,
+            t1.production_day,
+            t1.order_day,
+            (case t.status when 0 then '启用' else '停用' end) as status,
+            t1.fob,
+            tss.search_term1,
+            t1.minimum_order_quantity,
+            t1.minimum_order_quantity_color,
+            t.remarks,
+            concat(t1.supplier_name,'-',t1.supplier_id),
+            t1.supplier_id,
+            t.gram_weight,
+            t.material_code_old,
+            (case t.distribute when 0 then '未发送' when 1 then '已下发' when 2 then '发送失败' else '重新打开' end) as
+            distribute,
+            t.material_code,
+            t.year_name,
+            t.season_name
+        </if>
+        INNER JOIN t_basicsdatum_material_price t1 ON t.MATERIAL_CODE = t1.MATERIAL_CODE
+        INNER JOIN t_basicsdatum_material_color t2 ON t.MATERIAL_CODE = t2.material_code
+        INNER JOIN t_smp_supplier tss ON t1.supplier_id = tss.partner
+        ${ew.customSqlSegment}
+    </select>
 </mapper>

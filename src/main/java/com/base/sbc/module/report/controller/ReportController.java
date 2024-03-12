@@ -2,10 +2,12 @@ package com.base.sbc.module.report.controller;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.report.dto.HangTagReportQueryDto;
+import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
 import com.base.sbc.module.report.dto.StyleAnalyseQueryDto;
 import com.base.sbc.module.report.service.ReportService;
 import com.base.sbc.module.report.service.StyleAnalyseService;
 import com.base.sbc.module.report.vo.HangTagReportVo;
+import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
 import com.base.sbc.module.report.vo.StyleAnalyseVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -42,8 +44,8 @@ public class ReportController {
 
     @ApiOperation(value = "材料请求与报价")
     @GetMapping("/findMaterialsAndQuoteReport")
-    public PageInfo<StyleAnalyseVo> findMaterialsAndQuote(StyleAnalyseQueryDto dto) {
-        return styleAnalyseService.findStylePage(dto);
+    public PageInfo<MaterialSupplierQuoteVo> findMaterialsAndQuote(MaterialSupplierQuoteQueryDto dto) {
+        return reportService.getMaterialSupplierQuoteReporPage(dto);
     }
 
     @ApiOperation(value = "BOM清单查询报表")
