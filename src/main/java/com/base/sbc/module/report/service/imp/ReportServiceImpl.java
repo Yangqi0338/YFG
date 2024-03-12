@@ -73,7 +73,7 @@ public class ReportServiceImpl implements ReportService {
         if (isColumnHeard) {
             return new PageInfo<>(list);
         }
-        minioUtils.setObjectUrlToList(list, "materialsImageUrl");
+        minioUtils.setObjectUrlToList(list, "imageUrl");
         return new PageInfo<>(list);
     }
 
@@ -97,7 +97,8 @@ public class ReportServiceImpl implements ReportService {
         if (isColumnHeard) {
             return new PageInfo<>(list);
         }
-        minioUtils.setObjectUrlToList(list, "materialsImageUrl");
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        minioUtils.setObjectUrlToList(list, "imageUrl");
         return new PageInfo<>(list);
     }
 }
