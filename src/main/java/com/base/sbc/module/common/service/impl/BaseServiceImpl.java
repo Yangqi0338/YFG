@@ -28,6 +28,7 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicProcessGallery;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.common.service.BaseService;
@@ -681,6 +682,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         operaLogEntity.setType("0".equals(startStopDto.getStatus()) ? "启用" : "停用");
         operaLogEntity.setName(startStopDto.getName());
         operaLogEntity.setParentId(startStopDto.getParentId());
+        UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id", startStopDto.getIds());
+        updateWrapper.set("status", startStopDto.getStatus());
+        this.update(updateWrapper);
         this.saveLog(operaLogEntity);
     }
 

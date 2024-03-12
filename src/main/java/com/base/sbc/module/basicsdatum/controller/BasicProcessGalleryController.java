@@ -11,6 +11,7 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicProcessGalleryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicProcessGallerySaveDto;
+import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicProcessGallery;
 import com.base.sbc.module.basicsdatum.service.BasicProcessGalleryService;
 import com.base.sbc.module.basicsdatum.vo.BasicProcessGalleryExcelVo;
@@ -55,7 +56,7 @@ public class BasicProcessGalleryController extends BaseController {
             basicProcessGallerySaveDto.setImage(split[0]);
         }
         try {
-            basicProcessGalleryService.saveOrUpdate(basicProcessGallerySaveDto);
+            basicProcessGalleryService.saveOrUpdate(basicProcessGallerySaveDto,"基础工艺图库");
         }catch (DuplicateKeyException e){
             throw new RuntimeException("该编码或者名称已存在");
         }
@@ -67,11 +68,11 @@ public class BasicProcessGalleryController extends BaseController {
      * 启用停用
      */
     @PostMapping(value = "/startStop")
-    public ApiResult<Object> startStop(@RequestBody BasicProcessGallerySaveDto basicProcessGallerySaveDto) {
-        UpdateWrapper<BasicProcessGallery> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.in("id", basicProcessGallerySaveDto.getIds());
-        updateWrapper.set("status", basicProcessGallerySaveDto.getStatus());
-        basicProcessGalleryService.update(updateWrapper);
+    public ApiResult<Object> startStop(@RequestBody StartStopDto startStopDto) {
+
+        startStopDto.setName("基础工艺图库");
+
+        basicProcessGalleryService.startStopLog(startStopDto);
         return success("保存成功");
     }
 
@@ -81,6 +82,7 @@ public class BasicProcessGalleryController extends BaseController {
     @PostMapping(value = "/remove")
     @DuplicationCheck
     public ApiResult<Object> remove(@RequestBody RemoveDto removeDto) {
+        removeDto.setName("基础工艺图库");
         basicProcessGalleryService.removeByIds(removeDto);
         return success("删除成功");
     }
