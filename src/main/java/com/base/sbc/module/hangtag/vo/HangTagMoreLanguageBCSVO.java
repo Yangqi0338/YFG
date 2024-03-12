@@ -115,7 +115,7 @@ public class HangTagMoreLanguageBCSVO {
          */
         @ApiModelProperty(value = "打印系统专门检查信息")
         public String getPrinterCheckMessage(){
-
+            if (StrUtil.contains(MoreLanguageProperties.notCheckStandardColumnCode, this.getStandardColumnCode())) return "";
             boolean languageEmpty = CollectionUtil.isEmpty(this.getLanguageList());
             // 如果连语言都没
             if (languageEmpty) {

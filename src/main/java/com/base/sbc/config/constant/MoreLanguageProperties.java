@@ -46,7 +46,7 @@ public class MoreLanguageProperties {
     public static String languageDictCode = "language";
     public static String saftyStandardCode = "DP02";
     public static String multiSeparator = "\n";
-    public static String fieldValueSeparator = "：";
+    public static String fieldValueSeparator = ":";
     public static String showInfoLanguageSeparator = "；";
     public static String checkItemSeparator = "/";
     public static String checkMsgItemSeparator = "、";
@@ -68,6 +68,8 @@ public class MoreLanguageProperties {
     public static String hangTagMainDbAlias = "tsd.";
 
     public static Integer excelDataRowNum = 2;
+
+    public static String notCheckStandardColumnCode = "DP14,XM02,XM03,XM04,XM05,XM08,XM09,XM10,XM11";
     public static Map<String,String> msgEnumMap = CollUtil.list(false,MoreLanguageMsgEnum.values())
             .stream().collect(Collectors.toMap(MoreLanguageMsgEnum::name,MoreLanguageMsgEnum::getText));
 
@@ -77,6 +79,10 @@ public class MoreLanguageProperties {
 
     public static String getMsg(MoreLanguageMsgEnum msgEnum, Object... param) {
         return String.format(msgEnumMap.getOrDefault(msgEnum.name(), ""), param);
+    }
+
+    public static String getMsg(MoreLanguageMsgEnum... param) {
+        return getMsg(param[0], Arrays.stream(param).skip(1).map(MoreLanguageMsgEnum::getText).toArray());
     }
 
     public static Integer calculateImportCount() {
@@ -214,6 +220,10 @@ public class MoreLanguageProperties {
 
     public void setStyleCountryStatusImportCountRange(Pair<Integer, Integer> styleCountryStatusImportCountRange) {
         MoreLanguageProperties.styleCountryStatusImportCountRange = styleCountryStatusImportCountRange;
+    }
+
+    public void setNotCheckStandardColumnCode(String notCheckStandardColumnCode) {
+        MoreLanguageProperties.notCheckStandardColumnCode = notCheckStandardColumnCode;
     }
 
     @Getter
