@@ -120,7 +120,7 @@ public class MoreLanguageStatusController extends BaseController {
                 // 生成导出失败信息的唯一标识 用作 Redis 查询
                 String uniqueValue = IdUtil.getSnowflakeNextIdStr();
                 logger.info("*************** 导入吊牌款号生成的唯一标识是：「{}」 ***************", uniqueValue);
-                redisUtils.set("uniqueValue" + uniqueValue, JSONUtil.parse(failMoreLanguageStatusExcelResultDTO), 60 * 60 *24);
+                redisUtils.set("uniqueValue:" + uniqueValue, JSONUtil.parse(failMoreLanguageStatusExcelResultDTO), 60 * 60 *24);
                 warpDTO.setUniqueValue(uniqueValue);
             }
         }

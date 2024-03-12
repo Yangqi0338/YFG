@@ -219,7 +219,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             throw new RightException(MoreLanguageProperties.getMsg(FILE_DOWNLOAD_FAILED));
         }
         // 根据唯一值从Redis 中读取要下载的文件信息
-        Object excelInfo = redisUtils.get("uniqueValue" + uniqueValue);
+        Object excelInfo = redisUtils.get("uniqueValue:" + uniqueValue);
         if (ObjectUtil.isEmpty(excelInfo)) {
             log.warn("*************** 未找到当前查询的导出信息 ***************");
             throw new RightException(MoreLanguageProperties.getMsg(THE_FILE_DOES_NOT_EXIST));
