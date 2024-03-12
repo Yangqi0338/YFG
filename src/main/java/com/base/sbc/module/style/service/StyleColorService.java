@@ -219,7 +219,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param idDto
          * @return
          */
-        Boolean copyStyleColor(IdDto idDto);
+        Boolean copyStyleColor(IdDto idDto, Principal user);
     /**
      * 复制配色
      * @param dto
