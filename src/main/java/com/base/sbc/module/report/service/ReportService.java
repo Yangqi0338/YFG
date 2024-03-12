@@ -2,6 +2,7 @@ package com.base.sbc.module.report.service;
 
 import com.base.sbc.module.report.dto.HangTagReportQueryDto;
 import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
+import com.base.sbc.module.report.dto.StylePackBomMateriaQueryDto;
 import com.base.sbc.module.report.vo.HangTagReportVo;
 import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
 import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
@@ -23,6 +24,6 @@ public interface ReportService {
      * 材料供应商报价报表
      * @return
      */
-    PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(MaterialSupplierQuoteQueryDto dto);
+    PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(StylePackBomMateriaQueryDto dto);
 
 }

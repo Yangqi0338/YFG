@@ -4,11 +4,13 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.report.dto.HangTagReportQueryDto;
 import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
 import com.base.sbc.module.report.dto.StyleAnalyseQueryDto;
+import com.base.sbc.module.report.dto.StylePackBomMateriaQueryDto;
 import com.base.sbc.module.report.service.ReportService;
 import com.base.sbc.module.report.service.StyleAnalyseService;
 import com.base.sbc.module.report.vo.HangTagReportVo;
 import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
 import com.base.sbc.module.report.vo.StyleAnalyseVo;
+import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -50,8 +52,8 @@ public class ReportController {
 
     @ApiOperation(value = "BOM清单查询报表")
     @GetMapping("/stylePackBomMaterialReport")
-    public PageInfo<StyleAnalyseVo> findStyleBomList(StyleAnalyseQueryDto dto) {
-        return styleAnalyseService.findStylePage(dto);
+    public PageInfo<StylePackBomMaterialReportVo> findStyleBomList(StylePackBomMateriaQueryDto dto) {
+        return reportService.getStylePackBomMaterialReportPage(dto);
     }
 
     @ApiOperation(value = "尺寸查询报表")

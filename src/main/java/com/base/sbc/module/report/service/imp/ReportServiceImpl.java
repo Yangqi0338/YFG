@@ -7,6 +7,7 @@ import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.report.dto.HangTagReportQueryDto;
 import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
+import com.base.sbc.module.report.dto.StylePackBomMateriaQueryDto;
 import com.base.sbc.module.report.mapper.ReportMapper;
 import com.base.sbc.module.report.service.ReportService;
 import com.base.sbc.module.report.vo.HangTagReportVo;
@@ -77,7 +78,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(MaterialSupplierQuoteQueryDto dto) {
+    public PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(StylePackBomMateriaQueryDto dto) {
         BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("tsc.del_flag", "0");
         qw.eq("ts.del_flag", "0");
