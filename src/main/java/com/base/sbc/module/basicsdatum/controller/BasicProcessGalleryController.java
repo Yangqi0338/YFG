@@ -69,9 +69,7 @@ public class BasicProcessGalleryController extends BaseController {
      */
     @PostMapping(value = "/startStop")
     public ApiResult<Object> startStop(@RequestBody StartStopDto startStopDto) {
-
         startStopDto.setName("基础工艺图库");
-
         basicProcessGalleryService.startStopLog(startStopDto);
         return success("保存成功");
     }
