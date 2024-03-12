@@ -119,6 +119,9 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
 
+    /**
+     * 列头筛选数量
+     */
     private Integer groupCount;
 
 }

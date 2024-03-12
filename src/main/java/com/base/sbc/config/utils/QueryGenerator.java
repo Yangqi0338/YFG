@@ -46,10 +46,12 @@ public class QueryGenerator {
                             qw.last(annotation.columnFilter().replace("?", annotation.columnFilterExtent() + " like '%" + o + "%'"));
                             qw.select(annotation.value(), "count(" + annotation.value() + ") as groupCount");
                             qw.groupBy(annotation.value());
+                            qw.orderByAsc(annotation.value());
                         } else {
                             qw.like(annotationValue, o);
-                            qw.select(annotation.value(), "count(" + annotation.value() + ") as groupCount");
+                            qw.select(annotation.value() + " as " + field.getName(), "count(" + annotation.value() + ") as groupCount");
                             qw.groupBy(annotation.value());
+                            qw.orderByAsc(annotation.value());
                         }
                         isColumnHeard = true;
                     } else if (ObjectUtil.isNotEmpty(o) && field.getName().equals(o) && StrUtil.isEmpty(columnHeard)) {
@@ -57,9 +59,11 @@ public class QueryGenerator {
                         if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                             qw.select(annotation.value(), "count(" + annotation.value() + ") as groupCount");
                             qw.groupBy(annotation.value());
+                            qw.orderByAsc(annotation.value());
                         } else {
-                            qw.select(annotation.value(), "count(" + annotation.value() + ") as groupCount");
+                            qw.select(annotation.value() + " as " + field.getName(), "count(" + annotation.value() + ") as groupCount");
                             qw.groupBy(annotation.value());
+                            qw.orderByAsc(annotation.value());
                         }
                         isColumnHeard = true;
                     } else if (ObjectUtil.isNotEmpty(o)) {
@@ -142,11 +146,13 @@ public class QueryGenerator {
                         qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " like '%" + fieldValue + "%'"));
                         qw.select(sqlCode, "count(" + sqlCode + ") as groupCount");
                         qw.groupBy(sqlCode);
+                        qw.orderByAsc(sqlCode);
                         dto.setQueryFieldColumn(columnCode);
                     } else {
                         qw.like(sqlCode, fieldValue);
-                        qw.select(sqlCode, "count(" + sqlCode + ") as groupCount");
+                        qw.select(sqlCode + " as " + columnCode, "count(" + sqlCode + ") as groupCount");
                         qw.groupBy(sqlCode);
+                        qw.orderByAsc(sqlCode);
                     }
                     isColumnHeard = true;
                 } else if (columnCode.equals(fieldValue) && StrUtil.isEmpty(columnHeard)) {
@@ -154,10 +160,12 @@ public class QueryGenerator {
                     if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                         qw.select(sqlCode, "count(" + sqlCode + ") as groupCount");
                         qw.groupBy(sqlCode);
+                        qw.orderByAsc(sqlCode);
                         dto.setQueryFieldColumn(columnCode);
                     } else {
-                        qw.select(sqlCode, "count(" + sqlCode + ") as groupCount");
+                        qw.select(sqlCode + " as " + columnCode, "count(" + sqlCode + ") as groupCount");
                         qw.groupBy(sqlCode);
+                        qw.orderByAsc(sqlCode);
                     }
                     isColumnHeard = true;
                 } else {
@@ -189,6 +197,11 @@ public class QueryGenerator {
                     } else if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                         String s = "'" + String.join("','", fieldValue.split(",")) + "'";
                         qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " in (" + s + ")"));
+                    } else if (StrUtil.isNotEmpty(property) && "date_insql".equals(property)) {
+                        String[] dateArr = fieldValue.split(",");
+                        if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
+                            qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " >= '" + dateArr[0] + "' and '" + dateArr[1] +"' >= " + columnDefine.getColumnFilterExtent()));
+                        }
                     } else {
                         //正常保留历史条件查询
                         qw.in(sqlCode, Arrays.asList(fieldValue.split(",")));

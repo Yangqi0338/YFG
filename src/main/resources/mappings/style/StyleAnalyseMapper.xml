@@ -142,7 +142,6 @@
         </if>
         FROM t_style t
         INNER JOIN t_style_color sc on sc.style_id = t.id and sc.del_flag = '0'
-        where id in()
         ${ew.customSqlSegment}
     </select>
 </mapper>
