@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = BaseController.SAAS_URL + "/report", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
 public class ReportController {
-
     @Autowired
     private StyleAnalyseService styleAnalyseService;
 
