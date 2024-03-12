@@ -13,25 +13,30 @@
 
     <select id="taskList" resultType="com.base.sbc.module.sample.vo.PreProductionSampleTaskVo">
         SELECT
-        DISTINCT
-        t.*,
-        s.brand_name,
-        s.year_name,
-        s.season_name,
-        s.month_name,
-        s.band_name,
-        s.design_no,
-        p.style_no,
-        p.color,
-        p.prod_category_name,
-        tht.technologist_name technologistName,
-        tht.grading_name gradingName,
-        s.style_pic,
-        s.pattern_design_name,
-        s.pattern_design_id,
-        s.designer,
-        s.designer_id,
-        tpm.pat_seq as patSeq
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            DISTINCT
+            t.*,
+            s.brand_name,
+            s.year_name,
+            s.season_name,
+            s.month_name,
+            s.band_name,
+            s.design_no,
+            p.style_no,
+            p.color,
+            p.prod_category_name,
+            tht.technologist_name technologistName,
+            tht.grading_name gradingName,
+            s.style_pic,
+            s.pattern_design_name,
+            s.pattern_design_id,
+            s.designer,
+            s.designer_id,
+            tpm.pat_seq as patSeq
+        </if>
         FROM
         (t_style s,
         t_pre_production_sample_task t,

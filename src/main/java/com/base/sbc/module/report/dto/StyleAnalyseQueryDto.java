@@ -1,4 +1,4 @@
-package com.base.sbc.module.style.dto;
+package com.base.sbc.module.report.dto;
 
 import com.base.sbc.config.dto.QueryFieldDto;
 import lombok.Data;

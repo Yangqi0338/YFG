@@ -1,4 +1,4 @@
-package com.base.sbc.module.report.service.imp;
+package com.base.sbc.module.style.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
@@ -9,10 +9,10 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.style.dto.StyleAnalyseQueryDto;
-import com.base.sbc.module.style.mapper.StyleAnalyseMapper;
-import com.base.sbc.module.style.service.StyleAnalyseService;
-import com.base.sbc.module.style.vo.StyleAnalyseVo;
+import com.base.sbc.module.report.dto.StyleAnalyseQueryDto;
+import com.base.sbc.module.report.mapper.StyleAnalyseMapper;
+import com.base.sbc.module.report.service.StyleAnalyseService;
+import com.base.sbc.module.report.vo.StyleAnalyseVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -40,6 +40,21 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         BaseQueryWrapper<StyleAnalyseQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        if(isColumnHeard && dto.getFieldQueryMap().containsKey(".")){
+            String columnHeard = dto.getColumnHeard();
+            if(StrUtil.isEmpty(columnHeard)){
+                for (String columnCode : dto.getFieldQueryMap().keySet()) {
+                    if(columnCode.equals(dto.getFieldQueryMap().get(columnCode))){
+                        columnHeard = columnCode;
+                        break;
+                    }
+                }
+            }
+
+            List<StyleAnalyseVo> list = styleAnalyseMapper.findDesignPageField(qw);
+            return new PageInfo<>(list);
+        }
+
         Page<Object> objects = PageHelper.startPage(dto);
         List<StyleAnalyseVo> list = styleAnalyseMapper.findDesignPage(qw);
 

@@ -1,4 +1,4 @@
-package com.base.sbc.module.style.vo;
+package com.base.sbc.module.report.vo;
 
 import lombok.Data;
 

@@ -44,21 +44,21 @@ public class QueryGenerator {
                         //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
                         if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                             qw.last(annotation.columnFilter().replace("?", annotation.columnFilterExtent() + " like '%" + o + "%'"));
-                            qw.select(annotation.value(),"count(id) as groupCount");
+                            qw.select(annotation.value(), "count(id) as groupCount");
                             qw.groupBy(annotation.value());
                         } else {
                             qw.like(annotationValue, o);
-                            qw.select(annotation.value(),"count(id) as groupCount");
+                            qw.select(annotation.value(), "count(id) as groupCount");
                             qw.groupBy(annotation.value());
                         }
                         isColumnHeard = true;
                     } else if (ObjectUtil.isNotEmpty(o) && field.getName().equals(o) && StrUtil.isEmpty(columnHeard)) {
                         //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
                         if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                            qw.select(annotation.value(),"count(id) as groupCount");
+                            qw.select(annotation.value(), "count(id) as groupCount");
                             qw.groupBy(annotation.value());
                         } else {
-                            qw.select(annotation.value(),"count(id) as groupCount");
+                            qw.select(annotation.value(), "count(id) as groupCount");
                             qw.groupBy(annotation.value());
                         }
                         isColumnHeard = true;
@@ -111,6 +111,10 @@ public class QueryGenerator {
         return isColumnHeard;
     }
 
+    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
+        return initQueryWrapperByMap(qw, dto, null);
+    }
+
     /**
      * 特别注意，该方法中有查询  PageHelper 写到该方法下面
      *
@@ -119,7 +123,7 @@ public class QueryGenerator {
      * @param <T>
      * @return
      */
-    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
+    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto, String queryField) {
         if (StrUtil.isEmpty(dto.getTableCode()) || MapUtil.isEmpty(dto.getFieldQueryMap())) {
             return false;
         }
@@ -133,28 +137,28 @@ public class QueryGenerator {
         for (ColumnDefine columnDefine : list) {
             String columnCode = columnDefine.getColumnCode();
             String sqlCode = columnDefine.getSqlCode();
-            if (fieldQueryMap.containsKey(columnCode)) {
+            if (fieldQueryMap.containsKey(columnCode) && StrUtil.isNotEmpty(fieldQueryMap.get(columnCode))) {
                 String fieldValue = fieldQueryMap.get(columnCode);
                 String property = columnDefine.getProperty();
                 if (StrUtil.isNotEmpty(columnHeard) && columnCode.equals(columnHeard)) {
                     //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
                     if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                         qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " like '%" + fieldValue + "%'"));
-                        qw.select(sqlCode,"count(id) as groupCount");
+                        qw.select(sqlCode, "count(id) as groupCount");
                         qw.groupBy(sqlCode);
                     } else {
                         qw.like(sqlCode, fieldValue);
-                        qw.select(sqlCode,"count(id) as groupCount");
+                        qw.select(sqlCode, "count(id) as groupCount");
                         qw.groupBy(sqlCode);
                     }
                     isColumnHeard = true;
                 } else if (columnCode.equals(fieldValue) && StrUtil.isEmpty(columnHeard)) {
                     //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
                     if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                        qw.select(sqlCode,"count(id) as groupCount");
+                        qw.select(sqlCode, "count(id) as groupCount");
                         qw.groupBy(sqlCode);
                     } else {
-                        qw.select(sqlCode,"count(id) as groupCount");
+                        qw.select(sqlCode, "count(id) as groupCount");
                         qw.groupBy(sqlCode);
                     }
                     isColumnHeard = true;

@@ -2,11 +2,11 @@ package com.base.sbc.module.report.controller;
 
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.report.dto.HangTagReportQueryDto;
+import com.base.sbc.module.report.dto.StyleAnalyseQueryDto;
 import com.base.sbc.module.report.service.ReportService;
+import com.base.sbc.module.report.service.StyleAnalyseService;
 import com.base.sbc.module.report.vo.HangTagReportVo;
-import com.base.sbc.module.style.dto.StyleAnalyseQueryDto;
-import com.base.sbc.module.style.service.StyleAnalyseService;
-import com.base.sbc.module.style.vo.StyleAnalyseVo;
+import com.base.sbc.module.report.vo.StyleAnalyseVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
