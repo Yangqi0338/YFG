@@ -1,6 +1,9 @@
-package com.base.sbc.module.style.controller;
+package com.base.sbc.module.report.controller;
 
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.report.dto.HangTagReportQueryDto;
+import com.base.sbc.module.report.service.ReportService;
+import com.base.sbc.module.report.vo.HangTagReportVo;
 import com.base.sbc.module.style.dto.StyleAnalyseQueryDto;
 import com.base.sbc.module.style.service.StyleAnalyseService;
 import com.base.sbc.module.style.vo.StyleAnalyseVo;
@@ -15,13 +18,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@Api(tags = "款式-款式分析")
-@RequestMapping(value = BaseController.SAAS_URL + "/styleAnalyse", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags = "报表中心")
+@RequestMapping(value = BaseController.SAAS_URL + "/report", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class StyleAnalyseController {
+public class ReportController {
 
     @Autowired
     private StyleAnalyseService styleAnalyseService;
+
+    @Autowired
+    private ReportService reportService;
 
     @ApiOperation(value = "分页查询")
     @GetMapping("/findDesignPage")
@@ -51,6 +57,12 @@ public class StyleAnalyseController {
     @GetMapping("/findStyleSizeReport")
     public PageInfo<StyleAnalyseVo> findStyleSize(StyleAnalyseQueryDto dto) {
         return styleAnalyseService.findStylePage(dto);
+    }
+
+    @ApiOperation(value = "电商充绒量")
+    @GetMapping("/findStyleSizeReport1")
+    public PageInfo<HangTagReportVo> findStyleSize1(HangTagReportQueryDto dto) {
+        return reportService.getHangTagReortPage(dto);
     }
 
 }

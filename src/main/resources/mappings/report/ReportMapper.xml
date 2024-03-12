@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.report.mapper.ReportMapper">
+
+    <select id="getHangTagReortList" resultType="com.base.sbc.module.report.vo.HangTagReportVo">
+        select t.bulk_style_no,
+               t1.style_color_pic,
+               t1.ware_code,
+               t1.color_name,
+               t1.color_code,
+               concat(t1.ware_code, t1.color_code, tbs.sort) as defaultBarCode,
+               t1.tag_price,
+               t.product_name,
+               ts.style_name,
+               t1.devt_type_name,
+               t2.brand_name,
+               t2.year_name,
+               t2.season_name,
+               t1.band_name,
+               ts.prod_category1st_name,
+               ts.prod_category2nd_name,
+               ts.prod_category3rd_name,
+               t.down_content,
+               t.ingredient,
+               t.special_spec
+        FROM t_hang_tag t
+                 INNER JOIN t_style_color t1 ON t.bulk_style_no = t1.style_no
+                 INNER JOIN t_style ts ON t1.style_id = ts.id
+                 INNER JOIN t_planning_season t2 ON t1.planning_season_id = t2.id
+                 LEFT JOIN t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 and tbs.hangtags = ts.default_size
+            ${ew.customSqlSegment}
+    </select>
+</mapper>
