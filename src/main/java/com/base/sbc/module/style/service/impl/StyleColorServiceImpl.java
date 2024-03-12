@@ -1194,7 +1194,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
 
         //region 20231219 huangqiang 修改大货款号将老款图片下载重新上传，上传成功后删除
-        if(StrUtil.isNotBlank(styleColor.getStyleColorPic())){
+        if(StrUtil.isNotBlank(sampleStyleColor.getStyleColorPic())){
             Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
             if (!result) {
                 throw new OtherException("图片上传失败！");
@@ -1573,6 +1573,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public Boolean copyStyleColor(IdDto idDto, Principal user) {
         StyleColor styleColor = baseMapper.selectById(idDto.getId());
+        String styleNo = styleColor.getStyleNo();
         styleColor.insertInit();
         styleColor.setId(null);
         styleColor.setScmSendFlag(null);
@@ -1590,7 +1591,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         UploadStylePicDto uploadStylePicDto = new UploadStylePicDto();
         uploadStylePicDto.setStyleColorId(styleColor.getId());
         try {
-            MultipartFile multipartFile = uploadFileService.downloadImage(styleColorPic+"&opacity=0", styleColor.getStyleNo() + ".jpg");
+            MultipartFile multipartFile = uploadFileService.downloadImage(styleColorPic, styleNo + ".jpg");
             uploadStylePicDto.setFile(multipartFile);
             Boolean uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
             if (!uploadStatus) {
@@ -1811,7 +1812,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             MultipartFile multipartFile = null;
             Boolean uploadStatus = false;
             try {
-                multipartFile = uploadFileService.downloadImage(styleColorPic+"&opacity=0", updateStyleNoBandDto.getStyleNo() + ".jpg");
+                multipartFile = uploadFileService.downloadImage(styleColorPic, updateStyleNoBandDto.getStyleNo() + ".jpg");
                 uploadStylePicDto.setFile(multipartFile);
                 uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
             } catch (Exception e) {
