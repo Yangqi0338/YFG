@@ -79,6 +79,10 @@ public class MoreLanguageProperties {
         return String.format(msgEnumMap.getOrDefault(msgEnum.name(), ""), param);
     }
 
+    public static String getMsg(MoreLanguageMsgEnum... param) {
+        return getMsg(param[0], Arrays.stream(param).skip(1).map(MoreLanguageMsgEnum::getText).toArray());
+    }
+
     public static Integer calculateImportCount() {
         return calculateImportCount(importExecutePoolSize);
     }
