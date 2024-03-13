@@ -24,7 +24,7 @@ public class HangTagReportVo {
     /**
      * 颜色名称
      */
-    private String colorCame;
+    private String colorName;
     /**
      * 颜色编码
      */

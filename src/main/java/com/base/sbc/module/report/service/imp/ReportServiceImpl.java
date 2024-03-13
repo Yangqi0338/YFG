@@ -43,6 +43,7 @@ public class ReportServiceImpl implements ReportService {
         qw.eq("ts.del_flag", "0");
         qw.eq("t2.del_flag", "0");
         qw.eq("tbs.del_flag", "0");
+        qw.orderByDesc("t.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<HangTagReportVo> list = reportMapper.getHangTagReortList(qw);
@@ -54,7 +55,6 @@ public class ReportServiceImpl implements ReportService {
             return new PageInfo<>(list);
         }
         /*查询款式图*/
-        //stylePicUtils.setStylePic(list, "stylePic");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
 
         return new PageInfo<>(list);
@@ -66,6 +66,7 @@ public class ReportServiceImpl implements ReportService {
         qw.eq("t.del_flag", "0");
         qw.eq("t1.del_flag", "0");
         qw.eq("t2.del_flag", "0");
+        qw.orderByDesc("t.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<MaterialSupplierQuoteVo> list = reportMapper.getMaterialSupplierQuoteReporList(qw);
