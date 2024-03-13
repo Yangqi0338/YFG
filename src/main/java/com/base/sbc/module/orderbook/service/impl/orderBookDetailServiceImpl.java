@@ -146,6 +146,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
         if (CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
+
+        List<OrderBook> orderBookList = orderBookService.list(new LambdaQueryWrapper<OrderBook>()
+                .eq(OrderBook::getId, orderBookDetailVos.stream().map(OrderBookDetailVo::getOrderBookId).collect(Collectors.toList())));
         /*设置图片分辨路*/
         stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
         stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
@@ -280,6 +283,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 }
             }
 
+            String orderBookChannel = orderBookList.stream().filter(it -> it.getId().equals(orderBookDetailVo.getOrderBookId())).findFirst().map(OrderBook::getChannel).orElse("");
             JSONObject jsonObject = JSON.parseObject(Opt.ofBlankAble(orderBookDetailVo.getCommissioningSize()).orElse(""));
             if (jsonObject!= null){
                 Map<String, String> sizeModelMap = sizeList.stream().filter(it -> orderBookDetailVo.getSizeCodes().contains(it.getCode()))
@@ -292,7 +296,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     List<String> sizeRange = pageConfig.getSizeRange();
                     if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
                         sizeRange.forEach(size-> {
-                            jsonObject.put(size+ (channel == OrderBookChannelType.OFFLINE ? "" : channel.ordinal()) + "Status", sizeModelMap.containsKey(size) ? "0": "1");
+                            jsonObject.put(size+ (channel == OrderBookChannelType.OFFLINE ? "" : channel.ordinal()) + "Status", orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0": "1");
                         });
                     };
                 });
