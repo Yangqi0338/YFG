@@ -39,10 +39,7 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<HangTagReportVo> getHangTagReortPage(HangTagReportQueryDto dto) {
         BaseQueryWrapper<HangTagReportQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
-        qw.eq("t1.del_flag", "0");
-        qw.eq("ts.del_flag", "0");
-        qw.eq("t2.del_flag", "0");
-        qw.eq("tbs.del_flag", "0");
+        qw.notEmptyIn("t.bulk_style_no" , dto.getStyleColorNos());
         qw.orderByDesc("t.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
@@ -64,8 +61,6 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<MaterialSupplierQuoteVo> getMaterialSupplierQuoteReportPage(MaterialSupplierQuoteQueryDto dto) {
         BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
-        qw.eq("t1.del_flag", "0");
-        qw.eq("t2.del_flag", "0");
         qw.orderByDesc("t.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
@@ -85,12 +80,8 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(StylePackBomMateriaQueryDto dto) {
         BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("tsc.del_flag", "0");
-        qw.eq("ts.del_flag", "0");
-        qw.eq("tpi.del_flag", "0");
-        qw.eq("tpb.del_flag", "0");
-        qw.eq("tbm.del_flag", "0");
-        qw.eq("tht.del_flag", "0");
-        qw.eq("tsp.del_flag", "0");
+        qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
+        qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StylePackBomMaterialReportVo> list = reportMapper.getStylePackBomListReport(qw);
@@ -108,7 +99,11 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public PageInfo<StyleSizeReportVo> getStyleSizeReportPage(StyleSizeQueryDto dto) {
-        BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
+        BaseQueryWrapper<StyleSizeReportVo> qw = new BaseQueryWrapper<>();
+        qw.eq("t.del_flag" , "0");
+        qw.eq("tpsd.pack_type" , "packBigGoods");
+        qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
+        qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
