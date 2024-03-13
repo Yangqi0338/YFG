@@ -12,8 +12,8 @@ spring:
         ext-config:
           - data-id: common-pdm.yml
             refresh: true
-#          - data-id: dbSync-pdm.yml
-#            refresh: true
+          - data-id: dbSync-pdm.yml
+            refresh: true
           - data-id: moreLanguage-pdm.yml
             refresh: true
 # 暂不打印
