@@ -102,4 +102,6 @@ public class HangTagSearchDTO extends Page {
 
     @ApiModelProperty(value = "年份")
     private String  year;
+
+    private String produceTypeName;
 }
