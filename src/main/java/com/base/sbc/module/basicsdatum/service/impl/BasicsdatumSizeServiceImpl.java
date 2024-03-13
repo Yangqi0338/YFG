@@ -211,7 +211,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
                 queryWrapper.eq("code",basicsdatumSize.getCode());
                 queryWrapper.eq("del_flag",0);
                 BasicsdatumSize one = this.getOne(queryWrapper);
-                if (one!=null){
+                if (one!=null && !addRevampSizeDto.getId().equals(one.getId())){
                     throw new OtherException("排序重复");
                 }
             }
