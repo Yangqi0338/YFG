@@ -22,6 +22,9 @@ public class ResearchProgressPageDto extends Page {
     /**品牌编号集合 */
     private List<String> brandIds;
 
+    /**产品季集合 */
+    private List<String> planningSeasonIds;
+
     /**当前节点编号 */
     private String nodeCode;
 

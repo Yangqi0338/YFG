@@ -3,7 +3,6 @@ package com.base.sbc.module.common.convert;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguagePrinterBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
@@ -35,7 +34,6 @@ public interface HangTagConvert {
 
     List<HangTagMoreLanguageWebBaseVO> copyList2Web(List<HangTagMoreLanguageBaseVO> source);
     List<HangTagMoreLanguageBCSVO.HangTagMoreLanguageBCSChildrenBaseVO> copyList2Bcs(List<HangTagMoreLanguageBaseVO> source);
-    List<HangTagMoreLanguagePrinterBaseVO> copyList2Print(List<HangTagMoreLanguageBaseVO> source);
     List<HangTagMoreLanguageVO> copyList2MoreLanguageVO(List<CountryLanguage> source);
     HangTagMoreLanguageVO copy2MoreLanguageVO(CountryLanguage source);
     @Mappings({
@@ -47,6 +45,8 @@ public interface HangTagConvert {
     void standardColumn2MoreLanguageBaseVO(StandardColumn source, @MappingTarget HangTagMoreLanguageBaseVO target);
     HangTagMoreLanguageBaseVO copyMyself(HangTagMoreLanguageBaseVO source);
     HangTagMoreLanguageWebBaseVO copyMyself(HangTagMoreLanguageWebBaseVO source);
+    List<HangTagMoreLanguageVO> copyMyself(List<HangTagMoreLanguageVO> languageList);
+    HangTagMoreLanguageVO copyMyself(HangTagMoreLanguageVO source);
     CountryQueryDto copy2CountryQuery(HangTagMoreLanguageDTO source);
     HangTagMoreLanguageBaseVO copy2MoreLanguageBaseVO(CountryLanguage source);
     void countryTranslate2MoreLanguageVO(StandardColumnCountryTranslate source, @MappingTarget HangTagMoreLanguageVO target);
@@ -54,4 +54,6 @@ public interface HangTagConvert {
     MoreLanguageHangTagVO copy2MoreLanguage(HangTagVO source);
     List<MoreLanguageHangTagVO> copyList2MoreLanguage(List<HangTagVO> source);
     MoreLanguageTagPrinting copy2MoreLanguage(TagPrinting source);
+    MoreLanguageTagPrinting.Size copy2MoreLanguage(TagPrinting.Size source);
+    List<MoreLanguageTagPrinting.Size> copyList2MoreLanguageSize(List<TagPrinting.Size> source);
 }

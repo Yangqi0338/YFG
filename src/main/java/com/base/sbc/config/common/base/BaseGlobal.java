@@ -224,6 +224,10 @@ public class BaseGlobal {
      * 月
      */
     public static final String MONTH = "month";
+    /**
+     * 查询时，要查询出字段为空的数据时，特殊标识
+     */
+    public static final String NULL_KEY = "NULL_KEY";
 
     /**
      * 获取当前对象实例

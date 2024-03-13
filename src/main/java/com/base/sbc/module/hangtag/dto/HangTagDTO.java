@@ -9,8 +9,11 @@ package com.base.sbc.module.hangtag.dto;
 import java.util.Date;
 import java.util.List;
 
+import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
+import com.base.sbc.module.hangtag.entity.HangTagInspectCompany;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModel;
@@ -41,10 +44,10 @@ public class HangTagDTO {
     @ApiModelProperty(value = "备注信息")
     private String remarks;
     /**
-     * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认
-     */
-    @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认")
-    private String status;
+     * 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认
+     * */
+    @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认"  )
+    private HangTagStatusEnum status;
     /**
      * 确认时间
      */
@@ -288,7 +291,7 @@ public class HangTagDTO {
     @ApiModelProperty(value = "成分集合")
     private List<HangTagIngredient> hangTagIngredients;
 
-    private String checkType;
+    private HangTagStatusCheckEnum checkType;
 
     /**
      * 附件
@@ -301,6 +304,13 @@ public class HangTagDTO {
      * 外发工厂
      */
     private String outFactory;
+
+
+    /**
+     * 检测报告id
+     */
+    @ApiModelProperty(value = "检测报告")
+    private List<HangTagInspectCompany>  hangTagInspectCompanyList;
 
 }
 

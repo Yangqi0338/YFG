@@ -7,9 +7,17 @@
 package com.base.sbc.module.planning.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import org.apache.ibatis.annotations.Mapper;
-/** 
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：企划-维度表 dao类
  * @address com.base.sbc.module.planning.dao.PlanningDimensionalityDao
  * @author lxl  
@@ -21,6 +29,12 @@ import org.apache.ibatis.annotations.Mapper;
 public interface PlanningDimensionalityMapper extends BaseMapper<PlanningDimensionality> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
+    /**
+     * 获取系数列表
+     * @param qw
+     * @return
+     */
+    List<PlanningDimensionalityVo> getCoefficientList(@Param(Constants.WRAPPER) BaseQueryWrapper<PlanningDimensionality> qw);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

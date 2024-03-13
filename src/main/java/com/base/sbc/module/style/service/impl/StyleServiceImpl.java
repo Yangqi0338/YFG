@@ -15,6 +15,7 @@ import cn.hutool.core.util.*;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -36,10 +37,7 @@ import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.config.utils.CommonUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
@@ -61,7 +59,6 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
-import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
@@ -90,10 +87,7 @@ import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
 import com.base.sbc.module.style.mapper.StyleMapper;
-import com.base.sbc.module.style.service.StyleInfoColorService;
-import com.base.sbc.module.style.service.StyleInfoSkuService;
-import com.base.sbc.module.style.service.StylePicService;
-import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.service.*;
 import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -187,9 +181,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private StyleInfoColorService styleInfoColorService;
     @Resource
     private StyleInfoSkuService styleInfoSkuService;
-    @Resource
-    @Lazy
-    private HangTagService hangTagService;
     @Autowired
     private CcmService ccmService;
 
@@ -219,6 +210,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         Style style = null;
         CommonUtils.removeQuerySplit(dto, ",", "patternPartsPic");
         CommonUtils.removeQuery(dto, "stylePic");
+
         if (CommonUtils.isInitId(dto.getId())) {
             style = saveNewStyle(dto);
         } else {
@@ -252,8 +244,48 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             baseMapper.changeDevtType(style.getId(), style.getDevtType(), style.getDevtTypeName());
 
         }
-        // 保存工艺信息
-        fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
+
+        //是否同步SCM
+        boolean isPushScm = false;
+
+        //添加打标逻辑 - markingType 默认为空时和设计阶段，打标逻辑一致，如果维度数据全部填写则全部打标，否则部分打标，全部未填写时为未打标
+        if(StrUtil.isEmpty(dto.getMarkingType())){
+            // 保存工艺信息
+            fieldValService.save(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, dto.getTechnologyInfo());
+        }else{
+            // 保存下单阶段 打标状态
+            LambdaUpdateWrapper<StyleColor> styleColorUpdateWrapper = new LambdaUpdateWrapper<>();
+            styleColorUpdateWrapper.set(StyleColor::getOrderMarkingStatus,dto.getOrderMarkingStatus());
+            styleColorUpdateWrapper.eq(StyleColor::getId,dto.getStyleColorId());
+            styleColorMapper.update(null,styleColorUpdateWrapper);
+
+            String plateType = "";
+            String GarmentWash = "";
+            for (FieldVal fieldVal : dto.getTechnologyInfo()) {
+                if("plateType".equals(fieldVal.getFieldName())){
+                    isPushScm = true;
+                    plateType = fieldVal.getVal();
+                }else if("GarmentWash".equals(fieldVal.getFieldName())){
+                    isPushScm = true;
+                    GarmentWash = fieldVal.getVal();
+                }
+            }
+            //判断是否修改了  水洗字段和自主研发版型  字段 如有有修改则触发同步SCM
+            if(isPushScm){
+                List<FieldVal> fvList = fieldValService.list(dto.getStyleColorId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+                if(CollUtil.isEmpty(fvList)){
+                    fvList = fieldValService.list(style.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);;
+                }
+                Map<String, String> oldFvMap = fvList.stream().collect(Collectors.toMap(FieldVal::getFieldName, FieldVal::getVal,(a, b) -> b));
+                if(plateType.equals(oldFvMap.getOrDefault("plateType","")) && GarmentWash.equals(oldFvMap.getOrDefault("GarmentWash",""))){
+                    isPushScm = false;
+                }
+            }
+
+            // 保存下单阶段工艺信息
+            fieldValService.save(dto.getStyleColorId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER, dto.getTechnologyInfo());
+        }
+
         // 附件信息
         saveFiles(style.getId(), dto.getAttachmentList(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_ATTACHMENT);
 
@@ -277,7 +309,22 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //        } catch (Exception e) {
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
+        if(isPushScm && StrUtil.isNotBlank(dto.getStyleColorId())){
+            //判断款式配色 同步状态，如果不能同步则报错
 
+            List<StyleColor> styleColorList = styleColorMapper.getStyleMainAccessories(Collections.singletonList(dto.getStyleColorId()));
+            /*查询配色是否下发*/
+            if (CollectionUtils.isEmpty(styleColorList)) {
+                throw new OtherException("该大货款号已经同步，请解锁后保存下发");
+            }
+            StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
+            try {
+                styleColorService.issueScm(dto.getStyleColorId());
+            }catch (Exception e){
+                log.error("同步SCM失败",e);
+                throw new OtherException("同步SCM失败："+e.getMessage());
+            }
+        }
 
         return style;
     }
@@ -770,9 +817,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
+        //款式打标-下单阶段逻辑，如果第一次查看下单阶段数据，则查询为空，复制一份设计阶段数据作为下单阶段数据
+        if(StrUtil.isNotBlank(dto.getShowConfig()) && "styleMarkingOrder".equals(dto.getShowConfig())){
+            List<FieldVal> fvList1 = fieldValService.list(dto.getStyleColorId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+            if(CollUtil.isNotEmpty(fvList1)){
+                fvList = fvList1;
+            }
+        }
         if (CollUtil.isNotEmpty(pdList)) {
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds);
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,null,null,null);
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
@@ -824,6 +878,139 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         //新增时
         else if (StrUtil.isAllNotBlank(dto.getPlanningSeasonId(), dto.getChannel(), dto.getProdCategory())) {
             return queryDimensionLabels(dto);
+        }
+        return null;
+    }
+
+    /**
+     * 查询维度标签
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    public Map<String,List<FieldManagementVo>> queryCoefficient(DimensionLabelsSearchDto dto) {
+        dto.setCoefficientFlag(BaseGlobal.YES);
+        Map<String, List<FieldManagementVo>> result = new HashMap<>();
+        List<String> stringList2 = new ArrayList<>();
+        //1 查询企划需求管理
+        DimensionLabelsSearchDto pdqw = new DimensionLabelsSearchDto();
+        BeanUtil.copyProperties(dto, pdqw);
+        // 获取围度系数
+        DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
+        List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
+        List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
+        //款式打标-下单阶段逻辑，如果第一次查看下单阶段数据，则查询为空，复制一份设计阶段数据作为下单阶段数据
+        if(StrUtil.isNotBlank(dto.getShowConfig()) && "styleMarkingOrder".equals(dto.getShowConfig()) && StrUtil.isNotBlank(dto.getStyleColorId())){
+            List<FieldVal> fvList1 = fieldValService.list(dto.getStyleColorId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+            if(CollUtil.isNotEmpty(fvList1)){
+                fvList = fvList1;
+            }
+        }
+        if (CollUtil.isNotEmpty(pdList)) {
+            // showConfig 为空时，表示所有场景都展示，否则只有入参showConfig = 数据中showConfig时才展示
+            // 展示数据根据显示配置传参进行过滤
+            if (StrUtil.isNotEmpty(dto.getShowConfig())) {
+                if ("styleMarkingOrder".equals(dto.getShowConfig())) {
+                    pdList = pdList.stream().filter(o -> BaseGlobal.YES.equals(o.getResearchShowFlag())).collect(Collectors.toList());
+                }
+            }else{
+                pdList = pdList.stream().filter(o -> BaseGlobal.YES.equals(o.getDesignShowFlag())).collect(Collectors.toList());
+            }
+            if (CollUtil.isEmpty(pdList)) {
+                return result;
+            }
+            List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+            List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,dto.getPlanningSeasonId(),dto.getProdCategory(),dto.getChannel());
+            if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
+                /*用于查询字段配置数据*/
+                stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
+                Map<String, Integer> sortMap = pdList.stream().collect(Collectors.toMap(PlanningDimensionality::getFieldId, PlanningDimensionality::getSort, (a, b) -> b));
+                CollUtil.sort(fieldManagementListByIds, (a, b) -> {
+                    int n1 = MapUtil.getInt(sortMap, a.getId(), 0);
+                    int n2 = MapUtil.getInt(sortMap, b.getId(), 0);
+                    return NumberUtil.compare(n1, n2);
+                });
+                QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
+                if (BaseGlobal.YES.equals(listVo.getCategoryFlag())) {
+                    queryFieldOptionConfigDto.setProdCategory2nd(dto.getProdCategory2nd());
+                } else {
+                    queryFieldOptionConfigDto.setCategoryCode(dto.getProdCategory());
+                }
+               //*查询每个字段下的配置选项*//*
+                queryFieldOptionConfigDto.setBrand(dto.getBrand());
+                queryFieldOptionConfigDto.setSeason(dto.getSeason());
+                queryFieldOptionConfigDto.setFieldManagementIdList(stringList2);
+                Map<String, List<FieldOptionConfig>> listMap = fieldOptionConfigService.getFieldConfig(queryFieldOptionConfigDto);
+
+       /*         Map<String, Map<String, String>> dictInfoToMap = new HashMap<>();
+                *//*查询字段的字典和结构管理*//*
+                *//*查询字典*//*
+                List<FieldManagementVo> managementVoList = fieldManagementListByIds.stream().filter(f -> StrUtil.equals(f.getIsOption(), BaseGlobal.YES)).collect(Collectors.toList());
+                if (CollUtil.isNotEmpty(managementVoList)) {
+                    *//*获取查询的字典*//*
+                    String collect = managementVoList.stream().map(FieldManagementVo::getOptionDictKey).distinct().collect(Collectors.joining(","));
+                    if (StrUtil.isNotBlank(collect)) {
+                        dictInfoToMap = ccmFeignService.getDictInfoToMap(collect);
+                    }
+                }*/
+
+                //*赋值*//*
+                for (FieldManagementVo i : fieldManagementListByIds) {
+
+                    List<FieldOptionConfig> configList = listMap.get(i.getId());
+                    if (CollUtil.isNotEmpty(configList)) {
+                        i.setConfigVoList(BeanUtil.copyToList(configList, FieldOptionConfigVo.class));
+                    } else {
+    /*                   当是字典时的数据
+                        if (StrUtil.equals(i.getIsOption(), BaseGlobal.YES)) {
+                            if (CollUtil.isNotEmpty(dictInfoToMap)) {
+                                Map<String, String> map = dictInfoToMap.get(i.getOptionDictKey());
+                                if(CollUtil.isNotEmpty(map)){
+//                                    赋值选的数据
+                                    List<FieldOptionConfigVo> list = new ArrayList<>();
+                                    for (Object key : map.keySet()) {
+                                        FieldOptionConfigVo fieldOptionConfigVo = new FieldOptionConfigVo();
+                                        fieldOptionConfigVo.setOptionCode(key.toString());
+                                        fieldOptionConfigVo.setOptionName(map.get(key));
+                                        list.add(fieldOptionConfigVo);
+                                    }
+                                    i.setConfigVoList(list);
+                                }
+                            }
+                        }*/
+                    }
+                }
+            }
+            // [3].查询字段值
+            if (CollUtil.isNotEmpty(fieldManagementListByIds) && StrUtil.isNotBlank(dto.getForeignId())) {
+                fieldManagementService.conversion(fieldManagementListByIds, fvList);
+                result =  fieldManagementListByIds.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
+            }
+        }
+        return result;
+
+    }
+
+    /**
+     * 查询围度系数
+     *
+     * @param dto @return
+     */
+    @Override
+    public Map<String,List<FieldManagementVo>> queryCoefficientByStyle(DimensionLabelsSearchDto dto) {
+        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        //修改时
+        if (StrUtil.isNotBlank(dto.getForeignId()) && !CommonUtils.isInitId(dto.getForeignId())) {
+            Style style = getById(dto.getForeignId());
+            if (style != null) {
+                BeanUtil.copyProperties(style, dto);
+                return queryCoefficient(dto);
+            }
+        }
+        //新增时
+        else if (StrUtil.isAllNotBlank(dto.getPlanningSeasonId(), dto.getChannel(), dto.getProdCategory())) {
+            return queryCoefficient(dto);
         }
         return null;
     }
@@ -1305,6 +1492,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public StyleVo getDetail(String id, String historyStyleId) {
         StyleVo detail = getDetail(id);
+        if (detail==null){
+            return null;
+        }
         detail.setColorPlanningCount(colorPlanningService.getColorPlanningCount(detail.getPlanningSeasonId()));
         detail.setThemePlanningCount(themePlanningService.getThemePlanningCount(detail.getPlanningSeasonId()));
         List<BasicsdatumModelType> basicsdatumModelTypeList = basicsdatumModelTypeService.queryByCode(detail.getCompanyCode(), detail.getSizeRange());
@@ -1836,6 +2026,139 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public String selectMaxOldDesignNo(QueryWrapper qc) {
         return baseMapper.selectMaxOldDesignNo(qc);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean startMarkingApproval(String id, String showFOB, String styleColorId) {
+        Style style = getById(id);
+        if (style == null) {
+            throw new OtherException("样衣数据不存在,请先保存");
+        }
+        if (StrUtil.isBlank(style.getDesignAuditStatus())) {
+            style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+        }
+        if (StrUtil.equals(style.getDesignAuditStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
+            throw new OtherException("当前数据已在审批中");
+        }
+        style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        updateById(style);
+        Map<String, Object> variables = BeanUtil.beanToMap(style);
+        return flowableService.start(FlowableService.DESIGN_MARKING + "[" + style.getDesignNo() + "]", FlowableService.DESIGN_MARKING, id,
+                "/pdm/api/saas/style/approvalMarking",
+                "/pdm/api/saas/style/approvalMarking",
+                "/pdm/api/saas/style/approvalMarking",
+                "/styleAnalysis/styleMarkingDetails?sampleDesignId=" + id + "&isEdit=0&panelValue=design&showFOB="
+                        + showFOB + "&id=" + id + "&styleColorId=" + styleColorId, variables);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean approvalMarking(AnswerDto dto) {
+        Style style = getById(dto.getBusinessKey());
+        logger.info("————————————————款式打标-设计阶段审批 回调方法————————————————", JSON.toJSONString(style));
+        logger.info("————————————————回调类型————————————————", dto.getApprovalType());
+        if (style != null) {
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            } else {
+                style.setDesignAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+            }
+            updateById(style);
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean startMarkingOrderApproval(String id, String showFOB, String styleColorId) {
+        /*Style style = getById(id);
+        if (style == null) {
+            throw new OtherException("样衣数据不存在,请先保存");
+        }
+        if (StrUtil.isBlank(style.getOrderAuditStatus())) {
+            style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+        }
+        if (StrUtil.equals(style.getOrderAuditStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
+            throw new OtherException("当前数据已在审批中");
+        }
+        style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
+        updateById(style);
+        Map<String, Object> variables = BeanUtil.beanToMap(style);
+        return flowableService.start(FlowableService.ORDER_MARKING + "[" + style.getDesignNo() + "]", FlowableService.ORDER_MARKING, id,
+                "/pdm/api/saas/style/approvalMarkingOrder",
+                "/pdm/api/saas/style/approvalMarkingOrder",
+                "/pdm/api/saas/style/approvalMarkingOrder",
+                "/styleAnalysis/styleMarkingDetails?sampleDesignId=" + id + "&isEdit=0&panelValue=order&showFOB="
+                        + showFOB + "&id=" + id + "&styleColorId=" + styleColorId, variables);*/
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = {OtherException.class, Exception.class})
+    public boolean approvalMarkingOrder(AnswerDto dto) {
+        /*Style style = getById(dto.getBusinessKey());
+        logger.info("————————————————款式打标-下单阶段审批 回调方法————————————————", JSON.toJSONString(style));
+        logger.info("————————————————回调类型————————————————", dto.getApprovalType());
+        if (style != null) {
+            //通过
+            if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
+                style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_CHECKED);
+            }
+            //驳回
+            else if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_REJECT)) {
+                style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_REJECT);
+            } else {
+                style.setOrderAuditStatus(BaseGlobal.STOCK_STATUS_DRAFT);
+            }
+            updateById(style);
+        }*/
+        return true;
+    }
+
+    /**
+     * 保存打板中的维度系数数据
+     * @param fieldValList
+     * @param styleId
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean saveCoefficient(List<FieldVal> fieldValList, String styleId) {
+        // 保存系数数据
+        fieldValService.save(styleId,FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY,fieldValList);
+        /*查询这个款式下的配色*/
+        QueryWrapper<StyleColor> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("style_id",styleId);
+        List<StyleColor> styleColorList = styleColorMapper.selectList(queryWrapper);
+        /*获取版师修改的字段*/
+        Map<String,FieldVal> map = fieldValList.stream().collect(Collectors.toMap(k -> k.getFieldName(), v -> v, (a, b) -> b));
+
+        if(CollUtil.isNotEmpty(styleColorList)){
+            /*数据放到配色*/
+            for (StyleColor styleColor : styleColorList) {
+                List<FieldVal> list = fieldValService.list(styleColor.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+                /*下单阶段存在数据时修改字段*/
+                if (CollUtil.isNotEmpty(list)) {
+                    list.forEach(fieldVal -> {
+                        /*查看是否修改字段*/
+                        FieldVal fieldVal1 = map.get(fieldVal.getFieldName());
+                        if(ObjectUtil.isNotEmpty(fieldVal1)){
+                            fieldVal.setVal(fieldVal1.getVal());
+                            fieldVal.setValName(fieldVal1.getValName());
+                        }
+                    });
+                    // 保存系数数据
+                    fieldValService.saveOrUpdateBatch(list);
+                }
+            }
+        }
+        return true;
     }
 
 }

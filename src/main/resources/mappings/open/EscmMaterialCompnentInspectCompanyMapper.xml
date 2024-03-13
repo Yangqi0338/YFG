@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.open.mapper.EscmMaterialCompnentInspectCompanyMapper">
+
+
+	<select id="getListByMaterialsNo"
+			resultType="com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto">
+
+		SELECT
+		*
+		FROM
+		( SELECT id inspectCompanyId, file_url,year,arrive_date,check_date,send_inspect_content,style_no,remark,company_full_name,supplier_full_name,quanlity_inspect_content,predict_report_time,actual_report_time,compnent_num,validity_time,materials_name,materials_no FROM `t_escm_material_component_inspect_company` WHERE
+		materials_no IN
+		<foreach collection="materialsNos" item="i" separator="," open="(" close=")">
+			#{i}
+		</foreach>
+		ORDER BY YEAR DESC, validity_time DESC ) a
+		GROUP BY
+		materials_no
+
+	</select>
+	<select id="getList" resultType="com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto">
+
+		select
+		temcic.*
+		from  t_hang_tag_inspect_company thtic
+	    left join 	t_escm_material_component_inspect_company temcic on (thtic.inspect_company_id = temcic.id and temcic.del_flag='0')
+	    where
+		thtic.del_flag ='0'
+		<if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+			${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+		</if>
+
+	</select>
+</mapper>

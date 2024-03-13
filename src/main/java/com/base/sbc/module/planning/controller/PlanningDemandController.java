@@ -18,6 +18,7 @@ import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planning.vo.PlanningDemandVo;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.hibernate.validator.constraints.NotBlank;
@@ -174,4 +175,21 @@ public class PlanningDemandController {
 	public boolean setImportantFlag(@RequestBody PlanningDemand planningDemand) {
 		return planningDemandService.setImportantFlag(planningDemand);
 	}
+
+
+	@ApiOperation(value = "获取围度系数数据")
+	@GetMapping("/getCoefficient")
+	public List<PlanningDimensionalityVo>  getCoefficient(DimensionLabelsSearchDto queryDemandDimensionalityDto) {
+		return planningDimensionalityService.getCoefficient(queryDemandDimensionalityDto);
+	}
+
+
+	@ApiOperation(value = "系数模板引用")
+	@PostMapping("/templateReference")
+	public boolean templateReference(@RequestBody DimensionLabelsSearchDto dto) {
+		return planningDimensionalityService.templateReference(dto);
+	}
+
+
+
 }

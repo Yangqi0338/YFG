@@ -126,11 +126,15 @@ public class PlanningUtils {
      */
     public static void dimensionCommonQw(BaseQueryWrapper qw, Object bean, String prefix) {
         PlanningCategoryItem dto = BeanUtil.copyProperties(bean, PlanningCategoryItem.class);
-
-
+        String coefficientFlag = (String)BeanUtil.getProperty(bean, "coefficientFlag");
         qw.notEmptyEq("planning_season_id", dto.getPlanningSeasonId());
         qw.notEmptyEq("channel", dto.getChannel());
-
+   /*     if(StrUtil.equals(coefficientFlag,BaseGlobal.YES)){
+            qw.eq("coefficient_flag",BaseGlobal.YES);
+        }else {
+            qw.eq("coefficient_flag",BaseGlobal.NO);
+        }*/
+        qw.eq("coefficient_flag",BaseGlobal.YES);
         if (StrUtil.isBlank(dto.getCategoryFlag())) {
             dto.setCategoryFlag(StrUtil.isBlank(dto.getProdCategory2nd()) ? BasicNumber.ZERO.getNumber() : BasicNumber.ONE.getNumber());
         } else if (StrUtil.equals(dto.getCategoryFlag(), BasicNumber.ZERO.getNumber())) {
@@ -146,7 +150,9 @@ public class PlanningUtils {
         } else {
             qw.eq(StrUtil.isNotBlank(dto.getProdCategory1st()), prefix + "prod_category1st", dto.getProdCategory1st());
             qw.eq(prefix + "prod_category", dto.getProdCategory());
+//            qw.isNullStr(prefix + "prod_category2nd");
             qw.isNullStr(prefix + "prod_category2nd");
+
         }
     }
 

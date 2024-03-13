@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.open.dto.MoreLanguageTagPrinting;
@@ -36,13 +37,6 @@ public class HangTagMoreLanguageSupportVO {
     private String standardColumnId;
 
     /**
-     * 标准列码
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "标准列码")
-    private String standardColumnCode;
-
-    /**
      * 标准列模型
      */
     @JsonIgnore
@@ -55,6 +49,13 @@ public class HangTagMoreLanguageSupportVO {
     @JsonIgnore
     @ApiModelProperty(value = "标准列模型")
     protected StandardColumnType type;
+
+    /**
+     * 国家类型
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "国家类型")
+    protected CountryLanguageType countryLanguageType;
 
     /**
      * 查数据库的编码
@@ -90,6 +91,20 @@ public class HangTagMoreLanguageSupportVO {
     @JsonIgnore
     @ApiModelProperty(value = "是组合的")
     protected Boolean isGroup = false;
+
+    /**
+     * 有语言的
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "有语言的")
+    protected Boolean hasLanguage = true;
+
+    /**
+     * 中文检查
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "中文检查")
+    protected Boolean cnCheck = true;
 
     /**
      * 分类列表

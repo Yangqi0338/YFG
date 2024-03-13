@@ -90,6 +90,9 @@ public class QueryStyleColorDto extends Page {
     @ApiModelProperty(value = "波段code")
     private String bandCode;
 
+    @ApiModelProperty(value = "品牌名称")
+    private String brandName;
+
     @ApiModelProperty(value = "设计师")
     private String designer;
 
@@ -237,4 +240,17 @@ public class QueryStyleColorDto extends Page {
      */
     private String technologistName;
 
+    @ApiModelProperty(value = "打标下单标记")
+    private String markingOrderFlag;
+
+    /**
+     * 设计阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)
+     */
+    @ApiModelProperty(value = "设计阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
+    private String designMarkingStatus;
+    /**
+     * 下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)
+     */
+    @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
+    private String orderMarkingStatus;
 }

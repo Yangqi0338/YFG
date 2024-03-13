@@ -25,7 +25,8 @@ SELECT
        tpz.part_code                                                                              AS 测量点ID,
        ts.design_no                                                                               AS 设计款号,
        ts.historical_data                                                                               as 历史数据,
-       if(ts.del_flag = '0', '存在', '删除')                                                      as 删除标识
+       if(ts.del_flag = '0', '存在', '删除')                                                      as 删除标识,
+        tsc.id                                                                                               as 大货款ID
 
 FROM t_style_color tsc
          LEFT JOIN t_style as ts ON tsc.style_id = ts.id and tsc.del_flag = '0'

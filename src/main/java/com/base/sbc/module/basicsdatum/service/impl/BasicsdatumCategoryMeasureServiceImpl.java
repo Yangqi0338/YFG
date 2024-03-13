@@ -167,7 +167,7 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
      * @return boolean
      */
     @Override
-    public Boolean addRevampBasicsdatumCategoryMeasure(AddRevampBasicsdatumCategoryMeasureDto addRevampBasicsdatumCategoryMeasureDto) {
+    public BasicsdatumCategoryMeasure addRevampBasicsdatumCategoryMeasure(AddRevampBasicsdatumCategoryMeasureDto addRevampBasicsdatumCategoryMeasureDto) {
         BasicsdatumCategoryMeasure basicsdatumCategoryMeasure = new BasicsdatumCategoryMeasure();
 
         QueryWrapper<BasicsdatumCategoryMeasure> queryWrapper = new QueryWrapper<>();
@@ -198,7 +198,7 @@ public class BasicsdatumCategoryMeasureServiceImpl extends BaseServiceImpl<Basic
             baseMapper.updateById(basicsdatumCategoryMeasure);
 
         }
-        return true;
+        return basicsdatumCategoryMeasure;
     }
 
 

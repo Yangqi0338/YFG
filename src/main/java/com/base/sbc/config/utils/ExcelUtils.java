@@ -155,7 +155,7 @@ public class ExcelUtils {
         executorExportExcel1(list,fileName,imgFlag,maxNumber,response,exportParams,newExcelParams,columns);
     }
 
-    private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
+    public static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
         //把数据添加到excel表格中
         exportParams.setStyle(ExcelExportTitleStyle.class);
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);

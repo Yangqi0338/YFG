@@ -11,6 +11,7 @@ import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -28,9 +29,13 @@ import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
 import com.base.sbc.open.dto.MtBpReqDto;
 import com.base.sbc.open.dto.OrderBookDto;
 import com.base.sbc.open.entity.*;
+import com.base.sbc.open.service.BasicsdatumGarmentInspectionService;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.base.sbc.open.service.MtBqReqService;
 import com.base.sbc.open.service.OpenSmpService;
@@ -66,6 +71,8 @@ public class OpenSmpController extends BaseController {
 
     private final HangTagService hangTagService;
 
+    private final StyleColorService styleColorService;
+
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
     private final OpenSmpService openSmpService;
@@ -81,6 +88,7 @@ public class OpenSmpController extends BaseController {
     private final OrderBookDetailService orderBookDetailService;
     private final PlanningSeasonService planningSeasonService;
 
+    private final BasicsdatumGarmentInspectionService garmentInspectionService;
 
     /**
      * bp供应商
@@ -107,7 +115,7 @@ public class OpenSmpController extends BaseController {
     @PostMapping("/hrUserSave")
     @ApiOperation(value = "hr-人员新增或者修改", notes = "hr-人员新增或者修改")
     public ApiResult hrSave(@RequestBody JSONObject jsonObject) {
-        SmpUser smpUser = JSONObject.parseObject(jsonObject.toJSONString(), SmpUser.class);
+        SmpUser smpUser = JSONObject.parseObject(jsonObject.getJSONObject("content").toJSONString(), SmpUser.class);
         smpUser.preInsert();
         smpUser.setCreateName("smp请求");
         smpUser.setUpdateName("smp请求");
@@ -175,6 +183,16 @@ public class OpenSmpController extends BaseController {
         return selectSuccess(tagPrintings1);
     }
 
+    /**
+     * 代理吊牌打印
+     */
+    @GetMapping("/agentTagPrinting")
+    @ApiOperation(value = "吊牌打印获取", notes = "吊牌打印获取")
+    public ApiResult agentTagPrinting(String id, boolean bl) {
+        List<TagPrinting> tagPrintings = styleColorService.agentListByStyleNo(id, bl);
+        return selectSuccess(tagPrintings);
+    }
+
 
     /**
      * 面料成分检测数据接口
@@ -183,7 +201,12 @@ public class OpenSmpController extends BaseController {
     @PostMapping("/escmMaterialCompnentInspectCompany")
     public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
         EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
-        escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto,new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
+
+        escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto,
+                new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>()
+                        .eq("materials_no",escmMaterialCompnentInspectCompanyDto.getMaterialsNo())
+                        .eq("year",escmMaterialCompnentInspectCompanyDto.getYear())
+        );
 
         basicsdatumMaterialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("material_code",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
         String quanlityInspectContent="";
@@ -247,6 +270,29 @@ public class OpenSmpController extends BaseController {
         basicsdatumMaterial.setIngredient(quanlityInspectContent);
         basicsdatumMaterial.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.getFileUrl());
         basicsdatumMaterialService.updateById(basicsdatumMaterial);
+        return insertSuccess(null);
+    }
+
+
+    /**
+     * 获取大货款，设计师，版师，样衣工
+     */
+    @GetMapping("/getStyleDesignerInfo")
+    @ApiOperation(value = "根据大货款号获取，设计师，版师，样衣工", notes = "根据大货款号获取，设计师，版师，样衣工")
+    public ApiResult getStyleDesignerInfo(String styleNo) {
+        if (StrUtil.isBlank(styleNo)) {
+            throw new OtherException("大货款号不允许为空");
+        }
+        return selectSuccess(styleColorService.getDesignerInfo(styleNo));
+    }
+
+    /**
+     * 接收成衣成分送检数据
+     */
+    @PostMapping("/garmentInspection")
+    @ApiOperation(value = "PDM获取SCM的成分送检数据", notes = "PDM获取SCM的成分送检数据")
+    public ApiResult garmentInspection(@RequestBody BasicsdatumGarmentInspectionDto garmentInspectionDto) {
+        garmentInspectionService.saveGarmentInspection(garmentInspectionDto);
         return insertSuccess(null);
     }
 

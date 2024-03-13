@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
 
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.dto.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.*;
@@ -15,6 +17,7 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -70,6 +73,8 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Map<String, Object> getBasicsdatumMaterialPriceColorWidthSelect(String materialCode);
 
 	void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto) throws IOException;
+
+	void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto) throws IOException;
 
 	PageInfo<BomSelMaterialVo> getBomSelMaterialList(BasicsdatumMaterialQueryDto dto);
 
@@ -154,5 +159,8 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	boolean resetImgUrl(MultipartFile file);
 
 	PageInfo matchPic(int pageNum, int pageSize);
+
+	PageInfo<BasicsdatumMaterialPageAndStyleVo> materialsBomStylePage(BasicsdatumMaterialPageAndStyleDto dto);
+
 }
 

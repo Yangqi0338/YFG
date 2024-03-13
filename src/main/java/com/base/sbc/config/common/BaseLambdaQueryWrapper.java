@@ -59,7 +59,7 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         return this;
     }
 
-    public BaseLambdaQueryWrapper<T> notEmptyIn(SFunction<T, String> column, String str) {
+    public BaseLambdaQueryWrapper<T> notEmptyIn(SFunction<T, ?> column, String str) {
         this.in(StrUtil.isNotBlank(str), column, StrUtil.split(str, CharUtil.COMMA));
         return this;
     }
@@ -72,7 +72,8 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
     public <R> BaseLambdaQueryWrapper<T> between(SFunction<T, R> column, String[] dates) {
         if (!Arrays.isNullOrEmpty(dates)) {
             this.and(i-> {
-                i.ge(!StringUtils.isEmpty(dates[0]), column, dates[0]);
+                String date = dates[0];
+                i.ge(!StringUtils.isEmpty(date), column, date);
                 if (dates.length > 1) {
                     i.le(!StringUtils.isEmpty(dates[1]), column, dates[1]);
                 }

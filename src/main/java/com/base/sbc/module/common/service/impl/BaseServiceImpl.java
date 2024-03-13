@@ -132,6 +132,22 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     /**
+     * 跟据字段名称和字段查询多条数据
+     *
+     * @param fieldName
+     * @param id
+     * @return
+     */
+    @Override
+    public List<T> getByList(String fieldName, String id) {
+        QueryWrapper<T> queryWrapper = new QueryWrapper<>();
+        // 驼峰转下划线
+        fieldName = StringUtils.toUnderScoreCase(fieldName);
+        queryWrapper.eq(fieldName, id);
+        return this.list(queryWrapper);
+    }
+
+    /**
      * 根据传入的对象，查询符合条件的数据,默认模糊查询
      * 根据注解in字段,确定是否是in查询
      * 根据注解not字段,确定是否是not查询
@@ -743,7 +759,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
             TableInfo tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
             if (maxSize <= batchSize) affectRow = ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(entityList);
             else {
-                for (int i = 0; i < forCount; i++) {
+                for (int i = 0; i <= forCount; i++) {
                     List<T> executeList = CollUtil.sub(entityList, i * batchSize, Math.min((i + 1) * batchSize, maxSize));
                     affectRow += ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(executeList);
                 }

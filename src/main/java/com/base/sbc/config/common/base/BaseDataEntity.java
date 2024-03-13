@@ -180,6 +180,15 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     }
 
     /**
+     * 将修改信息清空
+     */
+    public void updateClear() {
+        this.updateDate = null;
+        this.updateId = null;
+        this.updateName = null;
+    }
+
+    /**
      * 设置修改时间,修改人,拿当前线程中的用户信息
      */
     public void updateInit() {

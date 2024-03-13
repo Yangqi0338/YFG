@@ -19,12 +19,14 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -36,26 +38,26 @@ import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.NodeStatusChangeDto;
 import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.enums.EnumNodeStatus;
-import com.base.sbc.module.patternmaking.vo.SampleBoardExcel;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
-import com.base.sbc.module.sample.vo.FabricIngredientsInfoVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
 import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleColorExcel;
 import com.base.sbc.module.style.vo.StyleVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -77,6 +79,7 @@ import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：产前样-任务 service类
@@ -112,6 +115,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private DataPermissionsService dataPermissionsService;
     @Autowired
     private StylePicUtils stylePicUtils;
+    @Autowired
+    private StyleColorService styleColorService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -205,6 +210,20 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
          qw.notEmptyEq("s.prod_category", dto.getProdCategory());
+        qw.notEmptyLike("t.stitcher",dto.getStitcher());
+        //cfjxzsj
+        if (StrUtil.isNotBlank(dto.getCfkssj()) && dto.getCfkssj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfkssj()),
+                    "select 1 from t_node_status where t.id=data_id and node ='产前样衣任务' and status='车缝进行中' and start_date >={0} and {1} >= start_date"
+                    , dto.getCfkssj().split(",")[0], dto.getCfkssj().split(",")[1]);
+        }
+
+        //cfwcsj
+        if (StrUtil.isNotBlank(dto.getCfwcsj()) && dto.getCfwcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfwcsj()),
+                    "select 1 from t_node_status where t.id=data_id and node ='产前样衣任务' and status='车缝完成' and start_date >={0} and {1} >= start_date"
+                    , dto.getCfwcsj().split(",")[0], dto.getCfwcsj().split(",")[1]);
+        }
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
@@ -383,6 +402,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         countQc.eq("style_id", style.getId());
         long count = getBaseMapper().countByQw(countQc);
         task.setCode(Opt.ofBlankAble(packInfo.getStyleNo()).orElse(packInfo.getDesignNo()) + StrUtil.DASHED + (count + 1));
+
+        //查询款式配色数据，保持技术接收时间（工艺接收明细单时间）一致
+        String styleColorId = packInfo.getStyleColorId();
+        StyleColor styleColor = styleColorService.getById(styleColorId);
+        task.setTechReceiveTime(styleColor.getTechReceiveTime());
+
         return save(task, "产前样看板");
     }
 
@@ -438,6 +463,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus1.setNode("产前样衣任务");
             nodeStatus1.setStatus("裁剪开始");
             nodeStatus1.setStartFlg("1");
+            nodeStatus1.setEndDate(dto.getCutterStartTime());
             nodeStatus1.setStartDate(dto.getCutterStartTime());
             nodeStatusService.saveOrUpdate(nodeStatus1, queryWrapper1);
         }else {
@@ -455,7 +481,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus2.setNode("产前样衣任务");
             nodeStatus2.setStatus("裁剪完成");
             nodeStatus2.setEndFlg("1");
+
             nodeStatus2.setStartDate(dto.getCutterEndTime());
+            nodeStatus2.setEndDate(dto.getCutterStartTime());
             nodeStatusService.saveOrUpdate(nodeStatus2, queryWrapper2);
         }else {
             nodeStatusService.remove(queryWrapper2);
@@ -471,6 +499,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
            nodeStatus3.setNode("产前样衣任务");
            nodeStatus3.setStatus("车缝进行中");
            nodeStatus3.setStartFlg("1");
+           nodeStatus3.setEndDate(dto.getCutterStartTime());
            nodeStatus3.setStartDate(dto.getStitchStartTime());
            nodeStatusService.saveOrUpdate(nodeStatus3, queryWrapper3);
        }else {
@@ -487,13 +516,53 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus4.setNode("产前样衣任务");
             nodeStatus4.setStatus("车缝完成");
             nodeStatus4.setEndFlg("1");
+            nodeStatus4.setEndDate(dto.getCutterStartTime());
             nodeStatus4.setStartDate(dto.getStitchEndTime());
             nodeStatusService.saveOrUpdate(nodeStatus4, queryWrapper4);
         }else {
             nodeStatusService.remove(queryWrapper4);
         }
 
+        //技术接收时间（工艺接收明细单时间）修改时
+        if(dto.getTechReceiveTime() != null){
+            //1.款式配色大货款保持一致
+            //通过资料包数据拿到 款式配色id
+            String packInfoId = task.getPackInfoId();
+            PackInfo packInfo = packInfoService.getById(packInfoId);
+            //查询出款式配色数据修改 工艺接收明细单时间 字段
+            String styleColorId = packInfo.getStyleColorId();
 
+            StyleColor old = styleColorService.getById(styleColorId);
+
+            LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StyleColor::getTechReceiveTime, dto.getTechReceiveTime())
+                    .eq(StyleColor::getId, styleColorId);
+            styleColorService.update(updateWrapper);
+
+            StyleColor styleColor1 = styleColorService.getById(styleColorId);
+
+            styleColorService.saveOperaLog("修改", "款式配色", old.getColorName(), old.getStyleNo(), styleColor1, old);
+
+            //2.产前样看板中，相同大货款号的数据也保持一致
+            BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+            qw.eq("p.style_no",old.getStyleNo());
+            List<PreProductionSampleTaskVo> preProductionSampleTaskVos = getBaseMapper().taskList(qw);
+            List<String> ids = preProductionSampleTaskVos.stream().map(BaseEntity::getId).filter(o->!o.equals(dto.getId())).distinct().collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(ids)){
+                List<PreProductionSampleTask> oldList = listByIds(ids);
+                LambdaUpdateWrapper<PreProductionSampleTask> uwf = new LambdaUpdateWrapper<>();
+                uwf.set(PreProductionSampleTask::getTechReceiveTime, dto.getTechReceiveTime());
+                uwf.in(PreProductionSampleTask::getId, ids);
+                update(uwf);
+                //记录修改日志
+                List<PreProductionSampleTask> newList = listByIds(ids);
+                Map<String, PreProductionSampleTask> voMap = newList.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+                for (PreProductionSampleTask preProductionSampleTask : oldList) {
+                    PreProductionSampleTask preProductionSampleTask1 = voMap.get(preProductionSampleTask.getId());
+                    this.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
+                }
+            }
+        }
 
         // 记录日志
         this.saveOperaLog("修改", "产前样看板", dto, task);
@@ -520,6 +589,38 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         return update(updateBean, uw);
     }
 
+    @Override
+    public boolean sampleQualityScore(Principal user, String id, BigDecimal score) {
+        PreProductionSampleTask bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        GroupUser groupUser = userUtils.getUserBy(user);
+//        //校验是否是样衣组长
+//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+//        if(!sampleTeamLeader){
+//            throw new OtherException("您不是"+bean.getPatternRoom()+"的样衣组长");
+//        }
+        PreProductionSampleTask updateBean = new PreProductionSampleTask();
+        updateBean.setSampleQualityScore(score);
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PreProductionSampleTask::getId, id);
+        return update(updateBean, uw);
+    }
+
+    @Override
+    public boolean techRemarks(Principal user, String id, String remark) {
+        PreProductionSampleTask bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        PreProductionSampleTask updateBean = new PreProductionSampleTask();
+        updateBean.setTechRemarks(remark);
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PreProductionSampleTask::getId, id);
+        return update(updateBean, uw);
+    }
+
     /**
      * @param dto
      * @return
@@ -530,6 +631,29 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         preProductionSampleTask.setSamplePic(CommonUtils.removeQuery(dto.getSamplePic()));
         baseMapper.updateById(preProductionSampleTask);
         return true;
+    }
+
+    @Override
+    public void saveTechReceiveDate(PreProductionSampleTaskDto task) {
+        LambdaUpdateWrapper<PreProductionSampleTask> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(PreProductionSampleTask::getTechReceiveDate, task.getTechReceiveDate());
+        updateWrapper.set(PreProductionSampleTask::getUpdateId, getUserId());
+        updateWrapper.set(PreProductionSampleTask::getUpdateName, getUserName());
+        updateWrapper.set(PreProductionSampleTask::getUpdateDate, new Date());
+        updateWrapper.eq(PreProductionSampleTask::getId, task.getId());
+        update(updateWrapper);
+    }
+
+    @Override
+    public List<String> stitcherList(PreProductionSampleTaskSearchDto dto) {
+        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
+        } else {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
+        }
+
+        return getBaseMapper().stitcherList(qw);
     }
 
 // 自定义方法区 不替换的区域【other_end】

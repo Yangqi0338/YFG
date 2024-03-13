@@ -1,13 +1,26 @@
 package com.base.sbc.config.utils;
 
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.afterturn.easypoi.excel.export.styler.AbstractExcelExportStyler;
 import cn.afterturn.easypoi.excel.export.styler.IExcelExportStyler;
 import org.apache.poi.ss.usermodel.*;
 
 public class ExcelExportTitleStyle extends AbstractExcelExportStyler
         implements IExcelExportStyler {
+
+    private CellStyle numberCellStyle;
+
     public ExcelExportTitleStyle(Workbook workbook) {
         super.createStyles(workbook);
+        createNumberCellStyler();
+    }
+
+    private void createNumberCellStyler() {
+        numberCellStyle = workbook.createCellStyle();
+        numberCellStyle.setAlignment(HorizontalAlignment.CENTER);
+        numberCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        numberCellStyle.setDataFormat((short) BuiltinFormats.getBuiltinFormat("0.00"));
+        numberCellStyle.setWrapText(true);
     }
 
     @Override
@@ -61,4 +74,12 @@ public class ExcelExportTitleStyle extends AbstractExcelExportStyler
         return style;
     }
 
+    @Override
+    public CellStyle getStyles(boolean noneStyler, ExcelExportEntity entity) {
+        // type=10 的处理
+        if (entity != null && 10 == entity.getType()) {
+            return numberCellStyle;
+        }
+        return super.getStyles(noneStyler, entity);
+    }
 }

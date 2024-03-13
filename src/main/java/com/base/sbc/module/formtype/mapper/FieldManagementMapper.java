@@ -28,7 +28,20 @@ import java.util.Map;
 public interface FieldManagementMapper extends BaseMapper<FieldManagement> {
 /** 自定义方法区 不替换的区域【other_start】 **/
 
+  /**
+   * 查询字段
+   * @param queryFieldManagementDto
+   * @return
+   */
   List<FieldManagementVo> getFieldManagementList(QueryFieldManagementDto queryFieldManagementDto);
+
+  /**
+   * 查询字段关联围度表
+   * @param queryFieldManagementDto
+   * @return
+   */
+  List<FieldManagementVo> getFieldManagementList1(QueryFieldManagementDto queryFieldManagementDto);
+
 
   @MapKey("COLUMN_NAME")
   List<Map<String,String>> getTableMessage(String coding);

@@ -5,7 +5,9 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.sample.controller;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.annotation.DuplicationCheck;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
@@ -32,7 +34,10 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
 * 类描述：调样-辅料信息 Controller类
@@ -55,6 +60,27 @@ public class FabricIngredientsInfoController{
 	@GetMapping("/getFabricIngredientsInfoList")
 	public PageInfo getFabricIngredientsInfoList(QueryFabricIngredientsInfoDto queryFabricIngredientsInfoDto) {
 		return  fabricIngredientsInfoService.getFabricIngredientsInfoList(queryFabricIngredientsInfoDto);
+	}
+
+	/**
+	 * 查询所有设计师
+	 * @return
+	 */
+	@ApiOperation(value = "查询所有设计师")
+	@GetMapping("/getDesignList")
+	public List<Map<String,String>> getDesignList() {
+		BaseQueryWrapper<FabricIngredientsInfo> queryWrapper =new BaseQueryWrapper<>();
+		queryWrapper.isNotNullStr("atactiform_stylist");
+		queryWrapper.groupBy("atactiform_stylist");
+		List<FabricIngredientsInfo> list = fabricIngredientsInfoService.list(queryWrapper);
+		List<Map<String,String>> designList=new ArrayList<>();
+		for (FabricIngredientsInfo fabricIngredientsInfo : list) {
+			Map<String,String> map =new HashMap<>();
+			map.put("name",fabricIngredientsInfo.getAtactiformStylist());
+			map.put("userId",fabricIngredientsInfo.getAtactiformStylistUserId());
+			designList.add(map);
+		}
+		return designList;
 	}
 
 

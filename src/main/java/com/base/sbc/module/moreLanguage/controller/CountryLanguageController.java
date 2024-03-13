@@ -8,6 +8,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.RightException;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
@@ -60,10 +61,12 @@ public class CountryLanguageController extends BaseController {
     @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
     @GetMapping("/listQuery")
     public ApiResult<?> listQuery(CountryQueryDto countryQueryDto) {
-
+        // 肯定不查缓存
         countryQueryDto.setCache(YesOrNoEnum.NO.getValueStr());
+        // 是否进行国家码分组
         if (YesOrNoEnum.YES.getValueStr().equals(countryQueryDto.getCodeGroup())) {
             List<CountryLanguageGroupDto> list = new ArrayList<>();
+            // 查询国家并根据编码分组
             countryLanguageService.listQuery(countryQueryDto).stream().map(it-> BeanUtil.copyProperties(it, CountryLanguageGroupDto.class))
                     .collect(Collectors.groupingBy(CountryLanguageGroupDto::getCode)).forEach((code, sameCodeList)-> {
                         CountryLanguageGroupDto countryLanguageDto = BeanUtil.copyProperties(sameCodeList.get(0), CountryLanguageGroupDto.class);
@@ -74,6 +77,7 @@ public class CountryLanguageController extends BaseController {
                     });
             return selectSuccess(list);
         }else {
+            // 正常分页查询
             Page<CountryLanguageDto> startPage = countryQueryDto.startPage();
             List<CountryLanguageDto> list = countryLanguageService.listQuery(countryQueryDto);
             PageInfo<CountryLanguageDto> pageInfo = startPage.toPageInfo();
@@ -111,7 +115,9 @@ public class CountryLanguageController extends BaseController {
     @PostMapping("/review")
     public ApiResult review(@Valid @RequestBody CountryTypeLanguageSaveDto countryTypeLanguageSaveDto) {
         try {
+            // 删除之前的旧缓存,防止循环点击上一步下一步导致的数据残留
             cancelSave(countryTypeLanguageSaveDto.getCode());
+            // 获取保存返回的缓存国家编码
             String code = countryLanguageService.review(countryTypeLanguageSaveDto);
             return selectSuccess(code);
         }catch (RightException e) { return selectSuccess(e.getMessage()); }
@@ -123,19 +129,23 @@ public class CountryLanguageController extends BaseController {
     @ApiOperation(value = "语言查询", notes = "语言查询")
     @GetMapping("/languageQuery")
     public ApiResult languageQuery(@Valid LanguageQueryDto languageQueryDto) {
+        // 查询语言数据字典
         String code = languageQueryDto.getCode();
-        List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList("language");
+        List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList(MoreLanguageProperties.languageDictCode);
 
         if (StrUtil.isNotBlank(code)) {
+            // 过滤对应的编码
             dictList = dictList.stream().filter(it-> it.getValue().contains(code)).collect(Collectors.toList());
         }
 
+        // 手动分页
         Page<BasicBaseDict> startPage = languageQueryDto.startPage();
         ccmFeignService.setPage(startPage);
         PageInfo<BasicBaseDict> pageInfo = ccmFeignService.clearPage(dictList);
         List<BasicBaseDict> subDictList = pageInfo.getList();
 
         SqlUtil.clearLocalPage();
+        // 初始化语言对应的国家兼容数据
         countryLanguageService.initLanguage(subDictList);
 
         return CollectionUtil.isNotEmpty(subDictList) ? selectSuccess(pageInfo) : selectNotFound();
@@ -148,6 +158,15 @@ public class CountryLanguageController extends BaseController {
     @GetMapping("/cancelSave")
     public ApiResult cancelSave(String code) {
         return updateSuccess(countryLanguageService.cancelSave(code));
+    }
+
+    /**
+     * 获取国家
+     */
+    @ApiOperation(value = "获取所有创建的国家", notes = "获取国家")
+    @GetMapping("/getAllCountry")
+    public ApiResult getAllCountry(String code) {
+        return selectSuccess(countryLanguageService.getAllCountry(code));
     }
 
 }

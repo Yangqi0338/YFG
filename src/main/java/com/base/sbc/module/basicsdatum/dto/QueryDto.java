@@ -65,4 +65,7 @@ public class QueryDto extends Page {
 
     /*状态*/
     private String status;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
 }
