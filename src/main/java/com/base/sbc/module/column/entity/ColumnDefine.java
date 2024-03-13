@@ -176,6 +176,12 @@ public class ColumnDefine extends BaseDataEntity<String> {
     @ApiModelProperty(value = "过滤器扩展")
     private String columnFilterExtent;
 
+    /**
+     * 是否省略(1省略,0或空省略)
+     */
+    @ApiModelProperty(value = "是否省略(1省略,0或空省略)")
+    private String columnEllipsis;
+
     @TableField(exist = false)
     @ApiModelProperty(value = "分组")
     private List<ColumnDefine> children;
