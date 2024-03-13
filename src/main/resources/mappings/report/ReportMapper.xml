@@ -153,4 +153,163 @@
         INNER JOIN t_style_pricing tsp ON tsp.pack_id = tpi.id
         ${ew.customSqlSegment}
     </select>
+
+    <select id="getStyleSizeReport" resultType = "com.base.sbc.module.report.vo.StyleSizeReportVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            t.brand_name,
+            t.style_no,
+            t.style_color_pic,
+            t.color_name,
+            t.year_name,
+            t.season_name,
+            t.band_name,
+            t.prod_category1st_name,
+            t.prod_category_name,
+            t.prod_category2nd_name,
+            t.prod_category3rd_name,
+            t.part_name,
+            t.method,
+            SUM(t.`XXS#样衣尺寸`) as templateXSS,
+            SUM(t.`XXS#成衣尺寸`) as garmentXSS,
+            SUM(t.`XXS#洗后尺寸`) as washingXSS,
+
+            SUM(t.`XS#样衣尺寸`) as templateXS,
+            SUM(t.`XS#成衣尺寸`) as garmentXS,
+            SUM(t.`XS#洗后尺寸`) as washingXS,
+
+            SUM(t.`S#样衣尺寸`) as templateS,
+            SUM(t.`S#成衣尺寸`) as garmentS,
+            SUM(t.`S#洗后尺寸`) as washingS,
+
+            SUM(t.`M#样衣尺寸`) as templateM,
+            SUM(t.`M#成衣尺寸`) as garmentM,
+            SUM(t.`M#洗后尺寸`) as washingM,
+
+            SUM(t.`L#样衣尺寸`) as templateL,
+            SUM(t.`L#成衣尺寸`) as garmentL,
+            SUM(t.`L#洗后尺寸`) as washingL,
+
+            SUM(t.`XL#样衣尺寸`) as templateXL,
+            SUM(t.`XL#成衣尺寸`) as garmentXL,
+            SUM(t.`XL#洗后尺寸`) as washingXL,
+
+            SUM(t.`XXL#样衣尺寸`) as templateXXL,
+            SUM(t.`XXL#成衣尺寸`) as garmentXXL,
+            SUM(t.`XXL#洗后尺寸`) as washingXXL,
+
+            SUM(t.`XXXL#样衣尺寸`) as templateXXXL,
+            SUM(t.`XXXL#成衣尺寸`) as garmentXXXL,
+            SUM(t.`XXXL#洗后尺寸`) as washingXXXL,
+
+            SUM(t.`XXXXL#样衣尺寸`) as templateXXXXL,
+            SUM(t.`XXXXL#成衣尺寸`) as garmentXXXXL,
+            SUM(t.`XXXXL#洗后尺寸`) as washingXXXXL
+        </if>
+        FROM (select temp.id,
+        temp.foreign_id,
+        temp.brand_name,
+        temp.style_no,
+        temp.style_color_pic,
+        temp.color_name,
+        temp.year_name,
+        temp.season_name,
+        temp.band_name,
+        temp.prod_category1st_name,
+        temp.prod_category_name,
+        temp.prod_category2nd_name,
+        temp.prod_category3rd_name,
+        temp.part_name,
+        temp.method,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXS') THEN temp.template ELSE 0 END AS `XXS#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXS') THEN temp.garment ELSE 0 END AS `XXS#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXS') THEN temp.washing ELSE 0 END AS `XXS#洗后尺寸`,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XS') THEN temp.template ELSE 0 END AS `XS#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XS') THEN temp.garment ELSE 0 END AS `XS#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XS') THEN temp.washing ELSE 0 END AS `XS#洗后尺寸`,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'S') THEN temp.template ELSE 0 END AS `S#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'S') THEN temp.garment ELSE 0 END AS `S#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'S') THEN temp.washing ELSE 0 END AS `S#洗后尺寸`,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'M') THEN temp.template ELSE 0 END AS `M#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'M') THEN temp.garment ELSE 0 END AS `M#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'M') THEN temp.washing ELSE 0 END AS `M#洗后尺寸`,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'L') THEN temp.template ELSE 0 END AS `L#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'L') THEN temp.garment ELSE 0 END AS `L#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'L') THEN temp.washing ELSE 0 END AS `L#洗后尺寸`,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XL') THEN temp.template ELSE 0 END AS `XL#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XL') THEN temp.garment ELSE 0 END AS `XL#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XL') THEN temp.washing ELSE 0 END AS `XL#洗后尺寸`,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXL') THEN temp.template ELSE 0 END AS `XXL#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXL') THEN temp.garment ELSE 0 END AS `XXL#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXL') THEN temp.washing ELSE 0 END AS `XXL#洗后尺寸`,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXXL') THEN temp.template ELSE 0 END AS `XXXL#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXXL') THEN temp.garment ELSE 0 END AS `XXXL#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXXL') THEN temp.washing ELSE 0 END AS `XXXL#洗后尺寸`,
+
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXXXL') THEN temp.template ELSE 0 END AS `XXXXL#样衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXXXL') THEN temp.garment ELSE 0 END AS `XXXXL#成衣尺寸`,
+        CASE WHEN (1 &lt;&gt; 1 OR BINARY temp.internal_size = 'XXXXL') THEN temp.washing ELSE 0 END AS `XXXXL#洗后尺寸`
+
+        from (select ts.id,
+        t.foreign_id,
+        ts.brand_name,
+        tsc.style_no,
+        tsc.style_color_pic,
+        tsc.color_name,
+        ts.year_name,
+        ts.season_name,
+        ts.band_name,
+        ts.prod_category1st_name,
+        ts.prod_category_name,
+        ts.prod_category2nd_name,
+        ts.prod_category3rd_name,
+        t.part_name,
+        t.method,
+        tbs.internal_size,
+        tpsd.template,
+        tpsd.garment,
+        tpsd.washing
+        from t_pack_size t
+        INNER JOIN t_pack_info t1 ON t.foreign_id = t1.id
+        INNER JOIN t_style_color tsc ON tsc.id = t1.style_color_id
+        INNER JOIN t_style ts ON ts.id = tsc.style_id
+        INNER JOIN t_pack_size_detail tpsd ON t.id = tpsd.pack_size_id
+        INNER JOIN t_basicsdatum_size tbs
+        ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 AND tpsd.size = tbs.hangtags
+
+        where t1.del_flag = 0
+        and t.del_flag = 0
+        and tsc.del_flag = 0
+        and ts.del_flag = 0
+        and tpsd.del_flag = 0
+        and tbs.del_flag = 0
+        and tpsd.pack_type = 'packBigGoods') temp) t
+
+        GROUP BY t.id,
+        t.foreign_id,
+        t.brand_name,
+        t.style_no,
+        t.style_color_pic,
+        t.color_name,
+        t.year_name,
+        t.season_name,
+        t.band_name,
+        t.prod_category1st_name,
+        t.prod_category_name,
+        t.prod_category2nd_name,
+        t.prod_category3rd_name,
+        t.part_name,
+        t.method
+    </select>
 </mapper>

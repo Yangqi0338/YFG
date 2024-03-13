@@ -3,9 +3,11 @@ package com.base.sbc.module.report.service;
 import com.base.sbc.module.report.dto.HangTagReportQueryDto;
 import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
 import com.base.sbc.module.report.dto.StylePackBomMateriaQueryDto;
+import com.base.sbc.module.report.dto.StyleSizeQueryDto;
 import com.base.sbc.module.report.vo.HangTagReportVo;
 import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
 import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
+import com.base.sbc.module.report.vo.StyleSizeReportVo;
 import com.github.pagehelper.PageInfo;
 
 public interface ReportService {
@@ -25,5 +27,10 @@ public interface ReportService {
      * @return
      */
     PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(StylePackBomMateriaQueryDto dto);
+    /**
+     * 尺寸报表
+     * @return
+     */
+    PageInfo<StyleSizeReportVo> getStyleSizeReportPage(StyleSizeQueryDto dto);
 
 }

@@ -1,6 +1,7 @@
 package com.base.sbc.module.report.service.imp;
 
 import cn.hutool.core.collection.CollUtil;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -8,11 +9,13 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.report.dto.HangTagReportQueryDto;
 import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
 import com.base.sbc.module.report.dto.StylePackBomMateriaQueryDto;
+import com.base.sbc.module.report.dto.StyleSizeQueryDto;
 import com.base.sbc.module.report.mapper.ReportMapper;
 import com.base.sbc.module.report.service.ReportService;
 import com.base.sbc.module.report.vo.HangTagReportVo;
 import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
 import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
+import com.base.sbc.module.report.vo.StyleSizeReportVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
@@ -99,6 +102,23 @@ public class ReportServiceImpl implements ReportService {
         }
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         minioUtils.setObjectUrlToList(list, "imageUrl");
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<StyleSizeReportVo> getStyleSizeReportPage(StyleSizeQueryDto dto) {
+        BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        PageHelper.startPage(dto);
+        List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
+
+        if (CollUtil.isEmpty(list)) {
+            return new PageInfo<>(list);
+        }
+        if (isColumnHeard) {
+            return new PageInfo<>(list);
+        }
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
     }
 }

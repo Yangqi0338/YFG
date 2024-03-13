@@ -1,16 +1,10 @@
 package com.base.sbc.module.report.controller;
 
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.report.dto.HangTagReportQueryDto;
-import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
-import com.base.sbc.module.report.dto.StyleAnalyseQueryDto;
-import com.base.sbc.module.report.dto.StylePackBomMateriaQueryDto;
+import com.base.sbc.module.report.dto.*;
 import com.base.sbc.module.report.service.ReportService;
 import com.base.sbc.module.report.service.StyleAnalyseService;
-import com.base.sbc.module.report.vo.HangTagReportVo;
-import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
-import com.base.sbc.module.report.vo.StyleAnalyseVo;
-import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
+import com.base.sbc.module.report.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -57,9 +51,9 @@ public class ReportController {
     }
 
     @ApiOperation(value = "尺寸查询报表")
-    @GetMapping("/findStyleSizeReport")
-    public PageInfo<StyleAnalyseVo> findStyleSize(StyleAnalyseQueryDto dto) {
-        return styleAnalyseService.findStylePage(dto);
+    @GetMapping("/styleSizeReport")
+    public PageInfo<StyleSizeReportVo> findStyleSize(StyleSizeQueryDto dto) {
+        return reportService.getStyleSizeReportPage(dto);
     }
 
     @ApiOperation(value = "电商充绒量")
