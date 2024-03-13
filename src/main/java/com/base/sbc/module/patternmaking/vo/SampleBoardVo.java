@@ -334,4 +334,9 @@ public class SampleBoardVo extends Style {
     public String getId() {
         return patternMakingId;
     }
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

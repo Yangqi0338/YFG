@@ -1,7 +1,7 @@
 package com.base.sbc.module.patternmaking.dto;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,7 +17,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("打版管理通用分页筛选类Dto PatternMakingCommonPageSearchDto ")
-public class PatternMakingCommonPageSearchDto extends Page {
+public class PatternMakingCommonPageSearchDto extends QueryFieldDto {
     @ApiModelProperty(value = "关键字筛选", example = "1")
     private String search;
     @ApiModelProperty(value = "年份", example = "2022")
