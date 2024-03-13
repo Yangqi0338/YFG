@@ -1,6 +1,6 @@
 package com.base.sbc.module.patternmaking.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -16,7 +16,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("工作小账搜索条件 WorkLogSearchDto ")
-public class WorkLogSearchDto extends Page {
+public class WorkLogSearchDto extends QueryFieldDto {
 
     @ApiModelProperty(value = "id")
     private String id;
