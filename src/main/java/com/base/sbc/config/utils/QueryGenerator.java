@@ -10,6 +10,7 @@ import com.base.sbc.module.column.service.ColumnDefineService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class QueryGenerator {
 
@@ -98,11 +99,12 @@ public class QueryGenerator {
                     } else if (StrUtil.isNotEmpty(property) && "date_insql".equals(property)) {
                         String[] dateArr = fieldValue.split(",");
                         if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
-                            qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " >= '" + dateArr[0] + "' and '" + dateArr[1] +"' >= " + columnDefine.getColumnFilterExtent()));
+                            qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " >= '" + dateArr[0] + "' and '" + dateArr[1] + "' >= " + columnDefine.getColumnFilterExtent()));
                         }
                     } else {
                         //正常保留历史条件查询
-                        qw.in(sqlCode, Arrays.asList(fieldValue.split(",")));
+                        List<String> collect = Arrays.stream(fieldValue.split(",")).map(o -> o.replace("@#", ",")).collect(Collectors.toList());
+                        qw.in(sqlCode, collect);
                     }
                 }
             }
