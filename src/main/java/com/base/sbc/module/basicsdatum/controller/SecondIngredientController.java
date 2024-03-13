@@ -113,6 +113,7 @@ public class SecondIngredientController extends BaseController {
     @DuplicationCheck(time = 2)
     public ApiResult batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts){
         List<BasicBaseDict> pd021DictList = ccmFeignService.getAllDictInfoToList(uniqueDictCode);
+        pd021DictList = pd021DictList.stream().filter(it-> !it.getValue().startsWith(dictPreCode)).collect(Collectors.toList());
         int startIndex = pd021DictList.size();
 
         if (startIndex != 0) {
