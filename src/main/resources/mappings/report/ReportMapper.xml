@@ -76,9 +76,9 @@
             t.season_name
         </if>
         FROM t_basicsdatum_material t
-        INNER JOIN t_basicsdatum_material_price t1 ON t.MATERIAL_CODE = t1.MATERIAL_CODE
-        INNER JOIN t_basicsdatum_material_color t2 ON t.MATERIAL_CODE = t2.material_code
-        INNER JOIN t_smp_supplier tss ON t1.supplier_id = tss.partner
+        LEFT JOIN t_basicsdatum_material_price t1 ON t.MATERIAL_CODE = t1.MATERIAL_CODE
+        LEFT JOIN t_basicsdatum_material_color t2 ON t.MATERIAL_CODE = t2.material_code
+        LEFT JOIN t_smp_supplier tss ON t1.supplier_id = tss.partner
         ${ew.customSqlSegment}
     </select>
 
