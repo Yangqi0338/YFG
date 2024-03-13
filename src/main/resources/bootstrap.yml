@@ -1,6 +1,6 @@
 spring:
   application:
-    name: pdm1
+    name: pdm2
   cloud:
     nacos:
       config:
