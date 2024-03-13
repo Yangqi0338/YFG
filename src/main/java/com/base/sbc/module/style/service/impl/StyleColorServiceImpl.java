@@ -1506,6 +1506,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return styleService.queryDimensionLabels(dto);
     }
 
+    @Override
+    public List<FieldVal> ListDynamicDataByIds(List<String> ids) {
+        QueryWrapper<FieldVal> fieldValQueryWrapper =new QueryWrapper<>();
+        fieldValQueryWrapper.in("foreign_id", ids);
+        return fieldValService.list(fieldValQueryWrapper);
+    }
+
     /**
      * 保存配色维度数据
      *
