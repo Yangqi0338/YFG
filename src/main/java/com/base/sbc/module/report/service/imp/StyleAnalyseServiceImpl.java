@@ -150,4 +150,12 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         ExcelUtils.exportExcelByTableCode(list, "设计分析报表", response, dto);
     }
 
+    @Override
+    public void findStylePageExport(HttpServletResponse response, StyleAnalyseQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<StyleAnalyseVo> list = findStylePage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "大货分析报表", response, dto);
+    }
+
 }

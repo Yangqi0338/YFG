@@ -37,14 +37,20 @@ public class ReportController {
 
     @ApiOperation(value = "设计分析报表-导出")
     @GetMapping("/findDesignPageExport")
-    public void findDesignPageExport(HttpServletResponse response,StyleAnalyseQueryDto dto) throws IOException {
-        styleAnalyseService.findDesignPageExport(response,dto);
+    public void findDesignPageExport(HttpServletResponse response, StyleAnalyseQueryDto dto) throws IOException {
+        styleAnalyseService.findDesignPageExport(response, dto);
     }
 
     @ApiOperation(value = "大货分析报表")
     @GetMapping("/findStylePage")
     public PageInfo<StyleAnalyseVo> findStylePage(StyleAnalyseQueryDto dto) {
         return styleAnalyseService.findStylePage(dto);
+    }
+
+    @ApiOperation(value = "大货分析报表-导出")
+    @GetMapping("/findStylePageExport")
+    public void findStylePageExport(HttpServletResponse response, StyleAnalyseQueryDto dto) throws IOException {
+        styleAnalyseService.findStylePageExport(response, dto);
     }
 
     @ApiOperation(value = "供应商材料报价报价报表")
@@ -79,8 +85,8 @@ public class ReportController {
 
     @ApiOperation(value = "设计下单进度明细报表-导出")
     @GetMapping("/designOrderScheduleDetailsExport")
-    public void hangTagReportExport(HttpServletResponse response,StyleAnalyseQueryDto dto) throws IOException {
-        styleAnalyseService.findDesignPageExport(response,dto);
+    public void hangTagReportExport(HttpServletResponse response, StyleAnalyseQueryDto dto) throws IOException {
+        styleAnalyseService.findDesignPageExport(response, dto);
     }
 
 }
