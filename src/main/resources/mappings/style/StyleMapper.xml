@@ -76,6 +76,7 @@
     </select>
     <select id="dimensionTotal" resultType="com.base.sbc.module.planning.vo.DimensionTotalVo">
         select ${ew.sqlSelect} from t_style sd
+        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0'
         where
         sd.del_flag ='0'
         and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
@@ -99,8 +100,8 @@
         band_name,
         style_no
         FROM
-
         t_style sd
+        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0'
         WHERE
         sd.del_flag = '0'
         AND sd.del_flag = '0'
@@ -138,10 +139,10 @@
     </select>
     <select id="colorCount" resultType="java.lang.Long">
         SELECT
-        count( 1 ) skc
+        count(distinct sd.id) num
         FROM
         t_style sd
-        left join t_style_color c on(sd.id = c.style_id and c.del_flag ='0')
+        LEFT JOIN t_pattern_making p ON ( sd.id = p.style_id ) and p.del_flag = 0 and p.disable_flag = 0 and p.sample_type = "初版样"
         WHERE
         sd.del_flag ='0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">

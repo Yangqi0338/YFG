@@ -11,6 +11,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.pack.dto.PackInfoDto;
@@ -166,6 +167,12 @@ public interface StyleService extends BaseService<Style> {
     List<StyleBoardCategorySummaryVo> categorySummary(PlanningBoardSearchDto dto);
 
     CategoryStylePlanningVo categoryStylePlanning(PlanningBoardSearchDto dto);
+
+    /**
+     * 查询「维度系数-面料类型」的数据
+     * @return 下稿面料枚举
+     */
+    FieldManagementVo getFabricsUnderTheDrafts();
 
     List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo);
 

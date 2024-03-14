@@ -48,4 +48,26 @@ public class CategoryStylePlanningVo {
 
     @ApiModelProperty(value = "陈列占比")
     private BigDecimal displayPolesRatio;
+
+    // 新增字段
+    /**
+     * 已下稿
+     */
+    @ApiModelProperty(value = "已下稿")
+    private Long scriptedNum;
+    /**
+     * 打版完成
+     */
+    @ApiModelProperty(value = "打版完成")
+    private Long patternMakingIsCompleteNum;
+    /**
+     * 样衣制作
+     */
+    @ApiModelProperty(value = "样衣制作")
+    private Long sampleMakingNum;
+    /**
+     * 订货本制作
+     */
+    @ApiModelProperty(value = "订货本制作")
+    private Long orderBookProductionNum;
 }
