@@ -87,6 +87,11 @@ public class DimensionLabelsSearchDto {
     private String configPageFlag;
 
     /**
+     * 引用的产品季id
+     */
+    private String refPlanningSeasonId;
+
+    /**
      * 围度系数标识
      */
     @ApiModelProperty(value = "围度系数标识")

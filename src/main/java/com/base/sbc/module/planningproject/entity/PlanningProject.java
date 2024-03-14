@@ -12,6 +12,10 @@ import lombok.EqualsAndHashCode;
 @TableName("t_planning_project")
 @ApiModel("企划规划表 PlanningProject")
 public class PlanningProject extends BaseDataEntity<String> {
+    /**
+     * 品类企划id
+     */
+    private String categoryPlanningId;
 
     /**
      * 产品季id
@@ -20,7 +24,7 @@ public class PlanningProject extends BaseDataEntity<String> {
     private String seasonId;
 
     /**
-     * 产品季id
+     * 产品季名称
      */
     @ApiModelProperty(value = "产品季名称")
     private String seasonName;

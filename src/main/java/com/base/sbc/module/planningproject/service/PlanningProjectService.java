@@ -1,6 +1,9 @@
 package com.base.sbc.module.planningproject.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.common.vo.BasePageInfo;
+import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
+import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
@@ -18,4 +21,5 @@ public interface PlanningProjectService extends BaseService<PlanningProject> {
      */
     boolean save(PlanningProjectSaveDTO planningProjectSaveDTO);
 
+    BasePageInfo<PlanningSeasonOverviewVo> historyList(PlanningProjectPageDTO dto);
 }

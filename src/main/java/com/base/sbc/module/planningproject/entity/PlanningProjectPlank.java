@@ -62,8 +62,10 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
 
 
     /**
-     * 匹配款式状态:(0:未匹配,1:手动匹配,2:自动匹配)
+     * 匹配款式状态:(0:未匹配,1:手动匹配,2:自动匹配,3:匹配历史款)
      */
     private String matchingStyleStatus;
+
+    private String hisDesignNo;
 
 }
