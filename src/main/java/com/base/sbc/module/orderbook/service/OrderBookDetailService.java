@@ -10,6 +10,8 @@ import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.github.pagehelper.PageInfo;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -82,4 +84,6 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     boolean assignPersonnel(OrderBookDetailSaveDto dto);
 
     Map<OrderBookChannelType, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto);
+
+    PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto dto);
 }

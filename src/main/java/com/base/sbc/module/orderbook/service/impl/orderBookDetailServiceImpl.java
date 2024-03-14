@@ -29,6 +29,7 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -49,6 +50,8 @@ import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -62,8 +65,11 @@ import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.dto.PublicStyleColorDto;
+import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.service.StyleService;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
@@ -86,6 +92,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.ORDER_BOOK_CV;
 
 @Service
 @RequiredArgsConstructor
@@ -106,6 +113,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
     private final StyleColorService styleColorService;
+    private final StyleService styleService;
 
     private final MessageUtils messageUtils;
     private final BasicsdatumSizeService sizeService;
@@ -289,14 +297,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 Map<String, String> sizeModelMap = sizeList.stream().filter(it -> orderBookDetailVo.getSizeCodes().contains(it.getCode()))
                         .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
                 sizeModelMap.forEach((key,value)-> {
-                    jsonObject.put(key+"Size",value);
-                    jsonObject.put(key+"1Size",value);
+                    for (OrderBookChannelType channel : OrderBookChannelType.values()) {
+                        jsonObject.put(key+ channel.getFill() + "Size",value);
+                    }
                 });
                 channelPageConfig.forEach((channel, pageConfig)-> {
                     List<String> sizeRange = pageConfig.getSizeRange();
                     if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
                         sizeRange.forEach(size-> {
-                            jsonObject.put(size+ (channel == OrderBookChannelType.OFFLINE ? "" : channel.ordinal()) + "Status", orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0": "1");
+                            jsonObject.put(size+ channel.getFill() + "Status", orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0": "1");
                         });
                     };
                 });
@@ -388,11 +397,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         //             or().eq("tobl.business_id", dto.getUserId())
         //             .or().eq("tobl.create_id", dto.getUserId()));
         // }
-        // 首单
-        if (dto.isFirstOrderCheck()) {
-            queryWrapper.isNullStr("tobl.first_order_data_json");
-            queryWrapper.orderByDesc("tobl.first_order_time");
-        }
 
         if(StrUtil.isNotBlank(dto.getPlanningSeasonId())){
             BaseQueryWrapper<OrderBook> baseQueryWrapper = new BaseQueryWrapper();
@@ -789,6 +793,28 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             vo.setSameDesignCount(1);
             return vo;
         }).collect(Collectors.toMap(OrderBookDetailPageConfigVo::getChannel, Function.identity()));
+    }
+
+    @Override
+    public PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto dto) {
+        String category1stCode = dto.getCategory1stCode();
+        List<String> bulkStyleNoList = new ArrayList<>();
+        if (StrUtil.isNotBlank(category1stCode)) {
+            List<String> styleIdList = styleService.listOneField(new LambdaQueryWrapper<Style>().eq(Style::getProdCategory1st, category1stCode), Style::getId);
+            if (CollUtil.isNotEmpty(styleIdList)) {
+                bulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>().in(StyleColor::getStyleId, styleIdList), StyleColor::getStyleNo));
+            }
+        }
+        Page<Object> page = dto.startPage();
+        BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
+        qw.notEmptyLike("T.PROD_CODE", dto.getBulkStyleNo());
+        qw.notEmptyIn("T.PROD_CODE", bulkStyleNoList);
+        qw.notEmptyIn("T.CHANNEL_TYPE", dto.getChannel());
+
+        List<Map<String, Object>> maps = getBaseMapper().queryStarRocks(qw);
+        maps.forEach(it-> it.put("sizeMap", new HashMap<>(it)));
+        List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(maps);
+        return CopyUtil.copy(page.toPageInfo(), dtoList);
     }
 
     /**

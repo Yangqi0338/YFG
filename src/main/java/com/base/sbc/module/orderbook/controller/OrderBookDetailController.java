@@ -36,6 +36,8 @@ import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.style.dto.PublicStyleColorDto;
@@ -143,14 +145,12 @@ public class OrderBookDetailController extends BaseController {
     }
 
     /**
-     * 首单下单历史数据
+     * 相似款列表
      */
-    @ApiModelProperty(value = "首单下单历史数据")
-    @GetMapping("/firstOrderHis")
-    public ApiResult firstOrderHis(@RequestBody OrderBookDetailQueryDto dto) {
-        dto.setCompanyCode(super.getUserCompany());
-        dto.setUserId(super.getUserId());
-        return updateSuccess(orderBookDetailService.queryPage(dto));
+    @ApiModelProperty(value = "相似款列表")
+    @GetMapping("/similarStyleList")
+    public ApiResult<PageInfo<OrderBookSimilarStyleVo>> similarStyleList(@RequestBody OrderBookDetailQueryDto dto) {
+        return updateSuccess(orderBookDetailService.similarStyleList(dto));
     }
 
     /**

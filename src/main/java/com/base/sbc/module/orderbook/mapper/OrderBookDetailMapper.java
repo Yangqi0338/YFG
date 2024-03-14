@@ -1,5 +1,6 @@
 package com.base.sbc.module.orderbook.mapper;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -17,4 +18,7 @@ import java.util.Map;
 public interface OrderBookDetailMapper extends BaseEnhanceMapper<OrderBookDetail> {
      List<OrderBookDetailVo> queryPage(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
      List<Map<String, Object>> queryCountByOrderBookId(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
+
+     @DS("starRocks")
+     List<Map<String, Object>> queryStarRocks(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
 }
