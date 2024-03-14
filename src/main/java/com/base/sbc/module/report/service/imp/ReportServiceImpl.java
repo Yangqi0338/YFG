@@ -54,6 +54,14 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public void hangTagReortExport(HttpServletResponse response, HangTagReportQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<HangTagReportVo> list = getHangTagReortPage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "吊牌充绒量报表", response, dto);
+    }
+
+    @Override
     public PageInfo<MaterialSupplierQuoteVo> getMaterialSupplierQuoteReportPage(MaterialSupplierQuoteQueryDto dto) {
         BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
@@ -70,6 +78,14 @@ public class ReportServiceImpl implements ReportService {
         }
         minioUtils.setObjectUrlToList(list, "imageUrl");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public void materialSupplierQuoteExport(HttpServletResponse response, MaterialSupplierQuoteQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<MaterialSupplierQuoteVo> list = getMaterialSupplierQuoteReportPage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "材料供应商报价报表", response, dto);
     }
 
     @Override
@@ -96,6 +112,14 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public void stylePackBomMaterialExport(HttpServletResponse response, StylePackBomMateriaQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<StylePackBomMaterialReportVo> list = getStylePackBomMaterialReportPage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "BOM清单明细报表", response, dto);
+    }
+
+    @Override
     public PageInfo<StyleSizeReportVo> getStyleSizeReportPage(StyleSizeQueryDto dto) {
         BaseQueryWrapper<StyleSizeReportVo> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag" , "0");
@@ -115,6 +139,14 @@ public class ReportServiceImpl implements ReportService {
         }
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public void styleSizeExport(HttpServletResponse response, StyleSizeQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<StyleSizeReportVo> list = getStyleSizeReportPage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "尺寸报表", response, dto);
     }
 
     @Override

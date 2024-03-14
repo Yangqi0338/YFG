@@ -53,10 +53,16 @@ public class ReportController {
         styleAnalyseService.findStylePageExport(response, dto);
     }
 
-    @ApiOperation(value = "供应商材料报价报价报表")
+    @ApiOperation(value = "供应商材料报价报表")
     @GetMapping("/materialsAndQuoteReport")
     public PageInfo<MaterialSupplierQuoteVo> findMaterialsAndQuote(MaterialSupplierQuoteQueryDto dto) {
         return reportService.getMaterialSupplierQuoteReportPage(dto);
+    }
+
+    @ApiOperation(value = "供应商材料报价报表-导出")
+    @GetMapping("/materialSupplierQuoteExport")
+    public void stylePackBomMaterialExport(HttpServletResponse response,MaterialSupplierQuoteQueryDto dto) throws IOException {
+        reportService.materialSupplierQuoteExport(response,dto);
     }
 
     @ApiOperation(value = "BOM清单查询报表")
@@ -65,15 +71,32 @@ public class ReportController {
         return reportService.getStylePackBomMaterialReportPage(dto);
     }
 
+    @ApiOperation(value = "BOM清单查询报表-导出")
+    @GetMapping("/stylePackBomMaterialExport")
+    public void stylePackBomMaterialExport(HttpServletResponse response,StylePackBomMateriaQueryDto dto) throws IOException {
+         reportService.stylePackBomMaterialExport(response,dto);
+    }
+
     @ApiOperation(value = "尺寸查询报表")
     @GetMapping("/styleSizeReport")
     public PageInfo<StyleSizeReportVo> findStyleSize(StyleSizeQueryDto dto) {
         return reportService.getStyleSizeReportPage(dto);
     }
 
+    @ApiOperation(value = "尺寸查询报表-导出")
+    @GetMapping("/styleSizeExport")
+    public void styleSizeExport(HttpServletResponse response,StyleSizeQueryDto dto) throws IOException {
+        reportService.styleSizeExport(response,dto);
+    }
+
     @ApiOperation(value = "电商充绒量报表")
     @GetMapping("/hangTagReport")
     public PageInfo<HangTagReportVo> findHangTagReport(HangTagReportQueryDto dto) {
+        return reportService.getHangTagReortPage(dto);
+    }
+    @ApiOperation(value = "电商充绒量报表-导出")
+    @GetMapping("/hangTagReportExport")
+    public PageInfo<HangTagReportVo> hangTagReportExport(HangTagReportQueryDto dto) {
         return reportService.getHangTagReortPage(dto);
     }
 
