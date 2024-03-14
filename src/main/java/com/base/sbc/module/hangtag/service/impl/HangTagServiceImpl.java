@@ -886,7 +886,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 品控部确认
 				tagPrinting.setApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.QC_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
 				// 翻译确认
-				tagPrinting.setTranslateApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.TRANSLATE_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
+				tagPrinting.setTranslateApproved(hangTag.getStatus() == HangTagStatusEnum.FINISH);
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
