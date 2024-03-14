@@ -85,8 +85,8 @@ public class ReportController {
 
     @ApiOperation(value = "设计下单进度明细报表-导出")
     @GetMapping("/designOrderScheduleDetailsExport")
-    public void hangTagReportExport(HttpServletResponse response, StyleAnalyseQueryDto dto) throws IOException {
-        styleAnalyseService.findDesignPageExport(response, dto);
+    public void hangTagReportExport(HttpServletResponse response, DesignOrderScheduleDetailsQueryDto dto) throws IOException {
+        reportService.designOrderScheduleDetailsExport(response, dto);
     }
 
 }

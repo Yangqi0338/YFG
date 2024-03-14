@@ -119,8 +119,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public PageInfo<DesignOrderScheduleDetailsReportVo> getDesignOrderScheduleDetailsReportPage(DesignOrderScheduleDetailsQueryDto dto) {
-        BaseQueryWrapper<StyleSizeReportVo> qw = new BaseQueryWrapper<>();
-        qw.eq("ts.del_flag" , "0");
+        BaseQueryWrapper<DesignOrderScheduleDetailsReportVo> qw = new BaseQueryWrapper<>();
         qw.eq("tsc.del_flag" , "0");
         qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
         qw.orderByDesc("tsc.create_date");

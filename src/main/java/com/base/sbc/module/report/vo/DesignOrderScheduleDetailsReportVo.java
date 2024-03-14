@@ -9,7 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class DesignOrderScheduleDetailsReportVo {
-
+    /**
+     * 配色id
+     */
+    private String id;
     /**
      * 生产类型
      */

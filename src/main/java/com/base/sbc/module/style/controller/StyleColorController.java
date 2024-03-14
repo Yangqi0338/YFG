@@ -248,5 +248,11 @@ public class StyleColorController {
 		return styleColorService.markingCheckPage(dto);
 	}
 
+	@ApiOperation(value = "保存配色逾期原因")
+	@PostMapping("/saveOverdueReason")
+	public ApiResult saveCorrectBarCode(@Valid @RequestBody StyleColorOverdueReasonDto styleColorOverdueReasonDto) {
+		styleColorService.updateStyleColorOverdueReason(styleColorOverdueReasonDto);
+		return ApiResult.success();
+	}
 }
 

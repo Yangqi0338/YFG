@@ -250,12 +250,17 @@ public interface StyleColorService extends BaseService<StyleColor> {
     PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto);
 
 
-        /**
-         * 根据大货款获取设计师，版师，样衣工信息
-         * @param styleNo
-         * @return
-         */
-        List<StyleNoUserInfoVo> getDesignerInfo(String styleNo);
+    /**
+     * 根据大货款获取设计师，版师，样衣工信息
+     *
+     * @param styleNo
+     * @return
+     */
+    List<StyleNoUserInfoVo> getDesignerInfo(String styleNo);
+
+    void updateStyleColorOverdueReason(StyleColorOverdueReasonDto styleColorOverdueReasonDto);
+
+
     // 自定义方法区 不替换的区域【other_end】
 
 

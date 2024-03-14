@@ -42,6 +42,7 @@ import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.entity.ColumnUserDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
@@ -1697,6 +1698,22 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public List<StyleNoUserInfoVo> getDesignerInfo(String styleNo) {
         return baseMapper.getStyleDesignerInfo(Arrays.asList(styleNo.split(",")));
+    }
+
+    @Override
+    public void updateStyleColorOverdueReason(StyleColorOverdueReasonDto styleColorOverdueReasonDto) {
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        if ("0".equals(styleColorOverdueReasonDto.getType())) {
+            updateWrapper.set(StyleColor::getSendMainFabricOverdueReason, styleColorOverdueReasonDto.getRemark());
+        } else if ("1".equals(styleColorOverdueReasonDto.getType())) {
+            updateWrapper.set(StyleColor::getDesignDetailOverdueReason, styleColorOverdueReasonDto.getRemark());
+        } else if ("2".equals(styleColorOverdueReasonDto.getType())) {
+            updateWrapper.set(StyleColor::getDesignCorrectOverdueReason, styleColorOverdueReasonDto.getRemark());
+        }else{
+            throw  new OtherException("类型不正确");
+        }
+        updateWrapper.eq(StyleColor::getId,styleColorOverdueReasonDto.getId());
+        this.update(updateWrapper);
     }
 
     /**

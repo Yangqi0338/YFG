@@ -304,6 +304,10 @@
 
     <select id="getDesignOrderScheduleDetailsReport" resultType="com.base.sbc.module.report.vo.DesignOrderScheduleDetailsReportVo">
         select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             tsc.id,
             tsc.devt_type_name,
             case when ts.band_name is not null then CONCAT(SUBSTRING(ts.band_name,1,length(ts.band_name) -1),'月')  else '' end as `month`,
@@ -321,10 +325,10 @@
             tsc.design_detail_overdue_reason,
             tsc.design_correct_date,
             tsc.design_correct_overdue_reason
+        </if>
         FROM t_style_color tsc
-        INNER JOIN t_style ts  ON  tsc.style_id = ts.id
+        INNER JOIN t_style ts  ON  tsc.style_id = ts.id and ts.del_flag = 0
         LEFT JOIN t_order_book_detail tobd ON tsc.id = tobd.style_color_id and tobd.del_flag = 0
-        where tsc.del_flag = 0 and ts.del_flag = 0
-        order by tsc.create_date desc
+        ${ew.customSqlSegment}
     </select>
 </mapper>
