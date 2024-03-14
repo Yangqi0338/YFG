@@ -75,4 +75,9 @@ public class BasicsdatumMaterialPageAndStyleVo {
      * 大货款号图
      */
     private String styleColorPic;
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

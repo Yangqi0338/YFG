@@ -67,33 +67,33 @@ public class LatestCommissioningDateServiceImpl extends BaseServiceImpl<LatestCo
 
 
         //品牌
-        List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList("");
-        Map<String, List<BasicBaseDict>> brandNameMap = dictInfoToList.stream().collect(Collectors.groupingBy(BasicBaseDict::getValue));
+        List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList("C8_Brand");
+        Map<String, List<BasicBaseDict>> brandNameMap = dictInfoToList.stream().collect(Collectors.groupingBy(BasicBaseDict::getName));
         //年份
-        List<BasicBaseDict> dictInfoToList1 = ccmFeignService.getDictInfoToList("");
+        List<BasicBaseDict> dictInfoToList1 = ccmFeignService.getDictInfoToList("C8_Year");
         Map<String, List<BasicBaseDict>> yearNameMap = dictInfoToList1.stream().collect(Collectors.groupingBy(BasicBaseDict::getValue));
         //波段
-        List<BasicBaseDict> dictInfoToList2 = ccmFeignService.getDictInfoToList("");
-        Map<String, List<BasicBaseDict>> bandNameMap = dictInfoToList2.stream().collect(Collectors.groupingBy(BasicBaseDict::getValue));
+        List<BasicBaseDict> dictInfoToList2 = ccmFeignService.getDictInfoToList("C8_Band");
+        Map<String, List<BasicBaseDict>> bandNameMap = dictInfoToList2.stream().collect(Collectors.groupingBy(BasicBaseDict::getName));
 
         for (LatestCommissioningDateExcel excelDto : list) {
             //品牌
             if(brandNameMap.containsKey(excelDto.getBrandName())){
-                String name = bandNameMap.get(excelDto.getBrandName()).get(0).getName();
+                String name = brandNameMap.get(excelDto.getBrandName()).get(0).getValue();
                 excelDto.setBrand(name);
             }else{
                 throw new OtherException("品牌不存在："+excelDto.getBrandName());
             }
             //年份
             if(yearNameMap.containsKey(excelDto.getYearName())){
-                String name = bandNameMap.get(excelDto.getYearName()).get(0).getName();
+                String name = yearNameMap.get(excelDto.getYearName()).get(0).getName();
                 excelDto.setYear(name);
             }else{
                 throw new OtherException("年份不存在："+excelDto.getYearName());
             }
             //波段
             if(bandNameMap.containsKey(excelDto.getBandName())){
-                String name = bandNameMap.get(excelDto.getBandName()).get(0).getName();
+                String name = bandNameMap.get(excelDto.getBandName()).get(0).getValue();
                 excelDto.setBandCode(name);
             }else{
                 throw new OtherException("波段不存在："+excelDto.getBandName());
