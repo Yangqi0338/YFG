@@ -14,4 +14,6 @@ public interface StyleAnalyseService {
     PageInfo<StyleAnalyseVo> findStylePage(StyleAnalyseQueryDto dto);
 
     void findDesignPageExport(HttpServletResponse response, StyleAnalyseQueryDto dto) throws IOException;
+
+    void findStylePageExport(HttpServletResponse response, StyleAnalyseQueryDto dto) throws IOException;
 }
