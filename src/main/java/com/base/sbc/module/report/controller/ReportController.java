@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 @RestController
 @Api(tags = "报表中心")
 @RequestMapping(value = BaseController.SAAS_URL + "/report", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -26,13 +29,19 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
-    @ApiOperation(value = "分页查询")
+    @ApiOperation(value = "设计分析报表")
     @GetMapping("/findDesignPage")
     public PageInfo<StyleAnalyseVo> findDesignPage(StyleAnalyseQueryDto dto) {
         return styleAnalyseService.findDesignPage(dto);
     }
 
-    @ApiOperation(value = "分页查询")
+    @ApiOperation(value = "设计分析报表-导出")
+    @GetMapping("/findDesignPageExport")
+    public void findDesignPageExport(HttpServletResponse response,StyleAnalyseQueryDto dto) throws IOException {
+        styleAnalyseService.findDesignPageExport(response,dto);
+    }
+
+    @ApiOperation(value = "大货分析报表")
     @GetMapping("/findStylePage")
     public PageInfo<StyleAnalyseVo> findStylePage(StyleAnalyseQueryDto dto) {
         return styleAnalyseService.findStylePage(dto);

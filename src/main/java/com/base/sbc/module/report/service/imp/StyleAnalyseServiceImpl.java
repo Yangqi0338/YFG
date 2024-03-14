@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.formtype.entity.FieldVal;
@@ -20,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,14 +47,14 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         if (isColumnHeard && StrUtil.isNotEmpty(dto.getQueryFieldColumn())) {
             String s = dto.getQueryFieldColumn().split("\\.")[1];
             qw = new BaseQueryWrapper<>();
-            if(StrUtil.isNotEmpty(dto.getColumnHeard()) && dto.getQueryFieldColumn().equals(dto.getColumnHeard())){
+            if (StrUtil.isNotEmpty(dto.getColumnHeard()) && dto.getQueryFieldColumn().equals(dto.getColumnHeard())) {
                 qw.like("tfv.val_name", dto.getFieldQueryMap().get(dto.getQueryFieldColumn()));
             }
             List<StyleAnalyseVo> list = styleAnalyseMapper.findPageField(qw, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, s);
 
             for (StyleAnalyseVo styleAnalyseVo : list) {
                 Map<String, String> dynamicColumn = new HashMap<>();
-                dynamicColumn.put(s,styleAnalyseVo.getValName());
+                dynamicColumn.put(s, styleAnalyseVo.getValName());
                 styleAnalyseVo.setDynamicColumn(dynamicColumn);
             }
             return new PageInfo<>(list);
@@ -96,14 +99,14 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         if (isColumnHeard && StrUtil.isNotEmpty(dto.getQueryFieldColumn())) {
             String s = dto.getQueryFieldColumn().split("\\.")[1];
             qw = new BaseQueryWrapper<>();
-            if(StrUtil.isNotEmpty(dto.getColumnHeard()) && dto.getQueryFieldColumn().equals(dto.getColumnHeard())){
+            if (StrUtil.isNotEmpty(dto.getColumnHeard()) && dto.getQueryFieldColumn().equals(dto.getColumnHeard())) {
                 qw.like("tfv.val_name", dto.getFieldQueryMap().get(dto.getQueryFieldColumn()));
             }
             List<StyleAnalyseVo> list = styleAnalyseMapper.findPageField(qw, FieldValDataGroupConstant.STYLE_MARKING_ORDER, s);
 
             for (StyleAnalyseVo styleAnalyseVo : list) {
                 Map<String, String> dynamicColumn = new HashMap<>();
-                dynamicColumn.put(s,styleAnalyseVo.getValName());
+                dynamicColumn.put(s, styleAnalyseVo.getValName());
                 styleAnalyseVo.setDynamicColumn(dynamicColumn);
             }
             return new PageInfo<>(list);
@@ -137,6 +140,14 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         /*查询款式图*/
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public void findDesignPageExport(HttpServletResponse response, StyleAnalyseQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<StyleAnalyseVo> list = findDesignPage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "设计分析报表", response, dto);
     }
 
 }

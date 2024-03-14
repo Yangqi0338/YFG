@@ -21,4 +21,6 @@ public class QueryFieldDto extends Page {
 
     private String orderBy;
 
+    /*是否导出图片*/
+    private String imgFlag;
 }
