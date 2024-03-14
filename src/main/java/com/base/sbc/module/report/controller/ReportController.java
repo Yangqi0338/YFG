@@ -47,7 +47,7 @@ public class ReportController {
         return styleAnalyseService.findStylePage(dto);
     }
 
-    @ApiOperation(value = "材料请求与报价")
+    @ApiOperation(value = "供应商材料报价报价报表")
     @GetMapping("/materialsAndQuoteReport")
     public PageInfo<MaterialSupplierQuoteVo> findMaterialsAndQuote(MaterialSupplierQuoteQueryDto dto) {
         return reportService.getMaterialSupplierQuoteReportPage(dto);
@@ -65,10 +65,22 @@ public class ReportController {
         return reportService.getStyleSizeReportPage(dto);
     }
 
-    @ApiOperation(value = "电商充绒量")
+    @ApiOperation(value = "电商充绒量报表")
     @GetMapping("/hangTagReport")
-    public PageInfo<HangTagReportVo> hangTagReport(HangTagReportQueryDto dto) {
+    public PageInfo<HangTagReportVo> findHangTagReport(HangTagReportQueryDto dto) {
         return reportService.getHangTagReortPage(dto);
+    }
+
+    @ApiOperation(value = "设计下单进度明细报表")
+    @GetMapping("/designOrderScheduleDetailsReport")
+    public PageInfo<DesignOrderScheduleDetailsReportVo> findDesignOrderScheduleDetailsReport(DesignOrderScheduleDetailsQueryDto dto) {
+        return reportService.getDesignOrderScheduleDetailsReportPage(dto);
+    }
+
+    @ApiOperation(value = "设计下单进度明细报表-导出")
+    @GetMapping("/designOrderScheduleDetailsExport")
+    public void hangTagReportExport(HttpServletResponse response,StyleAnalyseQueryDto dto) throws IOException {
+        styleAnalyseService.findDesignPageExport(response,dto);
     }
 
 }

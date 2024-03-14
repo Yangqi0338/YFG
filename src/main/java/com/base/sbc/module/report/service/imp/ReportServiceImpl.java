@@ -1,27 +1,23 @@
 package com.base.sbc.module.report.service.imp;
 
 import cn.hutool.core.collection.CollUtil;
-import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.module.report.dto.HangTagReportQueryDto;
-import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
-import com.base.sbc.module.report.dto.StylePackBomMateriaQueryDto;
-import com.base.sbc.module.report.dto.StyleSizeQueryDto;
+import com.base.sbc.module.report.dto.*;
 import com.base.sbc.module.report.mapper.ReportMapper;
 import com.base.sbc.module.report.service.ReportService;
-import com.base.sbc.module.report.vo.HangTagReportVo;
-import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
-import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
-import com.base.sbc.module.report.vo.StyleSizeReportVo;
+import com.base.sbc.module.report.vo.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -116,5 +112,33 @@ public class ReportServiceImpl implements ReportService {
         }
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<DesignOrderScheduleDetailsReportVo> getDesignOrderScheduleDetailsReportPage(DesignOrderScheduleDetailsQueryDto dto) {
+        BaseQueryWrapper<StyleSizeReportVo> qw = new BaseQueryWrapper<>();
+        qw.eq("ts.del_flag" , "0");
+        qw.eq("tsc.del_flag" , "0");
+        qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
+        qw.orderByDesc("tsc.create_date");
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        PageHelper.startPage(dto);
+        List<DesignOrderScheduleDetailsReportVo> list = reportMapper.getDesignOrderScheduleDetailsReport(qw);
+        if (CollUtil.isEmpty(list)) {
+            return new PageInfo<>(list);
+        }
+        if (isColumnHeard) {
+            return new PageInfo<>(list);
+        }
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public void designOrderScheduleDetailsExport(HttpServletResponse response, DesignOrderScheduleDetailsQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<DesignOrderScheduleDetailsReportVo> list = getDesignOrderScheduleDetailsReportPage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "设计下单进度明细报表", response, dto);
     }
 }

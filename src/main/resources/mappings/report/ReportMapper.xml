@@ -301,4 +301,30 @@
         t.part_name,
         t.method
     </select>
+
+    <select id="getDesignOrderScheduleDetailsReport" resultType="com.base.sbc.module.report.vo.DesignOrderScheduleDetailsReportVo">
+        select
+            tsc.id,
+            tsc.devt_type_name,
+            case when ts.band_name is not null then CONCAT(SUBSTRING(ts.band_name,1,length(ts.band_name) -1),'月')  else '' end as `month`,
+            ts.brand_name,
+            concat(ts.year,ts.season_name) yearSeason,
+            SUBSTRING_INDEX(ts.designer, ',', 1) as designerName,
+            ts.band_name ,
+            ts.design_no,
+            tsc.style_no,
+            tsc.style_color_pic,
+            tobd.commissioning_date,
+            tsc.send_main_fabric_date,
+            tsc.send_main_fabric_overdue_reason,
+            tsc.design_detail_date,
+            tsc.design_detail_overdue_reason,
+            tsc.design_correct_date,
+            tsc.design_correct_overdue_reason
+        FROM t_style_color tsc
+        INNER JOIN t_style ts  ON  tsc.style_id = ts.id
+        LEFT JOIN t_order_book_detail tobd ON tsc.id = tobd.style_color_id and tobd.del_flag = 0
+        where tsc.del_flag = 0 and ts.del_flag = 0
+        order by tsc.create_date desc
+    </select>
 </mapper>

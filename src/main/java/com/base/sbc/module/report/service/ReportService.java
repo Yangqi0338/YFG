@@ -1,14 +1,11 @@
 package com.base.sbc.module.report.service;
 
-import com.base.sbc.module.report.dto.HangTagReportQueryDto;
-import com.base.sbc.module.report.dto.MaterialSupplierQuoteQueryDto;
-import com.base.sbc.module.report.dto.StylePackBomMateriaQueryDto;
-import com.base.sbc.module.report.dto.StyleSizeQueryDto;
-import com.base.sbc.module.report.vo.HangTagReportVo;
-import com.base.sbc.module.report.vo.MaterialSupplierQuoteVo;
-import com.base.sbc.module.report.vo.StylePackBomMaterialReportVo;
-import com.base.sbc.module.report.vo.StyleSizeReportVo;
+import com.base.sbc.module.report.dto.*;
+import com.base.sbc.module.report.vo.*;
 import com.github.pagehelper.PageInfo;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public interface ReportService {
 
@@ -32,5 +29,19 @@ public interface ReportService {
      * @return
      */
     PageInfo<StyleSizeReportVo> getStyleSizeReportPage(StyleSizeQueryDto dto);
+    /**
+     * 设计下单进度明细报表
+     * @return
+     */
+    PageInfo<DesignOrderScheduleDetailsReportVo> getDesignOrderScheduleDetailsReportPage(DesignOrderScheduleDetailsQueryDto dto);
+
+    /**
+     * 设计下单进度明细报表导出
+     */
+    void designOrderScheduleDetailsExport(HttpServletResponse response, DesignOrderScheduleDetailsQueryDto dto) throws IOException;
+
+
+
+
 
 }
