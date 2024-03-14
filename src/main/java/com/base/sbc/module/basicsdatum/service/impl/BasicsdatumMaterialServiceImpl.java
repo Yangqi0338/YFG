@@ -850,8 +850,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Override
     public PageInfo<BasicsdatumMaterialPageAndStyleVo> materialsBomStylePage(BasicsdatumMaterialPageAndStyleDto dto) {
-        PageHelper.startPage(dto);
         BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> qc = new BaseQueryWrapper<>();
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
         qc.andLike(dto.getSearch(), "t.materialsCode", "t.materialsColor","t.materialsSpec","t.supperSampleName","t.designNo","t.bulkNo","t.styleColor");
         qc.notEmptyEq("t.bomStatus", dto.getBomPhase());
         qc.notEmptyEq("t.materialsCode", dto.getMaterialsCode());
@@ -862,7 +862,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     .eq("t.category1_code ", dto.getCategoryId()).or().eq("t.category2_code", dto.getCategoryId()).or()
                     .eq("t.category3_code", dto.getCategoryId()));
         }
+        PageHelper.startPage(dto);
         List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(qc);
+        if (isColumnHeard) {
+            return new PageInfo<>(list);
+        }
         //物料编号、物料颜色、物料规格、厂家简称、设计款号、大货款号、配色颜色
         for (BasicsdatumMaterialPageAndStyleVo vo : list) {
             getStyleImage(vo);
