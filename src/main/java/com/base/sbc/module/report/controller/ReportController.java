@@ -80,7 +80,13 @@ public class ReportController {
     @ApiOperation(value = "尺寸查询报表")
     @GetMapping("/styleSizeReport")
     public PageInfo<StyleSizeReportVo> findStyleSize(StyleSizeQueryDto dto) {
-        return reportService.getStyleSizeReportPage(dto);
+        return reportService.getStyleSizeReportNewPage(dto);
+    }
+
+    @ApiOperation(value = "尺寸查询报表-优化")
+    @GetMapping("/styleSizeNewReport")
+    public PageInfo<StyleSizeReportVo> styleSizeNewReport(StyleSizeQueryDto dto) {
+        return reportService.getStyleSizeReportNewPage(dto);
     }
 
     @ApiOperation(value = "尺寸查询报表-导出")
@@ -88,6 +94,7 @@ public class ReportController {
     public void styleSizeExport(HttpServletResponse response,StyleSizeQueryDto dto) throws IOException {
         reportService.styleSizeExport(response,dto);
     }
+
 
     @ApiOperation(value = "电商充绒量报表")
     @GetMapping("/hangTagReport")

@@ -3,9 +3,19 @@ package com.base.sbc.module.report.vo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @NoArgsConstructor
 @Data
 public class StyleSizeReportVo {
+    /**
+     * 尺码ids
+     */
+    private String sizeIds;
+    /**
+     * 标准值
+     */
+    private String standard;
     /**
      * 品牌
      */
@@ -58,114 +68,11 @@ public class StyleSizeReportVo {
      * 测量方法
      */
     private String method;
+
     /**
-     * 样板尺寸
+     * 尺寸明细数据
      */
-    private String templateXSS;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentXSS;
-    /**
-     * 洗后尺寸
-     */
-    private String washingXSS;
-    /**
-     * 样板尺寸
-     */
-    private String templateXS;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentXS;
-    /**
-     * 洗后尺寸
-     */
-    private String washingXS;
-    /**
-     * 样板尺寸
-     */
-    private String templateS;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentS;
-    /**
-     * 洗后尺寸
-     */
-    private String washingS;
-    /**
-     * 样板尺寸
-     */
-    private String templateM;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentM;
-    /**
-     * 洗后尺寸
-     */
-    private String washingM;
-    /**
-     * 样板尺寸
-     */
-    private String templateL;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentL;
-    /**
-     * 洗后尺寸
-     */
-    private String washingL;
-    /**
-     * 样板尺寸
-     */
-    private String templateXL;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentXL;
-    /**
-     * 洗后尺寸
-     */
-    private String washingXL;
-    /**
-     * 样板尺寸
-     */
-    private String templateXXL;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentXXL;
-    /**
-     * 洗后尺寸
-     */
-    private String washingXXL;
-    /**
-     * 样板尺寸
-     */
-    private String templateXXXL;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentXXXL;
-    /**
-     * 洗后尺寸
-     */
-    private String washingXXXL;
-    /**
-     * 样板尺寸
-     */
-    private String templateXXXXL;
-    /**
-     * 成衣尺寸
-     */
-    private String garmentXXXXL;
-    /**
-     * 洗后尺寸
-     */
-    private String washingXXXXL;
+    private Map<String,String> sizeMap;
 
     /**
      * 列头筛选数量

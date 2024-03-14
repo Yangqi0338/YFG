@@ -1,6 +1,7 @@
 package com.base.sbc.module.report.service.imp;
 
 import cn.hutool.core.collection.CollUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -18,7 +19,9 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -130,6 +133,45 @@ public class ReportServiceImpl implements ReportService {
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
+
+        if (CollUtil.isEmpty(list)) {
+            return new PageInfo<>(list);
+        }
+        if (isColumnHeard) {
+            return new PageInfo<>(list);
+        }
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<StyleSizeReportVo> getStyleSizeReportNewPage(StyleSizeQueryDto dto) {
+        BaseQueryWrapper<StyleSizeReportVo> qw = new BaseQueryWrapper<>();
+        qw.eq("ts.del_flag" , "0");
+        qw.orderByDesc("tsc.create_date");
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        PageHelper.startPage(dto);
+        List<StyleSizeReportVo> list = reportMapper.getStyleSizeNewReport(qw);
+        Map<String,String> values = null;
+        for (StyleSizeReportVo styleSizeReportVo : list) {
+            values =new HashMap<>();
+            String standard = styleSizeReportVo.getStandard();
+            JSONObject jsonObject = JSONObject.parseObject(standard);
+            for (String key : jsonObject.keySet()) {
+                String[] split = key.split("\\(");
+                String s = split[1].replace(")","");
+                if (key.contains("template")) {
+                    values.put("template"+s,jsonObject.getString(key));
+                }else if(key.contains("garment")){
+                    values.put("garment"+s,jsonObject.getString(key));
+                }else if(key.contains("washing")){
+                    values.put("washing"+s,jsonObject.getString(key));
+                }
+            }
+            styleSizeReportVo.setSizeMap(values);
+        }
+
+
 
         if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
