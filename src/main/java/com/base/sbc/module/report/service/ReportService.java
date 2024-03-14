@@ -20,7 +20,7 @@ public interface ReportService {
      */
     PageInfo<MaterialSupplierQuoteVo> getMaterialSupplierQuoteReportPage(MaterialSupplierQuoteQueryDto dto);
     /**
-     * 材料供应商报价报表
+     * BOM清单明细报表
      * @return
      */
     PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(StylePackBomMateriaQueryDto dto);

@@ -30,7 +30,7 @@ public class StylePackBomMaterialReportVo {
      * 品类
      */
 
-    private String prodCategory2ndName;
+    private String prodCategoryName;
     /**
      * 生产类型
      */
@@ -67,7 +67,7 @@ public class StylePackBomMaterialReportVo {
 
     private String supplierPrice;
     /**
-     * 材料名称
+     * 供应商报价供应商物料号
      */
 
     private String supplierMaterialCode;
@@ -78,7 +78,7 @@ public class StylePackBomMaterialReportVo {
      * 材料成份
      */
 
-    private String ingredient;
+    private String materialIngredient;
     /**
      * 材料成份备注
      */

@@ -76,6 +76,7 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<StylePackBomMaterialReportVo> getStylePackBomMaterialReportPage(StylePackBomMateriaQueryDto dto) {
         BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("tsc.del_flag", "0");
+        qw.isNotNullStr("tsc.bom");
         qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
         qw.notEmptyEq("ts.year" , dto.getYear());
         qw.orderByDesc("tsc.create_date");
