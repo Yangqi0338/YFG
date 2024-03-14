@@ -166,4 +166,9 @@ public class StyleSizeReportVo {
      * 洗后尺寸
      */
     private String washingXXXXL;
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

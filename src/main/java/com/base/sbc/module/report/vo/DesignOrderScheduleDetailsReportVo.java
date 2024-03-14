@@ -86,4 +86,9 @@ public class DesignOrderScheduleDetailsReportVo {
      * 设计下面正确样时间逾期天数
      */
     private String designCorrectDay;
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

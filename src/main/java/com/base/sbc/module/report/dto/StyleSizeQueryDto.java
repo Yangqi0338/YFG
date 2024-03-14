@@ -13,4 +13,9 @@ public class StyleSizeQueryDto extends QueryFieldDto {
      * 大货款集合
      */
     private List<String> styleColorNos;
+
+    /**
+     * 年份
+     */
+    private String  year;
 }

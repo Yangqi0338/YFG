@@ -77,6 +77,7 @@ public class ReportServiceImpl implements ReportService {
         BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("tsc.del_flag", "0");
         qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
+        qw.notEmptyEq("ts.year" , dto.getYear());
         qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
@@ -99,6 +100,7 @@ public class ReportServiceImpl implements ReportService {
         qw.eq("t.del_flag" , "0");
         qw.eq("tpsd.pack_type" , "packBigGoods");
         qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
+        qw.notEmptyEq("ts.year" , dto.getYear());
         qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);

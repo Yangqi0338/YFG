@@ -229,6 +229,9 @@ public class StylePackBomMaterialReportVo {
      * 品控部确认
      */
     private String qcCheckConfirm;
-    ;
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 
 }
