@@ -124,7 +124,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             }
 
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getHisDesignNo())) {
-                StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlankVo.getHisDesignNo()).select("style_color_pic"));
+                StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlankVo.getHisDesignNo()).select("id","style_color_pic"));
                 StyleColorVo styleColorVo =new StyleColorVo();
                 BeanUtil.copyProperties(styleColor,styleColorVo);
                 String styleUrl = stylePicUtils.getStyleUrl(styleColorVo.getStyleColorPic());
@@ -160,11 +160,20 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                     planningProjectPlankDimension=new PlanningProjectPlankDimension();
                     planningProjectPlankDimension.setPlanningProjectPlankId(planningProjectPlankVo.getId());
 
-                    //如果没有编辑就从配色取
+                    //如果没有编辑就从配色取,
                     for (FieldVal fieldVal : fieldValList) {
-                        if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(planningProjectPlankVo.getStyleColorId()) && planningDimensionality.getDimensionalityName().equals(fieldVal.getFieldName())){
-                            planningProjectPlankDimension.setDimensionCode(fieldVal.getValName());
-                            planningProjectPlankDimension.setDimensionName(fieldVal.getFieldName());
+                        String styleColorId;
+                        if ("0".equals(planningProjectPlankVo.getMatchingStyleStatus())){
+                            break;
+                        }
+                        if("3".equals(planningProjectPlankVo.getMatchingStyleStatus())){
+                            styleColorId=planningProjectPlankVo.getOldStyleColor().getId();
+                        }else {
+                            styleColorId=planningProjectPlankVo.getStyleColorId();
+                        }
+                        if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(styleColorId) && planningDimensionality.getDimensionalityName().equals(fieldVal.getFieldExplain())){
+                            planningProjectPlankDimension.setDimensionCode(fieldVal.getFieldName());
+                            planningProjectPlankDimension.setDimensionName(fieldVal.getFieldExplain());
                             planningProjectPlankDimension.setDimensionValue(fieldVal.getVal());
                             break;
                         }

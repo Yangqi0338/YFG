@@ -1508,6 +1508,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Override
     public List<FieldVal> ListDynamicDataByIds(List<String> ids) {
+        if (ids==null || ids.isEmpty()){
+            return new ArrayList<>();
+        }
         QueryWrapper<FieldVal> fieldValQueryWrapper =new QueryWrapper<>();
         fieldValQueryWrapper.in("foreign_id", ids);
         return fieldValService.list(fieldValQueryWrapper);
