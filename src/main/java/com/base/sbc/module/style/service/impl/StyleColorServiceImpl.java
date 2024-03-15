@@ -1444,13 +1444,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         } else {
             updateWrapper.set("order_date", null);
-            for (String id : ids) {
-                StyleColor styleColor = this.getById(id);
-                planningProjectPlankService.unMatchByBulkStyleNo(styleColor.getStyleNo());
-            }
         }
-
-
 
         updateWrapper.set("order_flag", publicStyleColorDto.getOrderFlag());
         updateWrapper.in("id", ids);
@@ -1464,11 +1458,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             StyleColor styleColor = new StyleColor();
             styleColor.setId(id);
             styleColor.setTagPrice(tagPrice);
-            boolean b = super.updateById(styleColor);
+            styleColor.updateInit();
+            super.updateById(styleColor);
             /*重新下发配色*/
-            if (b){
-                dataUpdateScmService.updateStyleColorSendById(id);
-            }
+            dataUpdateScmService.updateStyleColorSendById(id);
         }
     }
 
@@ -2083,10 +2076,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
         String styleColorId = styleColorAgent.getStyleColorId();
-        StyleColor styleColor = styleColorService.getById(styleColorId);
+        StyleColor styleColor = this.getById(styleColorId);
         if (styleColor != null) {
             //删除配色
-            styleColorService.removeById(styleColorId);
+            this.removeById(styleColorId);
             String styleId = styleColor.getStyleId();
             //删除设计款
             styleService.removeById(styleId);
@@ -2121,7 +2114,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if(!"2".equals(byId.getStatus()) && !"3".equals(byId.getStatus())) {
             throw new OtherException("只有重新打开或可编辑时才能停用");
         }
-        StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
+        StyleColor styleColor = this.getById(byId.getStyleColorId());
         String styleId = styleColor.getStyleId();
         Style style = styleService.getById(styleId);
         if("1".equals(style.getEnableStatus())){
@@ -2160,7 +2153,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if(!"2".equals(byId.getStatus()) && !"3".equals(byId.getStatus())) {
             throw new OtherException("只有重新打开或可编辑时才能启用");
         }
-        StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
+        StyleColor styleColor = this.getById(byId.getStyleColorId());
         String styleId = styleColor.getStyleId();
         Style style = styleService.getById(styleId);
         if("0".equals(style.getEnableStatus())){
@@ -2182,7 +2175,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         dto.setPageSize(Integer.MAX_VALUE);
         dto.setExcelFlag("1");
-        PageInfo<StyleColorAgentVo> styleColorAgentVoPageInfo = styleColorService.agentPageList(dto);
+        PageInfo<StyleColorAgentVo> styleColorAgentVoPageInfo = this.agentPageList(dto);
         List<StyleColorAgentVo> styleColorAgentVoList = styleColorAgentVoPageInfo.getList();
 
         List<MangoStyleColorExeclExportDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclExportDto.class);
@@ -2570,7 +2563,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                 insertStyleColorAgentList.add(styleColorAgent);
             }else{
-                StyleColor styleColorUpdate = styleColorService.getById(validStyleColorAgent.getStyleColorId());
+                StyleColor styleColorUpdate = this.getById(validStyleColorAgent.getStyleColorId());
                 if (styleColorUpdate != null) {
                     styleColorUpdate.setTagPrice(new BigDecimal(dto.getTagPrice()));
 
@@ -2883,7 +2876,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (styleColorAgent != null) {
                 String status = styleColorAgent.getStatus();
 
-                StyleColor styleColor = styleColorService.getById(styleColorAgent.getStyleColorId());
+                StyleColor styleColor = this.getById(styleColorAgent.getStyleColorId());
 
                 if (styleColor == null) {
                     rowText = commonPromptInfo(true, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "找不到对应的配色信息！\n");
@@ -3082,7 +3075,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleService.saveBatch(insertStyleList);
         }
         if (CollUtil.isNotEmpty(insertStyleColorList)) {
-            styleColorService.saveBatch(insertStyleColorList);
+            this.saveBatch(insertStyleColorList);
         }
         if (CollUtil.isNotEmpty(insertStyleColorAgentList)) {
             styleColorAgentService.saveBatch(insertStyleColorAgentList);
@@ -3097,7 +3090,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleService.updateBatchById(updateStyleList);
         }
         if (CollUtil.isNotEmpty(updateStyleColorList)) {
-            styleColorService.updateBatchById(updateStyleColorList);
+            this.updateBatchById(updateStyleColorList);
         }
         if (CollUtil.isNotEmpty(updateStyleColorAgentList)) {
             styleColorAgentService.updateBatchById(updateStyleColorAgentList);
