@@ -20,5 +20,13 @@ public interface OrderBookDetailMapper extends BaseEnhanceMapper<OrderBookDetail
      List<Map<String, Object>> queryCountByOrderBookId(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
 
      @DS("starRocks")
-     List<Map<String, Object>> queryStarRocks(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
+     List<Map<String, Object>> queryStarRocks(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper, @Param("total") Integer total);
+     @DS("starRocks")
+     default List<Map<String, Object>> queryStarRocksTotal(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper) {
+          return queryStarRocks(queryWrapper, 1);
+     };
+     @DS("starRocks")
+     default List<Map<String, Object>> queryStarRocksDetail(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper) {
+          return queryStarRocks(queryWrapper, 0);
+     };
 }

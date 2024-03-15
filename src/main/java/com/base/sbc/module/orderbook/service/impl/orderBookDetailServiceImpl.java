@@ -811,10 +811,20 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         qw.notEmptyIn("T.PROD_CODE", bulkStyleNoList);
         qw.notEmptyIn("T.CHANNEL_TYPE", dto.getChannel());
 
-        List<Map<String, Object>> maps = getBaseMapper().queryStarRocks(qw);
-        maps.forEach(it-> it.put("sizeMap", new HashMap<>(it)));
-        List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(maps);
-        return CopyUtil.copy(page.toPageInfo(), dtoList);
+        List<Map<String, Object>> totalMaps = getBaseMapper().queryStarRocksTotal(qw);
+        List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
+
+        PageInfo<OrderBookSimilarStyleVo> result = CopyUtil.copy(page.toPageInfo(), dtoList);
+        if (CollUtil.isEmpty(dtoList)) {
+            return result;
+        }
+
+        BaseQueryWrapper<OrderBookDetail> qw1 = new BaseQueryWrapper<>();
+        qw1.notEmptyLike("S.PROD_CODE", dtoList);
+
+        List<Map<String, Object>> detailMaps = getBaseMapper().queryStarRocksDetail(qw1);
+
+        return result;
     }
 
     /**
