@@ -76,7 +76,7 @@
     </select>
     <select id="dimensionTotal" resultType="com.base.sbc.module.planning.vo.DimensionTotalVo">
         select ${ew.sqlSelect} from t_style sd
-        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0'
+        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY"
         where
         sd.del_flag ='0'
         and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
@@ -113,13 +113,15 @@
     </select>
     <select id="categorySummary" resultType="com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo">
         SELECT
-        prod_category1st,
-        prod_category,
-        prod_category2nd,
-        count( 1 ) skc
+        sd.prod_category1st,
+        sd.prod_category,
+        sd.prod_category2nd,
+        count( 1 ) skc,
+        count( sd.STATUS = 2 or null) scriptedNum
         FROM
         t_style sd
         LEFT JOIN t_style_color c ON ( sd.id = c.style_id )
+        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY"
         WHERE
         sd.del_flag = '0'
         and prod_category1st is not null and prod_category1st!=''
@@ -143,6 +145,7 @@
         FROM
         t_style sd
         LEFT JOIN t_pattern_making p ON ( sd.id = p.style_id ) and p.del_flag = 0 and p.disable_flag = 0 and p.sample_type = "初版样"
+        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY"
         WHERE
         sd.del_flag ='0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">

@@ -231,10 +231,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private BasicsdatumColourLibraryAgentService colourLibraryAgentService;
 
-    @Resource
-    @Lazy
-    private  OrderBookDetailService orderBookDetailService;
-
     Pattern pattern = Pattern.compile("[a-z||A-Z]");
 
 
