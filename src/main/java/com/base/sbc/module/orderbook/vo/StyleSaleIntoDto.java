@@ -52,10 +52,9 @@ public class StyleSaleIntoDto {
     private Map<String, Double> sizeMap;
 
     /**
-     * 尺码的投产和销售合计
+     * 合计
      */
-    @ApiModelProperty(value = "尺码的投产和销售合计")
-    public Double getSizeTotal() {
-        return sizeMap.values().stream().mapToDouble(it-> it).sum();
-    }
+    @JsonIgnore
+    @ApiModelProperty(value = "合计")
+    private Integer sum;
 }

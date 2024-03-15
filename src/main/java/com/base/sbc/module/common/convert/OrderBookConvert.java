@@ -1,6 +1,7 @@
 package com.base.sbc.module.common.convert;
 
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.config.enums.business.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
@@ -34,8 +35,10 @@ public interface OrderBookConvert {
             @Mapping(target = "correctValue", source = "SALE_TYPE"),
             @Mapping(target = "type", source = "ORDER_TYPE"),
             @Mapping(target = "channel", source = "CHANNEL_TYPE"),
+            @Mapping(target = "sum", source = "SUM"),
     })
     StyleSaleIntoDto copy2StyleSaleInto(Map<String, Object> map);
+    List<StyleSaleIntoDto> copyList2StyleSaleInto(List<Map<String, Object>> source);
     OrderBookSimilarStyleVo copy2SimilarStyleVo(StyleSaleIntoDto source);
 
     List<OrderBookSimilarStyleVo> copyList2SimilarStyleVo(List<Map<String, Object>> source);
@@ -54,6 +57,7 @@ public interface OrderBookConvert {
 
     default Map<String,Double> map2SizeMap(Object source) {
         Map<String, Double> map = new HashMap<>();
+        if (ObjectUtil.isNull(source)) return map;
         ((Map<String, Object>)source).forEach((key,value)-> {
             String valueStr = value.toString();
             if (NumberUtil.isDouble(valueStr)) {

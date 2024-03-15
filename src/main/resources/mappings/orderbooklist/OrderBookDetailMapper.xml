@@ -73,10 +73,12 @@
     <select id="queryStarRocks" resultType="java.util.Map">
         select T.* from (
             select
+            '线下销售' resultType,
             S.PROD_CODE,
             CASE WHEN C.SALE_TYPE ='正价' THEN '是' ELSE '否' END SALE_TYPE,
             '线下' CHANNEL_TYPE,
             <if test="total == 0">
+                SUM(S.JING_NUM) NUM,
                 SUM(CASE WHEN SIZES = 'XXS' THEN S.JING_NUM ELSE 0 END) XXS,
                 SUM(CASE WHEN SIZES = 'XS' THEN S.JING_NUM ELSE 0 END) XS,
                 SUM(CASE WHEN SIZES = 'S' THEN S.JING_NUM ELSE 0 END) S,
@@ -98,10 +100,12 @@
             UNION ALL
 
             SELECT
+            '线上销售' resultType,
             S.PROD_CODE,
             '否' SALE_TYPE,
             '线上' CHANNEL_TYPE,
             <if test="total == 0">
+                SUM(S.QUANTITY_S) NUM,
                 SUM(CASE WHEN SIZES = 'XXS' THEN S.QUANTITY_S ELSE 0 END) XXS,
                 SUM(CASE WHEN SIZES = 'XS' THEN S.QUANTITY_S ELSE 0 END) XS,
                 SUM(CASE WHEN SIZES = 'S' THEN S.QUANTITY_S ELSE 0 END) S,
@@ -129,11 +133,12 @@
             UNION ALL
 
             SELECT
+            '线上/线下首单投产' resultType,
             S.PROD_CODE,
             '首单' ORDER_TYPE,
             S.FAC_TYPE CHANNEL_TYPE,
-            G.BRAND_NAME,
             <if test="total == 0">
+                SUM(S.FAC_SD_QTY) NUM,
                 SUM(CASE WHEN SIZES = 'XXS' THEN S.FAC_SD_QTY ELSE 0 END) XXS,
                 SUM(CASE WHEN SIZES = 'XS' THEN S.FAC_SD_QTY ELSE 0 END) XS,
                 SUM(CASE WHEN SIZES = 'S' THEN S.FAC_SD_QTY ELSE 0 END) S,
@@ -153,10 +158,12 @@
 
             UNION ALL
             SELECT
+            '线上/线下追单投产' resultType,
             S.PROD_CODE,
             '追单' ORDER_TYPE,
             S.FAC_TYPE CHANNEL_TYPE,
             <if test="total == 0">
+                SUM(S.FAC_ZD_QTY) NUM,
                 SUM(CASE WHEN SIZES = 'XXS' THEN S.FAC_ZD_QTY ELSE 0 END) XXS,
                 SUM(CASE WHEN SIZES = 'XS' THEN S.FAC_ZD_QTY ELSE 0 END) XS,
                 SUM(CASE WHEN SIZES = 'S' THEN S.FAC_ZD_QTY ELSE 0 END) S,

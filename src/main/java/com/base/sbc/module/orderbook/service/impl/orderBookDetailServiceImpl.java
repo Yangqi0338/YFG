@@ -820,10 +820,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
 
         BaseQueryWrapper<OrderBookDetail> qw1 = new BaseQueryWrapper<>();
-        qw1.notEmptyLike("S.PROD_CODE", dtoList);
+        qw1.in("S.PROD_CODE", dtoList.stream().map(OrderBookSimilarStyleVo::getBulkStyleNo).collect(Collectors.toList()));
 
         List<Map<String, Object>> detailMaps = getBaseMapper().queryStarRocksDetail(qw1);
-
+        detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
+        List<StyleSaleIntoDto> detailList = ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
+        detailList.stream().collect(Collectors.groupingBy(StyleSaleIntoDto::getBulkStyleNo)).forEach((bulkStyleNo, sameBulkStyleNoList)-> {
+//            dtoList.stream().filter(it-> it)
+        });
         return result;
     }
 
