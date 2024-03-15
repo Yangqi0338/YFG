@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * {@code 描述：销售投产类型}
@@ -16,11 +15,10 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @AllArgsConstructor
-public enum StyleSaleIntoResultType {
-    OFFLINE_SALE("线下销售"),
-    ONLINE_SALE("线上销售"),
-    FIRST_INTO("线上/线下首单投产"),
-    APPEND_INTO("线上/线下追单投产"),
+public enum StyleSaleIntoCalculateResultType {
+    SALE("销售"),
+    INTO("投产"),
+    SALE_INTO("产销"),
     ;
     /** 编码 */
     @EnumValue
@@ -34,8 +32,9 @@ public enum StyleSaleIntoResultType {
         return code;
     }
 
-    StyleSaleIntoResultType(String text) {
-        this.code = this.name().toLowerCase();
+    StyleSaleIntoCalculateResultType(String text) {
+        String code = this.name().toLowerCase();
+        this.code = StrUtil.toCamelCase(code);
 //        this.code = this.ordinal()+"";
         this.text = text;
     }

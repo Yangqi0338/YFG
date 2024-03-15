@@ -6,6 +6,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.func.Consumer3;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -29,6 +30,7 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -44,6 +46,7 @@ import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
@@ -76,6 +79,7 @@ import com.github.pagehelper.StringUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -796,20 +800,33 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
-    public PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto dto) {
-        String category1stCode = dto.getCategory1stCode();
-        List<String> bulkStyleNoList = new ArrayList<>();
+    public PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto queryDto) {
+        long millis = System.currentTimeMillis();
+        /* ----------------------------封装查询参数---------------------------- */
+        if (CollUtil.isEmpty(queryDto.getChannel())) {
+            throw new OtherException("相似款查询必须传入渠道条件");
+        }
+        List<String> channelNameList = queryDto.getChannel().stream().map(OrderBookChannelType::getText).collect(Collectors.toList());
+
+        String category1stCode = queryDto.getCategory1stCode();
+        List<String> searchBulkStyleNoList = new ArrayList<>();
         if (StrUtil.isNotBlank(category1stCode)) {
+            // 根据大类获取款式
             List<String> styleIdList = styleService.listOneField(new LambdaQueryWrapper<Style>().eq(Style::getProdCategory1st, category1stCode), Style::getId);
             if (CollUtil.isNotEmpty(styleIdList)) {
-                bulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>().in(StyleColor::getStyleId, styleIdList), StyleColor::getStyleNo));
+                // 根据款式获取款号
+                searchBulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>().in(StyleColor::getStyleId, styleIdList), StyleColor::getStyleNo));
             }
         }
-        Page<Object> page = dto.startPage();
+        System.out.println("封装查询参数 time:" + (System.currentTimeMillis() - millis));
+
+        /* ----------------------------查询分页款号数据---------------------------- */
+
+        Page<Object> page = queryDto.startPage();
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
-        qw.notEmptyLike("T.PROD_CODE", dto.getBulkStyleNo());
-        qw.notEmptyIn("T.PROD_CODE", bulkStyleNoList);
-        qw.notEmptyIn("T.CHANNEL_TYPE", dto.getChannel());
+        qw.notEmptyLike("T.PROD_CODE", queryDto.getBulkStyleNo());
+        qw.notEmptyIn("T.PROD_CODE", searchBulkStyleNoList);
+        qw.in("T.CHANNEL_TYPE", channelNameList);
 
         List<Map<String, Object>> totalMaps = getBaseMapper().queryStarRocksTotal(qw);
         List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
@@ -818,16 +835,79 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (CollUtil.isEmpty(dtoList)) {
             return result;
         }
+        System.out.println("查询分页款号数据 time:" + (System.currentTimeMillis() - millis));
+
+        /* ----------------------------PDM款式配色装饰---------------------------- */
+
+        List<String> bulkStyleNoList = dtoList.stream().map(OrderBookSimilarStyleVo::getBulkStyleNo).collect(Collectors.toList());
+        // 查询PDM的款式配色
+        List<StyleColor> styleColorList = styleColorService.list(new LambdaQueryWrapper<StyleColor>().in(StyleColor::getStyleNo, bulkStyleNoList));
+        dtoList.forEach(dto-> {
+            styleColorList.stream().filter(it-> it.getStyleNo().equals(dto.getBulkStyleNo())).findFirst().ifPresent(styleColor -> {
+                dto.setStyleColorPic(styleColor.getStyleColorPic());
+            });
+        });
+        // 设置款图
+        stylePicUtils.setStylePic(dtoList, "styleColorPic",30);
+        System.out.println("PDM款式配色装饰 time:" + (System.currentTimeMillis() - millis));
+
+        /* ----------------------------装饰详细的投产销售---------------------------- */
 
         BaseQueryWrapper<OrderBookDetail> qw1 = new BaseQueryWrapper<>();
-        qw1.in("S.PROD_CODE", dtoList.stream().map(OrderBookSimilarStyleVo::getBulkStyleNo).collect(Collectors.toList()));
+        qw1.in("T.PROD_CODE", bulkStyleNoList);
+        qw1.in("T.CHANNEL_TYPE", channelNameList);
 
         List<Map<String, Object>> detailMaps = getBaseMapper().queryStarRocksDetail(qw1);
+        // 封装数据并转化Bean
         detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
         List<StyleSaleIntoDto> detailList = ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
-        detailList.stream().collect(Collectors.groupingBy(StyleSaleIntoDto::getBulkStyleNo)).forEach((bulkStyleNo, sameBulkStyleNoList)-> {
-//            dtoList.stream().filter(it-> it)
+
+        Map<StyleSaleIntoCalculateResultType, Map<String, Double>> map = new HashMap<>(3);
+        for (StyleSaleIntoCalculateResultType calculateResultType : StyleSaleIntoCalculateResultType.values()) {
+            map.put(calculateResultType, new HashMap<>(7));
+        }
+        List<String> sizeNameList = StringUtils.convertList("XXS,XS,S,M,L,XL,XXL");
+        // 设置投产销售
+        dtoList.forEach(dto-> {
+            // 获取同品牌相同款号相同渠道的数据
+            List<StyleSaleIntoDto> dtoDetailList = detailList.stream().filter(it ->
+                    it.getBulkStyleNo().equals(dto.getBulkStyleNo()) &&
+                    it.getChannel() == dto.getChannel() &&
+                    it.getBrand().equals(dto.getBrand())
+            ).collect(Collectors.toList());
+
+            Map<StyleSaleIntoCalculateResultType, Map<String, Double>> calculateSizeMap = ORDER_BOOK_CV.copyResultTypeMyself(map);
+
+            calculateSizeMap.forEach((calculateResultType, sizeMap)-> {
+                String code = calculateResultType.getCode();
+                List<StyleSaleIntoDto> calculateDetailList = dtoDetailList.stream()
+                        .filter(it -> it.getResultType().getCode().contains(code))
+                        .collect(Collectors.toList());
+                double totalSum = 0.0;
+                for (String size : sizeNameList) {
+                    double sum = calculateDetailList.stream().mapToDouble(it -> it.getSizeMap().getOrDefault(size, 0.0)).sum();
+                    totalSum+=sum;
+                    sizeMap.put(size, sum);
+                }
+                if (calculateResultType == StyleSaleIntoCalculateResultType.INTO) dto.setTotalInto(dto.getTotalInto().add(BigDecimal.valueOf(totalSum)));
+                if (calculateResultType == StyleSaleIntoCalculateResultType.SALE) dto.setTotalSale(dto.getTotalSale().add(BigDecimal.valueOf(totalSum)));
+            });
+
+            // 计算占比
+            for (String size : sizeNameList) {
+                BigDecimal into = BigDecimal.valueOf(calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO).getOrDefault(size, 0.0));
+                BigDecimal sale = BigDecimal.valueOf(calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE).getOrDefault(size, 0.0));
+                BigDecimal sum = into;
+                if (BigDecimalUtil.biggerThenZero(into)) {
+                    sum = BigDecimalUtil.dividePercentage(sale, into);
+                }
+                calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO).put(size, BigDecimalUtil.dividePercentage(into, dto.getTotalInto()).doubleValue());
+                calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE).put(size, BigDecimalUtil.dividePercentage(sale, dto.getTotalSale()).doubleValue());
+                calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE_INTO).put(size, sum.doubleValue());
+            }
+            dto.setCalculateSizeMap(calculateSizeMap);
         });
+        System.out.println("装饰详细的投产销售 time:" + (System.currentTimeMillis() - millis));
         return result;
     }
 

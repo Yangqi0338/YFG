@@ -14,31 +14,13 @@ import java.util.Map;
 
 @Data
 public class StyleSaleIntoDto {
-    /**
-     * 结果类型
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "结果类型")
-    private StyleSaleIntoResultType resultType;
+    /* ----------------------------通用---------------------------- */
 
     /**
      * 款号
      */
     @ApiModelProperty(value = "款号")
     private String bulkStyleNo;
-
-    /**
-     * 是否正价
-     */
-    @ApiModelProperty(value = "是否正价")
-    @JsonIgnore
-    private boolean correctValue;
-
-    /**
-     * 款式投产类型
-     */
-    @ApiModelProperty(value = "款式投产类型")
-    private StylePutIntoType type;
 
     /**
      * 渠道
@@ -52,10 +34,34 @@ public class StyleSaleIntoDto {
     @ApiModelProperty(value = "品牌")
     private String brand;
 
+    /* ----------------------------详情---------------------------- */
+
+    /**
+     * 结果类型
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "结果类型")
+    private StyleSaleIntoResultType resultType;
+
+    /**
+     * 是否正价
+     */
+    @ApiModelProperty(value = "是否正价")
+    @JsonIgnore
+    private boolean correctValue;
+
+    /**
+     * 款式投产类型
+     */
+    @ApiModelProperty(value = "款式投产类型")
+    @JsonIgnore
+    private StylePutIntoType type;
+
     /**
      * 尺码的投产和销售详细数据
      */
     @ApiModelProperty(value = "尺码的投产和销售详细数据")
+    @JsonIgnore
     private Map<String, Double> sizeMap;
 
     /**

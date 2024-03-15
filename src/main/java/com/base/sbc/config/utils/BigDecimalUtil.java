@@ -433,5 +433,21 @@ public class BigDecimalUtil {
 		}
 		return d1.compareTo(d2) > 0;
 	}
+
+	/**
+	 * 计算两个BigDecimal的比值
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static BigDecimal dividePercentage (BigDecimal d1,BigDecimal d2){
+		if(!biggerThenZero(d1)){
+			return BigDecimal.ZERO;
+		}
+		if(!biggerThenZero(d2)){
+			return BigDecimal.ZERO;
+		}
+		return d1.multiply(new BigDecimal(100)).divide(d2, 2, RoundingMode.HALF_UP);
+	}
 }
 

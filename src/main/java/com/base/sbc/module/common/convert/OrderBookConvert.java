@@ -4,6 +4,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.config.enums.business.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
@@ -36,6 +37,7 @@ public interface OrderBookConvert {
             @Mapping(target = "correctValue", source = "SALE_TYPE"),
             @Mapping(target = "type", source = "ORDER_TYPE"),
             @Mapping(target = "channel", source = "CHANNEL_TYPE"),
+            @Mapping(target = "brand", source = "BRAND_NAME"),
             @Mapping(target = "sum", source = "SUM"),
     })
     StyleSaleIntoDto copy2StyleSaleInto(Map<String, Object> map);
@@ -43,6 +45,8 @@ public interface OrderBookConvert {
     OrderBookSimilarStyleVo copy2SimilarStyleVo(StyleSaleIntoDto source);
 
     List<OrderBookSimilarStyleVo> copyList2SimilarStyleVo(List<Map<String, Object>> source);
+    Map<StyleSaleIntoCalculateResultType, Map<String, Double>> copyResultTypeMyself(Map<StyleSaleIntoCalculateResultType, Map<String, Double>> source);
+    Map<String, Double> copyMyself(Map<String, Double> source);
 
     default boolean saleTypeToBool(String saleType) {
         return "是".equals(saleType);
