@@ -4,6 +4,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.config.enums.business.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import jdk.jfr.Name;
@@ -53,6 +54,10 @@ public interface OrderBookConvert {
 
     default OrderBookChannelType channelToEnum(String channel) {
         return Arrays.stream(OrderBookChannelType.values()).filter(it-> it.getText().equals(channel)).findFirst().orElse(null);
+    }
+
+    default StyleSaleIntoResultType resultTypeToEnum(String resultType) {
+        return Arrays.stream(StyleSaleIntoResultType.values()).filter(it-> it.getText().equals(resultType)).findFirst().orElse(null);
     }
 
     default Map<String,Double> map2SizeMap(Object source) {

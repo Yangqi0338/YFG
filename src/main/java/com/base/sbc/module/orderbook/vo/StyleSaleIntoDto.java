@@ -3,6 +3,7 @@ package com.base.sbc.module.orderbook.vo;
 import com.base.sbc.config.enums.business.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Functions;
 import io.swagger.annotations.ApiModelProperty;
@@ -13,6 +14,12 @@ import java.util.Map;
 
 @Data
 public class StyleSaleIntoDto {
+    /**
+     * 结果类型
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "结果类型")
+    private StyleSaleIntoResultType resultType;
 
     /**
      * 款号
