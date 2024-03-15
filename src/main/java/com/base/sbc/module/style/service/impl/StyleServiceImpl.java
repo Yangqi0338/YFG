@@ -217,6 +217,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     private FieldManagementMapper fieldManagementMapper;
 
+    @Autowired
+    @Lazy
+    private StyleColorService styleColorService;
+
     /**
      * 表单字段类型 code
      * dimensionalCoefficient-维度系数
@@ -2260,6 +2264,17 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
+        List<String> ids = detailVoList.stream().map(PlanningSummaryDetailVo::getId).collect(Collectors.toList());
+        List<FieldVal> fieldValList = styleColorService.ListDynamicDataByIds(ids);
+        for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
+            List<FieldVal> fieldVals = styleColorService.ListDynamicDataByIds(ids);
+            for (FieldVal fieldVal : fieldValList) {
+                if (fieldVal.getForeignId().equals(planningSummaryDetailVo.getId())){
+                    fieldVals.add(fieldVal);
+                }
+            }
+            planningSummaryDetailVo.setFieldValList(fieldVals);
+        }
         // for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
         //     DimensionLabelsSearchDto dimensionLabelsSearchDto=new DimensionLabelsSearchDto();
         //     dimensionLabelsSearchDto.setForeignId(planningSummaryDetailVo.getId());
