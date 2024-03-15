@@ -39,10 +39,13 @@ public class QueryGenerator {
             if (fieldQueryMap.containsKey(columnCode) && StrUtil.isNotEmpty(fieldQueryMap.get(columnCode))) {
                 String fieldValue = fieldQueryMap.get(columnCode);
                 String property = columnDefine.getProperty();
+                if (StrUtil.isEmpty(property) && StrUtil.isNotEmpty(columnDefine.getColumnType()) && "date".equals(columnDefine.getColumnType())) {
+                    property = "date";
+                }
                 if (StrUtil.isNotEmpty(columnHeard) && columnCode.equals(columnHeard)) {
                     //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
                     if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                        qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " like '%" + fieldValue + "%'"));
+                        qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " like '%" + fieldValue + "%'"));
                         qw.select(sqlCode, "count(" + sqlCode + ") as groupCount");
                         qw.groupBy(sqlCode);
                         qw.orderByAsc(sqlCode);
@@ -71,16 +74,14 @@ public class QueryGenerator {
                     //3 选中数据查询，列名不为空，并且值不为空
                     //时间区间过滤
                     if ("isNull".equals(fieldValue)) {
-                        if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                            qw.last(columnDefine.getColumnFilter().replace("?",
-                                    "(" + columnDefine.getColumnFilterExtent() + " = '' or " + columnDefine.getColumnFilterExtent() + "is null)"));
+                        if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property))) {
+                            qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"));
                         } else {
                             qw.isNullStr(sqlCode);
                         }
                     } else if ("isNotNull".equals(fieldValue)) {
-                        if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
-                            qw.last(columnDefine.getColumnFilter().replace("?",
-                                    "(" + columnDefine.getColumnFilterExtent() + " != '' or " + columnDefine.getColumnFilterExtent() + "is not null)"));
+                        if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property))) {
+                            qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"));
                         } else {
                             qw.isNotNullStr(sqlCode);
                         }
@@ -95,11 +96,11 @@ public class QueryGenerator {
                         qw.in(sqlCode, Arrays.asList(fieldValue.split(";")));
                     } else if (StrUtil.isNotEmpty(property) && "insql".equals(property)) {
                         String s = "'" + String.join("','", fieldValue.split(",")) + "'";
-                        qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " in (" + s + ")"));
+                        qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " in (" + s + ")"));
                     } else if (StrUtil.isNotEmpty(property) && "date_insql".equals(property)) {
                         String[] dateArr = fieldValue.split(",");
                         if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
-                            qw.last(columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " >= '" + dateArr[0] + "' and '" + dateArr[1] + "' >= " + columnDefine.getColumnFilterExtent()));
+                            qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " >= '" + dateArr[0] + "' and '" + dateArr[1] + "' >= " + columnDefine.getColumnFilterExtent()));
                         }
                     } else {
                         //正常保留历史条件查询

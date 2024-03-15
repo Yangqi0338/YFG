@@ -54,6 +54,10 @@ public class BasicsdatumMaterialPageAndStyleVo {
      */
     private String bulkNo;
     /**
+     * 设计款号-id
+     */
+    private String styleId;
+    /**
      * 配色颜色
      */
     private String styleColor;
