@@ -180,7 +180,7 @@ public class StylePicUtils {
         String allStr = badge + name + fileName + tiemStr + appKey + appSecret;
         String allStrP = DigestUtils.md5DigestAsHex(allStr.getBytes());
 		String param = "&useraccount=" + badgeP + "&username=" + nameP + "&time=" + tiemStr + "&key=" + appkeyP
-				+ "&md5=" + allStrP+"&lossnum="+lossnum +  "&opacity=0";
+				+ "&md5=" + allStrP+"&lossnum="+lossnum;
         return customStylePicUpload.getViewUrl() + fileName + param;
     }
 }
