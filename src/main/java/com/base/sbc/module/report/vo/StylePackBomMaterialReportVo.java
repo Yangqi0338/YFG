@@ -70,6 +70,11 @@ public class StylePackBomMaterialReportVo {
      * 供应商报价供应商物料号
      */
 
+    private String materialName;
+    /**
+     * 供应商报价供应商物料号
+     */
+
     private String supplierMaterialCode;
     /**克重(g/m2)*/
     ;
