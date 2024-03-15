@@ -161,6 +161,9 @@
             <if test="dto.year != null and dto.year != ''">
                 and tsd.year = #{dto.year}
             </if>
+            <if test="dto.produceTypeName != null and dto.produceTypeName != ''">
+                and tsd.devt_type_name = #{dto.produceTypeName}
+            </if>
             <if test="dto.designNos !=null and dto.designNos.length !=0 ">
                 and
                 <foreach item="designNo" collection="dto.designNos" open="(" separator="or" close=")">
