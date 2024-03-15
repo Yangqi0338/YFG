@@ -21,11 +21,11 @@ public class StyleSizeReportVo {
      */
     private String brandName;
     /**
-     * 款图
+     * 大货款号
      */
     private String styleNo;
     /**
-     * 大货款号
+     *  款图
      */
     private String styleColorPic;
     /**

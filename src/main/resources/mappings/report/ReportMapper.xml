@@ -333,12 +333,11 @@
     </select>
 
     <select id="getStyleSizeNewReport" resultType="com.base.sbc.module.report.vo.StyleSizeReportVo">
+        select
         <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
             ${ew.sqlSelect}
         </if>
         <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
-        select
-            ts.size_ids,
             tps.standard,
             ts.brand_name,
             tsc.style_no,
