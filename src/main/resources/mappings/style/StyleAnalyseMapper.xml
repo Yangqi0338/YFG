@@ -27,7 +27,7 @@
             t.style_flavour_name, -- 款式风格
             t.size_range,
             t.size_range_name, -- 号型类型
-            t.designer,
+            (CASE WHEN t.designer != '' THEN SUBSTRING_INDEX(t.designer, ',', 1) ELSE '' END) as designer,
             t.designer_id, -- 设计师
             t.technician_name,
             t.technician_id, -- 设计工艺员
@@ -104,7 +104,7 @@
             t.style_flavour_name, -- 款式风格
             t.size_range,
             t.size_range_name, -- 号型类型
-            t.designer,
+            (CASE WHEN t.designer != '' THEN SUBSTRING_INDEX(t.designer, ',', 1) ELSE '' END) as designer,
             t.designer_id, -- 设计师
             t.technician_name,
             t.technician_id, -- 设计工艺员
