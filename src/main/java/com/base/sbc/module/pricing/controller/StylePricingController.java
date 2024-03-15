@@ -183,27 +183,27 @@ public class StylePricingController extends BaseController {
             }
             if (!StringUtils.isEmpty(dto.getWagesConfirm())){
                 if (dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("工时部已确认");
                 }
                 stylePricing.setWagesConfirm(dto.getWagesConfirm());
             }
             if (!StringUtils.isEmpty(dto.getControlConfirm())){
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("计控已确认");
                 }
                 stylePricing.setControlConfirm(dto.getControlConfirm());
                 stylePricing.setControlConfirmTime(new Date());
             }
             if (!StringUtils.isEmpty(dto.getProductHangtagConfirm())){
                 if (dto.getProductHangtagConfirm().equals(stylePricing.getProductHangtagConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("商品吊牌已确认");
                 }
                 stylePricing.setProductHangtagConfirm(dto.getProductHangtagConfirm());
                 stylePricing.setControlConfirmTime(new Date());
             }
             if (!StringUtils.isEmpty(dto.getControlHangtagConfirm())){
                 if (dto.getControlHangtagConfirm().equals(stylePricing.getControlHangtagConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("计控吊牌已确认");
                 }
                 stylePricing.setControlHangtagConfirm(dto.getControlHangtagConfirm());
                 stylePricing.setControlConfirmTime(new Date());
