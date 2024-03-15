@@ -98,7 +98,7 @@ public class DesignOrderScheduleDetailsReportVo {
     /**
      * 设计下面正确样时间逾期原因
      */
-    private String designCorrectFverdueReason;
+    private String designCorrectOverdueReason;
     /**
      * 设计下面正确样时间逾期天数
      */

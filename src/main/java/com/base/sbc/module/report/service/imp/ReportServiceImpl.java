@@ -147,10 +147,8 @@ public class ReportServiceImpl implements ReportService {
                 String standard = styleSizeReportVo.getStandard();
                 JSONObject jsonObject = JSONObject.parseObject(standard);
                 for (String key : jsonObject.keySet()) {
-                    if (key.contains("\\(")) {
+                    //if (key.contains("\\(")) {
                         String[] split = key.split("\\(");
-                        System.out.println(key);
-                        System.out.println(styleSizeReportVo.getStyleNo());
                         String s = split[1].replace(")","");
                         if (key.contains("template")) {
                             values.put("template"+s,jsonObject.getString(key));
@@ -159,9 +157,9 @@ public class ReportServiceImpl implements ReportService {
                         }else if(key.contains("washing")){
                             values.put("washing"+s,jsonObject.getString(key));
                         }
-                    }else{
+                   /* }else{
                         //FIXME 后续逻辑优化
-                    }
+                    }*/
 
                 }
                 styleSizeReportVo.setSizeMap(values);
