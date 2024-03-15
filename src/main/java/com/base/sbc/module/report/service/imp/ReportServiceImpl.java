@@ -140,26 +140,33 @@ public class ReportServiceImpl implements ReportService {
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
-        Map<String,String> values = null;
-        for (StyleSizeReportVo styleSizeReportVo : list) {
-            values =new HashMap<>();
-            String standard = styleSizeReportVo.getStandard();
-            JSONObject jsonObject = JSONObject.parseObject(standard);
-            for (String key : jsonObject.keySet()) {
-                String[] split = key.split("\\(");
-                String s = split[1].replace(")","");
-                if (key.contains("template")) {
-                    values.put("template"+s,jsonObject.getString(key));
-                }else if(key.contains("garment")){
-                    values.put("garment"+s,jsonObject.getString(key));
-                }else if(key.contains("washing")){
-                    values.put("washing"+s,jsonObject.getString(key));
+        if (!isColumnHeard) {
+            Map<String,String> values = null;
+            for (StyleSizeReportVo styleSizeReportVo : list) {
+                values =new HashMap<>();
+                String standard = styleSizeReportVo.getStandard();
+                JSONObject jsonObject = JSONObject.parseObject(standard);
+                for (String key : jsonObject.keySet()) {
+                    if (key.contains("\\(")) {
+                        String[] split = key.split("\\(");
+                        System.out.println(key);
+                        System.out.println(styleSizeReportVo.getStyleNo());
+                        String s = split[1].replace(")","");
+                        if (key.contains("template")) {
+                            values.put("template"+s,jsonObject.getString(key));
+                        }else if(key.contains("garment")){
+                            values.put("garment"+s,jsonObject.getString(key));
+                        }else if(key.contains("washing")){
+                            values.put("washing"+s,jsonObject.getString(key));
+                        }
+                    }else{
+                        //FIXME 后续逻辑优化
+                    }
+
                 }
+                styleSizeReportVo.setSizeMap(values);
             }
-            styleSizeReportVo.setSizeMap(values);
         }
-
-
 
         if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
@@ -182,30 +189,15 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public PageInfo<DesignOrderScheduleDetailsReportVo> getDesignOrderScheduleDetailsReportPage(DesignOrderScheduleDetailsQueryDto dto) {
-        /**面料详单*/
-        //最晚投产时间根据年份波段取值 默认最晚投产时间都为 当前时间 将所有投产时间存为map集合
-        
-
-        //"0.先判断投产时间是否超出最晚投产时间。如果没超出就读取配置表首单，超出了就读取新增天数
-        //1.设计下面料详单时间有值时：逾期时长=设计下明细单时间-投产时间-大部屋时间规则
-        //2.设计下面料详单时间无值时：逾期时长=当前时间-投产时间-大部屋时间规则【负数显示无延期】"
-
-        /**明细单*/
-        //"取值：逾期时长=设计下明细单时间-投产时间-大部屋时间规则
-        //（例如：明细单7天完成100%）"
-        //取值：逾期时长=设计下明细单时间-投产时间-大部屋时间规则
-        /**正确样*/
-        //"取值：逾期时长=设计下正确样时间-投产时间-大部屋时间规则
-        //（例如：正确样12天完成100%）"
         BaseQueryWrapper<DesignOrderScheduleDetailsReportVo> qw = new BaseQueryWrapper<>();
-        qw.eq("tsc.del_flag" , "0");
+        qw.eq("tsc.del_flag", "0");
         qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<DesignOrderScheduleDetailsReportVo> list = reportMapper.getDesignOrderScheduleDetailsReport(qw);
 
         QueryWrapper<LatestCommissioningDate> objectQueryWrapper = new QueryWrapper<>();
-        objectQueryWrapper.eq("del_flag",0);
+        objectQueryWrapper.eq("del_flag", 0);
         List<LatestCommissioningDate> latestCommissioningDateList = commissioningDateService.list(objectQueryWrapper);
 
         //转成Map
@@ -215,126 +207,154 @@ public class ReportServiceImpl implements ReportService {
 
 
         for (DesignOrderScheduleDetailsReportVo report : list) {
+            String seasonName = report.getSeasonName();
             //订货本投产时间
             Date commissioningDate = report.getCommissioningDate();
-            //TODO 如果投产时间为空 默认为当前时间 （测试） 记得删除
-            if (commissioningDate == null) {
-                commissioningDate = new Date();
-            }
 
             String brandName = report.getBrandName();
             String year = report.getYear();
             String bandName = report.getBandName();
-            //根据key获取最晚投产日期
+
             LatestCommissioningDate latestCommissioningDate = latestCommissioningDateMap.get(brandName + year + bandName);
-            //TODO 如果为null 就不进行判断 测试完删除
-            Date lastDate = null;
-            if (latestCommissioningDate == null) {
-                lastDate = new Date();
-            } else {
-                lastDate = latestCommissioningDate.getLatestCommissioningDate();
-            }
-
-            //设计下面料详单
-            Date sendMainFabricDate = report.getSendMainFabricDate();
-            if (sendMainFabricDate == null) {
-                sendMainFabricDate = new Date();
-            }
-
-            //比较面料详单和投产日期
-            //1.如果面料详单日期比投产日期小为不延期
-            int fabricCompare = DateUtil.compare(sendMainFabricDate,commissioningDate);
-            if (fabricCompare == 1 || fabricCompare == 0) {
-                //判断投产日期和最晚投产日期
-                int compare = DateUtil.compare(lastDate,commissioningDate);
-                if (compare == 1) {
-                    //超出 新增 2天
-                    //0.先判断投产时间是否超出最晚投产时间。如果没超出就读取配置表首单，超出了就读取新增天数
-                    long betweenDay = DateUtil.between(sendMainFabricDate, commissioningDate, DateUnit.DAY);
-                    if (betweenDay > 2) {
-                        report.setSendMainFabricDay((betweenDay - 2)+"");
-                    }else{
-                        report.setSendMainFabricDay("不延期");
-                    }
-                }else {
-                    //首单（没超出也是首单）
-                    long betweenDay = DateUtil.between(sendMainFabricDate, commissioningDate, DateUnit.DAY);
-                    if (betweenDay > 6) {
-                        report.setSendMainFabricDay((betweenDay - 6)+"");
-                    }else{
-                        report.setSendMainFabricDay("不延期");
-                    }
+            if (latestCommissioningDate != null) {
+                Date lastDate = null;
+                if (latestCommissioningDate == null) {
+                    lastDate = new Date();
+                } else {
+                    lastDate = latestCommissioningDate.getLatestCommissioningDate();
                 }
-            }else {
-                report.setSendMainFabricDay("不延期");
-            }
 
-            //设计下明细单
-            Date designDetailDate = report.getDesignDetailDate();
-            if (designDetailDate == null) {
-                designDetailDate = new Date();
-            }
-
-            int designDetailCompare = DateUtil.compare(designDetailDate,commissioningDate);
-            if (designDetailCompare == 1 || designDetailCompare == 0) {
-                //判断投产日期和最晚投产日期
-                int compare = DateUtil.compare(lastDate,commissioningDate);
-                if (compare == 1) {
-                    //超出 新增 2天
-                    //0.先判断投产时间是否超出最晚投产时间。如果没超出就读取配置表首单，超出了就读取新增天数
-                    long betweenDay = DateUtil.between(designDetailDate, commissioningDate, DateUnit.DAY);
-                    if (betweenDay > 2) {
-                        report.setDesignDetailDay((betweenDay - 2)+"");
-                    }else{
-                        report.setDesignDetailDay("不延期");
-                    }
-                }else {
-                    //首单（没超出也是首单）
-                    long betweenDay = DateUtil.between(designDetailDate, commissioningDate, DateUnit.DAY);
-                    if (betweenDay > 6) {
-                        report.setDesignDetailDay((betweenDay - 6)+"");
-                    }else{
-                        report.setDesignDetailDay("不延期");
-                    }
+                /**面料详单*/
+                Date sendMainFabricDate = report.getSendMainFabricDate();
+                if (sendMainFabricDate == null) {
+                    sendMainFabricDate = new Date();
                 }
-            }else {
-                report.setDesignDetailDay("不延期");
-            }
 
-            //设计下正确样细单
-            Date designCorrectDate = report.getDesignCorrectDate();
-            if (designCorrectDate == null) {
-                designCorrectDate = new Date();
-            }
-            int designCorrectCompare = DateUtil.compare(designCorrectDate,commissioningDate);
-
-            if (designCorrectCompare == 1 || designCorrectCompare == 0) {
-                //判断投产日期和最晚投产日期
-                int compare = DateUtil.compare(lastDate,commissioningDate);
-                if (compare == 1) {
-                    //超出 新增 2天
-                    //0.先判断投产时间是否超出最晚投产时间。如果没超出就读取配置表首单，超出了就读取新增天数
-                    long betweenDay = DateUtil.between(designCorrectDate, commissioningDate, DateUnit.DAY);
-                    if (betweenDay > 2) {
-                        report.setDesignCorrectDay((betweenDay - 2)+"");
-                    }else{
-                        report.setDesignCorrectDay("不延期");
+                //比较面料详单和投产日期
+                //1.如果面料详单日期比投产日期小为不延期
+                int fabricCompare = DateUtil.compare(sendMainFabricDate, commissioningDate);
+                if (fabricCompare == 1 || fabricCompare == 0) {
+                    int compare = DateUtil.compare(lastDate, commissioningDate);
+                    if (compare == 1) {
+                        long betweenDay = DateUtil.between(sendMainFabricDate, commissioningDate, DateUnit.DAY);
+                        if (betweenDay > 2) {
+                            report.setSendMainFabricDay((betweenDay - 2) + "");
+                        } else {
+                            report.setSendMainFabricDay("不延期");
+                        }
+                    } else {
+                        //首单（没超出也是首单）
+                        long betweenDay = DateUtil.between(sendMainFabricDate, commissioningDate, DateUnit.DAY);
+                        if (betweenDay > 6) {
+                            report.setSendMainFabricDay((betweenDay - 6) + "");
+                        } else {
+                            report.setSendMainFabricDay("不延期");
+                        }
                     }
-                }else {
-                    //首单（没超出也是首单）
-                    long betweenDay = DateUtil.between(designCorrectDate, commissioningDate, DateUnit.DAY);
-                    if (betweenDay > 6) {
-                        report.setDesignCorrectDay((betweenDay - 6)+"");
-                    }else{
-                        report.setDesignCorrectDay("不延期");
-                    }
+                } else {
+                    report.setSendMainFabricDay("不延期");
                 }
-            }else {
-                report.setDesignCorrectDay("不延期");
+
+                /**明细单*/
+                Date designDetailDate = report.getDesignDetailDate();
+                if (designDetailDate == null) {
+                    designDetailDate = new Date();
+                }
+
+                int designDetailCompare = DateUtil.compare(designDetailDate, commissioningDate);
+                if (designDetailCompare == 1 || designDetailCompare == 0) {
+                    int compare = DateUtil.compare(lastDate, commissioningDate);
+                    if (compare == 1) {
+                        long betweenDay = DateUtil.between(designDetailDate, commissioningDate, DateUnit.DAY);
+                        if (betweenDay > 2) {
+                            report.setDesignDetailDay((betweenDay - 2) + "");
+                        } else {
+                            report.setDesignDetailDay("不延期");
+                        }
+                    } else {
+                        long betweenDay = DateUtil.between(designDetailDate, commissioningDate, DateUnit.DAY);
+                        if (betweenDay > 6) {
+                            report.setDesignDetailDay((betweenDay - 6) + "");
+                        } else {
+                            report.setDesignDetailDay("不延期");
+                        }
+                    }
+                } else {
+                    report.setDesignDetailDay("不延期");
+                }
+
+                /**正确样*/
+                Date designCorrectDate = report.getDesignCorrectDate();
+                if (designCorrectDate == null) {
+                    designCorrectDate = new Date();
+                }
+                int designCorrectCompare = DateUtil.compare(designCorrectDate, commissioningDate);
+
+                if (designCorrectCompare == 1 || designCorrectCompare == 0) {
+                    int compare = DateUtil.compare(lastDate, commissioningDate);
+                    if (compare == 1) {
+                        long betweenDay = DateUtil.between(designCorrectDate, commissioningDate, DateUnit.DAY);
+                        if ("春".equals(seasonName)) {
+                            if (betweenDay > 12) {
+                                report.setDesignCorrectDay((betweenDay - 12) + "");
+                            } else {
+                                report.setDesignCorrectDay("不延期");
+                            }
+                        } else if ("夏".equals(seasonName)) {
+                            if (betweenDay > 12) {
+                                report.setDesignCorrectDay((betweenDay - 12) + "");
+                            } else {
+                                report.setDesignCorrectDay("不延期");
+                            }
+                        } else if ("秋".equals(seasonName)) {
+                            if (betweenDay > 16) {
+                                report.setDesignCorrectDay((betweenDay - 16) + "");
+                            } else {
+                                report.setDesignCorrectDay("不延期");
+                            }
+                        } else if ("冬".equals(seasonName)) {
+                            if (betweenDay > 20) {
+                                report.setDesignCorrectDay((betweenDay - 20) + "");
+                            } else {
+                                report.setDesignCorrectDay("不延期");
+                            }
+                        }
+
+                    } else {
+                        long betweenDay = DateUtil.between(designCorrectDate, commissioningDate, DateUnit.DAY);
+                        if ("春".equals(seasonName)) {
+                            if (betweenDay > 12) {
+                                report.setDesignCorrectDay((betweenDay - 12) + "");
+                            } else {
+                                report.setDesignCorrectDay("不延期");
+                            }
+                        } else if ("夏".equals(seasonName)) {
+                            if (betweenDay > 12) {
+                                report.setDesignCorrectDay((betweenDay - 12) + "");
+                            } else {
+                                report.setDesignCorrectDay("不延期");
+                            }
+                        } else if ("秋".equals(seasonName)) {
+                            if (betweenDay > 16) {
+                                report.setDesignCorrectDay((betweenDay - 16) + "");
+                            } else {
+                                report.setDesignCorrectDay("不延期");
+                            }
+                        } else if ("冬".equals(seasonName)) {
+                            if (betweenDay > 20) {
+                                report.setDesignCorrectDay((betweenDay - 20) + "");
+                            } else {
+                                report.setDesignCorrectDay("不延期");
+                            }
+                        }
+                    }
+                } else {
+                    report.setDesignCorrectDay("不延期");
+                }
             }
         }
-        
-        
+
+
         if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
         }

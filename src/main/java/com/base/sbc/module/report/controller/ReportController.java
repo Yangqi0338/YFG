@@ -61,7 +61,7 @@ public class ReportController {
 
     @ApiOperation(value = "供应商材料报价报表-导出")
     @GetMapping("/materialSupplierQuoteExport")
-    public void stylePackBomMaterialExport(HttpServletResponse response,MaterialSupplierQuoteQueryDto dto) throws IOException {
+    public void materialSupplierQuoteExport(HttpServletResponse response,MaterialSupplierQuoteQueryDto dto) throws IOException {
         reportService.materialSupplierQuoteExport(response,dto);
     }
 
@@ -97,8 +97,8 @@ public class ReportController {
     }
     @ApiOperation(value = "电商充绒量报表-导出")
     @GetMapping("/hangTagReportExport")
-    public PageInfo<HangTagReportVo> hangTagReportExport(HangTagReportQueryDto dto) {
-        return reportService.getHangTagReortPage(dto);
+    public void hangTagReportExport(HttpServletResponse response,HangTagReportQueryDto dto) throws IOException{
+         reportService.hangTagReortExport(response,dto);
     }
 
     @ApiOperation(value = "设计下单进度明细报表")

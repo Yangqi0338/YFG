@@ -497,7 +497,7 @@ public class ExcelUtils {
             if (StrUtil.isNotEmpty(columnDefine.getDictType())) {
                 JSONArray jsonArray = JSONArray.parseArray(columnDefine.getDictType());
                 String[] replace = new String[jsonArray.size() + 1];
-                replace[jsonArray.size() + 1] = "_null";
+                replace[jsonArray.size() ] = "_null";
                 for (int i = 0; i < jsonArray.size(); i++) {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     String label = jsonObject.getString("label");

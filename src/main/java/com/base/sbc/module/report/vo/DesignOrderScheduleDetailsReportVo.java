@@ -36,6 +36,14 @@ public class DesignOrderScheduleDetailsReportVo {
      */
     private String year;
     /**
+     * 年份
+     */
+    private String seasonName;
+    /**
+     * 年份
+     */
+    private String season;
+    /**
      * 设计师
      */
     private String designerName;

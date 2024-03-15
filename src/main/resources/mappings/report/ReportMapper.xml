@@ -189,6 +189,7 @@
         <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             tsc.id,
             ts.year,
+            ts.season_name,
             tsc.devt_type_name,
             case when ts.band_name is not null then CONCAT(SUBSTRING(ts.band_name,1,length(ts.band_name) -1),'月')  else '' end as `month`,
             ts.brand_name,
