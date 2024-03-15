@@ -65,6 +65,8 @@ import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
@@ -75,6 +77,13 @@ import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.planning.entity.PlanningSeason;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
+import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
+import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
@@ -162,11 +171,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Lazy
     private PlanningProjectPlankService planningProjectPlankService;
 
+
     @Autowired
     private StylePicUtils stylePicUtils;
 
-    @Autowired
-    private StyleColorService styleColorService;
 
     private final FieldManagementService fieldManagementService;
 
@@ -220,6 +228,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private BasicsdatumColourLibraryAgentService colourLibraryAgentService;
 
+    @Resource
+    @Lazy
+    private  OrderBookDetailService orderBookDetailService;
 
     Pattern pattern = Pattern.compile("[a-z||A-Z]");
 
@@ -901,6 +912,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     .eq(StyleColor::getId, styleColor.getId());
             this.update(null, updateWrapper);
 
+            if ("0".equals(addRevampStyleColorDto.getOrderFlag())){
+                planningProjectPlankService.unMatchByBulkStyleNo(styleColor.getStyleNo());
+            }
             StyleColor styleColor1 = this.getById(styleColor.getId());
 
             this.saveOperaLog("修改", "款式配色", styleColor.getColorName(), styleColor.getStyleNo(), styleColor1, old);
@@ -1158,6 +1172,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
           /*  if (!updateStyleNoBandDto.getStyleNo().substring(0, 1).equals(sampleStyleColor.getStyleNo().substring(0, 1))) {
                 throw new OtherException("无法修改大货款号前1位");
             }*/
+            if ("1".equals(sampleStyleColor.getScmSendFlag())){
+                throw new OtherException("大货款号已下发,无法修改");
+            }
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("style_no", updateStyleNo);
             StyleColor styleColor = baseMapper.selectOne(queryWrapper);
@@ -1427,7 +1444,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         } else {
             updateWrapper.set("order_date", null);
+            for (String id : ids) {
+                StyleColor styleColor = this.getById(id);
+                planningProjectPlankService.unMatchByBulkStyleNo(styleColor.getStyleNo());
+            }
         }
+
+
 
         updateWrapper.set("order_flag", publicStyleColorDto.getOrderFlag());
         updateWrapper.in("id", ids);
@@ -1441,10 +1464,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             StyleColor styleColor = new StyleColor();
             styleColor.setId(id);
             styleColor.setTagPrice(tagPrice);
-            styleColor.updateInit();
-            super.updateById(styleColor);
+            boolean b = super.updateById(styleColor);
             /*重新下发配色*/
-            dataUpdateScmService.updateStyleColorSendById(id);
+            if (b){
+                dataUpdateScmService.updateStyleColorSendById(id);
+            }
         }
     }
 
@@ -1517,6 +1541,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         dto.setForeignId(id);
         dto.setDataGroup(FieldValDataGroupConstant.STYLE_COLOR);
         return styleService.queryDimensionLabels(dto);
+    }
+
+    @Override
+    public List<FieldVal> ListDynamicDataByIds(List<String> ids) {
+        if (ids==null || ids.isEmpty()){
+            return new ArrayList<>();
+        }
+        QueryWrapper<FieldVal> fieldValQueryWrapper =new QueryWrapper<>();
+        fieldValQueryWrapper.in("foreign_id", ids);
+        return fieldValService.list(fieldValQueryWrapper);
     }
 
     /**
@@ -1603,7 +1637,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         return true;
     }
-
     /**
      * 款式列表导出
      *
@@ -1743,7 +1776,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
     /**
-     * 复制配色
+     * 查询已下单的配色
      *
      * @param dto
      * @return
@@ -1764,25 +1797,34 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("field_name",fieldManagement.getFieldName());
-        queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_COLOR);
+        queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_MARKING_ORDER);
         queryWrapper.select("foreign_id");
 
         List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
-        List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
-//        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
+        List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).filter(StrUtil::isNotBlank).collect(Collectors.toList());
 
-
-//        List<StyleColor> list1 = styleColorService.list(styleColorBaseQueryWrapper);
-//        List<String> styleColorIds1 = list1.stream().map(StyleColor::getId).collect(Collectors.toList());
-//        styleColorIds1.addAll(styleColorIds);
+        //查询已下单的配色id
+        QueryWrapper<OrderBookDetail> queryWrapper2 =new QueryWrapper<>();
+        if (styleColorIds.isEmpty()){
+            return new PageInfo<>(new ArrayList<>());
+        }
+        queryWrapper2.in("style_color_id",styleColorIds);
+        queryWrapper2.select("style_color_id");
+        List<OrderBookDetail> list1 = orderBookDetailService.list(queryWrapper2);
+        List<String> list2 = list1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
 
         BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
         styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
         styleQueryWrapper.eq("ts.prod_category1st",dto.getProdCategory1st());
         styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
         styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
-        styleQueryWrapper.eq("tsc.order_flag", "1");
-        styleQueryWrapper.in("tsc.id",styleColorIds);
+        styleQueryWrapper.in("tsc.id",list2);
+        if (StringUtils.isNotBlank(dto.getSearch())){
+            styleQueryWrapper.and(wrapper -> {
+                wrapper.like("tsc.style_no",dto.getSearch());
+                wrapper.or().like("ts.design_no",dto.getSearch());
+            });
+        }
         if (!list.isEmpty()) {
             List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
             styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);

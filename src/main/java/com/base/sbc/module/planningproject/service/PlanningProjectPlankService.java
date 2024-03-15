@@ -6,6 +6,7 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.github.pagehelper.PageInfo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,4 +16,14 @@ import java.util.Map;
  */
 public interface PlanningProjectPlankService extends BaseService<PlanningProjectPlank> {
     Map<String,Object> ListByDto(PlanningProjectPlankPageDto dto);
+
+    /**
+     * 坑位匹配
+     */
+    void match( List<PlanningProjectPlankVo> list);
+
+    /**
+     * 根据大货款号取消匹配
+     */
+    void unMatchByBulkStyleNo(String bulkStyleNo);
 }

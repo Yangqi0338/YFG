@@ -3,6 +3,9 @@ package com.base.sbc.module.planningproject.vo;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlankDimension;
+import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.tablecolumn.entity.TableColumn;
 import com.base.sbc.module.tablecolumn.vo.TableColumnVo;
 import io.swagger.annotations.ApiModelProperty;
@@ -50,11 +53,21 @@ public class PlanningProjectPlankVo extends PlanningProjectPlank {
     /** 是否开启中类(0:未开启,1:开启) */
     @ApiModelProperty(value = "是否开启中类(0:未开启,1:开启)"  )
     private String isProdCategory2nd;
+    /**
+     * 是否是虚拟坑位
+     */
+    @ApiModelProperty(value = "是否是虚拟坑位(1:是,0:否"  )
+    private String isVirtual;
 
     private List<FieldManagementVo> fieldManagementVos;
 
+    private List<FieldManagementVo> oldFieldManagementVos;
+
+    private StyleColorVo oldStyleColor;
     /**
      * 表头列
      */
     private List<TableColumnVo> columnVos;
+
+    private List<PlanningProjectPlankDimension> dimensionList;
 }

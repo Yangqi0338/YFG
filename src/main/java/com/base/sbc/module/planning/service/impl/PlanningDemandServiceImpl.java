@@ -30,6 +30,7 @@ import com.base.sbc.module.formtype.entity.FormType;
 import com.base.sbc.module.formtype.mapper.FieldManagementMapper;
 import com.base.sbc.module.formtype.mapper.FieldOptionConfigMapper;
 import com.base.sbc.module.formtype.mapper.FormTypeMapper;
+import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
@@ -50,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
@@ -91,6 +93,8 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     private PlanningChannelService planningChannelService;
     @Autowired
     private PlanningDimensionalityService planningDimensionalityService;
+    @Resource
+    private FieldManagementService fieldManagementService;
 
     @Override
     public List<PlanningDemandVo> getDemandListById(Principal user, QueryDemandDto queryDemandDimensionalityDto) {
@@ -249,8 +253,10 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     }
 
     @Override
-    @Transactional(readOnly = false)
+    @Transactional(rollbackFor = Exception.class)
     public ApiResult saveDel(List<SaveDelDemandDto> saveDelDemandDto) {
+        this.checkMutex(saveDelDemandDto.get(0));
+
         /*查询已存在的*/
         BaseQueryWrapper<PlanningDemand> queryWrapper = new BaseQueryWrapper<>();
         if (StrUtil.isNotBlank(saveDelDemandDto.get(0).getProdCategory2nd())) {
@@ -448,22 +454,32 @@ public class PlanningDemandServiceImpl extends BaseServiceImpl<PlanningDemandMap
     public void checkMutex(CheckMutexDto checkMutexDto) {
         //品类和中类互斥,当前如果是中类,查询是否存在品类,如果是品类,查询是否存在中类
         BaseQueryWrapper<PlanningDimensionality> queryWrapper = new BaseQueryWrapper<>();
-        queryWrapper.eq(StrUtil.isNotBlank(checkMutexDto.getPlanningSeasonId()),"planning_season_id", checkMutexDto.getPlanningSeasonId());
+        queryWrapper.eq("planning_season_id", checkMutexDto.getPlanningSeasonId());
+        // queryWrapper.eq("planning_channel_id", checkMutexDto.getPlanningChannelId());
         queryWrapper.eq("channel", checkMutexDto.getChannel());
         queryWrapper.eq("prod_category", checkMutexDto.getProdCategory());
-        queryWrapper.eq("coefficient_flag",BaseGlobal.YES);
+        queryWrapper.eq("coefficient_flag",BaseGlobal.YES);;
+        queryWrapper.select("field_id");
+        String err;
         if (StrUtil.isNotBlank(checkMutexDto.getProdCategory2nd())) {
             queryWrapper.isNullStr("prod_category2nd");
-            long count = planningDimensionalityService.count(queryWrapper);
-            if (count>0) {
-                throw new OtherException("已存在品类维度");
-            }
+            err="已存在品类维度";
         } else {
-            queryWrapper.isNotNull("prod_category2nd");
-            queryWrapper.ne("prod_category2nd", "");
-            long count = planningDimensionalityService.count(queryWrapper);
-            if (count>0) {
-                throw new OtherException("已存在中类维度");
+            queryWrapper.isNotNullStr("prod_category2nd");
+            err="已存在中类维度";
+
+        }
+        List<PlanningDimensionality> list = planningDimensionalityService.list(queryWrapper);
+        if (!list.isEmpty()){
+            List<String> list1 = list.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+            if (!list1.isEmpty()){
+                BaseQueryWrapper<FieldManagement> queryWrapper1 =new BaseQueryWrapper<>();
+                queryWrapper1.in("id", list1);
+                queryWrapper1.isNotNullStr("group_name");
+                long count = fieldManagementService.count(queryWrapper1);
+                if (count>0) {
+                    throw new OtherException(err);
+                }
             }
         }
     }

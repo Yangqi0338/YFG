@@ -64,6 +64,8 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             this.ge(!StringUtils.isEmpty(strings[0]), column, strings[0]);
             if (strings.length > 1) {
                 return this.and(i -> i.le(!StringUtils.isEmpty(strings[1]), column, strings[1]));
+            }else {
+                return this.and(i -> i.le(!StringUtils.isEmpty(strings[0]), column, strings[0]));
             }
         }
         return this;
@@ -167,6 +169,19 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             return this.isNotNull(columns);
         }
         return this;
+    }
+
+    /**
+     * 模糊搜索一个字段为集合
+     * @param columns
+     * @param val
+     * @return
+     */
+    public QueryWrapper<T> likeList(String columns, String val) {
+       if (StringUtils.isEmpty(val)){
+           return this;
+       }
+       return this.likeList(columns, StrUtil.split(val, CharUtil.COMMA));
     }
 
     /**
