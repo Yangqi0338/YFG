@@ -1113,10 +1113,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Override
     public StyleSummaryVo categoryBandSummary(Principal user, PlanningBoardSearchDto dto) {
-        GroupUser userBy = userUtils.getUserBy(user);
+        // GroupUser userBy = userUtils.getUserBy(user);
         StyleSummaryVo vo = new StyleSummaryVo();
         // 查询波段统计
-        QueryWrapper brandTotalQw = new QueryWrapper();
+        BaseQueryWrapper brandTotalQw = new BaseQueryWrapper();
         brandTotalQw.select("sd.band_name as name,count(1) as total");
         brandTotalQw.groupBy("sd.band_name");
         dataPermissionsService.getDataPermissionsForQw(brandTotalQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
@@ -1125,7 +1125,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         vo.setXList(PlanningUtils.removeEmptyAndSort(bandTotal));
 
         // 查询品类统计
-        QueryWrapper categoryQw = new QueryWrapper();
+        BaseQueryWrapper categoryQw = new BaseQueryWrapper();
         categoryQw.select("prod_category_name as name,count(1) as total");
         categoryQw.groupBy("prod_category_name");
         dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
@@ -1133,7 +1133,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
         vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         // 查询明细
-        QueryWrapper detailQw = new QueryWrapper();
+        BaseQueryWrapper detailQw = new BaseQueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
@@ -1188,27 +1188,27 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
 
         // 设计需求数
-        QueryWrapper<CategoryStylePlanningVo> drsQw = new QueryWrapper<>();
+        BaseQueryWrapper<CategoryStylePlanningVo> drsQw = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(drsQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(drsQw, dto);
         Long designRequirementSkc = getBaseMapper().colorCount(drsQw);
         vo.setDesignRequirementSkc(designRequirementSkc);
         // 已下稿 款式设计中已下发打版的款式数量
-        QueryWrapper<Style> snQueryWrapper = new QueryWrapper<>();
+        BaseQueryWrapper<Style> snQueryWrapper = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(snQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(snQueryWrapper, dto);
         snQueryWrapper.eq("sd.status", 2);
         Long scriptedNum = getBaseMapper().colorCount(snQueryWrapper);
         vo.setScriptedNum(scriptedNum);
         // 打版完成 样衣看板初版样 纸样需求日期不为空的款式数量
-        QueryWrapper<Style> pmicnQueryWrapper = new QueryWrapper<>();
+        BaseQueryWrapper<Style> pmicnQueryWrapper = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(pmicnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         pmicnQueryWrapper.isNotNull("p.pattern_req_date");
         stylePlanningCommonQw(pmicnQueryWrapper, dto);
         Long patternMakingIsCompleteNum = getBaseMapper().colorCount(pmicnQueryWrapper);
         vo.setPatternMakingIsCompleteNum(patternMakingIsCompleteNum);
         // 样衣制作 样衣看板初版样 样衣需求日期不为空的款式数量
-        QueryWrapper<Style> smnQueryWrapper = new QueryWrapper<>();
+        BaseQueryWrapper<Style> smnQueryWrapper = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(smnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         smnQueryWrapper.isNotNull("p.demand_finish_date");
         stylePlanningCommonQw(smnQueryWrapper, dto);
@@ -1821,10 +1821,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.eq(StrUtil.isNotBlank(vo.getProdCategoryName()), "prod_category_name", vo.getProdCategoryName());
     }
 
-    private void stylePlanningCommonQw(QueryWrapper<?> qw, PlanningBoardSearchDto dto) {
+    private void stylePlanningCommonQw(BaseQueryWrapper<?> qw, PlanningBoardSearchDto dto) {
         qw.eq("sd." + COMPANY_CODE, getCompanyCode());
-        qw.in(ObjectUtil.isNotEmpty(dto.getDesignerIds()), "sd.designer_id", Arrays.asList(dto.getDesignerIds().split(",")));
-        qw.in(ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()), "tfv.val", Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")));
+        qw.notEmptyIn("sd.designer_id",dto.getDesignerIds());
+        qw.notEmptyIn("tfv.val", dto.getFabricsUnderTheDrafts());
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
@@ -2233,6 +2233,53 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
         return true;
+    }
+
+    @Override
+    public StyleSummaryVo categoryBandSummaryAddDimension(Principal user, PlanningBoardSearchDto dto) {
+        StyleSummaryVo vo = new StyleSummaryVo();
+        // 查询波段统计
+        BaseQueryWrapper brandTotalQw = new BaseQueryWrapper();
+        brandTotalQw.select("sd.band_name as name,count(1) as total");
+        brandTotalQw.groupBy("sd.band_name");
+        dataPermissionsService.getDataPermissionsForQw(brandTotalQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
+        stylePlanningCommonQw(brandTotalQw, dto);
+        List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
+        vo.setXList(PlanningUtils.removeEmptyAndSort(bandTotal));
+
+        // 查询品类统计
+        BaseQueryWrapper categoryQw = new BaseQueryWrapper();
+        categoryQw.select("prod_category_name as name,count(1) as total");
+        categoryQw.groupBy("prod_category_name");
+        dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
+        stylePlanningCommonQw(categoryQw, dto);
+        List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
+        vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
+        // 查询明细
+        BaseQueryWrapper detailQw = new BaseQueryWrapper();
+        dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
+        stylePlanningCommonQw(detailQw, dto);
+        List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw);
+        // for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
+        //     DimensionLabelsSearchDto dimensionLabelsSearchDto=new DimensionLabelsSearchDto();
+        //     dimensionLabelsSearchDto.setForeignId(planningSummaryDetailVo.getId());
+        //     List<FieldManagementVo> list=new ArrayList<>();
+        //     Map<String, List<FieldManagementVo>> stringListMap = this.queryCoefficientByStyle(dimensionLabelsSearchDto);
+        //     for (Map.Entry<String, List<FieldManagementVo>> stringListEntry : stringListMap.entrySet()) {
+        //         list.addAll(stringListEntry.getValue());
+        //     }
+        //     planningSummaryDetailVo.setFieldManagementVoList(list);
+        //
+        // }
+        if (CollUtil.isNotEmpty(detailVoList)) {
+            amcFeignService.setUserAvatarToList(detailVoList);
+            stylePicUtils.setStylePic(detailVoList, "stylePic");
+            Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getBandName() + StrUtil.DASHED + k.getProdCategoryName()));
+            vo.setXyData(seatData);
+        }
+
+
+        return vo;
     }
 
 }

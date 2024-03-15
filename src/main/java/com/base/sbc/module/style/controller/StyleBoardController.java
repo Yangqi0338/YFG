@@ -4,6 +4,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
+import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.CategoryStylePlanningVo;
 import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
@@ -21,6 +22,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：款式看板相关接口
@@ -44,6 +46,13 @@ public class StyleBoardController {
     @GetMapping("/categoryBandSummary")
     public StyleSummaryVo categoryBandSummary(Principal user, @Valid PlanningBoardSearchDto dto) {
         return styleService.categoryBandSummary(user, dto);
+    }
+
+
+    @ApiOperation(value = "品类波段汇总带维度", notes = "")
+    @GetMapping("/categoryBandSummaryAddDimension")
+    public StyleSummaryVo categoryBandSummaryAddDimension(Principal user, @Valid PlanningBoardSearchDto dto) {
+        return styleService.categoryBandSummaryAddDimension(user, dto);
     }
 
     @ApiOperation(value = "品类数据汇总", notes = "")

@@ -87,7 +87,7 @@
     </select>
     <select id="categoryBandSummary" resultType="com.base.sbc.module.planning.vo.PlanningSummaryDetailVo">
         SELECT
-        id,
+        sd.id,
         prod_category_name,
         design_no,
         his_design_no,

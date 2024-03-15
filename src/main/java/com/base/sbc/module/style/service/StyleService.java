@@ -285,5 +285,7 @@ public interface StyleService extends BaseService<Style> {
      * @return
      */
     boolean saveCoefficient(List<FieldVal> fieldValList,String styleId);
+
+    StyleSummaryVo categoryBandSummaryAddDimension(Principal user, PlanningBoardSearchDto dto);
 }
 
