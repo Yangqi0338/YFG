@@ -3,6 +3,8 @@ package com.base.sbc.module.report.vo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * 设计下单进度明细报表
  */
@@ -30,6 +32,10 @@ public class DesignOrderScheduleDetailsReportVo {
      */
     private String yearSeason;
     /**
+     * 年份
+     */
+    private String year;
+    /**
      * 设计师
      */
     private String designerName;
@@ -52,11 +58,11 @@ public class DesignOrderScheduleDetailsReportVo {
     /**
      * 投产时间
      */
-    private String commissioningDate;
+    private Date commissioningDate;
     /**
      * 设计下面料详单时间
      */
-    private String sendMainFabricDate;
+    private Date sendMainFabricDate;
     /**
      * 设计下面料详单逾期原因
      */
@@ -68,7 +74,7 @@ public class DesignOrderScheduleDetailsReportVo {
     /**
      * 设计下明细单时间
      */
-    private String designDetailDate;
+    private Date designDetailDate;
     /**
      * 设计下明细单逾期原因
      */
@@ -80,7 +86,7 @@ public class DesignOrderScheduleDetailsReportVo {
     /**
      * 设计下面正确样时间
      */
-    private String designCorrectDate;
+    private Date designCorrectDate;
     /**
      * 设计下面正确样时间逾期原因
      */
