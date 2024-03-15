@@ -38,7 +38,6 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<HangTagReportVo> getHangTagReortPage(HangTagReportQueryDto dto) {
         BaseQueryWrapper<HangTagReportQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
-        qw.notEmptyIn("t.bulk_style_no" , dto.getStyleColorNos());
         qw.orderByDesc("t.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
@@ -125,33 +124,11 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public PageInfo<StyleSizeReportVo> getStyleSizeReportPage(StyleSizeQueryDto dto) {
         BaseQueryWrapper<StyleSizeReportVo> qw = new BaseQueryWrapper<>();
-        qw.eq("t.del_flag" , "0");
-        qw.eq("tpsd.pack_type" , "packBigGoods");
-        qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
-        qw.notEmptyEq("ts.year" , dto.getYear());
-        qw.orderByDesc("tsc.create_date");
-        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
-        PageHelper.startPage(dto);
-        List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
-
-        if (CollUtil.isEmpty(list)) {
-            return new PageInfo<>(list);
-        }
-        if (isColumnHeard) {
-            return new PageInfo<>(list);
-        }
-        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
-        return new PageInfo<>(list);
-    }
-
-    @Override
-    public PageInfo<StyleSizeReportVo> getStyleSizeReportNewPage(StyleSizeQueryDto dto) {
-        BaseQueryWrapper<StyleSizeReportVo> qw = new BaseQueryWrapper<>();
         qw.eq("ts.del_flag" , "0");
         qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
-        List<StyleSizeReportVo> list = reportMapper.getStyleSizeNewReport(qw);
+        List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
         Map<String,String> values = null;
         for (StyleSizeReportVo styleSizeReportVo : list) {
             values =new HashMap<>();
@@ -183,6 +160,7 @@ public class ReportServiceImpl implements ReportService {
         return new PageInfo<>(list);
     }
 
+
     @Override
     public void styleSizeExport(HttpServletResponse response, StyleSizeQueryDto dto) throws IOException {
         dto.setPageNum(0);
@@ -195,7 +173,6 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<DesignOrderScheduleDetailsReportVo> getDesignOrderScheduleDetailsReportPage(DesignOrderScheduleDetailsQueryDto dto) {
         BaseQueryWrapper<DesignOrderScheduleDetailsReportVo> qw = new BaseQueryWrapper<>();
         qw.eq("tsc.del_flag" , "0");
-        qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
         qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);

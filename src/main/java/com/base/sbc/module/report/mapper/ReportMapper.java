@@ -22,6 +22,5 @@ public interface ReportMapper{
     List<StylePackBomMaterialReportVo> getStylePackBomListReport(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
     List<StyleSizeReportVo> getStyleSizeReport(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
     List<DesignOrderScheduleDetailsReportVo> getDesignOrderScheduleDetailsReport(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
-    List<StyleSizeReportVo> getStyleSizeNewReport(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 }
 

@@ -46,11 +46,6 @@ public interface ReportService {
      * @return
      */
     PageInfo<StyleSizeReportVo> getStyleSizeReportPage(StyleSizeQueryDto dto);
-    /**
-     * 尺寸报表- 优化
-     * @return
-     */
-    PageInfo<StyleSizeReportVo> getStyleSizeReportNewPage(StyleSizeQueryDto dto);
 
     /**
      * 尺寸报表-导出

@@ -80,13 +80,7 @@ public class ReportController {
     @ApiOperation(value = "尺寸查询报表")
     @GetMapping("/styleSizeReport")
     public PageInfo<StyleSizeReportVo> findStyleSize(StyleSizeQueryDto dto) {
-        return reportService.getStyleSizeReportNewPage(dto);
-    }
-
-    @ApiOperation(value = "尺寸查询报表-优化")
-    @GetMapping("/styleSizeNewReport")
-    public PageInfo<StyleSizeReportVo> styleSizeNewReport(StyleSizeQueryDto dto) {
-        return reportService.getStyleSizeReportNewPage(dto);
+        return reportService.getStyleSizeReportPage(dto);
     }
 
     @ApiOperation(value = "尺寸查询报表-导出")
