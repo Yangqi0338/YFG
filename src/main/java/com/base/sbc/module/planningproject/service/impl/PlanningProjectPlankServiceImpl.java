@@ -10,7 +10,9 @@ import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
@@ -57,6 +59,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     private final PlanningProjectDimensionService planningProjectDimensionService;
     private final PlanningProjectPlankDimensionService planningProjectPlankDimensionService;
     private final PlanningDimensionalityService planningDimensionalityService;
+    private final FieldManagementService fieldManagementService;
     @Resource
     @Lazy
     private  PlanningProjectService planningProjectService ;
@@ -143,8 +146,10 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 dimensionLabelsSearchDto.setProdCategory2nd(planningProjectPlankVo.getProdCategory2ndCode());
             }
             List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.getDimensionalityList(dimensionLabelsSearchDto).getPlanningDimensionalities();
-
-
+            //查询字段管理配置
+            List<String> fieldManagementIds = planningDimensionalities.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+            List<FieldManagement> fieldManagements = fieldManagementService.listByIds(fieldManagementIds);
+            Map<String, FieldManagement> fieldManagementMap = fieldManagements.stream().collect(Collectors.toMap(FieldManagement::getId, f -> f));
 
             //获取维度列表
             QueryWrapper<PlanningProjectPlankDimension> dimensionQueryWrapper = new QueryWrapper<>();
@@ -154,12 +159,13 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             List<PlanningProjectPlankDimension> list2=new ArrayList<>();
             Map<String, PlanningProjectPlankDimension> plankDimensionMap = list1.stream().collect(Collectors.toMap(PlanningProjectPlankDimension::getDimensionName, planningProjectPlankDimension -> planningProjectPlankDimension));
             for (PlanningDimensionality planningDimensionality : planningDimensionalities) {
-
                 PlanningProjectPlankDimension planningProjectPlankDimension = plankDimensionMap.get(planningDimensionality.getDimensionalityName());
                 if (planningProjectPlankDimension == null){
                     planningProjectPlankDimension=new PlanningProjectPlankDimension();
                     planningProjectPlankDimension.setPlanningProjectPlankId(planningProjectPlankVo.getId());
-
+                    planningProjectPlankDimension.setDimensionName(planningDimensionality.getDimensionalityName());
+                    planningProjectPlankDimension.setDimensionalityGrade(planningDimensionality.getDimensionalityGrade());
+                    planningProjectPlankDimension.setDimensionalityGradeName(planningDimensionality.getDimensionalityGradeName());
                     //如果没有编辑就从配色取,
                     for (FieldVal fieldVal : fieldValList) {
                         String styleColorId;
@@ -173,12 +179,13 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         }
                         if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(styleColorId) && planningDimensionality.getDimensionalityName().equals(fieldVal.getFieldExplain())){
                             planningProjectPlankDimension.setDimensionCode(fieldVal.getFieldName());
-                            planningProjectPlankDimension.setDimensionName(fieldVal.getFieldExplain());
                             planningProjectPlankDimension.setDimensionValue(fieldVal.getVal());
                             break;
                         }
                     }
                 }
+                FieldManagement fieldManagement = fieldManagementMap.get(planningDimensionality.getFieldId());
+                planningProjectPlankDimension.setFieldManagement(fieldManagement);
                 list2.add(planningProjectPlankDimension);
             }
 

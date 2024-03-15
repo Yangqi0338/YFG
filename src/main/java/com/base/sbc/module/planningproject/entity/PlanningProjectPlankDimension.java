@@ -1,7 +1,9 @@
 package com.base.sbc.module.planningproject.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.formtype.entity.FieldManagement;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -32,5 +34,14 @@ public class PlanningProjectPlankDimension extends BaseDataEntity<String> {
     /** 维度值 */
     @ApiModelProperty(value = "维度值"  )
     private String dimensionValue;
+    /** 维度等级 */
+    @ApiModelProperty(value = "维度等级"  )
+    private String dimensionalityGrade;
+    /** 维度等级名称 */
+    @ApiModelProperty(value = "维度等级名称"  )
+    private String dimensionalityGradeName;
+
+    @TableField(exist = false)
+    private FieldManagement fieldManagement;
 
 }
