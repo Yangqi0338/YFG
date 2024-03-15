@@ -4,6 +4,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.annotation.FieldDisplay;
 import com.base.sbc.config.common.annotation.UserAvatar;
+import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -136,4 +137,7 @@ public class PlanningSummaryDetailVo {
     }
     @ApiModelProperty(value = "维度信息")
     private Map<String,String> dimension;
+
+    @ApiModelProperty(value = "维度信息列表")
+    private List<FieldManagementVo> fieldManagementVoList;
 }
