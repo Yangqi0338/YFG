@@ -24,7 +24,7 @@ public class LatestCommissioningDateExcel {
     @Excel(name = "波段名称"  )
     private String bandName;
     /** 最晚投产日期 */
-    @Excel(name = "最晚投产日期",exportFormat = "yyyy-MM-dd")
+    @Excel(name = "最晚投产日期",format = "yyyy-MM-dd")
     private Date latestCommissioningDate;
 
 }
