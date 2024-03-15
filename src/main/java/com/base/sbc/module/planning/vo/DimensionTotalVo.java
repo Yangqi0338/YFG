@@ -20,4 +20,6 @@ public class DimensionTotalVo {
     private String name;
     @ApiModelProperty(value = "数量", example = "2")
     private Long total;
+    @ApiModelProperty(value = "数量2", example = "2")
+    private Long total2;
 }

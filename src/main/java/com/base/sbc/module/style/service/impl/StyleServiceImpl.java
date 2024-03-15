@@ -13,9 +13,9 @@ import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -2412,6 +2412,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Override
     public StyleSummaryVo categoryBandSummaryAddDimension(Principal user, PlanningBoardSearchDto dto) {
+
+        //查询季节企划
+        BaseQueryWrapper<SeasonalPlanning> queryWrapper=new BaseQueryWrapper<>();
+        queryWrapper.eq("season_id", dto.getPlanningSeasonId());
+        queryWrapper.notEmptyEq("channel_code",dto.getChannel());
+        queryWrapper.select("id","data_json");
+        List<SeasonalPlanning> seasonalPlanningList = seasonalPlanningService.list(queryWrapper);
+
+
         StyleSummaryVo vo = new StyleSummaryVo();
         // 查询波段统计
         BaseQueryWrapper brandTotalQw = new BaseQueryWrapper();
@@ -2420,7 +2429,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         dataPermissionsService.getDataPermissionsForQw(brandTotalQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw);
-        vo.setXList(PlanningUtils.removeEmptyAndSort(bandTotal));
+        List<DimensionTotalVo> dimensionTotalVos = PlanningUtils.removeEmptyAndSort(bandTotal);
+        for (DimensionTotalVo dimensionTotalVo : dimensionTotalVos) {
+            long l = 0L;
+            for (SeasonalPlanning seasonalPlanning : seasonalPlanningList) {
+                l = l + this.getBandCount(dimensionTotalVo.getName(), seasonalPlanning.getDataJson(),dto.getProdCategory());
+            }
+            dimensionTotalVo.setTotal2(l);
+        }
+        vo.setXList(dimensionTotalVos);
 
         // 查询品类统计
         BaseQueryWrapper categoryQw = new BaseQueryWrapper();
@@ -2429,6 +2446,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw);
+        for (DimensionTotalVo dimensionTotalVo : categoryTotal) {
+            long l = 0L;
+            for (SeasonalPlanning seasonalPlanning : seasonalPlanningList) {
+                l = l + this.getCategoryCount(dimensionTotalVo.getName(), seasonalPlanning.getDataJson());
+            }
+            dimensionTotalVo.setTotal2(l);
+        }
         vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         // 查询明细
         BaseQueryWrapper detailQw = new BaseQueryWrapper();
@@ -2446,17 +2470,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
             planningSummaryDetailVo.setFieldValList(fieldVals);
         }
-        // for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
-        //     DimensionLabelsSearchDto dimensionLabelsSearchDto=new DimensionLabelsSearchDto();
-        //     dimensionLabelsSearchDto.setForeignId(planningSummaryDetailVo.getId());
-        //     List<FieldManagementVo> list=new ArrayList<>();
-        //     Map<String, List<FieldManagementVo>> stringListMap = this.queryCoefficientByStyle(dimensionLabelsSearchDto);
-        //     for (Map.Entry<String, List<FieldManagementVo>> stringListEntry : stringListMap.entrySet()) {
-        //         list.addAll(stringListEntry.getValue());
-        //     }
-        //     planningSummaryDetailVo.setFieldManagementVoList(list);
-        //
-        // }
+
         if (CollUtil.isNotEmpty(detailVoList)) {
             amcFeignService.setUserAvatarToList(detailVoList);
             stylePicUtils.setStylePic(detailVoList, "stylePic");
@@ -2466,6 +2480,102 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
 
         return vo;
+    }
+
+    /**
+     * 根据品类名称获取数量
+     */
+    private long getCategoryCount(String prodCategoryName, String dataJson) {
+        long l = 0;
+        if(StrUtil.isEmpty(dataJson)){
+            return l;
+        }
+        com.alibaba.fastjson.JSONArray jsonArray = JSON.parseArray(dataJson);
+        if (jsonArray.isEmpty()){
+            return l;
+        }
+        //获取合计的列索引
+        String index="0";
+        JSONObject jsonObject1 = jsonArray.getJSONObject(1);
+        for (String s : jsonObject1.keySet()) {
+            if ("合计".equals(jsonObject1.get(s))){
+                index=s;
+            }
+        }
+
+
+        //上一级不为空的品类名称
+        String parentCategoryName = null;
+        for (int i = 5; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String string = jsonObject.getString("1");
+            if (StrUtil.isNotEmpty(string) && !"/".equals(string) && !"\\".equals(string)) {
+                parentCategoryName = string;
+            } else {
+                string = parentCategoryName;
+            }
+            if (prodCategoryName.equals(string)) {
+                l = l + jsonObject.getLong(index);
+            }
+        }
+
+
+        return l;
+    }
+
+
+    /**
+     * 根据波段获取数量
+     */
+    private long getBandCount(String bandCode, String dataJson,String prodCategory) {
+        long l = 0;
+        if(StrUtil.isEmpty(dataJson)){
+            return l;
+        }
+        com.alibaba.fastjson.JSONArray jsonArray = JSON.parseArray(dataJson);
+        if (jsonArray.isEmpty()){
+            return l;
+        }
+        JSONObject jsonObject1 = jsonArray.getJSONObject(1);
+        if (jsonObject1.isEmpty()){
+            return l;
+        }
+        //获取波段索引
+        int bandIndex=0;
+        for (String s : jsonObject1.keySet()) {
+            if (bandCode.equals(jsonObject1.getString(s))){
+                bandIndex=Integer.parseInt(s);
+            }
+        }
+        if (bandIndex==0){
+            return l;
+        }
+
+        //上一级不为空的品类名称
+        String parentCategoryName = null;
+        for (int i = 5; i < jsonArray.size(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            String string = jsonObject.getString("1");
+            // 合计行不计算
+            if ("合计".equals(jsonObject.getString("2"))){
+                continue;
+            }
+            if (StrUtil.isNotEmpty(string) && !"/".equals(string) && !"\\".equals(string)) {
+                parentCategoryName = string;
+            } else {
+                string = parentCategoryName;
+            }
+            if (StrUtil.isNotBlank(prodCategory)) {
+                if (prodCategory.equals(string)) {
+                    l = l + jsonObject.getLong(String.valueOf(bandIndex));
+                    l = l + jsonObject.getLong(String.valueOf(bandIndex + 1));
+                }
+            } else {
+                l = l + jsonObject.getLong(String.valueOf(bandIndex));
+                l = l + jsonObject.getLong(String.valueOf(bandIndex + 1));
+            }
+        }
+        return l;
     }
 
 }
