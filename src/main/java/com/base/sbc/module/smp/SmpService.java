@@ -2,6 +2,7 @@ package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -47,6 +48,7 @@ import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -78,6 +80,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HANG_TAG_PRICING_LINE;
 
 
@@ -824,7 +827,8 @@ public class SmpService {
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
 
-
+        //bom主表
+        List<PackInfo> packInfoList = packInfoService.listByIds(list.stream().map(PackBom::getForeignId).collect(Collectors.toList()));
         for (PackBom packBom : list) {
             /*判断物料是否是代用材料的编码
             * 代用材料编码：0000*/
@@ -834,7 +838,7 @@ public class SmpService {
 
 
             //bom主表
-            PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+            PackInfo packInfo = packInfoList.stream().filter(it -> it.getId().equals(packBom.getForeignId())).findFirst().get();
             if (StringUtils.isEmpty(packInfo.getStyleNo())) {
                 throw new OtherException(packBom.getMaterialName() + "未关联大货(配色)信息,无法下发");
             }
@@ -928,6 +932,26 @@ public class SmpService {
         if (styleColor != null) {
             this.goods(new String[]{styleColor.getId()});
         }
+
+        String value = list.stream().map(PackBom::getMaterialCodeName).collect(Collectors.joining("\n"));
+        String packType = list.stream().map(PackBom::getPackType).distinct().collect(Collectors.joining(COMMA));
+        // 3093 添加日志
+        packInfoList.stream().findFirst().ifPresent(packInfo-> {
+            com.alibaba.fastjson2.JSONArray jsonArray = new com.alibaba.fastjson2.JSONArray();
+            OperaLogEntity log = new OperaLogEntity();
+            log.setType("下发同步");
+            log.setName("物料清单");
+            log.setPath(packType);
+            log.setParentId(packInfo.getForeignId());
+            com.alibaba.fastjson2.JSONObject jsonObject = new com.alibaba.fastjson2.JSONObject();
+            jsonObject.put("name", "物料名称");
+            jsonObject.put("oldStr", "");
+            jsonObject.put("newStr", value);
+            jsonArray.add(jsonObject);
+            log.setJsonContent(jsonArray.toJSONString());
+            log.setPath(packType);
+            packInfoService.saveOperaLog(log);
+        });
 
         return i;
     }
