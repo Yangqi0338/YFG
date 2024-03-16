@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.report.mapper.StyleAnalyseMapper">
+
+    <select id="findDesignPage" resultType="com.base.sbc.module.report.vo.StyleAnalyseVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            t.id,
+            t.design_no, -- 设计款号
+            t.style_pic, -- 设计款图
+            t.brand,
+            t.brand_name,-- 品牌
+            t.year,
+            t.year_name, -- 年份
+            t.season,
+            t.season_name, -- 季节
+            t.month,
+            t.month_name, -- 月份
+            t.band_code,
+            t.band_name, -- 波段
+            t.positioning,
+            t.positioning_name, -- 款式定位
+            t.style_flavour,
+            t.style_flavour_name, -- 款式风格
+            t.size_range,
+            t.size_range_name, -- 号型类型
+            (CASE WHEN t.designer != '' THEN SUBSTRING_INDEX(t.designer, ',', 1) ELSE '' END) as designer,
+            t.designer_id, -- 设计师
+            t.technician_name,
+            t.technician_id, -- 设计工艺员
+            t.fab_develope_id,
+            t.fab_develope_name, -- 材料专员
+            t.pattern_design_id,
+            t.pattern_design_name, -- 版师
+            t.pat_diff_name,
+            t.pat_diff, -- 打版难度
+            t.style_unit,
+            t.style_unit_code, -- 款式单位
+            t.style_type,
+            t.style_type_name, -- 款式类型
+            t.prod_category1st,
+            t.prod_category1st_name, -- 大类
+            t.prod_category,
+            t.prod_category_name, -- 品类
+            t.prod_category2nd,
+            t.prod_category2nd_name, -- 中类
+            t.prod_category3rd,
+            t.prod_category3rd_name, -- 小类
+            t.dev_class,
+            t.dev_class_name, -- 开发分类
+            t.style_origin,
+            t.style_origin_name, -- 款式来源
+            t.devt_type,
+            t.devt_type_name, -- 生产类型
+            t.registering_no, -- 套版款号
+            t.sales_type,
+            t.sales_type_name, -- 销售渠道
+            t.create_date
+        </if>
+        FROM t_style t
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="findPageField" resultType="com.base.sbc.module.report.vo.StyleAnalyseVo">
+        SELECT tfv.val_name,
+               COUNT(tfv.id) groupCount
+        FROM t_field_val tfv
+                 INNER JOIN t_style t on tfv.foreign_id = t.id and t.del_flag = '0'
+        <where>
+            ${ew.sqlSegment}
+            and tfv.data_group = #{dataGroup}
+            and tfv.field_name = #{fieldName}
+        </where>
+        GROUP BY field_name,
+                 val_name
+    </select>
+
+    <select id="findStylePage" resultType="com.base.sbc.module.report.vo.StyleAnalyseVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            t.id,
+            sc.id styleColorId,
+            t.design_no, -- 设计款号
+            t.style_pic, -- 设计款图
+            t.brand,
+            t.brand_name,-- 品牌
+            t.year,
+            t.year_name, -- 年份
+            t.season,
+            t.season_name, -- 季节
+            t.month,
+            t.month_name, -- 月份
+            t.band_code,
+            t.band_name, -- 波段
+            t.positioning,
+            t.positioning_name, -- 款式定位
+            t.style_flavour,
+            t.style_flavour_name, -- 款式风格
+            t.size_range,
+            t.size_range_name, -- 号型类型
+            (CASE WHEN t.designer != '' THEN SUBSTRING_INDEX(t.designer, ',', 1) ELSE '' END) as designer,
+            t.designer_id, -- 设计师
+            t.technician_name,
+            t.technician_id, -- 设计工艺员
+            t.fab_develope_id,
+            t.fab_develope_name, -- 材料专员
+            t.pattern_design_id,
+            t.pattern_design_name, -- 版师
+            t.pat_diff_name,
+            t.pat_diff, -- 打版难度
+            t.style_unit,
+            t.style_unit_code, -- 款式单位
+            t.style_type,
+            t.style_type_name, -- 款式类型
+            t.prod_category1st,
+            t.prod_category1st_name, -- 大类
+            t.prod_category,
+            t.prod_category_name, -- 品类
+            t.prod_category2nd,
+            t.prod_category2nd_name, -- 中类
+            t.prod_category3rd,
+            t.prod_category3rd_name, -- 小类
+            t.dev_class,
+            t.dev_class_name, -- 开发分类
+            t.style_origin,
+            t.style_origin_name, -- 款式来源
+            t.devt_type,
+            t.devt_type_name, -- 生产类型
+            t.registering_no, -- 套版款号
+            t.sales_type,
+            t.sales_type_name, -- 销售渠道
+            sc.band_code styleBandCode,
+            sc.band_name styleBandName, -- 大货波段
+            sc.style_no, -- 大货款号
+            sc.style_color_pic -- 大货款图
+        </if>
+        FROM t_style t
+        INNER JOIN t_style_color sc on sc.style_id = t.id and sc.del_flag = '0'
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

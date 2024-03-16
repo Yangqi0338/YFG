@@ -196,34 +196,45 @@
 	</select>
 
 	<select id="getBasicsdatumMaterialAndStyleList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageAndStyleVo">
-		select * from (
-						  SELECT tpb.color as materialsColor,
-								 tpb.translate as materialsSpec,
-								 tpb.image_url as materialsImageUrl,
-								 tbs.supplier_abbreviation as supperSampleName,
-								 concat(ts.year, ts.season_name, ts.brand_name) as planningSeason,
-								 ts.prod_category1st_name as prodCategory1stName,
-								 ts.prod_category_name as prodCategoryName,
-								 tsc.style_no as bulkNo,
-								 tsc.design_no as designNo,
-								 tsc.color_specification as styleColor,
-								 tpb.material_code as materialsCode,
-								 ts.style_pic as stylePic,
-								 tsc.style_color_pic as styleColorPic,
-								 tsc.bom_status as bomStatus,
-								 tpb.id as packBomId,
-								 tbm.category_id,
-								 tbm.category1_code,
-								 tbm.category2_code,
-								 tbm.category3_code,
-								 IF(tsc.bom_status = 0, '样品', '大货') as bomPhase
-						  FROM t_style_color tsc
-								   INNER JOIN t_style ts ON tsc.style_id = ts.id and ts.del_flag = 0
-								   INNER JOIN t_pack_info tpi ON ts.id = tpi.foreign_id and tsc.id = tpi.style_color_id and tpi.DEL_FLAG = 0
-								   INNER JOIN t_pack_bom tpb ON tpb.foreign_id = tpi.id and tpb.del_flag = 0
-								   INNER JOIN t_basicsdatum_material tbm ON tpb.material_id = tbm.id and tbm.DEL_FLAG = 0
-								   INNER JOIN t_pack_bom_version tpbv ON tpb.bom_version_id = tpbv.id AND tpb.foreign_id = tpbv.foreign_id AND tpbv.status = 1 and tpbv.DEL_FLAG = 0 AND IF(tsc.bom_status = 0, 'packDesign', 'packBigGoods') = tpbv.pack_type
-								   LEFT JOIN  t_basicsdatum_supplier tbs  ON tpb.supplier_id = tbs.supplier_code ) t
+		select
+			<if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+				${ew.sqlSelect}
+			</if>
+			<if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+				*
+			</if>
+		from (SELECT tpb.color                                      as materialsColor,
+					 tpb.translate                                  as materialsSpec,
+					 tpb.image_url                                  as materialsImageUrl,
+					 tbs.supplier_abbreviation                      as supperSampleName,
+					 concat(ts.year, ts.season_name, ts.brand_name) as planningSeason,
+					 ts.prod_category1st_name                       as prodCategory1stName,
+					 ts.prod_category_name                          as prodCategoryName,
+					 tsc.style_no                                   as bulkNo,
+					 tsc.design_no                                  as designNo,
+					 tsc.color_specification                        as styleColor,
+					 tpb.material_code                              as materialsCode,
+					 ts.style_pic                                   as stylePic,
+					 tsc.style_color_pic                            as styleColorPic,
+					 tsc.bom_status                                 as bomStatus,
+					 tpb.id                                         as packBomId,
+					 ts.id 											as styleId,
+					 tbm.category_id,
+					 tbm.category1_code,
+					 tbm.category2_code,
+					 tbm.category3_code,
+					 IF(tsc.bom_status = 0, '样品', '大货')         	as bomPhase
+			  FROM t_style_color tsc
+					   INNER JOIN t_style ts ON tsc.style_id = ts.id and ts.del_flag = 0
+					   INNER JOIN t_pack_info tpi
+								  ON ts.id = tpi.foreign_id and tsc.id = tpi.style_color_id and tpi.DEL_FLAG = 0
+					   INNER JOIN t_pack_bom tpb ON tpb.foreign_id = tpi.id and tpb.del_flag = 0
+					   INNER JOIN t_basicsdatum_material tbm ON tpb.material_id = tbm.id and tbm.DEL_FLAG = 0
+					   INNER JOIN t_pack_bom_version tpbv
+								  ON tpb.bom_version_id = tpbv.id AND tpb.foreign_id = tpbv.foreign_id AND
+									 tpbv.status = 1 and tpbv.DEL_FLAG = 0 AND
+									 IF(tsc.bom_status = 0, 'packDesign', 'packBigGoods') = tpbv.pack_type
+					   LEFT JOIN t_basicsdatum_supplier tbs ON tpb.supplier_id = tbs.supplier_code) t
 			${ew.customSqlSegment}
 	</select>
 

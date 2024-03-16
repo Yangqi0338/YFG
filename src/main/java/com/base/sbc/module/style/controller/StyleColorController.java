@@ -200,8 +200,8 @@ public class StyleColorController {
 
 	@ApiOperation(value = "配色增加复制功能")
 	@PostMapping("/copyStyleColor")
-	public Boolean copyStyleColor(@Valid @RequestBody IdDto idDto, Principal user) {
-		return styleColorService.copyStyleColor(idDto, user);
+	public Boolean copyStyleColor(@Valid @RequestBody IdDto idDto) {
+		return styleColorService.copyStyleColor(idDto);
 	}
 
 	@ApiOperation(value = "/款式列表导出")
@@ -255,6 +255,12 @@ public class StyleColorController {
 		return styleColorService.markingCheckPage(dto);
 	}
 
+	@ApiOperation(value = "保存配色逾期原因")
+	@PostMapping("/saveOverdueReason")
+	public ApiResult saveCorrectBarCode(@Valid @RequestBody StyleColorOverdueReasonDto styleColorOverdueReasonDto) {
+		styleColorService.updateStyleColorOverdueReason(styleColorOverdueReasonDto);
+		return ApiResult.success();
+	}
 	@ApiOperation(value = "mango导出Excel模板")
 	@GetMapping("/mangoExportExcel")
 	public void exportExcel(HttpServletResponse response) throws Exception {

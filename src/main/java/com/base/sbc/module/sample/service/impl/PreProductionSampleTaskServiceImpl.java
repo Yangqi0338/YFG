@@ -202,6 +202,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     public PageInfo<PreProductionSampleTaskVo> taskList(PreProductionSampleTaskSearchDto dto) {
         BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
         qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
@@ -240,6 +241,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             if(objects.toPageInfo().getList().size() >2000){
                 throw new OtherException("带图片最多只能导出2000条");
             }
+            return objects.toPageInfo();
+        }
+        if (isColumnHeard) {
             return objects.toPageInfo();
         }
         // 设置图
