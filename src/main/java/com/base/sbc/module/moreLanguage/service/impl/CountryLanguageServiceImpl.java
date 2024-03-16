@@ -175,7 +175,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         /* ----------------------------保存---------------------------- */
 
         // 查名字
-        List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList(DictBusinessConstant.LANGUAGE);
+        List<BasicBaseDict> dictInfoToList = new ArrayList<>();
         // 查询当前数据库的隐藏标准列
         StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
         List<StandardColumnDto> notShowStandardColumnList = standardColumnService.listQuery(queryDto);
@@ -259,7 +259,10 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                         relationService.saveBatch(countryRelationList);
 
                         List<String> newRelationList = handlerStandardColumnCodeList.stream().filter(it -> !existRelationStandardColumnList.contains(it)).collect(Collectors.toList());
-                        if (CollectionUtil.isNotEmpty(newRelationList)) {
+                        if (CollectionUtil.isNotEmpty(newRelationList) && !cache) {
+                            if (CollUtil.isEmpty(dictInfoToList)) {
+                                dictInfoToList.addAll(ccmFeignService.getDictInfoToList(DictBusinessConstant.LANGUAGE));
+                            }
                             // 检查新增是否有单语言翻译, 拿过来
                             String languageId = this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                                             .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES)
