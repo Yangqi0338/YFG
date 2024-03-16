@@ -164,7 +164,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
 
         List<OrderBook> orderBookList = orderBookService.list(new LambdaQueryWrapper<OrderBook>()
-                .eq(OrderBook::getId, orderBookDetailVos.stream().map(OrderBookDetailVo::getOrderBookId).collect(Collectors.toList())));
+                .in(OrderBook::getId, orderBookDetailVos.stream().map(OrderBookDetailVo::getOrderBookId).collect(Collectors.toList())));
         /*设置图片分辨路*/
         stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
         stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
