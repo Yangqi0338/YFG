@@ -7,6 +7,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.func.Consumer3;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -24,6 +25,7 @@ import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
@@ -914,6 +916,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             });
 
             dto.setCalculateSizeMap(calculateSizeMap);
+
+            dto.setType(dtoDetailList.stream().filter(it-> it.getType() != null).min((it1, it2) ->
+                    NumberUtil.compare(it1.getType().ordinal(), it2.getType().ordinal())
+            ).map(StyleSaleIntoDto::getType).orElse(null));
         });
         System.out.println("装饰详细的投产销售 time:" + (System.currentTimeMillis() - millis));
         return result;

@@ -48,13 +48,12 @@ public class StyleSaleIntoDto {
      */
     @ApiModelProperty(value = "是否正价")
     @JsonIgnore
-    private boolean correctValue;
+    private Boolean correctValue;
 
     /**
      * 款式投产类型
      */
     @ApiModelProperty(value = "款式投产类型")
-    @JsonIgnore
     private StylePutIntoType type;
 
     /**
