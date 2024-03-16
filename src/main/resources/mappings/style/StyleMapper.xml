@@ -76,9 +76,15 @@
     </select>
     <select id="dimensionTotal" resultType="com.base.sbc.module.planning.vo.DimensionTotalVo">
         select ${ew.sqlSelect} from t_style sd
-        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY"
         where
         sd.del_flag ='0'
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            exists(select 1 from t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
         and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
         and sd.band_code is not null and sd.band_code &lt;&gt; ''
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
@@ -105,6 +111,13 @@
         WHERE
         sd.del_flag = '0'
         AND sd.del_flag = '0'
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            exists(select 1 from t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
         and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
         and sd.band_code is not null and sd.band_code &lt;&gt; ''
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
@@ -121,12 +134,18 @@
         FROM
         t_style sd
         LEFT JOIN t_style_color c ON ( sd.id = c.style_id )
-        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY"
         WHERE
         sd.del_flag = '0'
         and prod_category1st is not null and prod_category1st!=''
         and prod_category is not null and prod_category!=''
         and prod_category2nd is not null and prod_category2nd!=''
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            exists(select 1 from t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -145,9 +164,15 @@
         FROM
         t_style sd
         LEFT JOIN t_pattern_making p ON ( sd.id = p.style_id ) and p.del_flag = 0 and p.disable_flag = 0 and p.sample_type = "初版样"
-        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY"
         WHERE
         sd.del_flag ='0'
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            exists(select 1 from t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>

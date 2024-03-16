@@ -35,16 +35,40 @@ public class StyleBoardCategorySummaryVo {
     private String prodCategory2nd;
 
     /**
-     * 企划数量
+     * 线上企划是否合并（0-否 1-是）
      */
-    @ApiModelProperty(value = "企划数量", example = "10")
-    private Long planningNum;
+    @ApiModelProperty(value = "线上企划是否合并（0-否 1-是）", example = "0")
+    private Integer onlinePlanningIsMerge;
+
+    /**
+     * 线上企划数量
+     */
+    @ApiModelProperty(value = "线上企划数量", example = "10")
+    private Long onlinePlanningNum;
+
+    /**
+     * 线下企划是否合并（0-否 1-是）
+     */
+    @ApiModelProperty(value = "线下企划是否合并（0-否 1-是）", example = "0")
+    private Integer offlinePlanningIsMerge;
+
+    /**
+     * 线下企划数量
+     */
+    @ApiModelProperty(value = "线下企划数量", example = "10")
+    private Long offlinePlanningNum;
 
     /**
      * 开款数量
      */
     @ApiModelProperty(value = "开款数量", example = "10")
     private Long scriptedNum;
+
+    /**
+     * 缺口总数
+     */
+    @ApiModelProperty(value = "缺口总数", example = "10")
+    private Long gapsNum;
 
     /**
      * 中类数量
@@ -58,9 +82,4 @@ public class StyleBoardCategorySummaryVo {
     @ApiModelProperty(value = "大类数量", example = "10")
     private Long total;
 
-    /**
-     * 品类汇总数据类型（1-SKC 2-线上企划需求数 3-线下企划需求数）
-     */
-    @ApiModelProperty(value = "品类汇总数据类型（1-SKC 2-线上企划需求数 3-线下企划需求数）", example = "1")
-    private Integer type;
 }

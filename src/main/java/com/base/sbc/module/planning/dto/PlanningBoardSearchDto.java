@@ -30,12 +30,17 @@ public class PlanningBoardSearchDto {
     @ApiModelProperty(value = "月份", required = false, example = "01")
     private String month;
 
-    @ApiModelProperty(value = "波段", required = false, example = "1A")
+    @ApiModelProperty(value = "波段", required = false, example = "1")
     private String bandCode;
+
+    @ApiModelProperty(value = "波段名称", required = false, example = "1A")
+    private String bandName;
 
     @ApiModelProperty(value = "品类", required = false, example = "a1")
     private String prodCategory;
 
+    @ApiModelProperty(value = "品类名称", required = false, example = "a1")
+    private String prodCategoryName;
 
     @ApiModelProperty(value = "中类code")
     private String prodCategory2nd;

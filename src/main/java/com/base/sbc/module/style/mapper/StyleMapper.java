@@ -52,13 +52,13 @@ public interface StyleMapper extends BaseMapper<Style> {
      **/
     List<PatternMakingForSampleVo> getAllList(String status);
 
-    List<DimensionTotalVo> dimensionTotal(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<DimensionTotalVo> dimensionTotal(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
-    List<PlanningSummaryDetailVo> categoryBandSummary(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<PlanningSummaryDetailVo> categoryBandSummary(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
-    List<StyleBoardCategorySummaryVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<StyleBoardCategorySummaryVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
-    Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw);
+    Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
     String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
 
