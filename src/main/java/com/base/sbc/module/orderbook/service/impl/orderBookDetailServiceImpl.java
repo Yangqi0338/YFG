@@ -313,7 +313,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     List<String> sizeRange = pageConfig.getSizeRange();
                     if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
                         sizeRange.forEach(size-> {
-                            jsonObject.put(size+ channel.getFill() + "Status", orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0": "1");
+                            String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
+                            jsonObject.put(size+ channel.getFill() + "Status", status);
+                            jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
                         });
                     };
                 });
