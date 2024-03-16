@@ -24,6 +24,12 @@ import static com.base.sbc.config.constant.Constants.COMMA;
 public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
 
     /**
+     * 款式Id
+     */
+    @ApiModelProperty(value = "款式Id")
+    private String styleId;
+
+    /**
      * 款式配色图
      */
     @ApiModelProperty(value = "款式配色图")

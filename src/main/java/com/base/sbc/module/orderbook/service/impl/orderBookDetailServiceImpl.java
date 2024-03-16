@@ -850,6 +850,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         dtoList.forEach(dto-> {
             styleColorList.stream().filter(it-> it.getStyleNo().equals(dto.getBulkStyleNo())).findFirst().ifPresent(styleColor -> {
                 dto.setStyleColorPic(styleColor.getStyleColorPic());
+                dto.setStyleId(styleColor.getStyleId());
             });
         });
         // 设置款图
