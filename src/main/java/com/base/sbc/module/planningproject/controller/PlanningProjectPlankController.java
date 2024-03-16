@@ -47,6 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -326,24 +327,47 @@ public class PlanningProjectPlankController extends BaseController {
      */
     @ApiOperation(value = "获取维度字段卡片")
     @GetMapping("/getDimensionFieldCard")
-    public ApiResult getDimensionFieldCard(DimensionLabelsSearchDto dto){
+    public ApiResult getDimensionFieldCard(DimensionLabelsSearchDto dto,String names){
         List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.getDimensionalityList(dto).getPlanningDimensionalities();
         List<FieldDisplayVo> fieldDisplayVoList = planningDimensionalities.stream().map(planningDimensionality -> {
             FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
-            fieldDisplayVo.setField(planningDimensionality.getDimensionalityName());
             fieldDisplayVo.setName(planningDimensionality.getDimensionalityName());
             fieldDisplayVo.setField(planningDimensionality.getId());
-            //设置是否显示
-            String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ planningDimensionality.getDimensionalityName();
-            if (redisUtils.hasKey(key)) {
-                fieldDisplayVo.setDisplay("1".equals(redisUtils.get(key)));
-            }else {
-                fieldDisplayVo.setDisplay(true);
-            }
             return fieldDisplayVo;
         }).collect(Collectors.toList());
+        List<FieldDisplayVo> list=new ArrayList<>();
+        //额外的字段
+        if (StringUtils.isNotBlank(names)){
+            for (String s : names.split(",")) {
+                FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
+                fieldDisplayVo.setField(s);
+                fieldDisplayVo.setName(s);
+                list.add(fieldDisplayVo);
+            }
+        }
+        list.addAll(fieldDisplayVoList);
+        for (int i = 0; i < list.size(); i++) {
+            FieldDisplayVo displayVo = list.get(i);
+            //设置是否显示
+            String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ displayVo.getField();
+            if (redisUtils.hasKey(key)) {
+                displayVo.setDisplay("1".equals(redisUtils.get(key)));
+            }else {
+                displayVo.setDisplay(true);
+            }
 
-        return selectSuccess(fieldDisplayVoList);
+            //设置排序
+            String sort = "planningProjectPlank:dimensionFieldCard:sort:" +this.getUserId()+":"+ displayVo.getField();
+            if (redisUtils.hasKey(sort)) {
+                displayVo.setSort(String.valueOf(redisUtils.get(sort)));
+            }
+            if (StringUtils.isBlank(displayVo.getSort())){
+                displayVo.setSort(i+"");
+            }
+        }
+
+
+        return selectSuccess(list);
     }
 
     /**
@@ -355,6 +379,9 @@ public class PlanningProjectPlankController extends BaseController {
         fieldDisplayVoList.forEach(fieldDisplayVo -> {
             String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ fieldDisplayVo.getField();
             redisUtils.set(key,fieldDisplayVo.isDisplay()?"1":"0");
+            String sort = "planningProjectPlank:dimensionFieldCard:sort:" +this.getUserId()+":"+ fieldDisplayVo.getField();
+            redisUtils.set(sort,fieldDisplayVo.getSort());
+
         });
         return updateSuccess("设置成功");
     }
