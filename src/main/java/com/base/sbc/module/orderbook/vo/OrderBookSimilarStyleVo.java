@@ -56,7 +56,6 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
      * 线上总投产
      */
     @ApiModelProperty(value = "线上总投产")
-
     public BigDecimal getOnlineTotalInto() {
         return BigDecimal.valueOf(
                 calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO)
@@ -73,7 +72,6 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
      * 线上总销售
      */
     @ApiModelProperty(value = "线上总销售")
-
     public BigDecimal getOnlineTotalSale(){
         return BigDecimal.valueOf(
                 calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE)
@@ -90,7 +88,6 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
      * 线下总投产
      */
     @ApiModelProperty(value = "线下总投产")
-
     public BigDecimal getOfflineTotalInto(){
         return BigDecimal.valueOf(
                 calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO)
@@ -107,7 +104,6 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
      * 线下总销售
      */
     @ApiModelProperty(value = "线下总销售")
-
     public BigDecimal getOfflineTotalSale(){
         return BigDecimal.valueOf(
                 calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE)
@@ -118,6 +114,23 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
                         .stream().mapToDouble(it-> it)
                         .sum()
         );
+    };
+
+
+    /**
+     * 线下总产销
+     */
+    @ApiModelProperty(value = "线下总产销")
+    public BigDecimal getOfflineTotalSaleInto(){
+        return BigDecimalUtil.dividePercentage(getOfflineTotalSale(), getOfflineTotalInto());
+    };
+
+    /**
+     * 线上总产销
+     */
+    @ApiModelProperty(value = "线上总产销")
+    public BigDecimal getOnlineTotalSaleInto(){
+        return BigDecimalUtil.dividePercentage(getOnlineTotalSale(), getOnlineTotalInto());
     };
 
     /**

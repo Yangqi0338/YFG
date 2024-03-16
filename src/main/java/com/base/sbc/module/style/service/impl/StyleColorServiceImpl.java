@@ -1775,10 +1775,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
 //        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
 
-
-//        List<StyleColor> list1 = styleColorService.list(styleColorBaseQueryWrapper);
-//        List<String> styleColorIds1 = list1.stream().map(StyleColor::getId).collect(Collectors.toList());
-//        styleColorIds1.addAll(styleColorIds);
+        //查询已下单的配色id
+        QueryWrapper<OrderBookDetail> queryWrapper2 =new QueryWrapper<>();
+        if (styleColorIds.isEmpty()){
+            return new PageInfo<>(new ArrayList<>());
+        }
+        queryWrapper2.in("style_color_id",styleColorIds);
+        queryWrapper2.select("style_color_id");
+        List<OrderBookDetail> list1 = orderBookDetailService.list(queryWrapper2);
+        List<String> list2 = list1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(list2)) return new PageInfo<>();
 
         BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
         styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
