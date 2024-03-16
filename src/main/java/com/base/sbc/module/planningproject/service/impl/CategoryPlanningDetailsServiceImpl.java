@@ -169,12 +169,19 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                             BaseQueryWrapper<PlanningProjectDimension> queryWrapper1 = new BaseQueryWrapper<>();
                             queryWrapper1.eq("category_planning_details_id", id);
                             queryWrapper1.eq("prod_category1st_code", prodCategory1stCodes);
-                            queryWrapper1.notEmptyEq("prod_category2nd_code", prodCategory2ndCodes);
+                            // queryWrapper1.notEmptyEq("prod_category2nd_code", prodCategory2ndCodes);
                             queryWrapper1.eq("prod_category_code", prodCategoryCodes);
                             queryWrapper1.eq("band_code", bandCodeStr);
                             queryWrapper1.eq("dimension_code", dimensionCodes);
                             queryWrapper1.eq("dimension_value", dimensionValues);
+                            //先去查品类的,如果品类没有,就去查中类
                             List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper1);
+                            if (list.isEmpty()){
+                                 queryWrapper1.eq("prod_category2nd_code", prodCategory2ndCodes);
+                                list= planningProjectDimensionService.list(queryWrapper1);
+                            }
+
+
                             List<String> collect = list.stream().map(PlanningProjectDimension::getNumber).collect(Collectors.toList());
                             int n = 0;
                             for (String s : collect) {
@@ -227,22 +234,44 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             queryWrapper1.eq("prod_category1st", prodCategory1stCode);
             queryWrapper1.eq("prod_category", prodCategoryCode);
             queryWrapper1.eq("dimensionality_grade", "1");
+
+            List<JSONObject> jsonObjects = new ArrayList<>();
+            List<PlanningDimensionality> list = planningDimensionalityService.list(queryWrapper1);
+            //先去查品类的,如果品类没有,就去查中类
+            String[] split1=null;
+            String[] split11=null;
             if (StringUtils.isNotBlank(prodCategory2ndCode)) {
-                String[] split1 = prodCategory2ndCode.split(",");
-                List<String> list = new ArrayList<>();
+                split1 = prodCategory2ndCode.split(",");
+                split11=prodCategory2ndName.split(",");
+                List<String> list2 = new ArrayList<>();
                 for (String s : split1) {
                     if (StringUtils.isNotBlank(s)) {
-                        list.add(s);
+                        list2.add(s);
                     }
                 }
-                if (!list.isEmpty()) {
+                if (!list2.isEmpty()) {
                     queryWrapper1.in("prod_category2nd", Arrays.asList(split1));
                 }
             }
-            List<JSONObject> jsonObjects = new ArrayList<>();
-            List<PlanningDimensionality> list = planningDimensionalityService.list(queryWrapper1);
+            if (list.isEmpty()){
+                list = planningDimensionalityService.list(queryWrapper1);
+            }else {
+                //如果按照品类查询的数据,存在中类,并且未填写中类,提示错误 请将需求细化到中类
+                if (StringUtils.isBlank(prodCategory2ndCode)) {
+                    for (PlanningDimensionality planningDimensionality : list) {
+                        if (StringUtils.isNotBlank(planningDimensionality.getProdCategory2nd())) {
+                            throw new RuntimeException("请将需求细化到中类");
+                        }
+                    }
+                }
+            }
+
+
             if (!list.isEmpty()) {
-                for (PlanningDimensionality planningDimensionality : list) {
+                for (int i1 = 0; i1 < list.size(); i1++) {
+
+                    PlanningDimensionality planningDimensionality = list.get(i1);
+
                     // 获取配置
                     QueryWrapper<FieldOptionConfig> queryWrapper2 = new QueryWrapper<>();
                     queryWrapper2.eq("field_management_id", planningDimensionality.getFieldId());
@@ -279,6 +308,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     // List<String> codeList =  list1.stream().map(FieldOptionConfig::getOptionCode).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
                     // List<String> ids =  list1.stream().map(FieldOptionConfig::getFieldManagementId).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
 
+
+                    int j = 0;
                     for (String s : nameList) {
                         for (FieldOptionConfig fieldOptionConfig : list1) {
                             if (fieldOptionConfig.getOptionName().equals(s)) {
@@ -296,8 +327,18 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                 jsonObject.put("prodCategoryCode", planningDimensionality.getProdCategory());
                                 jsonObject.put("prodCategoryName", planningDimensionality.getProdCategoryName());
 
-                                jsonObject.put("prodCategory2ndCode", planningDimensionality.getProdCategory2nd());
-                                jsonObject.put("prodCategory2ndName", planningDimensionality.getProdCategory2ndName());
+                                if (StringUtils.isBlank(planningDimensionality.getProdCategory2nd()) && split1!=null && split1.length>j){
+                                     jsonObject.put("prodCategory2ndCode",split1[j]);
+                                }else {
+                                    jsonObject.put("prodCategory2ndCode",planningDimensionality.getProdCategory2nd() );
+                                }
+                                if (StringUtils.isBlank(planningDimensionality.getProdCategory2ndName()) && split11!=null && split11.length>j){
+                                    jsonObject.put("prodCategory2ndName",split11[j]);
+                                    j++;
+                                }else {
+                                    jsonObject.put("prodCategory2ndName",planningDimensionality.getProdCategory2ndName() );
+                                }
+
                                 jsonObjects.add(jsonObject);
                                 break;
                             }
