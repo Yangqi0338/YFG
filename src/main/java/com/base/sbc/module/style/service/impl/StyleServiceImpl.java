@@ -1164,7 +1164,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<StyleBoardCategorySummaryVo> list = new ArrayList<>();
         BaseQueryWrapper<Style> qw = new BaseQueryWrapper<>();
         qw.notEmptyIn("sd.designer_id",dto.getDesignerIds());
-        qw.notEmptyIn("tfv.val", dto.getFabricsUnderTheDrafts());
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
@@ -1188,6 +1187,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 vo.setProdCategory2nd(categoryNames.getOrDefault(vo.getProdCategory2nd(), vo.getProdCategory2nd()));
                 vo.setProdCategory(categoryNames.getOrDefault(vo.getProdCategory(), vo.getProdCategory()));
             }
+        }
+
+        Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCodes(dto.getProdCategory() , "品类");
+        dto.setProdCategoryName(categoryNames.get(dto.getProdCategory()));
+        for (StyleBoardCategorySummaryVo vo : styleBoardCategorySummaryVos) {
+            vo.setProdCategory1st(categoryNames.getOrDefault(vo.getProdCategory1st(), vo.getProdCategory1st()));
+            vo.setProdCategory2nd(categoryNames.getOrDefault(vo.getProdCategory2nd(), vo.getProdCategory2nd()));
+            vo.setProdCategory(categoryNames.getOrDefault(vo.getProdCategory(), vo.getProdCategory()));
         }
 
         // 查询线上季节企划信息
@@ -1450,12 +1457,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 }
             }
 
-            // 需要的品类
-            List<String> prodCategoryList = new ArrayList<>();
-            if (ObjectUtil.isNotEmpty(prodCategoryName)) {
-                prodCategoryList = Arrays.asList(prodCategoryName.split(","));
-            }
-
             // 大类的标识 季节企划的数据集合中，同一个大类只在那个大类的第一行有 到下一个大类前的行都是空的 所以把记下使用
             String prodCategory1stFlag = "";
             // 品类的标识 季节企划的数据集合中，同一个品类只在那个品类的第一行有 到下一个品类前的行都是空的 所以把记下使用
@@ -1483,7 +1484,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 String prodCategory2nd = String.valueOf(inMap.get("2"));
 
                 long resultNum = 0L;
-                if (ObjectUtil.isEmpty(prodCategoryList) || prodCategoryList.contains(prodCategoryFlag)) {
+                if (ObjectUtil.isEmpty(prodCategoryName) || prodCategoryName.equals(prodCategoryFlag)) {
                     for (Map.Entry<String, Object> item : inMap.entrySet()) {
                         if (!"合计".equals(prodCategory2nd)
                                 && bandCodeKeyList.contains(item.getKey())) {
@@ -1540,12 +1541,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 }
             }
 
-            // 需要的品类
-            List<String> prodCategoryList = new ArrayList<>();
-            if (ObjectUtil.isNotEmpty(prodCategoryName)) {
-                prodCategoryList = Arrays.asList(prodCategoryName.split(","));
-            }
-
             String allPlanningProdCategory = "";
             // 跳过的
             for (int i = 5; i < collectivityArray.size() - 1; i++) {
@@ -1560,7 +1555,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 if (ObjectUtil.isNotEmpty(planningProdCategory)) {
                     allPlanningProdCategory = planningProdCategory;
                 }
-                if (ObjectUtil.isEmpty(prodCategoryList) || prodCategoryList.contains(allPlanningProdCategory)) {
+                if (ObjectUtil.isEmpty(prodCategoryName) || prodCategoryName.equals(allPlanningProdCategory)) {
                     for (Map.Entry<String, Object> item : inMap.entrySet()) {
                         if (!"合计".equals(planningProdCategory2nd)
                                 && bandCodeKeyList.contains(item.getKey())) {
@@ -1576,6 +1571,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public CategoryStylePlanningVo categoryStylePlanning(PlanningBoardSearchDto dto) {
         CategoryStylePlanningVo vo = new CategoryStylePlanningVo();
+
+        Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCodes(dto.getProdCategory() , "品类");
+        dto.setProdCategoryName(categoryNames.get(dto.getProdCategory()));
+
         vo.setBandCode(dto.getBandCode());
         vo.setBandName(bandService.getNameByCode(dto.getBandCode()));
         // 企划需求数 季节企划线上和线下的总需求数量
@@ -1587,7 +1586,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                         .eq(SeasonalPlanning::getChannelCode, "online")
                         .eq(SeasonalPlanning::getSeasonId, dto.getPlanningSeasonId())
         );
-
         Long onlineSeasonalPlanningCount = getSeasonalPlanningCount(onlineSeasonalPlanning, dto.getBandName(), dto.getProdCategoryName());
         // 查询线下季节企划信息
         SeasonalPlanning offlineSeasonalPlanning = seasonalPlanningService.getOne(
@@ -2237,7 +2235,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private void stylePlanningCommonQw(BaseQueryWrapper<?> qw, PlanningBoardSearchDto dto) {
         qw.eq("sd." + COMPANY_CODE, getCompanyCode());
         qw.notEmptyIn("sd.designer_id",dto.getDesignerIds());
-        qw.notEmptyIn("tfv.val", dto.getFabricsUnderTheDrafts());
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));

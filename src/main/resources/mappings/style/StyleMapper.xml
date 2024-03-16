@@ -79,7 +79,7 @@
         where
         sd.del_flag ='0'
         <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
-            exists(select 1 from t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
             <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
                 #{item}
             </foreach>
@@ -112,7 +112,7 @@
         sd.del_flag = '0'
         AND sd.del_flag = '0'
         <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
-            exists(select 1 from t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
             <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
                 #{item}
             </foreach>
@@ -140,7 +140,7 @@
         and prod_category is not null and prod_category!=''
         and prod_category2nd is not null and prod_category2nd!=''
         <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
-            exists(select 1 from t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
             <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
                 #{item}
             </foreach>
@@ -167,7 +167,7 @@
         WHERE
         sd.del_flag ='0'
         <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
-            exists(select 1 from t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
             <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
                 #{item}
             </foreach>
