@@ -44,4 +44,7 @@ public class PlanningProjectPlankDimension extends BaseDataEntity<String> {
     @TableField(exist = false)
     private FieldManagement fieldManagement;
 
+    @TableField(exist = false)
+    private String groupName;
+
 }

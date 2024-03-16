@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -69,5 +70,5 @@ public class PlanningProjectPlankVo extends PlanningProjectPlank {
      */
     private List<TableColumnVo> columnVos;
 
-    private List<PlanningProjectPlankDimension> dimensionList;
+    private Map<String, List<PlanningProjectPlankDimension>> dimensionList;
 }

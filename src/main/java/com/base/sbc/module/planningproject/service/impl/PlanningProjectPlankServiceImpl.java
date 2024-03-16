@@ -185,11 +185,16 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                     }
                 }
                 FieldManagement fieldManagement = fieldManagementMap.get(planningDimensionality.getFieldId());
+                planningProjectPlankDimension.setGroupName(fieldManagement.getGroupName());
                 planningProjectPlankDimension.setFieldManagement(fieldManagement);
                 list2.add(planningProjectPlankDimension);
             }
 
-            planningProjectPlankVo.setDimensionList(list2);
+
+            Map<String, List<PlanningProjectPlankDimension>> groupedList = list2.stream()
+                    .collect(Collectors.groupingBy(PlanningProjectPlankDimension::getGroupName));
+
+            planningProjectPlankVo.setDimensionList(groupedList);
         }
 
         //生成表格列
