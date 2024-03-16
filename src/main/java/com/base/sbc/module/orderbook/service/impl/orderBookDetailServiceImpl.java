@@ -651,7 +651,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             JSONObject jsonObject = JSON.parseObject(orderBookDetail.getCommissioningSize());
             int sumProduction = jsonObject.keySet().stream()
                     .filter(it ->
-                            !it.endsWith("0") || !it.endsWith("2") || !it.endsWith("Size") || !it.endsWith("Status")
+                            !it.endsWith(OrderBookChannelType.OFFLINE.getPercentageFill()) || !it.endsWith(OrderBookChannelType.ONLINE.getPercentageFill()) || !it.endsWith("Size") || !it.endsWith("Status")
                     ).mapToInt(jsonObject::getInteger)
                     .sum();
             if (sumProduction != Integer.parseInt(totalProduction)) {
