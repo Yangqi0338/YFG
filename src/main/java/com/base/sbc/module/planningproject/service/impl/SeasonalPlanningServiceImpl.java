@@ -621,6 +621,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             }
         }
         jsonArray1.add(jsonObject1);
+        jsonObject1.put("0","合计");
+        jsonObject1.put("1","合计");
+
         return jsonArray1.toJSONString();
     }
 }
