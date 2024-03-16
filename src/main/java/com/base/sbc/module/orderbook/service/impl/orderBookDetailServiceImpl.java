@@ -53,6 +53,8 @@ import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleChannelVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleSizeMapVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -806,7 +808,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (CollUtil.isEmpty(queryDto.getChannel())) {
             throw new OtherException("相似款查询必须传入渠道条件");
         }
-        List<String> channelNameList = queryDto.getChannel().stream().map(OrderBookChannelType::getText).collect(Collectors.toList());
+        String channelName = queryDto.getChannel().stream().map(OrderBookChannelType::getText).collect(Collectors.joining(COMMA));
 
         String category1stCode = queryDto.getCategory1stCode();
         List<String> searchBulkStyleNoList = new ArrayList<>();
@@ -824,11 +826,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         Page<Object> page = queryDto.startPage();
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
-        qw.notEmptyLike("T.PROD_CODE", queryDto.getBulkStyleNo());
-        qw.notEmptyIn("T.PROD_CODE", searchBulkStyleNoList);
-        qw.in("T.CHANNEL_TYPE", channelNameList);
+        qw.notEmptyLike("S.PROD_CODE", queryDto.getBulkStyleNo());
+        qw.notEmptyIn("S.PROD_CODE", searchBulkStyleNoList);
 
-        List<Map<String, Object>> totalMaps = getBaseMapper().queryStarRocksTotal(qw);
+        List<Map<String, Object>> totalMaps = getBaseMapper().queryStarRocksTotal(qw, channelName);
         List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
 
         PageInfo<OrderBookSimilarStyleVo> result = CopyUtil.copy(page.toPageInfo(), dtoList);
@@ -854,57 +855,64 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         /* ----------------------------装饰详细的投产销售---------------------------- */
 
         BaseQueryWrapper<OrderBookDetail> qw1 = new BaseQueryWrapper<>();
-        qw1.in("T.PROD_CODE", bulkStyleNoList);
-        qw1.in("T.CHANNEL_TYPE", channelNameList);
+        qw1.in("S.PROD_CODE", bulkStyleNoList);
 
-        List<Map<String, Object>> detailMaps = getBaseMapper().queryStarRocksDetail(qw1);
+        List<Map<String, Object>> detailMaps = getBaseMapper().queryStarRocksDetail(qw1, channelName);
         // 封装数据并转化Bean
         detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
         List<StyleSaleIntoDto> detailList = ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
 
-        Map<StyleSaleIntoCalculateResultType, Map<String, Double>> map = new HashMap<>(3);
-        for (StyleSaleIntoCalculateResultType calculateResultType : StyleSaleIntoCalculateResultType.values()) {
-            map.put(calculateResultType, new HashMap<>(7));
-        }
         List<String> sizeNameList = StringUtils.convertList("XXS,XS,S,M,L,XL,XXL");
+        // 构建基础模型
+        Map<StyleSaleIntoCalculateResultType, OrderBookSimilarStyleChannelVo> map = new HashMap<>(3);
+        for (StyleSaleIntoCalculateResultType calculateResultType : StyleSaleIntoCalculateResultType.values()) {
+            OrderBookSimilarStyleChannelVo channelVo = new OrderBookSimilarStyleChannelVo();
+            for (OrderBookChannelType channelType : OrderBookChannelType.values()) {
+                OrderBookSimilarStyleSizeMapVo sizeMapVo = new OrderBookSimilarStyleSizeMapVo();
+                sizeMapVo.setNumSizeMap(sizeNameList.stream().collect(Collectors.toMap(Function.identity(), (it) -> 0.0)));
+                sizeMapVo.setPercentageSizeMap(sizeNameList.stream().collect(Collectors.toMap(Function.identity(), (it) -> 0.0)));
+                channelVo.getChannelSizeMap().put(channelType, sizeMapVo);
+            }
+            map.put(calculateResultType, channelVo);
+        }
+
         // 设置投产销售
         dtoList.forEach(dto-> {
             // 获取同品牌相同款号相同渠道的数据
             List<StyleSaleIntoDto> dtoDetailList = detailList.stream().filter(it ->
                     it.getBulkStyleNo().equals(dto.getBulkStyleNo()) &&
-                    it.getChannel() == dto.getChannel() &&
                     it.getBrand().equals(dto.getBrand())
             ).collect(Collectors.toList());
 
-            Map<StyleSaleIntoCalculateResultType, Map<String, Double>> calculateSizeMap = ORDER_BOOK_CV.copyResultTypeMyself(map);
+            dto.setChannelList(dtoDetailList.stream().map(StyleSaleIntoDto::getChannel).distinct().collect(Collectors.toList()));
 
-            calculateSizeMap.forEach((calculateResultType, sizeMap)-> {
+            Map<StyleSaleIntoCalculateResultType, OrderBookSimilarStyleChannelVo> calculateSizeMap = ORDER_BOOK_CV.copyResultTypeMyself(map);
+
+            calculateSizeMap.forEach((calculateResultType, channelVo)-> {
                 String code = calculateResultType.getCode();
                 List<StyleSaleIntoDto> calculateDetailList = dtoDetailList.stream()
                         .filter(it -> it.getResultType().getCode().contains(code))
                         .collect(Collectors.toList());
-                double totalSum = 0.0;
-                for (String size : sizeNameList) {
-                    double sum = calculateDetailList.stream().mapToDouble(it -> it.getSizeMap().getOrDefault(size, 0.0)).sum();
-                    totalSum+=sum;
-                    sizeMap.put(size, sum);
-                }
-                if (calculateResultType == StyleSaleIntoCalculateResultType.INTO) dto.setTotalInto(dto.getTotalInto().add(BigDecimal.valueOf(totalSum)));
-                if (calculateResultType == StyleSaleIntoCalculateResultType.SALE) dto.setTotalSale(dto.getTotalSale().add(BigDecimal.valueOf(totalSum)));
+                channelVo.getChannelSizeMap().forEach((channel, sizeMap)-> {
+                    calculateDetailList.stream().filter(it -> it.getChannel() == channel).findFirst().ifPresent(detail-> {
+                        detail.getSizeMap().forEach((size,num)-> {
+                            if (sizeMap.getNumSizeMap().containsKey(size)) {
+                                sizeMap.getNumSizeMap().put(size, num);
+                            }
+                        });
+                    });
+                });
+            });
+            calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE_INTO).getChannelSizeMap().forEach((channel, sizeMap)-> {
+                sizeMap.getNumSizeMap().keySet().forEach(size-> {
+                    double sale = calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE).getChannelSizeMap()
+                            .get(channel).getNumSizeMap().get(size);
+                    double into = calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO).getChannelSizeMap()
+                            .get(channel).getNumSizeMap().get(size);
+                    sizeMap.getNumSizeMap().put(size, BigDecimalUtil.dividePercentage(sale, into));
+                });
             });
 
-            // 计算占比
-            for (String size : sizeNameList) {
-                BigDecimal into = BigDecimal.valueOf(calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO).getOrDefault(size, 0.0));
-                BigDecimal sale = BigDecimal.valueOf(calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE).getOrDefault(size, 0.0));
-                BigDecimal sum = into;
-                if (BigDecimalUtil.biggerThenZero(into)) {
-                    sum = BigDecimalUtil.dividePercentage(sale, into);
-                }
-                calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO).put(size, BigDecimalUtil.dividePercentage(into, dto.getTotalInto()).doubleValue());
-                calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE).put(size, BigDecimalUtil.dividePercentage(sale, dto.getTotalSale()).doubleValue());
-                calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE_INTO).put(size, sum.doubleValue());
-            }
             dto.setCalculateSizeMap(calculateSizeMap);
         });
         System.out.println("装饰详细的投产销售 time:" + (System.currentTimeMillis() - millis));

@@ -449,5 +449,15 @@ public class BigDecimalUtil {
 		}
 		return d1.multiply(new BigDecimal(100)).divide(d2, 2, RoundingMode.HALF_UP);
 	}
+
+	/**
+	 * 计算两个Double的比值
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static Double dividePercentage (Double d1,Double d2){
+		return dividePercentage(BigDecimal.valueOf(d1), BigDecimal.valueOf(d2)).doubleValue();
+	}
 }
 

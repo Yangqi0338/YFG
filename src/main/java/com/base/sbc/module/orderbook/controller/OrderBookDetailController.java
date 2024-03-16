@@ -149,7 +149,7 @@ public class OrderBookDetailController extends BaseController {
      */
     @ApiModelProperty(value = "相似款列表")
     @GetMapping("/similarStyleList")
-    public ApiResult<PageInfo<OrderBookSimilarStyleVo>> similarStyleList(@RequestBody OrderBookDetailQueryDto dto) {
+    public ApiResult<PageInfo<OrderBookSimilarStyleVo>> similarStyleList(OrderBookDetailQueryDto dto) {
         return updateSuccess(orderBookDetailService.similarStyleList(dto));
     }
 

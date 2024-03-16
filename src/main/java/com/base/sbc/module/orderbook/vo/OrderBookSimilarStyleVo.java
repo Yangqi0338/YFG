@@ -12,8 +12,13 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 @Data
 public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
@@ -24,36 +29,119 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
     @ApiModelProperty(value = "款式配色图")
     private String styleColorPic;
 
-    public String getChannelName(){
-        return Opt.ofNullable(this.getChannel()).map(OrderBookChannelType::getText).orElse("");
+    /**
+     * 渠道
+     */
+    @ApiModelProperty(value = "渠道")
+    @JsonIgnore
+    private List<OrderBookChannelType> channelList = new ArrayList<>();
+
+    public String getChannelCode(){
+        return channelList.stream().map(OrderBookChannelType::getCode).collect(Collectors.joining(COMMA));
     }
 
-    private Map<StyleSaleIntoCalculateResultType, Map<String, Double>> calculateSizeMap;
+    public String getChannelName(){
+        return channelList.stream().map(OrderBookChannelType::getText).collect(Collectors.joining(COMMA));
+    }
+
+
+    private Map<StyleSaleIntoCalculateResultType, OrderBookSimilarStyleChannelVo> calculateSizeMap;
 
     @JsonAnyGetter
-    public Map<StyleSaleIntoCalculateResultType, Map<String, Double>> getCalculateSizeMap(){
+    public Map<StyleSaleIntoCalculateResultType, OrderBookSimilarStyleChannelVo> getCalculateSizeMap(){
         return calculateSizeMap;
     }
+
+    /**
+     * 线上总投产
+     */
+    @ApiModelProperty(value = "线上总投产")
+
+    public BigDecimal getOnlineTotalInto() {
+        return BigDecimal.valueOf(
+                calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO)
+                        .getChannelSizeMap()
+                        .get(OrderBookChannelType.ONLINE)
+                        .getNumSizeMap()
+                        .values()
+                        .stream().mapToDouble(it-> it)
+                        .sum()
+        );
+    };
+
+    /**
+     * 线上总销售
+     */
+    @ApiModelProperty(value = "线上总销售")
+
+    public BigDecimal getOnlineTotalSale(){
+        return BigDecimal.valueOf(
+                calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE)
+                        .getChannelSizeMap()
+                        .get(OrderBookChannelType.ONLINE)
+                        .getNumSizeMap()
+                        .values()
+                        .stream().mapToDouble(it-> it)
+                        .sum()
+        );
+    };
+
+    /**
+     * 线下总投产
+     */
+    @ApiModelProperty(value = "线下总投产")
+
+    public BigDecimal getOfflineTotalInto(){
+        return BigDecimal.valueOf(
+                calculateSizeMap.get(StyleSaleIntoCalculateResultType.INTO)
+                        .getChannelSizeMap()
+                        .get(OrderBookChannelType.OFFLINE)
+                        .getNumSizeMap()
+                        .values()
+                        .stream().mapToDouble(it-> it)
+                        .sum()
+        );
+    };
+
+    /**
+     * 线下总销售
+     */
+    @ApiModelProperty(value = "线下总销售")
+
+    public BigDecimal getOfflineTotalSale(){
+        return BigDecimal.valueOf(
+                calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE)
+                        .getChannelSizeMap()
+                        .get(OrderBookChannelType.OFFLINE)
+                        .getNumSizeMap()
+                        .values()
+                        .stream().mapToDouble(it-> it)
+                        .sum()
+        );
+    };
 
     /**
      * 总投产
      */
     @ApiModelProperty(value = "总投产")
-    private BigDecimal totalInto = BigDecimal.ZERO;
+    public BigDecimal getTotalInto(){
+        return BigDecimal.ZERO.add(getOnlineTotalInto()).add(getOfflineTotalInto());
+    };
 
     /**
      * 总销售
      */
     @ApiModelProperty(value = "总销售")
-    private BigDecimal totalSale = BigDecimal.ZERO;
+    public BigDecimal getTotalSale(){
+        return BigDecimal.ZERO.add(getOnlineTotalSale()).add(getOfflineTotalSale());
+    };
 
     /**
      * 总产销
      */
     @ApiModelProperty(value = "总产销")
     public BigDecimal getTotalSaleInto(){
-        return BigDecimalUtil.dividePercentage(totalSale, totalInto);
+        return BigDecimalUtil.dividePercentage(getTotalSale(), getTotalInto());
     }
-
 
 }

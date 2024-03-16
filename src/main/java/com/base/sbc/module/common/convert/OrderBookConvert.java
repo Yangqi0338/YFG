@@ -6,6 +6,8 @@ import com.base.sbc.config.enums.business.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleChannelVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleSizeMapVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import jdk.jfr.Name;
@@ -45,8 +47,12 @@ public interface OrderBookConvert {
     OrderBookSimilarStyleVo copy2SimilarStyleVo(StyleSaleIntoDto source);
 
     List<OrderBookSimilarStyleVo> copyList2SimilarStyleVo(List<Map<String, Object>> source);
-    Map<StyleSaleIntoCalculateResultType, Map<String, Double>> copyResultTypeMyself(Map<StyleSaleIntoCalculateResultType, Map<String, Double>> source);
-    Map<String, Double> copyMyself(Map<String, Double> source);
+    Map<StyleSaleIntoCalculateResultType, OrderBookSimilarStyleChannelVo> copyResultTypeMyself(Map<StyleSaleIntoCalculateResultType, OrderBookSimilarStyleChannelVo> source);
+
+    OrderBookSimilarStyleChannelVo copyMyself(OrderBookSimilarStyleChannelVo source);
+    Map<OrderBookChannelType, OrderBookSimilarStyleSizeMapVo> copyChannelMyself(Map<OrderBookChannelType, OrderBookSimilarStyleSizeMapVo> source);
+    OrderBookSimilarStyleSizeMapVo copyMyself(OrderBookSimilarStyleSizeMapVo source);
+    Map<String,Double> copyMyself(Map<String,Double> source);
 
     default boolean saleTypeToBool(String saleType) {
         return "是".equals(saleType);

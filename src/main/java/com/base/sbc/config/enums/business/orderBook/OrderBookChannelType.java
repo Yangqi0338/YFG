@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 public enum OrderBookChannelType {
-    OFFLINE("线下", "00"),
-    ONLINE("线上","1"),
+    OFFLINE("线下", "00", "0"),
+    ONLINE("线上","1", "2"),
     ;
     /** 编码 */
     @EnumValue
@@ -30,18 +30,20 @@ public enum OrderBookChannelType {
     /** 文本 */
     private final String text;
     private final String fill;
+    private final String percentageFill;
 
     @JsonValue
     public String getCode() {
         return code;
     }
 
-    OrderBookChannelType(String text, String fill) {
+    OrderBookChannelType(String text, String fill, String percentageFill) {
         String code = this.name().toLowerCase();
         this.code = StrUtil.toCamelCase(code);
 //        this.code = this.ordinal()+"";
         this.text = text;
         this.fill = fill;
+        this.percentageFill = percentageFill;
     }
 
 }
