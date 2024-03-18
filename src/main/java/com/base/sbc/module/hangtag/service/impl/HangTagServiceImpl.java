@@ -1164,7 +1164,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					MoreLanguageCodeMapping<Object> codeFunc = (MoreLanguageCodeMapping<Object>) codeMap.get(standardColumnCode);
 
 					// 遍历语言列表, 封装languageList
-					codeFunc.getListFunc().apply(hangTagVO).forEach(data-> {
+                    for (Object data : codeFunc.getListFunc().apply(hangTagVO)) {
 						// 拷贝基础数据
 						HangTagMoreLanguageBaseVO hangTagMoreLanguageBaseVO = HANG_TAG_CV.copyMyself(moreLanguageBaseVO);
 						HANG_TAG_CV.standardColumn2MoreLanguageBaseVO(standardColumn, hangTagMoreLanguageBaseVO);
@@ -1177,6 +1177,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						hangTagMoreLanguageBaseVO.setPropertiesCode(propertiesCode);
 						String propertiesName = codeFunc.getValue().apply(data);
 						hangTagMoreLanguageBaseVO.setPropertiesName(propertiesName);
+						if (StrUtil.isAllBlank(propertiesName, propertiesCode)) continue;
 
 						// 封装多值的Code
 						String[] keySplit = propertiesCode.split(MoreLanguageProperties.multiSeparator);
@@ -1277,7 +1278,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						}
 						else { hangTagMoreLanguageBaseVO.setHasLanguage(false); }
 						result.add(hangTagMoreLanguageBaseVO);
-					});
+					}
 				});
 
 				resultList.addAll(result);
