@@ -94,17 +94,23 @@
     <select id="categoryBandSummary" resultType="com.base.sbc.module.planning.vo.PlanningSummaryDetailVo">
         SELECT
         sd.id,
-        prod_category_name,
-        design_no,
-        his_design_no,
-        price,
-        seasonal,
-        style_pic,
-        continuation_point,
-        designer,
-        designer_id,
-        band_name,
-        style_no
+        sd.prod_category_name,
+        sd.design_no,
+        sd.his_design_no,
+        sd.price,
+        sd.seasonal,
+        sd.style_pic,
+        sd.continuation_point,
+        sd.designer,
+        sd.designer_id,
+        sd.band_name,
+        sd.style_no,
+        sd.planning_season_id,
+        sd.plate_positioning_name,
+        sd.technician_name,
+        sd.dev_class_name,
+        sd.devt_type_name,
+        sd.registering_no
         FROM
         t_style sd
         WHERE

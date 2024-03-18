@@ -2709,6 +2709,20 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (CollUtil.isNotEmpty(detailVoList)) {
             amcFeignService.setUserAvatarToList(detailVoList);
             stylePicUtils.setStylePic(detailVoList, "stylePic");
+            // 设置产品季的名称
+            Set<String> planningSeasonIdSet = detailVoList.stream()
+                    .map(PlanningSummaryDetailVo::getPlanningSeasonId).collect(Collectors.toSet());
+            List<PlanningSeason> planningSeasonList = planningSeasonService.listByIds(planningSeasonIdSet);
+            Map<String, String> planningSeasonMap = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(planningSeasonList)) {
+                planningSeasonMap = planningSeasonList
+                        .stream().collect(Collectors.toMap(PlanningSeason::getId, PlanningSeason::getName));
+
+            }
+            for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
+                planningSummaryDetailVo
+                        .setPlanningSeasonName(planningSeasonMap.get(planningSummaryDetailVo.getPlanningSeasonId()));
+            }
             Map<String, List<PlanningSummaryDetailVo>> seatData = detailVoList.stream().collect(Collectors.groupingBy(k -> k.getBandName() + StrUtil.DASHED + k.getProdCategoryName()));
             vo.setXyData(seatData);
         }
