@@ -159,8 +159,8 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
      * 总产销
      */
     @ApiModelProperty(value = "总产销")
-    public BigDecimal getTotalSaleInto(){
-        return BigDecimalUtil.dividePercentage(getTotalSale(), getTotalInto());
+    public String getTotalSaleInto(){
+        return BigDecimalUtil.dividePercentage(getTotalSale(), getTotalInto()).toString() + "%";
     }
 
 }

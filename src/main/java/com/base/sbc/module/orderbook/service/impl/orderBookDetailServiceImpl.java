@@ -872,8 +872,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         Map<StyleSaleIntoCalculateResultType, OrderBookSimilarStyleChannelVo> map = new HashMap<>(3);
         for (StyleSaleIntoCalculateResultType calculateResultType : StyleSaleIntoCalculateResultType.values()) {
             OrderBookSimilarStyleChannelVo channelVo = new OrderBookSimilarStyleChannelVo();
+            channelVo.setResultType(calculateResultType);
             for (OrderBookChannelType channelType : OrderBookChannelType.values()) {
                 OrderBookSimilarStyleSizeMapVo sizeMapVo = new OrderBookSimilarStyleSizeMapVo();
+                sizeMapVo.setResultType(calculateResultType);
                 sizeMapVo.setNumSizeMap(sizeNameList.stream().collect(Collectors.toMap(Function.identity(), (it) -> 0.0)));
                 sizeMapVo.setPercentageSizeMap(sizeNameList.stream().collect(Collectors.toMap(Function.identity(), (it) -> 0.0)));
                 channelVo.getChannelSizeMap().put(channelType, sizeMapVo);
