@@ -230,10 +230,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private StyleColorService styleColorService;
 
     /**
-     * 表单字段类型 code
-     * dimensionalCoefficient-维度系数
+     * 表单字段类型名称
+     * 维度系数
      */
-    private final String FORM_TYPE_CODE = "dimensionalCoefficient";
+    private final String FORM_TYPE_NAME = "维度系数";
     /**
      * 面料类型
      */
@@ -1642,7 +1642,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 公司编号
         queryFieldManagementDto.setCompanyCode(baseController.getUserCompany());
         // 根据表单编号查询表单 ID
-        FormType formType = formTypeService.getByOne("code", FORM_TYPE_CODE);
+        FormType formType = formTypeService.getByOne("name", FORM_TYPE_NAME);
         if (ObjectUtil.isNotEmpty(formType)) {
             // 有 则设置表单 ID 为查询条件
             queryFieldManagementDto.setFormTypeId(formType.getId());

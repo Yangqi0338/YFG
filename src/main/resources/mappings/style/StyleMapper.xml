@@ -107,7 +107,6 @@
         style_no
         FROM
         t_style sd
-        left join t_field_val tfv on tfv.foreign_id = sd.id and tfv.del_flag = '0'
         WHERE
         sd.del_flag = '0'
         AND sd.del_flag = '0'

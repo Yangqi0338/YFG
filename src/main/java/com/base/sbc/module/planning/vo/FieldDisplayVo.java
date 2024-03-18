@@ -27,4 +27,10 @@ public class FieldDisplayVo {
     @ApiModelProperty(value = "是否显示", example = "true")
     private boolean display;
 
+    @ApiModelProperty(value = "排序", example = "0")
+    private String sort;
+
+    @ApiModelProperty(value = "是否动态字段", example = "true")
+    private boolean dynamicFields;
+
 }
