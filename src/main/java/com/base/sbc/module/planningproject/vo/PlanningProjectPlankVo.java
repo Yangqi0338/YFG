@@ -70,5 +70,5 @@ public class PlanningProjectPlankVo extends PlanningProjectPlank {
      */
     private List<TableColumnVo> columnVos;
 
-    private Map<String, List<PlanningProjectPlankDimension>> dimensionList;
+    private  List<PlanningProjectPlankDimension> dimensionList;
 }

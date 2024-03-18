@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class PlanningProjectPlankPageDto {
+public class PlanningProjectPlankPageDto extends DimensionLabelsSearchDto {
     private String planningProjectId;
     private String planningBandCode;
     private String planningBulkStyleNo;

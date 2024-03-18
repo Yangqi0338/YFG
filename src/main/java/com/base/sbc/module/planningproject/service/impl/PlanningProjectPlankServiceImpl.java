@@ -4,7 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
@@ -19,6 +21,8 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planning.vo.FieldDisplayVo;
+import com.base.sbc.module.planningproject.controller.PlanningProjectPlankController;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
@@ -60,11 +64,17 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     private final PlanningProjectPlankDimensionService planningProjectPlankDimensionService;
     private final PlanningDimensionalityService planningDimensionalityService;
     private final FieldManagementService fieldManagementService;
+    private final RedisUtils redisUtils;
+
+    @Resource
+    @Lazy
+    private PlanningProjectPlankController planningProjectPlankController;
     @Resource
     @Lazy
     private  PlanningProjectService planningProjectService ;
     @Override
     public  Map<String,Object> ListByDto(PlanningProjectPlankPageDto dto) {
+        List<FieldDisplayVo> dimensionFieldCard = this.getDimensionFieldCard(dto);
         Map<String,Object> hashMap =new HashMap<>();
         BaseQueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tppp.planning_project_id",dto.getPlanningProjectId());
@@ -193,12 +203,34 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
 
                 list2.add(planningProjectPlankDimension);
             }
+            String names = dto.getNames();
+            if (StringUtils.isNotEmpty(names)){
+                for (String s : names.split(",")) {
 
+                    PlanningProjectPlankDimension planningProjectPlankDimension=new PlanningProjectPlankDimension();
+                    FieldManagement fieldManagement=new FieldManagement();
+                    fieldManagement.setFieldExplain(s);
+                    planningProjectPlankDimension.setFieldManagement(fieldManagement);
+                    list2.add(planningProjectPlankDimension);
+                }
+
+            }
+
+            for (PlanningProjectPlankDimension planningProjectPlankDimension : list2) {
+                for (FieldDisplayVo fieldDisplayVo : dimensionFieldCard) {
+                    if (planningProjectPlankDimension.getFieldManagement()!=null && planningProjectPlankDimension.getFieldManagement().getFieldExplain().equals(fieldDisplayVo.getName())){
+                        planningProjectPlankDimension.setSort(fieldDisplayVo.getSort());
+                        planningProjectPlankDimension.setDisplay(fieldDisplayVo.isDisplay());
+
+                    }
+                }
+            }
             //按照分组名称进行分组,分组名称为空则过滤掉
-            Map<String, List<PlanningProjectPlankDimension>> groupedList = list2.stream()
-                    .filter(dimension -> dimension.getGroupName() != null).collect(Collectors.groupingBy(PlanningProjectPlankDimension::getGroupName));
+            // Map<String, List<PlanningProjectPlankDimension>> groupedList = list2.stream()
+            //         .filter(dimension -> dimension.getGroupName() != null).collect(Collectors.groupingBy(PlanningProjectPlankDimension::getGroupName));
 
-            planningProjectPlankVo.setDimensionList(groupedList);
+
+            planningProjectPlankVo.setDimensionList(list2);
         }
 
         //生成表格列
@@ -408,5 +440,48 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             planningProjectPlank.setColorSystem("");
             this.updateById(planningProjectPlank);
         }
+    }
+
+    @Override
+    public List<FieldDisplayVo> getDimensionFieldCard(DimensionLabelsSearchDto dto) {
+        List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.getDimensionalityList(dto).getPlanningDimensionalities();
+        List<FieldDisplayVo> fieldDisplayVoList = planningDimensionalities.stream().map(planningDimensionality -> {
+            FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
+            fieldDisplayVo.setName(planningDimensionality.getDimensionalityName());
+            fieldDisplayVo.setField(planningDimensionality.getId());
+            return fieldDisplayVo;
+        }).collect(Collectors.toList());
+        List<FieldDisplayVo> list=new ArrayList<>();
+        //额外的字段
+        if (StringUtils.isNotBlank(dto.getNames())){
+            for (String s : dto.getNames().split(",")) {
+                FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
+                fieldDisplayVo.setField(s);
+                fieldDisplayVo.setName(s);
+                list.add(fieldDisplayVo);
+            }
+        }
+        list.addAll(fieldDisplayVoList);
+        for (int i = 0; i < list.size(); i++) {
+            FieldDisplayVo displayVo = list.get(i);
+            //设置是否显示
+            String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ displayVo.getField();
+            if (redisUtils.hasKey(key)) {
+                displayVo.setDisplay("1".equals(redisUtils.get(key)));
+            }else {
+                displayVo.setDisplay(true);
+            }
+
+            //设置排序
+            String sort = "planningProjectPlank:dimensionFieldCard:sort:" +this.getUserId()+":"+ displayVo.getField();
+            if (redisUtils.hasKey(sort)) {
+                displayVo.setSort(String.valueOf(redisUtils.get(sort)));
+            }
+            if (StringUtils.isBlank(displayVo.getSort())){
+                displayVo.setSort(i+"");
+            }
+        }
+        return list;
+
     }
 }

@@ -327,46 +327,8 @@ public class PlanningProjectPlankController extends BaseController {
      */
     @ApiOperation(value = "获取维度字段卡片")
     @GetMapping("/getDimensionFieldCard")
-    public ApiResult getDimensionFieldCard(DimensionLabelsSearchDto dto,String names){
-        List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.getDimensionalityList(dto).getPlanningDimensionalities();
-        List<FieldDisplayVo> fieldDisplayVoList = planningDimensionalities.stream().map(planningDimensionality -> {
-            FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
-            fieldDisplayVo.setName(planningDimensionality.getDimensionalityName());
-            fieldDisplayVo.setField(planningDimensionality.getId());
-            return fieldDisplayVo;
-        }).collect(Collectors.toList());
-        List<FieldDisplayVo> list=new ArrayList<>();
-        //额外的字段
-        if (StringUtils.isNotBlank(names)){
-            for (String s : names.split(",")) {
-                FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
-                fieldDisplayVo.setField(s);
-                fieldDisplayVo.setName(s);
-                list.add(fieldDisplayVo);
-            }
-        }
-        list.addAll(fieldDisplayVoList);
-        for (int i = 0; i < list.size(); i++) {
-            FieldDisplayVo displayVo = list.get(i);
-            //设置是否显示
-            String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ displayVo.getField();
-            if (redisUtils.hasKey(key)) {
-                displayVo.setDisplay("1".equals(redisUtils.get(key)));
-            }else {
-                displayVo.setDisplay(true);
-            }
-
-            //设置排序
-            String sort = "planningProjectPlank:dimensionFieldCard:sort:" +this.getUserId()+":"+ displayVo.getField();
-            if (redisUtils.hasKey(sort)) {
-                displayVo.setSort(String.valueOf(redisUtils.get(sort)));
-            }
-            if (StringUtils.isBlank(displayVo.getSort())){
-                displayVo.setSort(i+"");
-            }
-        }
-
-
+    public ApiResult getDimensionFieldCard(DimensionLabelsSearchDto dto){
+        List<FieldDisplayVo> list= planningProjectPlankService.getDimensionFieldCard(dto);
         return selectSuccess(list);
     }
 

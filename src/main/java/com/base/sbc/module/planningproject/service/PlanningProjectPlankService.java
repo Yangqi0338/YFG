@@ -1,6 +1,8 @@
 package com.base.sbc.module.planningproject.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.planning.vo.FieldDisplayVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
@@ -26,4 +28,6 @@ public interface PlanningProjectPlankService extends BaseService<PlanningProject
      * 根据大货款号取消匹配
      */
     void unMatchByBulkStyleNo(String bulkStyleNo);
+
+    List<FieldDisplayVo> getDimensionFieldCard(DimensionLabelsSearchDto dto);
 }
