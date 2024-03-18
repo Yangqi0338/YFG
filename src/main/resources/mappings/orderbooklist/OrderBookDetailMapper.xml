@@ -211,4 +211,21 @@
         SUM(CASE WHEN SIZES = 'XL' THEN ${sizeKey} ELSE 0 END) XL,
         SUM(CASE WHEN SIZES = 'XXL' THEN ${sizeKey} ELSE 0 END) XXL,
     </sql>
+
+    <select id="queryStarRocks1" resultType="java.util.Map">
+        select
+        <if test="total == 1">
+            T.PROD_CODE, T.BRAND_NAME
+        </if>
+        <if test="total == 0">
+            T.*
+        </if>
+        from DM_SALE_FAC T
+        where
+        T.ORDER_TYPE != '追单'
+        <include refid="ewSelect"/>
+        <if test="total == 1">
+            group by T.PROD_CODE, T.BRAND_NAME
+        </if>
+    </select>
 </mapper>

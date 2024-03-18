@@ -812,7 +812,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (CollUtil.isEmpty(queryDto.getChannel())) {
             throw new OtherException("相似款查询必须传入渠道条件");
         }
-        String channelName = queryDto.getChannel().stream().map(OrderBookChannelType::getText).collect(Collectors.joining(COMMA));
+        List<String> channelList = queryDto.getChannel().stream().map(OrderBookChannelType::getText).collect(Collectors.toList());
 
         String category1stCode = queryDto.getCategory1stCode();
         List<String> searchBulkStyleNoList = new ArrayList<>();
@@ -830,10 +830,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         Page<Object> page = queryDto.startPage();
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
-        qw.notEmptyLike("S.PROD_CODE", queryDto.getBulkStyleNo());
-        qw.notEmptyIn("S.PROD_CODE", searchBulkStyleNoList);
+        qw.notEmptyLike("T.PROD_CODE", queryDto.getBulkStyleNo());
+        qw.notEmptyIn("T.PROD_CODE", searchBulkStyleNoList);
+        qw.in("T.CHANNEL_TYPE", channelList);
 
-        List<Map<String, Object>> totalMaps = getBaseMapper().queryStarRocksTotal(qw, channelName);
+        List<Map<String, Object>> totalMaps = getBaseMapper().queryStarRocksTotal(qw);
         List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
 
         PageInfo<OrderBookSimilarStyleVo> result = CopyUtil.copy(page.toPageInfo(), dtoList);
@@ -860,9 +861,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         /* ----------------------------装饰详细的投产销售---------------------------- */
 
         BaseQueryWrapper<OrderBookDetail> qw1 = new BaseQueryWrapper<>();
-        qw1.in("S.PROD_CODE", bulkStyleNoList);
+        qw1.in("T.PROD_CODE", bulkStyleNoList);
+        qw.in("T.CHANNEL_TYPE", channelList);
 
-        List<Map<String, Object>> detailMaps = getBaseMapper().queryStarRocksDetail(qw1, channelName);
+        List<Map<String, Object>> detailMaps = getBaseMapper().queryStarRocksDetail(qw1);
         // 封装数据并转化Bean
         detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
         List<StyleSaleIntoDto> detailList = ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);

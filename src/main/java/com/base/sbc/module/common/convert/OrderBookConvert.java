@@ -42,6 +42,7 @@ public interface OrderBookConvert {
             @Mapping(target = "channel", source = "CHANNEL_TYPE"),
             @Mapping(target = "brand", source = "BRAND_NAME"),
             @Mapping(target = "sum", source = "SUM"),
+            @Mapping(target = "resultType", source = "RESULTTYPE"),
     })
     StyleSaleIntoDto copy2StyleSaleInto(Map<String, Object> map);
     List<StyleSaleIntoDto> copyList2StyleSaleInto(List<Map<String, Object>> source);
