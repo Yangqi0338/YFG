@@ -119,7 +119,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             // System.out.println("上市波段:" + jsonObject.getString(s));
                             String bandName = jsonObject.getString(String.valueOf(s));
                             if (bandMap.containsKey(bandName)){
-                                throw new RemoteException("上市波段重复:" + bandName);
+                                throw new RuntimeException("上市波段重复:" + bandName);
                             }else {
                                 bandMap.put(bandName,bandName);
                             }
@@ -132,7 +132,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             BasicDictDepend basicDictDepend = dictDependsMap.get(  s1+seasonCode);
 
                             if (basicDictDepend==null){
-                                throw new RemoteException("波段"+bandName+"在字典依赖月份配置不存在");
+                                throw new RuntimeException("波段"+bandName+"在字典依赖月份配置不存在");
                             }
 
                             bandNames.add(jsonObject.getString(String.valueOf(s)));

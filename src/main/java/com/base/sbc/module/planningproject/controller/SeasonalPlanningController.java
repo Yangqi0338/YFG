@@ -44,7 +44,12 @@ public class SeasonalPlanningController extends BaseController {
     @DuplicationCheck(type = 1,time = 20)
     public ApiResult importExcel(MultipartFile file,  SeasonalPlanningSaveDto seasonalPlanningSaveDto) throws Exception {
         seasonalPlanningSaveDto.setCompanyCode(this.getUserCompany());
-        seasonalPlanningService.importExcel(file,seasonalPlanningSaveDto);
+        try {
+            seasonalPlanningService.importExcel(file,seasonalPlanningSaveDto);
+        }catch (Exception e){
+            throw new RuntimeException("导入模板错误"+e.getMessage());
+        }
+
         return insertSuccess("导入成功");
     }
 
