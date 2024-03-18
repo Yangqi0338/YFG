@@ -11,8 +11,6 @@ import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleChannelVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleSizeMapVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
-import jdk.jfr.Name;
-import org.mapstruct.MapMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
