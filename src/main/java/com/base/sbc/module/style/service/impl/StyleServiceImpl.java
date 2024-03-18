@@ -1631,7 +1631,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // dataPermissionsService.getDataPermissionsForQw(obrnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         // stylePlanningCommonQw(obrnQueryWrapper, dto);
         // Long orderBookProductionNum = getBaseMapper().colorCount(obrnQueryWrapper);
-        vo.setOrderBookProductionNum(null);
+        vo.setOrderBookProductionNum(0L);
         return vo;
     }
 
