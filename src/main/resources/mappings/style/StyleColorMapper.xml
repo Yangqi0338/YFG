@@ -332,6 +332,7 @@
                ts.prod_category2nd,
                ts.prod_category2nd_name,
                tsca.size_code                               sizeCode,
+               tbs.internal_size,
                ts.size_range,
                ts.size_range_name,
                concat(tsc.ware_code,
