@@ -186,14 +186,17 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                     }
                 }
                 FieldManagement fieldManagement = fieldManagementMap.get(planningDimensionality.getFieldId());
-                planningProjectPlankDimension.setGroupName(fieldManagement.getGroupName());
-                planningProjectPlankDimension.setFieldManagement(fieldManagement);
+                if (fieldManagement!=null){
+                    planningProjectPlankDimension.setGroupName(fieldManagement.getGroupName());
+                    planningProjectPlankDimension.setFieldManagement(fieldManagement);
+                }
+
                 list2.add(planningProjectPlankDimension);
             }
 
-
+            //按照分组名称进行分组,分组名称为空则过滤掉
             Map<String, List<PlanningProjectPlankDimension>> groupedList = list2.stream()
-                    .collect(Collectors.groupingBy(PlanningProjectPlankDimension::getGroupName));
+                    .filter(dimension -> dimension.getGroupName() != null).collect(Collectors.groupingBy(PlanningProjectPlankDimension::getGroupName));
 
             planningProjectPlankVo.setDimensionList(groupedList);
         }
