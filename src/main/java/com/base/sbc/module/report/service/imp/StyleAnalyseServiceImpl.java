@@ -60,6 +60,14 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
             return new PageInfo<>(list);
         }
 
+        List<String> designNos = dto.getDesignNoAndStyleNos();
+        String yearParam = dto.getYear();
+        String seasonParam = dto.getSeason();
+        qw.notEmptyIn("t.design_no", designNos);
+        qw.notEmptyEq("t.year", yearParam);
+        qw.notEmptyEq("t.season", seasonParam);
+        QueryGenerator.reportParamBulkStyleNosCheck(designNos, yearParam, seasonParam);
+
         Page<Object> objects = PageHelper.startPage(dto);
         List<StyleAnalyseVo> list = styleAnalyseMapper.findDesignPage(qw);
 
@@ -95,6 +103,14 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
     public PageInfo<StyleAnalyseVo> findStylePage(StyleAnalyseQueryDto dto) {
         BaseQueryWrapper<StyleAnalyseQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
+        List<String> designNos = dto.getDesignNoAndStyleNos();
+        String yearParam = dto.getYear();
+        String seasonParam = dto.getSeason();
+        qw.notEmptyIn("sc.style_no", designNos);
+        qw.notEmptyEq("t.year", yearParam);
+        qw.notEmptyEq("t.season", seasonParam);
+        QueryGenerator.reportParamBulkStyleNosCheck(designNos, yearParam, seasonParam);
+
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         if (isColumnHeard && StrUtil.isNotEmpty(dto.getQueryFieldColumn())) {
             String s = dto.getQueryFieldColumn().split("\\.")[1];

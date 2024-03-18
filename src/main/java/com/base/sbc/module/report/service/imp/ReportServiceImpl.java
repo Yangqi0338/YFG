@@ -49,9 +49,13 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<HangTagReportVo> getHangTagReortPage(HangTagReportQueryDto dto) {
         BaseQueryWrapper<HangTagReportQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
-        qw.notEmptyIn("t.bulk_style_no", dto.getBulkStyleNos());
-        qw.notEmptyEq("ts.year", dto.getBulkStyleNos());
-        qw.notEmptyEq("ts.season_name", dto.getSeason());
+        List<String> bulkStyleNos = dto.getBulkStyleNos();
+        String year = dto.getYear();
+        String season = dto.getSeason();
+        QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
+        qw.notEmptyIn("t.bulk_style_no", bulkStyleNos);
+        qw.notEmptyEq("ts.year", year);
+        qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("t.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
@@ -82,6 +86,14 @@ public class ReportServiceImpl implements ReportService {
         BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
         qw.orderByDesc("t.create_date");
+
+        List<String> materialNos = dto.getMaterialNos();
+        String year = dto.getYear();
+        String season = dto.getSeason();
+        QueryGenerator.reportParamMaterialsNoCheck(materialNos, year, season);
+        qw.notEmptyIn("t.material_code", materialNos);
+        qw.notEmptyEq("t.year", year);
+        qw.notEmptyEq("t.season", season);
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<MaterialSupplierQuoteVo> list = reportMapper.getMaterialSupplierQuoteReporList(qw);
@@ -109,8 +121,13 @@ public class ReportServiceImpl implements ReportService {
         BaseQueryWrapper<MaterialSupplierQuoteQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("tsc.del_flag", "0");
         qw.isNotNullStr("tsc.bom");
-        qw.notEmptyIn("tsc.style_no" , dto.getStyleColorNos());
-        qw.notEmptyEq("ts.year" , dto.getYear());
+        List<String> bulkStyleNos = dto.getBulkStyleNos();
+        String year = dto.getYear();
+        String season = dto.getSeason();
+        QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
+        qw.notEmptyIn("tsc.style_no", bulkStyleNos);
+        qw.notEmptyEq("ts.year", year);
+        qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
@@ -138,28 +155,36 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public PageInfo<StyleSizeReportVo> getStyleSizeReportPage(StyleSizeQueryDto dto) {
         BaseQueryWrapper<StyleSizeReportVo> qw = new BaseQueryWrapper<>();
-        qw.eq("ts.del_flag" , "0");
+        qw.eq("ts.del_flag", "0");
+
+        List<String> bulkStyleNos = dto.getBulkStyleNos();
+        String year = dto.getYear();
+        String season = dto.getSeason();
+        qw.notEmptyIn("tsc.style_no", bulkStyleNos);
+        qw.notEmptyEq("ts.year", year);
+        qw.notEmptyEq("ts.season", season);
+        QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
         qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
         if (!isColumnHeard) {
-            Map<String,String> values = null;
+            Map<String, String> values = null;
             for (StyleSizeReportVo styleSizeReportVo : list) {
-                values =new HashMap<>();
+                values = new HashMap<>();
                 String standard = styleSizeReportVo.getStandard();
                 JSONObject jsonObject = JSONObject.parseObject(standard);
                 for (String key : jsonObject.keySet()) {
                     //if (key.contains("\\(")) {
-                        String[] split = key.split("\\(");
-                        String s = split[1].replace(")","");
-                        if (key.contains("template")) {
-                            values.put("template"+s,jsonObject.getString(key));
-                        }else if(key.contains("garment")){
-                            values.put("garment"+s,jsonObject.getString(key));
-                        }else if(key.contains("washing")){
-                            values.put("washing"+s,jsonObject.getString(key));
-                        }
+                    String[] split = key.split("\\(");
+                    String s = split[1].replace(")", "");
+                    if (key.contains("template")) {
+                        values.put("template" + s, jsonObject.getString(key));
+                    } else if (key.contains("garment")) {
+                        values.put("garment" + s, jsonObject.getString(key));
+                    } else if (key.contains("washing")) {
+                        values.put("washing" + s, jsonObject.getString(key));
+                    }
                     /* }else{
                         //FIXME 后续逻辑优化
                     }*/
@@ -192,6 +217,13 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<DesignOrderScheduleDetailsReportVo> getDesignOrderScheduleDetailsReportPage(DesignOrderScheduleDetailsQueryDto dto) {
         BaseQueryWrapper<DesignOrderScheduleDetailsReportVo> qw = new BaseQueryWrapper<>();
         qw.eq("tsc.del_flag", "0");
+        List<String> bulkStyleNosParam = dto.getBulkStyleNos();
+        String yearParam = dto.getYear();
+        String seasonParam = dto.getSeason();
+        qw.notEmptyIn("tsc.style_no", bulkStyleNosParam);
+        qw.notEmptyEq("ts.year", yearParam);
+        qw.notEmptyEq("ts.season", seasonParam);
+        QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNosParam, yearParam, seasonParam);
         qw.orderByDesc("tsc.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);

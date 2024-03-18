@@ -1,9 +1,11 @@
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnDefineService;
 
@@ -117,4 +119,51 @@ public class QueryGenerator {
         return isColumnHeard;
     }
 
+    /**
+     * 报表参数验证
+     * @param bulkStyleNos 大货款号 （限制2000个）
+     * @param year 年份
+     * @param season 季节
+     */
+    public static void reportParamBulkStyleNosCheck(List<String> bulkStyleNos, String year, String season) {
+
+        boolean yearIsNotBool = StrUtil.isNotEmpty(year) && StrUtil.isEmpty(season);
+        boolean seasonIsNotBool = StrUtil.isEmpty(year) && StrUtil.isNotEmpty(season);
+        boolean bulkStyleNosEmpty = CollUtil.isEmpty(bulkStyleNos);
+        boolean yearEmpty = StrUtil.isEmpty(year);
+        boolean seasonEmpty = StrUtil.isEmpty(season);
+        if (!bulkStyleNosEmpty && bulkStyleNos.size() > 2000) {
+            throw new OtherException("大货款号最多输入2000个！");
+        }
+        if (bulkStyleNosEmpty && (yearIsNotBool || seasonIsNotBool)) {
+            throw new OtherException("当大货款号为空的时候,年份-季节必须一起绑定查询！");
+        }
+        if (bulkStyleNosEmpty && yearEmpty && seasonEmpty) {
+            throw new OtherException("请输入大货款号或年份-季节参数查询！");
+        }
+    }
+
+    /**
+     * 报表参数验证
+     * @param materialNos 物料号 （限制2000个）
+     * @param year 年份
+     * @param season 季节
+     */
+    public static void reportParamMaterialsNoCheck(List<String> materialNos, String year, String season) {
+
+        boolean yearIsNotBool = StrUtil.isNotEmpty(year) && StrUtil.isEmpty(season);
+        boolean seasonIsNotBool = StrUtil.isEmpty(year) && StrUtil.isNotEmpty(season);
+        boolean materialNosEmpty = CollUtil.isEmpty(materialNos);
+        boolean yearEmpty = StrUtil.isEmpty(year);
+        boolean seasonEmpty = StrUtil.isEmpty(season);
+        if (!materialNosEmpty && materialNos.size() > 2000) {
+            throw new OtherException("物料号最多输入2000个！");
+        }
+        if (materialNosEmpty && (yearIsNotBool || seasonIsNotBool)) {
+            throw new OtherException("当物料号为空的时候,年份-季节必须一起绑定查询！");
+        }
+        if (materialNosEmpty && yearEmpty && seasonEmpty) {
+            throw new OtherException("请输入物料号或年份-季节参数查询！");
+        }
+    }
 }
