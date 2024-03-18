@@ -34,6 +34,10 @@ public class PlanningProjectPlankDimension extends BaseDataEntity<String> {
     /** 维度值 */
     @ApiModelProperty(value = "维度值"  )
     private String dimensionValue;
+
+    /** 维度值 */
+    @ApiModelProperty(value = "维度值名称"  )
+    private String dimensionValueName;
     /** 维度等级 */
     @ApiModelProperty(value = "维度等级"  )
     private String dimensionalityGrade;

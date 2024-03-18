@@ -180,6 +180,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(styleColorId) && planningDimensionality.getDimensionalityName().equals(fieldVal.getFieldExplain())){
                             planningProjectPlankDimension.setDimensionCode(fieldVal.getFieldName());
                             planningProjectPlankDimension.setDimensionValue(fieldVal.getVal());
+                            planningProjectPlankDimension.setDimensionValueName(fieldVal.getValName());
                             break;
                         }
                     }
