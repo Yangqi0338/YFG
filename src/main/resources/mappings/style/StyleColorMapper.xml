@@ -344,6 +344,8 @@
                tsc.create_date,
                tsc.create_id,
                tsc.create_name,
+               tsca.update_name,
+               tsca.update_date,
                ts.enable_status,
                tsca.status                                  sendStatus,
                ts.band_code,
