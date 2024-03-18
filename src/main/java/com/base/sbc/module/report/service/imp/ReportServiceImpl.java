@@ -49,6 +49,9 @@ public class ReportServiceImpl implements ReportService {
     public PageInfo<HangTagReportVo> getHangTagReortPage(HangTagReportQueryDto dto) {
         BaseQueryWrapper<HangTagReportQueryDto> qw = new BaseQueryWrapper<>();
         qw.eq("t.del_flag", "0");
+        qw.notEmptyIn("t.bulk_style_no", dto.getBulkStyleNos());
+        qw.notEmptyEq("ts.year", dto.getBulkStyleNos());
+        qw.notEmptyEq("ts.season_name", dto.getSeason());
         qw.orderByDesc("t.create_date");
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
@@ -157,7 +160,7 @@ public class ReportServiceImpl implements ReportService {
                         }else if(key.contains("washing")){
                             values.put("washing"+s,jsonObject.getString(key));
                         }
-                   /* }else{
+                    /* }else{
                         //FIXME 后续逻辑优化
                     }*/
 
