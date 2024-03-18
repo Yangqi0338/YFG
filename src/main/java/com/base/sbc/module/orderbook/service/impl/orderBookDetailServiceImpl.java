@@ -215,7 +215,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             // }
         // }
 
-        String sizeCodes = orderBookDetailVos.stream().flatMap(it-> Stream.of(it.getSizeCodes().split(COMMA))).distinct().collect(Collectors.joining(COMMA));
+        String sizeCodes = orderBookDetailVos.stream().map(OrderBookDetailVo::getSizeCodes).filter(StrUtil::isNotBlank)
+                .flatMap(it-> Stream.of(it.split(COMMA))).distinct().collect(Collectors.joining(COMMA));
         List<BasicsdatumSize> sizeList = sizeService.list(new BaseLambdaQueryWrapper<BasicsdatumSize>()
                 .notEmptyIn(BasicsdatumSize::getCode, sizeCodes)
                 .select(BasicsdatumSize::getModel, BasicsdatumSize::getInternalSize, BasicsdatumSize::getCode));
