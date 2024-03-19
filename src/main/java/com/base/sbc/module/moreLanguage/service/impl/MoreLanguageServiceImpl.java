@@ -167,6 +167,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         // 只查询可配置的
         standardColumnList.removeIf(it-> it.getModel().equals(StandardColumnModel.TEXT));
+        standardColumnList.removeIf(it-> it.getShowFlag() != YesOrNoEnum.YES);
 
         // 根据id排序,并逐一装饰对应的title
         return BeanUtil.copyToList(standardColumnList, StandardColumnDto.class).stream()

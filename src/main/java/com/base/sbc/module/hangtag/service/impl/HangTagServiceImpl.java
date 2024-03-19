@@ -64,6 +64,7 @@ import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
+import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -77,6 +78,7 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.standard.entity.StandardColumn;
+import com.base.sbc.module.standard.service.StandardColumnService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
@@ -195,6 +197,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Resource
 	@Lazy
 	private StyleCountryStatusService styleCountryStatusService;
+
+	@Autowired
+	private StandardColumnCountryRelationService standardColumnCountryRelationService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -1289,12 +1294,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		switch (source) {
 			case PDM:
+				resultList.removeIf(it-> it.getShowFlag() == YesOrNoEnum.NO);
 				List<HangTagMoreLanguageWebBaseVO> webBaseList = HANG_TAG_CV.copyList2Web(resultList);
 				decorateWebList(hangTagVOList, webBaseList);
 				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> MoreLanguageProperties.isInternalLanguageCode(it.getLanguageCode())));
                 return webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getType));
 			case BCS:
 			case ESCM:
+				resultList.removeIf(it-> it.getShowFlag() == YesOrNoEnum.NO);
 				List<HangTagMoreLanguageBCSVO> sourceResultList = new ArrayList<>();
 				HANG_TAG_CV.copyList2Bcs(resultList).stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode))
 						.forEach((code, sameBulkStyleNoList)-> {
