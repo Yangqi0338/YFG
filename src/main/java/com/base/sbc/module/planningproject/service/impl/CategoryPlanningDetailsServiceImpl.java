@@ -266,11 +266,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                 }
             }
 
-
             if (!list.isEmpty()) {
-                for (int i1 = 0; i1 < list.size(); i1++) {
-
-                    PlanningDimensionality planningDimensionality = list.get(i1);
+                for (PlanningDimensionality planningDimensionality : list) {
 
                     // 获取配置
                     QueryWrapper<FieldOptionConfig> queryWrapper2 = new QueryWrapper<>();
@@ -284,22 +281,33 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
 
                         if ("1".equals(isOption)) {
                             // 从字典获取
-                            String dimensionTypeCode = fieldManagement.getFieldTypeCoding();
+                            String dimensionTypeCode = fieldManagement.getOptionDictKey();
                             Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap(dimensionTypeCode);
-                            System.out.println(dictInfoToMap);
+                            for (String s : dictInfoToMap.keySet()) {
+                                Map<String, String> map = dictInfoToMap.get(s);
+                                for (String string : map.keySet()) {
+                                    FieldOptionConfig fieldOptionConfig = new FieldOptionConfig();
+                                    fieldOptionConfig.setFieldManagementId(fieldManagement.getId());
+                                    fieldOptionConfig.setOptionName(string);
+                                    fieldOptionConfig.setOptionCode(map.get(string));
+                                    list1.add(fieldOptionConfig);
+                                }
+                            }
+
                         }
                         if ("2".equals(isOption)) {
                             String optionDictKey = fieldManagement.getOptionDictKey();
                             List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode(optionDictKey, null, "0");
-                            List<FieldOptionConfig> fieldOptionConfigs = new ArrayList<>();
+                            // List<FieldOptionConfig> fieldOptionConfigs = new ArrayList<>();
                             for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVos) {
                                 FieldOptionConfig fieldOptionConfig = new FieldOptionConfig();
                                 fieldOptionConfig.setOptionName(basicStructureTreeVo.getName());
                                 fieldOptionConfig.setOptionCode(basicStructureTreeVo.getValue());
                                 fieldOptionConfig.setFieldManagementId(fieldManagement.getId());
-                                fieldOptionConfigs.add(fieldOptionConfig);
+                                // fieldOptionConfigs.add(fieldOptionConfig);
+                                list1.add(fieldOptionConfig);
                             }
-                            list1 = fieldOptionConfigs;
+                            // list1 = fieldOptionConfigs;
                         }
 
                     }
@@ -309,42 +317,58 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     // List<String> ids =  list1.stream().map(FieldOptionConfig::getFieldManagementId).collect(Collectors.toList()).stream().distinct().collect(Collectors.toList());
 
 
-                    int j = 0;
-                    for (String s : nameList) {
-                        for (FieldOptionConfig fieldOptionConfig : list1) {
-                            if (fieldOptionConfig.getOptionName().equals(s)) {
-                                JSONObject jsonObject = new JSONObject();
-                                //     dimensionTypeCode
-                                jsonObject.put("dimensionCode", fieldOptionConfig.getOptionName());
-                                jsonObject.put("dimensionValue", fieldOptionConfig.getOptionCode());
-                                jsonObject.put("dimensionId", planningDimensionality.getFieldId());
-                                jsonObject.put("dimensionName", planningDimensionality.getDimensionalityName());
-                                jsonObject.put("dimensionTypeCode", fieldManagement.getFormTypeId());
-                                jsonObject.put("skuCount", categoryPlanningDetailsVo.getSkcCount());
-                                jsonObject.put("prodCategory1stName", prodCategory1stName);
-                                jsonObject.put("prodCategory1stCode", prodCategory1stCode);
-                                jsonObject.put("maxSum", object.toJSONString());
-                                jsonObject.put("prodCategoryCode", planningDimensionality.getProdCategory());
-                                jsonObject.put("prodCategoryName", planningDimensionality.getProdCategoryName());
+                    if (split1 !=null){
+                        for (int i2 = 0; i2 < split1.length; i2++) {
+                            for (String s : nameList) {
+                                for (FieldOptionConfig fieldOptionConfig : list1) {
+                                    if (fieldOptionConfig.getOptionName().equals(s)) {
+                                        JSONObject jsonObject = new JSONObject();
+                                        //     dimensionTypeCode
+                                        jsonObject.put("dimensionCode", fieldOptionConfig.getOptionName());
+                                        jsonObject.put("dimensionValue", fieldOptionConfig.getOptionCode());
+                                        jsonObject.put("dimensionId", planningDimensionality.getFieldId());
+                                        jsonObject.put("dimensionName", planningDimensionality.getDimensionalityName());
+                                        jsonObject.put("dimensionTypeCode", fieldManagement.getFormTypeId());
+                                        jsonObject.put("skuCount", categoryPlanningDetailsVo.getSkcCount());
+                                        jsonObject.put("prodCategory1stName", prodCategory1stName);
+                                        jsonObject.put("prodCategory1stCode", prodCategory1stCode);
+                                        jsonObject.put("maxSum", object.toJSONString());
+                                        jsonObject.put("prodCategoryCode", planningDimensionality.getProdCategory());
+                                        jsonObject.put("prodCategoryName", planningDimensionality.getProdCategoryName());
+                                        jsonObject.put("prodCategory2ndCode", split1[i2]);
+                                        jsonObject.put("prodCategory2ndName", split11[i2]);
+                                        jsonObjects.add(jsonObject);
+                                    }
 
-                                if (StringUtils.isBlank(planningDimensionality.getProdCategory2nd()) && split1!=null && split1.length>j){
-                                     jsonObject.put("prodCategory2ndCode",split1[j]);
-                                }else {
-                                    jsonObject.put("prodCategory2ndCode",planningDimensionality.getProdCategory2nd() );
-                                }
-                                if (StringUtils.isBlank(planningDimensionality.getProdCategory2ndName()) && split11!=null && split11.length>j){
-                                    jsonObject.put("prodCategory2ndName",split11[j]);
-                                    j++;
-                                }else {
-                                    jsonObject.put("prodCategory2ndName",planningDimensionality.getProdCategory2ndName() );
                                 }
 
-                                jsonObjects.add(jsonObject);
-                                break;
                             }
                         }
+                    }else {
+                        for (String s : nameList) {
+                            for (FieldOptionConfig fieldOptionConfig : list1) {
+                                if (fieldOptionConfig.getOptionName().equals(s)) {
+                                    JSONObject jsonObject = new JSONObject();
+                                    //     dimensionTypeCode
+                                    jsonObject.put("dimensionCode", fieldOptionConfig.getOptionName());
+                                    jsonObject.put("dimensionValue", fieldOptionConfig.getOptionCode());
+                                    jsonObject.put("dimensionId", planningDimensionality.getFieldId());
+                                    jsonObject.put("dimensionName", planningDimensionality.getDimensionalityName());
+                                    jsonObject.put("dimensionTypeCode", fieldManagement.getFormTypeId());
+                                    jsonObject.put("skuCount", categoryPlanningDetailsVo.getSkcCount());
+                                    jsonObject.put("prodCategory1stName", prodCategory1stName);
+                                    jsonObject.put("prodCategory1stCode", prodCategory1stCode);
+                                    jsonObject.put("maxSum", object.toJSONString());
+                                    jsonObject.put("prodCategoryCode", planningDimensionality.getProdCategory());
+                                    jsonObject.put("prodCategoryName", planningDimensionality.getProdCategoryName());
+                                    jsonObjects.add(jsonObject);
+                                }
 
+                            }
+
+                        }
                     }
+
 
                 }
                 categoryPlanningDetailsVo.setDataJson(JSON.toJSONString(jsonObjects, SerializerFeature.WriteNullStringAsEmpty));
