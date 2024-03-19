@@ -85,8 +85,8 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
         Map<String, String> prodCategoryMap = new HashMap<>();
         structureTreeByCodes.forEach(o -> o.getChildren().forEach(s -> prodCategoryMap.put(o.getName() + "_" + s.getName(), o.getId() + "_" + s.getId())));
         //查询设计师
-        ApiResult userCodeResult = amcService.getUserCodeNotNullUserList();
-        JSONArray userCodeArr = JSONArray.parseArray(JSONObject.toJSONString(userCodeResult.getData()));
+        String userCodeResult = amcService.getUserCodeNotNullUserList();
+        JSONArray userCodeArr = JSONArray.parseArray(JSONObject.parseObject(userCodeResult).getString("data"));
         Map<String, String> userMap = new HashMap<>();
         for (int i = 0; i < userCodeArr.size(); i++) {
             JSONObject userCodeObj = userCodeArr.getJSONObject(i);
