@@ -87,13 +87,13 @@ public class ReportServiceImpl implements ReportService {
         qw.eq("t.del_flag", "0");
         qw.orderByDesc("t.create_date");
 
-        List<String> materialNos = dto.getMaterialNos();
+        /*List<String> materialNos = dto.getMaterialNos();
         String year = dto.getYear();
         String season = dto.getSeason();
         QueryGenerator.reportParamMaterialsNoCheck(materialNos, year, season);
         qw.notEmptyIn("t.material_code", materialNos);
         qw.notEmptyEq("t.year", year);
-        qw.notEmptyEq("t.season", season);
+        qw.notEmptyEq("t.season", season);*/
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<MaterialSupplierQuoteVo> list = reportMapper.getMaterialSupplierQuoteReporList(qw);
