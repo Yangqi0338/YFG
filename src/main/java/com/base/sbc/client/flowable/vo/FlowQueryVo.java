@@ -41,6 +41,19 @@ public class FlowQueryVo {
 
     private String isAdmin;
 
+    /**
+     * 移动端审批查询使用 汇聚「审批内容、审批名称」
+     */
+    private String search;
+
+    public String getSearch() {
+        return search;
+    }
+
+    public void setSearch(String search) {
+        this.search = search;
+    }
+
     public String getStartTime() {
         return startTime;
     }
