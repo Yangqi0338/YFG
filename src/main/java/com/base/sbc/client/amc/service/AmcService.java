@@ -237,6 +237,6 @@ public interface AmcService {
      * 查询用户-企业 user_code 不为空的数据
      */
     @GetMapping("/amc/api/open/user/getUserCodeNotNullUserList")
-    String getUserCodeNotNullUserList();
+    ApiResult getUserCodeNotNullUserList();
 
 }
