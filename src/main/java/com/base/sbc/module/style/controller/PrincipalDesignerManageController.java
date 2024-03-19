@@ -72,6 +72,12 @@ public class PrincipalDesignerManageController {
         principalDesignerManageService.exportExcel(response, dto);
     }
 
+    @ApiOperation(value = "修改")
+    @PostMapping("/updateMain")
+    public ApiResult updateMain(@RequestBody PrincipalDesignerManageVo vo) {
+        return principalDesignerManageService.updateMain(vo);
+    }
+
 }
 
 

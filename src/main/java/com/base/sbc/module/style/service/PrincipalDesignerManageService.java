@@ -37,6 +37,8 @@ public interface PrincipalDesignerManageService extends BaseService<PrincipalDes
 
     void exportExcel(HttpServletResponse response, PrincipalDesignerManageQueryDto dto) throws IOException;
 
+    ApiResult updateMain(PrincipalDesignerManageVo vo);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

@@ -9,7 +9,11 @@ package com.base.sbc.module.style.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -29,13 +33,11 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +56,8 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
 
     @Autowired
     private CcmFeignService ccmFeignService;
+    @Autowired
+    private AmcService amcService;
 
     @Override
     public PageInfo<PrincipalDesignerManageVo> findPage(PrincipalDesignerManageQueryDto dto) {
@@ -64,6 +68,7 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
     }
 
     @Override
+    @Transactional
     public ApiResult importExcel(List<PrincipalDesignerManageExcel> list) {
         List<String> prodCategoryNameList = new ArrayList<>();
         List<String> designerList = new ArrayList<>();
@@ -79,6 +84,23 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
         List<BasicStructureTreeVo> structureTreeByCodes = ccmFeignService.findStructureTreeByCodes(String.join(",", prodCategoryNameList));
         Map<String, String> prodCategoryMap = new HashMap<>();
         structureTreeByCodes.forEach(o -> o.getChildren().forEach(s -> prodCategoryMap.put(o.getName() + "_" + s.getName(), o.getId() + "_" + s.getId())));
+        //查询设计师
+        ApiResult userCodeResult = amcService.getUserCodeNotNullUserList();
+        JSONArray userCodeArr = JSONArray.parseArray(JSONObject.toJSONString(userCodeResult.getData()));
+        Map<String, String> userMap = new HashMap<>();
+        for (int i = 0; i < userCodeArr.size(); i++) {
+            JSONObject userCodeObj = userCodeArr.getJSONObject(i);
+            String userId = userCodeObj.getString("userId");
+            String aliasUserName = userCodeObj.getString("aliasUserName");
+            if(userMap.containsKey(aliasUserName)){
+                //重名时，设置为空，用户在前端 选择对应设计师
+                userMap.put(aliasUserName, "");
+            }else{
+                userMap.put(aliasUserName, userId);
+            }
+        }
+
+        StringBuffer msg = new StringBuffer();
 
         for (PrincipalDesignerManageExcel excel : list) {
             //品牌
@@ -96,20 +118,31 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
             } else {
                 throw new OtherException("品类+中类 不存在：" + excel.getProdCategoryName() + "_" + excel.getProdCategory2ndName());
             }
-            //设计师  TODO
-
-
+            //设计师
+            if(userMap.containsKey(excel.getDesigner())){
+                String userId = userMap.get(excel.getDesigner());
+                if(StrUtil.isEmpty(userId)){
+                    //重名时，设置为空，用户在前端 选择对应设计师
+                    msg.append("设计师：").append(excel.getDesigner()).append("存在重名，请在页面手工修改设计师字段;");
+                }else{
+                    excel.setDesignerId(userId);
+                }
+            }else{
+                throw new OtherException("设计师不存在：" + excel.getDesigner());
+            }
         }
         List<PrincipalDesignerManage> list1 = BeanUtil.copyToList(list, PrincipalDesignerManage.class);
         for (PrincipalDesignerManage principalDesignerManage : list1) {
             LambdaUpdateWrapper<PrincipalDesignerManage> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.eq(PrincipalDesignerManage::getBrand,principalDesignerManage.getBrand());
-            updateWrapper.eq(PrincipalDesignerManage::getProdCategory,principalDesignerManage.getProdCategory());
-            updateWrapper.eq(PrincipalDesignerManage::getProdCategory2nd,principalDesignerManage.getProdCategory2nd());
-            saveOrUpdate(principalDesignerManage,updateWrapper);
+            updateWrapper.eq(PrincipalDesignerManage::getBrand, principalDesignerManage.getBrand());
+            updateWrapper.eq(PrincipalDesignerManage::getProdCategory, principalDesignerManage.getProdCategory());
+            updateWrapper.eq(PrincipalDesignerManage::getProdCategory2nd, principalDesignerManage.getProdCategory2nd());
+            saveOrUpdate(principalDesignerManage, updateWrapper);
         }
-
-        return ApiResult.success("导入成功");
+        if(StrUtil.isEmpty(msg)){
+            msg.append("导入成功");
+        }
+        return ApiResult.success(msg.toString());
     }
 
     @Override
@@ -117,6 +150,19 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
         List<PrincipalDesignerManageVo> list = findPage(dto).getList();
         List<PrincipalDesignerManageExcel> principalDesignerManageExcels = BeanUtil.copyToList(list, PrincipalDesignerManageExcel.class);
         ExcelUtils.exportExcel(principalDesignerManageExcels, PrincipalDesignerManageExcel.class, "负责设计师配置.xlsx", new ExportParams("负责设计师配置", "负责设计师配置", ExcelType.HSSF), response);
+    }
+
+    @Override
+    public ApiResult updateMain(PrincipalDesignerManageVo vo) {
+        LambdaUpdateWrapper<PrincipalDesignerManage> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(PrincipalDesignerManage::getDesigner, vo.getDesigner());
+        updateWrapper.set(PrincipalDesignerManage::getDesignerId, vo.getDesignerId());
+        updateWrapper.set(PrincipalDesignerManage::getUpdateId, getUserId());
+        updateWrapper.set(PrincipalDesignerManage::getUpdateName, getUserName());
+        updateWrapper.set(PrincipalDesignerManage::getUpdateDate, new Date());
+        updateWrapper.eq(PrincipalDesignerManage::getId, vo.getId());
+        update(updateWrapper);
+        return ApiResult.success("修改成功");
     }
 
 // 自定义方法区 不替换的区域【other_end】
