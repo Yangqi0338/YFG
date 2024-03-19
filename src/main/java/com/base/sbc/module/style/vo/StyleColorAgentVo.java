@@ -174,6 +174,9 @@ public class StyleColorAgentVo {
     @ApiModelProperty(value = "尺码组")
     private String sizeCode;
 
+    @ApiModelProperty(value = "系统码")
+    private String internalSize;
+
     /*BOM阶段*/
     @ApiModelProperty(value = "BOM阶段"  )
     private String bomStatus;
