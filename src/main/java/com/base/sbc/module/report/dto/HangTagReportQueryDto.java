@@ -10,5 +10,13 @@ public class HangTagReportQueryDto extends QueryFieldDto {
     /**
      * 大货款集合
      */
-    private List<String> styleColorNos;
+    private List<String> bulkStyleNos;
+    /**
+     * 年份
+     */
+    private String year;
+    /**
+     * 季节
+     */
+    private String season;
 }
