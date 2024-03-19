@@ -74,10 +74,11 @@
             t.year_name,
             t.season_name
         </if>
-        FROM t_basicsdatum_material t
-        LEFT JOIN t_basicsdatum_material_price t1 ON t.MATERIAL_CODE = t1.MATERIAL_CODE
-        LEFT JOIN t_basicsdatum_material_color t2 ON t.MATERIAL_CODE = t2.material_code
-        LEFT JOIN t_smp_supplier tss ON t1.supplier_id = tss.partner
+        from t_basicsdatum_material t
+        LEFT JOIN t_basicsdatum_material_price t1 ON t.material_code = t1.material_code and t1.del_flag = 0
+        LEFT JOIN t_basicsdatum_material_price_detail t1d ON t1.id = t1d.price_id
+        LEFT JOIN t_basicsdatum_material_color t2 ON t1d.material_code = t2.material_code and t1d.color = t2.color_code and t2.del_flag = 0
+        LEFT JOIN t_smp_supplier tss ON t1d.supplier_id = tss.partner
         ${ew.customSqlSegment}
     </select>
 
