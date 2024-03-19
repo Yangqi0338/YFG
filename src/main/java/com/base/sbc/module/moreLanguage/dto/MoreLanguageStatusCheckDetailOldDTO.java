@@ -14,12 +14,15 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MoreLanguageStatusCheckDetailDTO {
+public class MoreLanguageStatusCheckDetailOldDTO {
 
     @ApiModelProperty(value = "语言编码")
     private String languageCode;
 
+    @ApiModelProperty(value = "国家类型")
+    private String type;
+
     @ApiModelProperty(value = "标准列编码集合")
-    private List<MoreLanguageStatusCheckDetailAuditDTO> auditList;
+    private List<String> standardColumnCodeList;
 
 }

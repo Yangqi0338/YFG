@@ -58,7 +58,7 @@ import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageG
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailOldDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
@@ -89,7 +89,6 @@ import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
 import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -103,7 +102,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import sun.nio.cs.ext.PCK;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -1143,11 +1141,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTagVO.setSizeList(modelTypeList.stream().filter(it-> it.getCode().equals(hangTagVO.getModelType())).collect(Collectors.toList()));
 
 				// 获取状态
-				List<MoreLanguageStatusCheckDetailDTO> statusCheckDetailList = new ArrayList<>();
+				List<MoreLanguageStatusCheckDetailOldDTO> statusCheckDetailList = new ArrayList<>();
 				if (CollectionUtil.isNotEmpty(styleCountryStatusList)) {
 					String checkDetailJson = styleCountryStatusList.stream().filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()) && code.equals(it.getCountryCode()))
 							.findFirst().map(StyleCountryStatus::getCheckDetailJson).orElse("[]");
-					statusCheckDetailList.addAll(JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailDTO.class));
+					statusCheckDetailList.addAll(JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailOldDTO.class));
 				}
 
 				// 循环配置在CodeMapping的标准列数据

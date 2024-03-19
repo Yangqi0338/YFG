@@ -3,7 +3,6 @@ package com.base.sbc.module.moreLanguage.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
@@ -16,17 +15,14 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.MoreLanguageProperties;
-import com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.exception.RightException;
 import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.UserUtils;
-import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
@@ -35,38 +31,28 @@ import com.base.sbc.module.hangtag.mapper.HangTagMapper;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
-import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
-import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailOldDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelResultDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusQueryDto;
-import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
-import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
-import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
-import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ImportSelector;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.repository.query.DefaultParameters;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -213,6 +199,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
      * 导出导入吊牌款号失败的数据
      * @param uniqueValue 唯一标识 用作 Redis 查询
      */
+    @Override
     public void exportImportExcelFailData(String uniqueValue, HttpServletResponse response) {
         if (ObjectUtil.isEmpty(uniqueValue)) {
             log.warn("*************** uniqueValues 传参为空 ***************");
@@ -359,10 +346,10 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
                         // 获取对应的标准列编码列表,并封装检查专用的详情json (用作审核之后,翻译新增了一个标准列关联,可以做对应的标记以及反审)
                         Map<CountryLanguageType, List<String>> typeMap = map.getOrDefault(code, new HashMap<>());
-                        List<MoreLanguageStatusCheckDetailDTO> checkDetailList = new ArrayList<>();
+                        List<MoreLanguageStatusCheckDetailOldDTO> checkDetailList = new ArrayList<>();
                         countryDTO.getLanguageCodeTypeMap().forEach((type, languageCodeList)-> {
                             checkDetailList.addAll(languageCodeList.stream().map(languageCode->
-                                    new MoreLanguageStatusCheckDetailDTO(languageCode, type.getCode(), typeMap.getOrDefault(type,new ArrayList<>()))
+                                    new MoreLanguageStatusCheckDetailOldDTO(languageCode, type.getCode(), typeMap.getOrDefault(type,new ArrayList<>()))
                             ).collect(Collectors.toList()));
                         });
                         status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));

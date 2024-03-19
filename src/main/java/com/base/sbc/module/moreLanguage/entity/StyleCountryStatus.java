@@ -8,6 +8,7 @@ package com.base.sbc.module.moreLanguage.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -52,6 +53,9 @@ public class StyleCountryStatus extends BaseDataEntity<String> {
     /** 国家编码 */
     @ApiModelProperty(value = "国家编码"  )
     private String countryName;
+    /** 标准类型 */
+    @ApiModelProperty(value = "标准类型"  )
+    private CountryLanguageType type;
     /** 检查详情Json */
     @ApiModelProperty(value = "检查详情Json"  )
     private String checkDetailJson;
