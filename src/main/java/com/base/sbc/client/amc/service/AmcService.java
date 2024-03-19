@@ -233,10 +233,4 @@ public interface AmcService {
     @GetMapping("/amc/api/token/group/list")
     ApiResult getUserGroupByUserId(@RequestParam("userId") String userId);
 
-    /**
-     * 查询用户-企业 user_code 不为空的数据
-     */
-    @GetMapping("/amc/api/open/user/getUserCodeNotNullUserList")
-    ApiResult getUserCodeNotNullUserList();
-
 }
