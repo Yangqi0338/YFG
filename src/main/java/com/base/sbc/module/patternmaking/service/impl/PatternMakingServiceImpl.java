@@ -1376,7 +1376,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
         if(!StringUtils.isBlank(dto.getDeriveflag())){
             qw.groupBy("p.id");
-            baseMapper.deriveList(qw);
+            List<SampleBoardExcel> sampleBoardExcels = baseMapper.deriveList(qw);
+            for (SampleBoardExcel sampleBoardExcel : sampleBoardExcels) {
+
+            }
             if(StrUtil.equals(dto.getImgFlag(),BaseGlobal.YES)){
                 /*带图片只能导出3000条*/
                 if(objects.toPageInfo().getList().size() >3000){
