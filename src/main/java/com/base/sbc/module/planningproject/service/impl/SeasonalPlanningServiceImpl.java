@@ -423,7 +423,41 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             seasonalPlanningDetails.setBandCode(String.join(",", bandCodes));
             seasonalPlanningDetails.setSeasonalPlanningId(seasonalPlanningSaveDto.getId());
             seasonalPlanningDetails.setSeasonalPlanningName(seasonalPlanningSaveDto.getName());
-            seasonalPlanningDetails.setSkcCount(String.join(",",sums));
+            //获取当前品类所有的数据
+            List<JSONObject> jsonObjects=new ArrayList<>();
+            String name = "";
+            String prodCategoryName = stringStringHashMap.get("品类名称");
+            for (int i = 4; i < jsonArray.size(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                String string = jsonObject.getString("1");
+                if (StringUtils.isNotBlank(string)) {
+                    name = string;
+                }
+                if (name.equals(prodCategoryName) && !"合计".equals(jsonObject.getString("2"))) {
+                    jsonObjects.add(jsonObject);
+                }
+            }
+            //获取合计列索引
+            int index = 0;
+            JSONObject jsonObject1 = jsonArray.getJSONObject(1);
+            for (String s : jsonObject1.keySet()) {
+                if ("合计".equals(jsonObject1.get(s))){
+                     index = Integer.parseInt(s);
+                }
+            }
+
+
+            List<String> sums1 = new ArrayList<>();
+            for (JSONObject jsonObject : jsonObjects) {
+                for (String s : jsonObject.keySet()) {
+                    int i = Integer.parseInt(s);
+                    if (i>2 && !String.valueOf(index).equals(s) && !String.valueOf(index+1).equals(s)){
+                        sums1.add(jsonObject.getString(s));
+                    }
+                }
+
+            }
+            seasonalPlanningDetails.setSkcCount(String.join(",",sums1));
             seasonalPlanningDetails.setLaunchTime(String.join(",", markets));
             seasonalPlanningDetails.setOrderTime(String.join(",", orders));
 
