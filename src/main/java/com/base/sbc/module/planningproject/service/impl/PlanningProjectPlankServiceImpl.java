@@ -192,6 +192,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         }
                     }
                 }
+                if ("1".equals(planningProjectPlankDimension.getDimensionalityGrade())){
+                    planningProjectPlankDimension.setDimensionValueName(planningProjectPlankVo.getDimensionCode());
+                }
                 FieldManagement fieldManagement = fieldManagementMap.get(planningDimensionality.getFieldId());
                 if (fieldManagement!=null){
                     planningProjectPlankDimension.setGroupName(fieldManagement.getGroupName());
@@ -207,6 +210,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                     PlanningProjectPlankDimension planningProjectPlankDimension=new PlanningProjectPlankDimension();
                     FieldManagement fieldManagement=new FieldManagement();
                     fieldManagement.setFieldExplain(s);
+                    if ("波段".equals(s)){
+                        planningProjectPlankDimension.setDimensionValueName(planningProjectPlankVo.getBandName());
+                    }
                     planningProjectPlankDimension.setFieldManagement(fieldManagement);
                     list2.add(planningProjectPlankDimension);
                 }

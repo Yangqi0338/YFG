@@ -56,8 +56,12 @@ public class PlanningProjectPlankDimension extends BaseDataEntity<String> {
     private boolean display;
 
     @TableField(exist = false)
-    @ApiModelProperty(value = "排序", example = "true")
+    @ApiModelProperty(value = "排序")
     private String sort;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "波段名称")
+    private String bandName;
 
 
 }
