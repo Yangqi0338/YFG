@@ -1311,52 +1311,55 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				// 假定单国家
 				List<String> countryCodeList = resultList.stream().map(HangTagMoreLanguageBaseVO::getCode).collect(Collectors.toList());
-				List<StyleCountryStatus> countryStatusList = styleCountryStatusService.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-						.notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
-						.eq(StyleCountryStatus::getBulkStyleNo, bulkStyleNo)
-						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
-				);
+//				List<StyleCountryStatus> countryStatusList = styleCountryStatusService.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+//						.notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
+//						.eq(StyleCountryStatus::getBulkStyleNo, bulkStyleNo)
+//						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
+//				);
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
 					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
 					// 获取所有的语言
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
 						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
 						Map<String, CodeMapping<?>> codeMap = printing.getCodeMap();
-						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
-							String standardColumnCode = result.getStandardColumnCode();
+						if (!MoreLanguageProperties.internalLanguageCode.equals(languageCode)) {
+							for (HangTagMoreLanguageBaseVO result : sameCodeList) {
+								String standardColumnCode = result.getStandardColumnCode();
 
-							Optional<HangTagMoreLanguageVO> languageVoOpt = result.getLanguageList().stream().filter(it -> it.getLanguageCode().equals(languageCode)).findFirst();
-							if (!languageVoOpt.isPresent()) continue;
-							HangTagMoreLanguageVO languageVO = languageVoOpt.get();
-							if (!codeMap.containsKey(standardColumnCode)) continue;
+								Optional<HangTagMoreLanguageVO> languageVoOpt = result.getLanguageList().stream().filter(it -> it.getLanguageCode().equals(languageCode)).findFirst();
+								if (!languageVoOpt.isPresent()) continue;
+								HangTagMoreLanguageVO languageVO = languageVoOpt.get();
+								if (!codeMap.containsKey(standardColumnCode)) continue;
 
-							CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
+								CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 
-							Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
-							if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
+								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
+								if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
 
-							String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(MoreLanguageProperties.isInternalLanguageCode(languageCode) ? result.getStandardColumnName() : "");
-							printing.getTitleMap().put(codeMapping.getTitleCode(), titleContent);
+								String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(MoreLanguageProperties.isInternalLanguageCode(languageCode) ? result.getStandardColumnName() : "");
+								printing.getTitleMap().put(codeMapping.getTitleCode(), titleContent);
 
-							if (codeMapping.getMapping() != null) {
-								Function<Object, String> codeFunc = (Function<Object, String>) codeMapping.getMapping().getKey();
-								BiConsumer<Object, String> valueFunc = (BiConsumer<Object, String>) codeMapping.getMapping().getValue();
-								List<?> list = listFunc.apply(printing);
-                                for (Object dataObj : list) {
-                                    String sourceStr = codeFunc.apply(dataObj);
-                                    String str = StrUtil.replace(sourceStr, result.getPropertiesName(), languageVO.getPropertiesContent());
-									if (!sourceStr.equals(str)) {
-										valueFunc.accept(dataObj, str);
+								if (codeMapping.getMapping() != null) {
+									Function<Object, String> codeFunc = (Function<Object, String>) codeMapping.getMapping().getKey();
+									BiConsumer<Object, String> valueFunc = (BiConsumer<Object, String>) codeMapping.getMapping().getValue();
+									List<?> list = listFunc.apply(printing);
+									for (Object dataObj : list) {
+										String sourceStr = codeFunc.apply(dataObj);
+										String str = StrUtil.replace(sourceStr, result.getPropertiesName(), languageVO.getPropertiesContent());
+										if (!sourceStr.equals(str)) {
+											valueFunc.accept(dataObj, str);
+										}
 									}
-                                }
-                            }
+								}
 
-							printing.setLanguageName(languageVO.getLanguageName());
+								printing.setLanguageName(languageVO.getLanguageName());
+							}
 						}
 
-						printing.setTranslateApproved(countryStatusList.stream().anyMatch(it->
-								it.getBulkStyleNo().equals(bulkStyleNo) && it.getCountryCode().equals(code))
-						);
+						// 全部审核完才为true，所以直接判断吊牌状态即可
+//						printing.setTranslateApproved(countryStatusList.stream().anyMatch(it->
+//								it.getBulkStyleNo().equals(bulkStyleNo) && it.getCountryCode().equals(code))
+//						);
 						tagPrintingList.add(printing);
 					});
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
