@@ -13,12 +13,14 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -57,7 +59,7 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
     @Autowired
     private CcmFeignService ccmFeignService;
     @Autowired
-    private AmcService amcService;
+    private AmcFeignService amcFeignService;
 
     @Override
     public PageInfo<PrincipalDesignerManageVo> findPage(PrincipalDesignerManageQueryDto dto) {
@@ -85,20 +87,8 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
         Map<String, String> prodCategoryMap = new HashMap<>();
         structureTreeByCodes.forEach(o -> o.getChildren().forEach(s -> prodCategoryMap.put(o.getName() + "_" + s.getName(), o.getId() + "_" + s.getId())));
         //查询设计师
-        String userCodeResult = amcService.getUserCodeNotNullUserList();
-        JSONArray userCodeArr = JSONArray.parseArray(JSONObject.parseObject(userCodeResult).getString("data"));
-        Map<String, String> userMap = new HashMap<>();
-        for (int i = 0; i < userCodeArr.size(); i++) {
-            JSONObject userCodeObj = userCodeArr.getJSONObject(i);
-            String userId = userCodeObj.getString("userId");
-            String aliasUserName = userCodeObj.getString("aliasUserName");
-            if(userMap.containsKey(aliasUserName)){
-                //重名时，设置为空，用户在前端 选择对应设计师
-                userMap.put(aliasUserName, "");
-            }else{
-                userMap.put(aliasUserName, userId);
-            }
-        }
+        List<UserCompany> userCodeNotNullUserList = amcFeignService.getUserCodeNotNullUserList();
+        Map<String, String> userMap = userCodeNotNullUserList.stream().collect(Collectors.toMap(UserCompany::getAliasUserName, UserCompany::getUserId, (v1, v2) -> ""));
 
         StringBuffer msg = new StringBuffer();
 
@@ -119,15 +109,15 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
                 throw new OtherException("品类+中类 不存在：" + excel.getProdCategoryName() + "_" + excel.getProdCategory2ndName());
             }
             //设计师
-            if(userMap.containsKey(excel.getDesigner())){
+            if (userMap.containsKey(excel.getDesigner())) {
                 String userId = userMap.get(excel.getDesigner());
-                if(StrUtil.isEmpty(userId)){
+                if (StrUtil.isEmpty(userId)) {
                     //重名时，设置为空，用户在前端 选择对应设计师
                     msg.append("设计师：").append(excel.getDesigner()).append("存在重名，请在页面手工修改设计师字段;");
-                }else{
+                } else {
                     excel.setDesignerId(userId);
                 }
-            }else{
+            } else {
                 throw new OtherException("设计师不存在：" + excel.getDesigner());
             }
         }
@@ -139,7 +129,7 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
             updateWrapper.eq(PrincipalDesignerManage::getProdCategory2nd, principalDesignerManage.getProdCategory2nd());
             saveOrUpdate(principalDesignerManage, updateWrapper);
         }
-        if(StrUtil.isEmpty(msg)){
+        if (StrUtil.isEmpty(msg)) {
             msg.append("导入成功");
         }
         return ApiResult.success(msg.toString());
