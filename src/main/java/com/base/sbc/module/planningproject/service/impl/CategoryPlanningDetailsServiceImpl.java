@@ -62,7 +62,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         PageHelper.startPage(dto);
         List<CategoryPlanningDetailsVo> categoryPlanningDetailsVos = this.queryList(dto);
         for (CategoryPlanningDetailsVo categoryPlanningDetailsVo : categoryPlanningDetailsVos) {
-            if ("1".equals(categoryPlanningDetailsVo.getIsGenerate())){
+            if ("1".equals(categoryPlanningDetailsVo.getIsGenerate()) || StringUtils.isBlank(categoryPlanningDetailsVo.getDataJson())){
                 categoryPlanningDetailsVo.setDataJson(this.getDetailById(categoryPlanningDetailsVo.getId()).getDataJson());
             }
 

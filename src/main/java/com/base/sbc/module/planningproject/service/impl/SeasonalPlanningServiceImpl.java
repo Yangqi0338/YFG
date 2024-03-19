@@ -601,7 +601,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         BaseQueryWrapper<SeasonalPlanning> baseQueryWrapper = new BaseQueryWrapper<>();
         baseQueryWrapper.notEmptyEq("tsp.season_id", seasonalPlanningQueryDto.getSeasonId());
         baseQueryWrapper.notEmptyEq("tsp.channel_code", seasonalPlanningQueryDto.getChannelCode());
-        baseQueryWrapper.notEmptyLike("tsp.name", seasonalPlanningQueryDto.getYearName());
+        baseQueryWrapper.notEmptyLike("tsp.season_name", seasonalPlanningQueryDto.getYearName());
         baseQueryWrapper.orderByDesc("tsp.id");
         return baseQueryWrapper;
     }

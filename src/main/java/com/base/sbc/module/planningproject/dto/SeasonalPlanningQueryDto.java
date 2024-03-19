@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.dto;
 
 import com.base.sbc.config.common.base.Page;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -13,4 +14,6 @@ public class SeasonalPlanningQueryDto extends Page {
     private String seasonId;
     private String channelCode;
     private String yearName;
+    @ApiModelProperty(value = "产品季名称")
+    private String seasonName;
 }

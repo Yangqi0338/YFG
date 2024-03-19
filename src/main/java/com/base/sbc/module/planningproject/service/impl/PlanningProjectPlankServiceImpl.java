@@ -68,9 +68,6 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
 
     @Resource
     @Lazy
-    private PlanningProjectPlankController planningProjectPlankController;
-    @Resource
-    @Lazy
     private  PlanningProjectService planningProjectService ;
     @Override
     public  Map<String,Object> ListByDto(PlanningProjectPlankPageDto dto) {
