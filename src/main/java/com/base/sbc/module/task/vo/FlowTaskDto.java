@@ -122,4 +122,16 @@ public class FlowTaskDto implements Serializable {
     private String stylePic;
 
     private String businessKey;
+
+    /**
+     * 品类
+     */
+    @ApiModelProperty("品类")
+    private String prodCategoryName;
+
+    /**
+     * 中类
+     */
+    @ApiModelProperty("中类")
+    private String prodCategory2ndName;
 }
