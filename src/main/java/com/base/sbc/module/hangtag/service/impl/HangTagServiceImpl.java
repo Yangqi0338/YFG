@@ -1338,8 +1338,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							HangTagMoreLanguageVO languageVO = languageVoOpt.get();
 							if (!codeMap.containsKey(standardColumnCode)) continue;
 
+							CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
+							printing.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
 							if (!MoreLanguageProperties.internalLanguageCode.equals(languageCode)) {
-								CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 
 								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 								if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
