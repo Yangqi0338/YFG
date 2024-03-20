@@ -1,0 +1,1 @@
+ALTER TABLE `t_order_book_detail` MODIFY COLUMN `commissioning_size` varchar(2000) NULL DEFAULT NULL COMMENT '倍率' AFTER `total_production`;
