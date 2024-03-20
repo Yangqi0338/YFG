@@ -286,6 +286,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    public Boolean updateReferSample(String id, Integer status) {
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId, id);
+        updateWrapper.set(PatternMaking::getReferSample, status);
+        this.update(updateWrapper);
+        return true;
+    }
+
+    @Override
     public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
 
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
