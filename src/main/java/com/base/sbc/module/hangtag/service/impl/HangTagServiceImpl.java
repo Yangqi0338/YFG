@@ -1329,15 +1329,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
 						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
 						Map<String, CodeMapping<?>> codeMap = printing.getCodeMap();
-						if (!MoreLanguageProperties.internalLanguageCode.equals(languageCode)) {
-							for (HangTagMoreLanguageBaseVO result : sameCodeList) {
-								String standardColumnCode = result.getStandardColumnCode();
 
-								Optional<HangTagMoreLanguageVO> languageVoOpt = result.getLanguageList().stream().filter(it -> it.getLanguageCode().equals(languageCode)).findFirst();
-								if (!languageVoOpt.isPresent()) continue;
-								HangTagMoreLanguageVO languageVO = languageVoOpt.get();
-								if (!codeMap.containsKey(standardColumnCode)) continue;
+						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
+							String standardColumnCode = result.getStandardColumnCode();
 
+							Optional<HangTagMoreLanguageVO> languageVoOpt = result.getLanguageList().stream().filter(it -> it.getLanguageCode().equals(languageCode)).findFirst();
+							if (!languageVoOpt.isPresent()) continue;
+							HangTagMoreLanguageVO languageVO = languageVoOpt.get();
+							if (!codeMap.containsKey(standardColumnCode)) continue;
+
+							if (!MoreLanguageProperties.internalLanguageCode.equals(languageCode)) {
 								CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 
 								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
@@ -1358,9 +1359,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 										}
 									}
 								}
-
-								printing.setLanguageName(languageVO.getLanguageName());
 							}
+							printing.setLanguageName(languageVO.getLanguageName());
 						}
 
 						// 全部审核完才为true，所以直接判断吊牌状态即可
