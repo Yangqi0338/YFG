@@ -65,6 +65,7 @@ public class PlanningProjectPlankVo extends PlanningProjectPlank {
     private List<FieldManagementVo> oldFieldManagementVos;
 
     private StyleColorVo oldStyleColor;
+    private StyleColorVo styleColor;
     /**
      * 表头列
      */

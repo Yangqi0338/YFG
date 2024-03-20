@@ -50,6 +50,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -135,8 +136,31 @@ public class PlanningProjectPlankController extends BaseController {
         PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(id);
         PlanningProjectPlankVo planningProjectPlankVo =new PlanningProjectPlankVo();
         BeanUtil.copyProperties(planningProjectPlank,planningProjectPlankVo);
+
         if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
-            List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(planningProjectPlankVo.getStyleColorId());
+
+            StyleColor styleColor = styleColorService.getById(planningProjectPlankVo.getStyleColorId());
+            Style style = styleService.getById(styleColor.getStyleId());
+            StyleColorVo styleColorVo =new StyleColorVo();
+
+            BeanUtil.copyProperties(style,styleColorVo);
+            BeanUtil.copyProperties(styleColor,styleColorVo);
+            String styleUrl = stylePicUtils.getStyleUrl(styleColorVo.getStyleColorPic());
+            styleColorVo.setStyleColorPic(styleUrl);
+            planningProjectPlankVo.setStyleColor(styleColorVo);
+
+
+            DimensionLabelsSearchDto dto =new DimensionLabelsSearchDto();
+            dto.setId(styleColor.getStyleId());
+            dto.setForeignId(styleColor.getStyleId());
+
+            Map<String, List<FieldManagementVo>> stringListMap = styleService.queryCoefficientByStyle(dto);
+            List<FieldManagementVo> fieldManagementVos = new ArrayList<>();
+            if (stringListMap!=null){
+                for (String s : stringListMap.keySet()) {
+                    fieldManagementVos.addAll(stringListMap.get(s));
+                }
+            }
             planningProjectPlankVo.setFieldManagementVos(fieldManagementVos);
         }
 
@@ -151,7 +175,18 @@ public class PlanningProjectPlankController extends BaseController {
             styleColorVo.setStyleColorPic(styleUrl);
             planningProjectPlankVo.setOldStyleColor(styleColorVo);
 
-            List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
+
+            DimensionLabelsSearchDto dto =new DimensionLabelsSearchDto();
+            dto.setId(styleColor.getStyleId());
+            dto.setForeignId(styleColor.getStyleId());
+
+            Map<String, List<FieldManagementVo>> stringListMap = styleService.queryCoefficientByStyle(dto);
+            List<FieldManagementVo> fieldManagementVos = new ArrayList<>();
+            if (stringListMap!=null){
+                for (String s : stringListMap.keySet()) {
+                    fieldManagementVos.addAll(stringListMap.get(s));
+                }
+            }
             planningProjectPlankVo.setOldFieldManagementVos(fieldManagementVos);
         }
         if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())){
