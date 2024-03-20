@@ -222,7 +222,7 @@
         </if>
         from DM_SALE_FAC T
         where
-        T.ORDER_TYPE != '追单'
+        (T.ORDER_TYPE is null OR T.ORDER_TYPE != '追单')
         <include refid="ewSelect"/>
         <if test="total == 1">
             group by T.PROD_CODE, T.BRAND_NAME
