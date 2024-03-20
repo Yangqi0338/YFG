@@ -17,20 +17,26 @@ import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
+import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.exception.RightException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.mapper.HangTagMapper;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailOldDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
@@ -318,6 +324,12 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         });
 
         /* ----------------------------更新操作---------------------------- */
+        HangTagMoreLanguageDTO languageDTO = new HangTagMoreLanguageDTO();
+        languageDTO.setBulkStyleNo(String.join(COMMA,bulkStyleNoList));
+        languageDTO.setSource(SystemSource.PDM);
+        languageDTO.setCode(String.join(COMMA,map.keySet()));
+        Map<StandardColumnType, List<HangTagMoreLanguageWebBaseVO>> translateMap = (HashMap<StandardColumnType, List<HangTagMoreLanguageWebBaseVO>>)
+                hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO, false, false);
 
         // 封装转化为实体类列表
         List<StyleCountryStatus> statusList = updateStatusList.stream().flatMap(updateStatus -> {
@@ -328,39 +340,58 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             // 若没有指定更新某个国家,就获取所有国家
             return countryDTOList.stream()
                     .filter(it-> StrUtil.isBlank(countryCode) || countryCode.contains(it.getCode()))
-                    .map(countryDTO -> {
+                    .flatMap(countryDTO -> {
                         String code = countryDTO.getCode();
-                        // 获取已存在的数据或直接使用空数据
-                        StyleCountryStatus status = styleCountryStatusList.stream().filter(it ->
-                                        it.getBulkStyleNo().equals(bulkStyleNo)
-                                                && it.getCountryCode().equals(code)
-                                ).findFirst().orElse(baseStatus);
-                        // 深拷贝
-                        status = MORE_LANGUAGE_CV.copyMyself(status);
-                        // 如果状态一样,就不修改
-                        if (status.getStatus() == updateStatus.getStatus()) return null;
-                        // 设置国家编码和状态
-                        status.setCountryCode(code);
-                        status.setStatus(updateStatus.getStatus());
-                        status.setCountryName(countryDTO.getCountryName());
+                        List<StyleCountryStatus> sameCodeStatusList = new ArrayList<>();
 
-                        // 获取对应的标准列编码列表,并封装检查专用的详情json (用作审核之后,翻译新增了一个标准列关联,可以做对应的标记以及反审)
-                        Map<CountryLanguageType, List<String>> typeMap = map.getOrDefault(code, new HashMap<>());
-                        List<MoreLanguageStatusCheckDetailOldDTO> checkDetailList = new ArrayList<>();
-                        countryDTO.getLanguageCodeTypeMap().forEach((type, languageCodeList)-> {
-                            checkDetailList.addAll(languageCodeList.stream().map(languageCode->
-                                    new MoreLanguageStatusCheckDetailOldDTO(languageCode, type.getCode(), typeMap.getOrDefault(type,new ArrayList<>()))
-                            ).collect(Collectors.toList()));
+                        countryDTO.getLanguageCodeTypeMap().forEach((type,languageCodeList)-> {
+                            // 获取已存在的数据或直接使用空数据
+                            StyleCountryStatus status = styleCountryStatusList.stream().filter(it ->
+                                    it.getBulkStyleNo().equals(bulkStyleNo) &&
+                                            it.getCountryCode().equals(code) &&
+                                            it.getType().equals(type)
+                            ).findFirst().orElse(baseStatus);
+                            // 深拷贝
+                            status = MORE_LANGUAGE_CV.copyMyself(status);
+                            // 如果状态一样,就不修改
+                            if (status.getStatus() != updateStatus.getStatus()) {
+                                // 设置国家编码和状态
+                                status.setCountryCode(code);
+                                status.setStatus(updateStatus.getStatus());
+                                status.setCountryName(countryDTO.getCountryName());
+                            };
+                            // 获取对应的标准列编码列表,并封装检查专用的详情json (用作审核之后,翻译新增了一个标准列关联,可以做对应的标记以及反审)
+                            List<String> standardColumnCodeList = map.getOrDefault(code, new HashMap<>(1)).getOrDefault(type, new ArrayList<>());
+
+                            List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageCodeList.stream().map(languageCode->
+                                new MoreLanguageStatusCheckDetailDTO(languageCode, standardColumnCodeList.stream().map(standardColumnCode-> {
+                                    MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
+                                    auditDTO.setStandardColumnCode(standardColumnCode);
+                                    List<HangTagMoreLanguageWebBaseVO> webBaseVOList = translateMap.getOrDefault(type, new ArrayList<>());
+                                    webBaseVOList.stream().filter(it->
+                                            bulkStyleNo.equals(it.getBulkStyleNo()) &&
+                                            code.equals(it.getCode()) &&
+                                            standardColumnCode.equals(it.getStandardColumnCode())
+                                    ).flatMap(it-> it.getLanguageList().stream()).filter(it-> languageCode.equals(it.getLanguageCode()))
+                                            .findFirst().ifPresent(translate-> {
+                                                auditDTO.setContent(translate.getPropertiesContent());
+                                            });
+                                    auditDTO.setStatus(updateStatus.getStatus());
+                                    return auditDTO;
+                                }).collect(Collectors.toList()))
+                            ).collect(Collectors.toList());
+
+                            status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
+                            // 清除更新标志
+                            status.updateClear();
+                            sameCodeStatusList.add(status);
                         });
-                        status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
-                        // 清除更新标志
-                        status.updateClear();
-                        return status;
-                    }).filter(Objects::nonNull);
+
+                        return sameCodeStatusList.stream();
+                    });
         }).collect(Collectors.toList());
 
         boolean updateBatch = this.saveOrUpdateBatch(statusList);
-
 
         if (needUpdateHangTag) {
             // 可能存在未处理的状态,需要筛选

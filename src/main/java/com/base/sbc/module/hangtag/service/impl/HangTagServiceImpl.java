@@ -58,6 +58,7 @@ import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageG
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailOldDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
@@ -1141,11 +1142,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				hangTagVO.setSizeList(modelTypeList.stream().filter(it-> it.getCode().equals(hangTagVO.getModelType())).collect(Collectors.toList()));
 
 				// 获取状态
-				List<MoreLanguageStatusCheckDetailOldDTO> statusCheckDetailList = new ArrayList<>();
+				List<MoreLanguageStatusCheckDetailDTO> statusCheckDetailList = new ArrayList<>();
 				if (CollectionUtil.isNotEmpty(styleCountryStatusList)) {
 					String checkDetailJson = styleCountryStatusList.stream().filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()) && code.equals(it.getCountryCode()))
 							.findFirst().map(StyleCountryStatus::getCheckDetailJson).orElse("[]");
-					statusCheckDetailList.addAll(JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailOldDTO.class));
+					statusCheckDetailList.addAll(JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailDTO.class));
 				}
 
 				// 循环配置在CodeMapping的标准列数据
@@ -1411,7 +1412,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		return list;
 	}
 
-	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){
+	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList, String diffStandardColumnsMergeFlag){
 		// 设置分组
 		Map<String, HangTagMoreLanguageGroup> groupMap = MapUtil.ofEntries(
 				MapUtil.entry("DP16", new HangTagMoreLanguageGroup("DP09,DP11,DP10,DP13", "成分信息",MoreLanguageHangTagVO::getIngredient)),
@@ -1419,88 +1420,91 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				MapUtil.entry("DP12", new HangTagMoreLanguageGroup(MoreLanguageHangTagVO::getDownContent))
 		);
 		List<HangTagMoreLanguageWebBaseVO> groupList = new ArrayList<>();
-		// 根据标准列编码分组
-		webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getCode)).forEach((code, sameCodeList)-> {
+		// 根据标准列编码+款号分组
+		webBaseList.stream().collect(CommonUtils.groupingBy(it-> it.getCode() + "——————" + it.getBulkStyleNo())).forEach((code, sameCodeList)-> {
+			String[] codeSplit = code.split("——————");
+			String countryCode = codeSplit[0];
+			String bulkStyleNo = codeSplit[1];
 			// 遍历分组设置
+
 			groupMap.forEach((groupName, group)-> {
 				String standColumnCode = group.getStandColumnCode();
 				// 获取数据中存在与分组名相同或分组标准列包含的列表
-				List<HangTagMoreLanguageWebBaseVO> sameStandardColumnCodeList = webBaseList.stream()
+				List<HangTagMoreLanguageWebBaseVO> list = sameCodeList.stream()
 						.filter(it -> groupName.equals(it.getStandardColumnCode())).collect(Collectors.toList());
-				boolean notChoose = CollectionUtil.isEmpty(sameStandardColumnCodeList);
+				boolean notChoose = CollectionUtil.isEmpty(list);
 				if (StrUtil.isNotBlank(standColumnCode)) {
-					sameStandardColumnCodeList.addAll( webBaseList.stream()
-							.filter(it -> StrUtil.contains(standColumnCode, it.getStandardColumnCode())).collect(Collectors.toList()));
+					list.addAll(Arrays.stream(standColumnCode.split(","))
+							.flatMap(it-> sameCodeList.stream()
+									.filter(webBaseVO -> it.equals(webBaseVO.getStandardColumnCode()))
+							).collect(Collectors.toList())
+					);
 				}
-				if (CollectionUtil.isNotEmpty(sameStandardColumnCodeList)) {
+				if (CollectionUtil.isNotEmpty(list)) {
 					// 源数据先移除
-					webBaseList.removeAll(sameStandardColumnCodeList);
-					// 根据款号分组
-					sameStandardColumnCodeList.stream()
-							.collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getBulkStyleNo, LinkedHashMap::new, Collectors.toList()))
-							.forEach((bulkStyleNo, sameBulkList)-> {
-								// 再次获取吊牌数据
-								MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst().get();
-								HangTagMoreLanguageWebBaseVO webBaseVO = sameBulkList.get(0);
+					webBaseList.removeAll(list);
 
-								// 深拷贝 + 基础设置
-								HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
-								groupVO.setIsGroup(true);
-								groupVO.setStandardColumnCode(groupName);
-								if (notChoose) {
-									// 如果是分组名没对上,分组标准列码对上了,进行设置基础的名字和翻译
-									groupVO.setStandardColumnName(group.getStandColumnName());
-									groupVO.getLanguageList().forEach(languageVo-> {
-										languageVo.setStandardColumnContent(group.getStandColumnName());
-									});
-								}
-								// 一一设置对应的属性码属性名
-								groupVO.setPropertiesCode(sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(COMMA)));
+					// 再次获取吊牌数据
+					MoreLanguageHangTagVO hangTagVO = hangTagVOList.stream().filter(it -> it.getBulkStyleNo().equals(bulkStyleNo)).findFirst().get();
+					HangTagMoreLanguageWebBaseVO webBaseVO = list.get(0);
 
-								String separator = group.getSeparator();
-								Function<MoreLanguageHangTagVO, String> content = group.getContent();
-								String propertiesName;
-								if (content != null) {
-									propertiesName = content.apply(hangTagVO);
-								}else {
-									propertiesName = sameBulkList.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesName).distinct().collect(Collectors.joining(separator));
-								}
-								groupVO.getLanguageList().forEach(languageVo-> {
-									languageVo.setPropertiesContent(propertiesName);
-									languageVo.setCannotFindPropertiesContent(false);
-									languageVo.setIsGroup(true);
-								});
-								groupVO.getLanguageList().forEach(languageVo-> {
-									sameBulkList.stream().collect(Collectors.groupingBy((it)-> StrUtil.isNotBlank(it.getPropertiesName()) ? it.getPropertiesName() : ""))
-											.forEach((key, sameNameLanguageList)-> {
-												// 获取源数据中对应原本的翻译
-												String value = sameNameLanguageList.get(0).getLanguageList().stream()
-														.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
-														.map(HangTagMoreLanguageVO::getPropertiesContent)
-														.filter(StrUtil::isNotBlank).findFirst().orElse(" ");
-												// 进行组合
-												String s = languageVo.getPropertiesContent();
-												String s1 = StrUtil.replace(s, key, value);
-												if (StrUtil.isBlank(value) || s.equals(s1)) {
-													languageVo.setCannotFindPropertiesContent(true);
-												}
-												languageVo.setPropertiesContent(s1);
-												if (notChoose) {
-													languageVo.setStandardColumnContent(StrUtil.replace(languageVo.getStandardColumnContent(), key, value));
-												}
-											});
-									if (languageVo.getStandardColumnContent().equals(group.getStandColumnName())) {
-										languageVo.setCannotFindStandardColumnContent(true);
-									}
-									// 若还是和之前一样，那就是没找到翻译
-									String fillSeparator = MoreLanguageProperties.showInfoLanguageSeparator + MoreLanguageProperties.multiSeparator;
-									String groupContent = StrUtil.replace(languageVo.propertiesContent, MoreLanguageProperties.multiSeparator, fillSeparator);
-									languageVo.setPropertiesContent(groupContent);
-								});
-								groupVO.setPropertiesName(propertiesName);
-
-								groupList.add(groupVO);
+					// 深拷贝 + 基础设置
+					HangTagMoreLanguageWebBaseVO groupVO = HANG_TAG_CV.copyMyself(webBaseVO);
+					groupVO.setIsGroup(true);
+					groupVO.setStandardColumnCode(groupName);
+					if (notChoose) {
+						// 如果是分组名没对上,分组标准列码对上了,进行设置基础的名字和翻译
+						groupVO.setStandardColumnName(group.getStandColumnName());
+						groupVO.getLanguageList().forEach(languageVo-> {
+							languageVo.setStandardColumnContent(group.getStandColumnName());
 						});
+					}
+					// 一一设置对应的属性码属性名
+					groupVO.setPropertiesCode(list.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesCode).distinct().collect(Collectors.joining(COMMA)));
+
+					String separator = group.getSeparator();
+					Function<MoreLanguageHangTagVO, String> content = group.getContent();
+					String propertiesName;
+					if (content != null) {
+						propertiesName = content.apply(hangTagVO);
+					}else {
+						propertiesName = list.stream().map(HangTagMoreLanguageWebBaseVO::getPropertiesName).distinct().collect(Collectors.joining(separator));
+					}
+					groupVO.getLanguageList().forEach(languageVo-> {
+						languageVo.setPropertiesContent(propertiesName);
+						languageVo.setCannotFindPropertiesContent(false);
+						languageVo.setIsGroup(true);
+					});
+					groupVO.getLanguageList().forEach(languageVo-> {
+						list.stream().collect(Collectors.groupingBy((it)-> StrUtil.isNotBlank(it.getPropertiesName()) ? it.getPropertiesName() : ""))
+								.forEach((key, sameNameLanguageList)-> {
+									// 获取源数据中对应原本的翻译
+									String value = sameNameLanguageList.get(0).getLanguageList().stream()
+											.filter(it -> it.getLanguageCode().equals(languageVo.getLanguageCode()))
+											.map(HangTagMoreLanguageVO::getPropertiesContent)
+											.filter(StrUtil::isNotBlank).findFirst().orElse(" ");
+									// 进行组合
+									String s = languageVo.getPropertiesContent();
+									String s1 = StrUtil.replace(s, key, value);
+									if (StrUtil.isBlank(value) || s.equals(s1)) {
+										languageVo.setCannotFindPropertiesContent(true);
+									}
+									languageVo.setPropertiesContent(s1);
+									if (notChoose) {
+										languageVo.setStandardColumnContent(StrUtil.replace(languageVo.getStandardColumnContent(), key, value));
+									}
+								});
+						if (languageVo.getStandardColumnContent().equals(group.getStandColumnName())) {
+							languageVo.setCannotFindStandardColumnContent(true);
+						}
+						// 若还是和之前一样，那就是没找到翻译
+						String fillSeparator = MoreLanguageProperties.showInfoLanguageSeparator + MoreLanguageProperties.multiSeparator;
+						String groupContent = StrUtil.replace(languageVo.propertiesContent, MoreLanguageProperties.multiSeparator, fillSeparator);
+						languageVo.setPropertiesContent(groupContent);
+					});
+					groupVO.setPropertiesName(propertiesName);
+
+					groupList.add(groupVO);
 				}
 			});
 		});
