@@ -151,4 +151,55 @@ public class AddData {
             standardColumnService.saveOrUpdateBatch(newWashingTagStandardColumnList);
         }
     }
+
+    @Test
+    public void setPdmHangTagDbV3(){
+        List<CountryLanguage> languageList = countryLanguageService.list();
+        List<StandardColumnCountryTranslate> tagList1 = new ArrayList<>();
+        List<StandardColumnCountryTranslate> washingList1 = new ArrayList<>();
+        languageList.forEach(countryLanguage -> {
+            if (countryLanguage.getType() == CountryLanguageType.TAG) {
+                languageList.stream().filter(it->
+                        it.getSingleLanguageFlag() == YesOrNoEnum.YES &&
+                                it.getLanguageCode().equals(countryLanguage.getLanguageCode()) &&
+                                it.getType() == CountryLanguageType.WASHING
+                ).findFirst().ifPresent(wasingCountryLanguage-> {
+                    List<StandardColumnCountryTranslate> washingList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                            .in(StandardColumnCountryTranslate::getCountryLanguageId, wasingCountryLanguage.getId())
+                            .eq(StandardColumnCountryTranslate::getTitleCode, "XM00")
+                    );
+                    washingList.forEach(it-> {
+                        it.setId(null);
+                        it.updateClear();
+                        it.setCountryLanguageId(countryLanguage.getId());
+                        it.setTitleCode("DP00");
+                    });
+                    washingList1.addAll(washingList);
+                });
+            }
+            if (countryLanguage.getType() == CountryLanguageType.WASHING) {
+                languageList.stream().filter(it->
+                        it.getSingleLanguageFlag() == YesOrNoEnum.YES &&
+                                it.getLanguageCode().equals(countryLanguage.getLanguageCode()) &&
+                                it.getType() == CountryLanguageType.TAG
+                ).findFirst().ifPresent(wasingCountryLanguage-> {
+                    List<StandardColumnCountryTranslate> tagList = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                            .in(StandardColumnCountryTranslate::getCountryLanguageId, wasingCountryLanguage.getId())
+                            .eq(StandardColumnCountryTranslate::getTitleCode, "DP00")
+                    );
+                    tagList.forEach(it-> {
+                        it.setId(null);
+                        it.updateClear();
+                        it.setCountryLanguageId(countryLanguage.getId());
+                        it.setTitleCode("XM00");
+                    });
+                    tagList1.addAll(tagList);
+                });
+            }
+        });
+        System.out.println();
+
+        standardColumnCountryTranslateService.saveOrUpdateBatch(tagList1);
+        standardColumnCountryTranslateService.saveOrUpdateBatch(washingList1);
+    }
 }
