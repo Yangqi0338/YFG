@@ -24,15 +24,9 @@ import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
-import com.base.sbc.module.planningproject.entity.PlanningProject;
-import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
-import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
-import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectMapper;
-import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
-import com.base.sbc.module.planningproject.service.PlanningProjectMaxCategoryService;
-import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
-import com.base.sbc.module.planningproject.service.PlanningProjectService;
+import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.style.entity.Style;
@@ -61,6 +55,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final DataPermissionsService dataPermissionsService;
     private final MinioUtils minioUtils;
     private final PlanningChannelService planningChannelService;
+    private final CategoryPlanningService categoryPlanningService;
 
 
     /**
@@ -86,6 +81,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             planningProjectVo.setPlanningProjectDimensionList(planningProjectDimensions);
             List<PlanningProjectMaxCategory> planningProjectMaxCategories = planningProjectMaxCategoryService.list(new QueryWrapper<PlanningProjectMaxCategory>().eq("planning_project_id", planningProjectVo.getId()));
             planningProjectVo.setPlanningProjectMaxCategoryList(planningProjectMaxCategories);
+
+            CategoryPlanning categoryPlanning = categoryPlanningService.getById(planningProjectVo.getCategoryPlanningId());
+            if (categoryPlanning!=null){
+                planningProjectVo.setSeasonalPlanningId(categoryPlanning.getSeasonalPlanningId());
+            }
         }
         return new PageInfo<>(planningProjectVos);
     }
