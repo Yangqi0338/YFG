@@ -2955,14 +2955,20 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             if (CollUtil.isNotEmpty(children3)) {
                                 List<BasicStructureTreeVo> collect = children3.stream().filter(o -> o.getName().equals(prodCategory2ndName)).collect(Collectors.toList());
                                 if (CollUtil.isEmpty(collect)) {
-                                    rowText = commonPromptInfo(CollUtil.isEmpty(children2), rowText, "第" + (i + 1) + "行" + "【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
+                                    rowText = commonPromptInfo(CollUtil.isEmpty(collect), rowText, "第" + (i + 1) + "行" + "【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
                                 }
+                            }else{
+                                rowText = commonPromptInfo(CollUtil.isEmpty(children3), rowText, "第" + (i + 1) + "行" + "【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
                             }
 
                         }else{
                             rowText = commonPromptInfo(CollUtil.isEmpty(children2), rowText, "第" + (i + 1) + "行" +"【" + prodCategoryName + "】>【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
                         }
+                    }else{
+                        rowText = commonPromptInfo(CollUtil.isEmpty(children2), rowText, "第" + (i + 1) + "行" + "【" + prodCategoryName + "】" + "数据库找不到对应品类信息！\n");
                     }
+                }else{
+                    rowText = commonPromptInfo(CollUtil.isEmpty(basicStructureTreeVos), rowText, "第" + (i + 1) + "行" + "【" + prodCategoryName + "】" + "数据库找不到对应品类信息！\n");
                 }
             }
 
