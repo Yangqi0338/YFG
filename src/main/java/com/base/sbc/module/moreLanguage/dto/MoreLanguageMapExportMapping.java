@@ -2,6 +2,7 @@ package com.base.sbc.module.moreLanguage.dto;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
@@ -17,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_IMPORT_FIRST_ROW;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.INCORRECT_IMPORT_MAPPING_KEY;
@@ -90,6 +92,15 @@ public class MoreLanguageMapExportMapping {
         });
 
         return map;
+    }
+
+    public List<CountryLanguageDto> getTotalCountryLanguageList() {
+        return countryLanguageList;
+    }
+
+    public List<CountryLanguageDto> getCountryLanguageList() {
+        if (CollUtil.isEmpty(countryLanguageList)) return new ArrayList<>();
+        return countryLanguageList.stream().filter(it-> it.getType().equals(type)).collect(Collectors.toList());
     }
 }
 
