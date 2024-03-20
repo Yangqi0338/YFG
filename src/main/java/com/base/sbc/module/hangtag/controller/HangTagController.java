@@ -9,22 +9,18 @@ package com.base.sbc.module.hangtag.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
-import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
-import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.*;
 import com.base.sbc.module.hangtag.entity.HangTag;
-import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
-import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
@@ -34,7 +30,6 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -70,11 +64,6 @@ public class HangTagController extends BaseController {
     @Autowired
     private HangTagIngredientService hangTagIngredientService;
     private final StyleColorService styleColorService;
-    private final FlowableService flowableService;
-
-    @Autowired
-    @Lazy
-    private SmpService smpService;
 
     @ApiOperation(value = "分页查询")
     @PostMapping("/queryPageInfo")

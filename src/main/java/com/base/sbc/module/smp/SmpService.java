@@ -1556,6 +1556,15 @@ public class SmpService {
     }
 
     /**
+     * 正确样下发
+     */
+    public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto){
+        String params = JSONArray.toJSONString(tagConfirmDateDto);
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
+         pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto), "scm", "下发吊牌和款式定价确认信息");
+    }
+
+    /**
      * 修改吊牌价的时候验证(暂不需要)
      */
     public int secondIngredient(List<SecondIngredientSyncDto> secondIngredientSyncDtoList) {

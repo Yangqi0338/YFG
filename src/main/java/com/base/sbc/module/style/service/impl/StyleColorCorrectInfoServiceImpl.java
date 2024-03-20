@@ -29,6 +29,8 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
 import com.base.sbc.module.style.dto.QueryStyleColorCorrectDto;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -79,6 +81,8 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
     @Autowired
     private PreProductionSampleTaskMapper preProductionSampleTaskMapper;
+    @Autowired
+    private SmpService smpService;
 
     Logger log = LoggerFactory.getLogger(getClass());
 
@@ -284,6 +288,12 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         styleColorCorrectInfo.setDesignCorrectDate(null);
         styleColorCorrectInfo.setDesignDetailDate(null);
         saveOrUpdate(styleColorCorrectInfo);
+
+        TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
+        confirmDateDto.setTechnicsDate(styleColorCorrectInfo.getTechnicsDate());
+        confirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate());
+        confirmDateDto.setType("correct_sample");
+        smpService.styleColorCorrectInfoDate(confirmDateDto);
 
         return styleColorCorrectInfo.getId();
     }
