@@ -151,12 +151,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         ExportParams exportParams = new ExportParams("订货本详情", "订货本详情", ExcelType.HSSF);
         ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
     }
+
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth) {
-        return querylist(queryWrapper, openDataAuth, false);
-    }
-
-    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth, boolean firstOrder) {
         if (null == openDataAuth) {
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         }
@@ -168,14 +165,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         /*设置图片分辨路*/
         stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
         stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
-        if (firstOrder) {
-            List<OrderBookDetailVo> result = new ArrayList<>();
-            orderBookDetailVos.forEach(orderBookDetailVo -> {
-                OrderBookDetail orderBookDetail = JSONUtil.toBean(orderBookDetailVo.getFirstOrderDataJson(), OrderBookDetail.class);
-                BeanUtil.copyProperties(orderBookDetail, orderBookDetailVo);
-                result.add(orderBookDetailVo);
-            });
-        }
         OrderBookDetailQueryDto pageConfigQueryDto = new OrderBookDetailQueryDto();
         pageConfigQueryDto.setCompanyCode(orderBookDetailVos.get(0).getCompanyCode());
         Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig = pageConfig(pageConfigQueryDto);
@@ -725,10 +714,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT);
             orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.FINISH);
             orderBookDetail.setCommissioningDate(new Date());
-            if (StrUtil.isBlank(orderBookDetail.getFirstOrderDataJson())) {
-                orderBookDetail.setFirstOrderDataJson(JSONUtil.toJsonStr(orderBookDetail));
-                orderBookDetail.setFirstOrderTime(LocalDateTime.now());
-            }
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
