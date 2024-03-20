@@ -430,7 +430,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             throw new RuntimeException("配色id为空");
         }
         OrderBookDetail orderBookDetail = this.getById(dto.getId());
-        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
+//        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
+        if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
             throw new OtherException("不允许修改已发起审批的数据");
         }
         dto.setDesignerConfirm("1");
@@ -638,14 +639,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setStatus(updateStatus);
             orderBookDetail.setAuditStatus(updateAuditStatus);
 
-            if (auditStatus != OrderBookDetailAuditStatusEnum.NOT_COMMIT && updateAuditStatus == OrderBookDetailAuditStatusEnum.NOT_COMMIT){
-                continue;
-            }
-
             // 判断是否能下单
-            if (auditStatus != OrderBookDetailAuditStatusEnum.NOT_COMMIT){
+            if (auditStatus != updateAuditStatus) {
+                if (auditStatus == OrderBookDetailAuditStatusEnum.FINISH){
+                    throw new OtherException("已经完成审核,无法修改审核状态");
+                }
+                continue;
+            }else if (auditStatus != OrderBookDetailAuditStatusEnum.NOT_COMMIT){
                 throw new OtherException("已经发起审核,请勿重复提交");
             }
+
 //            if (StrUtil.isBlank(orderBookDetail.getDesignerCode())) {
 //                throw new OtherException("还未分配设计师");
 //            }

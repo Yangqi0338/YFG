@@ -216,7 +216,8 @@ public class OrderBookDetailController extends BaseController {
     @Transactional(rollbackFor = Exception.class)
     public ApiResult businessConfirm(@RequestBody OrderBookDetailSaveDto dto) {
         OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
-        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
+//        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
+        if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
             throw new OtherException("不允许修改已发起审批的数据");
         }
         dto.setBusinessConfirm("1");
@@ -330,6 +331,9 @@ public class OrderBookDetailController extends BaseController {
     @PostMapping("/setStyleNumber")
     public ApiResult setStyleNumber(@RequestBody OrderBookDetailSaveDto dto) {
         OrderBookDetailVo orderBookDetailVo = orderBookDetailService.getDetailById(dto.getId());
+        if (orderBookDetailVo.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
+            throw new OtherException("不允许修改已发起审批的数据");
+        }
         //先清掉之前关联的款号
         String bulkStyleNo = orderBookDetailVo.getBulkStyleNo();
         QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
