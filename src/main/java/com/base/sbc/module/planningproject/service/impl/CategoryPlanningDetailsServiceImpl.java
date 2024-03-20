@@ -300,7 +300,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                         }
                         if ("2".equals(isOption)) {
                             String optionDictKey = fieldManagement.getOptionDictKey();
-                            List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode(optionDictKey, null, "0");
+                            List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode(optionDictKey, null, fieldManagement.getStructureTier());
                             // List<FieldOptionConfig> fieldOptionConfigs = new ArrayList<>();
                             for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVos) {
                                 FieldOptionConfig fieldOptionConfig = new FieldOptionConfig();
