@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -15,18 +16,12 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumDimensionalityDto;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
-import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.mapper.SeasonalPlanningMapper;
@@ -40,14 +35,11 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.rmi.RemoteException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -464,9 +456,139 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             detailsList.add(seasonalPlanningDetails);
         }
         seasonalPlanningDetailsService.saveBatch(detailsList);
+
+        saveDetailsList(seasonalPlanningSaveDto, hashMaps, basicStructureTreeVos, c8Band);
+
         // seasonalPlanningDetails.setSkcCount(sum);
         // seasonalPlanningDetails.setSeasonalPlanningId();
 
+    }
+
+    private void saveDetailsList(SeasonalPlanningSaveDto seasonalPlanningSaveDto, List<HashMap<Integer, String>> hashMaps, List<BasicStructureTreeVo> basicStructureTreeVos, List<BasicBaseDict> c8Band) {
+        Map<Integer, SeasonalPlanningDetails> detailsMap = new HashMap<>();
+        List<SeasonalPlanningDetails> detailsList = new ArrayList<>();
+
+        //大类名称
+        String prodCategory1stName = null;
+        //品类名称
+        String prodCategoryName = null;
+        //中类名称
+        String prodCategory2ndName = null;
+
+        Map<String, String> prodCategoryMap = new HashMap<>();
+        for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVos) {
+            //大类
+            for (BasicStructureTreeVo child : basicStructureTreeVo.getChildren()) {
+                //品类
+                for (BasicStructureTreeVo childChild : child.getChildren()) {
+                    //中类
+                    prodCategoryMap.put(basicStructureTreeVo.getName() + "_" + child.getName() + "_" + childChild.getName(),
+                            basicStructureTreeVo.getValue() + "_" + child.getValue() + "_" + childChild.getValue());
+                }
+                prodCategoryMap.put(basicStructureTreeVo.getName() + "_" + child.getName(),
+                        basicStructureTreeVo.getValue() + "_" + child.getValue());
+            }
+        }
+        Map<String, String> bandMap = c8Band.stream().collect(Collectors.toMap(BasicBaseDict::getName, BasicBaseDict::getValue));
+
+        for (int i = 1; i < hashMaps.size(); i++) {
+            HashMap<Integer, String> integerStringHashMap = hashMaps.get(i);
+            for (int j = 0; j < integerStringHashMap.size(); j++) {
+                switch (i) {
+                    case 1: //上市波段
+                        if (j > 2) {
+                            SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                orDefault.setBandName(integerStringHashMap.get(j));
+                            } else {
+                                orDefault.setBandName(integerStringHashMap.get(j - 1));
+                            }
+                            detailsMap.put(j, orDefault);
+                        }
+                        break;
+                    case 2: //下单时间
+                        if (j > 2) {
+                            SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                orDefault.setOrderTime(integerStringHashMap.get(j));
+                            } else {
+                                orDefault.setOrderTime(integerStringHashMap.get(j - 1));
+                            }
+                            detailsMap.put(j, orDefault);
+                        }
+                        break;
+                    case 3: //上市时间
+                        if (j > 2) {
+                            SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                orDefault.setLaunchTime(integerStringHashMap.get(j));
+                            } else {
+                                orDefault.setLaunchTime(integerStringHashMap.get(j - 1));
+                            }
+                            detailsMap.put(j, orDefault);
+                        }
+                        break;
+                    case 4: //款式类别
+                        if (j > 2) {
+                            SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                orDefault.setStyleCategory(integerStringHashMap.get(j));
+                            } else {
+                                orDefault.setStyleCategory(integerStringHashMap.get(j - 1));
+                            }
+                            detailsMap.put(j, orDefault);
+                        }
+                        break;
+                    default:
+                        //数据列
+                        SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                        if (j == 0) {
+                            //大类名称
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                prodCategory1stName = integerStringHashMap.get(j);
+                                //大类有值之后重置，品类和中类
+                                prodCategoryName = null;
+                                prodCategory2ndName = null;
+                            }
+                        } else if (j == 1) {
+                            //品类名称
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                prodCategoryName = integerStringHashMap.get(j);
+                            }
+                        } else if (j == 2) {
+                            //中类名称
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                prodCategory2ndName = integerStringHashMap.get(j);
+                            }
+                        } else {
+                            SeasonalPlanningDetails details = new SeasonalPlanningDetails();
+                            details.setProdCategory1stName(prodCategory1stName);
+                            details.setProdCategoryName(prodCategoryName);
+                            details.setProdCategory2ndName(prodCategory2ndName);
+                            if (prodCategoryMap.containsKey(prodCategory1stName + "_" + prodCategoryName + "_" + prodCategory2ndName)) {
+                                String[] s = prodCategoryMap.get(prodCategory1stName + "_" + prodCategoryName + "_" + prodCategory2ndName).split("_");
+                                details.setProdCategory1stCode(s[0]);
+                                details.setProdCategoryCode(s[1]);
+                                details.setProdCategory2ndCode(s[2]);
+                            } else if (prodCategoryMap.containsKey(prodCategory1stName + "_" + prodCategoryName)) {
+                                String[] s = prodCategoryMap.get(prodCategory1stName + "_" + prodCategoryName).split("_");
+                                details.setProdCategory1stCode(s[0]);
+                                details.setProdCategoryCode(s[1]);
+                            }
+                            details.setBandName(orDefault.getBandName());
+                            details.setBandCode(bandMap.get(details.getBandName()));
+                            details.setOrderTime(orDefault.getOrderTime());
+                            details.setLaunchTime(orDefault.getLaunchTime());
+                            details.setStyleCategory(orDefault.getStyleCategory());
+                            details.setSeasonalPlanningId(seasonalPlanningSaveDto.getName());
+                            details.setSeasonalPlanningName(seasonalPlanningSaveDto.getId());
+                            details.setSkcCount(integerStringHashMap.get(j));
+                            detailsList.add(details);
+                        }
+                }
+            }
+        }
+        seasonalPlanningDetailsService.saveBatch(detailsList);
     }
 
     @Override
