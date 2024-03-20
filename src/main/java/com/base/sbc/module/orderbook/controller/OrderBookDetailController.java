@@ -215,6 +215,10 @@ public class OrderBookDetailController extends BaseController {
     @DuplicationCheck(time = 10)
     @Transactional(rollbackFor = Exception.class)
     public ApiResult businessConfirm(@RequestBody OrderBookDetailSaveDto dto) {
+        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
+            throw new OtherException("不允许修改已发起审批的数据");
+        }
         dto.setBusinessConfirm("1");
         //修改吊牌价
         styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());

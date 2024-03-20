@@ -620,9 +620,26 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         // OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
         String[] split = dto.getIds().split(",");
         List<OrderBookDetail> orderBookDetails = this.listByIds(Arrays.asList(split));
+        if (CollUtil.isEmpty(orderBookDetails)) return;
+        OrderBookDetailStatusEnum updateStatus = dto.getStatus();
+        OrderBookDetailAuditStatusEnum updateAuditStatus;
+        switch (updateStatus) {
+            case NOT_AUDIT: updateAuditStatus = OrderBookDetailAuditStatusEnum.AWAIT; break;
+            case AUDIT: updateAuditStatus = OrderBookDetailAuditStatusEnum.FINISH; break;
+            default: updateAuditStatus = OrderBookDetailAuditStatusEnum.NOT_COMMIT; break;
+        }
         for (OrderBookDetail orderBookDetail : orderBookDetails) {
+            OrderBookDetailAuditStatusEnum auditStatus = orderBookDetail.getAuditStatus();
+
+            orderBookDetail.setStatus(updateStatus);
+            orderBookDetail.setAuditStatus(updateAuditStatus);
+
+            if (auditStatus != OrderBookDetailAuditStatusEnum.NOT_COMMIT && updateAuditStatus == OrderBookDetailAuditStatusEnum.NOT_COMMIT){
+                continue;
+            }
+
             // 判断是否能下单
-            if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT){
+            if (auditStatus != OrderBookDetailAuditStatusEnum.NOT_COMMIT){
                 throw new OtherException("已经发起审核,请勿重复提交");
             }
 //            if (StrUtil.isBlank(orderBookDetail.getDesignerCode())) {
@@ -635,8 +652,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             if (StringUtils.isEmpty(totalProduction) || "0".equals(totalProduction)) {
                 throw new OtherException("下单数量不能为空或者0");
             }
-            orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_AUDIT);
-            orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.AWAIT);
             // 检查投产数是否一致
             JSONObject jsonObject = JSON.parseObject(orderBookDetail.getCommissioningSize());
             int sumProduction = jsonObject.keySet().stream()
