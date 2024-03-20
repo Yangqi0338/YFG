@@ -140,7 +140,11 @@ public class PlanningProjectPlankController extends BaseController {
         if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
 
             StyleColor styleColor = styleColorService.getById(planningProjectPlankVo.getStyleColorId());
+
+
             Style style = styleService.getById(styleColor.getStyleId());
+
+
             StyleColorVo styleColorVo =new StyleColorVo();
 
             BeanUtil.copyProperties(style,styleColorVo);
@@ -149,12 +153,15 @@ public class PlanningProjectPlankController extends BaseController {
             styleColorVo.setStyleColorPic(styleUrl);
             planningProjectPlankVo.setStyleColor(styleColorVo);
 
-
             DimensionLabelsSearchDto dto =new DimensionLabelsSearchDto();
             dto.setId(styleColor.getStyleId());
             dto.setForeignId(styleColor.getStyleId());
-
+            if ("1".equals(styleColor.getBomStatus())){
+                dto.setStyleColorId(styleColor.getId());
+                dto.setShowConfig("styleMarkingOrder");
+            }
             Map<String, List<FieldManagementVo>> stringListMap = styleService.queryCoefficientByStyle(dto);
+
             List<FieldManagementVo> fieldManagementVos = new ArrayList<>();
             if (stringListMap!=null){
                 for (String s : stringListMap.keySet()) {
@@ -176,9 +183,15 @@ public class PlanningProjectPlankController extends BaseController {
             planningProjectPlankVo.setOldStyleColor(styleColorVo);
 
 
+
+
             DimensionLabelsSearchDto dto =new DimensionLabelsSearchDto();
             dto.setId(styleColor.getStyleId());
             dto.setForeignId(styleColor.getStyleId());
+            if ("1".equals(styleColor.getBomStatus())){
+                dto.setStyleColorId(styleColor.getId());
+                dto.setShowConfig("styleMarkingOrder");
+            }
 
             Map<String, List<FieldManagementVo>> stringListMap = styleService.queryCoefficientByStyle(dto);
             List<FieldManagementVo> fieldManagementVos = new ArrayList<>();
