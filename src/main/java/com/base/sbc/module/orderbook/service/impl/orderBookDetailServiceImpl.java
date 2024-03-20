@@ -429,6 +429,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if(StrUtil.isEmpty(dto.getStyleColorId())){
             throw new RuntimeException("配色id为空");
         }
+        OrderBookDetail orderBookDetail = this.getById(dto.getId());
+        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
+            throw new OtherException("不允许修改已发起审批的数据");
+        }
         dto.setDesignerConfirm("1");
         boolean isUpdate=false;
         /*查询配色数据*/
