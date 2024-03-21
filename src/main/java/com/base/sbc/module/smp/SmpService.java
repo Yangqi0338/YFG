@@ -1561,7 +1561,7 @@ public class SmpService {
     public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto){
         String params = JSONArray.toJSONString(tagConfirmDateDto);
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
-         pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto), "scm", "下发吊牌和款式定价确认信息");
+        pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto), "scm", "下发吊牌和款式定价确认信息");
     }
 
     /**

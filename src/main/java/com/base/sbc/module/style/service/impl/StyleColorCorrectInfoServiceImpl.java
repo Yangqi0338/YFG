@@ -290,6 +290,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         saveOrUpdate(styleColorCorrectInfo);
 
         TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
+        confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
         confirmDateDto.setTechnicsDate(styleColorCorrectInfo.getTechnicsDate());
         confirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate());
         confirmDateDto.setType("correct_sample");
