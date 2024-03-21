@@ -226,4 +226,10 @@ public class TechnologyCenterTaskVo {
     public String getPlanningSeason() {
         return StrUtil.join(" ", yearName, seasonName, brandName);
     }
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
+
 }
