@@ -652,8 +652,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 }
             }
         }
-
-        for (SeasonalPlanningDetails seasonalPlanningDetails : list2) {
+        for (int i = 0; i < list2.size(); i++) {
+            SeasonalPlanningDetails seasonalPlanningDetails = list2.get(i);
             seasonalPlanningDetails.setOrderTime("");
             seasonalPlanningDetails.setSkcCount("0");
             String prodCategory2ndCode = seasonalPlanningDetails.getProdCategory2ndCode();
@@ -693,7 +693,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             //大货款号有-,并且-往前三位是S,则是高奢款
             List<StyleColor>  styleColorList =new ArrayList<>();
             for (StyleColor styleColor : styleColors) {
-                if (list2.size()%2!=0){
+                if (i%2!=0){
                     seasonalPlanningDetails.setStyleCategory("高奢");
                     String[] split1 = styleColor.getStyleNo().split("-");
                     if(split1.length > 1 && split[0].length() > 3 && 'S' == split[0].charAt(3)){
