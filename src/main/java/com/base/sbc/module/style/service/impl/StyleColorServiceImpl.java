@@ -2755,6 +2755,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             basicsdatumSizeQueryWrapper.like("model_type_code",code);
                             basicsdatumSizeQueryWrapper.like("model_type",dto.getSizeRangeName());
                             basicsdatumSizeQueryWrapper.eq("translate_name",dto.getOutsideSizeCode());
+
                             List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list(basicsdatumSizeQueryWrapper);
                             if (CollUtil.isNotEmpty(basicsdatumSizeList)) {
                                 for (BasicsdatumSize basicsdatumSize : basicsdatumSizeList) {
@@ -3064,6 +3065,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 basicsdatumSizeQueryWrapper.like("model_type_code",code);
                 basicsdatumSizeQueryWrapper.like("model_type",sizeRangeName);
                 basicsdatumSizeQueryWrapper.eq("european_size",outsideSizeCode);
+
                 List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list(basicsdatumSizeQueryWrapper);
                 if (CollUtil.isEmpty(basicsdatumSizeList)) {
                     errorInfo += "第" + (i + 1) + "行" + "外部尺码【" + outsideSizeCode + "】" + "【" + basicsdatumModelType.getModelType() + "】号型类型数据库找不到对应外部尺码【" + outsideSizeCode + "】信息！\n";
@@ -3134,6 +3136,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         Map<String,String> map3 = new HashMap<>();
         Map<String,String> map4 = new HashMap<>();
         Map<String,String> map5 = new HashMap<>();
+        Map<String,String> map6 = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             MangoStyleColorExeclDto entity = list.get(i);
             Field[] declaredFields = entity.getClass().getDeclaredFields();
@@ -3150,6 +3153,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String outsideSizeCode = entity.getOutsideSizeCode();
             String tagPrice = entity.getTagPrice();
             String planCostPrice = entity.getPlanCostPrice();
+            String sizeRangeName = entity.getSizeRangeName();
 
             checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo)  && StrUtil.isNotBlank(outsideBarcode) && StrUtil.isNotBlank(outsideSizeCode), styleColorNo  + outsideSizeCode + outsideBarcode, map, i);
 
@@ -3161,6 +3165,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(tagPrice), styleColorNo + tagPrice, map4, i);
             checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(planCostPrice), styleColorNo + planCostPrice, map5, i);
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(sizeRangeName), styleColorNo + sizeRangeName, map6, i);
 
 
             if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(tagPrice)) {
@@ -3186,6 +3191,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                 }else{
                     map5.put(styleColorNo,planCostPrice);
+                }
+            }
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(sizeRangeName)) {
+
+                if (map6.containsKey(styleColorNo)) {
+                    String planCostPriceValue = map6.get(styleColorNo);
+                    if (!planCostPriceValue.equals(sizeRangeName)) {
+                        errorInfo += styleColorNo+ ":【大货款号】+【号型类型】 出现不同的号型类型";
+                    }
+
+                }else{
+                    map6.put(styleColorNo,sizeRangeName);
                 }
             }
         }
