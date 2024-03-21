@@ -57,7 +57,7 @@ public class HttpLogController extends BaseController {
         queryWrapper.like(!StringUtils.isEmpty(queryHttpLogDto.getUrl()),"url",queryHttpLogDto.getUrl());
 
         //根据登录用户查询
-        queryWrapper.eq("createId",getUserId());
+        queryWrapper.eq("create_id",getUserId());
 
         if(StringUtils.isNotBlank(queryHttpLogDto.getStartTime())){
             List<String> list=   StringUtils.convertList(queryHttpLogDto.getStartTime());
