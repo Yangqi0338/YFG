@@ -1,2 +1,1 @@
-use s_pdm_data;
-alter table t_style_country_status add column type varchar(10) default 'tag' not null comment '标准类型';
+alter table t_standard_column add column show_flag varchar(1) default '1' not null comment '展示字段';

@@ -203,7 +203,6 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             exportMapping.setType(type);
 
             CountryQueryDto countryQueryDto = BeanUtil.copyProperties(excelQueryDto, CountryQueryDto.class);
-            countryQueryDto.setType(exportMapping.getType());
             List<CountryLanguageDto> countryLanguageList = countryLanguageService.listQuery(countryQueryDto);
             if (CollectionUtil.isEmpty(countryLanguageList)) {
                 throw new OtherException("未找到对应的国家语言数据");
@@ -353,6 +352,10 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     standardColumnCountryTranslateService.saveOperaLog(updateLogEntity);
                 }
             });
+            // 仅更新做操作
+            if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
+
+            }
             updateNewTranslateList.addAll(addTranslateList);
             if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
                 standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
@@ -408,6 +411,28 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                         standardColumnCountryTranslateService.saveOrUpdateBatch(sameListPair.getValue());
                     }
                 });
+                // 同步其他type但隐藏的数据
+                if (standardColumn.getShowFlag() == YesOrNoEnum.NO) {
+                    taskList.add(()-> {
+                        CountryLanguageType searchType = type == CountryLanguageType.TAG ? CountryLanguageType.WASHING : CountryLanguageType.TAG;
+                        List<CountryLanguageDto> typeList = exportMapping.getTotalCountryLanguageList().stream()
+                                .filter(it -> it.getType() == searchType).collect(Collectors.toList());
+
+                        standardColumnCountryTranslateService.remove(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                                .in(StandardColumnCountryTranslate::getCountryLanguageId, typeList.stream().map(CountryLanguageDto::getId).collect(Collectors.toList()))
+                                .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
+                        );
+                        List<StandardColumnCountryTranslate> syncTranslateList = typeList.stream().flatMap(countryLanguage ->
+                                BeanUtil.copyToList(updateNewTranslateList, StandardColumnCountryTranslate.class).stream().peek(it -> {
+                                    it.setId(null);
+                                    it.setCreateDate(null);
+                                    it.updateClear();
+                                    it.setCountryLanguageId(countryLanguage.getId());
+                                })
+                        ).collect(Collectors.toList());
+                        standardColumnCountryTranslateService.saveOrUpdateBatch(syncTranslateList);
+                    });
+                }
                 // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
                 countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>()
                         .in(CountryModel::getCountryLanguageId, countryLanguageIdList)

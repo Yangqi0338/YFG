@@ -175,7 +175,11 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
         /* ----------------------------保存---------------------------- */
 
         // 查名字
-        List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList(DictBusinessConstant.LANGUAGE);
+        List<BasicBaseDict> dictInfoToList = new ArrayList<>();
+        // 查询当前数据库的隐藏标准列
+        StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
+        List<StandardColumnDto> notShowStandardColumnList = standardColumnService.listQuery(queryDto);
+
         // 一个保存同步锁, 因为上面的code是程序计算, 解决连点导致的code重复
         saveLock.lock();
         try {
@@ -239,8 +243,12 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                         List<String> existRelationStandardColumnList = relationService.listOneField(new LambdaQueryWrapper<StandardColumnCountryRelation>()
                                 .eq(StandardColumnCountryRelation::getCountryLanguageId, countryId), StandardColumnCountryRelation::getStandardColumnCode
                         );
+                        List<String> handlerStandardColumnCodeList = notShowStandardColumnList.stream().filter(it -> it.getType().equals(type.getStandardColumnType()))
+                                .map(StandardColumn::getCode).filter(existRelationStandardColumnList::contains).collect(Collectors.toList());
                         removeRelation(countryId);
-                        List<StandardColumnCountryRelation> countryRelationList = standardColumnCodeList.stream().map(standardColumnCode -> {
+
+                        handlerStandardColumnCodeList.addAll(standardColumnCodeList);
+                        List<StandardColumnCountryRelation> countryRelationList = handlerStandardColumnCodeList.stream().map(standardColumnCode -> {
                             // 从redis标准列数据
                             RedisStaticFunUtils.setBusinessService(standardColumnService).setMessage(MoreLanguageProperties.getMsg(INCORRECT_STANDARD_CODE));
                             StandardColumn standardColumn = (StandardColumn)
@@ -250,8 +258,11 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
                         relationService.saveBatch(countryRelationList);
 
-                        List<String> newRelationList = standardColumnCodeList.stream().filter(it -> !existRelationStandardColumnList.contains(it)).collect(Collectors.toList());
-                        if (CollectionUtil.isNotEmpty(newRelationList)) {
+                        List<String> newRelationList = handlerStandardColumnCodeList.stream().filter(it -> !existRelationStandardColumnList.contains(it)).collect(Collectors.toList());
+                        if (CollectionUtil.isNotEmpty(newRelationList) && !cache) {
+                            if (CollUtil.isEmpty(dictInfoToList)) {
+                                dictInfoToList.addAll(ccmFeignService.getDictInfoToList(DictBusinessConstant.LANGUAGE));
+                            }
                             // 检查新增是否有单语言翻译, 拿过来
                             String languageId = this.findOneField(new LambdaQueryWrapper<CountryLanguage>()
                                             .eq(CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.YES)
@@ -278,9 +289,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                                 }
                             }
                         }
+                        RedisStaticFunUtils.sSet(redisKey, handlerStandardColumnCodeList.stream().collect(Collectors.toList()));
                     }
 
-                    RedisStaticFunUtils.sSet(redisKey, standardColumnCodeList.stream().collect(Collectors.toList()));
                 }
             });
             if (CollectionUtil.isNotEmpty(needInsertTranslateList)) {
