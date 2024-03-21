@@ -574,8 +574,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
             TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
             confirmDateDto.setStyleNo(old.getStyleNo());
-            confirmDateDto.setTechnicsDate(dto.getTechReceiveTime());
-            confirmDateDto.setType("correct_sample");
+            confirmDateDto.setTechnicsDate(dto.getTechReceiveTime() == null ? null : dto.getTechReceiveTime());
+            confirmDateDto.setType("technics_date");
             smpService.styleColorCorrectInfoDate(confirmDateDto);
         }
 

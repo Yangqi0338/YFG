@@ -267,7 +267,7 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
             confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
             confirmDateDto.setTechnicsDate(styleColorCorrectInfo.getTechnicsDate());
-            confirmDateDto.setType("correct_sample");
+            confirmDateDto.setType("technics_date");
             smpService.styleColorCorrectInfoDate(confirmDateDto);
 
             styleColorCorrectInfo.setTechnicsDate(null);
@@ -277,8 +277,8 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         }else{
             TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
             confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
-            //confirmDateDto.setPlanControlDate(StrUtil.isNotEmpty(styleColorCorrectInfo.getPlanControlDate()) ? styleColorCorrectInfo.getPlanControlDate() : null);
-            confirmDateDto.setType("correct_sample");
+            confirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate() != null ? styleColorCorrectInfo.getPlanControlDate() : null);
+            confirmDateDto.setType("plan_control_date");
             smpService.styleColorCorrectInfoDate(confirmDateDto);
         }
 
