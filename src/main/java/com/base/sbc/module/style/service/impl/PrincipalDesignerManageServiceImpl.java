@@ -9,12 +9,10 @@ package com.base.sbc.module.style.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
-import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -72,20 +70,17 @@ public class PrincipalDesignerManageServiceImpl extends BaseServiceImpl<Principa
     @Override
     @Transactional
     public ApiResult importExcel(List<PrincipalDesignerManageExcel> list) {
-        List<String> prodCategoryNameList = new ArrayList<>();
-        List<String> designerList = new ArrayList<>();
-
-        for (PrincipalDesignerManageExcel excel : list) {
-            prodCategoryNameList.add(excel.getProdCategoryName());
-            designerList.add(excel.getDesigner());
-        }
         //品牌
         List<BasicBaseDict> dictInfoToList = ccmFeignService.getDictInfoToList("C8_Brand");
         Map<String, List<BasicBaseDict>> brandNameMap = dictInfoToList.stream().collect(Collectors.groupingBy(BasicBaseDict::getName));
         //品类
-        List<BasicStructureTreeVo> structureTreeByCodes = ccmFeignService.findStructureTreeByCodes(String.join(",", prodCategoryNameList));
+        List<BasicStructureTreeVo> structureTreeByCodes = ccmFeignService.basicStructureTreeByCode("品类", null, "1,2");
         Map<String, String> prodCategoryMap = new HashMap<>();
-        structureTreeByCodes.forEach(o -> o.getChildren().forEach(s -> prodCategoryMap.put(o.getName() + "_" + s.getName(), o.getId() + "_" + s.getId())));
+        structureTreeByCodes.forEach(o -> {
+            if(CollUtil.isNotEmpty(o.getChildren())){
+                o.getChildren().forEach(s -> prodCategoryMap.put(o.getName() + "_" + s.getName(), o.getId() + "_" + s.getId()));
+            }
+        });
         //查询设计师
         List<UserCompany> userCodeNotNullUserList = amcFeignService.getUserCodeNotNullUserList();
         Map<String, String> userMap = userCodeNotNullUserList.stream().collect(Collectors.toMap(UserCompany::getAliasUserName, UserCompany::getUserId, (v1, v2) -> ""));
