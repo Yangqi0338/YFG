@@ -2222,8 +2222,41 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (StrUtil.isNotEmpty(errorInfo)) {
             return ApiResult.error(errorInfo,500);
         }
+
+        //
+        List<BasicBaseDict> styleTypeList = ccmFeignService.getDictInfoToList("StyleType");
+        List<BasicBaseDict> c8GenderList = ccmFeignService.getDictInfoToList("C8_Gender");
+        List<BasicBaseDict> packageTypeList = ccmFeignService.getDictInfoToList("C8_PackageType");
+
+
+
         //验证导入数据和数据库数据做校验
         errorInfo = checkData2(list, errorInfo);
+
+
+        Map<String,String> checkMap = new HashMap<>();
+
+        List<BasicStructureTreeVo> tree = ccmFeignService.basicStructureTreeByCode("品类", null, "0,1,2");
+        if (CollUtil.isNotEmpty(tree)) {
+            for (BasicStructureTreeVo basicStructureTreeVo : tree) {
+                String bigName = basicStructureTreeVo.getName();
+                String bigValue = basicStructureTreeVo.getValue();
+                List<BasicStructureTreeVo> children = basicStructureTreeVo.getChildren();
+                if (CollUtil.isNotEmpty(children)) {
+                    for (BasicStructureTreeVo category : children) {
+                        String catagory = category.getName();
+                        String catagoryValue = category.getValue();
+
+                        List<BasicStructureTreeVo> categoryChildren = category.getChildren();
+                        for (BasicStructureTreeVo middleCatagory : categoryChildren) {
+                            String  middleCatagoryName = middleCatagory.getName();
+                            String  middleCatagoryValue = middleCatagory.getValue();
+                            checkMap.put(bigName + "-" + catagory + "-" + middleCatagoryName,bigValue + "-" + catagoryValue + "-" + middleCatagoryValue);
+                        }
+                    }
+                }
+            }
+        }
 
         if (StrUtil.isNotEmpty(errorInfo)) {
             return ApiResult.error(errorInfo,500);
@@ -2312,7 +2345,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 style.setPlanningCategoryItemId("11111111");
 
                 //款式类型
-                List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts("StyleType",dto.getStyleTypeName());
+                List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts(styleTypeList,dto.getStyleTypeName());
 
                 if (CollUtil.isNotEmpty(styleTypeListDictList)) {
                     style.setStyleType(styleTypeListDictList.get(0).getValue());
@@ -2326,10 +2359,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     style.setGenderType("");
                     style.setGenderName("");
                 }else{
-                    List<BasicBaseDict> c8GenderList = getBasicBaseDicts("C8_Gender",dto.getGender());
-                    if (CollUtil.isNotEmpty(c8GenderList)) {
-                        style.setGenderType(c8GenderList.get(0).getValue());
-                        style.setGenderName(c8GenderList.get(0).getName());
+
+
+                    List<BasicBaseDict> c8GenderListDictList = getBasicBaseDicts(c8GenderList,dto.getGender());
+                    if (CollUtil.isNotEmpty(c8GenderListDictList)) {
+                        style.setGenderType(c8GenderListDictList.get(0).getValue());
+                        style.setGenderName(c8GenderListDictList.get(0).getName());
                     } else {
                         throw new OtherException("第"+(i+1)+"行,找不到对应的产品季式性别");
                     }
@@ -2341,46 +2376,23 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 String prodCategory1stName = dto.getProdCategory1stName();
                 String prodCategory2ndName = dto.getProdCategory2ndName();
 
-                //获取大类的code
-                List<BasicCategoryDot> prodCategory1stList = ccmFeignService.getTreeByNamelList("品类", "0");
-                List<BasicCategoryDot> prodCategory1stNameList = prodCategory1stList.stream().filter(o -> o.getName().equals(prodCategory1stName)).collect(Collectors.toList());
-                //根据大类找品类
-                if (CollUtil.isNotEmpty(prodCategory1stNameList)) {
-                    style.setProdCategory1stName(prodCategory1stNameList.get(0).getName());
-                    style.setProdCategory1st(prodCategory1stNameList.get(0).getValue());
-                    //根据大类找品类
-                    List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode("品类", prodCategory1stNameList.get(0).getValue(), "1");
-                    if (CollUtil.isNotEmpty(basicStructureTreeVos)) {
-                        //找中类
-                        List<BasicStructureTreeVo> children = basicStructureTreeVos.get(0).getChildren();
-                        if (CollUtil.isEmpty(children)) {
-                            throw new OtherException("第"+(i+1)+"行,找不到对应的品类");
-                        }
-
-                        //获取品类的code
-                        List<BasicStructureTreeVo> children2 = children.stream().filter(o -> o.getName().equals(prodCategoryName)).collect(Collectors.toList());
-                        if (CollUtil.isNotEmpty(children2)) {
-                            style.setProdCategoryName(children2.get(0).getName());
-                            style.setProdCategory(children2.get(0).getValue());
-                            List<BasicStructureTreeVo> basicStructureTreeVoList2 = ccmFeignService.basicStructureTreeByCode("品类", children2.get(0).getValue(), "2");
-                            if (CollUtil.isNotEmpty(basicStructureTreeVoList2)) {
-                                List<BasicStructureTreeVo> children3 = basicStructureTreeVoList2.get(0).getChildren();
-                                List<BasicStructureTreeVo> collect = children3.stream().filter(o -> o.getName().equals(prodCategory2ndName)).collect(Collectors.toList());
-                                if (CollUtil.isEmpty(collect)) {
-                                    throw new OtherException("第"+(i+1)+"行,找不到对应的中类");
-                                }else{
-                                    style.setProdCategory2ndName(collect.get(0).getName());
-                                    style.setProdCategory2nd(collect.get(0).getValue());
-                                }
-                            }else{
-                                throw new OtherException("第"+(i+1)+"行,找不到对应的品类");                            }
-                        }else{
-                            throw new OtherException("第"+(i+1)+"行,找不到对应的品类");
-                        }
+                String key = prodCategoryName + "-" + prodCategory1stName + "-" + prodCategory2ndName;
+                if (checkMap.containsKey(key)) {
+                    String mapValue = checkMap.get(key);
+                    if (StrUtil.isNotEmpty(mapValue)) {
+                        style.setProdCategoryName(prodCategoryName);
+                        style.setProdCategory(mapValue.split("-")[0]);
+                        style.setProdCategory1stName(prodCategory1stName);
+                        style.setProdCategory1st(mapValue.split("-")[1]);
+                        style.setProdCategory2ndName(prodCategory2ndName);
+                        style.setProdCategory2nd(mapValue.split("-")[2]);
+                    }else{
+                        throw new OtherException("第" + (i + 1) + "行,系统找不到对应的大类-品类-中类" + key);
                     }
                 }else{
-                    throw new OtherException("第"+(i+1)+"行,找不到对应的大类");
+                    throw new OtherException("第" + (i + 1) + "行,Execl中的大类-品类-中类在系统中找不到" + key);
                 }
+
                 //配色
 
                 String outsideColorCode = dto.getOutsideColorCode();
@@ -2481,8 +2493,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                 String packagingForm = dto.getPackagingForm();
                 if (StrUtil.isNotEmpty(packagingForm)) {
-                    List<BasicBaseDict> packageTypeList = ccmFeignService.getDictInfoToList("C8_PackageType");
-                    List<BasicBaseDict> packageTypeListDict = packageTypeList.stream().filter(o -> o.getName().equals(packagingForm)).collect(Collectors.toList());
+                    List<BasicBaseDict> packageTypeListDict = getBasicBaseDicts(packageTypeList,packagingForm);
                     if (CollUtil.isNotEmpty(packageTypeListDict)) {
                         hangTag.setPackagingForm(packageTypeListDict.get(0).getName());
                         hangTag.setPackagingFormCode(packageTypeListDict.get(0).getValue());
@@ -2562,7 +2573,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                         String prodCategory2ndName1 = styleUpdate.getProdCategory2ndName();
 
                         if (!prodCategoryName.equals(prodCategoryName1) || !prodCategory1stName.equals(prodCategory1stName1) || !prodCategory2ndName.equals(prodCategory2ndName1)) {
-                            List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
+                            /*List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
                             //获取品类的code
                             List<BasicCategoryDot> prodCategoryNameList = basicCategoryDotList.stream().filter(o -> o.getName().equals(prodCategoryName)).collect(Collectors.toList());
                             if (CollUtil.isNotEmpty(prodCategoryNameList)) {
@@ -2596,7 +2607,30 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             } else {
                                 //报错
                                 throw new OtherException("第"+(i+1)+"行,找不到对应的中类");
+                            }*/
+
+
+
+
+                            String updatekey = prodCategoryName1 + "-" + prodCategory1stName1 + "-" + prodCategory2ndName1;
+                            if (checkMap.containsKey(updatekey)) {
+                                String updateMapValue = checkMap.get(updatekey);
+                                if (StrUtil.isNotEmpty(updateMapValue)) {
+                                    styleUpdate.setProdCategoryName(prodCategoryName1);
+                                    styleUpdate.setProdCategory(updateMapValue.split("-")[1]);
+                                    styleColorUpdate.setProductName(prodCategoryName1);
+                                    styleColorUpdate.setProductCode(updateMapValue.split("-")[1]);
+                                    styleUpdate.setProdCategory1stName(prodCategory1stName1);
+                                    styleUpdate.setProdCategory1st(updateMapValue.split("-")[0]);
+                                    styleUpdate.setProdCategory2ndName(prodCategory2ndName1);
+                                    styleUpdate.setProdCategory2nd(updateMapValue.split("-")[1]);
+                                }else{
+                                    throw new OtherException("第" + (i + 1) + "行,系统找不到对应的大类-品类-中类" + updatekey);
+                                }
+                            }else{
+                                throw new OtherException("第" + (i + 1) + "行,Execl中的大类-品类-中类在系统中找不到" + updatekey);
                             }
+
                         }
                         String year = dto.getYear();
                         String season = dto.getSeason();
@@ -2655,7 +2689,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                         if (!styleUpdate.getStyleTypeName().equals(dto.getStyleTypeName())) {
                             String styleTypeName = dto.getStyleTypeName();
-                            List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts("StyleType",styleTypeName);
+                            List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts(styleTypeList,styleTypeName);
 
                             if (CollUtil.isNotEmpty(styleTypeListDictList)) {
                                 styleUpdate.setStyleType(styleTypeListDictList.get(0).getValue());
@@ -2669,10 +2703,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             styleUpdate.setGenderType("");
                             styleUpdate.setGenderName("");
                         }else{
-                            List<BasicBaseDict> c8GenderList = getBasicBaseDicts("C8_Gender",dto.getGender());
-                            if (CollUtil.isNotEmpty(c8GenderList)) {
-                                styleUpdate.setGenderType(c8GenderList.get(0).getValue());
-                                styleUpdate.setGenderName(c8GenderList.get(0).getName());
+                            List<BasicBaseDict> c8GenderListDictList = getBasicBaseDicts(c8GenderList,dto.getGender());
+                            if (CollUtil.isNotEmpty(c8GenderListDictList)) {
+                                styleUpdate.setGenderType(c8GenderListDictList.get(0).getValue());
+                                styleUpdate.setGenderName(c8GenderListDictList.get(0).getName());
                             } else {
                                 throw new OtherException("第"+(i+1)+"行,找不到对应的产品季式性别");
                             }
@@ -2710,10 +2744,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             //获取所有尺码插入所有尺码的条数
                             String code = basicsdatumModelType.getCode();
                             String size = basicsdatumModelType.getSize();
+                            if (StrUtil.isEmpty(code)) {
+                                throw new OtherException("第" + (i + 1) + "行,【" + dto.getSizeRangeName() + "】配置问题请联系管理员！");
+
+                            }
+                            if (StrUtil.isEmpty(size)) {
+                                throw new OtherException("第" + (i + 1) + "行,【" + dto.getSizeRangeName() + "】配置问题请联系管理员！");
+                            }
                             QueryWrapper<BasicsdatumSize> basicsdatumSizeQueryWrapper = new QueryWrapper();
                             basicsdatumSizeQueryWrapper.like("model_type_code",code);
                             basicsdatumSizeQueryWrapper.like("model_type",dto.getSizeRangeName());
                             basicsdatumSizeQueryWrapper.eq("translate_name",dto.getOutsideSizeCode());
+
                             List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list(basicsdatumSizeQueryWrapper);
                             if (CollUtil.isNotEmpty(basicsdatumSizeList)) {
                                 for (BasicsdatumSize basicsdatumSize : basicsdatumSizeList) {
@@ -2785,8 +2827,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     HangTag hangTagUpdate = hangTagService.getOne(hangTagLambdaQueryWrapper);
                     if (hangTagUpdate != null) {
                         if (StrUtil.isNotEmpty(packagingForm)) {
-                            List<BasicBaseDict> packageTypeList = ccmFeignService.getDictInfoToList("C8_PackageType");
-                            List<BasicBaseDict> packageTypeListDict = packageTypeList.stream().filter(o -> o.getName().equals(packagingForm)).collect(Collectors.toList());
+                            List<BasicBaseDict> packageTypeListDict = getBasicBaseDicts(packageTypeList,packagingForm);
                             if (CollUtil.isNotEmpty(packageTypeListDict)) {
                                 hangTagUpdate.setPackagingForm(packageTypeListDict.get(0).getName());
                                 hangTagUpdate.setPackagingFormCode(packageTypeListDict.get(0).getValue());
@@ -2806,8 +2847,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             hangTag.setStyleNo(style.getDesignNo());
                             hangTag.setBulkStyleNo(styleColorNo);
                             if (StrUtil.isNotEmpty(packagingForm)) {
-                                List<BasicBaseDict> packageTypeList = ccmFeignService.getDictInfoToList("C8_PackageType");
-                                List<BasicBaseDict> packageTypeListDict = packageTypeList.stream().filter(o -> o.getName().equals(packagingForm)).collect(Collectors.toList());
+                                List<BasicBaseDict> packageTypeListDict = getBasicBaseDicts(packageTypeList,packagingForm);
                                 if (CollUtil.isNotEmpty(packageTypeListDict)) {
                                     hangTag.setPackagingForm(packageTypeListDict.get(0).getName());
                                     hangTag.setPackagingFormCode(packageTypeListDict.get(0).getValue());
@@ -2853,7 +2893,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColorAgentQueryWrapper.eq("del_flag",0);
             styleColorAgentQueryWrapper.last("limit 1");
             StyleColorAgent styleColorAgent = styleColorAgentService.getOne(styleColorAgentQueryWrapper);
-
 
             if (styleColorAgent != null) {
                 String status = styleColorAgent.getStatus();
@@ -3026,6 +3065,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 basicsdatumSizeQueryWrapper.like("model_type_code",code);
                 basicsdatumSizeQueryWrapper.like("model_type",sizeRangeName);
                 basicsdatumSizeQueryWrapper.eq("european_size",outsideSizeCode);
+
                 List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list(basicsdatumSizeQueryWrapper);
                 if (CollUtil.isEmpty(basicsdatumSizeList)) {
                     errorInfo += "第" + (i + 1) + "行" + "外部尺码【" + outsideSizeCode + "】" + "【" + basicsdatumModelType.getModelType() + "】号型类型数据库找不到对应外部尺码【" + outsideSizeCode + "】信息！\n";
@@ -3037,13 +3077,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     }
 
 
-
-
     @NotNull
-    private List<BasicBaseDict> getBasicBaseDicts(String type ,String devtTypeName) {
-        List<BasicBaseDict> devtTypeList = ccmFeignService.getDictInfoToList(type);
-        List<BasicBaseDict> devtTypeNameList = devtTypeList.stream().filter(o -> o.getName() .equals(devtTypeName) ).collect(Collectors.toList());
-        return devtTypeNameList;
+    private List<BasicBaseDict> getBasicBaseDicts(List<BasicBaseDict> list, String name) {
+        return list.stream().filter(o -> o.getName().equals(name)).collect(Collectors.toList());
     }
 
     /**
@@ -3100,6 +3136,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         Map<String,String> map3 = new HashMap<>();
         Map<String,String> map4 = new HashMap<>();
         Map<String,String> map5 = new HashMap<>();
+        Map<String,String> map6 = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             MangoStyleColorExeclDto entity = list.get(i);
             Field[] declaredFields = entity.getClass().getDeclaredFields();
@@ -3116,6 +3153,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String outsideSizeCode = entity.getOutsideSizeCode();
             String tagPrice = entity.getTagPrice();
             String planCostPrice = entity.getPlanCostPrice();
+            String sizeRangeName = entity.getSizeRangeName();
 
             checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo)  && StrUtil.isNotBlank(outsideBarcode) && StrUtil.isNotBlank(outsideSizeCode), styleColorNo  + outsideSizeCode + outsideBarcode, map, i);
 
@@ -3127,6 +3165,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
             checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(tagPrice), styleColorNo + tagPrice, map4, i);
             checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(planCostPrice), styleColorNo + planCostPrice, map5, i);
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(sizeRangeName), styleColorNo + sizeRangeName, map6, i);
 
 
             if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(tagPrice)) {
@@ -3152,6 +3191,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
                 }else{
                     map5.put(styleColorNo,planCostPrice);
+                }
+            }
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(sizeRangeName)) {
+
+                if (map6.containsKey(styleColorNo)) {
+                    String planCostPriceValue = map6.get(styleColorNo);
+                    if (!planCostPriceValue.equals(sizeRangeName)) {
+                        errorInfo += styleColorNo+ ":【大货款号】+【号型类型】 出现不同的号型类型";
+                    }
+
+                }else{
+                    map6.put(styleColorNo,sizeRangeName);
                 }
             }
         }
