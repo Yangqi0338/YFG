@@ -8,6 +8,8 @@ public class BasicsdatumMaterialPageAndStyleVo {
      * 物料清单id
      */
     private String packBomId;
+
+    private String packId;
     /**
      * 物料图片
      */
