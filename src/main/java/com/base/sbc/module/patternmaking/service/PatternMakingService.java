@@ -407,6 +407,13 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     Map<String,String> getHeadLastTimeStitcher(String styleId);
 
+    /**
+     * 获取到设计款下面的样衣
+     * @param styleId
+     * @return
+     */
+    List<PatternMakingVo> getSampleDressBydesignNo(String styleId);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

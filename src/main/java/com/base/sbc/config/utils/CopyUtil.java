@@ -82,11 +82,18 @@ public class CopyUtil {
 	 * @return
 	 */
 	public static <T, E> PageInfo<T> copy(PageInfo<?> page, List<E> sourceList, Class<T> targetClazz) {
-		PageInfo pageResult = mapperFactory.getMapperFacade().map(page,PageInfo.class);
+		PageInfo<T> pageResult = mapperFactory.getMapperFacade().map(page,PageInfo.class);
 		List<T> records = copy(sourceList, targetClazz);
 		pageResult.setList(records);
 		return pageResult;
 	}
+
+	public static <T> PageInfo<T> copy(PageInfo<?> page, List<T> targetList) {
+		PageInfo<T> pageResult = mapperFactory.getMapperFacade().map(page,PageInfo.class);
+		pageResult.setList(targetList);
+		return pageResult;
+	}
+
 
 	public static <A, B> ClassMapBuilder<A, B> classMap(Class<A> source, Class<B> target) {
 		return mapperFactory.classMap(source, target);

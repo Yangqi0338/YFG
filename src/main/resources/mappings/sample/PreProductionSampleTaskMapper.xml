@@ -13,25 +13,30 @@
 
     <select id="taskList" resultType="com.base.sbc.module.sample.vo.PreProductionSampleTaskVo">
         SELECT
-        DISTINCT
-        t.*,
-        s.brand_name,
-        s.year_name,
-        s.season_name,
-        s.month_name,
-        s.band_name,
-        s.design_no,
-        p.style_no,
-        p.color,
-        p.prod_category_name,
-        tht.technologist_name technologistName,
-        tht.grading_name gradingName,
-        s.style_pic,
-        s.pattern_design_name,
-        s.pattern_design_id,
-        s.designer,
-        s.designer_id,
-        tpm.pat_seq as patSeq
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            DISTINCT
+            t.*,
+            s.brand_name,
+            s.year_name,
+            s.season_name,
+            s.month_name,
+            s.band_name,
+            s.design_no,
+            p.style_no,
+            p.color,
+            p.prod_category_name,
+            tht.technologist_name technologistName,
+            tht.grading_name gradingName,
+            s.style_pic,
+            s.pattern_design_name,
+            s.pattern_design_id,
+            s.designer,
+            s.designer_id,
+            tpm.pat_seq as patSeq
+        </if>
         FROM
         (t_style s,
         t_pre_production_sample_task t,
@@ -50,6 +55,29 @@
     <select id="countByQw" resultType="java.lang.Long">
         select count(*)
         from t_pre_production_sample_task ${ew.customSqlSegment}
+    </select>
+
+
+    <select id="stitcherList" resultType="java.lang.String">
+        SELECT
+        DISTINCT
+        t.stitcher
+        FROM
+        (t_style s,
+        t_pre_production_sample_task t,
+        t_pack_info p)
+        left join t_pattern_making tpm ON (tpm.sample_bar_code = t.sample_bar_code and tpm.sample_bar_code!=null and  tpm.sample_bar_code !='')
+        left join t_hang_tag  tht  on (tht.bulk_style_no = p.style_no  )
+        WHERE
+        s.id = t.style_id and p.id=t.pack_info_id
+        AND s.del_flag = '0'
+        AND t.del_flag = '0'
+        and t.stitcher is not null
+        and t.stitcher != ''
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

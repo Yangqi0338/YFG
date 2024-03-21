@@ -32,6 +32,7 @@ public class OperaLogServiceImpl extends BaseServiceImpl<OperaLogMapper, OperaLo
                 .notEmptyLike(OperaLogEntity::getParentId,operaLogDto.getParentId())
                 .notEmptyLike(OperaLogEntity::getType,operaLogDto.getType())
                 .notEmptyLike(OperaLogEntity::getPath,operaLogDto.getPath())
+                .notEmptyLike(OperaLogEntity::getContent,operaLogDto.getContent())
                 .notEmptyLike(OperaLogEntity::getName,operaLogDto.getName())
                 .notEmptyLike(OperaLogEntity::getCreateName,operaLogDto.getCreateName())
                 .between(OperaLogEntity::getCreateDate,operaLogDto.getCreateDate())

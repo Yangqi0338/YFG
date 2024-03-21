@@ -1,6 +1,9 @@
 package com.base.sbc.module.common.convert;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.base.sbc.config.common.base.Page;
+import com.github.pagehelper.PageInfo;
+import org.apache.poi.ss.formula.functions.T;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
@@ -18,9 +21,17 @@ public interface BaseConvert {
 
     BaseConvert INSTANCE = Mappers.getMapper(BaseConvert.class);
 
-    List<Map<String, Object>> toListMap(List<?> object);
+    List<Map<String, Object>> toListMap(List<?> source);
 
-    default Map<String, Object> toMap(Object object) {
-        return BeanUtil.beanToMap(object );
+    default Map<String, Object> toMap(Object source) {
+        return BeanUtil.beanToMap(source);
     }
+
+    PageInfo copy(PageInfo<?> source);
+    default <T> PageInfo<T> copy(PageInfo<?> source, List<T> list) {
+        source.setList(null);
+        PageInfo<T> pageInfo = copy(source);
+        pageInfo.setList(list);
+        return pageInfo;
+    };
 }

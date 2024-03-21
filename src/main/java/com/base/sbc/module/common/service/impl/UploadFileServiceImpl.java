@@ -615,7 +615,7 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         /*获取链接*/
         String  url = stylePicUtils.getStyleUrl(key);
 
-        byte[] bytes = HttpUtil.downloadBytes(url);
+        byte[] bytes = HttpUtil.downloadBytes(url +  "&opacity=0");
         // 创建一个临时文件
         File tempFile = null;
         try {

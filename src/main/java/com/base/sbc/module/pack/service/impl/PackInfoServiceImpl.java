@@ -48,6 +48,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -191,6 +192,10 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     private String baseRequestUrl;
     @Value("${techSpecView:http://10.98.250.44:8087}")
     private String techSpecView;
+
+    @Value("${scanAddress}")
+    private String scanAddress;
+
 
     @Autowired
     private DataUpdateScmService dataUpdateScmService;
@@ -539,6 +544,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     smpService.bom(collect.split(","));
                 }
             }
+
+
             //手动提交事务,防止下发配色的时候获取的数据不是修改后的数据
             platformTransactionManager.commit(transactionStatus);
             /*配色下发*/
@@ -603,7 +610,6 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         packSampleReviewService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
         //业务意见
         packBusinessOpinionService.copy(sourceForeignId, sourcePackType, targetForeignId, targetPackType, overlayFlag);
-
         return true;
     }
 
@@ -729,7 +735,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         String objectFileName = "DataPackage/" + style.getBrandName() + "/" + style.getYearName() + "/";
         vo.setObjectFileName(objectFileName);
         //二维码url
-        String fileWebUrl = techSpecView + "/?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
+        //        String fileWebUrl = techSpecView + "/?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
+        String fileWebUrl =scanAddress +"/#/pages/pdm/processSheet/processSheet/?foreignId=" + dto.getForeignId() + "&packType=" + dto.getPackType() + "&userId=" + groupUser.getId();
+
         System.out.println(fileWebUrl);
         System.out.println(URLUtil.encode(fileWebUrl));
         String qrCodeUrl = baseRequestUrl + "/pdm/api/open/qrCode?content=" + URLUtil.encodeAll(fileWebUrl);
@@ -805,6 +813,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
             packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
             packInfoStatusService.updateById(packInfoStatus);
+            // 插入日志
+            attachmentService.saveOperaLog("生成工艺说明PDF",packInfoStatus.getPackType() + StrUtil.DASHED + "工艺说明PDF",
+                    packInfoStatus.getForeignId(), null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
             return attachmentVo;
         } catch (Exception e) {
             e.printStackTrace();
@@ -829,7 +840,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         /*目标原版本*/
         PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
         PackInfoStatus targetStatus = packInfoStatusService.get(dto.getTargetForeignId(), dto.getTargetPackType());
-        PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), dto.getSourcePackType());
+        PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), PackUtils.PACK_TYPE_DESIGN);
         /*区分是不是迁移数据*/
         boolean isRhd = StringUtils.equals(packInfo.getHistoricalData(), BaseGlobal.YES);
         if (StrUtil.contains(dto.getItem(), "物料清单")) {

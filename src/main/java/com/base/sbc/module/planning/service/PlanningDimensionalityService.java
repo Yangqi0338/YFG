@@ -13,8 +13,10 @@ import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
+import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类描述：企划-维度表 service类
@@ -58,6 +60,20 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
      */
     Boolean regulateSort(QueryFieldManagementDto queryFieldManagementDto);
 
+    /**
+     *获取围度系数数据
+     * @param dto
+     * @return
+     */
+    List<PlanningDimensionalityVo>  getCoefficient(DimensionLabelsSearchDto dto);
+
+
+    /**
+     * 系数模板引用
+     * @param dto
+     * @return
+     */
+   boolean templateReference(DimensionLabelsSearchDto dto);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 

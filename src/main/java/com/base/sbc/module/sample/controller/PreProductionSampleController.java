@@ -6,8 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.controller;
 
-import cn.hutool.core.util.CharUtil;
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -18,13 +16,13 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.EnableFlagSettingDto;
 import com.base.sbc.module.common.dto.IdDto;
-import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
 import com.base.sbc.module.nodestatus.service.NodeStatusService;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.dto.SamplePicUploadDto;
 import com.base.sbc.module.patternmaking.dto.ScoreDto;
+import com.base.sbc.module.patternmaking.dto.TechRemarksDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskDto;
 import com.base.sbc.module.sample.dto.PreProductionSampleTaskSearchDto;
 import com.base.sbc.module.sample.dto.PreTaskAssignmentDto;
@@ -49,6 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.List;
 
 /**
  * 类描述：产前样 Controller类
@@ -80,6 +79,12 @@ public class PreProductionSampleController extends BaseController{
     @GetMapping("/task")
     public PageInfo<PreProductionSampleTaskVo> taskList(PreProductionSampleTaskSearchDto dto) {
         return preProductionSampleTaskService.taskList(dto);
+    }
+
+    @ApiOperation(value = "车缝工所有")
+    @GetMapping("/stitcher")
+    public List<String> stitcherList(PreProductionSampleTaskSearchDto dto) {
+        return preProductionSampleTaskService.stitcherList(dto);
     }
 
     @ApiOperation(value = "任务-列表导出")
@@ -176,11 +181,31 @@ public class PreProductionSampleController extends BaseController{
         return preProductionSampleTaskService.sampleMakingScore(user, dto.getId(), dto.getScore());
     }
 
+    @ApiOperation(value = "样衣工的质量打分", notes = "")
+    @PostMapping("/task/sampleQualityScore")
+    public boolean sampleQualityScore(Principal user, @Validated @RequestBody ScoreDto dto) {
+        return preProductionSampleTaskService.sampleQualityScore(user, dto.getId(), dto.getScore());
+    }
+
+    @ApiOperation(value = "后技术备注说明", notes = "")
+    @PostMapping("/task/techRemarks")
+    public boolean techRemarks(Principal user, @RequestBody TechRemarksDto dto) {
+        return preProductionSampleTaskService.techRemarks(user, dto.getId(), dto.getRemark());
+    }
+
     @ApiOperation(value = "样衣图上传", notes = "")
     @PostMapping("/samplePicUpload")
     public boolean samplePicUpload(@Validated @RequestBody SamplePicUploadDto dto) {
         return preProductionSampleTaskService.samplePicUpload(dto);
     }
+
+    @ApiOperation(value = "保存工艺确认时间")
+    @PostMapping("/saveTechReceiveDate")
+    public ApiResult saveTechReceiveDate( @Valid @RequestBody PreProductionSampleTaskDto task) {
+        preProductionSampleTaskService.saveTechReceiveDate(task);
+        return ApiResult.success();
+    }
+
 }
 
 

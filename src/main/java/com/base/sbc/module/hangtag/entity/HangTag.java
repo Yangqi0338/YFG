@@ -10,6 +10,7 @@ import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModel;
@@ -40,13 +41,19 @@ public class HangTag extends BaseDataEntity<String> {
     /** 备注信息 */
     @ApiModelProperty(value = "备注信息"  )
     private String remarks;
-    /** 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认 */
-    @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.已确认,6.不通过"  )
-    private String status;
+    /** 状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认 */
+    @ApiModelProperty(value = "状态：0.未填写，1.未提交，2.待工艺员确认，3.待技术员确认，4.待品控确认，5.待翻译确认,6.不通过, 7.已确认"  )
+    private HangTagStatusEnum status;
     /** 确认时间 */
     @ApiModelProperty(value = "确认时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date confirmDate;
+    /**
+     * 翻译确认时间
+     */
+    @ApiModelProperty(value = "翻译确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date translateConfirmDate;
     /** 款式 */
     @ApiModelProperty(value = "款式"  )
     private String styleNo;

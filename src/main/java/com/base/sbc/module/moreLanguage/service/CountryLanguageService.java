@@ -8,6 +8,7 @@ package com.base.sbc.module.moreLanguage.service;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.CountryTypeLanguageSaveDto;
@@ -41,6 +42,8 @@ public interface CountryLanguageService extends BaseService<CountryLanguage>{
     String cancelSave(String code);
 
     void initLanguage(List<BasicBaseDict> dictList);
+    List<CountryDTO> getAllCountry(String code);
+    long getAllCountrySize();
 
 // 自定义方法区 不替换的区域【other_start】
 

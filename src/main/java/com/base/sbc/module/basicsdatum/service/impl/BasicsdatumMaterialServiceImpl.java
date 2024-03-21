@@ -60,6 +60,8 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -92,7 +94,7 @@ import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.company
 @RequiredArgsConstructor
 public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumMaterialMapper, BasicsdatumMaterial>
         implements BasicsdatumMaterialService {
-
+    Logger log = LoggerFactory.getLogger(getClass());
     private final SpecificationService specificationService;
     private final SpecificationGroupService specificationGroupService;
     private final BasicsdatumMaterialOldService materialOldService;
@@ -135,6 +137,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Resource
     private MaterialStockService materialStockService;
+
+    @Resource
+    private StylePicUtils stylePicUtils;
 
     @ApiOperation(value = "主物料成分转换")
     @GetMapping("/formatIngredient")
@@ -211,22 +216,23 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             basicsdatumMaterialPageVo.setIds(stringList.get(index));
             index++;
             String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
-            EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getOne(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
+            /*查询物料的最新检测报告*/
+           List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
             List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = materialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode));
             List<String> collect = basicsdatumMaterialWidths.stream().map(BasicsdatumMaterialWidth::getName).collect(Collectors.toList());
-            basicsdatumMaterialPageVo.setWithName(String.join(",", collect));
+            basicsdatumMaterialPageVo.setWidthName(String.join(",", collect));
 
-            if (escmMaterialCompnentInspectCompanyDto != null) {
+            if ( CollUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto)) {
 
 
-                basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.getRemark());
-                basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.getCompanyFullName());
-                basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.getArriveDate());
+                basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.get(0).getRemark());
+                basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.get(0).getCompanyFullName());
+                basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.get(0).getArriveDate());
                 basicsdatumMaterialPageVo
-                        .setCheckValidDate(Integer.valueOf(escmMaterialCompnentInspectCompanyDto.getValidityTime()));
-                basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.getSendInspectContent());
-                basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.getMakerByName());
-                basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.getFileUrl());
+                        .setCheckValidDate(Integer.valueOf(escmMaterialCompnentInspectCompanyDto.get(0).getValidityTime()));
+                basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.get(0).getSendInspectContent());
+                basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.get(0).getMakerByName());
+                basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.get(0).getFileUrl());
             }
 
         }
@@ -452,6 +458,15 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         List<BasicsdatumMaterialPageVo> list = getBasicsdatumMaterialList(dto).getList();
         List<BasicsdatumMaterialExcelVo> list1 = CopyUtil.copy(list, BasicsdatumMaterialExcelVo.class);
         ExcelUtils.exportExcel(list1, BasicsdatumMaterialExcelVo.class, "物料档案.xls", new ExportParams(), response);
+    }
+
+    @Override
+    public void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto){
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<BasicsdatumMaterialPageAndStyleVo> list = materialsBomStylePage(dto).getList();
+        List<BasicsdatumMaterialStyleExcel> excelVoList = CopyUtil.copy(list, BasicsdatumMaterialStyleExcel.class);
+        ExcelUtils.executorExportExcel(excelVoList, BasicsdatumMaterialStyleExcel.class,"物料BOM档案",dto.getImgFlag(),2000,response,"styleImageUrl","materialsImageUrl");
     }
 
     @Override
@@ -831,6 +846,48 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             updateBatchById(ulist);
         }
         return page.toPageInfo();
+    }
+
+    @Override
+    public PageInfo<BasicsdatumMaterialPageAndStyleVo> materialsBomStylePage(BasicsdatumMaterialPageAndStyleDto dto) {
+        BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> qc = new BaseQueryWrapper<>();
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
+        qc.andLike(dto.getSearch(), "t.materialsCode", "t.materialsColor","t.materialsSpec","t.supperSampleName","t.designNo","t.bulkNo","t.styleColor");
+        qc.notEmptyEq("t.bomStatus", dto.getBomPhase());
+        qc.notEmptyEq("t.materialsCode", dto.getMaterialsCode());
+        qc.notEmptyIn("t.packBomId", dto.getPackBomId());
+
+        if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+            qc.and(Wrapper -> Wrapper.eq("t.category_id", dto.getCategoryId()).or()
+                    .eq("t.category1_code ", dto.getCategoryId()).or().eq("t.category2_code", dto.getCategoryId()).or()
+                    .eq("t.category3_code", dto.getCategoryId()));
+        }
+        PageHelper.startPage(dto);
+        List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(qc);
+        if (isColumnHeard) {
+            return new PageInfo<>(list);
+        }
+        //物料编号、物料颜色、物料规格、厂家简称、设计款号、大货款号、配色颜色
+        for (BasicsdatumMaterialPageAndStyleVo vo : list) {
+            getStyleImage(vo);
+        }
+        minioUtils.setObjectUrlToList(list, "materialsImageUrl");
+        return new PageInfo<>(list);
+    }
+
+    /**
+     * 得到商品款图片
+     * @param vo
+     */
+    private void getStyleImage(BasicsdatumMaterialPageAndStyleVo vo) {
+        String styleColorPic = vo.getStyleColorPic();
+        String stylePic = vo.getStylePic();
+        vo.setStyleImageUrl(stylePicUtils.getStyleUrl(styleColorPic));
+        if (StrUtil.isEmpty(styleColorPic)) {
+            vo.setStyleImageUrl(stylePicUtils.getStyleUrl(stylePic));
+        }else{
+            vo.setStyleImageUrl(stylePicUtils.getStyleUrl(styleColorPic));
+        }
     }
 
     public void updateImgUrl(int pageNum, int pageSize, Map<String, String> hz) {

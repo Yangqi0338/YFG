@@ -26,6 +26,7 @@
         tsd.brand AS brand,
         tsd.year AS year,
         tsd.season AS season,
+        tsd.brand_name AS brandName,
         <choose>
             <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
@@ -36,6 +37,8 @@
                 tssc.tag_price AS tagPrice,
                 tssc.band_name AS bandName,
                 tssc.is_trim,
+                tssc.bom_status,
+                tssc.historical_data historicalData,
             </otherwise>
         </choose>
         tbmt.model_Type AS modelType,
@@ -136,7 +139,9 @@
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
                 AND  DATE_FORMAT(ht.confirm_date,'%Y-%m-%d')  = #{dto.confirmDate}
             </if>
-
+            <if test="dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
+                AND  DATE_FORMAT(ht.translate_confirm_date,'%Y-%m-%d')  = #{dto.translateConfirmDate}
+            </if>
             <if test="dto.styleNo != null and dto.styleNo != ''">
                 <choose>
                     <when test='dto.likeQueryFlag == "1"'>
@@ -152,6 +157,12 @@
             </if>
             <if test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
                 and tsd.design_no is not null
+            </if>
+            <if test="dto.year != null and dto.year != ''">
+                and tsd.year = #{dto.year}
+            </if>
+            <if test="dto.produceTypeName != null and dto.produceTypeName != ''">
+                and tsd.devt_type_name = #{dto.produceTypeName}
             </if>
             <if test="dto.designNos !=null and dto.designNos.length !=0 ">
                 and
@@ -227,6 +238,9 @@
         tsd.planning_season_id as planningSeasonId,
         tsd.devt_type_name as produceTypeName,
         tsd.prod_category1st_name as prodCategory1stName,
+        tsd.dev_class as devClass,
+        tsd.dev_class_name as devClassName,
+
         <choose>
             <when test="selectType != null and selectType != '' and selectType =='packBigGoods'">
                 tsd.design_no as bulkStyleNo,
@@ -238,6 +252,7 @@
                 tssc.tag_price AS tagPrice,
                 tssc.is_trim,
                 tssc.style_color_pic ,
+                tssc.bom_status ,
             </otherwise>
         </choose>
 

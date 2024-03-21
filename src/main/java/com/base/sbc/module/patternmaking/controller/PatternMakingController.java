@@ -512,35 +512,9 @@ public class PatternMakingController {
         return patternMakingService.getHeadLastTimeStitcher(dto.getStyleId());
     }
 
+    @ApiOperation(value = "获取到设计款下面的样衣")
+    @GetMapping("/getSampleDressByStyleId")
+    public List<PatternMakingVo> getSampleDressBydesignNo(PatternMakingDto dto) {
+        return patternMakingService.getSampleDressBydesignNo(dto.getStyleId());
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -28,6 +28,7 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
+import com.base.sbc.module.basicsdatum.entity.BasicProcessGallery;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.common.service.BaseService;
@@ -129,6 +130,22 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         fieldName = StringUtils.toUnderScoreCase(fieldName);
         queryWrapper.eq(fieldName, id);
         return this.getOne(queryWrapper);
+    }
+
+    /**
+     * 跟据字段名称和字段查询多条数据
+     *
+     * @param fieldName
+     * @param id
+     * @return
+     */
+    @Override
+    public List<T> getByList(String fieldName, String id) {
+        QueryWrapper<T> queryWrapper = new QueryWrapper<>();
+        // 驼峰转下划线
+        fieldName = StringUtils.toUnderScoreCase(fieldName);
+        queryWrapper.eq(fieldName, id);
+        return this.list(queryWrapper);
     }
 
     /**
@@ -665,6 +682,10 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         operaLogEntity.setType("0".equals(startStopDto.getStatus()) ? "启用" : "停用");
         operaLogEntity.setName(startStopDto.getName());
         operaLogEntity.setParentId(startStopDto.getParentId());
+        UpdateWrapper<T> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id", startStopDto.getIds());
+        updateWrapper.set("status", startStopDto.getStatus());
+        this.update(updateWrapper);
         this.saveLog(operaLogEntity);
     }
 
@@ -743,7 +764,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
             TableInfo tableInfo = TableInfoHelper.getTableInfo(this.entityClass);
             if (maxSize <= batchSize) affectRow = ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(entityList);
             else {
-                for (int i = 0; i < forCount; i++) {
+                for (int i = 0; i <= forCount; i++) {
                     List<T> executeList = CollUtil.sub(entityList, i * batchSize, Math.min((i + 1) * batchSize, maxSize));
                     affectRow += ((BaseEnhanceMapper<T>) baseMapper).saveOrUpdateBatch(executeList);
                 }

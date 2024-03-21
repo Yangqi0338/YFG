@@ -18,8 +18,6 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.github.pagehelper.PageInfo;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -74,12 +72,20 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
 
     boolean sampleMakingScore(Principal user, String id, BigDecimal score);
 
+    boolean sampleQualityScore(Principal user, String id, BigDecimal score);
+
+    boolean techRemarks(Principal user, String id, String remark);
+
     /**
      *
      * @param dto
      * @return
      */
     boolean samplePicUpload( SamplePicUploadDto dto);
+
+    void saveTechReceiveDate(PreProductionSampleTaskDto task);
+
+    List<String> stitcherList(PreProductionSampleTaskSearchDto dto);
 // 自定义方法区 不替换的区域【other_end】
 
 

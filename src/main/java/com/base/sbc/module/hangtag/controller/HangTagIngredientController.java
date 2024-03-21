@@ -2,9 +2,11 @@ package com.base.sbc.module.hangtag.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.module.hangtag.dto.HangTagDTO;
 import com.base.sbc.module.hangtag.dto.HangTagIngredientDTO;
 import com.base.sbc.module.hangtag.entity.HangTag;
@@ -56,6 +58,7 @@ public class HangTagIngredientController extends BaseController{
 
     @PostMapping("/saveList")
     @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
     public ApiResult saveList(@RequestBody HangTagDTO hangTagDTO){
 
         List<HangTagIngredient> hangTagIngredients = hangTagDTO.getHangTagIngredients();
@@ -73,7 +76,7 @@ public class HangTagIngredientController extends BaseController{
 
         String id = hangTag.getId();
         if (StringUtils.isEmpty(id)){
-            hangTag.setStatus("1");
+            hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
             hangTagService.save(hangTag,"新增吊牌");
         }else {
             hangTagIngredientService.remove(new QueryWrapper<HangTagIngredient>().eq("hang_tag_id",hangTag.getId()));

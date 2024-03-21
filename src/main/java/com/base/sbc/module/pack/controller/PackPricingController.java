@@ -165,7 +165,7 @@ public class PackPricingController {
     @ApiOperation(value = "公式计算")
     @PostMapping("/formula")
     public BigDecimal formula(@Valid @RequestBody FormulaDto dto) {
-        return packPricingService.formula(dto.getFormula(), dto.getItemVal());
+        return packPricingService.formula(dto.getFormula(), dto.getItemVal(),2);
     }
 
 

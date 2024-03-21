@@ -38,6 +38,9 @@ public class SampleBoardExcel {
     @Excel(name = "波段")
     private String bandName;
 
+    @Excel(name = "生产类型")
+    private String devtTypeName;
+
     @ApiModelProperty(value = "样板号")
     @Excel(name = "样板号")
     private String patternNo;

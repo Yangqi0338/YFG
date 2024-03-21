@@ -53,6 +53,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -235,8 +236,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
 
                 stylePricingVO.setExpectedSalesPrice(this.getExpectedSalesPrice(stylePricingVO.getPlanningRatio(), stylePricingVO.getTotalCost()));
                 // stylePricingVO.setPlanCost(this.getPlanCost(packBomCalculateBaseVos));
+               /*优先展示手数的数据*/
+                if(stylePricingVO.getControlPlanCost() != null){
+                    stylePricingVO.setPlanCost((stylePricingVO.getControlPlanCost()));
+                }else {
                 //目前逻辑修改为取计控实际成本取总成本
                 stylePricingVO.setPlanCost(stylePricingVO.getTotalCost());
+                }
                 //计控实际倍率 = 吊牌价/计控实际成本
                 stylePricingVO.setPlanActualMagnification(BigDecimalUtil.div(stylePricingVO.getTagPrice(), stylePricingVO.getPlanCost(), 2));
                 //实际倍率 = 吊牌价/总成本
@@ -274,6 +280,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         return stylePricingList.get(0);
     }
 
+    @Transactional
     @Override
     public void insertOrUpdate(StylePricingSaveDTO stylePricingSaveDTO, String companyCode) {
         logger.info("StylePricingService#insertOrUpdate 保存 stylePricingSaveDTO:{}, userCompany:{}", JSON.toJSONString(stylePricingSaveDTO), companyCode);
@@ -363,13 +370,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     //region 2023-12-06 款式定价3个按钮反审核下发到scm
                     if (null != stylePricingSaveDTO.getControlConfirm() && "0".equals(stylePricingSaveDTO.getControlConfirm())) {
                         //是否计控确认
-                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode(), 0);
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM, 0);
                     } else if (null != stylePricingSaveDTO.getProductHangtagConfirm() && "0".equals(stylePricingSaveDTO.getProductHangtagConfirm())) {
                         //是否商品吊牌确认
-                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM.getCode(), 0);
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM, 0);
                     } else if (null != stylePricingSaveDTO.getControlHangtagConfirm() && "0".equals(stylePricingSaveDTO.getControlHangtagConfirm())) {
                         //是否计控吊牌确认
-                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM.getCode(), 0);
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM, 0);
                     }
                     //endregion
 

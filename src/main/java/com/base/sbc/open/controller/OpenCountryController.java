@@ -6,7 +6,6 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
-import com.base.sbc.module.moreLanguage.service.StyleCountryPrintRecordService;
 import com.base.sbc.open.dto.CountryOpenQueryDto;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,8 +34,6 @@ public class OpenCountryController extends BaseController {
 
     private final CountryLanguageService countryLanguageService;
 
-    private final StyleCountryPrintRecordService styleCountryPrintRecordService;
-
     /**
      * 查询列表
      */
@@ -63,6 +60,7 @@ public class OpenCountryController extends BaseController {
             case PDM:
                 return selectSuccess("");
             case BCS:
+            case ESCM:
             case PRINT:
                 return result;
             default:

@@ -10,10 +10,6 @@ import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
-import cn.afterturn.easypoi.excel.export.ExcelExportService;
-import cn.afterturn.easypoi.util.PoiExcelGraphDataUtil;
-import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.exception.OtherException;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.afterturn.easypoi.exception.excel.ExcelExportException;
 import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
@@ -21,27 +17,28 @@ import cn.afterturn.easypoi.util.PoiPublicUtil;
 import cn.afterturn.easypoi.util.PoiReflectorUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
-import org.apache.commons.collections4.CollectionUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -50,20 +47,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Excel导入导出工具类
  */
-
+@Slf4j
 public class ExcelUtils {
 
     private static final Log logger = LogFactory.getLog(ExcelUtils.class);
@@ -105,6 +98,7 @@ public class ExcelUtils {
      */
     private static void defaultExport(List<?> list, Class<?> pojoClass, String fileName, HttpServletResponse response, ExportParams exportParams) throws IOException {
         //把数据添加到excel表格中
+        exportParams.setStyle(ExcelExportTitleStyle.class);
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, pojoClass, list);
         downLoadExcel(fileName, response, workbook);
     }
@@ -119,57 +113,50 @@ public class ExcelUtils {
      * @param response
      */
     public static void exportExcel(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response) throws IOException {
-        ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
-        ServletRequestAttributes requestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        /*String tableCode = requestAttributes.getRequest().getHeader("tableCode");
-        String id = requestAttributes.getRequest().getHeader("tableCode-id");
-        if(StrUtil.isNotEmpty(tableCode)){
-            List<ColumnDefine> detail;
-            if(StrUtil.isNotEmpty(id)){
-                detail = columnUserDefineService.findDetail(tableCode, id);
-            }else {
-                detail = columnUserDefineService.findDefaultDetail(tableCode);
-            }
-            if(CollectionUtils.isNotEmpty(detail)){
-                Map<String, Integer> userColumnMap = new HashMap<>();
-                for (ColumnDefine columnDefine : detail) {
-                    if(BaseGlobal.NO.equals(columnDefine.getHidden())){
-                        continue;
-                    }
-                    Integer sortOrder = columnDefine.getSortOrder();
-                    if(StrUtil.isNotBlank(columnDefine.getExportAlias())){
-                        for (String s : columnDefine.getExportAlias().split(",")) {
-                            userColumnMap.put(s,sortOrder);
-                        }
-                    }
-                    userColumnMap.put(columnDefine.getColumnCode(),sortOrder);
-                }
-                //这里是复制出来官方的导出接口
-                List<ExcelExportEntity> excelParams = new ArrayList<>();
-                Field[] fileds = PoiPublicUtil.getClassFields(pojoClass);
-                ExcelTarget etarget = pojoClass.getAnnotation(ExcelTarget.class);
-                String targetId = etarget == null ? null : etarget.value();
-                //这里是改造的官方接口
-                getAllExcelField(exportParams.getExclusions(), targetId, fileds, excelParams, pojoClass, new ArrayList<>(), null);
-
-                //根据用户配置显示的才导出，导出顺序也按照用户配置
-                List<ExcelExportEntity> newExcelParams = new ArrayList<>();
-                for (ExcelExportEntity excelParam : excelParams) {
-                    if(userColumnMap.containsKey(excelParam.getKey())){
-                        excelParam.setOrderNum(userColumnMap.get(excelParam.getKey()));
-                        newExcelParams.add(excelParam);
-                    }
-                }
-
-                defaultExport(list,fileName,response,exportParams,newExcelParams);
-                return;
-            }
-        }*/
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
-    private static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
+    public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode)  throws IOException {
+        Assert.notBlank(tableCode,"tableCode不能为空");
+        ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
+        List<ColumnDefine> detail = columnUserDefineService.findDefaultDetail(tableCode);
+        Assert.notEmpty(detail,"没有找到对应列配置，请联系管理员维护");
+        Map<String, Integer> userColumnMap = new HashMap<>();
+        for (ColumnDefine columnDefine : detail) {
+            if(BaseGlobal.NO.equals(columnDefine.getHidden())){
+                continue;
+            }
+            Integer sortOrder = columnDefine.getSortOrder();
+            if(StrUtil.isNotBlank(columnDefine.getExportAlias())){
+                for (String s : columnDefine.getExportAlias().split(",")) {
+                    userColumnMap.put(s,sortOrder);
+                }
+            }
+            userColumnMap.put(columnDefine.getColumnCode(),sortOrder);
+        }
+        //这里是复制出来官方的导出接口
+        List<ExcelExportEntity> excelParams = new ArrayList<>();
+        Field[] fileds = PoiPublicUtil.getClassFields(pojoClass);
+        ExcelTarget etarget = pojoClass.getAnnotation(ExcelTarget.class);
+        String targetId = etarget == null ? null : etarget.value();
+        //这里是改造的官方接口
+        getAllExcelField(exportParams.getExclusions(), targetId, fileds, excelParams, pojoClass, new ArrayList<>(), null);
+
+        //根据用户配置显示的才导出，导出顺序也按照用户配置
+        List<ExcelExportEntity> newExcelParams = new ArrayList<>();
+        for (ExcelExportEntity excelParam : excelParams) {
+            if(userColumnMap.containsKey(excelParam.getKey())){
+                excelParam.setOrderNum(userColumnMap.get(excelParam.getKey()));
+                newExcelParams.add(excelParam);
+            }
+        }
+
+        defaultExport(list,fileName,response,exportParams,newExcelParams);
+    }
+
+    public static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
         //把数据添加到excel表格中
+        exportParams.setStyle(ExcelExportTitleStyle.class);
         Workbook workbook = ExcelExportUtil.exportExcel(exportParams, entityList, list);
         downLoadExcel(fileName, response, workbook);
     }
@@ -482,6 +469,112 @@ public class ExcelUtils {
         return excelEntity;
     }
 
+    public static void exportExcelByTableCode(List<?> list, String name, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
+        exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
+    }
 
+    public static void exportExcelByTableCode(List<?> list, String fileName, ExportParams exportParams, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
+        String tableCode = queryFieldDto.getTableCode();
+        Assert.notBlank(tableCode, "tableCode不能为空");
+        ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
+        List<ColumnDefine> detail = columnUserDefineService.findDefaultDetail(tableCode);
+        Assert.notEmpty(detail, "没有找到对应列配置，请联系管理员维护");
+        List<ExcelExportEntity> excelParams = new ArrayList<>();
+
+        List<String> imgColumns = new ArrayList<>();
+        for (ColumnDefine columnDefine : detail) {
+            if (BaseGlobal.NO.equals(columnDefine.getHidden())) {
+                continue;
+            }
+            ExcelExportEntity excelEntity = new ExcelExportEntity();
+            excelEntity.setKey(columnDefine.getColumnCode());
+            excelEntity.setName(columnDefine.getColumnName());
+            excelEntity.setWidth((double) columnDefine.getColumnWidth() / 5);
+            //excelEntity.setHeight(excel.height());
+            //excelEntity.setNeedMerge(excel.needMerge());
+            //excelEntity.setMergeVertical(excel.mergeVertical());
+            //excelEntity.setMergeRely(excel.mergeRely());
+            if (StrUtil.isNotEmpty(columnDefine.getDictType())) {
+                JSONArray jsonArray = JSONArray.parseArray(columnDefine.getDictType());
+                String[] replace = new String[jsonArray.size() + 1];
+                replace[jsonArray.size() ] = "_null";
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    String label = jsonObject.getString("label");
+                    String value = jsonObject.getString("value");
+                    replace[i] = label + "_" + value;
+                }
+                excelEntity.setReplace(replace);
+            }
+            excelEntity.setOrderNum(columnDefine.getSortOrder());
+            //excelEntity.setWrap(excel.isWrap());
+            if (StrUtil.isNotEmpty(columnDefine.getColumnType()) && "img".equals(columnDefine.getColumnType())) {
+                excelEntity.setExportImageType(2);
+                excelEntity.setType(2);
+                imgColumns.add(columnDefine.getColumnCode());
+                //将key拼接1，后续将byte[]处理到对应字段上
+                excelEntity.setKey(columnDefine.getColumnCode() + "1");
+            }
+
+            //excelEntity.setSuffix(excel.suffix());
+            //excelEntity.setDatabaseFormat(excel.databaseFormat());
+            excelEntity.setFormat(columnDefine.getDataFormat());
+            //excelEntity.setStatistics(excel.isStatistics());
+            //excelEntity.setHyperlink(excel.isHyperlink());
+            //excelEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
+            //excelEntity.setNumFormat(excel.numFormat());
+            //excelEntity.setColumnHidden(excel.isColumnHidden());
+            //excelEntity.setDict(excel.dict());
+            //excelEntity.setEnumExportField(excel.enumExportField());
+            //excelEntity.setTimezone(excel.timezone());
+            //excelEntity.setAddressList(excel.addressList());
+            //excelEntity.setDesensitizationRule(excel.desensitizationRule());
+            if (StrUtil.isNotEmpty(columnDefine.getGroupName())) {
+                excelEntity.setGroupName(columnDefine.getGroupName());
+            }
+            excelParams.add(excelEntity);
+        }
+
+        JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
+
+        if (CollUtil.isNotEmpty(imgColumns) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
+            StylePicUtils stylePicUtils = SpringUtil.getBean(StylePicUtils.class);
+            ExecutorService executor = ExecutorBuilder.create()
+                    .setCorePoolSize(8)
+                    .setMaxPoolSize(10)
+                    .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                    .build();
+            try {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    executor.submit(() -> {
+                        try {
+                            for (String imgColumn : imgColumns) {
+                                String imgUrl = stylePicUtils.getStyleColorUrl2(imgColumn, 30);
+                                jsonObject.put(imgColumn + "1", HttpUtil.downloadBytes(imgUrl));
+                            }
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            } catch (Exception e) {
+                throw new OtherException(e.getMessage());
+            } finally {
+                executor.shutdown();
+            }
+        }
+        defaultExport(jsonArray, fileName, response, exportParams, excelParams);
+    }
 
 }

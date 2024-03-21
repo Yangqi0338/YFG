@@ -125,6 +125,12 @@ public class FieldManagementController {
 		fieldOptionConfigService.deriveExcel(response,fieldManagementId);
 	}
 
+
+	@ApiOperation(value = "获取表单中的字段")
+	@GetMapping("/getFieldListByFormCode")
+	public PageInfo<FieldManagementVo> getFieldListByFormCode(@Valid QueryFieldManagementDto queryFieldManagementDto) {
+		return fieldManagementService.getFieldListByFormCode(queryFieldManagementDto);
+	}
 }
 
 

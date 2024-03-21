@@ -10,7 +10,6 @@ import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.QueryBasicsdatumColourLibraryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.github.pagehelper.PageInfo;
@@ -84,6 +83,8 @@ public interface BasicsdatumColourLibraryService extends BaseService<Basicsdatum
         Boolean startStopBasicsdatumColourLibrary(StartStopDto startStopDto);
 
     List<SelectOptionsVo> getAllColourSpecification(String status,String isStyle,String isMaterials);
+
+        List<BasicsdatumColourLibrary> listByCode(List<String> colourCodeList);
 
 
 /** 自定义方法区 不替换的区域【other_end】 **/

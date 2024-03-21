@@ -6,11 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.business.RFIDType;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -311,6 +311,38 @@ public class StyleColor extends BaseDataEntity<String> {
      * 是否是迁移历史数据 0否 1是
      */
     private String historicalData;
+
+    /**
+     * 正确样样衣码
+     */
+    @ApiModelProperty(value = "正确样样衣码")
+    private String correctBarCode;
+
+    /**
+     * 工艺接收明细单时间
+     */
+    @ApiModelProperty(value = "工艺接收明细单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date techReceiveTime;
+    /**
+     * 下单阶段-审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)
+     */
+    @ApiModelProperty(value = "下单阶段-审批状态:草稿(0)、待审核(1)、审核通过(2)、被驳回(-1)"  )
+    private String orderAuditStatus;
+    /**
+     * 下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)
+     */
+    @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
+    private String orderMarkingStatus;
+
+    @ApiModelProperty(value = "设计下面料详单逾期原因"  )
+    private String sendMainFabricOverdueReason;
+
+    @ApiModelProperty(value = "设计下明细单逾期原因"  )
+    private String designDetailOverdueReason;
+
+    @ApiModelProperty(value = "设计下正确样逾期原因"  )
+    private String designCorrectOverdueReason;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

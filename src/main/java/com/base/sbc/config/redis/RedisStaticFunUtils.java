@@ -5,6 +5,7 @@ package com.base.sbc.config.redis;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.base.sbc.module.common.service.BaseService;
 import org.bouncycastle.util.Arrays;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -49,10 +50,10 @@ public class RedisStaticFunUtils {
 	private static RedisTemplate<String, Object> redisTemplateAmc;
 	private static RedisTemplate<String, Object> redisTemplateDefault;
 
-	private static final ThreadLocal<RedisEnhanceTemplate> currentRedisTemplate = new ThreadLocal<>();
+	private static final ThreadLocal<RedisEnhanceTemplate> currentRedisTemplate = new TransmittableThreadLocal<>();
 
-	public static RedisEnhanceTemplate setRedisTemplate(int flag) {
-		RedisEnhanceTemplate template = BeanUtil.copyProperties(flag == 1 ? redisTemplateAmc : redisTemplateDefault, RedisEnhanceTemplate.class);
+	public static RedisEnhanceTemplate setRedisTemplate(boolean amc) {
+		RedisEnhanceTemplate template = BeanUtil.copyProperties(amc ? redisTemplateAmc : redisTemplateDefault, RedisEnhanceTemplate.class);
 		template.afterPropertiesSet();
 		currentRedisTemplate.set(template);
 		return template;
@@ -61,7 +62,7 @@ public class RedisStaticFunUtils {
 	private static RedisEnhanceTemplate getRedisTemplate() {
 		RedisEnhanceTemplate redisEnhanceTemplate = currentRedisTemplate.get();
 		if (redisEnhanceTemplate == null) {
-			redisEnhanceTemplate = setRedisTemplate(0);
+			redisEnhanceTemplate = setRedisTemplate(false);
 		}
 		return redisEnhanceTemplate;
 	}
@@ -74,19 +75,12 @@ public class RedisStaticFunUtils {
 	}
 
 	public static RedisEnhanceTemplate setBusinessService(BaseService<?> businessService) {
-		RedisEnhanceTemplate redisEnhanceTemplate = currentRedisTemplate.get();
-		if (redisEnhanceTemplate == null) {
-			redisEnhanceTemplate = setRedisTemplate(0);
-		}
-		return redisEnhanceTemplate.setBusinessService(businessService);
+		clear();
+		return getRedisTemplate().setBusinessService(businessService);
 	}
 
 	public static RedisEnhanceTemplate setMessage(String message) {
-		RedisEnhanceTemplate redisEnhanceTemplate = currentRedisTemplate.get();
-		if (redisEnhanceTemplate == null) {
-			redisEnhanceTemplate = setRedisTemplate(0);
-		}
-		return redisEnhanceTemplate.setMessage(message);
+		return getRedisTemplate().setMessage(message);
 	}
 
 	/**

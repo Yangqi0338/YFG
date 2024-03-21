@@ -35,4 +35,7 @@ public class QueryDemandDto {
 
     @ApiModelProperty(value = "是否查询下单信息")
     private String orderInfo;
+
+    @ApiModelProperty(value = "围度系数标识")
+    private String coefficientFlag;
 }

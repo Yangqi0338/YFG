@@ -8,7 +8,6 @@ package com.base.sbc.module.pricing.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
@@ -16,8 +15,10 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
+import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.dto.StylePricingStatusDTO;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -76,6 +78,9 @@ public class StylePricingController extends BaseController {
     @Autowired
     @Lazy
     private SmpService smpService;
+
+    @Autowired
+    private PackPricingService packPricingService;
 
 
     @ApiOperation(value = "获取款式定价列表")
@@ -119,6 +124,25 @@ public class StylePricingController extends BaseController {
         stylePricingService.insertOrUpdateBatch(stylePricingSaveDTO, super.getUserCompany());
         return updateSuccess("修改成功");
     }
+
+
+    @ApiOperation(value = "计控确认")
+    @PostMapping("/controlPlanCostConfirm")
+    @DuplicationCheck
+    public ApiResult controlPlanCostConfirm(@Valid @RequestBody StylePricingStatusDTO dto) {
+        /*获取到款式定价数据*/
+        List<StylePricing> stylePricings = stylePricingService.listByField("pack_id", com.base.sbc.config.utils.StringUtils.convertList(dto.getId()));
+        /*存在款式定价*/
+        if (CollUtil.isNotEmpty(stylePricings)) {
+            dto.setIds(stylePricings.get(0).getId());
+        } else {
+            dto.setIds("packInfo:" + dto.getId());
+        }
+        dto.setControlConfirm(BaseGlobal.YES);
+        return updateStatus(dto);
+    }
+
+
     @ApiOperation(value = "提交审核")
     @PostMapping("/updateStatus")
     @DuplicationCheck
@@ -136,6 +160,8 @@ public class StylePricingController extends BaseController {
                 StylePricing stylePricing =new StylePricing();
                 stylePricing.setPackId(packInfoId);
                 stylePricing.setCompanyCode(super.getUserCompany());
+                /*企划倍率默认为4*/
+                stylePricing.setPlanningRate(new BigDecimal(4));
                 stylePricingService.save(stylePricing);
                 s=stylePricing.getId();
             }
@@ -174,49 +200,49 @@ public class StylePricingController extends BaseController {
                 stylePricing.setControlHangtagConfirm(dto.getControlHangtagConfirm());
                 stylePricing.setControlConfirmTime(new Date());
             }
+//            计控确认时设置计控成本价等于总成本
+            if (StrUtil.equals(stylePricing.getControlConfirm(),BaseGlobal.YES)){
+                stylePricing.setControlPlanCost(packPricingService.countTotalPrice(stylePricing.getPackId(), BaseGlobal.STOCK_STATUS_CHECKED,3));
+            }
         }
+        /*获取款式下的关联的款*/
+        List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
+        List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*迁移数据不能操作*/
-        List<String> packIds = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
-        QueryWrapper queryWrapper = new QueryWrapper();
-        queryWrapper.in("id",packIds);
-        queryWrapper.eq("historical_data",BaseGlobal.YES);
-        List packInfoList1 = packInfoService.list(queryWrapper);
-        if(CollUtil.isNotEmpty(packInfoList1)){
-            throw new OtherException("历史数据不能操作");
-        }
+//        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
+//        if(count > 0){
+//            throw new OtherException("历史数据不能操作");
+//        }
 
         stylePricingService.updateBatchById(stylePricings);
-        List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
-        /*获取款式下的关联的款*/
-        List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*计控确认成本消息通知*/
         if(StrUtil.equals(dto.getControlConfirm(), BaseGlobal.STATUS_CLOSE)) {
             for (PackInfo packInfo : packInfoList) {
                 messageUtils.stylePricingSendMessage("M商品企划", packInfo.getDesignNo(), packInfo.getPlanningSeasonId(), "1", baseController.getUser());
             }
         }
-        //是否计控确认
-        int type =0;
+        //是否计控确认, 默认为吊牌反审
+        HangTagDeliverySCMStatusEnum type = HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL;
         if(StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
-            type = 4;
+            type = HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM;
         }
 
         //是否计控吊牌确认
         if(StrUtil.equals(dto.getControlHangtagConfirm(),BaseGlobal.YES)){
-            type = 5;
+            type = HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM;
         }
 
         //是否商品吊牌确认
         if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
-            type = 6;
+            type = HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM;
         }
         smpService.tagConfirmDates(list,type,1);
 
         /*吊牌确认下发*/
         if(StrUtil.equals(dto.getControlHangtagConfirm(), BaseGlobal.STATUS_CLOSE) || StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
-            String collect = packInfoList.stream().filter(f -> StrUtil.isNotBlank(f.getStyleColorId())).map(PackInfo::getStyleColorId).collect(Collectors.joining(","));
-            if (StrUtil.isNotBlank(collect)) {
-                smpService.goods(collect.split(","));
+            String[] collect = packInfoList.stream().map(PackInfo::getStyleColorId).filter(StrUtil::isNotBlank).toArray(String[]::new);
+            if (collect.length > 0) {
+                smpService.goods(collect);
             }
         }
         return updateSuccess("提交成功");

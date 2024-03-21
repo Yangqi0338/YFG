@@ -6,8 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.StandardColumnModel;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,6 +18,8 @@ import lombok.Data;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.CONTENT_FORMAT;
 
 /**
  * 类描述：吊牌表 实体类
@@ -52,37 +57,39 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "标准列翻译")
     private String standardColumnContent = "";
 
+    public String findStandardColumnContent() {
+        return getCannotFindStandardColumnContent() || StrUtil.isBlank(this.standardColumnContent) ? "" : this.standardColumnContent;
+    }
+
     /**
      * 不能找到标准列翻译
      */
     @ApiModelProperty(value = "不能找到标准列翻译")
     protected Boolean cannotFindStandardColumnContent = true;
 
-//    @JsonIgnore
-//    @ApiModelProperty(value = "具体数据模板")
-//    private String propertiesTemplate;
-//
-//    @JsonIgnore
-//    private List<HangTagMoreContentVO> contentList;
-
-    public Boolean getCannotFindStandardColumnContent() {
-        return this.cannotFindStandardColumnContent && !isGroup;
-    }
-
     /**
      * 具体数据的翻译
      */
     @ApiModelProperty(value = "具体数据的翻译")
-    private String propertiesContent = "";
+    public String propertiesContent = "";
+
+    /**
+     * 具体数据翻译
+     */
+    @ApiModelProperty(value = "具体数据翻译")
+    public String getPropertiesContent() {
+        return (getCannotFindPropertiesContent() && !isGroup) || StrUtil.isBlank(this.propertiesContent) ? "" : this.propertiesContent;
+    }
 
     /**
      * 不能找到数据翻译
      */
     @ApiModelProperty(value = "不能找到数据翻译")
-    private Boolean cannotFindPropertiesContent = false;
+    private Boolean cannotFindPropertiesContent = true;
 
     public Boolean getCannotFindPropertiesContent() {
-        return this.cannotFindPropertiesContent && this.model != StandardColumnModel.TEXT;
+        // 若类型是文本,则直接为已翻译
+        return forceFindContent() && this.cannotFindPropertiesContent;
     }
 
     /**
@@ -92,6 +99,11 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "标准列模型")
     protected StandardColumnModel model;
 
+    @JsonIgnore
+    public Boolean forceFindContent(){
+        return this.model != StandardColumnModel.TEXT;
+    }
+
     /**
      * 是组合的
      */
@@ -100,32 +112,28 @@ public class HangTagMoreLanguageVO {
     protected Boolean isGroup = false;
 
     /**
-     * 具体数据翻译
-     */
-    @ApiModelProperty(value = "具体数据翻译")
-    public String getPropertiesContent() {
-//        String propertiesContent = this.contentList.stream().map(HangTagMoreContentVO::getPropertiesContent).collect(Collectors.joining("\n"));
-//        if (StrUtil.isNotBlank(propertiesTemplate)) {
-//            this.contentList.forEach(it-> {
-//                propertiesTemplate = propertiesTemplate.replaceAll(it.getPropertiesName(), it.getPropertiesContent());
-//            });
-//            propertiesContent = propertiesTemplate;
-//        }
-//        return propertiesContent;
-        return StrUtil.isNotBlank(this.propertiesContent) ? this.propertiesContent : "";
-    }
-
-    /**
      * 全量数据翻译
      */
     @ApiModelProperty(value = "全量数据翻译")
     public String getContent() {
-        return String.format("%s%s%s", StrUtil.isNotBlank(this.standardColumnContent) ? this.standardColumnContent + ":" : "", this.isGroup ? "\n" : " ", getPropertiesContent());
+        String title = findStandardColumnContent() + MoreLanguageProperties.fieldValueSeparator;
+        String value = getPropertiesContent().trim();
+        return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
+                title,
+                this.isGroup ? MoreLanguageProperties.multiSeparator : "",
+                StrUtil.endWith(value, MoreLanguageProperties.showInfoLanguageSeparator) ? value : value + MoreLanguageProperties.showInfoLanguageSeparator
+        );
     }
 
     @JsonIgnore
     protected Date createTime;
     @JsonIgnore
     protected Date updateTime;
+
+    /**
+     * 审核状态
+     */
+    @ApiModelProperty(value = "审核状态")
+    protected StyleCountryStatusEnum auditStatus = StyleCountryStatusEnum.UNCHECK;
 
 }
