@@ -1,11 +1,8 @@
 package com.base.sbc.module.report.service;
 
-import com.base.sbc.module.report.dto.*;
-import com.base.sbc.module.report.vo.*;
-import com.github.pagehelper.PageInfo;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.base.sbc.module.report.dto.TechnologyCenterBoardDto;
+import com.base.sbc.module.report.vo.TechnologyCenterBoardCurrentTaskVo;
+import com.base.sbc.module.report.vo.TechnologyCenterBoardOverviewDataVo;
 
 /**
  * 技术中心看板
@@ -13,11 +10,28 @@ import java.io.IOException;
 public interface TechnologyCenterBoardService {
 
     /**
-     * 吊牌充绒量报表
+     * 数据总览-打版进行中数据
      * @return
      */
-    PageInfo<HangTagReportVo> getHangTagReortPage(HangTagReportQueryDto dto);
+    TechnologyCenterBoardOverviewDataVo getPlateMakeUnderwayData(TechnologyCenterBoardDto dto);
 
+    /**
+     * 数据总览-打版完成数据
+     * @return
+     */
+    TechnologyCenterBoardOverviewDataVo getPlateMakeFinishData(TechnologyCenterBoardDto dto);
+
+    /**
+     * 版师/样衣工 当前任务
+     * @return
+     */
+    TechnologyCenterBoardCurrentTaskVo getCurrentTaskData(TechnologyCenterBoardDto dto);
+
+    /**
+     * 打版/样衣 产能数
+     * @return
+     */
+    TechnologyCenterBoardCurrentTaskVo getCapacityNumber(TechnologyCenterBoardDto dto);
 
 
 }
