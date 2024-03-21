@@ -76,7 +76,7 @@ public class QueryGenerator {
                     //3 选中数据查询，列名不为空，并且值不为空
                     //时间区间过滤
                     if ("isNull".equals(fieldValue)) {
-                        if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property))) {
+                        if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property) || "date".equals(property))) {
                             if ("insql".equals(property)) {
                                 qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"))
                                         .or().inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is null or "
@@ -89,7 +89,7 @@ public class QueryGenerator {
                             qw.isNullStr(sqlCode);
                         }
                     } else if ("isNotNull".equals(fieldValue)) {
-                        if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property))) {
+                        if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property) || "date".equals(property))) {
                             if ("insql".equals(property)) {
                                 qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is not null and "
                                         + columnDefine.getColumnFilterExtent() + " != ''"));
