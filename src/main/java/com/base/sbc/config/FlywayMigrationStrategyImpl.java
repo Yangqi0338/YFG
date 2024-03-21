@@ -16,7 +16,7 @@ public class FlywayMigrationStrategyImpl implements FlywayMigrationStrategy {
     @Override
     public void migrate(Flyway flyway) {
         flyway.setBaselineOnMigrate(true);
-        flyway.setValidateOnMigrate(true);
+        flyway.setValidateOnMigrate(false);
 //        flyway.setSchemas("flyway");
         flyway.setOutOfOrder(false);
         flyway.setEncoding("UTF-8");
