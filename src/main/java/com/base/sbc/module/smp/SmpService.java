@@ -834,7 +834,7 @@ public class SmpService {
         List<PackInfo> packInfoList = packInfoService.listByIds(list.stream().map(PackBom::getForeignId).collect(Collectors.toList()));
 
         List<BomSelMaterialVo> defaultToBomSel = basicsdatumMaterialWidthService.findDefaultToBomSel(materialCodeList);
-        List<String> materialWidthList = defaultToBomSel.stream().map(o -> o.getMaterialCode() + "_" + o.getTranslate()).collect(Collectors.toList());
+        List<String> materialWidthList = defaultToBomSel.stream().map(o -> o.getMaterialCode() + "_" + o.getTranslate() + "_" + o.getTranslateCode()).collect(Collectors.toList());
 
         for (PackBom packBom : list) {
             /*判断物料是否是代用材料的编码
@@ -888,7 +888,7 @@ public class SmpService {
                     sizeQtyList.add(smpSizeQty);
                 }
                 //校验物料规格 是否存在于t_basicsdatum_material_width表中
-                if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getSize())) {
+                if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
                     throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
                 }
             }
