@@ -2376,7 +2376,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 String prodCategory1stName = dto.getProdCategory1stName();
                 String prodCategory2ndName = dto.getProdCategory2ndName();
 
-                String key = prodCategoryName + "-" + prodCategory1stName + "-" + prodCategory2ndName;
+                String key = prodCategory1stName + "-" + prodCategoryName + "-" + prodCategory2ndName;
                 if (checkMap.containsKey(key)) {
                     String mapValue = checkMap.get(key);
                     if (StrUtil.isNotEmpty(mapValue)) {
@@ -2610,9 +2610,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             }*/
 
 
-
-
-                            String updatekey = prodCategoryName1 + "-" + prodCategory1stName1 + "-" + prodCategory2ndName1;
+                            String updatekey = prodCategory1stName1 + "-" + prodCategoryName1 + "-" + prodCategory2ndName1;
                             if (checkMap.containsKey(updatekey)) {
                                 String updateMapValue = checkMap.get(updatekey);
                                 if (StrUtil.isNotEmpty(updateMapValue)) {
