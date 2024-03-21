@@ -263,8 +263,23 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
                     preProductionSampleTaskService.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
                 }
             }
+
+            TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
+            confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
+            confirmDateDto.setTechnicsDate(styleColorCorrectInfo.getTechnicsDate());
+            confirmDateDto.setType("correct_sample");
+            smpService.styleColorCorrectInfoDate(confirmDateDto);
+
             styleColorCorrectInfo.setTechnicsDate(null);
             oldDto.setTechnicsDate(null);
+
+
+        }else{
+            TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
+            confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
+            //confirmDateDto.setPlanControlDate(StrUtil.isNotEmpty(styleColorCorrectInfo.getPlanControlDate()) ? styleColorCorrectInfo.getPlanControlDate() : null);
+            confirmDateDto.setType("correct_sample");
+            smpService.styleColorCorrectInfoDate(confirmDateDto);
         }
 
         //修改款式配色的设计 时间
@@ -288,14 +303,6 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         styleColorCorrectInfo.setDesignCorrectDate(null);
         styleColorCorrectInfo.setDesignDetailDate(null);
         saveOrUpdate(styleColorCorrectInfo);
-
-        TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
-        confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
-        confirmDateDto.setTechnicsDate(styleColorCorrectInfo.getTechnicsDate());
-        confirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate());
-        confirmDateDto.setType("correct_sample");
-        smpService.styleColorCorrectInfoDate(confirmDateDto);
-
         return styleColorCorrectInfo.getId();
     }
 
