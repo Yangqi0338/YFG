@@ -74,6 +74,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     public  Map<String,Object> ListByDto(PlanningProjectPlankPageDto dto) {
         List<FieldDisplayVo> dimensionFieldCard = this.getDimensionFieldCard(dto);
         Map<String,Object> hashMap =new HashMap<>();
+
+        PlanningProject planningProject = planningProjectService.getById(dto.getPlanningProjectId());
+
         BaseQueryWrapper<PlanningProjectPlank> queryWrapper =new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tppp.planning_project_id",dto.getPlanningProjectId());
         queryWrapper.notEmptyEq("tppd.prod_category_code",dto.getProdCategoryCode());
@@ -83,14 +86,10 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             String[] split = dto.getPlanningBandCode().split(",");
             queryWrapper.in("tppp.band_code", Arrays.asList(split));
         }
-
         queryWrapper.notEmptyEq("tppp.bulk_style_no",dto.getPlanningBulkStyleNo());
         queryWrapper.orderBy(true,true,"tppp.band_code");
 
-        PlanningProject planningProject = planningProjectService.getById(dto.getPlanningProjectId());
-
         List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);
-
         List<String> ids = list.stream().map(PlanningProjectPlankVo::getId).collect(Collectors.toList());
 
         //维度
@@ -107,17 +106,11 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         Map<String, JSONObject> map1 =new TreeMap<>();
 
 
-        DimensionLabelsSearchDto dimensionLabelsSearchDto =new DimensionLabelsSearchDto();
-        dimensionLabelsSearchDto.setPlanningSeasonId(planningProject.getSeasonId());
-        dimensionLabelsSearchDto.setChannel(planningProject.getPlanningChannelCode());
-
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
         qw.eq("planning_season_id", planningProject.getSeasonId());
         qw.eq("channel", planningProject.getPlanningChannelCode());
-        // PlanningUtils.dimensionCommonQw(qw, dimensionLabelsSearchDto);
 
         List<PlanningDimensionality> planningDimensionalityList = planningDimensionalityService.list(qw);
-        Map<String, PlanningDimensionality> planningDimensionalitie = planningDimensionalityList.stream().collect(Collectors.toMap(PlanningDimensionality::getId, e -> e));
 
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
             //获取所有波段,当作列
@@ -164,31 +157,36 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 planningProjectPlankVo.setOldStyleColor(styleColorVo);
             }
 
-            //获取当前配置的维度字段
-            DimensionLabelsSearchDto dimensionLabelsSearchDto1 =new DimensionLabelsSearchDto();
-            dimensionLabelsSearchDto1.setPlanningSeasonId(planningProject.getSeasonId());
-            dimensionLabelsSearchDto1.setChannel(planningProject.getPlanningChannelCode());
-            dimensionLabelsSearchDto1.setProdCategory(planningProjectPlankVo.getProdCategoryCode());
-            if (StringUtils.isNotEmpty(planningProjectPlankVo.getProdCategory2ndCode())){
-                dimensionLabelsSearchDto1.setCategoryFlag("0");
-                dimensionLabelsSearchDto1.setProdCategory2nd(planningProjectPlankVo.getProdCategory2ndCode());
-            }
-            BaseQueryWrapper<PlanningDimensionality> queryWrapper1 = new BaseQueryWrapper<>();
-            PlanningUtils.dimensionCommonQw(queryWrapper1, dimensionLabelsSearchDto1);
-
-            queryWrapper1.select("id");
-            List<PlanningDimensionality> planningDimensionalities1 =planningDimensionalityService.list(queryWrapper1);
+           //先去根据中类获取
             List<PlanningDimensionality> planningDimensionalities=new ArrayList<>();
-            for (PlanningDimensionality planningDimensionality : planningDimensionalities1) {
-                PlanningDimensionality planningDimensionality1 = planningDimensionalitie.get(planningDimensionality.getId());
-                if (planningDimensionality1 != null){
-                    planningDimensionalities.add(planningDimensionality1);
+            for (PlanningDimensionality planningDimensionality : planningDimensionalityList) {
+                if (planningDimensionality.getProdCategory().equals(planningProjectPlankVo.getProdCategoryCode())){
+                    if (StringUtils.isNotEmpty(planningProjectPlankVo.getProdCategory2ndCode())){
+                        if (planningProjectPlankVo.getProdCategory2ndCode().equals(planningDimensionality.getProdCategory2nd())){
+                            planningDimensionalities.add(planningDimensionality);
+                        }
+                    }else {
+                        planningDimensionalities.add(planningDimensionality);
+                    }
+                }
+            }
+            //如果为空,说明中类未配置,取品类
+            if (planningDimensionalities.isEmpty()){
+                for (PlanningDimensionality planningDimensionality : planningDimensionalityList) {
+                    if (planningDimensionality.getProdCategory().equals(planningProjectPlankVo.getProdCategoryCode())){
+                        planningDimensionalities.add(planningDimensionality);
+                    }
                 }
             }
 
+
             //查询字段管理配置
             List<String> fieldManagementIds = planningDimensionalities.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
-            List<FieldManagement> fieldManagements = fieldManagementService.listByIds(fieldManagementIds);
+            List<FieldManagement> fieldManagements =new ArrayList<>();
+            if (!fieldManagementIds.isEmpty()){
+                fieldManagements = fieldManagementService.listByIds(fieldManagementIds);
+            }
+
             Map<String, FieldManagement> fieldManagementMap = fieldManagements.stream().collect(Collectors.toMap(FieldManagement::getId, f -> f));
 
             //获取维度列表
