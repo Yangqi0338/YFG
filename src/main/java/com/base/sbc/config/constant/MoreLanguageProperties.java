@@ -38,7 +38,7 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
  */
 @Configuration
 @EnableConfigurationProperties
-@ConfigurationProperties("moreLanguage")
+@ConfigurationProperties("more-language")
 public class MoreLanguageProperties {
 
     public static String internalLanguageCode = "ZH";
