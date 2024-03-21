@@ -84,4 +84,9 @@ public class BasicsdatumMaterialPageAndStyleVo {
      * 列头筛选数量
      */
     private Integer groupCount;
+    /**
+     * 是否是迁移历史数据
+     */
+    private String historicalData;
+
 }
