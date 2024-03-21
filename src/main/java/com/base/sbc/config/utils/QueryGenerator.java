@@ -98,6 +98,8 @@ public class QueryGenerator {
                                 qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"))
                                         .or().inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is null"));
                             }
+                        } else if (StrUtil.isNotEmpty(property) && "date".equals(property)) {
+                            qw.isNull(sqlCode);
                         } else {
                             qw.isNullStr(sqlCode);
                         }
@@ -109,6 +111,8 @@ public class QueryGenerator {
                             } else {
                                 qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is not null"));
                             }
+                        } else if (StrUtil.isNotEmpty(property) && "date".equals(property)) {
+                            qw.isNotNull(sqlCode);
                         } else {
                             qw.isNotNullStr(sqlCode);
                         }
