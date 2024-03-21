@@ -235,9 +235,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             Function<String, String> getDosageName = (String dosageId) -> {
                 if (StrUtil.isBlank(dosageId)) return null;
                 return packBoms.stream().filter(it -> dosageId.contains(it.getId())).map(it ->
-                        it.getCollocationName() +
-                                ":" + it.findUnitUse().setScale(2, RoundingMode.HALF_UP) +
-                                it.getStockUnitName()
+                        new StringJoiner(":").add(it.getCollocationName())
+                                .add(it.findUnitUse().setScale(2, RoundingMode.HALF_UP).toString())
+                         + it.getStockUnitName()
                 ).collect(Collectors.joining("\n"));
             };
 
