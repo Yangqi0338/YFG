@@ -77,13 +77,25 @@ public class QueryGenerator {
                     //时间区间过滤
                     if ("isNull".equals(fieldValue)) {
                         if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property))) {
-                            qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"));
+                            if ("insql".equals(property)) {
+                                qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"))
+                                        .or().inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is null or "
+                                                + columnDefine.getColumnFilterExtent() + " = ''"));
+                            } else {
+                                qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"))
+                                        .or().inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is null"));
+                            }
                         } else {
                             qw.isNullStr(sqlCode);
                         }
                     } else if ("isNotNull".equals(fieldValue)) {
                         if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property))) {
-                            qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"));
+                            if ("insql".equals(property)) {
+                                qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is not null and "
+                                        + columnDefine.getColumnFilterExtent() + " != ''"));
+                            } else {
+                                qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is not null"));
+                            }
                         } else {
                             qw.isNotNullStr(sqlCode);
                         }
