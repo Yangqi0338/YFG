@@ -517,4 +517,9 @@ public class PatternMakingController {
     public List<PatternMakingVo> getSampleDressBydesignNo(PatternMakingDto dto) {
         return patternMakingService.getSampleDressBydesignNo(dto.getStyleId());
     }
+    @ApiOperation(value = "样衣任务-待接收下一步-是否参照样衣设置")
+    @PostMapping("/updateReferSample")
+    public boolean updateReferSample(@RequestBody @Valid PatternMakingReferSampleDto dto) {
+        return patternMakingService.updateReferSample(dto);
+    }
 }
