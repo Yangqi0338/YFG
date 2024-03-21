@@ -4,6 +4,7 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Editor;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.func.Consumer3;
 import cn.hutool.core.map.MapUtil;
@@ -81,6 +82,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.access.method.P;
@@ -91,6 +93,7 @@ import org.springframework.util.ObjectUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -210,8 +213,18 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 .notEmptyIn(BasicsdatumSize::getCode, sizeCodes)
                 .select(BasicsdatumSize::getModel, BasicsdatumSize::getInternalSize, BasicsdatumSize::getCode));
 
-        for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
+        List<String> packBomIds = orderBookDetailVos.stream().map(it ->
+                Opt.ofNullable(it.getUnitFabricDosageIds()).orElse("")
+                        + COMMA +
+                Opt.ofNullable(it.getUnitDosageIds()).orElse("")
+        ).flatMap(it -> Arrays.stream(it.split(COMMA))).filter(StrUtil::isNotBlank).distinct().collect(Collectors.toList());
 
+        List<PackBom> packBoms = new ArrayList<>();
+        if (CollUtil.isNotEmpty(packBomIds)) {
+            packBoms.addAll(packBomService.list(new LambdaQueryWrapper<PackBom>().in(PackBom::getId, packBomIds)));
+        }
+
+        for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
 
             // /*版型定位字段*/
             // FieldVal fieldValList = map.get(orderBookDetailVo.getStyleColorId());
@@ -219,38 +232,17 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             //     orderBookDetailVo.setPatternPositioningCode(fieldValList.getVal());
             //     orderBookDetailVo.setPatternPositioningName(fieldValList.getValName());
             // }
-            String unitFabricDosageIds = orderBookDetailVo.getUnitFabricDosageIds();
-            if (StringUtil.isNotEmpty(unitFabricDosageIds)){
-                StringBuilder names=new StringBuilder();
-                List<PackBom> packBoms = packBomService.listByIds(Arrays.asList(unitFabricDosageIds.split(",")));
+            Function<String, String> getDosageName = (String dosageId) -> {
+                if (StrUtil.isBlank(dosageId)) return null;
+                return packBoms.stream().filter(it -> dosageId.contains(it.getId())).map(it ->
+                        it.getCollocationName() +
+                                ":" + it.findUnitUse().setScale(2, RoundingMode.HALF_UP) +
+                                it.getStockUnitName()
+                ).collect(Collectors.joining("\n"));
+            };
 
-                for (int i = 0; i < packBoms.size(); i++) {
-                    StringBuilder unitFabricDosage= new StringBuilder();
-                    unitFabricDosage.append(packBoms.get(i).getCollocationName()).append(":").append(Objects.equals(packBoms.get(i).getPackType(), "packDesign") ? packBoms.get(i).getDesignUnitUse().setScale(2, RoundingMode.HALF_UP) : packBoms.get(i).getBulkUnitUse().setScale(2, RoundingMode.HALF_UP));
-                    unitFabricDosage.append(packBoms.get(i).getStockUnitName());
-                    if (i != 0) {
-                        unitFabricDosage.insert(0,"\n");
-                    }
-                    names.append(unitFabricDosage);
-                }
-                orderBookDetailVo.setUnitFabricDosage(names.toString());
-            }
-
-            String unitDosageIds = orderBookDetailVo.getUnitDosageIds();
-            if (StringUtil.isNotEmpty(unitDosageIds)){
-                StringBuilder names=new StringBuilder();
-                List<PackBom> packBoms = packBomService.listByIds(Arrays.asList(unitDosageIds.split(",")));
-                for (int i = 0; i < packBoms.size(); i++) {
-                    StringBuilder unitDosage= new StringBuilder();
-                    unitDosage.append(packBoms.get(i).getCollocationName()).append(":").append(Objects.equals(packBoms.get(i).getPackType(), "packDesign") ? packBoms.get(i).getDesignUnitUse().setScale(2, RoundingMode.HALF_UP): packBoms.get(i).getBulkUnitUse().setScale(2, RoundingMode.HALF_UP));
-                    unitDosage.append(packBoms.get(i).getStockUnitName());
-                    if (i != 0) {
-                        unitDosage.insert(0,"\n");
-                    }
-                    names.append(unitDosage);
-                }
-                orderBookDetailVo.setUnitDosage(names.toString());
-            }
+            orderBookDetailVo.setUnitFabricDosage(getDosageName.apply(orderBookDetailVo.getUnitFabricDosageIds()));
+            orderBookDetailVo.setUnitDosage(getDosageName.apply(orderBookDetailVo.getUnitDosageIds()));
 
 
             if ("CMT".equals(orderBookDetailVo.getDevtTypeName())){
@@ -265,13 +257,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
                 String styleColorId = orderBookDetailVo.getStyleColorId();
 
-                PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", orderBookDetailVo.getBom()).eq("pack_type", "0".equals(orderBookDetailVo.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS).eq("style_color_id", styleColorId));
+                PackInfoListVo packInfo = packInfoService.getByQw(new QueryWrapper<PackInfo>().eq("code", orderBookDetailVo.getBom()).eq("pack_type",
+                        "0".equals(orderBookDetailVo.getBomStatus()) ?
+                                PackUtils.PACK_TYPE_DESIGN :
+                                PackUtils.PACK_TYPE_BIG_GOODS).eq("style_color_id", styleColorId));
                 if (packInfo != null) {
                     String packType = "0".equals(orderBookDetailVo.getBomStatus()) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
                     PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), packType);
                     if (enableVersion != null) {
-                        List<PackBom> packBoms = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));
-                        for (PackBom packBom : packBoms) {
+                        List<PackBom> packBoms1 = packBomService.list(new QueryWrapper<PackBom>().eq("bom_version_id", enableVersion.getId()));
+                        for (PackBom packBom : packBoms1) {
                             if ("1".equals(packBom.getMainFlag())) {
                                 orderBookDetailVo.setFabricState(packBom.getStatus());
                                 // orderBookDetailVo.setFabricFactoryCode(packBom.getSupplierId());
