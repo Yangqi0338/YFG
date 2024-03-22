@@ -227,5 +227,6 @@
         <if test="total == 1">
             group by T.PROD_CODE, T.BRAND_NAME
         </if>
+        order by T.PROD_CODE
     </select>
 </mapper>
