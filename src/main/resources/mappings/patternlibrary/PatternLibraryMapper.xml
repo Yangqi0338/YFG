@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.base.sbc.module.patternlibrary.entity.PatternLibrary">
+        <id column="serial_number" property="serialNumber" />
+        <id column="id" property="id" />
+        <result column="code" property="code" />
+        <result column="design_no" property="designNo" />
+        <result column="style_id" property="styleId" />
+        <result column="brand" property="brand" />
+        <result column="brand_name" property="brandName" />
+        <result column="prod_category1st" property="prodCategory1st" />
+        <result column="prod_category1st_name" property="prodCategory1stName" />
+        <result column="prod_category" property="prodCategory" />
+        <result column="prod_category_name" property="prodCategoryName" />
+        <result column="prod_category2nd" property="prodCategory2nd" />
+        <result column="prod_category2nd_name" property="prodCategory2ndName" />
+        <result column="prod_category3rd" property="prodCategory3rd" />
+        <result column="prod_category3rd_name" property="prodCategory3rdName" />
+        <result column="silhouette_code" property="silhouetteCode" />
+        <result column="silhouette_name" property="silhouetteName" />
+        <result column="template_code" property="templateCode" />
+        <result column="file_id" property="fileId" />
+        <result column="meterial_code" property="meterialCode" />
+        <result column="meterial_name" property="meterialName" />
+        <result column="pic_file_id" property="picFileId" />
+        <result column="status" property="status" />
+        <result column="enable_flag" property="enableFlag" />
+        <result column="create_id" property="createId" />
+        <result column="create_name" property="createName" />
+        <result column="create_date" property="createDate" />
+        <result column="update_id" property="updateId" />
+        <result column="update_name" property="updateName" />
+        <result column="update_date" property="updateDate" />
+        <result column="del_flag" property="delFlag" />
+        <result column="company_code" property="companyCode" />
+    </resultMap>
+
+</mapper>

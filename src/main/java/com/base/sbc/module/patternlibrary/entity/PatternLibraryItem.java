@@ -1,0 +1,73 @@
+package com.base.sbc.module.patternlibrary.entity;
+
+import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+
+/**
+ * 版型库-子表
+ *
+ * @author xhte
+ * @create 2024-03-22
+ */
+@Data
+@EqualsAndHashCode(callSuper = true)
+@TableName("t_pattern_library_item")
+@ApiModel(value = "PatternLibraryItem对象", description = "版型库-子表")
+public class PatternLibraryItem extends BaseDataEntity<String> implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 关联数据 ID
+     */
+    @ApiModelProperty("关联数据 ID")
+    private String dataId;
+
+    /**
+     * 系数名称/部位/部件类别
+     */
+    @ApiModelProperty("系数名称/部位/部件类别")
+    private String name;
+
+    /**
+     * 系数编码/部位编码/部件编码
+     */
+    @ApiModelProperty("系数编码/部位编码/部件编码")
+    private String code;
+
+    /**
+     * 实际纸样尺寸
+     */
+    @ApiModelProperty("实际纸样尺寸")
+    private String patternSize;
+
+    /**
+     * 结构管理 Key（围度和长度使用）
+     */
+    @ApiModelProperty("结构管理 Key（围度和长度使用）")
+    private String key;
+
+    /**
+     * 结构管理 Value（围度和长度使用）
+     */
+    @ApiModelProperty("结构管理 Value（围度和长度使用）")
+    private String value;
+
+    /**
+     * 类型（1-围度信息 2-长度信息 3-部位尺寸 4-设计部件）
+     */
+    @ApiModelProperty("类型（1-围度信息 2-长度信息 3-部位尺寸 4-设计部件）")
+    private Byte type;
+
+    /**
+     * 启用状态（0-停用，1-启用)
+     */
+    @ApiModelProperty("启用状态（0-停用，1-启用)")
+    private Integer enableFlag;
+}
