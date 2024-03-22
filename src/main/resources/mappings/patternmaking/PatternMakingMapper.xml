@@ -210,7 +210,7 @@
             p.sample_making_quality_score,
             p.second_processing,
             p.prm_send_date,
-            (CASE WHEN p.prm_send_status = 0 THEN '未发送' ELSE '已发送' END) as prm_send_status,
+            p.prm_send_status,
             p.pattern_no,
             p.grading_name,
             p.grading_date,
