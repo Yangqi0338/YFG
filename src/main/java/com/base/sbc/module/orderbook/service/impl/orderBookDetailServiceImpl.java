@@ -285,27 +285,27 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
 
             String orderBookChannel = orderBookList.stream().filter(it -> it.getId().equals(orderBookDetailVo.getOrderBookId())).findFirst().map(OrderBook::getChannel).orElse("");
-            JSONObject jsonObject = JSON.parseObject(Opt.ofBlankAble(orderBookDetailVo.getCommissioningSize()).orElse(""));
-            if (jsonObject!= null){
-                Map<String, String> sizeModelMap = sizeList.stream().filter(it -> orderBookDetailVo.getSizeCodes().contains(it.getCode()))
-                        .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
-                sizeModelMap.forEach((key,value)-> {
-                    for (OrderBookChannelType channel : OrderBookChannelType.values()) {
-                        jsonObject.put(key+ channel.getFill() + "Size",value);
-                    }
-                });
-                channelPageConfig.forEach((channel, pageConfig)-> {
-                    List<String> sizeRange = pageConfig.getSizeRange();
-                    if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
-                        sizeRange.forEach(size-> {
-                            String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
-                            jsonObject.put(size+ channel.getFill() + "Status", status);
-                            jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
-                        });
-                    };
-                });
-                orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
-            }
+            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
+
+            Map<String, String> sizeModelMap = sizeList.stream().filter(it -> orderBookDetailVo.getSizeCodes().contains(it.getCode()))
+                    .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
+            sizeModelMap.forEach((key,value)-> {
+                for (OrderBookChannelType channel : OrderBookChannelType.values()) {
+                    jsonObject.put(key+ channel.getFill() + "Size",value);
+                }
+            });
+            channelPageConfig.forEach((channel, pageConfig)-> {
+                List<String> sizeRange = pageConfig.getSizeRange();
+                if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
+                    sizeRange.forEach(size-> {
+                        String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
+                        jsonObject.put(size+ channel.getFill() + "Status", status);
+                        jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
+                    });
+                };
+            });
+            orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
+
         }
 
         return orderBookDetailVos;
