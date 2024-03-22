@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 版型库-主表DTO
@@ -26,10 +27,10 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String code;
 
     /**
-     * 品牌（多选逗号分隔）
+     * 品牌 code 集合
      */
-    @ApiModelProperty("品牌（多选逗号分隔）")
-    private String brand;
+    @ApiModelProperty("品牌 code 集合")
+    private List<String> brand;
 
     /**
      * 大类 code
@@ -56,16 +57,16 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String silhouetteCode;
 
     /**
-     * 模板 code（t_pattern_library code）（多选逗号分隔）
+     * 模板 code（t_pattern_library code）集合
      */
-    @ApiModelProperty("模板 code（多选逗号分隔）")
-    private String templateCode;
+    @ApiModelProperty("模板 code 集合")
+    private List<String> templateCodeList;
 
     /**
-     * 涉及部件 code（多选逗号分隔）
+     * 涉及部件 code 集合
      */
-    @ApiModelProperty("涉及部件 code（多选逗号分隔）")
-    private String partsCode;
+    @ApiModelProperty("涉及部件 code 集合")
+    private List<String> partsCodeList;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）
