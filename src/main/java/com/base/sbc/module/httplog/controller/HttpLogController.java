@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.httplog.dto.QueryHttpLogDto;
@@ -59,6 +60,8 @@ public class HttpLogController extends BaseController {
 
         //根据登录用户查询
         queryWrapper.like(!StringUtils.isEmpty(queryHttpLogDto.getUserName()),"create_id",queryHttpLogDto.getUserName());
+
+        queryWrapper.eq("exception_flag", BaseGlobal.YES);
 
         if(StringUtils.isNotBlank(queryHttpLogDto.getStartTime())){
             List<String> list=   StringUtils.convertList(queryHttpLogDto.getStartTime());
