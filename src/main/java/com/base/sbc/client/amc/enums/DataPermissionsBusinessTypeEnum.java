@@ -33,6 +33,7 @@ public enum DataPermissionsBusinessTypeEnum {
     PatternMakingWeekMonthView("PatternMakingWeekMonthView", "版类对比"),
     CategorySummaryCount("CategorySummaryCount", "品类汇总统计"),
     work_log("work_log","工作小账"),
+    PATTERN_LIBRARY("t_pattern_library","部件库"),
     ;
     private final String k;
     private final String v;
