@@ -414,6 +414,12 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     List<PatternMakingVo> getSampleDressBydesignNo(String styleId);
 
+    /**
+     * 是否参考样衣
+     * @return
+     */
+    Boolean updateReferSample(PatternMakingReferSampleDto dto);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

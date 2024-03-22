@@ -219,12 +219,13 @@
             p.receive_sample_date,
             s.devt_type_name,
             (CASE WHEN p.break_off_Pattern = '1' THEN '打板中断' WHEN p.break_off_sample = '1' THEN '样衣中断' ELSE '启用' END) as pmStatus,
-
+            p.refer_sample,
             p.break_off_Pattern,
             p.break_off_sample,
             p.status pStatus,
             p.create_date as `pmCreateDate`,
-            p.demand_finish_date as demandFinishDate
+            p.demand_finish_date as demandFinishDate,
+            p.del_flag
         </if>
         FROM
         t_style s
@@ -834,12 +835,12 @@
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id AND p.del_flag = '0' )
         LEFT JOIN t_node_status ns1 ON ( ns1.data_id = p.id AND ns1.del_flag = '0' and ns1.node = '技术中心' and ns1.`status` = '版房主管下发')
         LEFT JOIN t_node_status ns2 ON ( ns2.data_id = p.id AND ns2.del_flag = '0' and ns2.node = '打版任务' and ns2.`status` = '已接收')
-        LEFT JOIN t_node_status ns3 ON ( ns3.data_id = p.id AND ns3.del_flag = '0'   and ns3.`status` = '已接收')
-        LEFT JOIN t_node_status ns4 ON ( ns4.data_id = p.id AND ns4.del_flag = '0' and ns4.node  = '打版任务' and ns4.`status` = '打版完成')
+        LEFT JOIN t_node_status ns3 ON ( ns3.data_id = p.id AND ns3.del_flag = '0' and ns3.node = '技术中心' and ns3.`status` = '已接收')
+        LEFT JOIN t_node_status ns4 ON ( ns4.data_id = p.id AND ns4.del_flag = '0' and ns4.node = '打版任务' and ns4.`status` = '打版完成')
         LEFT JOIN t_node_status ns5 ON ( ns5.data_id = p.id AND ns5.del_flag = '0' and ns5.node = '样衣任务' and ns5.`status` = '裁剪开始')
         LEFT JOIN t_node_status ns6 ON ( ns6.data_id = p.id AND ns6.del_flag = '0' and ns6.node = '样衣任务' and ns6.`status` = '裁剪完成')
         LEFT JOIN t_node_status ns7 ON ( ns7.data_id = p.id AND ns7.del_flag = '0' and ns7.node = '样衣任务' and ns7.`status` = '车缝进行中')
-        LEFT JOIN t_node_status ns8 ON ( ns8.data_id = p.id AND ns8.del_flag = '0' and ns8.node = '样衣任务' and  ns8.`status` = '车缝完成')
+        LEFT JOIN t_node_status ns8 ON ( ns8.data_id = p.id AND ns8.del_flag = '0' and ns8.node = '样衣任务' and ns8.`status` = '车缝完成')
         LEFT JOIN t_node_status ns9 ON ( ns9.data_id = p.id AND ns9.del_flag = '0' and ns9.node = '样衣任务' and ns9.`status` = '样衣完成')
         ${ew.customSqlSegment}
     </select>

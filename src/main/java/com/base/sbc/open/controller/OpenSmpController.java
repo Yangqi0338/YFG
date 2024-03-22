@@ -11,6 +11,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -21,6 +22,7 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
+import com.base.sbc.module.style.entity.StyleOrderBookColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
@@ -32,6 +34,7 @@ import com.base.sbc.open.service.MtBqReqService;
 import com.base.sbc.open.service.OpenSmpService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -186,13 +189,30 @@ public class OpenSmpController extends BaseController {
     public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
         EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
 
-        escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto,
+        String materialsNo = escmMaterialCompnentInspectCompanyDto.getMaterialsNo();
+        String year = escmMaterialCompnentInspectCompanyDto.getYear();
+
+        QueryWrapper<EscmMaterialCompnentInspectCompanyDto> compnentInspectCompanyDtoQueryWrapper = new QueryWrapper<>();
+        compnentInspectCompanyDtoQueryWrapper.eq("year",year);
+        compnentInspectCompanyDtoQueryWrapper.eq("materials_no",materialsNo);
+        compnentInspectCompanyDtoQueryWrapper.last("limit 1");
+        EscmMaterialCompnentInspectCompanyDto inspectCompanyDto = escmMaterialCompnentInspectCompanyService.getOne(compnentInspectCompanyDtoQueryWrapper);
+        if (inspectCompanyDto == null) {
+            escmMaterialCompnentInspectCompanyService.save(escmMaterialCompnentInspectCompanyDto);
+        }else{
+            BeanUtils.copyProperties(inspectCompanyDto, escmMaterialCompnentInspectCompanyDto);
+            escmMaterialCompnentInspectCompanyService.updateById(inspectCompanyDto);
+        }
+
+
+        /*escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto,
                 new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>()
                         .eq("materials_no",escmMaterialCompnentInspectCompanyDto.getMaterialsNo())
                         .eq("year",escmMaterialCompnentInspectCompanyDto.getYear())
-        );
+        );*/
 
         basicsdatumMaterialIngredientService.remove(new QueryWrapper<BasicsdatumMaterialIngredient>().eq("material_code",escmMaterialCompnentInspectCompanyDto.getMaterialsNo()));
+
         String quanlityInspectContent="";
 
         List<BasicBaseDict> pd021DictList = new ArrayList<>();

@@ -77,13 +77,29 @@ public class QueryGenerator {
                     //时间区间过滤
                     if ("isNull".equals(fieldValue)) {
                         if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property))) {
-                            qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"));
+                            if ("insql".equals(property)) {
+                                qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"))
+                                        .or().inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is null or "
+                                                + columnDefine.getColumnFilterExtent() + " = ''"));
+                            } else {
+                                qw.notInSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"))
+                                        .or().inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is null"));
+                            }
+                        } else if (StrUtil.isNotEmpty(property) && "date".equals(property)) {
+                            qw.isNull(sqlCode);
                         } else {
                             qw.isNullStr(sqlCode);
                         }
                     } else if ("isNotNull".equals(fieldValue)) {
                         if (StrUtil.isNotEmpty(property) && ("insql".equals(property) || "date_insql".equals(property))) {
-                            qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", " 1 = 1"));
+                            if ("insql".equals(property)) {
+                                qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is not null and "
+                                        + columnDefine.getColumnFilterExtent() + " != ''"));
+                            } else {
+                                qw.inSql(sqlCode, columnDefine.getColumnFilter().replace("?", columnDefine.getColumnFilterExtent() + " is not null"));
+                            }
+                        } else if (StrUtil.isNotEmpty(property) && "date".equals(property)) {
+                            qw.isNotNull(sqlCode);
                         } else {
                             qw.isNotNullStr(sqlCode);
                         }
@@ -121,9 +137,10 @@ public class QueryGenerator {
 
     /**
      * 报表参数验证
+     *
      * @param bulkStyleNos 大货款号 （限制2000个）
-     * @param year 年份
-     * @param season 季节
+     * @param year         年份
+     * @param season       季节
      */
     public static void reportParamBulkStyleNosCheck(List<String> bulkStyleNos, String year, String season) {
 
@@ -145,9 +162,10 @@ public class QueryGenerator {
 
     /**
      * 报表参数验证
+     *
      * @param materialNos 物料号 （限制2000个）
-     * @param year 年份
-     * @param season 季节
+     * @param year        年份
+     * @param season      季节
      */
     public static void reportParamMaterialsNoCheck(List<String> materialNos, String year, String season) {
 
