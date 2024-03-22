@@ -23,8 +23,8 @@
         <result column="silhouette_name" property="silhouetteName" />
         <result column="template_code" property="templateCode" />
         <result column="file_id" property="fileId" />
-        <result column="meterial_code" property="meterialCode" />
-        <result column="meterial_name" property="meterialName" />
+        <result column="meterial_code" property="materialCode" />
+        <result column="meterial_name" property="materialName" />
         <result column="pic_file_id" property="picFileId" />
         <result column="status" property="status" />
         <result column="enable_flag" property="enableFlag" />
@@ -37,5 +37,17 @@
         <result column="del_flag" property="delFlag" />
         <result column="company_code" property="companyCode" />
     </resultMap>
+
+    <select id="listPages" resultType="com.base.sbc.module.patternlibrary.vo.PatternLibraryVO">
+        select *
+        from t_pattern_library tpl
+        where tpl.del_flag = 0
+          and tpl.enable_flag = 1
+          and exists(
+<!--          select 1 from t_pattern_library_brand tplb where tpl.id = tplb.pattern_library_id and tplb.brand in-->
+<!--                                                                                                           <if test="patternLibraryDTO"></if>-->
+
+<!--                                                                                                                      )-->
+    </select>
 
 </mapper>
