@@ -10,6 +10,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -34,11 +37,9 @@ import com.base.sbc.module.patternmaking.service.PatternMakingService;
 import com.base.sbc.module.patternmaking.vo.*;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.smp.SmpService;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.github.pagehelper.PageInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +53,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.Principal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -488,7 +490,12 @@ public class PatternMakingController {
     @ApiOperation(value = "修改放码师")
     public boolean updateGrading(@Validated @RequestBody PatternMaking patternMaking) {
         CommonUtils.removeQuery(patternMaking, "samplePic");
-        return patternMakingService.updateById(patternMaking);
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId,patternMaking.getId());
+        updateWrapper.set(PatternMaking::getGradingId,patternMaking.getGradingId());
+        updateWrapper.set(PatternMaking::getGradingName, patternMaking.getGradingName());
+        updateWrapper.set(PatternMaking::getGradingDate, patternMaking.getGradingDate());
+        return patternMakingService.update(updateWrapper);
     }
 
 
