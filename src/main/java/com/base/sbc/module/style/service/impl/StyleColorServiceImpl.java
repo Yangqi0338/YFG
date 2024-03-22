@@ -2337,8 +2337,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
 
-                style.setStyleUnitCode("J");
-                style.setStyleUnit("件");
+
                 //坑位信息id 缺失
                 style.setCompanyCode(baseController.getUserCompany());
                 //坑位信息暂时默认一个
@@ -2391,6 +2390,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     }
                 }else{
                     throw new OtherException("第" + (i + 1) + "行,Execl中的大类-品类-中类在系统中找不到" + key);
+                }
+
+                if ("裙子".equals(prodCategoryName) || "裤子".equals(prodCategoryName) || "裤子".equals(prodCategoryName)) {
+                    style.setStyleUnitCode("T");
+                    style.setStyleUnit("条");
+                }else{
+                    style.setStyleUnitCode("J");
+                    style.setStyleUnit("件");
                 }
 
                 //配色
