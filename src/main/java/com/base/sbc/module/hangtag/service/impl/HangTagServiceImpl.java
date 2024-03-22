@@ -901,7 +901,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 洗唛材质备注
 				tagPrinting.setC8_APPBOM_Comment(hangTag.getWashingMaterialRemarksName());
 				// 贮藏要求
-//				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemandName());
+				tagPrinting.setC8_APPBOM_StorageReq(hangTag.getStorageDemandName());
 				// 产地
 				tagPrinting.setC8_APPBOM_MadeIn(hangTag.getProducer());
 				// 入库时间
@@ -1314,6 +1314,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			case PRINT:
 				// 假定为只传一个款
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
+				tagPrinting.setC8_APPBOM_StorageReq(null);
+
 				String bulkStyleNo = tagPrinting.getStyleCode();
 //				List<HangTagMoreLanguagePrinterBaseVO> hangTagMoreLanguagePrinterBaseVOS = HANG_TAG_CV.copyList2Print(resultList);
 
