@@ -141,7 +141,8 @@
         p.grading_date,
         p.sample_making_score,
         p.sample_making_quality_score,
-        p.second_processing
+        p.second_processing,
+        p.del_flag
         FROM
         t_pattern_making p,
         t_style s
