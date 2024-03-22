@@ -58,6 +58,7 @@ import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
@@ -101,8 +102,6 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Autowired
     private NodeStatusService nodeStatusService;
     @Autowired
-    private AttachmentService attachmentService;
-    @Autowired
     private StyleService styleService;
 
     @Autowired
@@ -119,7 +118,6 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private StylePicUtils stylePicUtils;
     @Autowired
     private StyleColorService styleColorService;
-
     @Autowired
     private SmpService smpService;
 
@@ -574,7 +572,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
             TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
             confirmDateDto.setStyleNo(old.getStyleNo());
-            confirmDateDto.setTechnicsDate(dto.getTechReceiveTime() == null ? null : dto.getTechReceiveTime());
+            confirmDateDto.setTechnicsDate(dto.getTechReceiveTime());
             confirmDateDto.setType("technics_date");
             smpService.styleColorCorrectInfoDate(confirmDateDto);
         }

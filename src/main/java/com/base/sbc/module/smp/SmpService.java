@@ -167,6 +167,11 @@ public class SmpService {
     private final HangTagServiceImpl hangTagService;
     private final FieldValService fieldValService;
 
+    @Resource
+    @Lazy
+    private StyleColorCorrectInfoService styleColorCorrectInfoService;
+
+
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
 
@@ -1558,7 +1563,18 @@ public class SmpService {
     /**
      * 正确样下发
      */
-    public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto){
+    public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto) {
+        String type = tagConfirmDateDto.getType();
+        if (null == tagConfirmDateDto.getPlanControlDate() && "plan_control_date".equals(type)) {//
+            String styleNo = tagConfirmDateDto.getStyleNo();
+            QueryWrapper<StyleColorCorrectInfo> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("style_no", styleNo);
+            queryWrapper.eq("del_flag", "0");
+            List<StyleColorCorrectInfo> list = styleColorCorrectInfoService.list(queryWrapper);
+            if (CollUtil.isNotEmpty(list)) {
+                tagConfirmDateDto.setPlanControlDate(list.get(0).getPlanControlDate());
+            }
+        }
         String params = JSONArray.toJSONString(Arrays.asList(tagConfirmDateDto));
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
         pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto), "scm", "下发吊牌和款式定价确认信息");
