@@ -11,6 +11,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -82,6 +83,14 @@ public class HangTagMoreLanguageBCSVO {
                         message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator +
                                 sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage)
                                         .distinct().collect(Collectors.joining(MoreLanguageProperties.multiSeparator)));
+                    });
+            // 有可能已经翻译完了，但是没有审核,需要做处理
+            // 品控未确认
+            this.successList.stream().filter(it-> it.getStatus() != HangTagStatusEnum.FINISH).collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getStatus))
+                    .forEach((status, sameStatusList)-> {
+                        sameStatusList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo).forEach(bulkStyleNo-> {
+                            message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator + (status.lessThan(HangTagStatusEnum.TRANSLATE_CHECK) ? "技术审核未确认" : "翻译审核未确认"));
+                        });
                     });
         }
         return message.toString();

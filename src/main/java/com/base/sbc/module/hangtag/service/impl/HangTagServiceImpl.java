@@ -1301,6 +1301,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
                 return webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getType));
 			case BCS:
 			case ESCM:
+				resultList.forEach(result-> result.setStatus(hangTagVOList.stream().filter(it->
+						it.getBulkStyleNo().equals(result.getBulkStyleNo())
+				).map(MoreLanguageHangTagVO::getStatus).findFirst().orElse(HangTagStatusEnum.FINISH)));
 				resultList.removeIf(it-> it.getShowFlag() == YesOrNoEnum.NO);
 				List<HangTagMoreLanguageBCSVO> sourceResultList = new ArrayList<>();
 				HANG_TAG_CV.copyList2Bcs(resultList).stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode))
