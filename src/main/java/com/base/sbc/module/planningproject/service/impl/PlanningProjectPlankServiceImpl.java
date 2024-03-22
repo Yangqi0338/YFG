@@ -98,6 +98,12 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         List<PlanningProjectPlankDimension> planningProjectPlankDimensions = planningProjectPlankDimensionService.list(dimensionQueryWrapper);
         Map<String, List<PlanningProjectPlankDimension>> dimensionMap = planningProjectPlankDimensions.stream().collect(Collectors.groupingBy(PlanningProjectPlankDimension::getPlanningProjectPlankId));
         List<String> styleColorIds = list.stream().map(PlanningProjectPlankVo::getStyleColorId).collect(Collectors.toList());
+        List<String> hisDesignNos = list.stream().map(PlanningProjectPlankVo::getHisDesignNo).collect(Collectors.toList());
+        if (!styleColorIds.isEmpty()){
+            List<StyleColor> list3 = styleColorService.list(new QueryWrapper<StyleColor>().in("style_no", hisDesignNos).select("id"));
+            styleColorIds.addAll(list3.stream().map(StyleColor::getId).collect(Collectors.toList()));
+        }
+
         List<FieldVal> fieldValList = styleColorService.ListDynamicDataByIds(styleColorIds);
         //匹配
         // this.match(list);
@@ -109,7 +115,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         BaseQueryWrapper<PlanningDimensionality> qw = new BaseQueryWrapper<>();
         qw.eq("planning_season_id", planningProject.getSeasonId());
         qw.eq("channel", planningProject.getPlanningChannelCode());
-
+        qw.eq("coefficient_flag", "1");
+        // qw.groupBy("dimensionality_name,prod_category,prod_category2nd");
+        qw.orderByDesc("id");
         List<PlanningDimensionality> planningDimensionalityList = planningDimensionalityService.list(qw);
 
         for (PlanningProjectPlankVo planningProjectPlankVo : list) {
@@ -157,6 +165,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 planningProjectPlankVo.setOldStyleColor(styleColorVo);
             }
 
+
            //先去根据中类获取
             List<PlanningDimensionality> planningDimensionalities=new ArrayList<>();
             for (PlanningDimensionality planningDimensionality : planningDimensionalityList) {
@@ -175,6 +184,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 for (PlanningDimensionality planningDimensionality : planningDimensionalityList) {
                     if (planningDimensionality.getProdCategory().equals(planningProjectPlankVo.getProdCategoryCode())){
                         planningDimensionalities.add(planningDimensionality);
+
                     }
                 }
             }
@@ -216,7 +226,13 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         }else {
                             styleColorId=planningProjectPlankVo.getStyleColorId();
                         }
-                        if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(styleColorId) && planningDimensionality.getDimensionalityName().equals(fieldVal.getFieldExplain())){
+                        if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(styleColorId) && planningDimensionality.getFieldId().equals(fieldVal.getFieldId())){
+                            if ("4F4111341".equals(planningProjectPlankVo.getBulkStyleNo())) {
+                                if ("色系".equals(planningDimensionality.getDimensionalityName())) {
+                                    System.out.println(planningDimensionality);
+                                }
+                            }
+
                             planningProjectPlankDimension.setDimensionCode(fieldVal.getFieldName());
                             planningProjectPlankDimension.setDimensionValue(fieldVal.getVal());
                             planningProjectPlankDimension.setDimensionValueName(fieldVal.getValName());
@@ -256,7 +272,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                     if (planningProjectPlankDimension.getFieldManagement()!=null && planningProjectPlankDimension.getFieldManagement().getFieldExplain().equals(fieldDisplayVo.getName())){
                         planningProjectPlankDimension.setSort(fieldDisplayVo.getSort());
                         planningProjectPlankDimension.setDisplay(fieldDisplayVo.isDisplay());
-
+                        break;
                     }
                 }
             }
