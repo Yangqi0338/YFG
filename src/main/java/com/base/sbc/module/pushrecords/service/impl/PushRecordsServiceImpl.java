@@ -59,7 +59,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         }
         pushRecords.setModuleName(moduleName);
         pushRecords.setFunctionName(functionName);
-        pushRecords.setRelatedId(json.getString("code"));
+        //pushRecords.setRelatedId(json.getString("code"));
         pushRecords.setRelatedName(json.getString("name"));
         pushRecords.setPushAddress(httpResp.getUrl());
         pushRecords.setPushContent(data);
