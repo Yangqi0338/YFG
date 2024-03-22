@@ -19,6 +19,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CopyUtil;
@@ -258,6 +259,16 @@ public class OrderBookDetailController extends BaseController {
         if (orderBook==null){
             throw new OtherException("订货本不存在");
         }
+        boolean change = false;
+        if (orderBook.getOrderStatus() == OrderBookOrderStatusEnum.ORDER) {
+            orderBook.setOrderStatus(OrderBookOrderStatusEnum.PART_ORDER);
+            change= true;
+        }
+        if (orderBook.getStatus() == OrderBookStatusEnum.CONFIRM) {
+            orderBook.setStatus(OrderBookStatusEnum.PART_CONFIRM);
+            change= true;
+        }
+        if (change) orderBookService.updateById(orderBook);
 
         //相同产品季下不能有同样的大货款
         QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
