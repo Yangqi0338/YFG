@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @Api(tags = "技术中心看板")
@@ -28,10 +29,30 @@ public class TechnologyCenterBoardController {
     private TechnologyCenterBoardService technologyCenterBoardService;
 
 
-    @ApiOperation(value = "设计下单进度明细报表-导出")
-    @GetMapping("/designOrderScheduleDetailsExport")
-    public TechnologyCenterBoardOverviewDataVo hangTagReportExport(TechnologyCenterBoardDto dto){
+    @ApiOperation(value = "数据总览-打版进行中数据")
+    @GetMapping("/getPlateMakeUnderwayData")
+    public TechnologyCenterBoardOverviewDataVo getPlateMakeUnderwayData(TechnologyCenterBoardDto dto){
         return technologyCenterBoardService.getPlateMakeUnderwayData(dto);
+    }
+    @ApiOperation(value = "数据总览-打版完成数据")
+    @GetMapping("/getPlateMakeFinishData")
+    public TechnologyCenterBoardOverviewDataVo getPlateMakeFinishData(TechnologyCenterBoardDto dto){
+        return technologyCenterBoardService.getPlateMakeFinishData(dto);
+    }
+    @ApiOperation(value = "版师/样衣工,当前任务")
+    @GetMapping("/getCurrentTaskData")
+    public TechnologyCenterBoardCurrentTaskVo getCurrentTaskData(TechnologyCenterBoardDto dto){
+        return technologyCenterBoardService.getCurrentTaskData(dto);
+    }
+    @ApiOperation(value = "打版/样衣,产能数")
+    @GetMapping("/getCapacityNumber")
+    public TechnologyCenterBoardCurrentTaskVo getCapacityNumber(TechnologyCenterBoardDto dto){
+        return technologyCenterBoardService.getCapacityNumber(dto);
+    }
+    @ApiOperation(value = "打版/样衣,排名统计")
+    @GetMapping("/getDesignerRank")
+    public List<TechnologyCenterBoardDesignerRankVo> getDesignerRank(TechnologyCenterBoardDto dto){
+        return technologyCenterBoardService.getDesignerRank(dto);
     }
 
 }

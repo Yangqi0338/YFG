@@ -2,7 +2,10 @@ package com.base.sbc.module.report.service;
 
 import com.base.sbc.module.report.dto.TechnologyCenterBoardDto;
 import com.base.sbc.module.report.vo.TechnologyCenterBoardCurrentTaskVo;
+import com.base.sbc.module.report.vo.TechnologyCenterBoardDesignerRankVo;
 import com.base.sbc.module.report.vo.TechnologyCenterBoardOverviewDataVo;
+
+import java.util.List;
 
 /**
  * 技术中心看板
@@ -32,6 +35,12 @@ public interface TechnologyCenterBoardService {
      * @return
      */
     TechnologyCenterBoardCurrentTaskVo getCapacityNumber(TechnologyCenterBoardDto dto);
+
+    /**
+     * 打版/样衣 排名统计
+     * @return
+     */
+    List<TechnologyCenterBoardDesignerRankVo> getDesignerRank(TechnologyCenterBoardDto dto);
 
 
 }
