@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.vo;
 
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.open.dto.MoreLanguageTagPrinting;
@@ -105,6 +106,12 @@ public class HangTagMoreLanguageSupportVO {
     @JsonIgnore
     @ApiModelProperty(value = "中文检查")
     protected Boolean cnCheck = true;
+
+    /**
+     * 吊牌状态
+     */
+    @ApiModelProperty(value = "吊牌状态")
+    private HangTagStatusEnum status;
 
     /**
      * 分类列表
