@@ -29,7 +29,6 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
      * 序号
      */
     @ApiModelProperty("序号")
-    @TableId(value = "serial_number", type = IdType.AUTO)
     private Integer serialNumber;
 
     /**

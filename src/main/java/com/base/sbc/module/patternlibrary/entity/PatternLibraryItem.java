@@ -24,10 +24,10 @@ public class PatternLibraryItem extends BaseDataEntity<String> implements Serial
     private static final long serialVersionUID = 1L;
 
     /**
-     * 关联数据 ID
+     * 部件库 ID（t_pattern_library id）
      */
-    @ApiModelProperty("关联数据 ID")
-    private String dataId;
+    @ApiModelProperty("部件库 ID")
+    private String patternLibraryId;
 
     /**
      * 系数名称/部位/部件类别

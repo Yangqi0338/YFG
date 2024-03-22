@@ -4,7 +4,6 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.enums.DataPermissionsConditionTypeEnum;
@@ -73,16 +72,6 @@ public class DataPermissionsService {
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre) {
         getDataPermissionsForQw(qw, businessType, tablePre,null,false);
     }
-
-    /**
-     * @param qw           查询构造器
-     * @param businessType 业务对象编码
-     * @param tablePre     表别名
-     */
-    public void getDataPermissionsForQw(LambdaQueryWrapper qw, String businessType, String tablePre) {
-        getDataPermissionsForQw(qw, businessType, tablePre,null,false);
-    }
-
     /**
      * @param qw           查询构造器
      * @param businessType 业务对象编码
@@ -100,30 +89,6 @@ public class DataPermissionsService {
      * @param isAssignFields     是否强制指定字段，配合authorityFields使用
      */
     public void getDataPermissionsForQw(QueryWrapper qw, String businessType, String tablePre, String[] authorityFields, boolean isAssignFields) {
-        if (StrUtil.isBlank(businessType) || qw == null) {
-            return;
-        }
-        UserCompany userCompany = companyUserInfo.get();
-        Map read = getDataPermissionsForQw(userCompany.getCompanyCode(), userCompany.getUserId(), businessType, "read", tablePre, authorityFields, isAssignFields);
-        boolean flg = MapUtil.getBool(read, "authorityState", false);
-        String sql = MapUtil.getStr(read, "authorityField");
-
-        if (flg && StrUtil.isNotBlank(sql)) {
-            qw.apply(sql);
-        }
-        if (!flg) {
-            qw.apply(" 1=0 ");
-        }
-    }
-
-    /**
-     * @param qw           查询构造器
-     * @param businessType 业务对象编码
-     * @param tablePre     表别名
-     * @param authorityFields     自定义数据隔离字段（代表名的）
-     * @param isAssignFields     是否强制指定字段，配合authorityFields使用
-     */
-    public void getDataPermissionsForQw(LambdaQueryWrapper qw, String businessType, String tablePre, String[] authorityFields, boolean isAssignFields) {
         if (StrUtil.isBlank(businessType) || qw == null) {
             return;
         }

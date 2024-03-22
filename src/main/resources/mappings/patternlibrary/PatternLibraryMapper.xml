@@ -4,50 +4,81 @@
 
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.base.sbc.module.patternlibrary.entity.PatternLibrary">
-        <id column="serial_number" property="serialNumber" />
-        <id column="id" property="id" />
-        <result column="code" property="code" />
-        <result column="design_no" property="designNo" />
-        <result column="style_id" property="styleId" />
-        <result column="brand" property="brand" />
-        <result column="brand_name" property="brandName" />
-        <result column="prod_category1st" property="prodCategory1st" />
-        <result column="prod_category1st_name" property="prodCategory1stName" />
-        <result column="prod_category" property="prodCategory" />
-        <result column="prod_category_name" property="prodCategoryName" />
-        <result column="prod_category2nd" property="prodCategory2nd" />
-        <result column="prod_category2nd_name" property="prodCategory2ndName" />
-        <result column="prod_category3rd" property="prodCategory3rd" />
-        <result column="prod_category3rd_name" property="prodCategory3rdName" />
-        <result column="silhouette_code" property="silhouetteCode" />
-        <result column="silhouette_name" property="silhouetteName" />
-        <result column="template_code" property="templateCode" />
-        <result column="file_id" property="fileId" />
-        <result column="meterial_code" property="materialCode" />
-        <result column="meterial_name" property="materialName" />
-        <result column="pic_file_id" property="picFileId" />
-        <result column="status" property="status" />
-        <result column="enable_flag" property="enableFlag" />
-        <result column="create_id" property="createId" />
-        <result column="create_name" property="createName" />
-        <result column="create_date" property="createDate" />
-        <result column="update_id" property="updateId" />
-        <result column="update_name" property="updateName" />
-        <result column="update_date" property="updateDate" />
-        <result column="del_flag" property="delFlag" />
-        <result column="company_code" property="companyCode" />
+        <id column="serial_number" property="serialNumber"/>
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="design_no" property="designNo"/>
+        <result column="style_id" property="styleId"/>
+        <result column="brand" property="brand"/>
+        <result column="brand_name" property="brandName"/>
+        <result column="prod_category1st" property="prodCategory1st"/>
+        <result column="prod_category1st_name" property="prodCategory1stName"/>
+        <result column="prod_category" property="prodCategory"/>
+        <result column="prod_category_name" property="prodCategoryName"/>
+        <result column="prod_category2nd" property="prodCategory2nd"/>
+        <result column="prod_category2nd_name" property="prodCategory2ndName"/>
+        <result column="prod_category3rd" property="prodCategory3rd"/>
+        <result column="prod_category3rd_name" property="prodCategory3rdName"/>
+        <result column="silhouette_code" property="silhouetteCode"/>
+        <result column="silhouette_name" property="silhouetteName"/>
+        <result column="template_code" property="templateCode"/>
+        <result column="file_id" property="fileId"/>
+        <result column="meterial_code" property="materialCode"/>
+        <result column="meterial_name" property="materialName"/>
+        <result column="pic_file_id" property="picFileId"/>
+        <result column="status" property="status"/>
+        <result column="enable_flag" property="enableFlag"/>
+        <result column="create_id" property="createId"/>
+        <result column="create_name" property="createName"/>
+        <result column="create_date" property="createDate"/>
+        <result column="update_id" property="updateId"/>
+        <result column="update_name" property="updateName"/>
+        <result column="update_date" property="updateDate"/>
+        <result column="del_flag" property="delFlag"/>
+        <result column="company_code" property="companyCode"/>
     </resultMap>
 
-    <select id="listPages" resultType="com.base.sbc.module.patternlibrary.vo.PatternLibraryVO">
-        select *
-        from t_pattern_library tpl
-        where tpl.del_flag = 0
-          and tpl.enable_flag = 1
-          and exists(
-<!--          select 1 from t_pattern_library_brand tplb where tpl.id = tplb.pattern_library_id and tplb.brand in-->
-<!--                                                                                                           <if test="patternLibraryDTO"></if>-->
+    <sql id="resultData">
+        tpl.serial_number, tpl.id, tpl.code, tpl.design_no, tpl.style_id, tpl.brand, tpl.brand_name,
+        tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,
+        tpl.prod_category2nd,tpl.prod_category2nd_name, tpl.prod_category3rd, tpl.prod_category3rd_name,
+        tpl.silhouette_code,tpl.silhouette_name, tpl.template_code, tpl.file_id, tpl.material_code,
+        tpl.material_name, tpl.pic_file_id, tpl.status, tpl.enable_flag, tpl.create_id, tpl.create_name,
+        tpl.create_date,tpl.update_name, tpl.update_date, tpl.del_flag, tpl.company_code
+    </sql>
 
-<!--                                                                                                                      )-->
+    <select id="listPages" resultType="com.base.sbc.module.patternlibrary.vo.PatternLibraryVO">
+        SELECT
+        tpl.serial_number, tpl.id, tpl.`code`, tpl.design_no, tpl.style_id, tpl.brand, tpl.brand_name,
+        tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,
+        tpl.prod_category2nd,tpl.prod_category2nd_name, tpl.prod_category3rd, tpl.prod_category3rd_name,
+        tpl.silhouette_code,tpl.silhouette_name, tpl.template_code, tpl.file_id, tpl.material_code,
+        tpl.material_name, tpl.pic_file_id, tpl.`status`, tpl.enable_flag, tpl.create_id, tpl.create_name,
+        tpl.create_date,tpl.update_name, tpl.update_date, tpl.del_flag, tpl.company_code
+        FROM t_pattern_library tpl
+        LEFT JOIN t_pattern_library_item tpli ON tpli.pattern_library_id = tpl.id
+        AND tpli.del_flag = '0'
+        AND tpli.enable_flag = 1
+        LEFT JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
+        WHERE
+        tpl.del_flag = '0'
+        AND tpl.enable_flag = 1
+        <if test="patternLibraryDTO.partsCodeList != null and patternLibraryDTO.partsCodeList.size > 0">
+            AND tpli.code IN
+            <foreach collection="patternLibraryDTO.partsCodeList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="patternLibraryDTO.brand != null and patternLibraryDTO.brand.size > 0">
+            AND tplb.brand IN
+            <foreach collection="patternLibraryDTO.brand" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        GROUP BY tpl.id
     </select>
 
 </mapper>

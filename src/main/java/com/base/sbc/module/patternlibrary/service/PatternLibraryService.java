@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
+import com.github.pagehelper.PageInfo;
 
 /**
  * 版型库-主表 服务类
@@ -19,6 +20,6 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @param patternLibraryDTO 查询条件
      * @return 版型库列表分页数据
      */
-    IPage<PatternLibraryVO> listPages(PatternLibraryDTO patternLibraryDTO);
+    PageInfo<PatternLibraryVO> listPages(PatternLibraryDTO patternLibraryDTO);
 
 }

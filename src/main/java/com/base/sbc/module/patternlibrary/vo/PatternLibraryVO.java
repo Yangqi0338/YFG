@@ -1,30 +1,44 @@
 package com.base.sbc.module.patternlibrary.vo;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryItem;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 版型库-主表VO
  *
- * @author xhte
+ * @author XHTE
  * @create 2024-03-22
  */
 @Data
 @ApiModel(value = "PatternLibraryVO对象", description = "版型库-主表VO")
-public class PatternLibraryVO implements Serializable {
+public class PatternLibraryVO extends BaseDataEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /**
+     * 主键
+     */
+    @ApiModelProperty("主键")
+    private String id;
 
     /**
      * 序号
      */
     @ApiModelProperty("序号")
-    @TableId(value = "serial_number", type = IdType.AUTO)
     private Integer serialNumber;
 
     /**
@@ -158,4 +172,43 @@ public class PatternLibraryVO implements Serializable {
      */
     @ApiModelProperty("启用状态（0-停用，1-启用)")
     private Integer enableFlag;
+
+    /**
+     * 创建人
+     */
+    @ApiModelProperty("创建人")
+    private String createName;
+
+    /**
+     * 创建时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @ApiModelProperty("创建时间")
+    private Date createDate;
+
+    /**
+     * 修改人
+     */
+    @ApiModelProperty("修改人")
+    private String updateName;
+
+    /**
+     * 修改时间
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @ApiModelProperty("修改时间")
+    private Date updateDate;
+
+    /**
+     * 部件库-所属版型库
+     */
+    @ApiModelProperty("部件库-所属版型库)")
+    private PatternLibraryTemplate patternLibraryTemplate;
+
+    /**
+     * 部件库-子表数据集合
+     */
+    @ApiModelProperty("部件库-子表数据集合)")
+    private List<PatternLibraryItem> patternLibraryItemList;
+
 }

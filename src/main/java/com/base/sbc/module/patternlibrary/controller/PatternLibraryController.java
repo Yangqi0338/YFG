@@ -19,10 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -43,14 +40,14 @@ public class PatternLibraryController {
     private PatternLibraryService patternLibraryService;
 
     @ApiOperation(value = "版型库列表")
-    @GetMapping("/listPages")
-    public ApiResult<IPage<PatternLibraryVO>> listPages(PatternLibraryDTO patternLibraryDTO) {
-        IPage<PatternLibraryVO> patternLibraryIPage = patternLibraryService.listPages(patternLibraryDTO);
+    @PostMapping("/listPages")
+    public ApiResult<PageInfo<PatternLibraryVO>> listPages(@RequestBody PatternLibraryDTO patternLibraryDTO) {
+        PageInfo<PatternLibraryVO> patternLibraryIPage = patternLibraryService.listPages(patternLibraryDTO);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryIPage);
     }
 
     @ApiOperation(value = "版型库详情")
-    @PostMapping("/getDetail")
+    @GetMapping("/getDetail")
     public ApiResult<PatternLibraryVO> getDetails(String id) {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
     }
