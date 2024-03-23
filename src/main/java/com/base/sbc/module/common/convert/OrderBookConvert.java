@@ -29,7 +29,7 @@ import java.util.Map;
  * @since 2024/1/9
  * @CopyRight @ 广州尚捷科技有限公司
  */
-@Mapper(uses = {BaseConvert.class}, imports = {BaseSpringConvert.class}, componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(uses = {BaseConvert.class}, imports = {BaseSpringConvert.class})
 public interface OrderBookConvert {
     OrderBookConvert INSTANCE = Mappers.getMapper(OrderBookConvert.class);
 
