@@ -2,6 +2,8 @@ package com.base.sbc.module.report.vo;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * 技术中心看板 数据总览统计个数
  */
@@ -42,4 +44,10 @@ public class TechnologyCenterBoardOverviewDataVo {
      * 样衣完成数
      */
     private Integer sampleFinishQuantity;
+
+    /**
+     * 查询开始时间-结束时间
+     */
+    private String[] betweenDate;
+
 }
