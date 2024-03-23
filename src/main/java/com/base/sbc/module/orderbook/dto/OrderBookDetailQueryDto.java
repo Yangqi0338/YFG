@@ -80,6 +80,7 @@ public class OrderBookDetailQueryDto extends Page {
     private String companyCode;
 
     private String imgFlag;
+    private String yearName;
 
 
     @ApiModelProperty(value = "产品季id")

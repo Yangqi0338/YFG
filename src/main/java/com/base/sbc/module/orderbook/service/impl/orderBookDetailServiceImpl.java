@@ -351,6 +351,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCoefficientCode());
         queryWrapper.notEmptyLike("tobl.status", dto.getStatus());
         queryWrapper.notNullEq("tobl.audit_status", dto.getAuditStatus());
+        queryWrapper.likeRight(StrUtil.isNotBlank(dto.getYearName()), "tob.season_name", dto.getYearName());
 
         // queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCost());
         queryWrapper.notEmptyLike("tobl.target_time", dto.getTargetTime());
