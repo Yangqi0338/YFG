@@ -48,7 +48,7 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库详情")
     @GetMapping("/getDetail")
-    public ApiResult<PatternLibraryVO> getDetails(String id) {
+    public ApiResult<PatternLibraryVO> getDetail(String id) {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
     }
 

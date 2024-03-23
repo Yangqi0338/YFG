@@ -51,13 +51,19 @@ public class PatternLibraryItem extends BaseDataEntity<String> implements Serial
      * 结构管理 Key（围度和长度使用）
      */
     @ApiModelProperty("结构管理 Key（围度和长度使用）")
-    private String key;
+    private String structureKey;
 
     /**
      * 结构管理 Value（围度和长度使用）
      */
     @ApiModelProperty("结构管理 Value（围度和长度使用）")
-    private String value;
+    private String structureValue;
+
+    /**
+     * 测量点说明/描述
+     */
+    @ApiModelProperty("测量点说明/描述")
+    private String desc;
 
     /**
      * 类型（1-围度信息 2-长度信息 3-部位尺寸 4-设计部件）
