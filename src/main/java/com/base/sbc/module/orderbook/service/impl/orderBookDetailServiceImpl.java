@@ -826,6 +826,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 // 根据款式获取款号
                 searchBulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>().in(StyleColor::getStyleId, styleIdList), StyleColor::getStyleNo));
             }
+            if (CollUtil.isEmpty(searchBulkStyleNoList)) {
+                return new PageInfo<>();
+            }
         }
         System.out.println("封装查询参数 time:" + (System.currentTimeMillis() - millis));
 
