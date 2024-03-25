@@ -227,8 +227,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                             styleColorId=planningProjectPlankVo.getStyleColorId();
                         }
                         if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(styleColorId) && planningDimensionality.getFieldId().equals(fieldVal.getFieldId())){
-                            if ("4F4111341".equals(planningProjectPlankVo.getBulkStyleNo())) {
-                                if ("色系".equals(planningDimensionality.getDimensionalityName())) {
+                            if ("5F2260721X".equals(planningProjectPlankVo.getHisDesignNo())) {
+                                if ("色相".equals(planningDimensionality.getDimensionalityName())) {
                                     System.out.println(planningDimensionality);
                                 }
                             }
@@ -239,6 +239,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                             break;
                         }
                     }
+                }else {
+                    System.out.println(planningProjectPlankDimension);
                 }
                 if ("1".equals(planningProjectPlankDimension.getDimensionalityGrade())){
                     planningProjectPlankDimension.setDimensionValueName(planningProjectPlankVo.getDimensionCode());
