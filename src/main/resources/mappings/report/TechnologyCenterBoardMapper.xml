@@ -15,4 +15,17 @@
         ${ew.customSqlSegment}
     </select>
 
+    <select id="getCapacityNumber" resultType="com.base.sbc.module.report.vo.TechnologyCenterBoardCapacityNumberVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            count(0)
+        </if>
+        FROM t_pattern_making p
+        INNER JOIN t_style s ON p.style_id = s.id
+        ${ew.customSqlSegment}
+    </select>
+
 </mapper>

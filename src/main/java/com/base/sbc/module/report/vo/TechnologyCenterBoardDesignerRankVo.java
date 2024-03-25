@@ -12,4 +12,9 @@ public class TechnologyCenterBoardDesignerRankVo {
      * 个数
      */
     private Integer count;
+
+    /**
+     * 查询开始时间-结束时间
+     */
+    private String[] betweenDate;
 }

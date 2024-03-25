@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.BetweenFormatter;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
@@ -22,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -72,10 +74,12 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
 
     @Override
     public TechnologyCenterBoardOverviewDataVo getPlateMakeFinishData(TechnologyCenterBoardDto dto) {
-        DateTime date = DateUtil.date();
-        DateTime newDate = DateUtil.offsetDay(date, -6);
-        String[] betweenDate = {DateUtil.format(newDate, "yyyy-MM-dd"),DateUtil.format(date, "yyyy-MM-dd")};
-        dto.setBetweenDate(betweenDate);
+        if(dto.getBetweenDate() == null || dto.getBetweenDate().length == 0) {
+            DateTime date = DateUtil.date();
+            DateTime newDate = DateUtil.offsetDay(date, -6);
+            String[] betweenDate = {DateUtil.format(newDate, "yyyy-MM-dd"),DateUtil.format(date, "yyyy-MM-dd")};
+            dto.setBetweenDate(betweenDate);
+        }
         BaseQueryWrapper qw = new BaseQueryWrapper();
         qw.eq("p.design_send_status", "1");
         qw.ne("p.del_flag", "1");
@@ -107,7 +111,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
         qw2.select("count(0) as sampleFinishQuantity");
         TechnologyCenterBoardOverviewDataVo data2 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw2);
         data.setSampleFinishQuantity(data2.getSampleFinishQuantity());
-        data.setBetweenDate(betweenDate);
+        data.setBetweenDate(dto.getBetweenDate());
         return data;
     }
 
@@ -118,12 +122,37 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
 
     @Override
     public List<TechnologyCenterBoardCapacityNumberVo> getCapacityNumber(TechnologyCenterBoardDto dto) {
+        List<TechnologyCenterBoardCapacityNumberVo> list = new ArrayList<>();
+        String type = dto.getType();
+        //天 最近7天
+        if(dto.getBetweenDate() == null || dto.getBetweenDate().length == 0 && "day".equals(type) ) {
+            DateTime date = DateUtil.date();
+            BaseQueryWrapper qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "date_format(p.create_date,'%Y-%m-%d') as dateFormat ,count(0) as count"));
+            for (int i = 0; i < 6; i++) {
+                DateTime newDate = DateUtil.offsetDay(date, -(i));
+                String format = DateUtil.format(newDate, "yyyy-MM-dd");
+                qw.eq(" date_format(p.create_date,'%Y-%m-%d')",format);
+                TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
+                if (capacityNumber == null) {
+                    capacityNumber = new TechnologyCenterBoardCapacityNumberVo();
+                    capacityNumber.setDateFormat(format);
+                    capacityNumber.setCount(0);
+                    list.add(capacityNumber);
+                }else{
+                    list.add(capacityNumber);
+                }
+            }
+        }
+        //周 最近5周
+        if(dto.getBetweenDate() == null || dto.getBetweenDate().length == 0 && "week".equals(type) ) {
+            DateTime date = DateUtil.date();
+            DateTime newDate = DateUtil.offsetDay(date, -6);
+            String[] betweenDate = {DateUtil.format(newDate, "yyyy-MM-dd"),DateUtil.format(date, "yyyy-MM-dd")};
+            dto.setBetweenDate(betweenDate);
+        }
 
-        BaseQueryWrapper qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as sewingStartQuantity"));
 
-        technologyCenterBoardMapper.getPlateMakeUnderwayData(qw);
-
-        return null;
+        return list;
     }
 
     @Override

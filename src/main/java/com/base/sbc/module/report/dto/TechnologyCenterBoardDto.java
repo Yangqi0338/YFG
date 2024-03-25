@@ -21,6 +21,7 @@ public class TechnologyCenterBoardDto {
      * 季 : season
      * 月 : month
      * 周 : week
+     * 天 : day
      */
     private String type;
 
