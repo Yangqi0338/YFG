@@ -13,7 +13,6 @@
         <result column="structure_value" property="structureValue" />
         <result column="desc" property="desc" />
         <result column="type" property="type" />
-        <result column="enable_flag" property="enableFlag" />
         <result column="create_id" property="createId" />
         <result column="create_name" property="createName" />
         <result column="create_date" property="createDate" />

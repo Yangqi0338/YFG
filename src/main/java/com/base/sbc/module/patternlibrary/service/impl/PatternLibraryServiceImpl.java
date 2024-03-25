@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
@@ -24,6 +25,7 @@ import com.github.pagehelper.PageInfo;
 import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -96,6 +98,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             List<PatternLibraryItem> patternLibraryItemList = patternLibraryItemService.list(
                     new LambdaQueryWrapper<PatternLibraryItem>()
                             .in(PatternLibraryItem::getPatternLibraryId, patterLibraryIdList)
+                            .in(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
             );
             // 子表根据主表 ID 分组转成 map
             Map<String, List<PatternLibraryItem>> patternLibraryItemMap = Collections.emptyMap();
@@ -132,7 +135,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 // 根据模板数据的 ID 集合 查询出模板子表的数据
                 List<PatternLibraryTemplateItem> patternLibraryTemplateItemList = patternLibraryTemplateItemService.list(
                         new LambdaQueryWrapper<PatternLibraryTemplateItem>()
-                                .eq(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplateIdSet)
+                                .in(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplateIdSet)
+                                .in(PatternLibraryTemplateItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
                 );
                 // 按照模板 ID 分组
                 Map<String, List<PatternLibraryTemplateItem>> colpatternLibraryTemplateItemMap = Collections.emptyMap();
@@ -177,18 +181,22 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryBrandService.list(
                 new LambdaQueryWrapper<PatternLibraryBrand>()
                         .eq(PatternLibraryBrand::getPatternLibraryId, patternLibraryId)
+                        .eq(PatternLibraryBrand::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         patternLibraryVO.setPatternLibraryBrandList(patternLibraryBrandList);
         // 查询部件库子表信息
         List<PatternLibraryItem> patternLibraryItemList = patternLibraryItemService.list(
                 new LambdaQueryWrapper<PatternLibraryItem>()
                         .eq(PatternLibraryItem::getPatternLibraryId, patternLibraryId)
+                        .eq(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         patternLibraryVO.setPatternLibraryItemList(patternLibraryItemList);
         // 查询部件库模板信息
         PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateService.getOne(
                 new LambdaQueryWrapper<PatternLibraryTemplate>()
                         .eq(PatternLibraryTemplate::getCode, patternLibrary.getTemplateCode())
+                        .eq(PatternLibraryTemplate::getEnableFlag, 1)
+                        .eq(PatternLibraryTemplate::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         patternLibraryVO.setPatternLibraryTemplate(patternLibraryTemplate);
         // 查询部件库模板子表信息
@@ -196,10 +204,39 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             List<PatternLibraryTemplateItem> patternLibraryTemplateItemList = patternLibraryTemplateItemService.list(
                     new LambdaQueryWrapper<PatternLibraryTemplateItem>()
                             .eq(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplate.getId())
+                            .eq(PatternLibraryTemplateItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
             );
             patternLibraryTemplate.setPatternLibraryTemplateItemList(patternLibraryTemplateItemList);
         }
         return patternLibraryVO;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean removeDetail(String patternLibraryId) {
+        if (ObjectUtil.isEmpty(patternLibraryId)) {
+            throw new OtherException("请选择数据删除！");
+        }
+        // 根据部件库主表 ID 查询部件库主表信息
+        PatternLibrary patternLibrary = getById(patternLibraryId);
+        if (ObjectUtil.isEmpty(patternLibrary)) {
+            throw new OtherException("当前数据不存在，请刷新后重试！");
+        }
+        // 删除部件库主表数据
+        removeById(patternLibraryId);
+        // 删除部件库品类数据
+        patternLibraryBrandService.remove(
+                new LambdaQueryWrapper<PatternLibraryBrand>()
+                        .eq(PatternLibraryBrand::getPatternLibraryId, patternLibraryId)
+                        .eq(PatternLibraryBrand::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+        );
+        // 删除部件库子表数据
+        patternLibraryItemService.remove(
+                new LambdaQueryWrapper<PatternLibraryItem>()
+                        .eq(PatternLibraryItem::getPatternLibraryId, patternLibraryId)
+                        .eq(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+        );
+        return true;
     }
 
 }

@@ -71,9 +71,4 @@ public class PatternLibraryItem extends BaseDataEntity<String> implements Serial
     @ApiModelProperty("类型（1-围度信息 2-长度信息 3-部位尺寸 4-设计部件）")
     private Byte type;
 
-    /**
-     * 启用状态（0-停用，1-启用)
-     */
-    @ApiModelProperty("启用状态（0-停用，1-启用)")
-    private Integer enableFlag;
 }
