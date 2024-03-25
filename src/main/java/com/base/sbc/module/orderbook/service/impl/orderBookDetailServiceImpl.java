@@ -835,10 +835,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         /* ----------------------------查询分页款号数据---------------------------- */
 
-        SaleProductIntoDto saleProductIntoDto = (SaleProductIntoDto) queryDto.clone();
+        SaleProductIntoDto saleProductIntoDto = BeanUtil.copyProperties(queryDto, SaleProductIntoDto.class);
         saleProductIntoDto.setChannelList(channelList);
         saleProductIntoDto.setBulkStyleNoList(searchBulkStyleNoList);
-        saleProductIntoDto.setBulkStyleNo(queryDto.getBulkStyleNo());
 
         PageInfo<OrderBookSimilarStyleVo> result = smpService.querySaleIntoPageTotal(saleProductIntoDto);
         List<OrderBookSimilarStyleVo> dtoList = result.getList();
@@ -864,7 +863,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         /* ----------------------------装饰详细的投产销售---------------------------- */
 
-        SaleProductIntoDto saleProductIntoDetailDto = (SaleProductIntoDto) queryDto.clone();
+        SaleProductIntoDto saleProductIntoDetailDto = BeanUtil.copyProperties(queryDto, SaleProductIntoDto.class);
         saleProductIntoDto.setChannelList(channelList);
         saleProductIntoDetailDto.setBulkStyleNoList(bulkStyleNoList);
 

@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Data
 @ApiModel("分页组件")
-public class Page implements Serializable, Cloneable {
+public class Page implements Serializable {
     private static final long serialVersionUID = 1L;
     public static final int PAGE_NUM = 1;
     public static final int PAGE_SIZE = 10;
@@ -82,16 +82,5 @@ public class Page implements Serializable, Cloneable {
 
     public <E> com.github.pagehelper.Page<E> startPage(){
         return PageHelper.startPage(this.getPageNum(), this.getPageSize());
-    }
-
-    @Override
-    public Page clone() {
-        Page page = new Page();
-        page.setPageNum(this.getPageNum());
-        page.setPageSize(this.getPageSize());
-        page.setOrderBy(this.getOrderBy());
-        page.setSearch(this.getSearch());
-        page.setStatus(this.getStatus());
-        return page;
     }
 }
