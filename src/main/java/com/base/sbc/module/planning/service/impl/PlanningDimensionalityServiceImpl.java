@@ -297,7 +297,23 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         if(CollUtil.isEmpty(dimensionalityList)){
             return list;
         }
-        LinkedHashMap<String, List<PlanningDimensionalityVo>> map = dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
+
+        Map<String,Integer> sortMap = new HashMap<>();
+        for (PlanningDimensionalityVo planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() != null) {
+                sortMap.put(planningDimensionalityVo.getGroupName(),planningDimensionalityVo.getGroupSort());
+            }
+        }
+        for (PlanningDimensionalityVo planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() == null) {
+                Integer sort = sortMap.get(planningDimensionalityVo.getGroupName());
+                if (sort != null) {
+                    planningDimensionalityVo.setGroupSort(sortMap.get(planningDimensionalityVo.getGroupName()));
+                }
+            }
+        }
+
+        LinkedHashMap<String, List<PlanningDimensionalityVo>> map = dimensionalityList.stream().sorted(Comparator.comparing(PlanningDimensionalityVo::getGroupSort)).collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
         for (String s :map.keySet()){
             PlanningDimensionalityVo planningDimensionalityVo = new PlanningDimensionalityVo();
             planningDimensionalityVo.setList(map.get(s));
