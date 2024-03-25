@@ -66,6 +66,8 @@ import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
@@ -163,6 +165,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Lazy
     private PlanningProjectPlankService planningProjectPlankService;
 
+
     @Autowired
     private StylePicUtils stylePicUtils;
 
@@ -206,6 +209,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private  PlanningSeasonService planningSeasonService;
+    @Resource
+    @Lazy
+    private OrderBookDetailService orderBookDetailService;
     @Autowired
     private BasicsdatumModelTypeService basicsdatumModelTypeService;
 
@@ -1159,6 +1165,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
           /*  if (!updateStyleNoBandDto.getStyleNo().substring(0, 1).equals(sampleStyleColor.getStyleNo().substring(0, 1))) {
                 throw new OtherException("无法修改大货款号前1位");
             }*/
+            if ("1".equals(sampleStyleColor.getScmSendFlag())){
+                throw new OtherException("大货款号已下发,无法修改");
+            }
             QueryWrapper queryWrapper = new QueryWrapper();
             queryWrapper.eq("style_no", updateStyleNo);
             StyleColor styleColor = baseMapper.selectOne(queryWrapper);
@@ -1428,7 +1437,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         } else {
             updateWrapper.set("order_date", null);
-        }
+            }
 
         updateWrapper.set("order_flag", publicStyleColorDto.getOrderFlag());
         updateWrapper.in("id", ids);
@@ -1442,10 +1451,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             StyleColor styleColor = new StyleColor();
             styleColor.setId(id);
             styleColor.setTagPrice(tagPrice);
-            styleColor.updateInit();
-            super.updateById(styleColor);
+            boolean b = super.updateById(styleColor);
             /*重新下发配色*/
-            dataUpdateScmService.updateStyleColorSendById(id);
+            if (b){
+                dataUpdateScmService.updateStyleColorSendById(id);
+            }
         }
     }
 
@@ -1604,7 +1614,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         return true;
     }
-
     /**
      * 款式列表导出
      *
@@ -1788,10 +1797,16 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).collect(Collectors.toList());
 //        BaseQueryWrapper<StyleColor> styleColorBaseQueryWrapper = new BaseQueryWrapper<>();
 
-
-//        List<StyleColor> list1 = styleColorService.list(styleColorBaseQueryWrapper);
-//        List<String> styleColorIds1 = list1.stream().map(StyleColor::getId).collect(Collectors.toList());
-//        styleColorIds1.addAll(styleColorIds);
+        //查询已下单的配色id
+        QueryWrapper<OrderBookDetail> queryWrapper2 =new QueryWrapper<>();
+        if (styleColorIds.isEmpty()){
+            return new PageInfo<>(new ArrayList<>());
+        }
+        queryWrapper2.in("style_color_id",styleColorIds);
+        queryWrapper2.select("style_color_id");
+        List<OrderBookDetail> list1 = orderBookDetailService.list(queryWrapper2);
+        List<String> list2 = list1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(list2)) return new PageInfo<>();
 
         BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
         styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());

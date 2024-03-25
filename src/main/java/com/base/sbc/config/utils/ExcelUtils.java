@@ -116,7 +116,7 @@ public class ExcelUtils {
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
-    public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode)  throws IOException {
+    public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode,String imgFlag,Integer maxNumber,String... columns)  throws IOException {
         Assert.notBlank(tableCode,"tableCode不能为空");
         ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
         List<ColumnDefine> detail = columnUserDefineService.findDefaultDetail(tableCode);
@@ -151,7 +151,8 @@ public class ExcelUtils {
             }
         }
 
-        defaultExport(list,fileName,response,exportParams,newExcelParams);
+        // defaultExport(list,fileName,response,exportParams,newExcelParams);
+        executorExportExcel1(list,fileName,imgFlag,maxNumber,response,exportParams,newExcelParams,columns);
     }
 
     public static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
@@ -361,6 +362,7 @@ public class ExcelUtils {
                     executor.submit(() -> {
                         try {
                             for (String column : columns) {
+                                // column =  com.base.sbc.config.utils.StringUtils.toCamelCase(column);
                                 final String stylePic = BeanUtil.getProperty(o, column);
                                 BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
                             }
@@ -377,6 +379,49 @@ public class ExcelUtils {
             }
             ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
 
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    public static void executorExportExcel1(List<?> list, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, ExportParams exportParams, List<ExcelExportEntity> newExcelParams, String... columns){
+        long t1 = System.currentTimeMillis();
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .build();
+        try {
+            if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > maxNumber) {
+                    throw new OtherException("带图片导出最多只能导出" + maxNumber + "条");
+                }
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+
+                for (Object o  : list) {
+                    executor.submit(() -> {
+                        try {
+                            for (String column : columns) {
+                                // column =  com.base.sbc.config.utils.StringUtils.toCamelCase(column);
+                                final String stylePic = BeanUtil.getProperty(o, column);
+                                BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
+                            }
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            logger.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            // ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
+            defaultExport(list,name+".xlsx",response,exportParams,newExcelParams);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
         } finally {
@@ -430,6 +475,7 @@ public class ExcelUtils {
     private static ExcelExportEntity createExcelExportEntity(Field field, String targetId, Class<?> pojoClass, List<Method> getMethods, ExcelEntity excelGroup) {
         Excel excel = field.getAnnotation(Excel.class);
         ExcelExportEntity excelEntity = new ExcelExportEntity();
+        excelEntity.setType(excel.type());
         excelEntity.setKey(field.getName());
         excelEntity.setName(PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null));
         excelEntity.setWidth(excel.width());
