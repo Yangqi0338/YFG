@@ -2,6 +2,7 @@ package com.base.sbc.client.ccm.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
@@ -48,10 +49,12 @@ public class CcmFeignService {
             int pageNum = pageInfo.getPageNum();
             int pageSize = pageInfo.getPageSize();
             int maxSize = baseDictList.size();
-            int formPage = Math.max(pageNum - 1, 0);
-            int fromIndex = formPage * pageSize;
-            int toIndex = Math.min((formPage + 1) * pageSize, maxSize);
-            pageInfo.setList(baseDictList.subList(fromIndex, toIndex));
+            if (CollectionUtil.isNotEmpty(baseDictList)) {
+                int formPage = Math.max(pageNum - 1, 0);
+                int fromIndex = Math.min(formPage * pageSize, maxSize-1);
+                int toIndex = Math.min((formPage + 1) * pageSize, maxSize);
+                pageInfo.setList(baseDictList.subList(fromIndex, toIndex));
+            }
             pageInfo.setTotal(maxSize);
             pageLocal.remove();
             return pageInfo;

@@ -70,10 +70,10 @@ public class BasicsdatumSize extends BaseDataEntity<String> {
     @ApiModelProperty(value = "Dimension Type"  )
     private String dimensionType;
     /** 翻译名称 */
-    @ApiModelProperty(value = "翻译名称"  )
+    @ApiModelProperty(value = "欧码[EUR]"  )
     private String translateName;
     /** 欧码 */
-    @ApiModelProperty(value = "欧码"  )
+    @ApiModelProperty(value = "外部尺码"  )
     private String europeanSize;
     /** US标签 */
     @ApiModelProperty(value = "US标签"  )

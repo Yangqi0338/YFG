@@ -68,10 +68,10 @@ public class BasicsdatumSizeExcelDto {
     @Excel(name = "Dimension Type")
     private String dimensionType;
 
-    @Excel(name = "翻译名称")
+    @Excel(name = "欧码[EUR]")
     private String translateName;
 
-    @Excel(name = "欧码")
+    @Excel(name = "外部尺码")
     private String europeanSize;
 
     /*号型类型*/

@@ -44,6 +44,12 @@ public class TagPrintingSupportVO extends TagPrinting {
 
     @Override
     @JsonIgnore
+    public Boolean getTranslateApproved() {
+        return super.getTranslateApproved();
+    }
+
+    @Override
+    @JsonIgnore
     public Boolean getTechApproved() {
         return super.getTechApproved();
     }
@@ -101,9 +107,9 @@ public class TagPrintingSupportVO extends TagPrinting {
             MapUtil.entry("DP02", new CodeMapping<>("SaftyTitle-安全技术类别")),
             MapUtil.entry("DP03", new CodeMapping<>("OPStandardTitle-执行标准")),
             MapUtil.entry("DP04", new CodeMapping<>("StyleTitle-款号")),
-            MapUtil.entry("DP05", new CodeMapping<>("ProductTitle-品名")),
-            MapUtil.entry("DP06", new CodeMapping<>("SizeTitle-尺码", Size::getSystemSizeName, Size::setEuropeCode).setListFunc(MoreLanguageTagPrinting::getSize)),
-            MapUtil.entry("DP07", new CodeMapping<>("colorTitle-颜色", MoreLanguageTagPrinting::getColorCode, MoreLanguageTagPrinting::setColorDescription)),
+            MapUtil.entry("DP05", new CodeMapping<>("ProductTitle-品名", MoreLanguageTagPrinting::getProductName, MoreLanguageTagPrinting::setProductName)),
+            MapUtil.entry("DP06", new CodeMapping<>("SizeTitle-尺码", Size::getSystemSizeName, Size::setSIZENAME).setListFunc(MoreLanguageTagPrinting::getSize)),
+            MapUtil.entry("DP07", new CodeMapping<>("colorTitle-颜色", MoreLanguageTagPrinting::getColorDescription, MoreLanguageTagPrinting::setColorDescription)),
             MapUtil.entry("DP09", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
             MapUtil.entry("DP10", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
             MapUtil.entry("DP11", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
@@ -118,8 +124,8 @@ public class TagPrintingSupportVO extends TagPrinting {
             MapUtil.entry("XM10", new CodeMapping<>("CompositionTitle-成分信息")),
             MapUtil.entry("XM06", new CodeMapping<>("CareSymbolTitle-洗标")),
             MapUtil.entry("XM07", new CodeMapping<>("C8_APPBOM_StorageTitle-贮藏要求", MoreLanguageTagPrinting::getC8_APPBOM_StorageReq, MoreLanguageTagPrinting::setC8_APPBOM_StorageReq)),
-            MapUtil.entry("XM08", new CodeMapping<>("SizeTitle-尺码", Size::getSystemSizeName, Size::setEuropeCode).setListFunc(MoreLanguageTagPrinting::getSize)),
-            MapUtil.entry("XM09", new CodeMapping<>("colorTitle-颜色", MoreLanguageTagPrinting::getColorCode, MoreLanguageTagPrinting::setColorDescription))
+            MapUtil.entry("XM08", new CodeMapping<>("SizeTitle-尺码", Size::getSystemSizeName, Size::setSIZENAME).setListFunc(MoreLanguageTagPrinting::getSize)),
+            MapUtil.entry("XM09", new CodeMapping<>("colorTitle-颜色", MoreLanguageTagPrinting::getColorDescription, MoreLanguageTagPrinting::setColorDescription))
     );
 
     @JsonIgnore

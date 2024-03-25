@@ -1,6 +1,6 @@
 spring:
   application:
-    name: pdm1
+    name: pdm2
   cloud:
     nacos:
       config:
@@ -9,9 +9,13 @@ spring:
         #        server-addr: 47.97.254.249:8848   # 配置中心地址 笛莎
         namespace: test
         file-extension: yml # 假如不配置，则nacos远程配置文件的后缀为.properties
-        extension-configs[1]:
-          data-id: custom-pdm.yml
-          refresh: true
+        ext-config:
+          - data-id: common-pdm.yml
+            refresh: true
+          - data-id: dbSync-pdm.yml
+            refresh: true
+          - data-id: mysql-pdm.yml
+            refresh: true
 # 暂不打印
 #logging:
 #  level:

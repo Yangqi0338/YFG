@@ -48,6 +48,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.entity.UploadFile;
 import com.base.sbc.module.common.eumns.UreportDownEnum;
 import com.base.sbc.module.common.service.AttachmentService;
@@ -812,6 +813,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), dto.getPackType());
             packInfoStatus.setTechSpecFileId(attachmentVo.getFileId());
             packInfoStatusService.updateById(packInfoStatus);
+            // 插入日志
+            attachmentService.saveOperaLog("生成工艺说明PDF",packInfoStatus.getPackType() + StrUtil.DASHED + "工艺说明PDF",
+                    packInfoStatus.getForeignId(), null,null, BeanUtil.copyProperties(attachmentVo, Attachment.class), null);
             return attachmentVo;
         } catch (Exception e) {
             e.printStackTrace();

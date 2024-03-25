@@ -9,6 +9,8 @@ import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext.MoreLa
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.base.sbc.config.constant.Constants.COMMA;
+
 /**
  * {@code 描述：多语言获取子数据的策略}
  *
@@ -38,9 +40,9 @@ public abstract class MoreLanguageTableTitleHandler {
             String handler = tableTitle.getHandler();
             if (StrUtil.isNotBlank(handler)) {
                 MoreLanguageTableTitleHandlerEnum handlerEnum = MoreLanguageTableTitleHandlerEnum.findHandler(handler, this.getClass());
-                List<String> handlerKeyList = CollUtil.toList(handler.split(","));
+                List<String> handlerKeyList = CollUtil.toList(handler.split(COMMA));
                 handlerKeyList.remove(handlerEnum.getHandlerKey());
-                tableTitle.setHandler(String.join(",",handlerKeyList));
+                tableTitle.setHandler(String.join(COMMA,handlerKeyList));
             }
         }
         if (this.next == null) return this;

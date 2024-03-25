@@ -15,6 +15,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackPricingService;
@@ -208,10 +209,10 @@ public class StylePricingController extends BaseController {
         List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
         List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*迁移数据不能操作*/
-        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
-        if(count > 0){
-            throw new OtherException("历史数据不能操作");
-        }
+//        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
+//        if(count > 0){
+//            throw new OtherException("历史数据不能操作");
+//        }
 
         stylePricingService.updateBatchById(stylePricings);
         /*计控确认成本消息通知*/
@@ -220,20 +221,20 @@ public class StylePricingController extends BaseController {
                 messageUtils.stylePricingSendMessage("M商品企划", packInfo.getDesignNo(), packInfo.getPlanningSeasonId(), "1", baseController.getUser());
             }
         }
-        //是否计控确认
-        int type =0;
+        //是否计控确认, 默认为吊牌反审
+        HangTagDeliverySCMStatusEnum type = HangTagDeliverySCMStatusEnum.TAG_LIST_CANCEL;
         if(StrUtil.equals(dto.getControlConfirm(),BaseGlobal.YES)){
-            type = 4;
+            type = HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM;
         }
 
         //是否计控吊牌确认
         if(StrUtil.equals(dto.getControlHangtagConfirm(),BaseGlobal.YES)){
-            type = 5;
+            type = HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM;
         }
 
         //是否商品吊牌确认
         if(StrUtil.equals(dto.getProductHangtagConfirm(),BaseGlobal.YES)){
-            type = 6;
+            type = HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM;
         }
         smpService.tagConfirmDates(list,type,1);
 

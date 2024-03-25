@@ -202,6 +202,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     public PageInfo<PreProductionSampleTaskVo> taskList(PreProductionSampleTaskSearchDto dto) {
         BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
         qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
@@ -210,6 +211,20 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         qw.notEmptyIn("s.season", dto.getSeason());
         qw.notEmptyIn("s.month", dto.getMonth());
          qw.notEmptyEq("s.prod_category", dto.getProdCategory());
+        qw.notEmptyLike("t.stitcher",dto.getStitcher());
+        //cfjxzsj
+        if (StrUtil.isNotBlank(dto.getCfkssj()) && dto.getCfkssj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfkssj()),
+                    "select 1 from t_node_status where t.id=data_id and node ='产前样衣任务' and status='车缝进行中' and start_date >={0} and {1} >= start_date"
+                    , dto.getCfkssj().split(",")[0], dto.getCfkssj().split(",")[1]);
+        }
+
+        //cfwcsj
+        if (StrUtil.isNotBlank(dto.getCfwcsj()) && dto.getCfwcsj().split(",").length > 1) {
+            qw.exists(StrUtil.isNotBlank(dto.getCfwcsj()),
+                    "select 1 from t_node_status where t.id=data_id and node ='产前样衣任务' and status='车缝完成' and start_date >={0} and {1} >= start_date"
+                    , dto.getCfwcsj().split(",")[0], dto.getCfwcsj().split(",")[1]);
+        }
         Page<PreProductionSampleTaskVo> objects = PageHelper.startPage(dto);
         if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
@@ -226,6 +241,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             if(objects.toPageInfo().getList().size() >2000){
                 throw new OtherException("带图片最多只能导出2000条");
             }
+            return objects.toPageInfo();
+        }
+        if (isColumnHeard) {
             return objects.toPageInfo();
         }
         // 设置图
@@ -449,6 +467,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus1.setNode("产前样衣任务");
             nodeStatus1.setStatus("裁剪开始");
             nodeStatus1.setStartFlg("1");
+            nodeStatus1.setEndDate(dto.getCutterStartTime());
             nodeStatus1.setStartDate(dto.getCutterStartTime());
             nodeStatusService.saveOrUpdate(nodeStatus1, queryWrapper1);
         }else {
@@ -466,7 +485,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus2.setNode("产前样衣任务");
             nodeStatus2.setStatus("裁剪完成");
             nodeStatus2.setEndFlg("1");
+
             nodeStatus2.setStartDate(dto.getCutterEndTime());
+            nodeStatus2.setEndDate(dto.getCutterStartTime());
             nodeStatusService.saveOrUpdate(nodeStatus2, queryWrapper2);
         }else {
             nodeStatusService.remove(queryWrapper2);
@@ -482,6 +503,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
            nodeStatus3.setNode("产前样衣任务");
            nodeStatus3.setStatus("车缝进行中");
            nodeStatus3.setStartFlg("1");
+           nodeStatus3.setEndDate(dto.getCutterStartTime());
            nodeStatus3.setStartDate(dto.getStitchStartTime());
            nodeStatusService.saveOrUpdate(nodeStatus3, queryWrapper3);
        }else {
@@ -498,6 +520,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             nodeStatus4.setNode("产前样衣任务");
             nodeStatus4.setStatus("车缝完成");
             nodeStatus4.setEndFlg("1");
+            nodeStatus4.setEndDate(dto.getCutterStartTime());
             nodeStatus4.setStartDate(dto.getStitchEndTime());
             nodeStatusService.saveOrUpdate(nodeStatus4, queryWrapper4);
         }else {
@@ -570,6 +593,38 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         return update(updateBean, uw);
     }
 
+    @Override
+    public boolean sampleQualityScore(Principal user, String id, BigDecimal score) {
+        PreProductionSampleTask bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        GroupUser groupUser = userUtils.getUserBy(user);
+//        //校验是否是样衣组长
+//        boolean sampleTeamLeader = amcFeignService.isSampleTeamLeader(bean.getPatternRoomId(), groupUser.getId());
+//        if(!sampleTeamLeader){
+//            throw new OtherException("您不是"+bean.getPatternRoom()+"的样衣组长");
+//        }
+        PreProductionSampleTask updateBean = new PreProductionSampleTask();
+        updateBean.setSampleQualityScore(score);
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PreProductionSampleTask::getId, id);
+        return update(updateBean, uw);
+    }
+
+    @Override
+    public boolean techRemarks(Principal user, String id, String remark) {
+        PreProductionSampleTask bean = getById(id);
+        if (bean == null) {
+            throw new OtherException("打版信息为空");
+        }
+        PreProductionSampleTask updateBean = new PreProductionSampleTask();
+        updateBean.setTechRemarks(remark);
+        UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PreProductionSampleTask::getId, id);
+        return update(updateBean, uw);
+    }
+
     /**
      * @param dto
      * @return
@@ -591,6 +646,18 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         updateWrapper.set(PreProductionSampleTask::getUpdateDate, new Date());
         updateWrapper.eq(PreProductionSampleTask::getId, task.getId());
         update(updateWrapper);
+    }
+
+    @Override
+    public List<String> stitcherList(PreProductionSampleTaskSearchDto dto) {
+        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        if (YesOrNoEnum.NO.getValueStr().equals(dto.getFinishFlag())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_task.getK(), "s.");
+        } else {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
+        }
+
+        return getBaseMapper().stitcherList(qw);
     }
 
 // 自定义方法区 不替换的区域【other_end】

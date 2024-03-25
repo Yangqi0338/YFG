@@ -1,8 +1,12 @@
 package com.base.sbc.module.orderbook.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 public class OrderBookDetailQueryDto extends Page {
@@ -48,6 +52,14 @@ public class OrderBookDetailQueryDto extends Page {
     private String bulkStyleNo;
     @ApiModelProperty(value = "品类")
     private String categoryCode;
+    /**
+     * 大类
+     */
+    @ApiModelProperty(value = "大类")
+    private String category1stCode;
+    /** 中类 */
+    @ApiModelProperty(value = "中类"  )
+    private String category2ndCode;
 
     private String designerName;
 
@@ -65,6 +77,7 @@ public class OrderBookDetailQueryDto extends Page {
      * 状态
      */
     private String status;
+    private OrderBookDetailAuditStatusEnum auditStatus;
 
     private String isOrder;
 
@@ -76,6 +89,7 @@ public class OrderBookDetailQueryDto extends Page {
     private String companyCode;
 
     private String imgFlag;
+    private String yearName;
 
 
     @ApiModelProperty(value = "产品季id")
@@ -129,4 +143,6 @@ public class OrderBookDetailQueryDto extends Page {
     private String braiding;
     private String dimensionInfo;
     private String gramWeight;
+
+    private List<OrderBookChannelType> channel;
 }

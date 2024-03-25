@@ -1,7 +1,6 @@
 package com.base.sbc.module.sample.vo;
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.base.sbc.config.common.annotation.UserAvatar;
 import com.base.sbc.module.patternmaking.vo.NodeStatusVo;
 import com.base.sbc.module.sample.entity.PreProductionSampleTask;
@@ -119,5 +118,10 @@ public class PreProductionSampleTaskVo extends PreProductionSampleTask {
     public String getStyle() {
         return Optional.ofNullable(designNo).orElse("") + Optional.ofNullable(styleName).orElse("");
     }
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 
 }

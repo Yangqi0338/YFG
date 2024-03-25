@@ -60,6 +60,12 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	String selectMaxMaterialCode(@Param(Constants.WRAPPER) QueryWrapper qc);
 
     List<BasicsdatumMaterialPageVo> listSku(@Param(Constants.WRAPPER) BaseQueryWrapper<BasicsdatumMaterial> qw);
+
+	/**
+	 * 物料被bom使用清单
+	 * @return
+	 */
+	List<BasicsdatumMaterialPageAndStyleVo> getBasicsdatumMaterialAndStyleList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 // 自定义方法区 不替换的区域【other_end】
 }
 

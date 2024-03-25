@@ -143,6 +143,12 @@ public class Style extends BaseDataEntity<String> {
     /** 款式类型 */
     @ApiModelProperty(value = "款式类型"  )
     private String styleType;
+    /** 款式性别类型 */
+    @ApiModelProperty(value = "产品季性别类型"  )
+    private String genderType;
+    /** 款式性别名称 */
+    @ApiModelProperty(value = "产品季性别名称"  )
+    private String genderName;
     /** 款式类型名称 */
     @ApiModelProperty(value = "款式类型名称")
     private String styleTypeName;

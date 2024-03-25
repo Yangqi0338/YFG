@@ -322,12 +322,26 @@ public class SampleBoardVo extends Style {
     @ApiModelProperty(value = "当前节点")
     private String node;
 
-    @ApiModelProperty(value = "当前状态")
+    @ApiModelProperty(value = "状态")
     private String  pmStatus;
 
+
+    @ApiModelProperty(value = "当前状态")
+    private String pStatus;
+
     private String patternDesignerName;
+
+    /**
+     * 是否参考样衣
+     */
+    private String referSample;
 
     public String getId() {
         return patternMakingId;
     }
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

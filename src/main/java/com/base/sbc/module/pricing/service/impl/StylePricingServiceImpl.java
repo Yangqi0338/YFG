@@ -379,13 +379,13 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     //region 2023-12-06 款式定价3个按钮反审核下发到scm
                     if (null != stylePricingSaveDTO.getControlConfirm() && "0".equals(stylePricingSaveDTO.getControlConfirm())) {
                         //是否计控确认
-                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM.getCode(), 0);
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_COST_CONFIRM, 0);
                     } else if (null != stylePricingSaveDTO.getProductHangtagConfirm() && "0".equals(stylePricingSaveDTO.getProductHangtagConfirm())) {
                         //是否商品吊牌确认
-                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM.getCode(), 0);
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM, 0);
                     } else if (null != stylePricingSaveDTO.getControlHangtagConfirm() && "0".equals(stylePricingSaveDTO.getControlHangtagConfirm())) {
                         //是否计控吊牌确认
-                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM.getCode(), 0);
+                        smpService.tagConfirmDates(Collections.singletonList(stylePricingSaveDTO.getId()), HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM, 0);
                     }
                     //endregion
 

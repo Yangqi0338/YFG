@@ -6,9 +6,14 @@
 *****************************************************************************/
 package com.base.sbc.module.style.controller;
 
+import cn.afterturn.easypoi.excel.ExcelImportUtil;
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.hutool.core.collection.CollectionUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -17,6 +22,7 @@ import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.module.style.vo.StyleColorAgentVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
 import com.github.pagehelper.PageInfo;
@@ -27,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -193,8 +200,8 @@ public class StyleColorController {
 
 	@ApiOperation(value = "配色增加复制功能")
 	@PostMapping("/copyStyleColor")
-	public Boolean copyStyleColor(@Valid @RequestBody IdDto idDto) {
-		return styleColorService.copyStyleColor(idDto);
+	public Boolean copyStyleColor(@Valid @RequestBody IdDto idDto, Principal user) {
+		return styleColorService.copyStyleColor(idDto, user);
 	}
 
 	@ApiOperation(value = "/款式列表导出")
@@ -243,6 +250,121 @@ public class StyleColorController {
 	@GetMapping("/markingCheckPage")
 	public PageInfo<StyleMarkingCheckVo> markingCheckPage(QueryStyleColorDto dto) throws Exception {
 		return styleColorService.markingCheckPage(dto);
+	}
+
+	@ApiOperation(value = "保存配色逾期原因")
+	@PostMapping("/saveOverdueReason")
+	public ApiResult saveCorrectBarCode(@Valid @RequestBody StyleColorOverdueReasonDto styleColorOverdueReasonDto) {
+		styleColorService.updateStyleColorOverdueReason(styleColorOverdueReasonDto);
+		return ApiResult.success();
+	}
+	@ApiOperation(value = "mango导出Excel模板")
+	@GetMapping("/mangoExportExcel")
+	public void exportExcel(HttpServletResponse response) throws Exception {
+		MangoStyleColorExeclDto mangoStyleColorExeclDto = new MangoStyleColorExeclDto();
+		mangoStyleColorExeclDto.setYear("2099");
+		mangoStyleColorExeclDto.setSeason("S");
+		mangoStyleColorExeclDto.setBrandName("MANGO");
+		mangoStyleColorExeclDto.setProdCategoryName("裤子1");
+		mangoStyleColorExeclDto.setStyleColorNo("大货款号");
+		mangoStyleColorExeclDto.setOutsideColorCode("9");
+		mangoStyleColorExeclDto.setOutsideSizeCode("34");
+		mangoStyleColorExeclDto.setOutsideBarcode("8447034227768");
+		mangoStyleColorExeclDto.setGender("男士/女士");
+		mangoStyleColorExeclDto.setPackagingForm("叠装/挂装");
+		mangoStyleColorExeclDto.setStyleTypeName("服装/配色");
+		mangoStyleColorExeclDto.setProdCategory1stName("下装");
+		mangoStyleColorExeclDto.setProdCategory2ndName("牛仔裤");
+		mangoStyleColorExeclDto.setSizeRangeName("男裤");
+		mangoStyleColorExeclDto.setTagPrice("299");
+		mangoStyleColorExeclDto.setPlanCostPrice("199");
+		ExcelUtils.exportExcel(CollectionUtil.newArrayList(mangoStyleColorExeclDto), MangoStyleColorExeclDto.class, "代理货品资料模板.xlsx", new ExportParams(), response);
+	}
+
+	@ApiOperation(value = "代理货品资料-分页查询")
+	@GetMapping("/agentPageList")
+	public PageInfo<StyleColorAgentVo> agentPageList(QueryStyleColorAgentDto querySampleStyleColorDto) {
+		return styleColorService.agentPageList(querySampleStyleColorDto);
+	}
+
+	@ApiOperation(value = "代理货品资料-查询需要更新的图片")
+	@GetMapping("/agentStyleNoList")
+	public List<String> agentPageList() {
+		return styleColorService.agentStyleNoList();
+	}
+
+	@ApiOperation(value = "mango导入Excel")
+	@PostMapping("/mangoImportExcel")
+	public ApiResult importExcel(@RequestParam("file") MultipartFile file,@RequestParam(value = "isUpdate", required = false, defaultValue = "false") Boolean isUpdate) throws Exception {
+		List<MangoStyleColorExeclDto> list = ExcelImportUtil.importExcel(file.getInputStream(), MangoStyleColorExeclDto.class, new ImportParams());
+		return styleColorService.mangoExeclImport(list,isUpdate);
+	}
+
+	@ApiOperation(value = "mango数据导出Excel")
+	@GetMapping("/exportAgentExcel")
+	public void exportAgentExcel(HttpServletResponse response,QueryStyleColorAgentDto querySampleStyleColorDto) throws Exception {
+		styleColorService.exportAgentExcel(response,querySampleStyleColorDto);
+	}
+
+	@ApiOperation(value = "代理货品资料-删除")
+	@GetMapping("/agentDelete")
+	public ApiResult agentDelete(String id) {
+		styleColorService.agentDelete(id);
+		return ApiResult.success("操作成功");
+	}
+
+	@ApiOperation(value = "代理货品资料-解锁")
+	@GetMapping("/agentUnlock")
+	public ApiResult agentUnlock(String[] ids) {
+		styleColorService.agentUnlock(ids);
+		return ApiResult.success("操作成功");
+	}
+
+	@ApiOperation(value = "代理货品资料-停用")
+	@GetMapping("/agentStop")
+	public ApiResult agentStop(String id) {
+		styleColorService.agentStop(id);
+		return ApiResult.success("操作成功");
+	}
+
+	@ApiOperation(value = "代理货品资料-启用")
+	@GetMapping("/agentEnable")
+	public ApiResult agentEnable(String id) {
+		styleColorService.agentEnable(id);
+		return ApiResult.success("操作成功");
+	}
+
+	@ApiOperation(value = "代理货品资料-卡控")
+	@GetMapping("/agentControl")
+	public ApiResult agentControl(String id) {
+		styleColorService.agentControl(id);
+		return ApiResult.success("操作成功");
+	}
+
+	@ApiOperation(value = "代理货品资料-解控")
+	@GetMapping("/agentUnControl")
+	public ApiResult agentUnControl(String id) {
+		styleColorService.agentUnControl(id);
+		return ApiResult.success("操作成功");
+	}
+
+	@ApiOperation(value = "代理货品资料-编辑")
+	@PostMapping("/agentUpdate")
+	public ApiResult agentUpdate(@RequestBody StyleColorAgentVo styleColorAgentVo) {
+		styleColorService.agentUpdate(styleColorAgentVo);
+		return ApiResult.success("操作成功");
+	}
+
+	@ApiOperation(value = "代理货品资料-同步")
+	@GetMapping("/agentSync")
+	public ApiResult agentSync(String[] ids) {
+		return styleColorService.agentSync(ids);
+	}
+
+	@ApiOperation(value = "mango导入Excel")
+	@PostMapping("/uploadStyleColorPics")
+	public ApiResult uploadStyleColorPics(Principal user, @RequestParam("files") MultipartFile[] files) {
+		return styleColorService.uploadStyleColorPics(user,files);
 	}
 
 }

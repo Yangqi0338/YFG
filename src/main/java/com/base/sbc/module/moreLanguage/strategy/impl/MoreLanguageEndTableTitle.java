@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 public class MoreLanguageEndTableTitle extends MoreLanguageTableTitleHandler {
     @Override
     public boolean needHandler(MoreLanguageTableTitle tableTitle) {
+        // 仅作为结束节点
         return false;
     }
 }

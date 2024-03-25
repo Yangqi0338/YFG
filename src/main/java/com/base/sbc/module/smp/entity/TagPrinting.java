@@ -166,6 +166,11 @@ public class TagPrinting {
     private Boolean Approved;
 
     /**
+     * 翻译确认
+     */
+    private Boolean TranslateApproved;
+
+    /**
      * 温馨提示
      */
     private String Attention;
@@ -226,6 +231,11 @@ public class TagPrinting {
     private List<Size> size;
 
     /**
+     * 物料名称（多个使用,分割）
+     */
+    private String materialCodeNames;
+
+    /**
      * 尺码明细类
      */
     @Data
@@ -274,6 +284,11 @@ public class TagPrinting {
          * 特殊规格
          */
         private String SpecialSpec;
+
+        /**
+         * 合作方条形码
+         */
+        private String outsideBarcode;
 
         @JsonIgnore
         public String getSystemSizeName(){

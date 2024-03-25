@@ -11,7 +11,10 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
@@ -22,6 +25,8 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
@@ -32,14 +37,20 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.StringUtils.MatchStrType;
+import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibraryAgent;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryAgentService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.entity.ColumnUserDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
@@ -53,6 +64,7 @@ import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
@@ -79,24 +91,27 @@ import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
+import com.base.sbc.module.pricing.service.StylePricingService;
+import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PdmStyleCheckParam;
+import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.entity.StyleColorAgent;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
+import com.base.sbc.module.style.service.StyleColorAgentService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleColorExcel;
-import com.base.sbc.module.style.vo.StyleColorListExcel;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
+import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -104,6 +119,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -115,6 +131,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
@@ -136,6 +153,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @RequiredArgsConstructor
+@EnableAsync
 public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceImpl<StyleColorMapper, StyleColor> implements StyleColorService {
 
     Logger log = LoggerFactory.getLogger(getClass());
@@ -196,9 +214,24 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Autowired
     private  PlanningSeasonService planningSeasonService;
-    @Resource
+       @Resource
     @Lazy
-    private  OrderBookDetailService orderBookDetailService;
+    private OrderBookDetailService orderBookDetailService;
+    @Autowired
+    private BasicsdatumModelTypeService basicsdatumModelTypeService;
+
+    @Autowired
+    private StyleColorAgentService styleColorAgentService;
+
+    @Autowired
+    private StylePricingService stylePricingService;
+
+    @Autowired
+    private BasicsdatumSizeService basicsdatumSizeService;
+
+    @Autowired
+    private BasicsdatumColourLibraryAgentService colourLibraryAgentService;
+
 
     Pattern pattern = Pattern.compile("[a-z||A-Z]");
 
@@ -351,8 +384,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getControlHangtagConfirm()), "tsp.control_hangtag_confirm", queryDto.getControlHangtagConfirm());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getPatternDesignName()), "ts.pattern_design_name", queryDto.getPatternDesignName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getOrderFlag()), "tsc.order_flag", queryDto.getOrderFlag());
-        if(StringUtils.isNotBlank(queryDto.getMarkingOrderFlag())){
+        if (StringUtils.isNotBlank(queryDto.getMarkingOrderFlag())) {
+            /*暂时注释 改为查询大货款号不为空的数据
             queryWrapper.inSql("tsc.id","select style_color_id from t_order_book_detail where status = '4'");
+            */
+            queryWrapper.isNotNullStr("tsc.style_no");
         }
         if(StrUtil.isNotBlank(queryDto.getDesignMarkingStatus())){
             if (BaseGlobal.STATUS_NORMAL.equals(queryDto.getDesignMarkingStatus())) {
@@ -1124,13 +1160,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public Boolean updateStyleNoBand(Principal user,UpdateStyleNoBandDto updateStyleNoBandDto) {
         StyleColor sampleStyleColor = baseMapper.selectById(updateStyleNoBandDto.getId());
         String styleNo = sampleStyleColor.getStyleNo();
+        String updateStyleNo = StringUtils.keepStrByType(updateStyleNoBandDto.getStyleNo(), "检查大货款号,仅允许字母数字",MatchStrType.LETTER, MatchStrType.NUMBER, MatchStrType.BARRE);
+        Assert.isFalse(updateStyleNo.length() > 18,"大货款号不能超过18位");
         StyleColor styleColor1 = new StyleColor();
         styleColor1.setStyleNo(styleNo);
         if (ObjectUtils.isEmpty(sampleStyleColor)) {
             throw new OtherException("id错误");
         }
         /*修改大货款号*/
-        if (StringUtils.isNotBlank(sampleStyleColor.getStyleNo()) && StringUtils.isNotBlank(updateStyleNoBandDto.getStyleNo()) && !sampleStyleColor.getStyleNo().equals(updateStyleNoBandDto.getStyleNo())) {
+        if (StringUtils.isNotBlank(sampleStyleColor.getStyleNo()) && StringUtils.isNotBlank(updateStyleNo) && !sampleStyleColor.getStyleNo().equals(updateStyleNo)) {
 
           /*  if (!updateStyleNoBandDto.getStyleNo().substring(0, 1).equals(sampleStyleColor.getStyleNo().substring(0, 1))) {
                 throw new OtherException("无法修改大货款号前1位");
@@ -1139,7 +1177,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 throw new OtherException("大货款号已下发,无法修改");
             }
             QueryWrapper queryWrapper = new QueryWrapper();
-            queryWrapper.eq("style_no", updateStyleNoBandDto.getStyleNo());
+            queryWrapper.eq("style_no", updateStyleNo);
             StyleColor styleColor = baseMapper.selectOne(queryWrapper);
             if (!ObjectUtils.isEmpty(styleColor)) {
                 throw new OtherException("大货款号已存在");
@@ -1147,17 +1185,17 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             /**
              * 修改下放大货款号
              */
-            baseMapper.reviseAllStyleNo(sampleStyleColor.getStyleNo(), updateStyleNoBandDto.getStyleNo());
+            baseMapper.reviseAllStyleNo(sampleStyleColor.getStyleNo(), updateStyleNo);
 
             /*修改关联的BOM名称*/
             if (StringUtils.isNotBlank(sampleStyleColor.getBom())) {
-                packInfoService.updateBomName(sampleStyleColor.getBom(),updateStyleNoBandDto.getStyleNo());
+                packInfoService.updateBomName(sampleStyleColor.getBom(), updateStyleNo);
             }
             /*只会记录最开始的大货款号*/
             if (StringUtils.isBlank(sampleStyleColor.getHisStyleNo())) {
                 sampleStyleColor.setHisStyleNo(sampleStyleColor.getStyleNo());
             }
-            sampleStyleColor.setStyleNo(updateStyleNoBandDto.getStyleNo().replaceAll(" ", ""));
+            sampleStyleColor.setStyleNo(updateStyleNo.replaceAll(" ", ""));
         }
         /*修改波段*/
     /*    if(StringUtils.isNotBlank(sampleStyleColor.getBandCode()) && StringUtils.isNotBlank(updateStyleNoBandDto.getBandCode())){
@@ -1168,13 +1206,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }*/
         baseMapper.updateById(sampleStyleColor);
         StyleColor styleColor = new StyleColor();
-        styleColor.setStyleNo(updateStyleNoBandDto.getStyleNo());
+        styleColor.setStyleNo(updateStyleNo);
         this.saveOperaLog("修改大货款号", "款式配色", sampleStyleColor.getColorName(), sampleStyleColor.getStyleNo(), styleColor, styleColor1);
         /*重新下发配色*/
         dataUpdateScmService.updateStyleColorSendById(sampleStyleColor.getId());
 
         //region 20231219 huangqiang 修改大货款号将老款图片下载重新上传，上传成功后删除
-        if(StrUtil.isNotBlank(styleColor.getStyleColorPic())){
+        if(StrUtil.isNotBlank(sampleStyleColor.getStyleColorPic())){
             Boolean result = uploadImgAndDeleteOldImg(user, updateStyleNoBandDto, sampleStyleColor, styleColor);
             if (!result) {
                 throw new OtherException("图片上传失败！");
@@ -1571,22 +1609,36 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * @return
      */
     @Override
-    public Boolean copyStyleColor(IdDto idDto) {
-
+    public Boolean copyStyleColor(IdDto idDto, Principal user) {
         StyleColor styleColor = baseMapper.selectById(idDto.getId());
+        String styleNo = styleColor.getStyleNo();
         styleColor.insertInit();
         styleColor.setId(null);
         styleColor.setScmSendFlag(null);
         styleColor.setBom(null);
         styleColor.setBomStatus(BaseGlobal.NO);
-        styleColor.setStyleColorPic("");
-//        查询款式
+        // 查询款式
         Style style = styleService.getById(styleColor.getStyleId());
         styleColor.setStyleNo(getNextCode(style, StringUtils.isNotEmpty(styleColor.getBandName()) ? styleColor.getBandName() : style.getBandName(),  StringUtils.isNotBlank(style.getOldDesignNo())?style.getOldDesignNo():style.getDesignNo() ,styleColor.getIsLuxury(),  1));
         styleColor.setHisStyleNo(null);
         styleColor.setWareCode(null);
         styleColor.setHistoricalData(BaseGlobal.NO);
         baseMapper.insert(styleColor);
+
+        String styleColorPic = styleColor.getStyleColorPic();
+        UploadStylePicDto uploadStylePicDto = new UploadStylePicDto();
+        uploadStylePicDto.setStyleColorId(styleColor.getId());
+        try {
+            MultipartFile multipartFile = uploadFileService.downloadImage(styleColorPic, styleNo + ".jpg");
+            uploadStylePicDto.setFile(multipartFile);
+            Boolean uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
+            if (!uploadStatus) {
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("上传图片出错，出错原因：「{}」", e.getMessage(), e);
+            return false;
+        }
         return true;
     }
     /**
@@ -1722,6 +1774,27 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         update(updateWrapper);
     }
 
+    @Override
+    public List<StyleNoUserInfoVo> getDesignerInfo(String styleNo) {
+        return baseMapper.getStyleDesignerInfo(Arrays.asList(styleNo.split(",")));
+    }
+
+    @Override
+    public void updateStyleColorOverdueReason(StyleColorOverdueReasonDto styleColorOverdueReasonDto) {
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        if ("0".equals(styleColorOverdueReasonDto.getType())) {
+            updateWrapper.set(StyleColor::getSendMainFabricOverdueReason, styleColorOverdueReasonDto.getRemark());
+        } else if ("1".equals(styleColorOverdueReasonDto.getType())) {
+            updateWrapper.set(StyleColor::getDesignDetailOverdueReason, styleColorOverdueReasonDto.getRemark());
+        } else if ("2".equals(styleColorOverdueReasonDto.getType())) {
+            updateWrapper.set(StyleColor::getDesignCorrectOverdueReason, styleColorOverdueReasonDto.getRemark());
+        }else{
+            throw  new OtherException("类型不正确");
+        }
+        updateWrapper.eq(StyleColor::getId,styleColorOverdueReasonDto.getId());
+        this.update(updateWrapper);
+    }
+
     /**
      * 查询已下单的配色
      *
@@ -1759,6 +1832,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper2.select("style_color_id");
         List<OrderBookDetail> list1 = orderBookDetailService.list(queryWrapper2);
         List<String> list2 = list1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
+        if (CollUtil.isEmpty(list2)) return new PageInfo<>();
 
         BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
         styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
@@ -1927,6 +2001,1492 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         List<StyleMarkingCheckVo> styleMarkingCheckVos = baseMapper.markingCheckPage(queryWrapper);
         return new PageInfo<>(styleMarkingCheckVos);
+    }
+
+    @Override
+    public PageInfo<StyleColorAgentVo> agentPageList(QueryStyleColorAgentDto queryDto) {
+        Page<Object> objects = PageHelper.startPage(queryDto);
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        queryWrapper.notEmptyLikeOrIsNull("ts.year_name", queryDto.getYearName());
+        queryWrapper.notEmptyEqOrIsNull("ts.prod_category_name", queryDto.getProdCategoryName());
+        queryWrapper.notEmptyEqOrIsNull("ts.prod_category", queryDto.getProdCategory());
+        if(StringUtils.isNotBlank(queryDto.getStyleNo())){
+            queryWrapper.likeList("tsc.style_no", StringUtils.convertList(queryDto.getStyleNo()));
+        }
+        if(StringUtils.isNotBlank(queryDto.getDesignNo())){
+            queryWrapper.likeList("ts.design_no",StringUtils.convertList(queryDto.getDesignNo()));
+        }
+        queryWrapper.notEmptyIn("tsca.status",queryDto.getSendStatus());
+
+        queryWrapper.eq("ts.brand_name","MANGO");
+        queryWrapper.eq("tsca.del_flag","0");
+        objects.setOrderBy("tsc.create_date desc,tsc.style_no,tsca.size_id");
+
+        List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
+        if(StrUtil.isBlank(queryDto.getExcelFlag()) || !"1".equals(queryDto.getExcelFlag())){
+            stylePicUtils.setStyleColorPic2(list, "styleColorPic");
+        }
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public List<String> agentStyleNoList() {
+        QueryWrapper<StyleColorAgent> queryWrapper = new QueryWrapper();
+        queryWrapper.eq("del_flag","0");
+        queryWrapper.ne("status","1");
+        queryWrapper.select(" DISTINCT style_color_no ");
+        List<String> objects =(List<String>)(List) styleColorAgentService.listObjs(queryWrapper);
+        return objects;
+    }
+
+    @Override
+    public List<TagPrinting> agentListByStyleNo(String styleNo, boolean likeQueryFlag) {
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        if (likeQueryFlag) {
+            queryWrapper.eq("tsc.style_no", styleNo);
+        } else {
+            queryWrapper.like("tsc.style_no", styleNo);
+        }
+
+        queryWrapper.eq("ts.brand_name", "MANGO");
+        queryWrapper.eq("tsca.del_flag","0");
+        queryWrapper.last("order by tsc.create_date desc,tsc.style_no,tsca.size_id");
+
+        List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
+
+        Map<String, List<StyleColorAgentVo>> collect = list.stream().collect(Collectors.groupingBy(o -> o.getStyleNo() + o.getColorCode()));
+
+        List<TagPrinting> tagPrintings = new ArrayList<>();
+        for (Map.Entry<String, List<StyleColorAgentVo>> entry : collect.entrySet()) {
+            List<StyleColorAgentVo> value = entry.getValue();
+            StyleColorAgentVo styleColorAgentVo1 = value.get(0);
+
+            TagPrinting tagPrinting = new TagPrinting();
+            tagPrinting.setStyleCode(styleColorAgentVo1.getStyleNo());
+            tagPrinting.setColorCode(styleColorAgentVo1.getOutsideColorCode());
+            tagPrinting.setColorDescription(styleColorAgentVo1.getOutsideColorName());
+
+            List<TagPrinting.Size> sizes = new ArrayList<>();
+            for (StyleColorAgentVo styleColorAgentVo : value) {
+                TagPrinting.Size size = new TagPrinting.Size();
+                size.setSORTCODE(styleColorAgentVo.getOutsideSizeCode());
+                size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
+                sizes.add(size);
+            }
+            tagPrinting.setSize(sizes);
+            tagPrintings.add(tagPrinting);
+        }
+
+        //大货款号+供应商颜色编码+外部尺码code+供应商条码
+        return tagPrintings;
+    }
+
+    @Transactional
+    @Override
+    public void agentDelete(String id) {
+        //状态校验
+        StyleColorAgent styleColorAgent = styleColorAgentService.getById(id);
+        if (!"0".equals(styleColorAgent.getStatus())) {
+            throw new OtherException("只有未下发时才能删除");
+        }
+        QueryWrapper<StyleColorAgent> styleColorAgentQueryWrapper = new QueryWrapper<>();
+        styleColorAgentQueryWrapper.eq("style_color_id",styleColorAgent.getStyleColorId());
+        styleColorAgentQueryWrapper.eq("del_flag",0);
+        List<StyleColorAgent> styleColorAgentList = styleColorAgentService.list(styleColorAgentQueryWrapper);
+        if (CollUtil.isNotEmpty(styleColorAgentList)) {
+            for (StyleColorAgent colorAgent : styleColorAgentList) {
+                String status = colorAgent.getStatus();
+                if (!"0".equals(status)) {
+                    throw new OtherException("存在已下发到下游系统数据，不允许删除，只允许导入修改！");
+                }
+            }
+        }
+
+
+        String styleColorId = styleColorAgent.getStyleColorId();
+        StyleColor styleColor = styleColorService.getById(styleColorId);
+        if (styleColor != null) {
+            //删除配色
+            styleColorService.removeById(styleColorId);
+            String styleId = styleColor.getStyleId();
+            //删除设计款
+            styleService.removeById(styleId);
+            QueryWrapper<PackInfo> packInfoQueryWrapper = new QueryWrapper<>();
+            packInfoQueryWrapper.eq("foreign_id", styleId);
+            packInfoQueryWrapper.eq("del_flag", 0);
+            packInfoQueryWrapper.last(" limit 1 ");
+            PackInfo packInfoUpdate = packInfoService.getOne(packInfoQueryWrapper);
+            if (packInfoUpdate != null) {
+                StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfoUpdate.getId(), baseController.getUserCompany());
+                if (stylePricingVO != null) {
+                    //删除款式定价信息
+                    stylePricingService.removeById(stylePricingVO.getStylePricingId());
+                }
+                //删除大货资料包信息
+                packInfoService.removeById(packInfoUpdate.getId());
+            }
+
+            QueryWrapper<HangTag> hangTagQueryWrapper = new QueryWrapper<>();
+            hangTagQueryWrapper.eq("bulk_style_no", styleColor.getStyleNo());
+            //删除款式定价
+            hangTagService.remove(hangTagQueryWrapper);
+        }
+
+        styleColorAgentService.remove(new QueryWrapper<StyleColorAgent>().eq("style_color_id", styleColorId).eq("del_flag", 0));
+    }
+
+    @Override
+    public void agentStop(String id) {
+        //状态校验
+        StyleColorAgent byId = styleColorAgentService.getById(id);
+        if(!"2".equals(byId.getStatus()) && !"3".equals(byId.getStatus())) {
+            throw new OtherException("只有重新打开或可编辑时才能停用");
+        }
+        StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
+        String styleId = styleColor.getStyleId();
+        Style style = styleService.getById(styleId);
+        if("1".equals(style.getEnableStatus())){
+            throw new OtherException("该款已经停用");
+        }
+
+        LambdaUpdateWrapper<Style> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(Style::getEnableStatus,"1");
+        updateWrapper.eq(Style::getId,styleId);
+        styleService.update(updateWrapper);
+
+        //同步下游系统
+        smpService.goodsAgent(new String[]{styleColor.getId()},true);
+    }
+
+    @Override
+    public void agentUnlock(String[] ids) {
+        //状态校验
+        List<StyleColorAgent> list = styleColorAgentService.listByField("style_color_id",Arrays.asList(ids));
+        for (StyleColorAgent styleColorAgent : list) {
+            if(!"1".equals(styleColorAgent.getStatus())){
+                throw new OtherException("只有已下发时才能解锁");
+            }
+        }
+
+        LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColorAgent::getStatus,"2");
+        updateWrapper.in(StyleColorAgent::getStyleColorId, Arrays.asList(ids));
+        styleColorAgentService.update(updateWrapper);
+    }
+
+    @Override
+    public void agentEnable(String id) {
+        //状态校验
+        StyleColorAgent byId = styleColorAgentService.getById(id);
+        if(!"2".equals(byId.getStatus()) && !"3".equals(byId.getStatus())) {
+            throw new OtherException("只有重新打开或可编辑时才能启用");
+        }
+        StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
+        String styleId = styleColor.getStyleId();
+        Style style = styleService.getById(styleId);
+        if("0".equals(style.getEnableStatus())){
+            throw new OtherException("该款已经启用");
+        }
+
+        LambdaUpdateWrapper<Style> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(Style::getEnableStatus,"0");
+        updateWrapper.eq(Style::getId,styleId);
+        styleService.update(updateWrapper);
+
+        //同步下游系统
+        smpService.goodsAgent(new String[]{styleColor.getId()},true);
+    }
+
+    @Override
+    public void exportAgentExcel(HttpServletResponse response, QueryStyleColorAgentDto dto) {
+
+
+        dto.setPageSize(Integer.MAX_VALUE);
+        dto.setExcelFlag("1");
+        PageInfo<StyleColorAgentVo> styleColorAgentVoPageInfo = styleColorService.agentPageList(dto);
+        List<StyleColorAgentVo> styleColorAgentVoList = styleColorAgentVoPageInfo.getList();
+
+        List<MangoStyleColorExeclExportDto> list = BeanUtil.copyToList(styleColorAgentVoList, MangoStyleColorExeclExportDto.class);
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                .build();
+
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(styleColorAgentVoList) && styleColorAgentVoList.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                stylePicUtils.setStylePic(list, "styleColorPic",30);
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (MangoStyleColorExeclExportDto mangoStyleColorExeclDto : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String styleColorPic = mangoStyleColorExeclDto.getStyleColorPic();
+                            mangoStyleColorExeclDto.setStyleColorPic1(HttpUtil.downloadBytes(styleColorPic));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            log.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list, MangoStyleColorExeclExportDto.class, "代理货品资料导出.xlsx", new ExportParams("代理货品资料导出", "代理货品资料导出", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    @Override
+    public ApiResult agentSync(String[] ids) {
+        int i = smpService.goodsAgent(ids,true);
+
+        if (ids.length== i) {
+            return ApiResult.success("下发：" + ids.length + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
+    }
+
+    @Transactional
+    @Override
+    public ApiResult mangoExeclImport(List<MangoStyleColorExeclDto> list,Boolean isUpdate) {
+
+        String errorInfo = "";
+        //验证数据是否为空或者重复数据
+        errorInfo = checkData1(list, errorInfo);
+
+        if (StrUtil.isNotEmpty(errorInfo)) {
+            return ApiResult.error(errorInfo,500);
+        }
+
+        //
+        List<BasicBaseDict> styleTypeList = ccmFeignService.getDictInfoToList("StyleType");
+        List<BasicBaseDict> c8GenderList = ccmFeignService.getDictInfoToList("C8_Gender");
+        List<BasicBaseDict> packageTypeList = ccmFeignService.getDictInfoToList("C8_PackageType");
+
+
+
+        //验证导入数据和数据库数据做校验
+        errorInfo = checkData2(list, errorInfo);
+
+
+        Map<String,String> checkMap = new HashMap<>();
+
+        List<BasicStructureTreeVo> tree = ccmFeignService.basicStructureTreeByCode("品类", null, "0,1,2");
+        if (CollUtil.isNotEmpty(tree)) {
+            for (BasicStructureTreeVo basicStructureTreeVo : tree) {
+                String bigName = basicStructureTreeVo.getName();
+                String bigValue = basicStructureTreeVo.getValue();
+                List<BasicStructureTreeVo> children = basicStructureTreeVo.getChildren();
+                if (CollUtil.isNotEmpty(children)) {
+                    for (BasicStructureTreeVo category : children) {
+                        String catagory = category.getName();
+                        String catagoryValue = category.getValue();
+
+                        List<BasicStructureTreeVo> categoryChildren = category.getChildren();
+                        for (BasicStructureTreeVo middleCatagory : categoryChildren) {
+                            String  middleCatagoryName = middleCatagory.getName();
+                            String  middleCatagoryValue = middleCatagory.getValue();
+                            checkMap.put(bigName + "-" + catagory + "-" + middleCatagoryName,bigValue + "-" + catagoryValue + "-" + middleCatagoryValue);
+                        }
+                    }
+                }
+            }
+        }
+
+        if (StrUtil.isNotEmpty(errorInfo)) {
+            return ApiResult.error(errorInfo,500);
+        }
+
+        Style style;
+        StyleColor styleColor;
+        StyleColorAgent styleColorAgent;
+        StylePricing stylePricing;
+        PackInfo packInfo;
+        HangTag hangTag;
+
+
+        List<Style> insertStyleList = new ArrayList<>();
+        List<Style> updateStyleList = new ArrayList<>();
+        List<StyleColor> insertStyleColorList = new ArrayList<>();
+        List<StyleColor> updateStyleColorList = new ArrayList<>();
+        List<StyleColorAgent> insertStyleColorAgentList = new ArrayList<>();
+        List<StyleColorAgent> updateStyleColorAgentList = new ArrayList<>();
+
+        List<PackInfo> insertPackInfoList = new ArrayList<>();
+        List<StylePricing> insertStylePricingList = new ArrayList<>();
+        List<StylePricing> updateStylePricingList = new ArrayList<>();
+
+        List<HangTag> insertHangTagList = new ArrayList<>();
+        List<HangTag> updateHangTagList = new ArrayList<>();
+
+        Map<String,String> styleColorMap = new HashMap<>();
+        Map<String,String> updateStyleColorMap = new HashMap<>();
+
+        //导入 新增 和修改
+        for (int i = 0; i < list.size(); i++) {
+            MangoStyleColorExeclDto dto = list.get(i);
+            style = new Style();
+            styleColor = new StyleColor();
+            styleColorAgent = new StyleColorAgent();
+            stylePricing = new StylePricing();
+            packInfo = new PackInfo();
+            hangTag = new HangTag();
+
+            String styleColorNo = dto.getStyleColorNo();
+            String outsideSizeCode = dto.getOutsideSizeCode();
+
+            QueryWrapper styleColorAgentQueryWrapper = new QueryWrapper<StyleColorAgent>();
+            styleColorAgentQueryWrapper.eq("style_color_no",styleColorNo);
+            styleColorAgentQueryWrapper.eq("outside_size_code",outsideSizeCode);
+            styleColorAgentQueryWrapper.eq("del_flag",0);
+            styleColorAgentQueryWrapper.last("limit 1");
+            StyleColorAgent validStyleColorAgent = styleColorAgentService.getOne(styleColorAgentQueryWrapper);
+
+            //如果存在做更新，不存在则新增
+            if (validStyleColorAgent == null) {
+                String year = dto.getYear();
+                String season = dto.getSeason();
+                if (season.equals("春")) {
+                    season= "S";
+                }else if(season.equals("夏")){
+                    season= "X";
+                }else if(season.equals("秋")){
+                    season= "A";
+                }else if(season.equals("冬")){
+                    season= "W";
+                }
+                String brandName = dto.getBrandName();
+                String productSeason =year+" "+season+" "+brandName;
+                //根据产品季名称获取产品季id
+                PlanningSeason planningSeason = planningSeasonService.getByName(productSeason, baseController.getUserCompany());
+                if (planningSeason == null) {
+                    throw new OtherException("第"+(i+1)+"行,找不到产品季信息");
+                }
+                style.setPlanningSeasonId(planningSeason.getId());
+                style.setYear(planningSeason.getYear());
+                style.setYearName(planningSeason.getYearName());
+                style.setBrand(planningSeason.getBrand());
+                style.setBrandName(planningSeason.getBrandName());
+                style.setSeason(planningSeason.getSeason());
+                style.setSeasonName(planningSeason.getSeasonName());
+
+
+
+
+                //坑位信息id 缺失
+                style.setCompanyCode(baseController.getUserCompany());
+                //坑位信息暂时默认一个
+                style.setPlanningCategoryItemId("11111111");
+
+                //款式类型
+                List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts(styleTypeList,dto.getStyleTypeName());
+
+                if (CollUtil.isNotEmpty(styleTypeListDictList)) {
+                    style.setStyleType(styleTypeListDictList.get(0).getValue());
+                    style.setStyleTypeName(styleTypeListDictList.get(0).getName());
+                } else {
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的款式类型");
+                }
+
+                //款式性别
+                if (StrUtil.isEmpty(dto.getGender()) || StrUtil.isBlank(dto.getGender())) {
+                    style.setGenderType("");
+                    style.setGenderName("");
+                }else{
+
+
+                    List<BasicBaseDict> c8GenderListDictList = getBasicBaseDicts(c8GenderList,dto.getGender());
+                    if (CollUtil.isNotEmpty(c8GenderListDictList)) {
+                        style.setGenderType(c8GenderListDictList.get(0).getValue());
+                        style.setGenderName(c8GenderListDictList.get(0).getName());
+                    } else {
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的产品季式性别");
+                    }
+                }
+
+
+                //品类
+                String prodCategoryName = dto.getProdCategoryName();
+                String prodCategory1stName = dto.getProdCategory1stName();
+                String prodCategory2ndName = dto.getProdCategory2ndName();
+
+                String key = prodCategory1stName + "-" + prodCategoryName + "-" + prodCategory2ndName;
+                if (checkMap.containsKey(key)) {
+                    String mapValue = checkMap.get(key);
+                    if (StrUtil.isNotEmpty(mapValue)) {
+                        style.setProdCategoryName(prodCategoryName);
+                        style.setProdCategory(mapValue.split("-")[0]);
+                        style.setProdCategory1stName(prodCategory1stName);
+                        style.setProdCategory1st(mapValue.split("-")[1]);
+                        style.setProdCategory2ndName(prodCategory2ndName);
+                        style.setProdCategory2nd(mapValue.split("-")[2]);
+                    }else{
+                        throw new OtherException("第" + (i + 1) + "行,系统找不到对应的大类-品类-中类" + key);
+                    }
+                }else{
+                    throw new OtherException("第" + (i + 1) + "行,Execl中的大类-品类-中类在系统中找不到" + key);
+                }
+
+                if ("裙子".equals(prodCategoryName) || "裤子".equals(prodCategoryName) || "裤子".equals(prodCategoryName)) {
+                    style.setStyleUnitCode("T");
+                    style.setStyleUnit("条");
+                }else{
+                    style.setStyleUnitCode("J");
+                    style.setStyleUnit("件");
+                }
+
+                //配色
+
+                String outsideColorCode = dto.getOutsideColorCode();
+
+                styleColor.setStyleNo(styleColorNo);
+                QueryWrapper<BasicsdatumColourLibraryAgent>  agentQueryWrapper = new QueryWrapper<>();
+                agentQueryWrapper.eq("colour_code",outsideColorCode);
+                agentQueryWrapper.eq("del_flag","0");
+                agentQueryWrapper.eq("status","0");
+                agentQueryWrapper.eq("brand",planningSeason.getBrand());
+
+                BasicsdatumColourLibraryAgent colourLibraryAgent = colourLibraryAgentService.getOne(agentQueryWrapper);
+
+                if (colourLibraryAgent != null) {
+                    String colorId = colourLibraryAgent.getColorId();
+                    styleColorAgent.setOutsideColorName(colourLibraryAgent.getColourName());
+                    BasicsdatumColourLibrary basicsdatumColour = basicsdatumColourLibraryServicel.getById(colorId);
+                    if (basicsdatumColour != null) {
+                        styleColor.setColourLibraryId(basicsdatumColour.getId());
+                        styleColor.setColorCode(basicsdatumColour.getColourCode());
+                        styleColor.setColorName(basicsdatumColour.getColourName());
+                    }else{
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的集团颜色名称或编码，确认外部颜色是否关联集团颜色");
+                    }
+                }else{
+                    throw new OtherException("第"+(i+1)+"行,找不到外部颜色码映射内部颜色码数据");
+                }
+
+                //设计款号
+                //styleColor.setDesignNo();
+                styleColor.setBandCode("11");
+                styleColor.setBandName("1A");
+                style.setBandCode("11");
+                style.setBandName("1A");
+                styleColor.setTagPrice(new BigDecimal(dto.getTagPrice()));
+
+
+                styleColor.setDevtType("999");
+                styleColor.setDevtTypeName("代销");
+                style.setDevtType("999");
+                style.setDevtTypeName("代销");
+
+                styleColor.setProductName(style.getProdCategoryName());
+                styleColor.setProductCode(style.getProdCategory());
+                styleColor.setBomStatus("1");
+
+                QueryWrapper basicsdatumModelTypeQueryWrapper = new QueryWrapper<BasicsdatumModelType>();
+                basicsdatumModelTypeQueryWrapper.eq("model_type", dto.getSizeRangeName());
+                basicsdatumModelTypeQueryWrapper.eq("status", "0");
+                basicsdatumModelTypeQueryWrapper.eq("del_flag", "0");
+                basicsdatumModelTypeQueryWrapper.like("brand", planningSeason.getBrand());
+                basicsdatumModelTypeQueryWrapper.last(" limit 1");
+
+                BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getOne(basicsdatumModelTypeQueryWrapper);
+
+
+
+                if (basicsdatumModelType != null) {
+                    String outsideBarcode = dto.getOutsideBarcode();
+                    styleColorAgent.setStyleColorId(styleColor.getId());
+                    styleColorAgent.setStyleColorNo(styleColor.getStyleNo());
+                    String code = basicsdatumModelType.getCode();
+                    String sizes = basicsdatumModelType.getSize();
+                    String sizeCodes = basicsdatumModelType.getSizeCode();
+
+                    QueryWrapper<BasicsdatumSize> basicsdatumSizeQueryWrapper = new QueryWrapper();
+                    basicsdatumSizeQueryWrapper.like("model_type_code",code);
+                    basicsdatumSizeQueryWrapper.like("model_type",dto.getSizeRangeName());
+                    basicsdatumSizeQueryWrapper.eq("european_size",outsideSizeCode);
+
+                    List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list(basicsdatumSizeQueryWrapper);
+                    if (CollUtil.isNotEmpty(basicsdatumSizeList)) {
+                        for (BasicsdatumSize basicsdatumSize : basicsdatumSizeList) {
+                            if (outsideSizeCode.equals(basicsdatumSize.getEuropeanSize())) {
+                                styleColorAgent.setSizeId(basicsdatumSize.getCode());
+                                styleColorAgent.setSizeCode(basicsdatumSize.getModel());
+                                style.setSizeRange(basicsdatumModelType.getCode());
+                                style.setSizeRangeName(dto.getSizeRangeName());
+                                style.setDefaultSize(basicsdatumModelType.getBasicsSize());
+                                style.setSizeIds(basicsdatumModelType.getSizeIds());
+                                style.setSizeCodes(sizeCodes);
+                                style.setProductSizes(sizes);
+                                if (!sizes.contains(basicsdatumSize.getModel())) {
+                                    throw new OtherException("第" + (i + 1) + "行,【" + dto.getSizeRangeName() + "】找不到对应的【" + basicsdatumSize.getModel() + "】信息");
+                                }
+                            }
+                        }
+                    }
+
+                    styleColorAgent.setOutsideBarcode(outsideBarcode);
+                    styleColorAgent.setOutsideColorCode(dto.getOutsideColorCode());
+
+                    styleColorAgent.setOutsideSizeCode(dto.getOutsideSizeCode());
+                } else {
+                    throw new OtherException("第"+(i+1)+"行,找不到对应的号型类型");
+                }
+
+
+                String packagingForm = dto.getPackagingForm();
+                if (StrUtil.isNotEmpty(packagingForm)) {
+                    List<BasicBaseDict> packageTypeListDict = getBasicBaseDicts(packageTypeList,packagingForm);
+                    if (CollUtil.isNotEmpty(packageTypeListDict)) {
+                        hangTag.setPackagingForm(packageTypeListDict.get(0).getName());
+                        hangTag.setPackagingFormCode(packageTypeListDict.get(0).getValue());
+                    }else{
+                        throw new OtherException("第" + (i + 1) + "行,【" + packagingForm + "】找不到对应的包装类型");
+                    }
+                }
+
+
+                if (!styleColorMap.containsKey(styleColorNo)) {
+                    QueryWrapper styleColorAgentExitQueryWrapper = new QueryWrapper<StyleColorAgent>();
+                    styleColorAgentExitQueryWrapper.eq("style_color_no",styleColorNo);
+                    styleColorAgentExitQueryWrapper.eq("del_flag",0);
+                    styleColorAgentExitQueryWrapper.last("limit 1");
+                    StyleColorAgent validUpdateStyleColorAgent = styleColorAgentService.getOne(styleColorAgentExitQueryWrapper);
+                    if (validUpdateStyleColorAgent != null) {
+                        styleColorAgent.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                        styleColorAgent.setStyleColorId(validUpdateStyleColorAgent.getStyleColorId());
+                        styleColorAgent.setStyleColorNo(validUpdateStyleColorAgent.getStyleColorNo());
+                    }else{
+                        style.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                        insertStyleList.add(style);
+                        styleColor.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                        styleColor.setStyleId(style.getId());
+                        styleColor.setPlanningSeasonId(style.getPlanningSeasonId());
+                        insertStyleColorList.add(styleColor);
+                        styleColorMap.put(styleColorNo,styleColor.getId());
+                        styleColorAgent.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                        styleColorAgent.setStyleColorId(styleColor.getId());
+                        styleColorAgent.setStyleColorNo(styleColor.getStyleNo());
+                        //资料包
+                        packInfo.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                        packInfo.setForeignId(style.getId());
+                        packInfo.setPlanningSeasonId(style.getPlanningSeasonId());
+                        packInfo.setPlanningCategoryItemId(style.getPlanningCategoryItemId());
+                        packInfo.setStyleColorId(styleColor.getId());
+                        packInfo.setStyleNo(styleColor.getStyleNo());
+                        packInfo.setStyleId(style.getId());
+                        packInfo.setCode(styleColor.getStyleNo()+"-1");
+                        //款式定价
+                        stylePricing.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                        stylePricing.setPackId(packInfo.getId());
+                        stylePricing.setControlPlanCost(new BigDecimal(dto.getPlanCostPrice()));
+
+                        //吊牌
+                        hangTag.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                        hangTag.setStyleNo(style.getDesignNo());
+                        hangTag.setBulkStyleNo(styleColorNo);
+
+                        insertPackInfoList.add(packInfo);
+                        insertStylePricingList.add(stylePricing);
+                        insertHangTagList.add(hangTag);
+                    }
+                }else{
+                    styleColorAgent.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                    styleColorAgent.setStyleColorId(styleColorMap.get(styleColor.getStyleNo()));
+                    styleColorAgent.setStyleColorNo(styleColor.getStyleNo());
+                }
+
+
+                insertStyleColorAgentList.add(styleColorAgent);
+            }else{
+                StyleColor styleColorUpdate = styleColorService.getById(validStyleColorAgent.getStyleColorId());
+                if (styleColorUpdate != null) {
+                    styleColorUpdate.setTagPrice(new BigDecimal(dto.getTagPrice()));
+
+                    String styleId = styleColorUpdate.getStyleId();
+
+                    Style styleUpdate = styleService.getById(styleId);
+                    if (styleUpdate != null) {
+                        String prodCategoryName = dto.getProdCategoryName();
+                        String prodCategory1stName = dto.getProdCategory1stName();
+                        String prodCategory2ndName = dto.getProdCategory2ndName();
+
+                        String prodCategoryName1 = styleUpdate.getProdCategoryName();
+                        String prodCategory1stName1 = styleUpdate.getProdCategory1stName();
+                        String prodCategory2ndName1 = styleUpdate.getProdCategory2ndName();
+
+                        if (!prodCategoryName.equals(prodCategoryName1) || !prodCategory1stName.equals(prodCategory1stName1) || !prodCategory2ndName.equals(prodCategory2ndName1)) {
+                            /*List<BasicCategoryDot> basicCategoryDotList = ccmFeignService.getTreeByNamelList("品类", "1");
+                            //获取品类的code
+                            List<BasicCategoryDot> prodCategoryNameList = basicCategoryDotList.stream().filter(o -> o.getName().equals(prodCategoryName)).collect(Collectors.toList());
+                            if (CollUtil.isNotEmpty(prodCategoryNameList)) {
+                                styleUpdate.setProdCategoryName(prodCategoryNameList.get(0).getName());
+                                styleUpdate.setProdCategory(prodCategoryNameList.get(0).getValue());
+                                styleColorUpdate.setProductName(prodCategoryNameList.get(0).getName());
+                                styleColorUpdate.setProductCode(prodCategoryNameList.get(0).getValue());
+                            } else {
+                                //报错
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的品类");
+                            }
+
+                            List<BasicCategoryDot> basicCategoryDotList1 = ccmFeignService.getTreeByNamelList("品类", "0");
+
+                            //获取大类的code
+                            List<BasicCategoryDot> prodCategory1stNameList = basicCategoryDotList1.stream().filter(o -> o.getName().equals(prodCategory1stName)).collect(Collectors.toList());
+                            if (CollUtil.isNotEmpty(prodCategory1stNameList)) {
+                                styleUpdate.setProdCategory1stName(prodCategory1stNameList.get(0).getName());
+                                styleUpdate.setProdCategory1st(prodCategory1stNameList.get(0).getValue());
+                            } else {
+                                //报错
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的大类");
+                            }
+
+                            List<BasicCategoryDot> basicCategoryDotList2 = ccmFeignService.getTreeByNamelList("品类", "2");
+                            //获取中类的code
+                            List<BasicCategoryDot> prodCategory2ndNameList = basicCategoryDotList2.stream().filter(o -> o.getName().equals(prodCategory2ndName)).collect(Collectors.toList());
+                            if (CollUtil.isNotEmpty(prodCategory2ndNameList)) {
+                                styleUpdate.setProdCategory2ndName(prodCategory2ndNameList.get(0).getName());
+                                styleUpdate.setProdCategory2nd(prodCategory2ndNameList.get(0).getValue());
+                            } else {
+                                //报错
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的中类");
+                            }*/
+
+
+                            String updatekey = prodCategory1stName1 + "-" + prodCategoryName1 + "-" + prodCategory2ndName1;
+                            if (checkMap.containsKey(updatekey)) {
+                                String updateMapValue = checkMap.get(updatekey);
+                                if (StrUtil.isNotEmpty(updateMapValue)) {
+                                    styleUpdate.setProdCategoryName(prodCategoryName1);
+                                    styleUpdate.setProdCategory(updateMapValue.split("-")[1]);
+                                    styleColorUpdate.setProductName(prodCategoryName1);
+                                    styleColorUpdate.setProductCode(updateMapValue.split("-")[1]);
+                                    styleUpdate.setProdCategory1stName(prodCategory1stName1);
+                                    styleUpdate.setProdCategory1st(updateMapValue.split("-")[0]);
+                                    styleUpdate.setProdCategory2ndName(prodCategory2ndName1);
+                                    styleUpdate.setProdCategory2nd(updateMapValue.split("-")[1]);
+                                }else{
+                                    throw new OtherException("第" + (i + 1) + "行,系统找不到对应的大类-品类-中类" + updatekey);
+                                }
+                            }else{
+                                throw new OtherException("第" + (i + 1) + "行,Execl中的大类-品类-中类在系统中找不到" + updatekey);
+                            }
+
+                        }
+                        String year = dto.getYear();
+                        String season = dto.getSeason();
+                        if (season.equals("春")) {
+                            season= "s";
+                        }else if(season.equals("夏")){
+                            season= "X";
+                        }else if(season.equals("秋")){
+                            season= "A";
+                        }else if(season.equals("冬")){
+                            season= "W";
+                        }
+                        String brandName = dto.getBrandName();
+                        String productSeason =year+" "+season+" "+brandName;
+
+                        //根据产品季名称获取产品季id
+                        PlanningSeason planningSeason = planningSeasonService.getByName(productSeason, baseController.getUserCompany());
+                        if (planningSeason == null) {
+                            throw new OtherException("第"+(i+1)+"行,找不到产品季信息");
+                        }
+                        if (!planningSeason.getId().equals(styleUpdate.getPlanningSeasonId())) {
+                            styleUpdate.setPlanningSeasonId(planningSeason.getId());
+                            styleUpdate.setYear(planningSeason.getYear());
+                            styleUpdate.setYearName(planningSeason.getYearName());
+                            styleUpdate.setBrand(planningSeason.getBrand());
+                            styleUpdate.setBrandName(planningSeason.getBrandName());
+                            styleUpdate.setSeason(planningSeason.getSeason());
+                            styleUpdate.setSeasonName(planningSeason.getSeasonName());
+                        }
+
+
+                        String outsideColorCode = dto.getOutsideColorCode();
+
+                        QueryWrapper<BasicsdatumColourLibraryAgent>  agentQueryWrapper = new QueryWrapper<>();
+                        agentQueryWrapper.eq("colour_code",outsideColorCode);
+                        agentQueryWrapper.eq("del_flag","0");
+                        agentQueryWrapper.eq("status","0");
+                        agentQueryWrapper.eq("brand",planningSeason.getBrand());
+
+                        BasicsdatumColourLibraryAgent colourLibraryAgent = colourLibraryAgentService.getOne(agentQueryWrapper);
+
+                        if (colourLibraryAgent != null) {
+                            validStyleColorAgent.setOutsideColorName(colourLibraryAgent.getColourName());
+                            String colorId = colourLibraryAgent.getColorId();
+                            BasicsdatumColourLibrary basicsdatumColour = basicsdatumColourLibraryServicel.getById(colorId);
+                            if (basicsdatumColour != null) {
+                                styleColorUpdate.setColourLibraryId(basicsdatumColour.getId());
+                                styleColorUpdate.setColorCode(basicsdatumColour.getColourCode());
+                                styleColorUpdate.setColorName(basicsdatumColour.getColourName());
+                            }else{
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的集团颜色名称或编码，确认外部颜色是否关联集团颜色");
+                            }
+                        }else{
+                            throw new OtherException("第"+(i+1)+"行,找不到外部颜色码映射内部颜色码数据");
+                        }
+
+                        if (!styleUpdate.getStyleTypeName().equals(dto.getStyleTypeName())) {
+                            String styleTypeName = dto.getStyleTypeName();
+                            List<BasicBaseDict> styleTypeListDictList = getBasicBaseDicts(styleTypeList,styleTypeName);
+
+                            if (CollUtil.isNotEmpty(styleTypeListDictList)) {
+                                styleUpdate.setStyleType(styleTypeListDictList.get(0).getValue());
+                                styleUpdate.setStyleTypeName(styleTypeListDictList.get(0).getName());
+                            } else {
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的款式类型");
+                            }
+                        }
+
+                        if (StrUtil.isEmpty(dto.getGender()) || StrUtil.isBlank(dto.getGender())) {
+                            styleUpdate.setGenderType("");
+                            styleUpdate.setGenderName("");
+                        }else{
+                            List<BasicBaseDict> c8GenderListDictList = getBasicBaseDicts(c8GenderList,dto.getGender());
+                            if (CollUtil.isNotEmpty(c8GenderListDictList)) {
+                                styleUpdate.setGenderType(c8GenderListDictList.get(0).getValue());
+                                styleUpdate.setGenderName(c8GenderListDictList.get(0).getName());
+                            } else {
+                                throw new OtherException("第"+(i+1)+"行,找不到对应的产品季式性别");
+                            }
+                        }
+                    }else {
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的设计款信息");
+                    }
+
+
+                    if (!styleUpdate.getSizeRangeName().equals(dto.getSizeRangeName())) {
+
+                        QueryWrapper styleAgentQueryWrapper = new QueryWrapper<StyleColorAgent>();
+                        styleAgentQueryWrapper.eq("style_color_no",styleColorNo);
+                        styleAgentQueryWrapper.eq("del_flag",0);
+                        styleAgentQueryWrapper.last("limit 1");
+                        StyleColorAgent styleColorAgent1 = styleColorAgentService.getOne(styleAgentQueryWrapper);
+                        if (styleColorAgent1 != null) {
+                            throw new OtherException("该款【" + styleColorNo + "】，已存在号型类型【" + styleUpdate.getSizeRangeName() + "】数据，请确认新导入号型类型【" + dto.getSizeRangeName() + "】是否正确？如继续导入，请删除该款已存在号型类型数据！");
+                        }
+
+                        QueryWrapper basicsdatumModelTypeQueryWrapper = new QueryWrapper<BasicsdatumModelType>();
+                        basicsdatumModelTypeQueryWrapper.eq("model_type", dto.getSizeRangeName());
+                        basicsdatumModelTypeQueryWrapper.eq("status", "0");
+                        basicsdatumModelTypeQueryWrapper.eq("del_flag", "0");
+                        basicsdatumModelTypeQueryWrapper.last(" limit 1");
+
+                        BasicsdatumModelType basicsdatumModelType = basicsdatumModelTypeService.getOne(basicsdatumModelTypeQueryWrapper);
+
+                        if (basicsdatumModelType != null) {
+                            // /** 翻译名称 */  对应欧码
+                            //    private String translateName;
+                            //    /** 欧码 */  对应外部尺码
+                            //    private String europeanSize;
+                            //号型类型尺码
+                            //获取所有尺码插入所有尺码的条数
+                            String code = basicsdatumModelType.getCode();
+                            String size = basicsdatumModelType.getSize();
+                            if (StrUtil.isEmpty(code)) {
+                                throw new OtherException("第" + (i + 1) + "行,【" + dto.getSizeRangeName() + "】配置问题请联系管理员！");
+
+                            }
+                            if (StrUtil.isEmpty(size)) {
+                                throw new OtherException("第" + (i + 1) + "行,【" + dto.getSizeRangeName() + "】配置问题请联系管理员！");
+                            }
+                            QueryWrapper<BasicsdatumSize> basicsdatumSizeQueryWrapper = new QueryWrapper();
+                            basicsdatumSizeQueryWrapper.like("model_type_code",code);
+                            basicsdatumSizeQueryWrapper.like("model_type",dto.getSizeRangeName());
+                            basicsdatumSizeQueryWrapper.eq("translate_name",dto.getOutsideSizeCode());
+
+                            List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list(basicsdatumSizeQueryWrapper);
+                            if (CollUtil.isNotEmpty(basicsdatumSizeList)) {
+                                for (BasicsdatumSize basicsdatumSize : basicsdatumSizeList) {
+                                    if (outsideSizeCode.equals(basicsdatumSize.getEuropeanSize())) {
+                                        validStyleColorAgent.setSizeId(basicsdatumSize.getCode());
+                                        validStyleColorAgent.setSizeCode(basicsdatumSize.getModel());
+                                        style.setSizeRange(basicsdatumModelType.getCode());
+                                        style.setSizeRangeName(dto.getSizeRangeName());
+                                        style.setDefaultSize(basicsdatumModelType.getBasicsSize());
+                                        style.setSizeIds(basicsdatumModelType.getSizeIds());
+                                        style.setSizeCodes(basicsdatumModelType.getSizeCode());
+                                        style.setProductSizes(basicsdatumModelType.getSize());
+                                        if (!size.contains(basicsdatumSize.getModel())) {
+                                            throw new OtherException("第" + (i + 1) + "行,【" + dto.getSizeRangeName() + "】找不到对应的【" + basicsdatumSize.getModel() + "】信息");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    validStyleColorAgent.setOutsideBarcode(dto.getOutsideBarcode());
+                    validStyleColorAgent.setOutsideColorCode(dto.getOutsideColorCode());
+
+                    validStyleColorAgent.setOutsideSizeCode(dto.getOutsideSizeCode());
+
+                    StylePricing stylePricingUpdate = null;
+                    QueryWrapper<PackInfo> packInfoQueryWrapper = new QueryWrapper<>();
+                    packInfoQueryWrapper.eq("foreign_id",styleUpdate.getId());
+                    packInfoQueryWrapper.last(" limit 1 ");
+                    PackInfo packInfoUpdate = packInfoService.getOne(packInfoQueryWrapper);
+                    if (packInfoUpdate != null) {
+                        StylePricingVO stylePricingVO = stylePricingService.getByPackId(packInfoUpdate.getId(), baseController.getUserCompany());
+                        if (stylePricingVO != null) {
+                            BigDecimal controlPlanCostDecimal = stylePricingVO.getControlPlanCost() != null ? stylePricingVO.getControlPlanCost() : BigDecimal.ZERO;
+                            BigDecimal planCostPriceDecimal = StrUtil.isNotEmpty(dto.getPlanCostPrice()) ? new BigDecimal(dto.getPlanCostPrice()) : BigDecimal.ZERO;
+
+                            if (controlPlanCostDecimal.compareTo(planCostPriceDecimal) != 0) {
+                                stylePricingUpdate = new StylePricing();
+                                stylePricingUpdate.setId(stylePricingVO.getStylePricingId());
+                                stylePricingUpdate.setControlPlanCost(planCostPriceDecimal);
+                            }
+                        }else{
+                            throw new OtherException("第"+(i+1)+"行,找不到对应的款式定价包信息");
+                        }
+                    }else{
+                        throw new OtherException("第"+(i+1)+"行,找不到对应的资料包信息");
+                    }
+
+                    if (!updateStyleColorMap.containsKey(styleColorUpdate)) {
+                        updateStyleColorMap.put(styleColor.getStyleNo(),styleColor.getId());
+                        updateStyleList.add(styleUpdate);
+                        updateStyleColorList.add(styleColorUpdate);
+                        //款式定价
+                        if (stylePricingUpdate != null) {
+                            updateStylePricingList.add(stylePricingUpdate);
+                        }
+
+                    }
+                    updateStyleColorAgentList.add(validStyleColorAgent);
+
+
+
+                    String packagingForm = dto.getPackagingForm();
+
+                    LambdaQueryWrapper<HangTag> hangTagLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                    hangTagLambdaQueryWrapper.eq(HangTag::getBulkStyleNo, styleColorNo)
+                            .eq(HangTag::getDelFlag, "0")
+                            .last("limit 1");
+                    HangTag hangTagUpdate = hangTagService.getOne(hangTagLambdaQueryWrapper);
+                    if (hangTagUpdate != null) {
+                        if (StrUtil.isNotEmpty(packagingForm)) {
+                            List<BasicBaseDict> packageTypeListDict = getBasicBaseDicts(packageTypeList,packagingForm);
+                            if (CollUtil.isNotEmpty(packageTypeListDict)) {
+                                hangTagUpdate.setPackagingForm(packageTypeListDict.get(0).getName());
+                                hangTagUpdate.setPackagingFormCode(packageTypeListDict.get(0).getValue());
+                            } else {
+                                throw new OtherException("第" + (i + 1) + "行,【" + packagingForm + "】找不到对应的包装类型");
+                            }
+                        }else{
+                            hangTagUpdate.setPackagingForm("");
+                            hangTagUpdate.setPackagingFormCode("");
+                        }
+                        updateHangTagList.add(hangTagUpdate);
+                    }else{
+                        List<HangTag> hangTagList = insertHangTagList.stream().filter(o -> o.getBulkStyleNo().equals(styleColorNo)).collect(Collectors.toList());
+                        if (CollUtil.isEmpty(hangTagList)) {
+                            //吊牌
+                            hangTag.setId(String.valueOf(IdUtil.getSnowflakeNextId()));
+                            hangTag.setStyleNo(style.getDesignNo());
+                            hangTag.setBulkStyleNo(styleColorNo);
+                            if (StrUtil.isNotEmpty(packagingForm)) {
+                                List<BasicBaseDict> packageTypeListDict = getBasicBaseDicts(packageTypeList,packagingForm);
+                                if (CollUtil.isNotEmpty(packageTypeListDict)) {
+                                    hangTag.setPackagingForm(packageTypeListDict.get(0).getName());
+                                    hangTag.setPackagingFormCode(packageTypeListDict.get(0).getValue());
+                                } else {
+                                    throw new OtherException("第" + (i + 1) + "行,【" + packagingForm + "】找不到对应的包装类型");
+                                }
+                            }
+                        }
+                        insertHangTagList.add(hangTag);
+                    }
+                }
+            }
+        }
+
+        if (CollUtil.isNotEmpty(updateStyleColorAgentList) && !isUpdate) {
+            return ApiResult.success("总共检查条数:" + list.size() + "条，其中新增" + insertStyleColorAgentList.size() + "条，修改" + updateStyleColorAgentList.size() + "条。确定是否继续导入？",true);
+        }
+
+        batchSaveOrUpdate(insertStyleList, updateStyleList, insertStyleColorList, updateStyleColorList, insertStyleColorAgentList, updateStyleColorAgentList, insertPackInfoList, insertStylePricingList, updateStylePricingList,insertHangTagList,updateHangTagList);
+
+        String msg = "";
+            msg+="成功导入条数"+list.size()+"条！";
+            msg+="其中新增"+insertStyleColorAgentList.size()+"条，";
+            msg+="修改"+updateStyleColorAgentList.size()+"条。";
+        return ApiResult.success(msg);
+    }
+
+    private String checkData2(List<MangoStyleColorExeclDto> list, String errorInfo) {
+        for (int i = 0; i < list.size(); i++) {
+            MangoStyleColorExeclDto entity = list.get(i);
+            String styleColorNo = entity.getStyleColorNo();
+            String prodCategoryName = entity.getProdCategoryName();
+            String prodCategory1stName = entity.getProdCategory1stName();
+            String prodCategory2ndName = entity.getProdCategory2ndName();
+            String outsideColorCode = entity.getOutsideColorCode();
+            String sizeRangeName = entity.getSizeRangeName();
+            String rowText = "";
+
+            //存在已发送状态
+            QueryWrapper styleColorAgentQueryWrapper = new QueryWrapper<StyleColorAgent>();
+            styleColorAgentQueryWrapper.eq("style_color_no",styleColorNo);
+            //styleColorAgentQueryWrapper.eq("status",1);
+            styleColorAgentQueryWrapper.eq("del_flag",0);
+            styleColorAgentQueryWrapper.last("limit 1");
+            StyleColorAgent styleColorAgent = styleColorAgentService.getOne(styleColorAgentQueryWrapper);
+
+            if (styleColorAgent != null) {
+                String status = styleColorAgent.getStatus();
+
+                StyleColor styleColor = styleColorService.getById(styleColorAgent.getStyleColorId());
+
+                if (styleColor == null) {
+                    rowText = commonPromptInfo(true, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "找不到对应的配色信息！\n");
+                }
+                boolean styleStatus = "0".equals(styleColor.getStatus());
+                if ("1".equals(status) && styleStatus) {
+                    rowText = commonPromptInfo(styleColorAgent != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "已下发到下游业务系统，需先运维人员解除卡控再导入数据！\n");
+                }else if ("2".equals(status) && styleStatus) {
+                    if (styleColor != null) {
+                        String styleId = styleColor.getStyleId();
+                        Style style = styleService.getById(styleId);
+                        if (style != null) {
+                            //品牌
+                            rowText = commonPromptInfo( ! style.getBrandName().equals(entity.getBrandName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getBrandName() + "】 数据已下发过，品牌不允许修改！\n");
+                            //品类
+                            rowText = commonPromptInfo( !style.getProdCategoryName().equals(entity.getProdCategoryName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategoryName() + "】 数据已下发过，品类不允许修改！\n");
+                            //大类
+                            rowText = commonPromptInfo( !style.getProdCategory1stName().equals(entity.getProdCategory1stName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory1stName() + "】 数据已下发过，大类不允许修改！\n");
+                            //中类
+                            rowText = commonPromptInfo( !style.getProdCategory2ndName().equals(entity.getProdCategory2ndName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory2ndName() + "】 数据已下发过，中类不允许修改！\n");
+                            //号型类型
+                            rowText = commonPromptInfo( !style.getSizeRangeName().equals(entity.getSizeRangeName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getSizeRangeName() + "】 数据已下发过，号型类型不允许修改！\n");
+                            //合作方尺码
+                            rowText = commonPromptInfo( !styleColorAgent.getOutsideSizeCode().equals(entity.getOutsideSizeCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideSizeCode() + "】 数据已下发过，合作方尺码不允许修改！\n");
+                            //合作方颜色
+                            rowText = commonPromptInfo( !styleColorAgent.getOutsideColorCode().equals(entity.getOutsideColorCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideColorCode() + "】 数据已下发过，合作方颜色编码不允许修改！\n");
+                            //外部条形码
+                            rowText = commonPromptInfo(StrUtil.isNotBlank(styleColorAgent.getOutsideBarcode()) && !styleColorAgent.getOutsideBarcode().equals(entity.getOutsideBarcode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getOutsideBarcode()+"】 数据已下发过，外部条形码不允许修改！\n");
+                        }
+                    }
+                }else if ("3".equals(status) && !styleStatus){
+                        rowText = commonPromptInfo(true, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "解除卡控后，请先停用后再导入数据！\n");
+                }
+            }
+
+
+            QueryWrapper styleColorAgentQueryBarcodeWrapper = new QueryWrapper<StyleColorAgent>();
+            styleColorAgentQueryBarcodeWrapper.eq("style_color_no",styleColorNo);
+            styleColorAgentQueryBarcodeWrapper.eq("outside_barcode",entity.getOutsideBarcode());
+            styleColorAgentQueryBarcodeWrapper.ne("outside_size_code",entity.getOutsideSizeCode());
+            //styleColorAgentQueryBarcodeWrapper.ne("size_id",entity.getSizeCode());
+            styleColorAgentQueryBarcodeWrapper.eq("del_flag",0);
+            styleColorAgentQueryBarcodeWrapper.last("limit 1");
+            StyleColorAgent styleColorAgentExit = styleColorAgentService.getOne(styleColorAgentQueryBarcodeWrapper);
+            rowText = commonPromptInfo(styleColorAgentExit != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】,【" + entity.getOutsideColorCode() + "】" + "数据库存在重复数据请确认后再导入数据！\n");
+
+            QueryWrapper styleColorAgentBracodeQueryBarcodeWrapper = new QueryWrapper<StyleColorAgent>();
+            styleColorAgentBracodeQueryBarcodeWrapper.ne("style_color_no",styleColorNo);
+            styleColorAgentBracodeQueryBarcodeWrapper.eq("outside_barcode",entity.getOutsideBarcode());
+            styleColorAgentBracodeQueryBarcodeWrapper.last("limit 1");
+            StyleColorAgent styleColorAgentBracodeExit = styleColorAgentService.getOne(styleColorAgentBracodeQueryBarcodeWrapper);
+            rowText = commonPromptInfo(styleColorAgentBracodeExit != null, rowText, "第" + (i + 1) + "行,合作方条码【" + entity.getOutsideBarcode() + "】" + "数据库已存在请确认后再导入数据！\n");
+
+
+            //根据产品季名称获取产品季id
+            String year = entity.getYear();
+            String season = entity.getSeason();
+            if (season.equals("春")) {
+                season= "S";
+            }else if(season.equals("夏")){
+                season= "X";
+            }else if(season.equals("秋")){
+                season= "A";
+            }else if(season.equals("冬")){
+                season= "W";
+            }
+            String brandName = entity.getBrandName();
+            String productSeason =year+" "+season+" "+brandName;
+            PlanningSeason planningSeason = planningSeasonService.getByName(productSeason, baseController.getUserCompany());
+            rowText = commonPromptInfo(planningSeason == null, rowText, "第" + (i + 1) + "行" + "【" + productSeason + "】" + "数据库找不到对应产品季信息！\n");
+
+
+            //获取大类的code
+            List<BasicCategoryDot> prodCategory1stList = ccmFeignService.getTreeByNamelList("品类", "0");
+            List<BasicCategoryDot> prodCategory1stNameList = prodCategory1stList.stream().filter(o -> o.getName().equals(prodCategory1stName)).collect(Collectors.toList());
+            rowText = commonPromptInfo(CollUtil.isEmpty(prodCategory1stNameList), rowText, "第" + (i + 1) + "行" + "【" + prodCategory1stName + "】" + "数据库找不到对应大类信息！\n");
+
+            //根据大类找品类
+            if (CollUtil.isNotEmpty(prodCategory1stNameList)) {
+                //根据大类找品类
+                List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode("品类", prodCategory1stNameList.get(0).getValue(), "1");
+                if (CollUtil.isNotEmpty(basicStructureTreeVos)) {
+                    //找中类
+                    List<BasicStructureTreeVo> children = basicStructureTreeVos.get(0).getChildren();
+                    if (CollUtil.isEmpty(children)) {
+                        rowText = commonPromptInfo(CollUtil.isEmpty(children), rowText, "第" + (i + 1) + "行" + "【" + prodCategoryName + "】" + "数据库找不到对应品类信息！\n");
+                    }
+                    //获取品类的code
+                    List<BasicStructureTreeVo> children2 = children.stream().filter(o -> o.getName().equals(prodCategoryName)).collect(Collectors.toList());
+                    if (CollUtil.isNotEmpty(children2)) {
+                        List<BasicStructureTreeVo> basicStructureTreeVoList2 = ccmFeignService.basicStructureTreeByCode("品类", children2.get(0).getValue(), "2");
+                        if (CollUtil.isNotEmpty(basicStructureTreeVoList2)) {
+                            List<BasicStructureTreeVo> children3 = basicStructureTreeVoList2.get(0).getChildren();
+                            if (CollUtil.isNotEmpty(children3)) {
+                                List<BasicStructureTreeVo> collect = children3.stream().filter(o -> o.getName().equals(prodCategory2ndName)).collect(Collectors.toList());
+                                if (CollUtil.isEmpty(collect)) {
+                                    rowText = commonPromptInfo(CollUtil.isEmpty(collect), rowText, "第" + (i + 1) + "行" + "【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
+                                }
+                            }else{
+                                rowText = commonPromptInfo(CollUtil.isEmpty(children3), rowText, "第" + (i + 1) + "行" + "【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
+                            }
+
+                        }else{
+                            rowText = commonPromptInfo(CollUtil.isEmpty(children2), rowText, "第" + (i + 1) + "行" +"【" + prodCategoryName + "】>【" + prodCategory2ndName + "】" + "数据库找不到对应中类信息！\n");
+                        }
+                    }else{
+                        rowText = commonPromptInfo(CollUtil.isEmpty(children2), rowText, "第" + (i + 1) + "行" + "【" + prodCategoryName + "】" + "数据库找不到对应品类信息！\n");
+                    }
+                }else{
+                    rowText = commonPromptInfo(CollUtil.isEmpty(basicStructureTreeVos), rowText, "第" + (i + 1) + "行" + "【" + prodCategoryName + "】" + "数据库找不到对应品类信息！\n");
+                }
+            }
+
+            BasicsdatumColourLibraryAgent colourLibraryAgent = null;
+            if (planningSeason != null) {
+                QueryWrapper<BasicsdatumColourLibraryAgent>  agentQueryWrapper = new QueryWrapper<>();
+                agentQueryWrapper.eq("colour_code",outsideColorCode);
+                agentQueryWrapper.eq("del_flag","0");
+                agentQueryWrapper.eq("status","0");
+                agentQueryWrapper.eq("brand",planningSeason.getBrand());
+                colourLibraryAgent = colourLibraryAgentService.getOne(agentQueryWrapper);
+            }
+
+
+
+
+            if (colourLibraryAgent != null) {
+                String colorId = colourLibraryAgent.getColorId();
+                rowText = commonPromptInfo(StrUtil.isEmpty(colorId), rowText, "第" + (i + 1) + "行" + "【" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
+
+
+                QueryWrapper<BasicsdatumColourLibrary>  basicsdatumColourLibraryQueryWrapper = new QueryWrapper<>();
+                basicsdatumColourLibraryQueryWrapper.eq("id",colourLibraryAgent.getColorId());
+                basicsdatumColourLibraryQueryWrapper.eq("del_flag","0");
+                basicsdatumColourLibraryQueryWrapper.eq("status","0");
+
+                BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryServicel.getOne(basicsdatumColourLibraryQueryWrapper);
+
+                rowText = commonPromptInfo(basicsdatumColourLibrary == null, rowText, "第" + (i + 1) + "行" + "【" + "-" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
+            }else{
+                rowText = commonPromptInfo(colourLibraryAgent == null, rowText, "第" + (i + 1) + "行" + "【" + outsideColorCode + "】" + "数据库找不到外部颜色映射集团内部颜色信息！\n");
+            }
+
+            BasicsdatumModelType basicsdatumModelType = null;
+            if (planningSeason != null) {
+                QueryWrapper basicsdatumModelTypeQueryWrapper = new QueryWrapper<BasicsdatumModelType>();
+                basicsdatumModelTypeQueryWrapper.eq("model_type", sizeRangeName);
+                basicsdatumModelTypeQueryWrapper.eq("status", "0");
+                basicsdatumModelTypeQueryWrapper.eq("del_flag", "0");
+                basicsdatumModelTypeQueryWrapper.like("brand", planningSeason.getBrand());
+                basicsdatumModelTypeQueryWrapper.last(" limit 1");
+
+                basicsdatumModelType = basicsdatumModelTypeService.getOne(basicsdatumModelTypeQueryWrapper);
+            }
+
+
+            String outsideSizeCode = entity.getOutsideSizeCode();
+
+            if (basicsdatumModelType == null) {
+                rowText += "第"+(i+1)+"行"+"【"+entity.getBrandName()+"】【" + sizeRangeName + "】" + "数据库找不到对应号型类型信息！\n";
+            }else{
+                //号型类型尺码
+                String code = basicsdatumModelType.getCode();
+                QueryWrapper<BasicsdatumSize> basicsdatumSizeQueryWrapper = new QueryWrapper();
+                basicsdatumSizeQueryWrapper.like("model_type_code",code);
+                basicsdatumSizeQueryWrapper.like("model_type",sizeRangeName);
+                basicsdatumSizeQueryWrapper.eq("european_size",outsideSizeCode);
+
+                List<BasicsdatumSize> basicsdatumSizeList = basicsdatumSizeService.list(basicsdatumSizeQueryWrapper);
+                if (CollUtil.isEmpty(basicsdatumSizeList)) {
+                    errorInfo += "第" + (i + 1) + "行" + "外部尺码【" + outsideSizeCode + "】" + "【" + basicsdatumModelType.getModelType() + "】号型类型数据库找不到对应外部尺码【" + outsideSizeCode + "】信息！\n";
+                }
+            }
+            errorInfo +=rowText;
+        }
+        return errorInfo;
+    }
+
+
+    @NotNull
+    private List<BasicBaseDict> getBasicBaseDicts(List<BasicBaseDict> list, String name) {
+        return list.stream().filter(o -> o.getName().equals(name)).collect(Collectors.toList());
+    }
+
+    /**
+     * 批量新增和修改数据
+     * @param insertStyleList
+     * @param updateStyleList
+     * @param insertStyleColorList
+     * @param updateStyleColorList
+     * @param insertStyleColorAgentList
+     * @param updateStyleColorAgentList
+     * @param insertPackInfoList
+     * @param insertStylePricingList
+     * @param updateStylePricingList
+     */
+    private void batchSaveOrUpdate(List<Style> insertStyleList, List<Style> updateStyleList, List<StyleColor> insertStyleColorList, List<StyleColor> updateStyleColorList, List<StyleColorAgent> insertStyleColorAgentList, List<StyleColorAgent> updateStyleColorAgentList, List<PackInfo> insertPackInfoList, List<StylePricing> insertStylePricingList, List<StylePricing> updateStylePricingList,List<HangTag> insertHangTagList,List<HangTag> updateHangTagList) {
+        if (CollUtil.isNotEmpty(insertStyleList)) {
+            styleService.saveBatch(insertStyleList);
+        }
+        if (CollUtil.isNotEmpty(insertStyleColorList)) {
+            styleColorService.saveBatch(insertStyleColorList);
+        }
+        if (CollUtil.isNotEmpty(insertStyleColorAgentList)) {
+            styleColorAgentService.saveBatch(insertStyleColorAgentList);
+        }
+        if (CollUtil.isNotEmpty(insertPackInfoList)) {
+            packInfoService.saveBatch(insertPackInfoList);
+        }
+        if (CollUtil.isNotEmpty(insertStylePricingList)) {
+            stylePricingService.saveBatch(insertStylePricingList);
+        }
+        if (CollUtil.isNotEmpty(updateStyleList)) {
+            styleService.updateBatchById(updateStyleList);
+        }
+        if (CollUtil.isNotEmpty(updateStyleColorList)) {
+            styleColorService.updateBatchById(updateStyleColorList);
+        }
+        if (CollUtil.isNotEmpty(updateStyleColorAgentList)) {
+            styleColorAgentService.updateBatchById(updateStyleColorAgentList);
+        }
+        if (CollUtil.isNotEmpty(updateStylePricingList)) {
+            stylePricingService.updateBatchById(updateStylePricingList);
+        }
+        if (CollUtil.isNotEmpty(insertHangTagList)) {
+            hangTagService.saveBatch(insertHangTagList);
+        }
+        if (CollUtil.isNotEmpty(updateHangTagList)) {
+            hangTagService.updateBatchById(updateHangTagList);
+        }
+    }
+
+    private static String checkData1(List<MangoStyleColorExeclDto> list, String errorInfo) {
+        Map<String,String> map = new HashMap<>();
+        Map<String,String> map1 = new HashMap<>();
+        Map<String,String> map3 = new HashMap<>();
+        Map<String,String> map4 = new HashMap<>();
+        Map<String,String> map5 = new HashMap<>();
+        Map<String,String> map6 = new HashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            MangoStyleColorExeclDto entity = list.get(i);
+            Field[] declaredFields = entity.getClass().getDeclaredFields();
+            String rowText = "";
+
+            rowText = checkExeclIsNullData(entity, declaredFields, rowText);
+
+            if (StrUtil.isNotEmpty(rowText)) {
+                errorInfo += "第" + (i + 1) + "行:【" + rowText.substring(0, rowText.length() - 1) + "】内容不能为空！ \n ";
+            }
+
+            String styleColorNo = entity.getStyleColorNo();
+            String outsideBarcode = entity.getOutsideBarcode();
+            String outsideSizeCode = entity.getOutsideSizeCode();
+            String tagPrice = entity.getTagPrice();
+            String planCostPrice = entity.getPlanCostPrice();
+            String sizeRangeName = entity.getSizeRangeName();
+
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo)  && StrUtil.isNotBlank(outsideBarcode) && StrUtil.isNotBlank(outsideSizeCode), styleColorNo  + outsideSizeCode + outsideBarcode, map, i);
+
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(outsideBarcode), styleColorNo + outsideBarcode, map1, i);
+
+            //checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(sizeCode), styleColorNo + sizeCode, map2, i);
+
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(outsideSizeCode), styleColorNo + outsideSizeCode, map3, i);
+
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(tagPrice), styleColorNo + tagPrice, map4, i);
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(planCostPrice), styleColorNo + planCostPrice, map5, i);
+            checkBulkStyleNoRelateData(StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(sizeRangeName), styleColorNo + sizeRangeName, map6, i);
+
+
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(tagPrice)) {
+
+                if (map4.containsKey(styleColorNo)) {
+                    String tagPriceValue = map4.get(styleColorNo);
+                    if (!tagPriceValue.equals(tagPrice)) {
+                        errorInfo += styleColorNo+ ":【大货款号】+【吊牌价】 出现不同的价格";
+                    }
+
+                }else{
+                    map4.put(styleColorNo,tagPrice);
+                }
+
+            }
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(planCostPrice)) {
+
+                if (map5.containsKey(styleColorNo)) {
+                    String planCostPriceValue = map5.get(styleColorNo);
+                    if (!planCostPriceValue.equals(planCostPrice)) {
+                        errorInfo += styleColorNo+ ":【大货款号】+【成本价】 出现不同的价格";
+                    }
+
+                }else{
+                    map5.put(styleColorNo,planCostPrice);
+                }
+            }
+            if (StrUtil.isNotBlank(styleColorNo) && StrUtil.isNotBlank(sizeRangeName)) {
+
+                if (map6.containsKey(styleColorNo)) {
+                    String planCostPriceValue = map6.get(styleColorNo);
+                    if (!planCostPriceValue.equals(sizeRangeName)) {
+                        errorInfo += styleColorNo+ ":【大货款号】+【号型类型】 出现不同的号型类型";
+                    }
+
+                }else{
+                    map6.put(styleColorNo,sizeRangeName);
+                }
+            }
+        }
+
+
+        errorInfo = checkMapInfo(map, errorInfo, "行:【大货款号】+【合作方尺码】+【合作方条形码】 出现重复！ \n ");
+        errorInfo = checkMapInfo(map1, errorInfo, "行:【大货款号】+【合作方条形码】出现重复！ \n ");
+        errorInfo = checkMapInfo(map3, errorInfo, "行:【大货款号】+【合作方尺码】出现重复！ \n ");
+        return errorInfo;
+    }
+
+    /**
+     * 验证execl数据为空的数据
+     * @param entity
+     * @param declaredFields
+     * @param rowText
+     * @return
+     */
+    private static String checkExeclIsNullData(MangoStyleColorExeclDto entity, Field[] declaredFields, String rowText) {
+        for (Field field : declaredFields) {
+            //开启权限
+            try {
+                field.setAccessible(true);
+                Object o = field.get(entity);
+                if (o == null) {
+                    ApiModelProperty annotation = field.getAnnotation(ApiModelProperty.class);
+                    if (annotation != null) {
+                        String text = annotation.name();
+                        if (StrUtil.isNotEmpty(text)) {
+                            rowText = rowText + text + "/";
+                        }
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            } finally {
+                field.setAccessible(false);
+            }
+        }
+        return rowText;
+    }
+
+    /**
+     * 通用报错信息
+     * @param rowText
+     * @param errorInfo
+     * @param i
+     * @return
+     */
+    private static String commonPromptInfo(boolean rowText, String errorInfo, String i) {
+        if (rowText) {
+            errorInfo += i;
+        }
+        return errorInfo;
+    }
+
+    private static String checkMapInfo(Map<String, String> map, String errorInfo, String x) {
+        for (String value : map.values()) {
+            errorInfo = commonPromptInfo(value.contains(","), errorInfo, "第" + value + x);
+        }
+        return errorInfo;
+    }
+
+    /**
+     * 验证大货款关联得尺码重复问题
+     * @param styleColorNo
+     * @param styleColorNo1
+     * @param map
+     * @param i
+     */
+    private static void checkBulkStyleNoRelateData(boolean styleColorNo, String styleColorNo1, Map<String, String> map, int i) {
+        if (styleColorNo) {
+            String content = styleColorNo1;
+            if (map.containsKey(content)) {
+                String s = map.get(content);
+                map.put(content, s + "," + (i + 1));
+            } else {
+                map.put(content, (i + 1) + "");
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void agentUpdate(StyleColorAgentVo styleColorAgentVo) {
+        String id = styleColorAgentVo.getId();
+        if(StrUtil.isNotBlank(id)){
+            LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StyleColorAgent::getOutsideBarcode,styleColorAgentVo.getOutsideBarcode());
+            updateWrapper.set(StyleColorAgent::getUpdateId, getUserId());
+            updateWrapper.set(StyleColorAgent::getUpdateName, getUserName());
+            updateWrapper.set(StyleColorAgent::getUpdateDate, new Date());
+            updateWrapper.eq(StyleColorAgent::getId,id);
+            styleColorAgentService.update(updateWrapper);
+        }
+
+        String styleColorId = styleColorAgentVo.getStyleColorId();
+        if(StrUtil.isNotBlank(styleColorId)){
+            LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StyleColor::getTagPrice,styleColorAgentVo.getTagPrice());
+            updateWrapper.set(StyleColor::getUpdateId, getUserId());
+            updateWrapper.set(StyleColor::getUpdateName, getUserName());
+            updateWrapper.set(StyleColor::getUpdateDate, new Date());
+            updateWrapper.eq(StyleColor::getId,styleColorId);
+            update(updateWrapper);
+        }
+
+        String stylePricingId = styleColorAgentVo.getStylePricingId();
+        if(StrUtil.isNotBlank(stylePricingId)){
+            LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(StylePricing::getControlPlanCost,styleColorAgentVo.getControlPlanCost());
+            updateWrapper.set(StylePricing::getUpdateId, getUserId());
+            updateWrapper.set(StylePricing::getUpdateName, getUserName());
+            updateWrapper.set(StylePricing::getUpdateDate, new Date());
+            updateWrapper.eq(StylePricing::getId,stylePricingId);
+            stylePricingService.update(updateWrapper);
+        }
+
+        String hangTagId = styleColorAgentVo.getHangTagId();
+        if(StrUtil.isNotBlank(hangTagId)){
+            LambdaUpdateWrapper<HangTag> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(HangTag::getPackagingForm,styleColorAgentVo.getPackagingForm());
+            updateWrapper.set(HangTag::getPackagingFormCode,styleColorAgentVo.getPackagingFormCode());
+            updateWrapper.set(HangTag::getUpdateId, getUserId());
+            updateWrapper.set(HangTag::getUpdateName, getUserName());
+            updateWrapper.set(HangTag::getUpdateDate, new Date());
+            updateWrapper.eq(HangTag::getId,hangTagId);
+            hangTagService.update(updateWrapper);
+        }
+    }
+
+    @Override
+    public ApiResult uploadStyleColorPics(Principal user, MultipartFile[] files) {
+
+        List<String> styleNos = new ArrayList<>();
+        Map<String,MultipartFile> map = new HashMap<>();
+
+        for (MultipartFile file : files) {
+            //根据文件名  大货款号匹配数据   67065748_43 替换为-
+            //判断是否是图片
+            String originalFilename = file.getOriginalFilename();
+            CommonUtils.isImage(originalFilename, true);
+            String styleNo = FileUtil.mainName(originalFilename);
+
+            if(styleNos.contains(styleNo)){
+                throw new OtherException("导入文件名不能重复");
+            }
+
+            styleNos.add(styleNo);
+            map.put(styleNo,file);
+        }
+
+        List<StyleColor> styleColorList = listByField("style_no", styleNos);
+        Map<String, List<StyleColor>> styleColorMap = styleColorList.stream().collect(Collectors.groupingBy(StyleColor::getStyleNo));
+        List<StyleColorAgent> styleColorAgents = styleColorAgentService.listByField("style_color_no", styleNos);
+        Map<String, List<StyleColorAgent>> styleColorAgentMap = styleColorAgents.stream().collect(Collectors.groupingBy(StyleColorAgent::getStyleColorNo));
+
+        List<String> list1 = new ArrayList<>();
+        List<String> list2 = new ArrayList<>();
+        List<String> list3 = new ArrayList<>();
+        List<String> list4 = new ArrayList<>();
+
+        for (Map.Entry<String, MultipartFile> stringMultipartFileEntry : map.entrySet()) {
+            String styleNo = stringMultipartFileEntry.getKey();
+            if(styleColorMap.containsKey(styleNo) && styleColorAgentMap.containsKey(styleNo)){
+                String status = styleColorAgentMap.get(styleNo).get(0).getStatus();
+                if(!StrUtil.equals(status,"0") && !StrUtil.equals(status,"2")){
+                    list4.add(styleNo);
+                    continue;
+                }
+                StyleColor styleColor = styleColorMap.get(styleNo).get(0);
+                String id = styleColor.getId();
+                String styleId = styleColor.getStyleId();
+                try {
+                    DelStylePicDto delStylePicDto = new DelStylePicDto();
+                    delStylePicDto.setStyleColorId(id);
+                    delStylePicDto.setStyleId(styleId);
+                    uploadFileService.delStyleImage(delStylePicDto, user);
+                    UploadStylePicDto picDto = new UploadStylePicDto();
+                    picDto.setFile(stringMultipartFileEntry.getValue());
+                    picDto.setStyleColorId(id);
+                    picDto.setStyleId(styleId);
+                    uploadFileService.uploadStyleImage(picDto, user);
+                } catch (Exception e) {
+                    //修改失败
+                    list1.add(styleNo);
+                    continue;
+                }
+                //修改成功
+                list2.add(styleNo);
+            }else{
+                //大货款号不存在
+                list3.add(styleNo);
+            }
+        }
+        Map<String,String> resultMap = new HashMap<>();
+        resultMap.put("修改失败", String.join(",", list1));
+        resultMap.put("修改成功",String.join(",", list2));
+        resultMap.put("大货款号不存在",String.join(",", list3));
+        resultMap.put("大货款号状态不允许修改",String.join(",", list4));
+        return ApiResult.success("成功",resultMap);
+    }
+
+    @Override
+    public void agentControl(String id) {
+        //状态校验
+        List<StyleColorAgent> list = styleColorAgentService.listByField("style_color_id", Collections.singletonList(id));
+        for (StyleColorAgent styleColorAgent : list) {
+            if(!"3".equals(styleColorAgent.getStatus())){
+                throw new OtherException("只有可编辑时才能卡控");
+            }
+        }
+
+        LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColorAgent::getStatus,"2");
+        updateWrapper.in(StyleColorAgent::getStyleColorId, Collections.singletonList(id));
+        styleColorAgentService.update(updateWrapper);
+    }
+
+    @Override
+    public void agentUnControl(String id) {
+        //状态校验
+        List<StyleColorAgent> list = styleColorAgentService.listByField("style_color_id",Collections.singletonList(id));
+        for (StyleColorAgent styleColorAgent : list) {
+            if(!"2".equals(styleColorAgent.getStatus())){
+                throw new OtherException("只有重新打开时才能解控");
+            }
+        }
+
+        LambdaUpdateWrapper<StyleColorAgent> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColorAgent::getStatus,"3");
+        updateWrapper.in(StyleColorAgent::getStyleColorId, Collections.singletonList(id));
+        styleColorAgentService.update(updateWrapper);
     }
 
 

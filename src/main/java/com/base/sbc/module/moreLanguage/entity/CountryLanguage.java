@@ -74,6 +74,9 @@ public class CountryLanguage extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
+    /** 排序 */
+    @ApiModelProperty(value = "排序"  )
+    private Integer sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
 }

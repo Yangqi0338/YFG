@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -25,6 +26,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
@@ -55,6 +57,8 @@ import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
+import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -137,6 +141,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Autowired
     private PackPricingService packPricingService;
 
+    @Autowired
+    private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -261,7 +267,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                             /*判断款式定价的状态全部都通过*/
                             HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
                             if(ObjectUtils.isNotEmpty(hangTag)){
-                                if (StrUtil.equals(hangTag.getStatus(), BaseGlobal.FIVE_STRING)) {
+                                if (hangTag.getStatus() == HangTagStatusEnum.FINISH) {
                                     //发送消息
                                     messageUtils.sendMessage("",hangTag.getCreateId(),packInfo.getStyleNo()+"大货款号，物料已替换请注意查收","/beforeProdSample/bigGoodsDataPackage?id="+packInfo.getId()+"&styleId="+packInfo.getStyleId()+"&style="+packInfo.getStyleNo()+"&packType=packBigGoods","",baseController.getUser());
                                 }
@@ -530,6 +536,18 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     public boolean unusableChange(String id, String unusableFlag) {
         List<String> split = StrUtil.split(id, CharUtil.COMMA);
         PackBom byId = getById(split.get(0));
+        /*校验吊牌是否在审核中或已审核完成*/
+        PackInfo packInfo = packInfoService.getById(byId.getForeignId());
+        HangTag hangTag = hangTagService.getByOne("bulk_style_no", packInfo.getStyleNo());
+        if (hangTag != null) {
+            /*不是在未填写，未提交阶段时提示不能修改*/
+            /*查询这个物料是否存在检查报告 存在是消息通知*/
+            List<EscmMaterialCompnentInspectCompanyDto> companyServiceList = escmMaterialCompnentInspectCompanyService.getList(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("thtic.hang_tag_id", hangTag.getId()).eq("temcic.materials_no", byId.getMaterialCode()));
+            if(CollUtil.isNotEmpty(companyServiceList)){
+                /*消息通知吊牌的创建人和新增人*/
+                messageUtils.sendMessage(null,hangTag.getCreateId()+","+hangTag.getUpdateId(),"物料变更检查报告通知","/hangTag/hangTagAdd?bulkStyleNo="+hangTag.getBulkStyleNo()+"&typeCode=编辑",null,baseController.getUser());
+            }
+        }
         BigDecimal totalCost = packPricingService.countTotalPrice(byId.getForeignId(),BaseGlobal.STOCK_STATUS_CHECKED,2);
         // 校验版本
         packBomVersionService.checkVersion(byId.getBomVersionId());

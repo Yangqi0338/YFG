@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,7 +44,9 @@ public class MoreLanguageDictTableStrategy implements MoreLanguageTableStrategy 
         // 没有分页,手动分页,后续再联调ccm做
         List<BasicBaseDict> dictInfoList = ccmFeignService.getDictInfoToList(standardColumn.getTableCode());
         dictInfoList = dictInfoList.stream().collect(Collectors.groupingBy(BasicBaseDict::getValue))
-                .values().stream().map(it-> it.get(0)).collect(Collectors.toList());
+                .values().stream().map(it-> it.get(0))
+                .sorted(Comparator.comparing(BasicBaseDict::getId))
+                .collect(Collectors.toList());
 
         int pageSize = page.getPageSize();
         int pageNum = page.getPageNum();

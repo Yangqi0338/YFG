@@ -16,19 +16,11 @@ import java.util.List;
  * @date 2023/3/24 17:16:34
  */
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class CountryLanguageGroupDto implements Serializable {
+public class CountryLanguageGroupDto extends CountryDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /** 国家编码 */
-    @ApiModelProperty(value = "编码"  )
-    private String code;
-    /** 国家编码 */
-    @ApiModelProperty(value = "国家编码"  )
-    private String countryCode;
-    /** 国家名称 */
-    @ApiModelProperty(value = "国家名称"  )
-    private String countryName;
     /** 国家编码 */
     @ApiModelProperty(value = "语言编码"  )
     private String languageCode;

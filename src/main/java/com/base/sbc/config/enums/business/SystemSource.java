@@ -19,6 +19,7 @@ import lombok.Getter;
 public enum SystemSource {
     PDM("PDM系统"),
     BCS("BCS系统"),
+    ESCM("ESCM系统"),
     PRINT("打印系统"),
 
     ;

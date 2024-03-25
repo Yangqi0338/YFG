@@ -5,21 +5,24 @@
         select tob.*,(select count(1) from t_order_book_detail tobd where tobd.order_book_id=tob.id and tobd.del_flag='0') as count from
             t_order_book tob
         where tob.del_flag='0'
+        <if test="dto.detailStatus != null">
+            and (select count(*) from t_order_book_detail tobd where tobd.order_book_id = tob.id and tobd.audit_status = #{dto.detailStatus}) > 0
+        </if>
         <if test="ew.customSqlSegment!= null and ew.customSqlSegment!= ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
     <select id="countByStatus" resultType="java.util.Map">
         SELECT
-        status,
+        tob.order_status as orderStatus,
         count(1) as total
         FROM
-        t_order_book
+        t_order_book tob
         where del_flag='0'
         <if test="ew.customSqlSegment!= null and ew.customSqlSegment!= ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
-        group by status
-        order by status
+        group by tob.order_status
+        order by tob.order_status
     </select>
 </mapper>

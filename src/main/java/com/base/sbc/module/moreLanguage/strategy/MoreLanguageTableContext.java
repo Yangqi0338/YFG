@@ -63,15 +63,22 @@ public class MoreLanguageTableContext {
     }
 
     public static String decorateTitleJson(StandardColumn standardColumn){
-        List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(standardColumn.getTableTitleJson(), MoreLanguageTableTitle.class);
-        tableTitleHandlerChain.setTableTitleList(tableTitleList);
-
-        tableTitleList.forEach(it-> {
-            List<MoreLanguageTableTitle> newTableTitleList = JSONUtil.toList(standardColumn.getTableTitleJson(), MoreLanguageTableTitle.class);
-            tableTitleHandlerChain.setTableTitleList(newTableTitleList);
+        // 遍历
+        getTableTitleList(standardColumn).forEach(it-> {
+            // 重新获取最新的title列表
+            getTableTitleList(standardColumn);
+            // 处理链之后的列表重新转为json设置回标准列
             standardColumn.setTableTitleJson(JSONUtil.toJsonStr(tableTitleHandlerChain.handler(it).tableTitleList));
         });
         return standardColumn.getTableTitleJson();
+    }
+
+    private static List<MoreLanguageTableTitle> getTableTitleList(StandardColumn standardColumn){
+        // Json转为列表
+        List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(standardColumn.getTableTitleJson(), MoreLanguageTableTitle.class);
+        // 处理链添加列表
+        tableTitleHandlerChain.setTableTitleList(tableTitleList);
+        return tableTitleList;
     }
 
     public static String findParam(String code){
@@ -110,6 +117,10 @@ public class MoreLanguageTableContext {
 
         public static boolean checkKey(String handlerKey, Class<? extends MoreLanguageTableTitleHandler> clazz) {
             return findHandler(handlerKey, clazz) != null;
+        }
+
+        public void setParam(String value){
+            MoreLanguageTableContext.setParam(MapUtil.of(this.handlerKey,value));
         }
 
         public static MoreLanguageTableTitleHandlerEnum findHandler(String handlerKey, Class<? extends MoreLanguageTableTitleHandler> clazz) {

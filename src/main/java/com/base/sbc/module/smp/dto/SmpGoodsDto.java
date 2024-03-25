@@ -291,7 +291,40 @@ public class SmpGoodsDto extends SmpBaseDto {
     private Date processDepartmentDate;
 
     /**
+     * 货品停用标识
+     */
+    private String goodsFlag;
+
+    /**
+     * 颜色停用标识
+     */
+    private String goodsColorFlag;
+
+    /**
      * 指定面料集合
      */
     private List<StyleSpecFabric> styleSpecFabricList;
+
+    /**
+     * 自主研发版型
+     */
+    @ApiModelProperty(value = "自主研发版型")
+    private String plateType;
+
+    /**
+     * 成分水洗
+     */
+    @ApiModelProperty(value = "成分水洗")
+    private String garmentWash;
+
+    /**
+     * 外部颜色code
+     */
+    @ApiModelProperty(value = "外部颜色code")
+    private String outsideColorCode;
+    /**
+     * 外部颜色名称
+     */
+    @ApiModelProperty(value = "外部颜色名称")
+    private String outsideColorName;
 }

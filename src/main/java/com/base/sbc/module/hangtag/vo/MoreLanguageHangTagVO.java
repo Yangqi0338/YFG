@@ -11,6 +11,7 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.func.Supplier2;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
@@ -34,6 +35,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 /**
  * 类描述：吊牌表 实体类
@@ -87,7 +90,7 @@ public class MoreLanguageHangTagVO extends HangTagVO {
         private String standColumnName;
         private Function<MoreLanguageHangTagVO, String> content;
 
-        private String separator = "\n";
+        private String separator = MoreLanguageProperties.multiSeparator;
 
         public HangTagMoreLanguageGroup(Function<MoreLanguageHangTagVO, String> content) {
             this.content = content;
@@ -96,6 +99,7 @@ public class MoreLanguageHangTagVO extends HangTagVO {
         public HangTagMoreLanguageGroup(String standColumnCode, String standColumnName, Function<MoreLanguageHangTagVO, String> content) {
             this.standColumnCode = standColumnCode;
             this.content = content;
+            this.standColumnName = standColumnName;
         }
     }
 
@@ -104,10 +108,12 @@ public class MoreLanguageHangTagVO extends HangTagVO {
     private List<ModelType> sizeList;
 
     public void setSizeList(List<BasicsdatumModelType> modelTypeList) {
+        // 分装新的modelType以适配业务
         this.sizeList = modelTypeList.stream().flatMap(it-> {
-            String[] sizeArray = it.getSize().split(",");
+            // 切割名字和编码
+            String[] sizeArray = it.getSize().split(COMMA);
             List<ModelType> modelTypes = new ArrayList<>();
-            String[] sizeCodeArray = it.getSizeCode().split(",");
+            String[] sizeCodeArray = it.getSizeCode().split(COMMA);
             for (int i = 0, splitLength = sizeCodeArray.length; i < splitLength; i++) {
                 String sizeCode = sizeCodeArray[i];
                 modelTypes.add(new ModelType(it.getCode(), sizeCode, sizeArray[i]));

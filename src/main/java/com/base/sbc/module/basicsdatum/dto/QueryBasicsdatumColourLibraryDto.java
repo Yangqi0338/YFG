@@ -40,6 +40,7 @@ public class QueryBasicsdatumColourLibraryDto extends Page {
     /** 色度 */
     @ApiModelProperty(value = "色度"  )
     private String chroma;
+    private String chromaName;
     /** 英文名称 */
     @ApiModelProperty(value = "英文名称"  )
     private String englishName;

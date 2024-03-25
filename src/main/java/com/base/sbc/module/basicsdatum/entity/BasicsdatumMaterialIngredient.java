@@ -51,12 +51,18 @@ public class BasicsdatumMaterialIngredient extends BaseEntity {
 	/** 成分类型(0:成分,1:厂家成分) */
 	@ApiModelProperty(value = "成分类型(0:成分,1:厂家成分)")
 	private String type;
+	/** 成分编码 */
+	@ApiModelProperty(value = "成分编码")
+	private String code;
 	/** 成分名称 */
 	@ApiModelProperty(value = "成分名称")
 	private String name;
 	/** 比例(%) */
 	@ApiModelProperty(value = "比例(%)")
 	private BigDecimal ratio;
+	/** 说明 */
+	@ApiModelProperty(value = "说明编码")
+	private String sayCode;
 	/** 说明 */
 	@ApiModelProperty(value = "说明")
 	private String say;

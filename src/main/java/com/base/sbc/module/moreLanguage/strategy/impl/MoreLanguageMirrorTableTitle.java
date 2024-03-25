@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.base.sbc.config.constant.Constants.COMMA;
+
 /**
  * {@code 描述：多语言获取子数据的策略}
  *
@@ -29,6 +31,7 @@ public class MoreLanguageMirrorTableTitle extends MoreLanguageTableTitleHandler 
 
     @Override
     public boolean needHandler(MoreLanguageTableTitle tableTitle) {
+        // 复用copy,但是必须在copyHandler处理器后面,暂时没用 TODO
         String param = MoreLanguageTableContext.findParam(MoreLanguageTableTitleHandlerEnum.COPY.getHandlerKey());
         countryLanguageList = JSONUtil.toList(param, CountryLanguage.class);
 //        if (MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.isTrue()) return false;
@@ -40,7 +43,7 @@ public class MoreLanguageMirrorTableTitle extends MoreLanguageTableTitleHandler 
         tableTitleList.forEach(newTableTitle-> {
             if (newTableTitle.getCode().equals(tableTitle.getCode())) {
                 newTableTitle.setCode(countryLanguageList.stream()
-                        .map(it-> it.getLanguageCode() + "-" + tableTitle.getCode()).collect(Collectors.joining(",")));
+                        .map(it-> it.getLanguageCode() + "-" + tableTitle.getCode()).collect(Collectors.joining(COMMA)));
             }
         });
         return this;

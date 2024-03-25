@@ -79,7 +79,8 @@ select tsc.style_no                                                             
        if(tpts.foreign_id > '0', '是', '否')                                                               as 含外辅工艺,
        CONCAT(tsc.ware_code, tsc.color_code, ts.default_size)                                              as 默认条形码,
        ts.historical_data                                                                                  as 历史数据,
-       if(tsc.del_flag = '0', '存在', '删除')                                                              as 删除标识
+       if(tsc.del_flag = '0', '存在', '删除')                                                              as 删除标识,
+       tsc.id                                                                                               as 大货款ID
 from t_style_color as tsc
          left join t_style as ts on ts.id = tsc.style_id
     and ts.del_flag = '0'

@@ -88,6 +88,12 @@ public class AddRevampBasicsdatumModelTypeDto  {
     private String  categoryName;
     /*尺码标签id*/
     private String sizeLabelId;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
 
 //    private List<BasicsdatumCompanyRelation> list;
 

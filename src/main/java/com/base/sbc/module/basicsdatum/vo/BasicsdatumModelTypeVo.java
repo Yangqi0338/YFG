@@ -73,4 +73,10 @@ public class BasicsdatumModelTypeVo  extends BaseDataEntity<String>{
     /** 状态(0正常,1停用) */
     @ApiModelProperty(value = "状态(0正常,1停用)"  )
     private String status;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
 }

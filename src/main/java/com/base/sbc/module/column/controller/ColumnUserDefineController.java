@@ -53,6 +53,12 @@ public class ColumnUserDefineController {
         return ApiResult.success("查询成功", this.columnUserDefineService.findDefaultDetail(tableCode));
     }
 
+    @ApiOperation("获取默认配置-并按照分组处理")
+    @GetMapping({"/findDefaultDetailGroup/{tableCode}"})
+    public ApiResult findDefaultDetailGroup(@PathVariable("tableCode") String tableCode) {
+        return ApiResult.success("查询成功", this.columnUserDefineService.findDefaultDetailGroup(tableCode));
+    }
+
     @ApiOperation("删除-通过id查询")
     @DeleteMapping({"/{id}"})
     public ApiResult removeById(@PathVariable("id") String id) {

@@ -2,6 +2,7 @@ package com.base.sbc.module.basicsdatum.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -113,6 +114,7 @@ public class SecondIngredientController extends BaseController {
     @DuplicationCheck(time = 2)
     public ApiResult batchInsert(@Valid @RequestBody List<BasicBaseDict> basicBaseDicts){
         List<BasicBaseDict> pd021DictList = ccmFeignService.getAllDictInfoToList(uniqueDictCode);
+        pd021DictList = pd021DictList.stream().filter(it-> NumberUtil.isNumber(it.getValue().replace(dictPreCode,""))).collect(Collectors.toList());
         int startIndex = pd021DictList.size();
 
         if (startIndex != 0) {

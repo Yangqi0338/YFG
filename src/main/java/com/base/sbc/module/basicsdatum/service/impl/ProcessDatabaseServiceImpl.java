@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
@@ -415,5 +414,26 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
         /*去掉空数据*/
         return processDatabaseList.stream().filter(p -> StrUtil.isNotBlank(BeanUtil.getProperty(p, field))).collect(Collectors.toList());
 
+    }
+
+    @Override
+    public Map<String, String> listAllDistinct(ProcessDatabasePageDto pageDto) {
+        BaseQueryWrapper<ProcessDatabase> queryWrapper = new BaseQueryWrapper<>();
+
+        queryWrapper.eq(StringUtils.isNotEmpty(pageDto.getType()), "type", pageDto.getType());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryId()), "category_id", pageDto.getCategoryId());
+        queryWrapper.like(StringUtils.isNotEmpty(pageDto.getCategoryName()), "category_name", pageDto.getCategoryName());
+
+        if (StringUtils.isNotEmpty(pageDto.getOrderBy())) {
+            queryWrapper.orderByDesc(pageDto.getOrderBy());
+        }else {
+            queryWrapper.orderByDesc("create_date");
+        }
+
+        queryWrapper.select("component","component_name");
+
+        List<ProcessDatabase> list = this.list(queryWrapper);
+
+        return list.stream().collect(Collectors.toMap(ProcessDatabase::getComponent, ProcessDatabase::getComponentName, (v1, v2) -> v1));
     }
 }

@@ -16,6 +16,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
@@ -58,6 +59,7 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
     @Override
     public PageInfo<WorkLogVo> pageInfo(WorkLogSearchDto dto) {
         BaseQueryWrapper<WorkLog> qw = new BaseQueryWrapper<>();
+        QueryGenerator.initQueryWrapperByMap(qw,dto);
         qw.notEmptyIn("worker_id", dto.getWorkerId());
         qw.notEmptyIn("log_type", dto.getLogType());
         qw.notEmptyIn("num_type", dto.getNumType());

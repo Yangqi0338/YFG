@@ -72,6 +72,10 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
 
     boolean sampleMakingScore(Principal user, String id, BigDecimal score);
 
+    boolean sampleQualityScore(Principal user, String id, BigDecimal score);
+
+    boolean techRemarks(Principal user, String id, String remark);
+
     /**
      *
      * @param dto
@@ -80,6 +84,8 @@ public interface PreProductionSampleTaskService extends BaseService<PreProductio
     boolean samplePicUpload( SamplePicUploadDto dto);
 
     void saveTechReceiveDate(PreProductionSampleTaskDto task);
+
+    List<String> stitcherList(PreProductionSampleTaskSearchDto dto);
 // 自定义方法区 不替换的区域【other_end】
 
 

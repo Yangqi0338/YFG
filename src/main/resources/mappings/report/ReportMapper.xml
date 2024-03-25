@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.report.mapper.ReportMapper">
+    <select id="getHangTagReortList" resultType="com.base.sbc.module.report.vo.HangTagReportVo">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            t.bulk_style_no,
+            t1.style_color_pic,
+            t1.ware_code,
+            t1.color_name,
+            t1.color_code,
+            concat(t1.ware_code, t1.color_code, tbs.sort) as defaultBarCode,
+            t1.tag_price,
+            t.product_name,
+            ts.style_name,
+            t1.devt_type_name,
+            ts.brand_name,
+            ts.year_name,
+            ts.season_name,
+            t1.band_name,
+            ts.prod_category1st_name,
+            ts.prod_category2nd_name,
+            ts.prod_category3rd_name,
+            t.down_content,
+            t.ingredient,
+            t.special_spec
+        </if>
+        FROM t_hang_tag t
+        LEFT JOIN t_style_color t1 ON t.bulk_style_no = t1.style_no and t1.del_flag = 0
+        LEFT JOIN t_style ts ON t1.style_id = ts.id and ts.del_flag = 0
+        LEFT JOIN t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id, ts.size_ids) > 0 and tbs.hangtags = ts.default_size and tbs.del_flag = 0
+        ${ew.customSqlSegment}
+    </select>
+
+
+    <select id="getMaterialSupplierQuoteReporList" resultType="com.base.sbc.module.report.vo.MaterialSupplierQuoteVo">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            t.image_url,
+            t.material_code_name,
+            t.create_date,
+            t.category1_name,
+            t.category2_name,
+            t.category3_name,
+            t1.width_name,
+            t.stock_unit_name,
+            t.factory_composition,
+            t.ingredient,
+            CONCAT(t1d.color_name,t1d.color) as colorNameCode,
+            t2.supplier_color_code,
+            t1.supplier_name,
+            t1.SUPPLIER_MATERIAL_CODE,
+            t1.QUOTATION_PRICE,
+            t1.production_day,
+            t1.order_day,
+            t.status,
+            t1.fob,
+            tss.supplier_abbreviation as supplierNameShort,
+            t1.minimum_order_quantity,
+            t1.minimum_order_quantity_color,
+            t.remarks,
+            concat(tss.supplier_abbreviation,'-',t1.supplier_id) as supplierQuote,
+            t1.supplier_id,
+            t.gram_weight,
+            t.material_code_old,
+            t.distribute,
+            t.material_code,
+            t.year_name,
+            t.season_name
+        </if>
+        from t_basicsdatum_material t
+        LEFT JOIN t_basicsdatum_material_price t1 ON t.material_code = t1.material_code and t1.del_flag = 0
+        LEFT JOIN (select price_id,material_code,color,color_name from t_basicsdatum_material_price_detail GROUP BY price_id) t1d ON t1.id = t1d.price_id and t1.material_code = t1d.material_code
+        LEFT JOIN t_basicsdatum_material_color t2 ON t1d.material_code = t2.material_code and t1d.color = t2.color_code and t2.del_flag = 0
+        LEFT JOIN t_basicsdatum_supplier tss ON t1.supplier_id = tss.supplier_code and tss.del_flag = 0
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="getStylePackBomListReport" resultType="com.base.sbc.module.report.vo.StylePackBomMaterialReportVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            tsc.style_color_pic,
+            tsc.style_no,
+            tsc.color_name,
+            ts.prod_category1st_name,
+            ts.prod_category_name,
+            tsc.devt_type_name,
+            ts.style_name,
+            ts.style_type_name,
+            tsc.bom_status,
+            tpb.image_url,
+            tpb.material_code,
+            tpb.supplier_material_code,
+            tpb.material_name,
+            tpb.gram_weight,
+            tpb.ingredient as materialIngredient,
+            tpb.remarks,
+            tbm.year_name,
+            tbm.season_name,
+            tbm.brand_name,
+            tbm.category1_name,
+            tbm.category2_name,
+            tbm.category3_name,
+            concat(tpb.supplier_name,'-',tpb.supplier_id) as supplierName,
+            tpb.translate,
+            tpb.bulk_price,
+            tpb.bulk_unit_use,
+            tpb.stock_unit_name,
+            tpb.planning_looss_rate,
+            tpb.cost,
+            tpb.collocation_name,
+            tpb.unusable_flag,
+            tpb.supplier_price,
+            tbm.status,
+            SUBSTRING_INDEX(ts.designer, ',', 1) as designer,
+            ts.technician_name,
+            ts.pattern_design_name,
+            tht.ingredient as tagIngredient,
+            tht.safty_title,
+            tht.safty_type,
+            tht.technologist_name,
+            tht.product_name,
+            tht.warm_tips,
+            tht.washing_material_remarks_name,
+            tht.execute_standard,
+            tht.quality_grade,
+            tht.storage_demand_name,
+            tsp.control_confirm ,
+            tsp.product_hangtag_confirm,
+            tsp.control_hangtag_confirm,
+            tht.status as design_check_confirm,
+            tht.status as tech_check_confirm,
+            tht.status as qc_check_confirm
+        </if>
+        FROM
+        t_style_color tsc
+        LEFT JOIN t_style ts ON ts.id = tsc.style_id and ts.del_flag = 0
+        LEFT JOIN t_pack_info tpi ON tsc.id = tpi.style_color_id and tpi.del_flag = 0
+        LEFT JOIN t_pack_bom_version tpbv ON tpbv.foreign_id = tpi.id and tpbv.status = 1 and tpbv.pack_type = 'packBigGoods' and tpbv.del_flag = 0
+        INNER JOIN t_pack_bom tpb ON tpb.foreign_id = tpi.id and tpbv.id = tpb.bom_version_id and tpb.del_flag = 0
+        LEFT JOIN t_basicsdatum_material tbm ON tbm.id = tpb.material_id  and tbm.del_flag = 0
+        LEFT JOIN t_hang_tag tht ON tht.bulk_style_no = tsc.style_no and tht.del_flag = 0
+        LEFT JOIN t_style_pricing tsp ON tsp.pack_id = tpi.id  and tsp.del_flag = 0
+        ${ew.customSqlSegment}
+    </select>
+
+
+    <select id="getStyleSizeReport" resultType="com.base.sbc.module.report.vo.StyleSizeReportVo">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            tps.standard,
+            ts.brand_name,
+            tsc.style_no,
+            tsc.style_color_pic,
+            tsc.color_name,
+            ts.year_name,
+            ts.season_name,
+            ts.band_name,
+            ts.prod_category1st_name,
+            ts.prod_category_name,
+            ts.prod_category2nd_name,
+            ts.prod_category3rd_name,
+            tps.part_name,
+            tps.method
+        </if>
+        from t_style ts
+        INNER JOIN t_style_color tsc ON ts.id = tsc.style_id and tsc.del_flag = 0
+        INNER JOIN t_pack_info tpi  ON  tsc.id = tpi.style_color_id and tpi.del_flag = 0
+        INNER JOIN t_pack_size tps  ON  tpi.id = tps.foreign_id and tps.del_flag = 0 and tps.pack_type = 'packBigGoods'
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDesignOrderScheduleDetailsReport" resultType="com.base.sbc.module.report.vo.DesignOrderScheduleDetailsReportVo">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            tsc.id,
+            ts.year,
+            ts.season_name,
+            tsc.devt_type_name,
+            CONCAT(SUBSTRING(ts.band_name,1,length(ts.band_name) -1),'月')  as `month`,
+            ts.brand_name,
+            concat(ts.year,ts.season_name) yearSeason,
+            SUBSTRING_INDEX(ts.designer, ',', 1) as designerName,
+            ts.band_name ,
+            ts.design_no,
+            tsc.style_no,
+            tsc.style_color_pic,
+            tobd.commissioning_date,
+            tsc.send_main_fabric_date,
+            tsc.send_main_fabric_overdue_reason,
+            tsc.design_detail_date,
+            tsc.design_detail_overdue_reason,
+            tsc.design_correct_date,
+            tsc.design_correct_overdue_reason
+        </if>
+        FROM t_style_color tsc
+        INNER JOIN t_style ts  ON  tsc.style_id = ts.id and ts.del_flag = 0
+        LEFT JOIN t_order_book_detail tobd ON tsc.id = tobd.style_color_id and tobd.del_flag = 0
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

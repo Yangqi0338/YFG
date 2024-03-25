@@ -1,6 +1,6 @@
 package com.base.sbc.module.sample.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -16,7 +16,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("产前样-任务筛选 PreProductionSampleTaskSearchDto")
-public class PreProductionSampleTaskSearchDto extends Page {
+public class PreProductionSampleTaskSearchDto extends QueryFieldDto {
 
     @ApiModelProperty(value = "关键字筛选", example = "1")
     private String search;
@@ -45,4 +45,13 @@ public class PreProductionSampleTaskSearchDto extends Page {
 
     /*导出标记*/
     private String excelFlag;
+
+    /**
+     * 车缝工名称
+     */
+    @ApiModelProperty(value = "车缝工名称")
+    private String stitcher;
+
+    private String cfkssj;//	车缝开始时间
+    private String cfwcsj;//	车缝完成时间
 }

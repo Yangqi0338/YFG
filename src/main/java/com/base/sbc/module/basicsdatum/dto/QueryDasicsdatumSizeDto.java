@@ -25,6 +25,10 @@ public class QueryDasicsdatumSizeDto  extends Page {
     private String[] createDate;
 
     private String all;
+    /**
+     * 号型类型扩展
+     */
+    private String modelTypeExt;
 
     @ApiModelProperty(value = "号型类型编码"  )
     private String   modelTypeCode;

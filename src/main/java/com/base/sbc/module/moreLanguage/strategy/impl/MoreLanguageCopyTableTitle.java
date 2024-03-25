@@ -28,6 +28,7 @@ public class MoreLanguageCopyTableTitle extends MoreLanguageTableTitleHandler {
 
     @Override
     public boolean needHandler(MoreLanguageTableTitle tableTitle) {
+        // 是否存在该处理器
         String param = MoreLanguageTableContext.findParam(tableTitle.getHandler());
         countryLanguageList = JSONUtil.toList(param, CountryLanguage.class);
 //        if (MoreLanguageTableContext.MoreLanguageTableParamEnum.NO_DECORATE.isTrue()) return false;
@@ -39,6 +40,7 @@ public class MoreLanguageCopyTableTitle extends MoreLanguageTableTitleHandler {
         int baseIndex = 0;
         for (int i = 0; i < tableTitleList.size(); i++) {
             MoreLanguageTableTitle it = tableTitleList.get(i);
+            // 找到对应需要装饰的表头,并返回所处的列表位置
             if (tableTitle.getCode().equals(it.getCode())) {
                 baseIndex = i;
                 tableTitleList.remove(i);
@@ -48,6 +50,7 @@ public class MoreLanguageCopyTableTitle extends MoreLanguageTableTitleHandler {
 
         for (int i = 0; i < countryLanguageList.size(); i++) {
             CountryLanguage countryLanguage = countryLanguageList.get(i);
+            // 复制一份,将编码和文本都加上语言并逐一设置回原来的位置
             MoreLanguageTableTitle countryLanguageTableTitle = BeanUtil.copyProperties(tableTitle, MoreLanguageTableTitle.class);
             countryLanguageTableTitle.setText(countryLanguage.getLanguageName() + tableTitle.getText());
             countryLanguageTableTitle.setCode(countryLanguage.getLanguageCode() + "-" + tableTitle.getCode());

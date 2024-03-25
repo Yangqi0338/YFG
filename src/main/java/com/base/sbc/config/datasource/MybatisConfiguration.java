@@ -43,7 +43,7 @@ import java.util.Properties;
  * @author Jfei
  */
 @Configuration
-@AutoConfigureAfter(DatasourceConfig.class)
+//@AutoConfigureAfter(DatasourceConfig.class)
 @EnableTransactionManagement
 public class MybatisConfiguration implements TransactionManagementConfigurer {
 

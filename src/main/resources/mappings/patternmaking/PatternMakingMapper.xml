@@ -159,16 +159,74 @@
     </select>
     <select id="sampleBoardList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardVo">
         SELECT
-        p.id AS patternMakingId,
-        p.pattern_design_name ,
-        p.pattern_design_id ,
-        p.pat_diff,p.pat_diff_name,
-        p.sample_bar_code sampleBarCode,
-        s.*,
-        p.*,
-        p.status pmStatus,
-        p.create_date as `pmCreateDate`,
-        p.demand_finish_date as demandFinishDate
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            p.id AS patternMakingId,
+            p.pattern_design_id ,
+            p.pat_diff,p.pat_diff_name,
+            p.sample_bar_code sampleBarCode,
+
+            CONCAT(s.year_name,s.season_name,s.brand_name) as season,
+            s.style_pic,
+            p.sample_type,
+            p.pat_seq_name,
+            (CASE WHEN p.technician_kitting = 0 THEN '否' ELSE '是' END) as technician_kitting,
+            p.technician_kitting_date,
+            p.pattern_req_date,
+            p.demand_finish_date,
+            p.shortage_remarks,
+            p.revision_comments,
+            p.revision_reason,
+            s.pattern_design_name,
+            p.requirement_num,
+            p.suspend_remarks,
+            p.pattern_making_score,
+            p.cutter_name,
+            s.design_no,
+            p.cutter_finish_num,
+            (CASE WHEN p.sgl_kitting = 0 THEN '否' ELSE '是' END) as sgl_kitting,
+            p.stitcher_remark,
+            p.stitcher,
+            s.technician_name,
+            p.pattern_technician_name,
+            p.sample_pic,
+            (CASE WHEN s.designer != '' THEN SUBSTRING_INDEX(s.designer, ',', 1) ELSE '' END) as designer,
+            p.pattern_designer_name,
+            s.merch_design_name,
+            s.revised_design_name,
+            s.reviewed_design_name,
+            s.prod_category_name,
+            s.prod_category2nd_name,
+            s.prod_category3rd_name,
+            p.pattern_finish_num,
+            s.default_size,
+            p.urgency_name,
+            s.pattern_parts,
+            p.sample_finish_num,
+            p.pattern_making_quality_score,
+            p.sample_making_score,
+            p.sample_making_quality_score,
+            p.second_processing,
+            p.prm_send_date,
+            (CASE WHEN p.prm_send_status = 0 THEN '未发送' ELSE '已发送' END) as prm_send_status,
+            p.pattern_no,
+            p.grading_name,
+            p.grading_date,
+            s.band_name,
+            p.sample_bar_code,
+            p.receive_sample_date,
+            s.devt_type_name,
+            (CASE WHEN p.break_off_Pattern = '1' THEN '打板中断' WHEN p.break_off_sample = '1' THEN '样衣中断' ELSE '启用' END) as pmStatus,
+            p.refer_sample,
+            p.break_off_Pattern,
+            p.break_off_sample,
+            p.status pStatus,
+            p.create_date as `pmCreateDate`,
+            p.demand_finish_date as demandFinishDate,
+            p.del_flag
+        </if>
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
@@ -178,6 +236,7 @@
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
+
     </select>
     <select id="getAllPatternDesignList" resultType="com.base.sbc.module.sample.vo.SampleUserVo">
         select DISTINCT pattern_design_id as user_id, pattern_design_name as name
@@ -751,34 +810,39 @@
         ORDER BY t.create_date,t.designNo DESC
     </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
-
         SELECT
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '版房主管下发' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bfzgxfsj',
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '已接收' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'bsjssj',
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '已接收' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'jssdrq',
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '打版完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'zywcsj',
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '裁剪开始' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'cjkssj',
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '裁剪完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'cjwcsj',
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '车缝进行中' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'cfkssj',
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '车缝完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'cfwcsj',
-        DATE_FORMAT(	SUM( CASE ns.STATUS WHEN '样衣完成' THEN  ns.start_date ELSE null END ) , '%Y-%m-%d %H:%i:%s' ) AS 'yywcsj',
+        ns1.start_date AS bfzgxfsj,
+        ns2.start_date AS bsjssj,
+        ns3.start_date AS jssdrq,
+        ns4.start_date AS zywcsj,
+        ns5.start_date AS cjkssj,
+        ns6.start_date AS cjwcsj,
+        ns7.start_date AS cfkssj,
+        ns8.start_date AS cfwcsj,
+        ns9.start_date AS yywcsj,
         p.id AS patternMakingId,
-        CONCAT(s.year_name,' ',s.season,' ',s.brand_name) AS season,
+        CONCAT( s.year_name, ' ', s.season, ' ', s.brand_name ) AS season,
         p.sample_bar_code AS sampleBarCode,
         p.create_date AS `pmCreateDate`,
-        p.demand_finish_date AS demandFinishDate ,
+        p.demand_finish_date AS demandFinishDate,
         s.*,
         p.*,
         p.cutter_name AS cutterName,
         p.stitcher AS stitcher
+
         FROM
         t_style s
-        LEFT JOIN t_pattern_making p ON ( s.id = p.style_id and p.del_flag = '0' )
-        LEFT JOIN t_node_status ns ON (ns.data_id = p.id and ns.del_flag = '0' )
-        where  s.del_flag = '0'
-        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
-        </if>
+        LEFT JOIN t_pattern_making p ON ( s.id = p.style_id AND p.del_flag = '0' )
+        LEFT JOIN t_node_status ns1 ON ( ns1.data_id = p.id AND ns1.del_flag = '0' and ns1.node = '技术中心' and ns1.`status` = '版房主管下发')
+        LEFT JOIN t_node_status ns2 ON ( ns2.data_id = p.id AND ns2.del_flag = '0' and ns2.node = '打版任务' and ns2.`status` = '已接收')
+        LEFT JOIN t_node_status ns3 ON ( ns3.data_id = p.id AND ns3.del_flag = '0' and ns3.node = '技术中心' and ns3.`status` = '已接收')
+        LEFT JOIN t_node_status ns4 ON ( ns4.data_id = p.id AND ns4.del_flag = '0' and ns4.node = '打版任务' and ns4.`status` = '打版完成')
+        LEFT JOIN t_node_status ns5 ON ( ns5.data_id = p.id AND ns5.del_flag = '0' and ns5.node = '样衣任务' and ns5.`status` = '裁剪开始')
+        LEFT JOIN t_node_status ns6 ON ( ns6.data_id = p.id AND ns6.del_flag = '0' and ns6.node = '样衣任务' and ns6.`status` = '裁剪完成')
+        LEFT JOIN t_node_status ns7 ON ( ns7.data_id = p.id AND ns7.del_flag = '0' and ns7.node = '样衣任务' and ns7.`status` = '车缝进行中')
+        LEFT JOIN t_node_status ns8 ON ( ns8.data_id = p.id AND ns8.del_flag = '0' and ns8.node = '样衣任务' and ns8.`status` = '车缝完成')
+        LEFT JOIN t_node_status ns9 ON ( ns9.data_id = p.id AND ns9.del_flag = '0' and ns9.node = '样衣任务' and ns9.`status` = '样衣完成')
+        ${ew.customSqlSegment}
     </select>
 </mapper>
 

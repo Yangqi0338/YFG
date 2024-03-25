@@ -7,17 +7,23 @@
 package com.base.sbc.module.hangtag.vo;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.xpath.operations.Bool;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
 
 /**
  * 类描述：吊牌表 实体类
@@ -33,14 +39,29 @@ import java.util.stream.Collectors;
 public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
     public String getWarnMsg() {
-        StringJoiner joiner = new StringJoiner("、", "【提示：", "为空】").setEmptyValue("");
+        StringJoiner joiner = new StringJoiner(MoreLanguageProperties.checkMsgItemSeparator).setEmptyValue("");
+        // 检查是否存在未翻译的数据
         this.getLanguageList().stream().filter(it-> it.getCannotFindStandardColumnContent() || it.getCannotFindPropertiesContent()).forEach(languageVO-> {
-            joiner.add(languageVO.getLanguageName()+"翻译");
+            // 合并提示信息
+            StringJoiner fillJoiner = new StringJoiner(MoreLanguageProperties.checkMultiItemSeparator);
+            if (languageVO.getCannotFindStandardColumnContent()) fillJoiner.add(FIELD.getText());
+            if (languageVO.getCannotFindPropertiesContent()) fillJoiner.add(CONTENT.getText());
+            joiner.add(languageVO.getLanguageName() + fillJoiner + TRANSLATE.getText());
         });
-        return joiner.toString();
+        if (joiner.length()<=0) return "";
+        return MoreLanguageProperties.getMsg(NOT_EXIST_CONTENT,joiner.toString());
+    }
+
+    public Boolean getCannotFindStandardColumnContent(){
+        return this.getLanguageList().stream().anyMatch(HangTagMoreLanguageVO::getCannotFindStandardColumnContent);
+    }
+
+    public Boolean getCannotFindPropertiesContent(){
+        return this.getLanguageList().stream().anyMatch(HangTagMoreLanguageVO::getCannotFindPropertiesContent);
     }
 
     public Map<String, String> getContent() {
+        // 返回每个语言对应的翻译
         Map<String, String> map = new HashMap<>(this.getLanguageList().size() + 1);
         this.getLanguageList().forEach(languageVo-> {
             map.put(languageVo.getLanguageCode(), languageVo.getContent());
@@ -48,34 +69,33 @@ public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
         return map;
     }
 
-    public String getMergedContent() {
-        StringJoiner joiner = new StringJoiner("\n");
-        joiner.add(this.getSourceContent());
-        this.getLanguageList().forEach(languageVO-> {
-            joiner.add("（" + languageVO.getLanguageName() + "）");
-            joiner.add(languageVO.getContent());
-        });
+    private String getMergedContent(Function<HangTagMoreLanguageBaseVO, String> fieldFunc, Function<HangTagMoreLanguageVO, String> contentFunc){
+        // 返回合并内容
+        StringJoiner joiner = new StringJoiner(MoreLanguageProperties.multiSeparator);
+        joiner.add(Opt.ofNullable(fieldFunc.apply(this)).orElse(""));
+        List<HangTagMoreLanguageVO> languageList = this.getLanguageList();
+        for (int i = 0, languageListSize = languageList.size(); i < languageListSize; i++) {
+            HangTagMoreLanguageVO languageVO = languageList.get(i);
+            joiner.add(String.format(MoreLanguageProperties.checkMergedSeparator, languageVO.getLanguageName()));
+            String content = contentFunc.apply(languageVO);
+            joiner.add(content);
+            if (StrUtil.isBlank(content) && i == languageListSize - 1) {
+                joiner.add("");
+            }
+        }
         return joiner.toString();
+    }
+
+    public String getMergedContent() {
+        return getMergedContent(HangTagMoreLanguageBaseVO::getSourceContent, HangTagMoreLanguageVO::getContent);
     }
 
     public String getMergedPrefixContent() {
-        StringJoiner joiner = new StringJoiner("\n");
-        joiner.add(this.getStandardColumnName());
-        this.getLanguageList().forEach(languageVO-> {
-            joiner.add("（" + languageVO.getLanguageName() + "）");
-            joiner.add(languageVO.getStandardColumnContent());
-        });
-        return joiner.toString();
+        return getMergedContent(HangTagMoreLanguageBaseVO::findStandardColumnName, HangTagMoreLanguageVO::findStandardColumnContent);
     }
 
     public String getMergedContentWithoutPrefix() {
-        StringJoiner joiner = new StringJoiner("\n");
-        joiner.add(this.getPropertiesName());
-        this.getLanguageList().forEach(languageVO-> {
-            joiner.add("（" + languageVO.getLanguageName() + "）");
-            joiner.add(languageVO.getPropertiesContent());
-        });
-        return joiner.toString();
+        return getMergedContent(HangTagMoreLanguageBaseVO::getPropertiesName, HangTagMoreLanguageVO::getPropertiesContent);
     }
 
 }

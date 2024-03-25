@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.basicsdatum.mapper.BasicsdatumColourLibraryAgentMapper">
+    <!--
+        基础资料-颜色库
+        创建人：your name
+        邮箱：your email
+        创建时间：2024-2-28 16:13:32
+        版本号：1.0
+      -->
+    <select id="findList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumColourLibraryAgentVo">
+        select t.*,
+               tbcl.colour_code sysColorCode,
+               tbcl.colour_name sysColorName
+        from t_basicsdatum_colour_library_agent t
+                 left join t_basicsdatum_colour_library tbcl on t.color_id = tbcl.id and tbcl.del_flag = '0'
+            ${ew.customSqlSegment}
+    </select>
+</mapper>

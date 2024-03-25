@@ -36,5 +36,6 @@ public interface ColumnUserDefineService extends BaseService<ColumnUserDefine> {
 
     void setDefault(String tableCode, String id);
 
+    List<ColumnDefine> findDefaultDetailGroup(String tableCode);
 
 }

@@ -30,14 +30,15 @@ import java.util.stream.Collectors;
 @ApiModel("公共分页筛选条件 PackCommonSearchDto")
 public class MoreLanguageOperaLogEntity extends OperaLogEntity {
 
+    String separator = ":";
     public String getCode() {
         if (StrUtil.isBlank(this.getContent())) return "";
-        return this.getContent().split(":")[0];
+        return this.getContent().split(separator)[0];
     }
 
     public String getCountryLanguageType() {
-        if (StrUtil.isBlank(this.getContent()) || this.getContent().split(":").length <= 1) return "";
-        return this.getContent().split(":")[1];
+        if (StrUtil.isBlank(this.getContent()) || this.getContent().split(separator).length <= 1) return "";
+        return this.getContent().split(separator)[1];
     }
 
     public String getStandardColumnCode() {

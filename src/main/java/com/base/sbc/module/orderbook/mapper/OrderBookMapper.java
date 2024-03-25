@@ -3,6 +3,7 @@ package com.base.sbc.module.orderbook.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
+import com.base.sbc.module.orderbook.dto.OrderBookQueryDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.vo.OrderBookVo;
 import org.apache.ibatis.annotations.Mapper;
@@ -18,7 +19,7 @@ import java.util.Map;
  */
 @Mapper
 public interface OrderBookMapper extends BaseMapper<OrderBook> {
-    List<OrderBookVo> queryList(@Param("ew") QueryWrapper<OrderBook> queryWrapper);
+    List<OrderBookVo> queryList(@Param("ew") QueryWrapper<OrderBook> queryWrapper, @Param("dto") OrderBookQueryDto dto);
 
     List<Map<String,String>>  countByStatus(@Param("ew")QueryWrapper<OrderBook> queryWrapper);
 }

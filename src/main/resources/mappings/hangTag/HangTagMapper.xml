@@ -139,7 +139,9 @@
             <if test="dto.confirmDate != null and dto.confirmDate != ''">
                 AND  DATE_FORMAT(ht.confirm_date,'%Y-%m-%d')  = #{dto.confirmDate}
             </if>
-
+            <if test="dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
+                AND  DATE_FORMAT(ht.translate_confirm_date,'%Y-%m-%d')  = #{dto.translateConfirmDate}
+            </if>
             <if test="dto.styleNo != null and dto.styleNo != ''">
                 <choose>
                     <when test='dto.likeQueryFlag == "1"'>
@@ -158,6 +160,9 @@
             </if>
             <if test="dto.year != null and dto.year != ''">
                 and tsd.year = #{dto.year}
+            </if>
+            <if test="dto.produceTypeName != null and dto.produceTypeName != ''">
+                and tsd.devt_type_name = #{dto.produceTypeName}
             </if>
             <if test="dto.designNos !=null and dto.designNos.length !=0 ">
                 and
@@ -247,6 +252,7 @@
                 tssc.tag_price AS tagPrice,
                 tssc.is_trim,
                 tssc.style_color_pic ,
+                tssc.bom_status ,
             </otherwise>
         </choose>
 

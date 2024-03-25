@@ -28,6 +28,10 @@ public class TagConfirmDateDto {
      */
     private Integer qualityControlConfirm;
     /**
+     * 翻译确认 0:未确认，1:已确认
+     */
+    private Integer translateControlConfirm;
+    /**
      * 商品吊牌价是否确认 0:未确认，1:已确认
      */
     private Integer productTagPriceConfirm;

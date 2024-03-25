@@ -385,5 +385,5 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 
 	private String orderDay;
 
-	private String withName;
+	private String widthName;
 }

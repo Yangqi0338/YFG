@@ -12,6 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnModel;
@@ -43,6 +44,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.EXIST_STANDARD;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
@@ -102,7 +104,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
             // 属性拷贝
             MORE_LANGUAGE_CV.copy2Entity(standardColumnSaveDto, standardColumn);
             if (this.count(queryWrapper) > 0) {
-                throw new OtherException("已存在相同的标准表");
+                throw new OtherException(MoreLanguageProperties.getMsg(EXIST_STANDARD));
             }
             if (!isUpdate) addSingleLanguageRelation(standardColumn);
             this.saveOrUpdate(standardColumn);
@@ -140,6 +142,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         if (removeSuccess) {
             standardColumnCountryRelationService.remove(new BaseLambdaQueryWrapper<StandardColumnCountryRelation>()
                     .in(StandardColumnCountryRelation::getStandardColumnCode, standColumnCodeList));
+            RedisStaticFunUtils.removePattern(RedisKeyConstant.STANDARD_COLUMN_COUNTRY_RELATION.build());
         }
         RedisStaticFunUtils.del(RedisKeyConstant.STANDARD_COLUMN_LIST.build());
         // 不能删除系统默认标准
@@ -152,6 +155,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         StandardColumnType type = standardColumnQueryDto.getType();
         StandardColumnModel noModel = standardColumnQueryDto.getNoModel();
         List<String> codeList = standardColumnQueryDto.getCodeList();
+        YesOrNoEnum showFlag = standardColumnQueryDto.getShowFlag();
 
         BaseLambdaQueryWrapper<StandardColumn> queryWrapper = new BaseLambdaQueryWrapper<>();
 
@@ -161,6 +165,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         queryWrapper.notEmptyIn(StandardColumn::getType, typeList);
         queryWrapper.notNullNe(StandardColumn::getModel, noModel);
         queryWrapper.notEmptyIn(StandardColumn::getCode, codeList);
+        queryWrapper.notNullEq(StandardColumn::getShowFlag, showFlag);
 
         List<StandardColumn> standardColumnList = this.list(queryWrapper);
 

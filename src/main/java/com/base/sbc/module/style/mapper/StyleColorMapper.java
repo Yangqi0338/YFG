@@ -11,9 +11,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.style.vo.DemandOrderSkcVo;
+import com.base.sbc.module.style.vo.StyleColorAgentVo;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.sample.vo.StyleUploadVo;
 import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
+import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.style.entity.StyleColor;
 import org.apache.ibatis.annotations.Param;
@@ -87,6 +89,15 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
     List<StyleColor> getStyleMainAccessories(@Param("ids") List<String> ids);
 
     List<StyleMarkingCheckVo> markingCheckPage(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+
+    /**
+     * 根据大货款获取设计师，版师，样衣工信息
+     * @param styleNos
+     * @return
+     */
+    List<StyleNoUserInfoVo> getStyleDesignerInfo(@Param("styleNos") List<String> styleNos);
+
+    List<StyleColorAgentVo> agentList(@Param(Constants.WRAPPER) BaseQueryWrapper queryWrapper);
 
 // 自定义方法区 不替换的区域【other_end】
 }

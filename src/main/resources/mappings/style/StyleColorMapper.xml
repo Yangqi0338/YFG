@@ -11,6 +11,10 @@
       set  style_no = #{nweStyleNo}
       where style_no = #{styleNo} ;
 
+      update  t_hang_tag
+      set  bulk_style_no = #{nweStyleNo}
+      where bulk_style_no = #{styleNo} ;
+
       update  t_pack_info
       set  style_no = #{nweStyleNo}
       where style_no = #{styleNo} ;
@@ -118,7 +122,7 @@
             ts.style_name,
             ts.style_flavour_name,
             ts.designer_id,
-            ts.designer,
+            IF(ts.designer != '', SUBSTRING_INDEX(ts.designer, ',', 1), '') as designer,
             ts.technician_id,
             ts.technician_name,
             ts.brand,
@@ -207,7 +211,8 @@
             FROM
             t_style_color tsc
             LEFT JOIN t_style ts ON ts.id = tsc.style_id
-            LEFT JOIN t_pack_info tpi on tpi.style_no = tsc.style_no
+<!--            LEFT JOIN t_pack_info tpi on tpi.style_no = tsc.style_no-->
+            LEFT JOIN t_pack_info tpi on tpi.style_color_id = tsc.id
             LEFT JOIN t_style_pricing tsp on tsp.pack_id = tpi.id
             left join 	(SELECT style_color_id ,GROUP_CONCAT(style_no) style_no  ,GROUP_CONCAT(color_name) color_name ,is_trim FROM t_style_main_accessories WHERE del_flag='0' GROUP BY style_color_id)  tsma on (tsma.style_color_id = tsc.id )
             left join t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
@@ -275,6 +280,93 @@
                 ts.devt_type_name,
                 ts.sales_type,
                 ts.sales_type_name
+    </select>
+
+    <select id="getStyleDesignerInfo" resultType="com.base.sbc.module.style.vo.StyleNoUserInfoVo">
+        select *
+        from (select t.style_id,
+                     t1.design_no,
+                     t.style_no as styleNo,
+                     IF(t1.designer != '', SUBSTRING_INDEX(t1.designer, ',', 1), '') as designer,
+                     t2.pattern_design_name as patternDesignName,
+                     t2.stitcher
+              from t_style_color t
+                       INNER JOIN t_style t1 ON t.style_id = t1.id
+                       LEFT JOIN t_pattern_making t2 on t1.id = t2.style_id
+              ORDER BY t2.create_date DESC) t
+        where
+         1=1
+        <if test="styleNos !=null and styleNos.size >0">
+            and  t.styleNo in
+            <foreach collection="styleNos" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY t.style_id
+    </select>
+    <select id="agentList" resultType="com.base.sbc.module.style.vo.StyleColorAgentVo">
+        select tsca.id,
+               tsc.id                                       styleColorId,
+               ts.id                                        styleId,
+               tpp.id                                       stylePricingId,
+               ts.year,
+               ts.year_name,
+               ts.brand,
+               ts.brand_name,
+               ts.season,
+               ts.season_name,
+               concat(ts.year_name,
+                      ' ', ts.season_name,
+                      ' ', ts.brand_name)                   planningSeason,
+               ts.prod_category_name,
+               tsc.style_no,
+               tsc.style_color_pic,
+               tsca.outside_size_code                       outsideSizeCode,
+               tsca.outside_color_name                      outsideColorName,
+               tsca.outside_color_code                      outsideColorCode,
+               tsc.color_name,
+               tsc.color_code,
+               ts.style_type,
+               ts.style_type_name,
+               ts.prod_category1st,
+               ts.prod_category1st_name,
+               ts.prod_category2nd,
+               ts.prod_category2nd_name,
+               tsca.size_code                               sizeCode,
+               tbs.internal_size,
+               ts.size_range,
+               ts.size_range_name,
+               concat(tsc.ware_code,
+                      tsc.color_code,
+                      tbs.sort)                             defaultBarCode,
+               tsca.outside_barcode                         outsideBarcode,
+               ts.devt_type,
+               ts.devt_type_name,
+               tsc.create_date,
+               tsc.create_id,
+               tsc.create_name,
+               tsca.update_name,
+               tsca.update_date,
+               ts.enable_status,
+               tsca.status                                  sendStatus,
+               ts.band_code,
+               ts.band_name,
+               ts.gender_name as genderType,
+               tbs.hangtags,
+               tsc.tag_price,
+               tpp.control_plan_cost,
+               SUBSTRING_INDEX(tsca.style_color_no, "-", 1) outsideStyleNo,
+               tha.packaging_form,
+               tha.packaging_form_code,
+               tha.id                                       hangTagId
+        FROM t_style_color_agent tsca
+                 LEFT JOIN t_style_color tsc ON tsca.style_color_id = tsc.id AND tsc.del_flag = '0'
+                 left join t_style ts on ts.id = tsc.style_id and ts.del_flag = '0'
+                 left join t_pack_info tpi on ts.id = tpi.foreign_id and tpi.del_flag = '0'
+                 left join t_style_pricing tpp on tpi.id = tpp.pack_id and tpp.del_flag = '0'
+                 left join t_basicsdatum_size tbs ON tsca.size_id = tbs.code
+                 left join t_hang_tag tha on tha.bulk_style_no = tsc.style_no and tha.del_flag = '0'
+            ${ew.customSqlSegment}
     </select>
 
 </mapper>

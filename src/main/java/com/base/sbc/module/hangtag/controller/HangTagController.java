@@ -14,15 +14,12 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.module.hangtag.dto.HangTagDTO;
-import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
-import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
-import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
-import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
-import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
+import com.base.sbc.module.hangtag.dto.*;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
@@ -30,12 +27,12 @@ import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
@@ -47,10 +44,8 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 类描述：吊牌表 Controller类
@@ -153,7 +148,8 @@ public class HangTagController extends BaseController {
     @ApiOperation(value = "提交审核")
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(@Valid @RequestBody HangTagUpdateStatusDTO dto) {
-        hangTagService.updateStatus(dto, super.getUserCompany());
+        dto.setUserCompany(super.getUserCompany());
+        hangTagService.updateStatus(dto, false, new ArrayList<>());
         return updateSuccess("更新成功");
     }
 
@@ -185,11 +181,11 @@ public class HangTagController extends BaseController {
         HangTag hangTag = hangTagService.getOne(new QueryWrapper<HangTag>().eq("bulk_style_no", dto.getBusinessKey()));
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
             //审核通过
-            hangTag.setStatus("5");
-            hangTag.setConfirmDate(new Date());
+            hangTag.setStatus(HangTagStatusEnum.FINISH);
+            hangTag.setTranslateConfirmDate(new Date());
         } else {
             //审核不通过
-            hangTag.setStatus("6");
+            hangTag.setStatus(HangTagStatusEnum.SUSPEND);
         }
         return hangTagService.updateById(hangTag);
     }
@@ -199,22 +195,16 @@ public class HangTagController extends BaseController {
      */
     @PostMapping("/counterReview")
     public ApiResult counterReview(@RequestBody HangTag hangTag) {
-        HangTag hangTag1 = hangTagService.getById(hangTag.getId());
-        if ("6".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
-        }
-        if ("5".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
-        }
-        if ("4".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("3");
-        }
-        if ("3".equals(hangTag.getStatus())) {
-            hangTag1.setStatus("2");
-        }
+        boolean update = hangTagService.counterReview(hangTag);
 
-        smpService.tagConfirmDates(Arrays.asList(hangTag.getId()), 0, 0);
-        hangTagService.updateById(hangTag1);
         return updateSuccess("反审成功");
     }
+
+
+    @ApiOperation(value = "通过物料编码获取检查报告")
+    @GetMapping("/getInspectReport")
+    public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto) {
+        return hangTagService.getInspectReport(dto);
+    }
+
 }

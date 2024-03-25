@@ -3,7 +3,6 @@ package com.base.sbc.module.common.convert;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
-import com.base.sbc.module.hangtag.vo.HangTagMoreLanguagePrinterBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
@@ -35,7 +34,6 @@ public interface HangTagConvert {
 
     List<HangTagMoreLanguageWebBaseVO> copyList2Web(List<HangTagMoreLanguageBaseVO> source);
     List<HangTagMoreLanguageBCSVO.HangTagMoreLanguageBCSChildrenBaseVO> copyList2Bcs(List<HangTagMoreLanguageBaseVO> source);
-    List<HangTagMoreLanguagePrinterBaseVO> copyList2Print(List<HangTagMoreLanguageBaseVO> source);
     List<HangTagMoreLanguageVO> copyList2MoreLanguageVO(List<CountryLanguage> source);
     HangTagMoreLanguageVO copy2MoreLanguageVO(CountryLanguage source);
     @Mappings({

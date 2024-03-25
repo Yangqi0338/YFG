@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -69,4 +70,5 @@ public interface ProcessDatabaseService extends BaseService<ProcessDatabase> {
      */
     List<ProcessDatabase> getQueryList(String type, String field,String brandId,String categoryId,String companyCode);
 
+    Map<String, String> listAllDistinct(ProcessDatabasePageDto pageDto);
 }

@@ -3,17 +3,25 @@
  */
 package com.base.sbc.config.utils;
 
+import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.exception.OtherException;
 import com.google.common.collect.Lists;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -653,6 +661,78 @@ public class StringUtils extends org.apache.commons.lang3.StringUtils {
 		}
 		return dest;
 
+	}
+
+	public static String keepStrByType(String str, MatchStrType... types) {
+		return keepStrByType(str, null, types);
+	}
+
+	/**
+	 * 仅保留类型里的字符串
+	 * @param str
+	 * @return
+	 */
+	public static String keepStrByType(String str, String warningMsg, MatchStrType... types) {
+		char[] sourceArray = str.toCharArray();
+		StringBuilder resultBuilder = new StringBuilder();
+		for (char c : sourceArray) {
+			for (MatchStrType type : types) {
+				// 开始结束为null 获取子类型
+				List<MatchStrType> childrenTypeList = type.getChildrenType();
+				if (type.startIndex != null && type.endIndex != null) {
+					childrenTypeList = Collections.singletonList(type);
+				}
+				for (MatchStrType childrenType : childrenTypeList) {
+					Pair<Integer, Integer> range = childrenType.getRange();
+                    if (range.getKey() <= (int) c && range.getValue() >= (int) c) {
+						resultBuilder.append(c);
+						break;
+					}
+				}
+			}
+		}
+		String result = resultBuilder.toString();
+		if (StrUtil.isNotBlank(warningMsg) && result.length() != str.length()) {
+			throw new OtherException(warningMsg);
+		}
+		return result;
+	}
+
+	public static void main(String[] args) {
+		String s = keepStrByType("我59  9X8\r\t030LXF\nS-2 ", "",MatchStrType.LETTER, MatchStrType.NUMBER, MatchStrType.BARRE);
+		System.out.println(s);
+	}
+
+	@Getter
+	@AllArgsConstructor
+	public enum MatchStrType {
+		LETTER_UPPER(65,90),
+		LETTER_LOWER(97,122),
+		LETTER(LETTER_UPPER, LETTER_LOWER),
+		NUMBER(48,57),
+		BARRE(45,45),
+		UNDERLINE(95,95)
+		;
+
+		private final Integer startIndex;
+		private final Integer endIndex;
+		private final List<MatchStrType> childrenType;
+
+		MatchStrType(int startIndex, int endIndex) {
+			this.startIndex = startIndex;
+			this.endIndex = endIndex;
+			this.childrenType = new ArrayList<>();
+		}
+
+		MatchStrType(MatchStrType... childrenType) {
+			this.startIndex = null;
+			this.endIndex = null;
+			this.childrenType = Arrays.asList(childrenType);
+		}
+
+		public Pair<Integer,Integer> getRange(){
+			return Pair.of(this.startIndex, this.endIndex);
+		}
 	}
 
 

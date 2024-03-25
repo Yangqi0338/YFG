@@ -10,7 +10,6 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -43,10 +42,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -92,8 +88,11 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             if("0".equals(dto.getAll())){
                 queryWrapper.eq("model_type_code","").or().isNull("model_type_code");
             }else {
-                queryWrapper.like("model_type_code", dto.getModelType()).or().eq("model_type_code","").or().isNull("model_type_code");
-
+                if (StrUtil.isNotEmpty(dto.getModelTypeExt())) {
+                    queryWrapper.notEmptyLike("model_type_code", dto.getModelType()).like("model_type", dto.getModelTypeExt());
+                }else{
+                    queryWrapper.like("model_type_code", dto.getModelType()).or().eq("model_type_code","").or().isNull("model_type_code");
+                }
             }
         }
         queryWrapper.likeList(StrUtil.isNotBlank(dto.getModelTypeCode()),"model_type_code",StringUtils.convertList(dto.getModelTypeCode()));
@@ -207,11 +206,12 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
             if (ObjectUtils.isEmpty(basicsdatumSize)) {
                 throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
             }
-            if (!basicsdatumSize.getSort().equals(addRevampSizeDto.getSort())){
+            if (basicsdatumSize.getSort().equals(addRevampSizeDto.getSort())){
                 QueryWrapper<BasicsdatumSize> queryWrapper =new QueryWrapper<>();
                 queryWrapper.eq("code",basicsdatumSize.getCode());
+                queryWrapper.eq("del_flag",0);
                 BasicsdatumSize one = this.getOne(queryWrapper);
-                if (one!=null){
+                if (one!=null && !addRevampSizeDto.getId().equals(one.getId())){
                     throw new OtherException("排序重复");
                 }
             }
@@ -266,6 +266,8 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
         List<BasicsdatumSize> basicsdatumSizeList =baseMapper.selectList(queryWrapper);
         Map<String,String> map =new HashMap<>();
        if(!CollectionUtils.isEmpty(basicsdatumSizeList)){
+           basicsdatumSizeList = basicsdatumSizeList.stream().sorted(Comparator.comparing(BasicsdatumSize::getCode).reversed()).collect(Collectors.toList());
+
 //           List<String> id =  basicsdatumSizeList.stream().map(BasicsdatumSize::getId).collect(Collectors.toList());
 //           List<String> name =  basicsdatumSizeList.stream().map(BasicsdatumSize::getHangtags).collect(Collectors.toList());
 //           List<String> sort =  basicsdatumSizeList.stream().map(BasicsdatumSize::getSort).collect(Collectors.toList());
@@ -277,7 +279,7 @@ public class BasicsdatumSizeServiceImpl extends BaseServiceImpl<BasicsdatumSizeM
                id.add(size.getId());
                name.add(size.getHangtags());
                sort.add(size.getSort());
-               code.add(size.getRealCode());
+               code.add(size.getCode());
            }
            map.put("ids",StringUtils.join(id,","));
            map.put("name",StringUtils.join(name,","));

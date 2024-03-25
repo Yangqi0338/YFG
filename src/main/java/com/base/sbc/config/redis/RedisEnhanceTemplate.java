@@ -3,6 +3,7 @@ package com.base.sbc.config.redis;
 
 
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.common.service.BaseService;
 import org.aspectj.lang.annotation.Aspect;
@@ -89,10 +90,14 @@ public class RedisEnhanceTemplate extends RedisTemplate<String, Object> {
 	}
 
 	public Object hget(String key,String item){
-		Object hashValue = Opt.ofNullable(this.opsForHash().get(key, item)).orElse(
-			businessService != null ? businessService.findByCode(item) : null
-		);
+		Object hashValue = this.opsForHash().get(key, item);
 		if (hashValue == null) {
+			if (businessService != null) {
+				hashValue = businessService.findByCode(item);
+				this.opsForHash().put(key,item, hashValue);
+			}
+		}
+		if (hashValue == null && StrUtil.isNotBlank(message)) {
 			throw new OtherException(message);
 		}
 		return hashValue;

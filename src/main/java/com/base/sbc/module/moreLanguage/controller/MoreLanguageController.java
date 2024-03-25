@@ -1,14 +1,13 @@
 package com.base.sbc.module.moreLanguage.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
@@ -16,12 +15,10 @@ import com.base.sbc.module.moreLanguage.dto.MoreLanguageOperaLogDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageOperaLogEntity;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.listener.MoreLanguageImportListener;
-import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
 import com.base.sbc.module.moreLanguage.strategy.MoreLanguageTableContext;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.standard.dto.StandardColumnDto;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -35,17 +32,16 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import javax.validation.groups.Default;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
 
 /**
  * @author 孔祥基
@@ -81,18 +77,18 @@ public class MoreLanguageController extends BaseController {
 //        moreLanguageService.importExcel(excelQueryDto);
         importListener.setExcelQueryDto(excelQueryDto);
         try {
-            EasyExcel.read(file.getInputStream(), importListener).headRowNumber(2).doReadAllSync();
+            EasyExcel.read(file.getInputStream(), importListener).headRowNumber(MoreLanguageProperties.excelDataRowNum).doReadAllSync();
             String warnMsg = importListener.dataVerifyHandler();
-            ApiResult<String> result = selectSuccess("您的吊牌信息已经导入成功. " + warnMsg);
+            ApiResult<String> result = selectSuccess(MoreLanguageProperties.getMsg(SUCCESS_IMPORT,warnMsg));
             if (StrUtil.isNotBlank(warnMsg)) {
-                result.setMessage(result.getMessage() + ", 请问是否需要导入?");
+                result.setMessage(MoreLanguageProperties.getMsg(CHECK_REIMPORT,result.getMessage()));
             }else {
                 result.setStatus(200);
             }
             return result;
         }catch (Exception e){
             e.printStackTrace();
-            return ApiResult.error("导入失败, 请你根据导入规则进行导入\n" + e.getMessage(), 0);
+            return ApiResult.error(MoreLanguageProperties.getMsg(FAILURE_IMPORT,e.getMessage()), 0);
         }
     }
     /**
