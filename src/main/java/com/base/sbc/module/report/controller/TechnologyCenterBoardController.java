@@ -47,7 +47,7 @@ public class TechnologyCenterBoardController {
     }
     @ApiOperation(value = "打版/样衣,产能数")
     @GetMapping("/getCapacityNumber")
-    public TechnologyCenterBoardCurrentTaskVo getCapacityNumber(TechnologyCenterBoardDto dto){
+    public List<TechnologyCenterBoardCapacityNumberVo> getCapacityNumber(TechnologyCenterBoardDto dto){
         return technologyCenterBoardService.getCapacityNumber(dto);
     }
     @ApiOperation(value = "打版/样衣,排名统计")
