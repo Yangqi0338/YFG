@@ -30,8 +30,6 @@ import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
 import com.base.sbc.module.smp.entity.TagPrinting;
-import com.base.sbc.module.style.entity.StyleOrderBookColor;
-import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.open.dto.BasicsdatumGarmentInspectionDto;
 import com.base.sbc.open.dto.MtBpReqDto;
