@@ -50,18 +50,6 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String styleId;
 
     /**
-     * 品牌
-     */
-    @ApiModelProperty("品牌")
-    private String brand;
-
-    /**
-     * 品牌名称
-     */
-    @ApiModelProperty("品牌名称")
-    private String brandName;
-
-    /**
      * 大类 code
      */
     @ApiModelProperty("大类 code")

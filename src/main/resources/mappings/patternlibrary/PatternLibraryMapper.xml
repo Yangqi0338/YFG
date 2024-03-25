@@ -9,8 +9,6 @@
         <result column="code" property="code"/>
         <result column="design_no" property="designNo"/>
         <result column="style_id" property="styleId"/>
-        <result column="brand" property="brand"/>
-        <result column="brand_name" property="brandName"/>
         <result column="prod_category1st" property="prodCategory1st"/>
         <result column="prod_category1st_name" property="prodCategory1stName"/>
         <result column="prod_category" property="prodCategory"/>

@@ -48,7 +48,8 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库详情")
     @GetMapping("/getDetail")
-    public ApiResult<PatternLibraryVO> getDetail(String id) {
+    public ApiResult<PatternLibraryVO> getDetail(String patternLibraryId) {
+        PatternLibraryVO patternLibraryVO = patternLibraryService.getDetail(patternLibraryId);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
     }
 
@@ -60,13 +61,13 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库批量删除")
     @PostMapping("/removeDetails")
-    public ApiResult<String> removeDetails(List<String> ids) {
+    public ApiResult<String> removeDetails(List<String> patternLibraryIdList) {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
     }
 
     @ApiOperation(value = "版型库批量审核")
     @PostMapping("/updateAudits")
-    public ApiResult<String> updateAudits(List<String> ids) {
+    public ApiResult<String> updateAudits(List<String> patternLibraryIdList) {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
     }
 
