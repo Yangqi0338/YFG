@@ -1602,14 +1602,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         BaseQueryWrapper<CategoryStylePlanningVo> drsQw = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(drsQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(drsQw, dto);
-        Long designRequirementSkc = getBaseMapper().colorCount(drsQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        Long designRequirementSkc = getBaseMapper().colorCountStyle(drsQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
         vo.setDesignRequirementSkc(designRequirementSkc);
         // 已下稿 款式设计中已下发打版的款式数量
         BaseQueryWrapper<Style> snQueryWrapper = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(snQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(snQueryWrapper, dto);
         snQueryWrapper.eq("sd.status", 2);
-        Long scriptedNum = getBaseMapper().colorCount(snQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        Long scriptedNum = getBaseMapper().colorCountStyle(snQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
         vo.setScriptedNum(scriptedNum);
         // 打版完成 样衣看板初版样 纸样需求日期不为空的款式数量
         BaseQueryWrapper<Style> pmicnQueryWrapper = new BaseQueryWrapper<>();

@@ -60,6 +60,8 @@ public interface StyleMapper extends BaseMapper<Style> {
 
     Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
+   Long colorCountStyle(@Param(Constants.WRAPPER) QueryWrapper prsQw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
+
     String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
 
     String selectMaxOldDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);

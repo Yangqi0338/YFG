@@ -184,6 +184,28 @@
 
     </select>
 
+    <select id="colorCountStyle" resultType="java.lang.Long">
+        SELECT
+        count(sd.id) num
+        FROM
+        t_style sd
+        WHERE
+        sd.del_flag ='0'
+        and sd.enable_status = '0'
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            and exists(select 1 from t_field_val tfv where tfv.foreign_id = sd.id and tfv.del_flag = '0' and
+            tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
+
     <select id="selectMaxDesignNo" resultType="java.lang.String">
         select max(design_no)
         from t_style ${ ew.customSqlSegment}
