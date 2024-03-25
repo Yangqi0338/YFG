@@ -63,13 +63,22 @@ public class PatternLibraryController {
     @PostMapping("/removeDetail")
     public ApiResult<String> removeDetail(@RequestBody String patternLibraryId) {
         Boolean resultFlag = patternLibraryService.removeDetail(patternLibraryId);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
     }
 
     @ApiOperation(value = "版型库批量审核")
     @PostMapping("/updateAudits")
     public ApiResult<String> updateAudits(List<String> patternLibraryIdList) {
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        Boolean resultFlag = patternLibraryService.updateAudits(patternLibraryIdList);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
     }
 
 

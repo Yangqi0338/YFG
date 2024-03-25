@@ -5,10 +5,12 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -16,6 +18,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.exception.RightException;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.entity.*;
+import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper;
 import com.base.sbc.module.patternlibrary.service.*;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
@@ -212,6 +215,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     }
 
     @Override
+    @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeDetail(String patternLibraryId) {
         if (ObjectUtil.isEmpty(patternLibraryId)) {
@@ -238,5 +242,30 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         );
         return true;
     }
+
+    @Override
+    @DuplicationCheck
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean updateAudits(List<String> patternLibraryIdList) {
+        if (ObjectUtil.isEmpty(patternLibraryIdList)) {
+            throw  new OtherException("请至少选择一条数据进行审核！");
+        }
+        // 根据部件库主表 ID 集合批量审批数据 非 待审核 数据直接过滤
+        List<PatternLibrary> patternLibraryList = list(
+                new LambdaQueryWrapper<PatternLibrary>()
+                        .in(PatternLibrary::getId, patternLibraryIdList)
+                        .eq(PatternLibrary::getStatus, PatternLibraryStatusEnum.NO_REVIEWED.getCode())
+        );
+        if (ObjectUtil.isEmpty(patternLibraryList)) {
+            throw new OtherException("暂无需审核数据！");
+        }
+        // 批量修改成已审核的状态
+        patternLibraryList.forEach(item -> item.setStatus(PatternLibraryStatusEnum.REVIEWED.getCode()));
+        // TODO：审批流的操作 ——XHTE
+        // 更新修改数据
+        boolean updateFlag = updateBatchById(patternLibraryList);
+        return updateFlag;
+    }
+
 
 }
