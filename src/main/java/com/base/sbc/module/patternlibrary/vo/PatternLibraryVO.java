@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.module.patternlibrary.entity.PatternLibraryBrand;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryItem;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -58,18 +59,6 @@ public class PatternLibraryVO extends BaseDataEntity implements Serializable {
      */
     @ApiModelProperty("款式 ID")
     private String styleId;
-
-    /**
-     * 品牌
-     */
-    @ApiModelProperty("品牌")
-    private String brand;
-
-    /**
-     * 品牌名称
-     */
-    @ApiModelProperty("品牌名称")
-    private String brandName;
 
     /**
      * 大类 code
@@ -198,6 +187,12 @@ public class PatternLibraryVO extends BaseDataEntity implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @ApiModelProperty("修改时间")
     private Date updateDate;
+
+    /**
+     * 品牌集合
+     */
+    @ApiModelProperty("品牌集合")
+    private List<PatternLibraryBrand> patternLibraryBrandList;
 
     /**
      * 部件库-所属版型库

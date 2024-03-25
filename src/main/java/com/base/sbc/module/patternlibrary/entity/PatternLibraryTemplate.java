@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 版型库-模板表
@@ -48,21 +49,15 @@ public class PatternLibraryTemplate extends BaseDataEntity<String> implements Se
     private Integer sort;
 
     /**
-     * 不可修改 JSON 数据（取数据字典「版型类型-PatternType」）
-     */
-    @ApiModelProperty("不可修改 JSON 数据（取数据字典「版型类型-PatternType」）")
-    private String unmodifiable;
-
-    /**
-     * 可修改 JSON 数据（取数据字典「版型类型-PatternType」）
-     */
-    @ApiModelProperty("可修改 JSON 数据（取数据字典「版型类型-PatternType」）")
-    private String modifiable;
-
-    /**
      * 启用状态（0-停用，1-启用)
      */
     @ApiModelProperty("启用状态（0-停用，1-启用)")
     private Integer enableFlag;
+
+    /**
+     * 模板子表信息
+     */
+    @ApiModelProperty("模板子表信息")
+    private List<PatternLibraryTemplateItem> patternLibraryTemplateItemList;
 
 }

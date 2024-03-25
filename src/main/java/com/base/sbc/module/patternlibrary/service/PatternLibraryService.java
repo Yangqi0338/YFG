@@ -22,4 +22,11 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      */
     PageInfo<PatternLibraryVO> listPages(PatternLibraryDTO patternLibraryDTO);
 
+ /**
+     * 版型库详情
+     * @param patternLibraryId 版型库主表 ID
+     * @return 版型库详情
+     */
+    PatternLibraryVO getDetail(String patternLibraryId);
+
 }
