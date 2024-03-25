@@ -2,6 +2,7 @@ package com.base.sbc.module.report.service.imp;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.report.dto.TechnologyCenterBoardDto;
@@ -207,6 +208,62 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 capacityNumber.setBetweenDate(new String[]{DateUtil.format(DateUtil.offsetDay(new Date(), -6), "yyyy-MM-dd"), DateUtil.format(new Date(), "yyyy-MM-dd")});
                 list.add(capacityNumber);
             }
+        } else if (dto.getBetweenDate() != null && dto.getBetweenDate().length > 0 && "day".equals(type)) {
+            String[] betweenDate = dto.getBetweenDate();
+            Date date1 = DateUtil.parse( betweenDate[0],"yyyy-MM-dd");
+            Date date2 = DateUtil.parse( betweenDate[1],"yyyy-MM-dd");
+            long betweenDay = DateUtil.between(date1, date2, DateUnit.DAY);
+            if (betweenDay > 7) {
+                for (int i = 0; i <= 6; i++) {
+                    BaseQueryWrapper qw = null;
+                    if ("0".equals(dto.getDataType())) {
+                        qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as count"));
+                    } else if ("1".equals(dto.getDataType())) {
+                        qw = new BaseQueryWrapper();
+                        qw.eq("p.finish_flag", "1");
+                        qw.eq("p.break_off_sample", "0");
+                        qw.eq("p.prm_send_status", "1");
+                        qw.ne("p.del_flag", "1");
+                        qw.ne("s.del_flag", "1");
+                        qw.eq("p.suspend", "0");
+                        qw.in("p.disable_flag", "0");
+                        qw.eq("p.node", "样衣任务");
+                        qw.select("count(0) as count");
+                    }
+                    DateTime newDate = DateUtil.offsetDay(date1, i);
+                    String format = DateUtil.format(newDate, "yyyy-MM-dd");
+                    qw.eq(" date_format(p.create_date,'%Y-%m-%d')", format);
+                    TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
+                    capacityNumber.setDateFormat(format);
+                    capacityNumber.setBetweenDate(new String[]{DateUtil.format(DateUtil.offsetDay(date1, -6), "yyyy-MM-dd"), DateUtil.format(date1, "yyyy-MM-dd")});
+                    list.add(capacityNumber);
+                }
+            }else{
+                for (int i = 0; i <= betweenDay; i++) {
+                    BaseQueryWrapper qw = null;
+                    if ("0".equals(dto.getDataType())) {
+                        qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as count"));
+                    } else if ("1".equals(dto.getDataType())) {
+                        qw = new BaseQueryWrapper();
+                        qw.eq("p.finish_flag", "1");
+                        qw.eq("p.break_off_sample", "0");
+                        qw.eq("p.prm_send_status", "1");
+                        qw.ne("p.del_flag", "1");
+                        qw.ne("s.del_flag", "1");
+                        qw.eq("p.suspend", "0");
+                        qw.in("p.disable_flag", "0");
+                        qw.eq("p.node", "样衣任务");
+                        qw.select("count(0) as count");
+                    }
+                    DateTime newDate = DateUtil.offsetDay(date1, i);
+                    String format = DateUtil.format(newDate, "yyyy-MM-dd");
+                    qw.eq(" date_format(p.create_date,'%Y-%m-%d')", format);
+                    TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
+                    capacityNumber.setDateFormat(format);
+                    capacityNumber.setBetweenDate(new String[]{DateUtil.format(DateUtil.offsetDay(date1, -(Integer.valueOf(betweenDay + ""))), "yyyy-MM-dd"), DateUtil.format(date1, "yyyy-MM-dd")});
+                    list.add(capacityNumber);
+                }
+            }
         }
         //周 最近5周
         if ((dto.getBetweenDate() == null || dto.getBetweenDate().length == 0) && "week".equals(type)) {
@@ -235,6 +292,67 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 capacityNumber.setDateFormat(betweenDate[0] + "/" + betweenDate[1]);
                 capacityNumber.setBetweenDate(new String[]{DateUtil.format(DateUtil.offsetDay(new Date(), -35), "yyyy-MM-dd"), DateUtil.format(new Date(), "yyyy-MM-dd")});
                 list.add(capacityNumber);
+            }
+        }else if(dto.getBetweenDate() != null && dto.getBetweenDate().length > 0 && "week".equals(type)){
+            String[] betweenDate = dto.getBetweenDate();
+            Date date1 = DateUtil.parse( betweenDate[0],"yyyy-MM-dd");
+            Date date2 = DateUtil.parse( betweenDate[1],"yyyy-MM-dd");
+            long betweenDay = DateUtil.between(date1, date2, DateUnit.WEEK) > 0 ? DateUtil.between(date1, date2, DateUnit.WEEK) : 1;
+            if (betweenDay > 5) {
+                for (int i = 7; i <= 35; i = i + 7) {
+                    BaseQueryWrapper qw = null;
+                    if ("0".equals(dto.getDataType())) {
+                        qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as count"));
+                    } else if ("1".equals(dto.getDataType())) {
+                        qw = new BaseQueryWrapper();
+                        qw.eq("p.finish_flag", "1");
+                        qw.eq("p.break_off_sample", "0");
+                        qw.eq("p.prm_send_status", "1");
+                        qw.ne("p.del_flag", "1");
+                        qw.ne("s.del_flag", "1");
+                        qw.eq("p.suspend", "0");
+                        qw.in("p.disable_flag", "0");
+                        qw.eq("p.node", "样衣任务");
+                        qw.select("count(0) as count");
+                    }
+                    DateTime newDate = DateUtil.offsetDay(date1, 6);
+                    String[] newbetweenDate = {DateUtil.format(date1, "yyyy-MM-dd"), DateUtil.format(newDate, "yyyy-MM-dd")};
+                    qw.between(" date_format(p.create_date,'%Y-%m-%d')", newbetweenDate);
+                    TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
+                    capacityNumber.setDateFormat(newbetweenDate[0] + "/" + newbetweenDate[1]);
+                    capacityNumber.setBetweenDate(new String[]{betweenDate[0],betweenDate[1]});
+                    list.add(capacityNumber);
+                    date1 = newDate;
+                }
+            }else{
+                for (int i = 7; i <= betweenDay * 7; i = i + 7) {
+                    BaseQueryWrapper qw = null;
+                    if ("0".equals(dto.getDataType())) {
+                        qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as count"));
+                    } else if ("1".equals(dto.getDataType())) {
+                        qw = new BaseQueryWrapper();
+                        qw.eq("p.finish_flag", "1");
+                        qw.eq("p.break_off_sample", "0");
+                        qw.eq("p.prm_send_status", "1");
+                        qw.ne("p.del_flag", "1");
+                        qw.ne("s.del_flag", "1");
+                        qw.eq("p.suspend", "0");
+                        qw.in("p.disable_flag", "0");
+                        qw.eq("p.node", "样衣任务");
+                        qw.select("count(0) as count");
+                    }
+                    DateTime newDate = DateUtil.offsetDay(date1, 6);
+                    String[] newbetweenDate = new String[]{DateUtil.format(date1, "yyyy-MM-dd"), DateUtil.format(newDate, "yyyy-MM-dd")};
+                    if (betweenDay == 1) {
+                        newbetweenDate = new String[] {DateUtil.format(date1, "yyyy-MM-dd"), DateUtil.format(date2, "yyyy-MM-dd")};
+                    }
+                    qw.between(" date_format(p.create_date,'%Y-%m-%d')", newbetweenDate);
+                    TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
+                    capacityNumber.setDateFormat(newbetweenDate[0] + "/" + newbetweenDate[1]);
+                    capacityNumber.setBetweenDate(new String[]{DateUtil.format(date1, "yyyy-MM-dd"),DateUtil.format(date2, "yyyy-MM-dd")});
+                    list.add(capacityNumber);
+                    date1 = newDate;
+                }
             }
         }
 
@@ -267,6 +385,10 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
 
                 list.add(capacityNumber);
             }
+        }else if(dto.getBetweenDate() != null && dto.getBetweenDate().length == 0 && "month".equals(type)){
+            String[] betweenDate = dto.getBetweenDate();
+            Date date1 = DateUtil.parse( betweenDate[0],"yyyy-MM-dd");
+            Date date2 = DateUtil.parse( betweenDate[1],"yyyy-MM-dd");
         }
         return list;
     }
