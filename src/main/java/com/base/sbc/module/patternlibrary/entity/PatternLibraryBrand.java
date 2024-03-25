@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternlibrary.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -16,12 +17,9 @@ import java.io.Serializable;
 @Data
 @TableName("t_pattern_library_brand")
 @ApiModel(value = "TPatternLibraryBrand对象", description = "版型库-品类关联表")
-public class PatternLibraryBrand implements Serializable {
+public class PatternLibraryBrand extends BaseDataEntity<String> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
-    @ApiModelProperty("主键")
-    private String id;
 
     @ApiModelProperty("部件库 ID（t_pattern_library id）")
     private String patternLibraryId;

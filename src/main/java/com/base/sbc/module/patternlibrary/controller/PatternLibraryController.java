@@ -50,7 +50,7 @@ public class PatternLibraryController {
     @GetMapping("/getDetail")
     public ApiResult<PatternLibraryVO> getDetail(String patternLibraryId) {
         PatternLibraryVO patternLibraryVO = patternLibraryService.getDetail(patternLibraryId);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryVO);
     }
 
     @ApiOperation(value = "版型库新增/编辑")
@@ -59,9 +59,10 @@ public class PatternLibraryController {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, null);
     }
 
-    @ApiOperation(value = "版型库批量删除")
-    @PostMapping("/removeDetails")
-    public ApiResult<String> removeDetails(List<String> patternLibraryIdList) {
+    @ApiOperation(value = "版型库删除")
+    @PostMapping("/removeDetail")
+    public ApiResult<String> removeDetail(@RequestBody String patternLibraryId) {
+        Boolean resultFlag = patternLibraryService.removeDetail(patternLibraryId);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
     }
 

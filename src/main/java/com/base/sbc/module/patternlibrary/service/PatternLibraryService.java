@@ -17,16 +17,26 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
 
     /**
      * 版型库列表
+     *
      * @param patternLibraryDTO 查询条件
      * @return 版型库列表分页数据
      */
     PageInfo<PatternLibraryVO> listPages(PatternLibraryDTO patternLibraryDTO);
 
- /**
+    /**
      * 版型库详情
+     *
      * @param patternLibraryId 版型库主表 ID
      * @return 版型库详情
      */
     PatternLibraryVO getDetail(String patternLibraryId);
+
+ /**
+     * 版型库删除
+     *
+     * @param patternLibraryId 版型库主表 ID
+     * @return 删除是否成功
+     */
+    Boolean removeDetail(String patternLibraryId);
 
 }
