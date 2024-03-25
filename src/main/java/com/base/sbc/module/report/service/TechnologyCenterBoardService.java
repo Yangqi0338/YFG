@@ -1,6 +1,7 @@
 package com.base.sbc.module.report.service;
 
 import com.base.sbc.module.report.dto.TechnologyCenterBoardDto;
+import com.base.sbc.module.report.vo.TechnologyCenterBoardCapacityNumberVo;
 import com.base.sbc.module.report.vo.TechnologyCenterBoardCurrentTaskVo;
 import com.base.sbc.module.report.vo.TechnologyCenterBoardDesignerRankVo;
 import com.base.sbc.module.report.vo.TechnologyCenterBoardOverviewDataVo;
@@ -34,7 +35,7 @@ public interface TechnologyCenterBoardService {
      * 打版/样衣 产能数
      * @return
      */
-    TechnologyCenterBoardCurrentTaskVo getCapacityNumber(TechnologyCenterBoardDto dto);
+    List<TechnologyCenterBoardCapacityNumberVo> getCapacityNumber(TechnologyCenterBoardDto dto);
 
     /**
      * 打版/样衣 排名统计

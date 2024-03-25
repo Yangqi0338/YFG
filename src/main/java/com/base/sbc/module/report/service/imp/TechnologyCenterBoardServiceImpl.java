@@ -13,6 +13,7 @@ import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
 import com.base.sbc.module.report.dto.TechnologyCenterBoardDto;
 import com.base.sbc.module.report.mapper.TechnologyCenterBoardMapper;
 import com.base.sbc.module.report.service.TechnologyCenterBoardService;
+import com.base.sbc.module.report.vo.TechnologyCenterBoardCapacityNumberVo;
 import com.base.sbc.module.report.vo.TechnologyCenterBoardCurrentTaskVo;
 import com.base.sbc.module.report.vo.TechnologyCenterBoardDesignerRankVo;
 import com.base.sbc.module.report.vo.TechnologyCenterBoardOverviewDataVo;
@@ -86,6 +87,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
         TechnologyCenterBoardOverviewDataVo data = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw);
 
         BaseQueryWrapper qw1 = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as plateMakingFinishQuantity"));
+
+
         qw1.between(" date_format(p.create_date,'%Y-%m-%d')",dto.getBetweenDate());
 
         TechnologyCenterBoardOverviewDataVo data1 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw1);
@@ -114,7 +117,12 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
     }
 
     @Override
-    public TechnologyCenterBoardCurrentTaskVo getCapacityNumber(TechnologyCenterBoardDto dto) {
+    public List<TechnologyCenterBoardCapacityNumberVo> getCapacityNumber(TechnologyCenterBoardDto dto) {
+
+        BaseQueryWrapper qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as sewingStartQuantity"));
+
+        technologyCenterBoardMapper.getPlateMakeUnderwayData(qw);
+
         return null;
     }
 

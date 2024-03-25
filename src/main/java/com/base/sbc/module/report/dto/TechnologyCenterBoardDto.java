@@ -25,16 +25,6 @@ public class TechnologyCenterBoardDto {
     private String type;
 
     /**
-     * 起始时间
-     */
-    private Date startDate;
-
-    /**
-     * 结束时间
-     */
-    private Date endDate;
-
-    /**
      *  是否是历史数据 0:否，1：是
      */
     private Integer historicalData;
