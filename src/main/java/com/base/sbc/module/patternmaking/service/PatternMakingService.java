@@ -420,6 +420,13 @@ public interface PatternMakingService extends BaseService<PatternMaking> {
      */
     Boolean updateReferSample(PatternMakingReferSampleDto dto);
 
+    /**
+     * 样板评分
+     * @param dto
+     * @return
+     */
+    PatternMakingScoreVo sampleBoardScore(PatternMakingCommonPageSearchDto dto);
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

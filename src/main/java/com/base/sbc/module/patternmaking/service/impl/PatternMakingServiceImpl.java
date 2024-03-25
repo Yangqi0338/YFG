@@ -295,6 +295,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     }
 
     @Override
+    public PatternMakingScoreVo sampleBoardScore(PatternMakingCommonPageSearchDto dto) {
+        BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
+        return getBaseMapper().sampleBoardScore(qw);
+
+    }
+
+    @Override
     public List<SampleUserVo> getAllPatternDesignerList(PatternUserSearchVo vo) {
 
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();

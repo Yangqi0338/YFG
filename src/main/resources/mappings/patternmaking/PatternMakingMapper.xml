@@ -844,5 +844,24 @@
         LEFT JOIN t_node_status ns9 ON ( ns9.data_id = p.id AND ns9.del_flag = '0' and ns9.node = '样衣任务' and ns9.`status` = '样衣完成')
         ${ew.customSqlSegment}
     </select>
+
+
+    <select id="sampleBoardScore" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingScoreVo">
+        SELECT
+        sum(p.sample_making_score) as sampleMakingScoreSum,
+        sum(p.sample_making_quality_score) as sampleMakingQualityScoreSum,
+        sum(p.pattern_making_score) as patternMakingScoreSum
+        FROM
+        t_style s
+        LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
+        where
+        p.del_flag = '0'
+        and s.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
+
 </mapper>
 
