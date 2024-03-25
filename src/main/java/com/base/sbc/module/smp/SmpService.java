@@ -52,6 +52,7 @@ import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
@@ -743,6 +744,7 @@ public class SmpService {
         if(CollUtil.isEmpty(list)){
             throw new OtherException("已下发数据不在重复下发");
         }
+        List<String> materialCodeList = new ArrayList<>();
         for (PackBom packBom : list) {
             //验证如果是大货类型则判断大货用量是否为空或者0
             if (PackUtils.PACK_TYPE_BIG_GOODS.equals(packBom.getPackType())) {
@@ -823,12 +825,17 @@ public class SmpService {
                     throw new OtherException(packBom.getMaterialCode()+"_"+packBom.getMaterialName()+" "+collect+"供应商已停用");
                 }
             }
+            materialCodeList.add(packBom.getMaterialCode());
 
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
 
         //bom主表
         List<PackInfo> packInfoList = packInfoService.listByIds(list.stream().map(PackBom::getForeignId).collect(Collectors.toList()));
+
+        List<BomSelMaterialVo> defaultToBomSel = basicsdatumMaterialWidthService.findDefaultToBomSel(materialCodeList);
+        List<String> materialWidthList = defaultToBomSel.stream().map(o -> o.getMaterialCode() + "_" + o.getTranslate() + "_" + o.getTranslateCode()).collect(Collectors.toList());
+
         for (PackBom packBom : list) {
             /*判断物料是否是代用材料的编码
             * 代用材料编码：0000*/
@@ -880,7 +887,10 @@ public class SmpService {
 
                     sizeQtyList.add(smpSizeQty);
                 }
-
+                //校验物料规格 是否存在于t_basicsdatum_material_width表中
+                if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
+                    throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
+                }
             }
             if (sizeQtyList.isEmpty()){
                 throw new OtherException("尺码信息为空");
