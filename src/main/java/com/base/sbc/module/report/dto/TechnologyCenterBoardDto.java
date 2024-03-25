@@ -25,6 +25,11 @@ public class TechnologyCenterBoardDto {
      */
     private String type;
 
+    /***
+     * 0：打版，1：样衣
+     */
+    private String dataType;
+
     /**
      *  是否是历史数据 0:否，1：是
      */

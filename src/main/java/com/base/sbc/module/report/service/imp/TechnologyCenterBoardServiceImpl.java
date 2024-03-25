@@ -1,16 +1,9 @@
 package com.base.sbc.module.report.service.imp;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.date.BetweenFormatter;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.patternmaking.entity.PatternMaking;
-import com.base.sbc.module.patternmaking.mapper.PatternMakingMapper;
-import com.base.sbc.module.patternmaking.service.PatternMakingService;
-import com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo;
 import com.base.sbc.module.report.dto.TechnologyCenterBoardDto;
 import com.base.sbc.module.report.mapper.TechnologyCenterBoardMapper;
 import com.base.sbc.module.report.service.TechnologyCenterBoardService;
@@ -23,15 +16,12 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardService {
-    
+
     @Resource
     private TechnologyCenterBoardMapper technologyCenterBoardMapper;
 
@@ -74,10 +64,10 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
 
     @Override
     public TechnologyCenterBoardOverviewDataVo getPlateMakeFinishData(TechnologyCenterBoardDto dto) {
-        if(dto.getBetweenDate() == null || dto.getBetweenDate().length == 0) {
+        if (dto.getBetweenDate() == null || dto.getBetweenDate().length == 0) {
             DateTime date = DateUtil.date();
             DateTime newDate = DateUtil.offsetDay(date, -6);
-            String[] betweenDate = {DateUtil.format(newDate, "yyyy-MM-dd"),DateUtil.format(date, "yyyy-MM-dd")};
+            String[] betweenDate = {DateUtil.format(newDate, "yyyy-MM-dd"), DateUtil.format(date, "yyyy-MM-dd")};
             dto.setBetweenDate(betweenDate);
         }
         BaseQueryWrapper qw = new BaseQueryWrapper();
@@ -85,7 +75,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
         qw.ne("p.del_flag", "1");
         qw.ne("s.del_flag", "1");
         qw.in("p.disable_flag", "0");
-        qw.between(" date_format(p.create_date,'%Y-%m-%d')",dto.getBetweenDate());
+        qw.between(" date_format(p.create_date,'%Y-%m-%d')", dto.getBetweenDate());
 
         qw.select("count(0) as plateMakingDemandQuantity");
         TechnologyCenterBoardOverviewDataVo data = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw);
@@ -93,7 +83,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
         BaseQueryWrapper qw1 = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as plateMakingFinishQuantity"));
 
 
-        qw1.between(" date_format(p.create_date,'%Y-%m-%d')",dto.getBetweenDate());
+        qw1.between(" date_format(p.create_date,'%Y-%m-%d')", dto.getBetweenDate());
 
         TechnologyCenterBoardOverviewDataVo data1 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw1);
         data.setPlateMakingFinishQuantity(data1.getPlateMakingFinishQuantity());
@@ -106,7 +96,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
         qw2.ne("s.del_flag", "1");
         qw2.eq("p.suspend", "0");
         qw2.in("p.disable_flag", "0");
-        qw2.between(" date_format(p.create_date,'%Y-%m-%d')",dto.getBetweenDate());
+        qw2.between(" date_format(p.create_date,'%Y-%m-%d')", dto.getBetweenDate());
         qw2.notEmptyEq("p.node", "样衣任务");
         qw2.select("count(0) as sampleFinishQuantity");
         TechnologyCenterBoardOverviewDataVo data2 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw2);
@@ -116,47 +106,211 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
     }
 
     @Override
-    public TechnologyCenterBoardCurrentTaskVo getCurrentTaskData(TechnologyCenterBoardDto dto) {
-        return null;
+    public List<TechnologyCenterBoardCurrentTaskVo> getCurrentTaskData(TechnologyCenterBoardDto dto) {
+        List<TechnologyCenterBoardCurrentTaskVo> resultDate = new ArrayList<>();
+
+
+        BaseQueryWrapper qw = null;
+        if ("0".equals(dto.getDataType())) {
+            qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版中","已接收"), " p.pattern_design_id as id ,p.pattern_design_name as userName,s.design_no as designNo,p.sample_type_name"));
+        } else if ("1".equals(dto.getDataType())) {
+            qw = new BaseQueryWrapper();
+            qw.eq("p.finish_flag", "1");
+            qw.eq("p.break_off_sample", "0");
+            qw.eq("p.prm_send_status", "1");
+            qw.ne("p.del_flag", "1");
+            qw.ne("s.del_flag", "1");
+            qw.eq("p.suspend", "0");
+            qw.in("p.disable_flag", "0");
+            qw.eq("p.node", "样衣任务");
+            qw.select(" p.stitcher_id as id,p.stitcher as userName,s.design_no as designNo,p.sample_type_name");
+        }
+        List<TechnologyCenterBoardCurrentTaskVo> list = technologyCenterBoardMapper.getCurrentTaskData(qw);
+        Map<String,TechnologyCenterBoardCurrentTaskVo> mapData = new HashMap<>();
+        if (CollUtil.isNotEmpty(list)) {
+            for (TechnologyCenterBoardCurrentTaskVo currentTaskVo : list) {
+                String id = currentTaskVo.getId();
+                if (mapData.containsKey(id)) {
+                    TechnologyCenterBoardCurrentTaskVo boardCurrentTaskVo = mapData.get(id);
+                    LinkedHashMap<String, Integer> plateMakingTypeMap = boardCurrentTaskVo.getPlateMakingTypeMap();
+                    if (plateMakingTypeMap.containsKey(currentTaskVo.getSampleTypeName())) {
+                        Integer count = plateMakingTypeMap.get(currentTaskVo.getSampleTypeName());
+                        plateMakingTypeMap.put(currentTaskVo.getSampleTypeName(), count + 1);
+                        plateMakingTypeMap.put("总个数", plateMakingTypeMap.get("总个数") + 1);
+                        boardCurrentTaskVo.setCount(boardCurrentTaskVo.getCount()+1);
+                    }
+                    List<String> designNolist = boardCurrentTaskVo.getDesignNolist();
+                    if (designNolist.size() < 4) {
+                        designNolist.add(currentTaskVo.getDesignNo());
+                    }
+                }else{
+                    TechnologyCenterBoardCurrentTaskVo boardCurrentTaskVo = new TechnologyCenterBoardCurrentTaskVo();
+                    boardCurrentTaskVo.setUserName(currentTaskVo.getUserName());
+                    LinkedHashMap<String,Integer> map = new LinkedHashMap<>();
+                    map.put("初版样",0);
+                    map.put("改版样",0);
+                    map.put("齐色样",0);
+                    map.put("拍照样",0);
+                    map.put("产前样",0);
+                    map.put("总个数",0);
+                    if (map.containsKey(currentTaskVo.getSampleTypeName())) {
+                        Integer count = map.get(currentTaskVo.getSampleTypeName());
+                        map.put(currentTaskVo.getSampleTypeName(), count + 1);
+                        map.put("总个数", map.get("总个数") + 1);
+                        boardCurrentTaskVo.setCount(1);
+                    }
+                    boardCurrentTaskVo.setId(boardCurrentTaskVo.getId());
+                    boardCurrentTaskVo.setDesignNolist(new ArrayList<>(Arrays.asList(currentTaskVo.getDesignNo())));
+                    boardCurrentTaskVo.setPlateMakingTypeMap(map);
+                    mapData.put(id,boardCurrentTaskVo);
+                }
+            }
+        }
+
+        for (Map.Entry<String, TechnologyCenterBoardCurrentTaskVo> taskVoEntry : mapData.entrySet()) {
+            resultDate.add(taskVoEntry.getValue());
+        }
+        resultDate.sort(Comparator.comparing(TechnologyCenterBoardCurrentTaskVo::getCount).reversed());
+        return resultDate;
     }
 
     @Override
     public List<TechnologyCenterBoardCapacityNumberVo> getCapacityNumber(TechnologyCenterBoardDto dto) {
         List<TechnologyCenterBoardCapacityNumberVo> list = new ArrayList<>();
+
+
         String type = dto.getType();
         //天 最近7天
-        if(dto.getBetweenDate() == null || dto.getBetweenDate().length == 0 && "day".equals(type) ) {
+        if ((dto.getBetweenDate() == null || dto.getBetweenDate().length == 0) && "day".equals(type)) {
             DateTime date = DateUtil.date();
-            BaseQueryWrapper qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "date_format(p.create_date,'%Y-%m-%d') as dateFormat ,count(0) as count"));
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i <= 6; i++) {
+                BaseQueryWrapper qw = null;
+                if ("0".equals(dto.getDataType())) {
+                    qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as count"));
+                } else if ("1".equals(dto.getDataType())) {
+                    qw = new BaseQueryWrapper();
+                    qw.eq("p.finish_flag", "1");
+                    qw.eq("p.break_off_sample", "0");
+                    qw.eq("p.prm_send_status", "1");
+                    qw.ne("p.del_flag", "1");
+                    qw.ne("s.del_flag", "1");
+                    qw.eq("p.suspend", "0");
+                    qw.in("p.disable_flag", "0");
+                    qw.eq("p.node", "样衣任务");
+                    qw.select("count(0) as count");
+                }
                 DateTime newDate = DateUtil.offsetDay(date, -(i));
                 String format = DateUtil.format(newDate, "yyyy-MM-dd");
-                qw.eq(" date_format(p.create_date,'%Y-%m-%d')",format);
+                qw.eq(" date_format(p.create_date,'%Y-%m-%d')", format);
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
-                if (capacityNumber == null) {
-                    capacityNumber = new TechnologyCenterBoardCapacityNumberVo();
-                    capacityNumber.setDateFormat(format);
-                    capacityNumber.setCount(0);
-                    list.add(capacityNumber);
-                }else{
-                    list.add(capacityNumber);
-                }
+                capacityNumber.setDateFormat(format);
+                capacityNumber.setBetweenDate(new String[]{DateUtil.format(DateUtil.offsetDay(new Date(), -6), "yyyy-MM-dd"), DateUtil.format(new Date(), "yyyy-MM-dd")});
+                list.add(capacityNumber);
             }
         }
         //周 最近5周
-        if(dto.getBetweenDate() == null || dto.getBetweenDate().length == 0 && "week".equals(type) ) {
+        if ((dto.getBetweenDate() == null || dto.getBetweenDate().length == 0) && "week".equals(type)) {
             DateTime date = DateUtil.date();
-            DateTime newDate = DateUtil.offsetDay(date, -6);
-            String[] betweenDate = {DateUtil.format(newDate, "yyyy-MM-dd"),DateUtil.format(date, "yyyy-MM-dd")};
-            dto.setBetweenDate(betweenDate);
+            for (int i = 7; i <= 35; i = i + 7) {
+                BaseQueryWrapper qw = null;
+                if ("0".equals(dto.getDataType())) {
+                    qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as count"));
+                } else if ("1".equals(dto.getDataType())) {
+                    qw = new BaseQueryWrapper();
+                    qw.eq("p.finish_flag", "1");
+                    qw.eq("p.break_off_sample", "0");
+                    qw.eq("p.prm_send_status", "1");
+                    qw.ne("p.del_flag", "1");
+                    qw.ne("s.del_flag", "1");
+                    qw.eq("p.suspend", "0");
+                    qw.in("p.disable_flag", "0");
+                    qw.eq("p.node", "样衣任务");
+                    qw.select("count(0) as count");
+                }
+                DateTime newDate = DateUtil.offsetDay(date, -(7));
+                String[] betweenDate = {DateUtil.format(newDate, "yyyy-MM-dd"), DateUtil.format(date, "yyyy-MM-dd")};
+                qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDate);
+                TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
+                date = newDate;
+                capacityNumber.setDateFormat(betweenDate[0] + "/" + betweenDate[1]);
+                capacityNumber.setBetweenDate(new String[]{DateUtil.format(DateUtil.offsetDay(new Date(), -35), "yyyy-MM-dd"), DateUtil.format(new Date(), "yyyy-MM-dd")});
+                list.add(capacityNumber);
+            }
         }
 
+        //月 最近6月
+        if ((dto.getBetweenDate() == null || dto.getBetweenDate().length == 0) && "month".equals(type)) {
+            DateTime date = DateUtil.date();
+            for (int i = 30; i <= 180; i = i + 30) {
+                BaseQueryWrapper qw = null;
+                if ("0".equals(dto.getDataType())) {
+                    qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as count"));
+                } else if ("1".equals(dto.getDataType())) {
+                    qw = new BaseQueryWrapper<TechnologyCenterBoardDto>();
+                    qw.eq("p.finish_flag", "1");
+                    qw.eq("p.break_off_sample", "0");
+                    qw.eq("p.prm_send_status", "1");
+                    qw.ne("p.del_flag", "1");
+                    qw.ne("s.del_flag", "1");
+                    qw.eq("p.suspend", "0");
+                    qw.in("p.disable_flag", "0");
+                    qw.eq("p.node", "样衣任务");
+                    qw.select("count(0) as count");
+                }
+                DateTime newDate = DateUtil.offsetDay(date, -(30));
+                String[] betweenDate = {DateUtil.format(newDate, "yyyy-MM-dd"), DateUtil.format(date, "yyyy-MM-dd")};
+                qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDate);
+                TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
+                capacityNumber.setDateFormat(betweenDate[0] + "/" + betweenDate[1]);
+                capacityNumber.setBetweenDate(new String[]{DateUtil.format(DateUtil.offsetDay(new Date(), -180), "yyyy-MM-dd"), DateUtil.format(new Date(), "yyyy-MM-dd")});
+                date = newDate;
 
+                list.add(capacityNumber);
+            }
+        }
         return list;
     }
 
     @Override
     public List<TechnologyCenterBoardDesignerRankVo> getDesignerRank(TechnologyCenterBoardDto dto) {
-        return null;
+        BaseQueryWrapper qw = null;
+        String[] betweenDate = dto.getBetweenDate();
+        if ((dto.getBetweenDate() == null || dto.getBetweenDate().length == 0)) {
+            DateTime date = DateUtil.date();
+            DateTime newDate = DateUtil.offsetDay(date, -(7));
+            betweenDate = new String[]{DateUtil.format(newDate, "yyyy-MM-dd"), DateUtil.format(date, "yyyy-MM-dd")};
+        }
+
+        if ("0".equals(dto.getDataType())) {
+            qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as count"));
+            qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDate);
+            qw.select("p.pattern_design_name as designer,count(0) as count");
+            qw.groupBy(" p.pattern_design_id,p.pattern_design_name");
+            qw.orderByDesc("count(0)");
+            qw.last("limit 20");
+        } else if ("1".equals(dto.getDataType())) {
+            qw = new BaseQueryWrapper<TechnologyCenterBoardDto>();
+            qw.eq("p.finish_flag", "1");
+            qw.eq("p.break_off_sample", "0");
+            qw.eq("p.prm_send_status", "1");
+            qw.ne("p.del_flag", "1");
+            qw.ne("s.del_flag", "1");
+            qw.eq("p.suspend", "0");
+            qw.in("p.disable_flag", "0");
+            qw.eq("p.node", "样衣任务");
+            qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDate);
+            qw.select("p.stitcher as designer,count(0) as count");
+            qw.groupBy(" p.stitcher_id,p.stitcher");
+            qw.orderByDesc("count(0)");
+            qw.last("limit 20");
+        }
+
+        List<TechnologyCenterBoardDesignerRankVo> designerRankList = technologyCenterBoardMapper.getDesignerRank(qw);
+        if (CollUtil.isNotEmpty(designerRankList)) {
+            for (TechnologyCenterBoardDesignerRankVo vo : designerRankList) {
+                vo.setBetweenDate(betweenDate);
+            }
+        }
+        return designerRankList;
     }
 }

@@ -2,8 +2,8 @@ package com.base.sbc.module.report.vo;
 
 import lombok.Data;
 
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 技术看板当前任务
@@ -11,14 +11,27 @@ import java.util.Map;
 @Data
 public class TechnologyCenterBoardCurrentTaskVo {
     /**
+     * 用户id
+     */
+    private String id;
+    /**
      * 用户名
      */
     private String userName;
 
     /**
+     * 设计款号
+     */
+    private String designNo;
+    /**
+     * 打版类型
+     */
+    private String sampleTypeName;
+
+    /**
      * 打版类型个数，以及总数
      */
-    private Map<String, Integer> plateMakingTypeMap;
+    private LinkedHashMap<String, Integer> plateMakingTypeMap;
     /**
      * 设计款号
      */
@@ -26,5 +39,5 @@ public class TechnologyCenterBoardCurrentTaskVo {
     /**
      * 排名
      */
-    private Integer sort;
+    private Integer count;
 }

@@ -29,7 +29,7 @@ public interface TechnologyCenterBoardService {
      * 版师/样衣工 当前任务
      * @return
      */
-    TechnologyCenterBoardCurrentTaskVo getCurrentTaskData(TechnologyCenterBoardDto dto);
+    List<TechnologyCenterBoardCurrentTaskVo> getCurrentTaskData(TechnologyCenterBoardDto dto);
 
     /**
      * 打版/样衣 产能数

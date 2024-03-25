@@ -42,7 +42,7 @@ public class TechnologyCenterBoardController {
     }
     @ApiOperation(value = "版师/样衣工,当前任务")
     @GetMapping("/getCurrentTaskData")
-    public TechnologyCenterBoardCurrentTaskVo getCurrentTaskData(TechnologyCenterBoardDto dto){
+    public List<TechnologyCenterBoardCurrentTaskVo> getCurrentTaskData(TechnologyCenterBoardDto dto){
         return technologyCenterBoardService.getCurrentTaskData(dto);
     }
     @ApiOperation(value = "打版/样衣,产能数")
