@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -24,6 +25,7 @@ import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
@@ -49,6 +51,9 @@ import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -64,8 +69,10 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
+import com.base.sbc.module.smp.mapper.SaleProductIntoMapper;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.service.*;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,6 +89,7 @@ import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.ORDER_BOOK_CV;
 import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HANG_TAG_PRICING_LINE;
 
 
@@ -167,6 +175,7 @@ public class SmpService {
     private final BasicsdatumSupplierService basicsdatumSupplierService;
     private final HangTagServiceImpl hangTagService;
     private final FieldValService fieldValService;
+    private final SaleProductIntoMapper saleProductIntoMapper;
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -1774,6 +1783,36 @@ public class SmpService {
             styleColorService.updateById(styleColor);
         }
         return i;
+    }
+
+    /**
+     * 修改商品尺码的时候验证
+     */
+    public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
+        Page<Object> page = saleProductIntoDto.startPage();
+        BaseQueryWrapper<?> qw = new BaseQueryWrapper<>();
+        qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
+        qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+
+        List<Map<String, Object>> totalMaps = saleProductIntoMapper.querySaleIntoPage(qw, 1);
+        List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
+
+        return CopyUtil.copy(page.toPageInfo(), dtoList);
+    }
+
+    /**
+     * 修改商品尺码的时候验证
+     */
+    public List<StyleSaleIntoDto> querySaleIntoPage(SaleProductIntoDto saleProductIntoDto) {
+        BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
+        qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+
+        List<Map<String, Object>> detailMaps = saleProductIntoMapper.querySaleIntoPage(qw, 0);
+        // 封装数据并转化Bean
+        detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
+        return ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
     }
 }
 

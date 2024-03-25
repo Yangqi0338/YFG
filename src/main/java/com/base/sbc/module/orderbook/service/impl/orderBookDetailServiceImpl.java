@@ -24,6 +24,7 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.StylePutIntoType;
@@ -72,12 +73,12 @@ import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.SaleProductIntoDto;
 import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.StringUtil;
@@ -834,16 +835,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         /* ----------------------------查询分页款号数据---------------------------- */
 
-        Page<Object> page = queryDto.startPage();
-        BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
-        qw.notEmptyLike("T.PROD_CODE", queryDto.getBulkStyleNo());
-        qw.notEmptyIn("T.PROD_CODE", searchBulkStyleNoList);
-        qw.in("T.CHANNEL_TYPE", channelList);
+        SaleProductIntoDto saleProductIntoDto = (SaleProductIntoDto) queryDto.clone();
+        saleProductIntoDto.setChannelList(channelList);
+        saleProductIntoDto.setBulkStyleNoList(searchBulkStyleNoList);
+        saleProductIntoDto.setBulkStyleNo(queryDto.getBulkStyleNo());
 
-        List<Map<String, Object>> totalMaps = getBaseMapper().queryStarRocksTotal(qw);
-        List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
-
-        PageInfo<OrderBookSimilarStyleVo> result = CopyUtil.copy(page.toPageInfo(), dtoList);
+        PageInfo<OrderBookSimilarStyleVo> result = smpService.querySaleIntoPageTotal(saleProductIntoDto);
+        List<OrderBookSimilarStyleVo> dtoList = result.getList();
         if (CollUtil.isEmpty(dtoList)) {
             return result;
         }
@@ -866,14 +864,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         /* ----------------------------装饰详细的投产销售---------------------------- */
 
-        BaseQueryWrapper<OrderBookDetail> qw1 = new BaseQueryWrapper<>();
-        qw1.in("T.PROD_CODE", bulkStyleNoList);
-        qw.in("T.CHANNEL_TYPE", channelList);
+        SaleProductIntoDto saleProductIntoDetailDto = (SaleProductIntoDto) queryDto.clone();
+        saleProductIntoDto.setChannelList(channelList);
+        saleProductIntoDetailDto.setBulkStyleNoList(bulkStyleNoList);
 
-        List<Map<String, Object>> detailMaps = getBaseMapper().queryStarRocksDetail(qw1);
-        // 封装数据并转化Bean
-        detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
-        List<StyleSaleIntoDto> detailList = ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
+        List<StyleSaleIntoDto> detailList = smpService.querySaleIntoPage(saleProductIntoDetailDto);
 
         List<String> sizeNameList = StringUtils.convertList("XXS,XS,S,M,L,XL,XXL");
         // 构建基础模型
