@@ -1,10 +1,10 @@
 package com.base.sbc.module.basicsdatum.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import lombok.Data;
 
 @Data
-public class BasicsdatumMaterialPageAndStyleDto extends Page {
+public class BasicsdatumMaterialPageAndStyleDto extends QueryFieldDto {
     /**
      * 物料清单id
      */

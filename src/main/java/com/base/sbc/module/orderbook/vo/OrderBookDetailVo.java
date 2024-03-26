@@ -1,11 +1,14 @@
 package com.base.sbc.module.orderbook.vo;
 
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class OrderBookDetailVo extends OrderBookDetail {
@@ -35,7 +38,16 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "大货款号")
     private String bulkStyleNo;
-
+    /**
+     * 原大货款号
+     */
+    @ApiModelProperty(value = "原大货款号")
+    private String hisStyleNo;
+    /**
+     * 关联大货款名
+     */
+    @ApiModelProperty(value = "关联大货款名")
+    private String bomName;
     /**
      * 款式图
      */
@@ -256,6 +268,7 @@ public class OrderBookDetailVo extends OrderBookDetail {
     private String sumOfflineProduction;
     private String sumOnlineProduction;
     private String sumTagPrice;
+    private String materialMoney;
 
 
     /**
@@ -264,15 +277,23 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @ApiModelProperty(value = "产品季id")
     private String planningSeasonId;
 
-    @Override
-    public String getFabricState(){
-        if(StrUtil.isBlank(this.fabricState)) return "";
-        switch (this.fabricState) {
-            case "0": return "库存";
-            case "1": return "现货";
-            case "2": return "做货";
-            default: return "";
-        }
-    }
+    /**
+     * 渠道编码
+     */
+    @ApiModelProperty(value = "渠道编码")
+    private String channel;
+
+    /**
+     * 渠道
+     */
+    @ApiModelProperty(value = "渠道")
+    private String channelName;
+
+    /**
+     * 尺码codes
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "尺码codes")
+    private String sizeCodes;
 
 }

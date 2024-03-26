@@ -331,7 +331,17 @@ public class SampleBoardVo extends Style {
 
     private String patternDesignerName;
 
+    /**
+     * 是否参考样衣
+     */
+    private String referSample;
+
     public String getId() {
         return patternMakingId;
     }
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

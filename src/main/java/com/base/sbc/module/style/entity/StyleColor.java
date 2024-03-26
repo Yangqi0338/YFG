@@ -337,6 +337,15 @@ public class StyleColor extends BaseDataEntity<String> {
     @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
     private String orderMarkingStatus;
 
+    @ApiModelProperty(value = "设计下面料详单逾期原因"  )
+    private String sendMainFabricOverdueReason;
+
+    @ApiModelProperty(value = "设计下明细单逾期原因"  )
+    private String designDetailOverdueReason;
+
+    @ApiModelProperty(value = "设计下正确样逾期原因"  )
+    private String designCorrectOverdueReason;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

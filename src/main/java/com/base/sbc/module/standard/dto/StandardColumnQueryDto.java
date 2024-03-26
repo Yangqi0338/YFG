@@ -2,6 +2,7 @@ package com.base.sbc.module.standard.dto;
 
 import cn.hutool.core.collection.CollUtil;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import io.swagger.annotations.ApiModelProperty;
@@ -29,5 +30,8 @@ public class StandardColumnQueryDto extends Page {
 
     @ApiModelProperty(value = "code列表")
     private List<String> codeList;
+
+    @ApiModelProperty(value = "code列表")
+    private YesOrNoEnum showFlag = YesOrNoEnum.YES;
 
 }

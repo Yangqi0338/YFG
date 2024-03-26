@@ -107,7 +107,7 @@ public class TagPrintingSupportVO extends TagPrinting {
             MapUtil.entry("DP02", new CodeMapping<>("SaftyTitle-安全技术类别")),
             MapUtil.entry("DP03", new CodeMapping<>("OPStandardTitle-执行标准")),
             MapUtil.entry("DP04", new CodeMapping<>("StyleTitle-款号")),
-            MapUtil.entry("DP05", new CodeMapping<>("ProductTitle-品名")),
+            MapUtil.entry("DP05", new CodeMapping<>("ProductTitle-品名", MoreLanguageTagPrinting::getProductName, MoreLanguageTagPrinting::setProductName)),
             MapUtil.entry("DP06", new CodeMapping<>("SizeTitle-尺码", Size::getSystemSizeName, Size::setSIZENAME).setListFunc(MoreLanguageTagPrinting::getSize)),
             MapUtil.entry("DP07", new CodeMapping<>("colorTitle-颜色", MoreLanguageTagPrinting::getColorDescription, MoreLanguageTagPrinting::setColorDescription)),
             MapUtil.entry("DP09", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),

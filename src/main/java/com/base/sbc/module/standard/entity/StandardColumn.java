@@ -8,6 +8,7 @@ package com.base.sbc.module.standard.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import io.swagger.annotations.ApiModel;
@@ -62,5 +63,8 @@ public class StandardColumn extends BaseDataEntity<String> {
     /** 备注 */
     @ApiModelProperty(value = "备注"  )
     private String remarks;
+    /** 展示字段 */
+    @ApiModelProperty(value = "展示字段"  )
+    private YesOrNoEnum showFlag;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

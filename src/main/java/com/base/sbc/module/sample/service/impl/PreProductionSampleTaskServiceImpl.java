@@ -54,8 +54,11 @@ import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
+import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
@@ -65,6 +68,7 @@ import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,8 +103,6 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Autowired
     private NodeStatusService nodeStatusService;
     @Autowired
-    private AttachmentService attachmentService;
-    @Autowired
     private StyleService styleService;
 
     @Autowired
@@ -117,6 +119,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private StylePicUtils stylePicUtils;
     @Autowired
     private StyleColorService styleColorService;
+    @Lazy
+    @Autowired
+    private SmpService smpService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -202,6 +207,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Override
     public PageInfo<PreProductionSampleTaskVo> taskList(PreProductionSampleTaskSearchDto dto) {
         BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getNode()), "t.node", dto.getNode());
         qw.eq(StrUtil.isNotBlank(dto.getStatus()), "t.status", dto.getStatus());
         qw.notEmptyIn("t.finish_flag", dto.getFinishFlag());
@@ -240,6 +246,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             if(objects.toPageInfo().getList().size() >2000){
                 throw new OtherException("带图片最多只能导出2000条");
             }
+            return objects.toPageInfo();
+        }
+        if (isColumnHeard) {
             return objects.toPageInfo();
         }
         // 设置图
@@ -562,6 +571,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
                     this.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
                 }
             }
+
+            TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
+            confirmDateDto.setStyleNo(old.getStyleNo());
+            confirmDateDto.setTechnicsDate(dto.getTechReceiveTime());
+            confirmDateDto.setType("technics_date");
+            smpService.styleColorCorrectInfoDate(confirmDateDto);
         }
 
         // 记录日志

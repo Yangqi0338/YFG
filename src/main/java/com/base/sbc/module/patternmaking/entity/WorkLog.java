@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.patternmaking.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -120,6 +121,12 @@ public class WorkLog extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "工作分数")
     private BigDecimal score;
+
+    /**
+     * 列头筛选数量
+     */
+    @TableField(exist = false)
+    private Integer groupCount;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

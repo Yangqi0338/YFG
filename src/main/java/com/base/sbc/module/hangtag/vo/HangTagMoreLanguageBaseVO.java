@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.vo;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -57,6 +58,12 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
      */
     @ApiModelProperty(value = "标准列名")
     private String standardColumnName;
+
+    /**
+     * 是否展示
+     */
+    @ApiModelProperty(value = "是否展示")
+    private YesOrNoEnum showFlag;
 
     /**
      * 国家名

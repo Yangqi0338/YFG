@@ -2,6 +2,7 @@ package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -15,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -23,6 +25,7 @@ import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
@@ -47,9 +50,14 @@ import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
@@ -61,8 +69,10 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
+import com.base.sbc.module.smp.mapper.SaleProductIntoMapper;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.service.*;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,6 +88,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
+import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.ORDER_BOOK_CV;
 import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HANG_TAG_PRICING_LINE;
 
 
@@ -163,6 +175,12 @@ public class SmpService {
     private final BasicsdatumSupplierService basicsdatumSupplierService;
     private final HangTagServiceImpl hangTagService;
     private final FieldValService fieldValService;
+    private final SaleProductIntoMapper saleProductIntoMapper;
+
+    @Resource
+    @Lazy
+    private StyleColorCorrectInfoService styleColorCorrectInfoService;
+
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -740,6 +758,7 @@ public class SmpService {
         if(CollUtil.isEmpty(list)){
             throw new OtherException("已下发数据不在重复下发");
         }
+        List<String> materialCodeList = new ArrayList<>();
         for (PackBom packBom : list) {
             //验证如果是大货类型则判断大货用量是否为空或者0
             if (PackUtils.PACK_TYPE_BIG_GOODS.equals(packBom.getPackType())) {
@@ -820,10 +839,16 @@ public class SmpService {
                     throw new OtherException(packBom.getMaterialCode()+"_"+packBom.getMaterialName()+" "+collect+"供应商已停用");
                 }
             }
+            materialCodeList.add(packBom.getMaterialCode());
 
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
 
+        //bom主表
+        List<PackInfo> packInfoList = packInfoService.listByIds(list.stream().map(PackBom::getForeignId).collect(Collectors.toList()));
+
+        List<BomSelMaterialVo> defaultToBomSel = basicsdatumMaterialWidthService.findDefaultToBomSel(materialCodeList);
+        List<String> materialWidthList = defaultToBomSel.stream().map(o -> o.getMaterialCode() + "_" + o.getTranslate() + "_" + o.getTranslateCode()).collect(Collectors.toList());
 
         for (PackBom packBom : list) {
             /*判断物料是否是代用材料的编码
@@ -834,7 +859,7 @@ public class SmpService {
 
 
             //bom主表
-            PackInfo packInfo = packInfoService.getById(packBom.getForeignId());
+            PackInfo packInfo = packInfoList.stream().filter(it -> it.getId().equals(packBom.getForeignId())).findFirst().get();
             if (StringUtils.isEmpty(packInfo.getStyleNo())) {
                 throw new OtherException(packBom.getMaterialName() + "未关联大货(配色)信息,无法下发");
             }
@@ -876,7 +901,10 @@ public class SmpService {
 
                     sizeQtyList.add(smpSizeQty);
                 }
-
+                //校验物料规格 是否存在于t_basicsdatum_material_width表中
+                if (!materialWidthList.contains(packBom.getMaterialCode() + "_" + packBomSize.getWidth() + "_" + packBomSize.getWidthCode())) {
+                    throw new OtherException("物料：" + packBom.getMaterialCodeName() + ",门幅/规格：" + packBomSize.getSize() + "不存在");
+                }
             }
             if (sizeQtyList.isEmpty()){
                 throw new OtherException("尺码信息为空");
@@ -928,6 +956,26 @@ public class SmpService {
         if (styleColor != null) {
             this.goods(new String[]{styleColor.getId()});
         }
+
+        String value = list.stream().map(PackBom::getMaterialCodeName).collect(Collectors.joining("\n"));
+        String packType = list.stream().map(PackBom::getPackType).distinct().collect(Collectors.joining(COMMA));
+        // 3093 添加日志
+        packInfoList.stream().findFirst().ifPresent(packInfo-> {
+            com.alibaba.fastjson2.JSONArray jsonArray = new com.alibaba.fastjson2.JSONArray();
+            OperaLogEntity log = new OperaLogEntity();
+            log.setType("下发同步");
+            log.setName("物料清单");
+            log.setPath(packType);
+            log.setParentId(packInfo.getForeignId());
+            com.alibaba.fastjson2.JSONObject jsonObject = new com.alibaba.fastjson2.JSONObject();
+            jsonObject.put("name", "物料名称");
+            jsonObject.put("oldStr", "");
+            jsonObject.put("newStr", value);
+            jsonArray.add(jsonObject);
+            log.setJsonContent(jsonArray.toJSONString());
+            log.setPath(packType);
+            packInfoService.saveOperaLog(log);
+        });
 
         return i;
     }
@@ -1438,7 +1486,7 @@ public class SmpService {
      */
     public int tagConfirmDates(List<String> ids, HangTagDeliverySCMStatusEnum type, Integer confirmStatus) {
         int index = 0;
-        List<TagConfirmDateDto> tagConfirmDate = new ArrayList<>();
+        List<TagConfirmDateDto> list = new ArrayList<>();
 
         Date date = confirmStatus.equals(0) ? null : new Date();
         if (type.lessThan(HANG_TAG_PRICING_LINE)) {
@@ -1453,7 +1501,7 @@ public class SmpService {
                         tagConfirmDateDto.setStyleNo(bulkStyleNo);
                         tagConfirmDateDto.setTechnicalConfirm(0);
                         tagConfirmDateDto.setTechnicalConfirmDate(null);
-                        tagConfirmDate.add(tagConfirmDateDto);
+                        list.add(tagConfirmDateDto);
                     }else{
                         //反审
                         tagConfirmDateDto.setStyleNo(bulkStyleNo);
@@ -1463,7 +1511,7 @@ public class SmpService {
                         tagConfirmDateDto.setTechnologistConfirmDate(null);
                         tagConfirmDateDto.setTechnicalConfirmDate(null);
                         tagConfirmDateDto.setQualityControlConfirmDate(null);
-                        tagConfirmDate.add(tagConfirmDateDto);
+                        list.add(tagConfirmDateDto);
                     }
                 }
                 if (HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM == type) {
@@ -1471,19 +1519,19 @@ public class SmpService {
                     tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setTechnologistConfirm(1);
                     tagConfirmDateDto.setTechnologistConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM == type) {
                     //技术确认
                     tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setTechnicalConfirm(1);
                     tagConfirmDateDto.setTechnicalConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM == type) {
                     //品控确认
                     tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setQualityControlConfirm(1);
                     tagConfirmDateDto.setQualityControlConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 }
             }
         } else {
@@ -1501,26 +1549,26 @@ public class SmpService {
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setPlanCostConfirm(confirmStatus);
                     tagConfirmDateDto.setPlanCostConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM == type) {
                     //商品吊牌确认
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setProductTagPriceConfirm(confirmStatus);
                     tagConfirmDateDto.setProductTagPriceConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM == type) {
                     //计控吊牌确认
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
                     tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 }
             }
         }
-        String params = JSONArray.toJSONString(tagConfirmDate);
+        String params = JSONArray.toJSONString(list);
 
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
-        for (TagConfirmDateDto tagConfirmDateDto1 : tagConfirmDate) {
+        for (TagConfirmDateDto tagConfirmDateDto1 : list) {
 
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
             if (aBoolean) {
@@ -1529,6 +1577,26 @@ public class SmpService {
         }
 
         return index;
+    }
+
+    /**
+     * 正确样下发
+     */
+    public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto) {
+        String type = tagConfirmDateDto.getType();
+        if (null == tagConfirmDateDto.getPlanControlDate() && "plan_control_date".equals(type)) {//
+            String styleNo = tagConfirmDateDto.getStyleNo();
+            QueryWrapper<StyleColorCorrectInfo> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("style_no", styleNo);
+            queryWrapper.eq("del_flag", "0");
+            List<StyleColorCorrectInfo> list = styleColorCorrectInfoService.list(queryWrapper);
+            if (CollUtil.isNotEmpty(list)) {
+                tagConfirmDateDto.setPlanControlDate(list.get(0).getPlanControlDate());
+            }
+        }
+        String params = JSONArray.toJSONString(Arrays.asList(tagConfirmDateDto));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
+        pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto), "scm", "下发吊牌和款式定价确认信息");
     }
 
     /**
@@ -1740,6 +1808,36 @@ public class SmpService {
             styleColorService.updateById(styleColor);
         }
         return i;
+    }
+
+    /**
+     * 修改商品尺码的时候验证
+     */
+    public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
+        Page<Object> page = saleProductIntoDto.startPage();
+        BaseQueryWrapper<?> qw = new BaseQueryWrapper<>();
+        qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
+        qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+
+        List<Map<String, Object>> totalMaps = saleProductIntoMapper.querySaleIntoPage(qw, 1);
+        List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
+
+        return CopyUtil.copy(page.toPageInfo(), dtoList);
+    }
+
+    /**
+     * 修改商品尺码的时候验证
+     */
+    public List<StyleSaleIntoDto> querySaleIntoPage(SaleProductIntoDto saleProductIntoDto) {
+        BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
+        qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+
+        List<Map<String, Object>> detailMaps = saleProductIntoMapper.querySaleIntoPage(qw, 0);
+        // 封装数据并转化Bean
+        detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
+        return ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
     }
 }
 

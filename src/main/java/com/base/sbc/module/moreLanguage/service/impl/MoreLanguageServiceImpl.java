@@ -167,6 +167,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         // 只查询可配置的
         standardColumnList.removeIf(it-> it.getModel().equals(StandardColumnModel.TEXT));
+        standardColumnList.removeIf(it-> it.getShowFlag() != YesOrNoEnum.YES);
 
         // 根据id排序,并逐一装饰对应的title
         return BeanUtil.copyToList(standardColumnList, StandardColumnDto.class).stream()
@@ -492,7 +493,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         standardColumn.setTableTitleJson(JSONUtil.toJsonStr(tableTitleList));
 
         // 封装已存在的全部关联标准列编码
-        MoreLanguageTableParamEnum.OWNER_TAG_CODE.setParam(String.join(COMMA, standardColumnCodeList));
+        MoreLanguageTableParamEnum.OWNER_TAG_CODE.setParam(type + "————" + String.join(COMMA, standardColumnCodeList));
         // 获取源数据,map (!!)
         PageInfo<Map<String, Object>> mapList = MoreLanguageTableContext.getTableData(moreLanguageQueryDto, standardColumn);
 
@@ -596,8 +597,11 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
     @Override
     public List<StandardColumnDto> findStandardColumn(String code) {
         StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
-        queryDto.setTypeList(CollUtil.toList(StandardColumnType.TAG, StandardColumnType.WASHING));
-        queryDto.setCodeList(Arrays.asList(code.split(COMMA)));
+        String[] split = code.split("————");
+        if (StrUtil.isNotBlank(split[0])) {
+            queryDto.setTypeList(Collections.singletonList(StandardColumnType.valueOf(split[0])));
+        }
+        queryDto.setCodeList(Arrays.asList(split[1].split(COMMA)));
 
         return standardColumnService.listQuery(queryDto);
     }

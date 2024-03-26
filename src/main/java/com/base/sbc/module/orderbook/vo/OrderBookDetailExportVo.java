@@ -25,8 +25,7 @@ public class OrderBookDetailExportVo {
     /**
      * 投产日期
      */
-    @Excel(name = "投产日期")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @Excel(name = "投产日期", format = "yyyy-MM-dd", timezone = "GMT+8")
     private Date commissioningDate;
     /**
      * 生产类型
@@ -69,7 +68,7 @@ public class OrderBookDetailExportVo {
 
     // @Excel(name = "款式图",type = 2,imageType = 2)
     private String stylePic;
-    @Excel(name = "款式图",type = 2,imageType = 2)
+    @Excel(name = "款式图",type = 2,imageType = 2, width = 80.0, height = 80.0)
     private byte[] stylePic1;
     /**
      * 大货款号
@@ -78,7 +77,7 @@ public class OrderBookDetailExportVo {
     private String bulkStyleNo;
     // @Excel(name = "配色图",type = 2,imageType = 2)
     private String styleColorPic;
-    @Excel(name = "配色图",type = 2,imageType = 2)
+    @Excel(name = "配色图",type = 2,imageType = 2, width = 80.0, height = 80.0)
     private byte[] styleColorPic1;
     @Excel(name = "颜色")
     private String colorName;

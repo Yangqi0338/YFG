@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
 
+import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -18,6 +19,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -452,5 +454,11 @@ public class PackBom extends BaseDataEntity<String> {
      */
     private String historicalData;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    // 获取单位用量
+    public BigDecimal findUnitUse(){
+        BigDecimal unitUse = Objects.equals(packType, "packDesign") ? designUnitUse : bulkUnitUse;
+        return Opt.ofNullable(unitUse).orElse(BigDecimal.ZERO);
+    }
 }
 

@@ -353,7 +353,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             List<StyleColor> styleColorList = styleColorMapper.getStyleMainAccessories(Collections.singletonList(dto.getStyleColorId()));
             /*查询配色是否下发*/
             if (CollectionUtils.isEmpty(styleColorList)) {
-                throw new OtherException("该大货款号已经同步，请解锁后保存下发");
+                throw new OtherException("该大货款号已经同步，请在款式配色解锁后保存下发");
             }
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
             try {

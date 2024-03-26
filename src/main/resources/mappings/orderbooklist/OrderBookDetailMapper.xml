@@ -23,7 +23,9 @@
         ts.plate_type_name as patternPositioningName,
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
+        tsc.his_style_no as hisStyleNo,
         ts.devt_type_name,
+        ts.size_codes,
         tsc.band_name,
         tsc.band_code,
         tsc.color_name,
@@ -37,7 +39,11 @@
         tsc.scm_send_flag,
         ts.planning_season_id,
         tbcl.colour_code as supplierColor,
-        tpi.id as packInfoId
+        tpi.id as packInfoId,
+        tpi.name as bomName,
+        tob.channel as channel,
+        tob.channel_name as channelName,
+        IFNULL(tobl.material,0) * IFNULL(tsc.tag_price,0) as materialMoney
         FROM
         t_order_book_detail tobl
         left join t_style_color tsc on tobl.style_color_id = tsc.id and tsc.del_flag='0'
@@ -50,4 +56,18 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
     </select>
+
+    <select id="queryCountByOrderBookId" resultType="java.util.Map">
+        SELECT
+        tobl.order_book_id as orderBookId,
+        count(tobl.order_book_id) as count
+        FROM
+        t_order_book_detail tobl
+        where tobl.del_flag='0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        group by tobl.order_book_id
+    </select>
+
 </mapper>

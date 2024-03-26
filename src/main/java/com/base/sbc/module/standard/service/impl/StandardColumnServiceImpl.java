@@ -155,6 +155,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         StandardColumnType type = standardColumnQueryDto.getType();
         StandardColumnModel noModel = standardColumnQueryDto.getNoModel();
         List<String> codeList = standardColumnQueryDto.getCodeList();
+        YesOrNoEnum showFlag = standardColumnQueryDto.getShowFlag();
 
         BaseLambdaQueryWrapper<StandardColumn> queryWrapper = new BaseLambdaQueryWrapper<>();
 
@@ -164,6 +165,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         queryWrapper.notEmptyIn(StandardColumn::getType, typeList);
         queryWrapper.notNullNe(StandardColumn::getModel, noModel);
         queryWrapper.notEmptyIn(StandardColumn::getCode, codeList);
+        queryWrapper.notNullEq(StandardColumn::getShowFlag, showFlag);
 
         List<StandardColumn> standardColumnList = this.list(queryWrapper);
 

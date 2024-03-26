@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.smp.mapper.SaleProductIntoMapper">
+
+    <select id="querySaleIntoPage1" resultType="java.util.Map">
+        select
+        <if test="total == 1">
+            T.PROD_CODE, T.BRAND_NAME
+        </if>
+        <if test="total == 0">
+            T.*
+        </if>
+        from (
+
+            <if test="channel != '线上'">
+                <include refid="线下销售"/>
+            </if>
+            <if test="channel != '线下'">
+                <include refid="线上销售"/>
+            </if>
+            <include refid="线上/线下首单投产"/>
+            <!--暂时不要-->
+<!--            <include refid="线上/线下追单投产"/>-->
+
+        ) T
+        <if test="total == 1">
+            group by T.PROD_CODE, T.BRAND_NAME
+        </if>
+<!--        order by T.PROD_CODE-->
+    </select>
+
+    <sql id="线下销售">
+        select
+        '线下销售' resultType,
+        S.PROD_CODE,
+        CASE WHEN C.SALE_TYPE ='正价' THEN '是' ELSE '否' END SALE_TYPE,
+        null ORDER_TYPE,
+        '线下' CHANNEL_TYPE,
+        <if test="total == 0">
+            <include refid="sizeSQL">
+                <property name="sizeKey" value="S.JING_NUM"/>
+            </include>
+        </if>
+        G.BRAND_NAME
+        from DM_SALE_REGENT_CHANNEL S
+        INNER JOIN ODS_GOODS_NEW G ON S.PROD_CODE = G.GOODSNO
+        INNER JOIN ODS_CHANNEL_NEW C ON S.CHANNEL_CODE = C.CHANNELCODE
+        WHERE C.SALE_TYPE = '正价'
+        <include refid="ewSelect"/>
+        GROUP BY S.PROD_CODE,G.BRAND_NAME, SALE_TYPE
+
+        UNION ALL
+    </sql>
+
+    <sql id="线上销售">
+        SELECT
+        '线上销售' resultType,
+        S.PROD_CODE,
+        '否' SALE_TYPE,
+        null ORDER_TYPE,
+        '线上' CHANNEL_TYPE,
+        <if test="total == 0">
+            <include refid="sizeSQL">
+                <property name="sizeKey" value="S.QUANTITY_S"/>
+            </include>
+        </if>
+        G.BRAND_NAME
+        FROM DW_SO_ECS_GOODS S
+        INNER JOIN ODS_GOODS_NEW G ON S.PROD_CODE = G.GOODSNO
+        LEFT JOIN
+        (SELECT SK.BARCODE SKU_CODE,SC.CODE SIZES,SC.SORT SIZE_ID  FROM DIM_COMMON_STYLE_SKU SK
+        INNER JOIN DIM_COMMON_SKU_ATTR C ON SK.SIZE_ID =C.ID
+        INNER JOIN DIM_SYS_CODE SC ON C.CODE_ID = SC.ID
+        WHERE SK.DEL_FLAG =0
+        )SZ
+        ON SZ.SKU_CODE = CASE WHEN S.SKU_CODE LIKE '%888' THEN SUBSTRING(S.SKU_CODE,1,LENGTH(S.SKU_CODE)-3) ELSE S.SKU_CODE END
+        WHERE 1 = 1
+        <include refid="ewSelect"/>
+        GROUP BY S.PROD_CODE,G.BRAND_NAME
+
+        UNION ALL
+    </sql>
+
+    <sql id="线上/线下首单投产">
+        SELECT
+        '线上/线下首单投产' resultType,
+        S.PROD_CODE,
+        '' SALE_TYPE,
+        '首单' ORDER_TYPE,
+        S.FAC_TYPE CHANNEL_TYPE,
+        <if test="total == 0">
+            <include refid="sizeSQL">
+                <property name="sizeKey" value="S.FAC_SD_QTY"/>
+            </include>
+        </if>
+        G.BRAND_NAME
+        FROM DM_ESCM_EC_SKU S
+        INNER JOIN ODS_GOODS_NEW G ON S.PROD_CODE = G.GOODSNO
+        WHERE S.FAC_SD_QTY &lt;&gt; 0
+        <if test="channel != '线上,线下' and channel != '线下,线上'">
+            and S.FAC_TYPE = #{channel}
+        </if>
+        <include refid="ewSelect"/>
+        GROUP BY S.PROD_CODE,G.BRAND_NAME, CHANNEL_TYPE
+
+    </sql>
+
+    <sql id="线上/线下追单投产">
+        UNION ALL
+
+        SELECT
+        '线上/线下追单投产' resultType,
+        S.PROD_CODE,
+        '' SALE_TYPE,
+        '追单' ORDER_TYPE,
+        S.FAC_TYPE CHANNEL_TYPE,
+        <if test="total == 0">
+            <include refid="sizeSQL">
+                <property name="sizeKey" value="S.FAC_ZD_QTY"/>
+            </include>
+        </if>
+        G.BRAND_NAME
+        FROM DM_ESCM_EC_SKU S
+        INNER JOIN ODS_GOODS_NEW G ON S.PROD_CODE = G.GOODSNO
+        WHERE S.FAC_ZD_QTY &lt;&gt;0
+        <include refid="ewSelect"/>
+        GROUP BY S.PROD_CODE,G.BRAND_NAME, CHANNEL_TYPE
+    </sql>
+
+    <sql id="ewSelect">
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </sql>
+
+    <sql id="sizeSQL">
+        SUM(${sizeKey}) NUM,
+        SUM(CASE WHEN SIZES = 'XXS' THEN ${sizeKey} ELSE 0 END) XXS,
+        SUM(CASE WHEN SIZES = 'XS' THEN ${sizeKey} ELSE 0 END) XS,
+        SUM(CASE WHEN SIZES = 'S' THEN ${sizeKey} ELSE 0 END) S,
+        SUM(CASE WHEN SIZES = 'M' THEN ${sizeKey} ELSE 0 END) M,
+        SUM(CASE WHEN SIZES = 'L' THEN ${sizeKey} ELSE 0 END) L,
+        SUM(CASE WHEN SIZES = 'XL' THEN ${sizeKey} ELSE 0 END) XL,
+        SUM(CASE WHEN SIZES = 'XXL' THEN ${sizeKey} ELSE 0 END) XXL,
+    </sql>
+
+    <select id="querySaleIntoPage" resultType="java.util.Map">
+        select
+        <if test="total == 1">
+            T.PROD_CODE, T.BRAND_NAME
+        </if>
+        <if test="total == 0">
+            T.*
+        </if>
+        from DM_SALE_FAC T
+        where
+        (T.ORDER_TYPE is null OR T.ORDER_TYPE != '追单')
+        <include refid="ewSelect"/>
+        <if test="total == 1">
+            group by T.PROD_CODE, T.BRAND_NAME
+        </if>
+        order by T.PROD_CODE
+    </select>
+</mapper>

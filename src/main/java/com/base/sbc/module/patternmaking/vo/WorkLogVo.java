@@ -23,4 +23,9 @@ public class WorkLogVo extends WorkLog {
     @ApiModelProperty(value = "工作日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date workDate;
+
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

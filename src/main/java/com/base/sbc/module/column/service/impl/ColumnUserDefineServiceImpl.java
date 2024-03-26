@@ -10,7 +10,6 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.dto.ColumnUserDefineDto;
@@ -27,11 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -198,5 +193,37 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
                 updateById(one);
             }
         }
+    }
+
+
+    @Override
+    public List<ColumnDefine> findDefaultDetailGroup(String tableCode) {
+        List<ColumnDefine> columnDefines = findDefaultDetail(tableCode);
+        //适配双层表头场景，将返回列配置组装成 树状结构
+        String lastGroupName = null;
+
+        List<ColumnDefine> newList = new LinkedList<>();
+        for (ColumnDefine columnDefine : columnDefines) {
+            if (BaseGlobal.YES.equals(columnDefine.getHidden())) {
+                if (StrUtil.isNotEmpty(columnDefine.getGroupName())) {
+                    if (lastGroupName != null && lastGroupName.equals(columnDefine.getGroupName())) {
+                        ColumnDefine columnDefine1 = newList.get(newList.size() - 1);
+                        columnDefine1.getChildren().add(columnDefine);
+                    } else {
+                        ColumnDefine columnDefine1 = new ColumnDefine();
+                        columnDefine1.setGroupName(columnDefine.getGroupName());
+                        columnDefine1.setColumnName(columnDefine.getGroupName());
+                        columnDefine1.setChildren(new ArrayList<>(Collections.singletonList(columnDefine)));
+                        newList.add(columnDefine1);
+                    }
+                    lastGroupName = columnDefine.getGroupName();
+                } else {
+                    lastGroupName = null;
+                    newList.add(columnDefine);
+                }
+            }
+        }
+
+        return newList;
     }
 }

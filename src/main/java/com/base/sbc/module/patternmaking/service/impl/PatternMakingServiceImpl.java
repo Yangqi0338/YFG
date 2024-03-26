@@ -24,7 +24,6 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -84,7 +83,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.util.*;
@@ -285,6 +283,15 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         List<PatternMaking> makingList = baseMapper.selectList(queryWrapper);
         List<PatternMakingVo> list = CopyUtil.copy(makingList,PatternMakingVo.class);
         return list;
+    }
+
+    @Override
+    public Boolean updateReferSample(PatternMakingReferSampleDto dto) {
+        LambdaUpdateWrapper<PatternMaking> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.eq(PatternMaking::getId, dto.getId());
+        updateWrapper.set(PatternMaking::getReferSample, dto.getStatus());
+        this.update(updateWrapper);
+        return true;
     }
 
     @Override
@@ -1308,169 +1315,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public PageInfo sampleBoardList(PatternMakingCommonPageSearchDto dto) {
         BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
 
-        String columnHeard = dto.getColumnHeard();
-
-        Field[] declaredFields = dto.getClass().getDeclaredFields();
-        boolean isColumnHeard = false;
-        for (Field field : declaredFields) {
-            //开启权限
-            try {
-                field.setAccessible(true);
-                TableField annotation = field.getAnnotation(TableField.class);
-                if (annotation != null && StrUtil.isNotEmpty(annotation.value())) {
-                    String annotationValue = annotation.value();
-                    Object o = field.get(dto);
-                    //小漏斗筛选
-                    if (ObjectUtil.isNotEmpty(o) && StrUtil.isNotEmpty(columnHeard) && field.getName().equals(columnHeard)) {
-                        //2 进行模糊匹配，列名不为空，并且值不为空不等于列名，模糊匹配标识等于列名，第二步，并且列头去重
-                        qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
-                        qw.like(annotationValue, o);
-                        isColumnHeard = true;
-                    } else if (ObjectUtil.isNotEmpty(o) && field.getName().equals(o) && StrUtil.isEmpty(columnHeard)) {
-                        //1 列头筛选，列名不为空，并且值等于列名，模糊匹配标识为空
-                        qw.select(" DISTINCT  IFNULL(" + annotation.value() + ", '') as " + field.getName());
-                        isColumnHeard = true;
-                    } else if (ObjectUtil.isNotEmpty(o)) {
-                        //3 选中数据查询，列名不为空，并且值不为空
-                        //时间区间过滤
-                        String property = annotation.property();
-                        String s = String.valueOf(o);
-                        if (StrUtil.isNotEmpty(property) && "date".equals(property) && !"isNull".equals(s) && !"isNotNull".equals(s)) {
-                            String[] dateArr = s.split(",");
-                            if (StrUtil.isNotEmpty(dateArr[0]) && StrUtil.isNotEmpty(dateArr[1])) {
-                                dateArr[0] = dateArr[0] + " 00:00:00";
-                                dateArr[1] = dateArr[1] + " 23:59:59";
-                                qw.between(annotation.value(), dateArr);
-                            }
-//                        }else if("isNull".equals(s) && "date".equals(property)) {
-//                            qw.isNullStr(annotation.value());
-//                        }else if("isNotNull".equals(s) && "date".equals(property)) {
-//                            qw.isNotNullStr(annotation.value());
-                        }else if (StrUtil.isNotEmpty(property) && "replace".equals(property) && !"isNull".equals(s) && !"isNotNull".equals(s)) {
-                            String[] split = s.split(";");
-                            qw.in(annotation.value(), split);
-                        }else if("isNull".equals(s)) {
-                            if ("date".equals(property)) {
-                                qw.isNull(annotation.value());
-                            }else{
-                                qw.isNullStr(annotation.value());
-                            }
-                        }else if("isNotNull".equals(s)) {
-                            if ("date".equals(property)) {
-                                qw.isNotNull(annotation.value());
-                            }else{
-                                qw.isNotNullStr(annotation.value());
-                            }
-                        }else{
-                            //正常保留历史条件查询
-                            String[] lenStrArr = s.split(",");
-                            if (lenStrArr.length > 0) {
-                                qw.in(annotation.value(), lenStrArr);
-                            }
-                        }
-                    }
-                    //记得排序
-                }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            } finally {
-                field.setAccessible(false);
-            }
-        }
-        /*if (StrUtil.isNotEmpty(dto.getPrmSendStatus()) && dto.getPrmSendStatus().length() > 1) {
-            qw.eq("p.prm_send_status",dto.getPrmSendStatus());
-        }else if(!isColumnHeard){
-            qw.eq("p.prm_send_status","1");
-        }
-
-        if (StrUtil.isNotEmpty(dto.getBreakOffPattern())) {
-            qw.eq("p.break_off_pattern",dto.getBreakOffPattern());
-        }else if(!isColumnHeard){
-            qw.eq("p.break_off_pattern","0");
-        }*/
-        /*qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
-        qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
-        qw.notEmptyEq("p.prm_send_status",dto.getPrmSendStatus());
-        qw.notEmptyEq("p.break_off_pattern",dto.getBreakOffPattern());
-        qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());
-        qw.eq(StrUtil.isNotBlank(dto.getSeason()), "s.season", dto.getSeason());
-        qw.in(StrUtil.isNotBlank(dto.getBandCode()), "s.band_code", StrUtil.split(dto.getBandCode(), StrUtil.COMMA));
-        qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "s.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
-        qw.eq(StrUtil.isNotBlank(dto.getPatternDesignId()), "p.pattern_design_id", dto.getPatternDesignId());
-        qw.eq(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type", dto.getSampleType());
-        qw.like(StrUtil.isNotBlank(dto.getSampleBarCode()), "p.sample_bar_code", dto.getSampleBarCode());
-        qw.in(StrUtil.isNotBlank(dto.getPatternTechnician()), "p.pattern_technician_id", StringUtils.convertList(dto.getPatternTechnician()));
-        qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
-        qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
-        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
-        qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
-        qw.in(StrUtil.isNotBlank(dto.getBandName()), "s.band_name", StringUtils.convertList(dto.getBandName()));
-        qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
-        qw.like(StrUtil.isNotBlank(dto.getPatternDesignerName()), "p.pattern_designer_name", dto.getPatternDesignerName());
-        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
-        qw.ne(StrUtil.isNotBlank(dto.getNePmStatus()),"p.status","");*/
-        //region 临时注释 2024-01-29
-        /*if(StringUtils.isNotBlank(dto.getOrderBy())){
-            dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
-        }else {
-            dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
-        }*/
-        //endregion
-        /*qw.like(StrUtil.isNotBlank(dto.getPatternTechnicianName()), "p.pattern_designer_name", dto.getPatternTechnicianName());
-        qw.eq("p.disable_flag", BaseGlobal.NO);
-        qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()), "s.design_no", StringUtils.convertList(dto.getDesignNo()));
-
-        if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.NO)) {
-            qw.eq( "p.break_off_sample", BaseGlobal.NO);
-            qw.eq( "p.break_off_pattern", BaseGlobal.NO);
-        } else if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.YES)) {
-            qw.eq( "p.break_off_sample", BaseGlobal.YES);
-        }else if (StrUtil.equals(dto.getPmStatus(), BaseGlobal.STOCK_STATUS_CHECKED)) {
-            qw.eq( "p.break_off_pattern", BaseGlobal.YES);
-        }
-        qw.in(StrUtil.isNotBlank(dto.getUrgency()), "p.urgency", StrUtil.split(dto.getUrgency(), StrUtil.COMMA));
-*/
         //region 临时注释 2024-01-29
         if(StringUtils.isNotBlank(dto.getOrderBy())){
             dto.setOrderBy("p.historical_data asc,p.receive_sample_date asc , "+dto.getOrderBy() );
         }else {
             dto.setOrderBy("p.historical_data asc, p.receive_sample_date asc,urgency desc");
         }
-        //endregion
-        /*if(StrUtil.isNotBlank(dto.getPmCreateDate())){
-            String[] s = dto.getPmCreateDate().split(",");
-            s[0] = s[0] + " 00:00:00";
-            s[1] = s[1] + " 23:59:59";
-            qw.between("p.create_date",s);
-        }
-        if(StrUtil.isNotBlank(dto.getReceiveSampleDate())){
-            String[] s1 = dto.getReceiveSampleDate().split(",");
-            s1[0] = s1[0] + " 00:00:00";
-            s1[1] = s1[1] + " 23:59:59";
-            qw.between("p.receive_sample_date",s1);
-        }*/
 
-        /*if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.IN)){
-            qw.isNull("p.receive_sample_date");
-        }
-        if(StrUtil.equals(dto.getSampleNullFlag(),BaseGlobal.YES)){
-            qw.isNotNull("p.receive_sample_date");
-        }*/
-
-        /*qw.findInSet("s.pattern_parts", dto.getPatternParts());
-        if (StrUtil.isNotBlank(dto.getDesignerIds())) {
-            String[] split = dto.getDesignerIds().split(",");
-            qw.in("s.designer_id", Arrays.asList(split));
-        }*/
-
-
-        /*if (StrUtil.isNotBlank(dto.getTechnicianKittingDate()) && dto.getTechnicianKittingDate().split(",").length > 1) {
-            qw.ge(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "   date_format(p.technician_kitting_date,'%Y-%m-%d')    ", dto.getTechnicianKittingDate().split(",")[0]);
-            qw.le(StrUtil.isNotBlank(dto.getTechnicianKittingDate()), "date_format(p.technician_kitting_date,'%Y-%m-%d')", dto.getTechnicianKittingDate().split(",")[1]);
-        }*/
-
-        if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
+        /*if (StrUtil.isNotBlank(dto.getBfzgxfsj()) && dto.getBfzgxfsj().split(",").length > 1) {
             qw.exists(StrUtil.isNotBlank(dto.getBfzgxfsj()),
                     "select 1 from t_node_status where p.id=data_id and node ='技术中心' and status='版房主管下发' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')"
                     , dto.getBfzgxfsj().split(",")[0], dto.getBfzgxfsj().split(",")[1]);
@@ -1525,7 +1379,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.exists(StrUtil.isNotBlank(dto.getYywcsj()),
                     "select 1 from t_node_status where p.id=data_id and node ='样衣任务' and status='样衣完成' and date_format(start_date,'%Y-%m-%d') >={0} and {1} >= date_format(start_date,'%Y-%m-%d')  order by start_date desc"
                     , dto.getYywcsj().split(",")[0], dto.getYywcsj().split(",")[1]);
-        }
+        }*/
 
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");

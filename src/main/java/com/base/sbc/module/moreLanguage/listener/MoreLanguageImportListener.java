@@ -353,6 +353,10 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     standardColumnCountryTranslateService.saveOperaLog(updateLogEntity);
                 }
             });
+            // 仅更新做操作
+            if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
+
+            }
             updateNewTranslateList.addAll(addTranslateList);
             if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
                 standardColumnCountryTranslateService.saveOrUpdateBatch(updateNewTranslateList);
@@ -407,6 +411,11 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                         standardColumnCountryTranslateService.saveOrUpdateBatch(sameListPair.getKey());
                         standardColumnCountryTranslateService.saveOrUpdateBatch(sameListPair.getValue());
                     }
+                });
+                // 同步其他type但隐藏的数据
+                taskList.add(()-> {
+                    CountryLanguageType searchType = type == CountryLanguageType.TAG ? CountryLanguageType.TAG : CountryLanguageType.WASHING;
+
                 });
                 // 号型和表头特殊 设置专门的表存储,数据较少,直接删除新增.
                 countryModelService.remove(new BaseLambdaQueryWrapper<CountryModel>()
