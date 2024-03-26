@@ -9,8 +9,6 @@
         <result column="sole_id" property="soleId" />
         <result column="name" property="name" />
         <result column="sort" property="sort" />
-        <result column="unmodifiable" property="unmodifiable" />
-        <result column="modifiable" property="modifiable" />
         <result column="enable_flag" property="enableFlag" />
         <result column="create_id" property="createId" />
         <result column="create_name" property="createName" />
