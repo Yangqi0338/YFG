@@ -123,6 +123,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -2818,7 +2819,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     }
                 }
                 planningSummaryDetailVo.setSalesVolume(finalSales);
-                planningSummaryDetailVo.setProductionMarketing(finalStartUpRate);
+                planningSummaryDetailVo.setProductionMarketing(finalSales.divide(finalStartUpRate, 2, RoundingMode.HALF_UP));
                 planningSummaryDetailVo
                         .setPlanningSeasonName(planningSeasonMap.get(planningSummaryDetailVo.getPlanningSeasonId()));
             }
