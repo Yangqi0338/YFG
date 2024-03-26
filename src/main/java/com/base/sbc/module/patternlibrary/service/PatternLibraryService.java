@@ -1,8 +1,8 @@
 package com.base.sbc.module.patternlibrary.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.github.pagehelper.PageInfo;
@@ -20,10 +20,26 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     /**
      * 版型库列表
      *
-     * @param patternLibraryDTO 查询条件
+     * @param patternLibraryPageDTO 查询条件
      * @return 版型库列表分页数据
      */
-    PageInfo<PatternLibraryVO> listPages(PatternLibraryDTO patternLibraryDTO);
+    PageInfo<PatternLibraryVO> listPages(PatternLibraryPageDTO patternLibraryPageDTO);
+
+    /**
+     * 版型库新增/编辑
+     *
+     * @param patternLibraryDTO 新增/编辑数据
+     * @return 新增/编辑是否成功
+     */
+    Boolean saveOrUpdateDetails(PatternLibraryDTO patternLibraryDTO);
+
+ /**
+     * 版型库批量编辑
+     *
+     * @param patternLibraryDTOList 编辑数据
+     * @return 编辑是否成功
+     */
+    Boolean updateDetails(List<PatternLibraryDTO> patternLibraryDTOList);
 
     /**
      * 版型库详情

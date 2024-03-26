@@ -1,31 +1,25 @@
 package com.base.sbc.module.patternlibrary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.annotation.DuplicationCheck;
-import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.exception.RightException;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.*;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper;
 import com.base.sbc.module.patternlibrary.service.*;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,39 +52,39 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     private PatternLibraryTemplateItemService patternLibraryTemplateItemService;
 
     @Override
-    public PageInfo<PatternLibraryVO> listPages(PatternLibraryDTO patternLibraryDTO) {
+    public PageInfo<PatternLibraryVO> listPages(PatternLibraryPageDTO patternLibraryPageDTO) {
         QueryWrapper<PatternLibraryVO> queryWrapper = new QueryWrapper<>();
         queryWrapper
                 // 版型编码
-                .like(ObjectUtil.isNotEmpty(patternLibraryDTO.getCode())
-                        , "tpl.code", patternLibraryDTO.getCode())
+                .like(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getCode())
+                        , "tpl.code", patternLibraryPageDTO.getCode())
                 // 大类编码
-                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory1st())
-                        , "tpl.prod_category1st", patternLibraryDTO.getProdCategory1st())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getProdCategory1st())
+                        , "tpl.prod_category1st", patternLibraryPageDTO.getProdCategory1st())
                 // 品类编码
-                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory())
-                        , "tpl.prod_category", patternLibraryDTO.getProdCategory())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getProdCategory())
+                        , "tpl.prod_category", patternLibraryPageDTO.getProdCategory())
                 // 中类编码
-                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory2nd())
-                        , "tpl.prod_category2nd", patternLibraryDTO.getProdCategory2nd())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getProdCategory2nd())
+                        , "tpl.prod_category2nd", patternLibraryPageDTO.getProdCategory2nd())
                 // 廓形编码
-                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getSilhouetteCode())
-                        , "tpl.silhouette_code", patternLibraryDTO.getSilhouetteCode())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getSilhouetteCode())
+                        , "tpl.silhouette_code", patternLibraryPageDTO.getSilhouetteCode())
                 // 所属版型库
-                .in(ObjectUtil.isNotEmpty(patternLibraryDTO.getTemplateCodeList())
-                        , "tpl.template_code", patternLibraryDTO.getTemplateCodeList())
+                .in(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getTemplateCodeList())
+                        , "tpl.template_code", patternLibraryPageDTO.getTemplateCodeList())
                 // 状态
-                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getStatus())
-                        , "tpl.status", patternLibraryDTO.getStatus())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getStatus())
+                        , "tpl.status", patternLibraryPageDTO.getStatus())
                 // 启用状态
-                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getEnableFlag())
-                        , "tpl.enable_flag", patternLibraryDTO.getEnableFlag());
+                .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getEnableFlag())
+                        , "tpl.enable_flag", patternLibraryPageDTO.getEnableFlag());
         // 权限设置
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "tpl");
         // 列表分页
-        PageHelper.startPage(patternLibraryDTO.getPageNum(), patternLibraryDTO.getPageSize());
-        // 得到部件库主表数据集合
-        List<PatternLibraryVO> patternLibraryVOList = baseMapper.listPages(queryWrapper, patternLibraryDTO);
+        PageHelper.startPage(patternLibraryPageDTO.getPageNum(), patternLibraryPageDTO.getPageSize());
+        // 得到版型库主表数据集合
+        List<PatternLibraryVO> patternLibraryVOList = baseMapper.listPages(queryWrapper, patternLibraryPageDTO);
         // 设置子表数据
         if (ObjectUtil.isNotEmpty(patternLibraryVOList)) {
             // *************** 查询子表数据 ***************
@@ -168,13 +162,140 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     }
 
     @Override
+    @DuplicationCheck
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean saveOrUpdateDetails(PatternLibraryDTO patternLibraryDTO) {
+        if (ObjectUtil.isEmpty(patternLibraryDTO)) {
+            throw new OtherException("新增/编辑数据不能为空！");
+        }
+        if(ObjectUtil.isEmpty(patternLibraryDTO.getId())) {
+            // 新增
+            // 新增主表数据
+            PatternLibrary patternLibrary = new PatternLibrary();
+            BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
+            save(patternLibrary);
+            // 新增品牌数据
+            List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryDTO.getPatternLibraryBrandList();
+            if (ObjectUtil.isNotEmpty(patternLibraryBrandList)) {
+                for (PatternLibraryBrand patternLibraryBrand : patternLibraryBrandList) {
+                    patternLibraryBrand.setPatternLibraryId(patternLibrary.getId());
+                }
+                patternLibraryBrandService.saveBatch(patternLibraryBrandList);
+            }
+            // 新增子表数据
+            List<PatternLibraryItem> patternLibraryItemList = patternLibraryDTO.getPatternLibraryItemList();
+            if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
+                for (PatternLibraryItem patternLibraryItem : patternLibraryItemList) {
+                    patternLibraryItem.setPatternLibraryId(patternLibrary.getId());
+                }
+                 patternLibraryItemService.saveBatch(patternLibraryItemList);
+            }
+        } else {
+            // 编辑
+            // 修改主表数据
+            PatternLibrary patternLibrary = new PatternLibrary();
+            BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
+            updateById(patternLibrary);
+            // 修改品牌数据
+            List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryDTO.getPatternLibraryBrandList();
+            if (ObjectUtil.isNotEmpty(patternLibraryBrandList)) {
+                List<String> patternLibraryBrandIdList = patternLibraryBrandList
+                        .stream().map(PatternLibraryBrand::getId)
+                        .filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+                // 先删除此版型库下的数据且不是此 ID 集合下的数据
+                patternLibraryBrandService.remove(
+                        new LambdaQueryWrapper<PatternLibraryBrand>()
+                                .eq(PatternLibraryBrand::getPatternLibraryId, patternLibrary.getId())
+                                .notIn(PatternLibraryBrand::getId, patternLibraryBrandIdList)
+                );
+                for (PatternLibraryBrand patternLibraryBrand : patternLibraryBrandList) {
+                    patternLibraryBrand.setPatternLibraryId(patternLibrary.getId());
+                }
+                patternLibraryBrandService.saveOrUpdateBatch(patternLibraryBrandList);
+            }
+            //修改子表数据
+            List<PatternLibraryItem> patternLibraryItemList = patternLibraryDTO.getPatternLibraryItemList();
+            if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
+                List<String> patternLibraryItemIdList = patternLibraryItemList
+                        .stream().map(PatternLibraryItem::getId)
+                        .filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+                // 先删除此版型库下的数据且不是此 ID 集合下的数据
+                patternLibraryItemService.remove(
+                        new LambdaQueryWrapper<PatternLibraryItem>()
+                                .eq(PatternLibraryItem::getPatternLibraryId, patternLibrary.getId())
+                                .notIn(PatternLibraryItem::getId, patternLibraryItemIdList)
+                );
+                for (PatternLibraryItem patternLibraryItem : patternLibraryItemList) {
+                    patternLibraryItem.setPatternLibraryId(patternLibrary.getId());
+                }
+                patternLibraryItemService.saveOrUpdateBatch(patternLibraryItemList);
+            }
+        }
+        return Boolean.TRUE;
+    }
+
+    @Override
+    @DuplicationCheck
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean updateDetails(List<PatternLibraryDTO> patternLibraryDTOList) {
+        if (ObjectUtil.isEmpty(patternLibraryDTOList)) {
+            throw new OtherException("批量编辑数据不能为空！");
+        }
+        long count = patternLibraryDTOList
+                .stream()
+                .filter(item -> item.getStatus().equals(PatternLibraryStatusEnum.NO_PADDED.getCode()))
+                .count();
+        if (patternLibraryDTOList.size() != count) {
+            throw new OtherException("批量编辑只能选择待补齐！");
+        }
+        // 批量编辑
+        // 修改主表数据
+        List<PatternLibrary> patternLibraryList = new ArrayList<>(patternLibraryDTOList.size());
+        for (PatternLibraryDTO patternLibraryDTO : patternLibraryDTOList) {
+            PatternLibrary patternLibrary = new PatternLibrary();
+            BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
+            patternLibraryList.add(patternLibrary);
+        }
+        updateBatchById(patternLibraryList);
+        // 修改子表数据
+        List<PatternLibraryItem> patternLibraryItemList = new ArrayList<>();
+        patternLibraryDTOList.forEach(
+                outItem ->
+                {
+                    List<PatternLibraryItem> list = outItem.getPatternLibraryItemList();
+                    if (ObjectUtil.isNotEmpty(list)) {
+                        // 给子表数据设置主表 ID
+                        list.forEach(inItem -> inItem.setPatternLibraryId(outItem.getId()));
+                        // 将子表数据聚合到一个集合中
+                        patternLibraryItemList.addAll(list);
+                    }
+                }
+        );
+        if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
+            Map<String, List<PatternLibraryItem>> map = patternLibraryItemList
+                    .stream().collect(Collectors.groupingBy(PatternLibraryItem::getPatternLibraryId));
+            // 数据量不会很多先循环
+            for (Map.Entry<String, List<PatternLibraryItem>> stringListEntry : map.entrySet()) {
+                // 先删除此版型库下的数据且不是此 ID 集合下的数据
+                patternLibraryItemService.remove(
+                        new LambdaQueryWrapper<PatternLibraryItem>()
+                                .eq(PatternLibraryItem::getPatternLibraryId, stringListEntry.getKey())
+                                .notIn(PatternLibraryItem::getId, stringListEntry.getValue())
+                );
+            }
+            patternLibraryItemService.saveOrUpdateBatch(patternLibraryItemList);
+        }
+        return true;
+    }
+
+    @Override
     public PatternLibraryVO getDetail(String patternLibraryId) {
         if (ObjectUtil.isEmpty(patternLibraryId)) {
             throw new OtherException("请选择数据查看！");
         }
         // 初始化返回数据
         PatternLibraryVO patternLibraryVO = new PatternLibraryVO();
-        // 根据部件库主表 ID 查询部件库主表信息
+        // 根据版型库主表 ID 查询版型库主表信息
         PatternLibrary patternLibrary = getById(patternLibraryId);
         BeanUtil.copyProperties(patternLibrary, patternLibraryVO);
         if (ObjectUtil.isEmpty(patternLibrary)) {
@@ -187,14 +308,14 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                         .eq(PatternLibraryBrand::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         patternLibraryVO.setPatternLibraryBrandList(patternLibraryBrandList);
-        // 查询部件库子表信息
+        // 查询版型库子表信息
         List<PatternLibraryItem> patternLibraryItemList = patternLibraryItemService.list(
                 new LambdaQueryWrapper<PatternLibraryItem>()
                         .eq(PatternLibraryItem::getPatternLibraryId, patternLibraryId)
                         .eq(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         patternLibraryVO.setPatternLibraryItemList(patternLibraryItemList);
-        // 查询部件库模板信息
+        // 查询版型库模板信息
         PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateService.getOne(
                 new LambdaQueryWrapper<PatternLibraryTemplate>()
                         .eq(PatternLibraryTemplate::getCode, patternLibrary.getTemplateCode())
@@ -202,7 +323,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                         .eq(PatternLibraryTemplate::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         patternLibraryVO.setPatternLibraryTemplate(patternLibraryTemplate);
-        // 查询部件库模板子表信息
+        // 查询版型库模板子表信息
         if (ObjectUtil.isNotEmpty(patternLibraryTemplate)) {
             List<PatternLibraryTemplateItem> patternLibraryTemplateItemList = patternLibraryTemplateItemService.list(
                     new LambdaQueryWrapper<PatternLibraryTemplateItem>()
@@ -221,20 +342,20 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         if (ObjectUtil.isEmpty(patternLibraryId)) {
             throw new OtherException("请选择数据删除！");
         }
-        // 根据部件库主表 ID 查询部件库主表信息
+        // 根据版型库主表 ID 查询版型库主表信息
         PatternLibrary patternLibrary = getById(patternLibraryId);
         if (ObjectUtil.isEmpty(patternLibrary)) {
             throw new OtherException("当前数据不存在，请刷新后重试！");
         }
-        // 删除部件库主表数据
+        // 删除版型库主表数据
         removeById(patternLibraryId);
-        // 删除部件库品类数据
+        // 删除版型库品类数据
         patternLibraryBrandService.remove(
                 new LambdaQueryWrapper<PatternLibraryBrand>()
                         .eq(PatternLibraryBrand::getPatternLibraryId, patternLibraryId)
                         .eq(PatternLibraryBrand::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
-        // 删除部件库子表数据
+        // 删除版型库子表数据
         patternLibraryItemService.remove(
                 new LambdaQueryWrapper<PatternLibraryItem>()
                         .eq(PatternLibraryItem::getPatternLibraryId, patternLibraryId)
@@ -250,7 +371,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         if (ObjectUtil.isEmpty(patternLibraryIdList)) {
             throw  new OtherException("请至少选择一条数据进行审核！");
         }
-        // 根据部件库主表 ID 集合批量审批数据 非 待审核 数据直接过滤
+        // 根据版型库主表 ID 集合批量审批数据 非 待审核 数据直接过滤
         List<PatternLibrary> patternLibraryList = list(
                 new LambdaQueryWrapper<PatternLibrary>()
                         .in(PatternLibrary::getId, patternLibraryIdList)

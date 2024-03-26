@@ -59,15 +59,15 @@
         LEFT JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
         WHERE
         tpl.del_flag = '0'
-        <if test="patternLibraryDTO.partsCodeList != null and patternLibraryDTO.partsCodeList.size > 0">
+        <if test="patternLibraryPageDTO.partsCodeList != null and patternLibraryPageDTO.partsCodeList.size > 0">
             AND tpli.code IN
-            <foreach collection="patternLibraryDTO.partsCodeList" item="item" open="(" close=")" separator=",">
+            <foreach collection="patternLibraryPageDTO.partsCodeList" item="item" open="(" close=")" separator=",">
                 #{item}
             </foreach>
         </if>
-        <if test="patternLibraryDTO.brand != null and patternLibraryDTO.brand.size > 0">
+        <if test="patternLibraryPageDTO.brand != null and patternLibraryPageDTO.brand.size > 0">
             AND tplb.brand IN
-            <foreach collection="patternLibraryDTO.brand" item="item" open="(" close=")" separator=",">
+            <foreach collection="patternLibraryPageDTO.brand" item="item" open="(" close=")" separator=",">
                 #{item}
             </foreach>
         </if>

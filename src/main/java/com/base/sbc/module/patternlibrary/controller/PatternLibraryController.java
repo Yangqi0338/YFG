@@ -1,16 +1,11 @@
 package com.base.sbc.module.patternlibrary.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
-import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
-import com.base.sbc.module.patternlibrary.entity.PatternLibraryItem;
-import com.base.sbc.module.patternlibrary.service.PatternLibraryItemService;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.github.pagehelper.PageInfo;
@@ -21,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -41,8 +35,8 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库列表")
     @PostMapping("/listPages")
-    public ApiResult<PageInfo<PatternLibraryVO>> listPages(@RequestBody PatternLibraryDTO patternLibraryDTO) {
-        PageInfo<PatternLibraryVO> patternLibraryIPage = patternLibraryService.listPages(patternLibraryDTO);
+    public ApiResult<PageInfo<PatternLibraryVO>> listPages(@RequestBody PatternLibraryPageDTO patternLibraryPageDTO) {
+        PageInfo<PatternLibraryVO> patternLibraryIPage = patternLibraryService.listPages(patternLibraryPageDTO);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryIPage);
     }
 
@@ -55,8 +49,24 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库新增/编辑")
     @PostMapping("/saveOrUpdateDetail")
-    public ApiResult<PatternLibraryVO> saveOrUpdateDetail(PatternLibrary patternLibrary) {
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, null);
+    public ApiResult<String> saveOrUpdateDetail(PatternLibraryDTO patternLibraryDTO) {
+        Boolean resultFlag = patternLibraryService.saveOrUpdateDetails(patternLibraryDTO);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
+    }
+
+    @ApiOperation(value = "版型库批量编辑")
+    @PostMapping("/updateDetails")
+    public ApiResult<String> updateDetails(List<PatternLibraryDTO> patternLibraryDTOList) {
+        Boolean resultFlag = patternLibraryService.updateDetails(patternLibraryDTOList);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
     }
 
     @ApiOperation(value = "版型库删除")
