@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -58,14 +59,14 @@ public class HangTagMoreLanguageBCSVO {
      */
     @ApiModelProperty(value = "成功列表")
     @JsonIgnore
-    private List<HangTagMoreLanguageBCSChildrenBaseVO> successList;
+    private List<HangTagMoreLanguageBCSChildrenBaseVO> successList = new ArrayList<>();
 
     /**
      * 失败列表
      */
     @ApiModelProperty(value = "失败列表")
     @JsonIgnore
-    private List<HangTagMoreLanguageBCSChildrenBaseVO> failureList;
+    private List<HangTagMoreLanguageBCSChildrenBaseVO> failureList = new ArrayList<>();
 
     /**
      * 错误信息
@@ -74,25 +75,25 @@ public class HangTagMoreLanguageBCSVO {
     public String getFailureMessage() {
         StringJoiner message = new StringJoiner(MoreLanguageProperties.multiSeparator);
         message.setEmptyValue("");
-        // 仅获取错误列表
-        if (CollectionUtil.isNotEmpty(this.failureList)) {
-            // 先根据款号分组
-            this.failureList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo))
-                    .forEach((bulkStyleNo, sameBulkStyleNoList)-> {
-                        // 再拼装所有的错误信息
-                        message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator +
-                                sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage)
-                                        .distinct().collect(Collectors.joining(MoreLanguageProperties.multiSeparator)));
+        // 获取错误列表
+        // 先根据款号分组
+        this.failureList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo))
+                .forEach((bulkStyleNo, sameBulkStyleNoList)-> {
+                    // 再拼装所有的错误信息
+                    message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator +
+                            sameBulkStyleNoList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getPrinterCheckMessage)
+                                    .distinct().collect(Collectors.joining(MoreLanguageProperties.multiSeparator)));
+                });
+
+        // 有可能已经翻译完了，但是没有审核,需要做处理
+        // 品控未确认
+        this.successList.stream().filter(it-> it.getStatus() != HangTagStatusEnum.FINISH).collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getStatus))
+                .forEach((status, sameStatusList)-> {
+                    sameStatusList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo).distinct().forEach(bulkStyleNo-> {
+                        message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator + (status.lessThan(HangTagStatusEnum.TRANSLATE_CHECK) ? "技术审核未确认" : "翻译审核未确认"));
                     });
-            // 有可能已经翻译完了，但是没有审核,需要做处理
-            // 品控未确认
-            this.successList.stream().filter(it-> it.getStatus() != HangTagStatusEnum.FINISH).collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getStatus))
-                    .forEach((status, sameStatusList)-> {
-                        sameStatusList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo).forEach(bulkStyleNo-> {
-                            message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator + (status.lessThan(HangTagStatusEnum.TRANSLATE_CHECK) ? "技术审核未确认" : "翻译审核未确认"));
-                        });
-                    });
-        }
+                });
+
         return message.toString();
     }
 
