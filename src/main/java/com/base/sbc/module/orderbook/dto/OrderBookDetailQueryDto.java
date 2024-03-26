@@ -1,6 +1,8 @@
 package com.base.sbc.module.orderbook.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

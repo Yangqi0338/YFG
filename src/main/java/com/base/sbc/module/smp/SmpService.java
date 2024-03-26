@@ -1830,6 +1830,9 @@ public class SmpService {
      * 修改商品尺码的时候验证
      */
     public List<StyleSaleIntoDto> querySaleIntoPage(SaleProductIntoDto saleProductIntoDto) {
+        if (ObjectUtil.isEmpty(saleProductIntoDto.getBulkStyleNoList())) {
+            return CollUtil.newArrayList();
+        }
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());

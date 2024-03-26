@@ -68,6 +68,12 @@ import com.base.sbc.module.formtype.service.FormTypeService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
+import com.base.sbc.module.orderbook.service.impl.orderBookDetailServiceImpl;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomSize;
@@ -94,6 +100,7 @@ import com.base.sbc.module.sample.vo.MaterialVo;
 import com.base.sbc.module.sample.vo.SampleUserVo;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.PlmStyleSizeParam;
+import com.base.sbc.module.smp.dto.SaleProductIntoDto;
 import com.base.sbc.module.style.dto.*;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.mapper.StyleColorMapper;
@@ -224,6 +231,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     @Autowired
     private FieldManagementMapper fieldManagementMapper;
+
+    @Autowired
+    private OrderBookDetailService orderBookDetailService;
 
     @Autowired
     @Lazy
@@ -1627,11 +1637,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         vo.setSampleMakingNum(sampleMakingNum);
         // 订货本制作
         // 根据已有订货本查询对应的款式ID集合 TODO：订货本没上生产 ——XHTE
-        // QueryWrapper<Style> obrnQueryWrapper = new QueryWrapper<>();
-        // dataPermissionsService.getDataPermissionsForQw(obrnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
-        // stylePlanningCommonQw(obrnQueryWrapper, dto);
-        // Long orderBookProductionNum = getBaseMapper().colorCount(obrnQueryWrapper);
-        vo.setOrderBookProductionNum(0L);
+        QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("tob.season_id", dto.getPlanningSeasonId());
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "tobl.");
+        List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(queryWrapper,1);
+        if (ObjectUtil.isNotEmpty(querylist)) {
+            long count = querylist.stream().map(OrderBookDetailVo::getStyle).filter(ObjectUtil::isNotEmpty).distinct().count();
+            vo.setOrderBookProductionNum(count);
+        } else {
+            vo.setOrderBookProductionNum(0L);
+        }
         return vo;
     }
 
@@ -2719,7 +2734,91 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                         .stream().collect(Collectors.toMap(PlanningSeason::getId, PlanningSeason::getName));
 
             }
+
+            // *************** 查询销售量和投产比 ***************
+            List<String> designNoList = detailVoList
+                    .stream()
+                    .map(PlanningSummaryDetailVo::getDesignNo)
+                    .filter(ObjectUtil::isNotEmpty)
+                    .collect(Collectors.toList());
+            // 根据设计款号集合查询大货款号
+            List<StyleColor> styleColorList = styleColorService.list(
+                    new LambdaQueryWrapper<StyleColor>()
+                            .in(StyleColor::getDesignNo, designNoList)
+            );
+
+            // 初始化最后的销售量和投产量的 map 数据
+            HashMap<String, Map<String, BigDecimal>> hashMap = new HashMap<>();
+            Map<String, List<StyleColor>> styleColorMap = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(styleColorList)) {
+                styleColorMap = styleColorList.stream().collect(Collectors.groupingBy(StyleColor::getDesignNo));
+
+                List<String> styleNoList = styleColorList.stream().map(StyleColor::getStyleNo).collect(Collectors.toList());
+
+                SaleProductIntoDto saleProductIntoDto = new SaleProductIntoDto();
+                saleProductIntoDto.setBulkStyleNoList(styleNoList);
+                List<StyleSaleIntoDto> detailList = smpService.querySaleIntoPage(saleProductIntoDto);
+
+                if (ObjectUtil.isNotEmpty(detailList)) {
+                    // 返回的数据按照大货款号分组
+                    Map<String, List<StyleSaleIntoDto>> detailMap = detailList
+                            .stream().collect(Collectors.groupingBy(StyleSaleIntoDto::getBulkStyleNo));
+                    for (Map.Entry<String, List<StyleSaleIntoDto>> stringListEntry : detailMap.entrySet()) {
+                        Map<String, BigDecimal> map = new HashMap<>();
+                        // 初始化销售量和投产量
+                        BigDecimal sales = BigDecimal.ZERO;
+                        BigDecimal startUpRate = BigDecimal.ZERO;
+                        // 销售数据
+                        List<StyleSaleIntoDto> salesDataList = stringListEntry.getValue().stream().filter(
+                                        item -> item.getResultType().equals(StyleSaleIntoResultType.ONLINE_SALE)
+                                                || item.getResultType().equals(StyleSaleIntoResultType.OFFLINE_SALE))
+                                .collect(Collectors.toList());
+                        if (ObjectUtil.isNotEmpty(salesDataList)) {
+                            for (StyleSaleIntoDto styleSaleIntoDto : salesDataList) {
+                                Map<String, Double> sizeMap = styleSaleIntoDto.getSizeMap();
+                                for (Double value : sizeMap.values()) {
+                                    sales = sales.add(BigDecimal.valueOf(value));
+                                }
+                            }
+                        }
+                        // 投产数据
+                        List<StyleSaleIntoDto> productionDataList = stringListEntry.getValue().stream().filter(
+                                        item -> item.getResultType().equals(StyleSaleIntoResultType.FIRST_INTO)
+                                                || item.getResultType().equals(StyleSaleIntoResultType.APPEND_INTO))
+                                .collect(Collectors.toList());
+                        if (ObjectUtil.isNotEmpty(productionDataList)) {
+                            for (StyleSaleIntoDto styleSaleIntoDto : productionDataList) {
+                                Map<String, Double> sizeMap = styleSaleIntoDto.getSizeMap();
+                                for (Double value : sizeMap.values()) {
+                                    startUpRate = startUpRate.add(BigDecimal.valueOf(value));
+                                }
+                            }
+                        }
+                        map.put("sales", sales);
+                        map.put("startUpRate", startUpRate);
+                        hashMap.put(stringListEntry.getKey(), map);
+                    }
+                }
+            }
+
+
             for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
+                // 初始化最终的销售量和投产量
+                BigDecimal finalSales = BigDecimal.ZERO;
+                BigDecimal finalStartUpRate = BigDecimal.ZERO;
+                List<StyleColor> list = styleColorMap.get(planningSummaryDetailVo.getDesignNo());
+                if (ObjectUtil.isNotEmpty(list)) {
+                    for (StyleColor styleColor : list) {
+                        Map<String, BigDecimal> stringBigDecimalMap = hashMap.get(styleColor.getStyleNo());
+                        if (ObjectUtil.isNotEmpty(stringBigDecimalMap)) {
+                            finalSales = finalSales.add(stringBigDecimalMap.get("sales"));
+                            finalStartUpRate = finalStartUpRate.add(stringBigDecimalMap.get("startUpRate"));
+                        }
+
+                    }
+                }
+                planningSummaryDetailVo.setSalesVolume(finalSales);
+                planningSummaryDetailVo.setProductionMarketing(finalStartUpRate);
                 planningSummaryDetailVo
                         .setPlanningSeasonName(planningSeasonMap.get(planningSummaryDetailVo.getPlanningSeasonId()));
             }
