@@ -2819,7 +2819,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     }
                 }
                 planningSummaryDetailVo.setSalesVolume(finalSales);
-                planningSummaryDetailVo.setProductionMarketing(finalSales.divide(finalStartUpRate, 2, RoundingMode.HALF_UP));
+                planningSummaryDetailVo.setProductionMarketing(finalStartUpRate.equals(BigDecimal.ZERO) ? BigDecimal.ZERO : finalSales.divide( finalStartUpRate, 2, RoundingMode.HALF_UP));
                 planningSummaryDetailVo
                         .setPlanningSeasonName(planningSeasonMap.get(planningSummaryDetailVo.getPlanningSeasonId()));
             }
