@@ -2,11 +2,9 @@ package com.base.sbc.config;
 
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.MigrationVersion;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.stereotype.Component;
-
-import javax.sql.DataSource;
 
 /**
  * {@code 描述：}
@@ -16,10 +14,14 @@ import javax.sql.DataSource;
  */
 @Component
 public class FlywayMigrationStrategyImpl implements FlywayMigrationStrategy {
+
+    @Value("${spring.flyway.validate-on-migrate:false}")
+    private boolean validate;
+
     @Override
     public void migrate(Flyway flyway) {
         flyway.setBaselineOnMigrate(true);
-        flyway.setValidateOnMigrate(true);
+        flyway.setValidateOnMigrate(validate);
 //        flyway.setSchemas("flyway");
         flyway.setOutOfOrder(false);
         flyway.setEncoding("UTF-8");
