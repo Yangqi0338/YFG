@@ -173,6 +173,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 // 设置子表数据
                 patternLibraryVO.setPatternLibraryItemList(patternLibraryItemMap.get(patternLibraryVO.getId()));
             }
+
+            // 设置图片
+            stylePicUtils.setStylePic(patternLibraryVOList, "picFileId");
         }
         return new PageInfo<>(patternLibraryVOList);
     }
@@ -313,10 +316,13 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         PatternLibraryVO patternLibraryVO = new PatternLibraryVO();
         // 根据版型库主表 ID 查询版型库主表信息
         PatternLibrary patternLibrary = getById(patternLibraryId);
-        BeanUtil.copyProperties(patternLibrary, patternLibraryVO);
         if (ObjectUtil.isEmpty(patternLibrary)) {
             throw new OtherException("当前数据不存在，请刷新后重试！");
         }
+        BeanUtil.copyProperties(patternLibrary, patternLibraryVO);
+        // 设置图片
+        stylePicUtils.setStylePic(Collections.singletonList(patternLibraryVO), "picFileId");
+
         // 查询品类信息
         List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryBrandService.list(
                 new LambdaQueryWrapper<PatternLibraryBrand>()
