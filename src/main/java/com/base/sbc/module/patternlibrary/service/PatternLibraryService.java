@@ -33,7 +33,7 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      */
     Boolean saveOrUpdateDetails(PatternLibraryDTO patternLibraryDTO);
 
- /**
+    /**
      * 版型库批量编辑
      *
      * @param patternLibraryDTOList 编辑数据
@@ -64,5 +64,13 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 审核是否成功
      */
     Boolean updateAudits(List<String> patternLibraryIdList);
+
+    /**
+     * 根据设计款号查询相关数据
+     *
+     * @param designNo 设计款号
+     * @return 相关数据
+     */
+    PatternLibraryVO getInfoByDesignNo(String designNo);
 
 }

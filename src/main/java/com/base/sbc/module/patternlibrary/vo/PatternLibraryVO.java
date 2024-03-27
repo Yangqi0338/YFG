@@ -17,6 +17,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 版型库-主表VO
@@ -149,6 +150,12 @@ public class PatternLibraryVO extends BaseDataEntity implements Serializable {
      */
     @ApiModelProperty("图片文件 ID")
     private String picFileId;
+
+    /**
+     * 大货图片文件 ID-URL 集合
+     */
+    @ApiModelProperty("大货图片文件 ID-URL 集合")
+    private List<Map<String, String>> picFileIdList;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）

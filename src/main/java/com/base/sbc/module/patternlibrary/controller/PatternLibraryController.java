@@ -91,5 +91,12 @@ public class PatternLibraryController {
         }
     }
 
+    @ApiOperation(value = "根据设计款号查询相关数据")
+    @PostMapping("/getInfoByDesignNo")
+    public ApiResult<PatternLibraryVO> getInfoByDesignNo(String styleNo) {
+        PatternLibraryVO patternLibraryVO = patternLibraryService.getInfoByDesignNo(styleNo);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryVO);
+    }
+
 
 }
