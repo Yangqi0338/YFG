@@ -7,11 +7,16 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
@@ -30,6 +35,8 @@ import org.bouncycastle.util.Pack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -66,6 +73,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
     @Autowired
     private StylePicUtils stylePicUtils;
+
+    @Autowired
+    private FlowableService flowableService;
 
     @Override
     public PageInfo<PatternLibraryVO> listPages(PatternLibraryPageDTO patternLibraryPageDTO) {
@@ -187,11 +197,11 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         if (ObjectUtil.isEmpty(patternLibraryDTO)) {
             throw new OtherException("新增/编辑数据不能为空！");
         }
+        PatternLibrary patternLibrary = new PatternLibrary();
+        BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
         if (ObjectUtil.isEmpty(patternLibraryDTO.getId())) {
             // 新增
             // 新增主表数据
-            PatternLibrary patternLibrary = new PatternLibrary();
-            BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
             save(patternLibrary);
             // 新增品牌数据
             List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryDTO.getPatternLibraryBrandList();
@@ -212,8 +222,6 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         } else {
             // 编辑
             // 修改主表数据
-            PatternLibrary patternLibrary = new PatternLibrary();
-            BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
             updateById(patternLibrary);
             // 修改品牌数据
             List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryDTO.getPatternLibraryBrandList();
@@ -249,6 +257,15 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 }
                 patternLibraryItemService.saveOrUpdateBatch(patternLibraryItemList);
             }
+        }
+        if (patternLibraryDTO.getStatus().equals(PatternLibraryStatusEnum.NO_REVIEWED.getCode())) {
+            // 如果是提交 那么启动审批流
+            flowableService.start(FlowableService.PATTERN_LIBRARY_APPROVAL,
+                    FlowableService.PATTERN_LIBRARY_APPROVAL, patternLibrary.getId(),
+                    "/pdm/api/saas/patternLibrary/approval",
+                    "/pdm/api/saas/patternLibrary/approval",
+                    "/pdm/api/saas/patternLibrary/approval",
+                    "pdm/api/saas/patternLibrary/getDetail?patternLibraryId=" + patternLibrary.getId(), BeanUtil.beanToMap(patternLibrary));
         }
         return Boolean.TRUE;
     }
@@ -406,8 +423,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         patternLibraryList.forEach(item -> item.setStatus(PatternLibraryStatusEnum.REVIEWED.getCode()));
         // TODO：审批流的操作 ——XHTE
         // 更新修改数据
-        boolean updateFlag = updateBatchById(patternLibraryList);
-        return updateFlag;
+        return updateBatchById(patternLibraryList);
     }
 
     @Override

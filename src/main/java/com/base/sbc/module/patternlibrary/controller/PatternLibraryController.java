@@ -1,11 +1,18 @@
 package com.base.sbc.module.patternlibrary.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.github.pagehelper.PageInfo;
@@ -16,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -49,7 +57,7 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库新增/编辑")
     @PostMapping("/saveOrUpdateDetail")
-    public ApiResult<String> saveOrUpdateDetail(PatternLibraryDTO patternLibraryDTO) {
+    public ApiResult<String> saveOrUpdateDetail(@RequestBody PatternLibraryDTO patternLibraryDTO) {
         Boolean resultFlag = patternLibraryService.saveOrUpdateDetails(patternLibraryDTO);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
@@ -60,7 +68,7 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库批量编辑")
     @PostMapping("/updateDetails")
-    public ApiResult<String> updateDetails(List<PatternLibraryDTO> patternLibraryDTOList) {
+    public ApiResult<String> updateDetails(@RequestBody List<PatternLibraryDTO> patternLibraryDTOList) {
         Boolean resultFlag = patternLibraryService.updateDetails(patternLibraryDTOList);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
@@ -80,9 +88,25 @@ public class PatternLibraryController {
         }
     }
 
+    /**
+     * 审批回调
+     */
+    @PostMapping("/approval")
+    public boolean approval(@RequestBody AnswerDto dto) {
+        PatternLibrary patternLibrary = patternLibraryService.getOne(new LambdaQueryWrapper<PatternLibrary>().eq(PatternLibrary::getId, dto.getBusinessKey()));
+        if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
+            //审核通过
+            patternLibrary.setStatus(PatternLibraryStatusEnum.REVIEWED.getCode());
+        } else {
+            //审核不通过
+            patternLibrary.setStatus(PatternLibraryStatusEnum.REJECTED.getCode());
+        }
+        return patternLibraryService.updateById(patternLibrary);
+    }
+
     @ApiOperation(value = "版型库批量审核")
     @PostMapping("/updateAudits")
-    public ApiResult<String> updateAudits(List<String> patternLibraryIdList) {
+    public ApiResult<String> updateAudits(@RequestBody List<String> patternLibraryIdList) {
         Boolean resultFlag = patternLibraryService.updateAudits(patternLibraryIdList);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
@@ -92,7 +116,7 @@ public class PatternLibraryController {
     }
 
     @ApiOperation(value = "根据设计款号查询相关数据")
-    @PostMapping("/getInfoByDesignNo")
+    @GetMapping("/getInfoByDesignNo")
     public ApiResult<PatternLibraryVO> getInfoByDesignNo(String styleNo) {
         PatternLibraryVO patternLibraryVO = patternLibraryService.getInfoByDesignNo(styleNo);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryVO);
