@@ -50,7 +50,6 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.column.entity.ColumnDefine;
-import com.base.sbc.module.column.entity.ColumnUserDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
@@ -2040,6 +2039,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 TagPrinting.Size size = new TagPrinting.Size();
                 size.setSORTCODE(styleColorAgentVo.getOutsideSizeCode());
                 size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
+                size.setEXTSIZECODE(styleColorAgentVo.getHangtags());
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
