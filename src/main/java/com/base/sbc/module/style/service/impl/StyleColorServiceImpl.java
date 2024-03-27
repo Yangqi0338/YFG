@@ -1552,7 +1552,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         QueryWrapper<FieldVal> fieldValQueryWrapper =new QueryWrapper<>();
 
         fieldValQueryWrapper.in("foreign_id", ids);
-        fieldValQueryWrapper.groupBy("field_id");
+        fieldValQueryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_MARKING_ORDER);
         fieldValQueryWrapper.orderByDesc("id");
         return fieldValService.list(fieldValQueryWrapper);
     }

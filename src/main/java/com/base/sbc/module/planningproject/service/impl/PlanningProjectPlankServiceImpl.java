@@ -99,11 +99,13 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         Map<String, List<PlanningProjectPlankDimension>> dimensionMap = planningProjectPlankDimensions.stream().collect(Collectors.groupingBy(PlanningProjectPlankDimension::getPlanningProjectPlankId));
         List<String> styleColorIds = list.stream().map(PlanningProjectPlankVo::getStyleColorId).collect(Collectors.toList());
         List<String> hisDesignNos = list.stream().map(PlanningProjectPlankVo::getHisDesignNo).collect(Collectors.toList());
+
         if (!styleColorIds.isEmpty()){
             List<StyleColor> list3 = styleColorService.list(new QueryWrapper<StyleColor>().in("style_no", hisDesignNos).select("id"));
             styleColorIds.addAll(list3.stream().map(StyleColor::getId).collect(Collectors.toList()));
         }
-
+        // List<StyleColor> list4 = styleColorService.list(new QueryWrapper<StyleColor>().in("id", styleColorIds).select("id", "bom_status"));
+        // Map<String, String> styleColorMap = list4.stream().collect(Collectors.toMap(StyleColor::getId, StyleColor::getBomStatus));
         List<FieldVal> fieldValList = styleColorService.ListDynamicDataByIds(styleColorIds);
         //匹配
         // this.match(list);
@@ -151,10 +153,10 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
             // map2.put(planningProjectPlankVo.getDimensionValue()+planningProjectPlankVo.getDimensionCode()+planningProjectPlankVo.getDimensionName()+planningProjectPlankVo.getDimensionId()+planningProjectPlankVo.getBandName()+planningProjectPlankVo.getBandCode(), jsonObject);
 
 
-            if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
-                List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(planningProjectPlankVo.getStyleColorId());
-                planningProjectPlankVo.setFieldManagementVos(fieldManagementVos);
-            }
+            // if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
+            //     // List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(planningProjectPlankVo.getStyleColorId());
+            //     // planningProjectPlankVo.setFieldManagementVos(fieldManagementVos);
+            // }
 
             if (StringUtils.isNotEmpty(planningProjectPlankVo.getHisDesignNo())) {
                 StyleColor styleColor = styleColorService.getOne(new QueryWrapper<StyleColor>().eq("style_no", planningProjectPlankVo.getHisDesignNo()).select("id","style_color_pic"));
@@ -226,21 +228,19 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         }else {
                             styleColorId=planningProjectPlankVo.getStyleColorId();
                         }
-                        if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(styleColorId) && planningDimensionality.getFieldId().equals(fieldVal.getFieldId())){
-                            if ("5F2260721X".equals(planningProjectPlankVo.getHisDesignNo())) {
-                                if ("色相".equals(planningDimensionality.getDimensionalityName())) {
-                                    System.out.println(planningDimensionality);
-                                }
-                            }
 
+                        if (StringUtils.isNotBlank(fieldVal.getForeignId()) && fieldVal.getForeignId().equals(styleColorId) && planningDimensionality.getFieldId().equals(fieldVal.getFieldId())){
+                            // if ("5F2260721X".equals(planningProjectPlankVo.getHisDesignNo())) {
+                            //     if ("色相".equals(planningDimensionality.getDimensionalityName())) {
+                            //         System.out.println(planningDimensionality);
+                            //     }
+                            // }
                             planningProjectPlankDimension.setDimensionCode(fieldVal.getFieldName());
                             planningProjectPlankDimension.setDimensionValue(fieldVal.getVal());
                             planningProjectPlankDimension.setDimensionValueName(fieldVal.getValName());
                             break;
                         }
                     }
-                }else {
-                    System.out.println(planningProjectPlankDimension);
                 }
                 if ("1".equals(planningProjectPlankDimension.getDimensionalityGrade())){
                     planningProjectPlankDimension.setDimensionValueName(planningProjectPlankVo.getDimensionCode());
