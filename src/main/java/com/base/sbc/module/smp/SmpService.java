@@ -1667,11 +1667,12 @@ public class SmpService {
                 smpGoodsDto.setPlanCost(stylePricingVO.getControlPlanCost());
             }
 
-            if( StrUtil.equals(style.getEnableStatus(),BaseGlobal.YES)){
+            if (StrUtil.equals(styleColor.getStatus(), BaseGlobal.YES)) {
                 smpGoodsDto.setBomPhase("Sample");
-            }else{
+            } else {
                 smpGoodsDto.setBomPhase("Production");
             }
+
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());

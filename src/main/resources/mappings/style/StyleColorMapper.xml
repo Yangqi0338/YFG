@@ -347,7 +347,7 @@
                tsc.create_name,
                tsca.update_name,
                tsca.update_date,
-               ts.enable_status,
+               tsc.status as enableStatus ,
                tsca.status                                  sendStatus,
                ts.band_code,
                ts.band_name,
