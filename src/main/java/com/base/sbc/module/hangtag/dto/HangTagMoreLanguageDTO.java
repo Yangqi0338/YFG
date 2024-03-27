@@ -7,7 +7,8 @@
 package com.base.sbc.module.hangtag.dto;
 
     import com.base.sbc.config.enums.business.CountryLanguageType;
-import com.base.sbc.config.enums.business.SystemSource;
+    import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+    import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -76,6 +77,17 @@ public class HangTagMoreLanguageDTO {
     @ApiModelProperty(value = "模糊查询"  )
     private Boolean likeQueryFlag;
 
+    /** 合并错误信息 */
+    @ApiModelProperty(value = "合并错误信息"  )
+    private Boolean mergeWarnMsg;
+
+    /** 实时数据装饰 */
+    @ApiModelProperty(value = "实时数据装饰"  )
+    private Boolean decorate;
+
+    /** 单据状态限制 */
+    @ApiModelProperty(value = "单据状态限制"  )
+    private StyleCountryStatusEnum documentStatusLimit;
 
 }
 

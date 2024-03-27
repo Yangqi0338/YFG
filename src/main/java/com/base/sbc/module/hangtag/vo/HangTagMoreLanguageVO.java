@@ -51,6 +51,10 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "语言名")
     private String languageName;
 
+
+    @ApiModelProperty(value = "具体数据的编码")
+    protected String propertiesCode;
+
     /**
      * 标准列翻译
      */

@@ -11,6 +11,7 @@ import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.open.dto.MoreLanguageTagPrinting;
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -54,7 +55,7 @@ public class HangTagMoreLanguageSupportVO {
     /**
      * 国家类型
      */
-    @JsonIgnore
+    @JsonEnumDefaultValue
     @ApiModelProperty(value = "国家类型")
     protected CountryLanguageType countryLanguageType;
 
@@ -110,6 +111,7 @@ public class HangTagMoreLanguageSupportVO {
     /**
      * 吊牌状态
      */
+    @JsonIgnore
     @ApiModelProperty(value = "吊牌状态")
     private HangTagStatusEnum status;
 
@@ -117,7 +119,6 @@ public class HangTagMoreLanguageSupportVO {
      * 分类列表
      */
     @ApiModelProperty(value = "分类列表")
-    @JsonIgnore
     private List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
 
 }

@@ -1,9 +1,12 @@
 package com.base.sbc.module.moreLanguage.listener;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.context.AnalysisContext;
@@ -15,6 +18,7 @@ import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
@@ -23,17 +27,21 @@ import com.base.sbc.module.moreLanguage.dto.DataVerifyResultVO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageMapExportMapping;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.CountryModel;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.service.CountryModelService;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnTranslateService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.operalog.dto.OperaLogJsonDto;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.standard.entity.StandardColumn;
@@ -61,6 +69,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -103,6 +112,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
     private final CountryLanguageService countryLanguageService;
 
     private final StandardColumnService standardColumnService;
+    private final StyleCountryStatusService styleCountryStatusService;
     private final StandardColumnCountryRelationService standardColumnCountryRelationService;
 
     @Setter
@@ -354,7 +364,44 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             });
             // 仅更新做操作
             if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
+                taskList.add(()-> {
+                    String uniqueCode = countryLanguageList.get(0).getCode();
+                    // 获取已审核的当前国家中,存在对应编码的数据
+                    List<StyleCountryStatus> statusList = styleCountryStatusService.list(new LambdaQueryWrapper<StyleCountryStatus>()
+                            .eq(StyleCountryStatus::getStatus, StyleCountryStatusEnum.CHECK)
+                            .eq(StyleCountryStatus::getCountryCode, uniqueCode)
+                            .like(StyleCountryStatus::getStandardColumnCode, standardColumnCode)
+                    );
+                    List<StyleCountryStatus> changeStatusList = new ArrayList<>();
+                    statusList.forEach(status-> {
+                        List<MoreLanguageStatusCheckDetailDTO> languageDetailList = JSONUtil.toList(status.getCheckDetailJson(), MoreLanguageStatusCheckDetailDTO.class);
+                        AtomicBoolean change = new AtomicBoolean(false);
+                        countryLanguageList.forEach(countryLanguage-> {
+                            List<StandardColumnCountryTranslate> countryTranslateList = updateNewTranslateList.stream()
+                                    .filter(it -> it.getCountryLanguageId().equals(countryLanguage.getId())).collect(Collectors.toList());
 
+                            languageDetailList.stream().filter(it-> it.getLanguageCode().equals(countryLanguage.getLanguageCode())).forEach(languageDetail-> {
+                                List<MoreLanguageStatusCheckDetailAuditDTO> auditList = languageDetail.getAuditList().stream()
+                                        .filter(audit -> audit.getStandardColumnCode().equals(standardColumnCode))
+                                        .filter(audit -> countryTranslateList.stream().noneMatch(it-> it.getPropertiesCode().equals(audit.getSource())))
+                                        .peek(audit-> audit.setStatus(YesOrNoEnum.NO.getValueStr()))
+                                        .collect(Collectors.toList());
+                                if (auditList.size() != languageDetail.getAuditList().size()) {
+                                    languageDetail.setAuditList(auditList);
+                                    change.set(true);
+                                }
+                            });
+                        });
+                        if (change.get()) {
+                            status.setCheckDetailJson(JSONUtil.toJsonStr(languageDetailList.stream().filter(it-> CollUtil.isNotEmpty(it.getAuditList())).collect(Collectors.toList())));
+                            status.setStandardColumnCode(ArrayUtil.join(ArrayUtil.removeEle(status.getStandardColumnCode().split(COMMA), standardColumnCode),COMMA));
+                            changeStatusList.add(status);
+                        }
+                    });
+                    if (CollUtil.isNotEmpty(changeStatusList)) {
+                        styleCountryStatusService.saveOrUpdateBatch(changeStatusList);
+                    }
+                });
             }
             updateNewTranslateList.addAll(addTranslateList);
             if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {

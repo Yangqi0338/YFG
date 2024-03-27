@@ -9,12 +9,14 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StandardColumnType;
@@ -22,6 +24,8 @@ import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.exception.RightException;
+import com.base.sbc.config.redis.RedisKeyConstant;
+import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.UserUtils;
@@ -33,6 +37,7 @@ import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.mapper.HangTagMapper;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
@@ -59,6 +64,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -324,12 +330,34 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         });
 
         /* ----------------------------更新操作---------------------------- */
-        HangTagMoreLanguageDTO languageDTO = new HangTagMoreLanguageDTO();
-        languageDTO.setBulkStyleNo(String.join(COMMA,bulkStyleNoList));
-        languageDTO.setSource(SystemSource.PDM);
-        languageDTO.setCode(String.join(COMMA,map.keySet()));
-        Map<StandardColumnType, List<HangTagMoreLanguageWebBaseVO>> translateMap = (HashMap<StandardColumnType, List<HangTagMoreLanguageWebBaseVO>>)
-                hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO, false, false);
+        // 先查询存在的缓存,并移除
+        // 剩下的再走普通查询
+        List<HangTagMoreLanguageBaseVO> webBaseVOList = new ArrayList<>();
+        Map<String,List<String>> needSearchMap = new HashMap<>();
+        map.keySet().forEach(code-> {
+            List<String> needSearchList = new ArrayList<>();
+            bulkStyleNoList.forEach(bulkStyleNo-> {
+                Object cache = RedisStaticFunUtils.sPop(RedisKeyConstant.HANG_TAG_COUNTRY.addEnd(true, code, bulkStyleNo));
+                if (ObjectUtil.isNotNull(cache)) {
+                    List<HangTagMoreLanguageBaseVO> cacheList = (List<HangTagMoreLanguageBaseVO>) cache;
+                    webBaseVOList.addAll(cacheList);
+                }else {
+                    needSearchList.add(bulkStyleNo);
+                }
+            });
+            if (CollectionUtil.isNotEmpty(needSearchList)) {
+                needSearchMap.put(code,needSearchList);
+            }
+        });
+        if (!needSearchMap.isEmpty()) {
+            HangTagMoreLanguageDTO languageDTO = new HangTagMoreLanguageDTO();
+            languageDTO.setBulkStyleNo(needSearchMap.values().stream().flatMap(Collection::stream).distinct().collect(Collectors.joining(COMMA)));
+            languageDTO.setSource(SystemSource.SYSTEM);
+            languageDTO.setCode(String.join(COMMA,needSearchMap.keySet()));
+            languageDTO.setUserCompany(userUtils.getCompanyCode());
+            webBaseVOList.addAll( (List<HangTagMoreLanguageBaseVO>)
+                    hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO));
+        }
 
         // 封装转化为实体类列表
         List<StyleCountryStatus> statusList = updateStatusList.stream().flatMap(updateStatus -> {
@@ -359,28 +387,33 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                                 status.setCountryCode(code);
                                 status.setStatus(updateStatus.getStatus());
                                 status.setCountryName(countryDTO.getCountryName());
+                                status.setType(type);
                             };
                             // 获取对应的标准列编码列表,并封装检查专用的详情json (用作审核之后,翻译新增了一个标准列关联,可以做对应的标记以及反审)
                             List<String> standardColumnCodeList = map.getOrDefault(code, new HashMap<>(1)).getOrDefault(type, new ArrayList<>());
 
                             List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageCodeList.stream().map(languageCode->
-                                new MoreLanguageStatusCheckDetailDTO(languageCode, standardColumnCodeList.stream().map(standardColumnCode-> {
-                                    MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
-                                    auditDTO.setStandardColumnCode(standardColumnCode);
-                                    List<HangTagMoreLanguageWebBaseVO> webBaseVOList = translateMap.getOrDefault(type, new ArrayList<>());
+                                new MoreLanguageStatusCheckDetailDTO(languageCode, standardColumnCodeList.stream().flatMap(standardColumnCode->
                                     webBaseVOList.stream().filter(it->
+                                            type.equals(it.getCountryLanguageType()) &&
                                             bulkStyleNo.equals(it.getBulkStyleNo()) &&
                                             code.equals(it.getCode()) &&
                                             standardColumnCode.equals(it.getStandardColumnCode())
-                                    ).flatMap(it-> it.getLanguageList().stream()).filter(it-> languageCode.equals(it.getLanguageCode()))
-                                            .findFirst().ifPresent(translate-> {
+                                    ).flatMap(it-> it.getLanguageList().stream())
+                                            .filter(it-> languageCode.equals(it.getLanguageCode()))
+                                            .map(translate-> {
+                                                MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
+                                                auditDTO.setStandardColumnCode(standardColumnCode);
+                                                auditDTO.setSource(translate.getPropertiesCode());
                                                 auditDTO.setContent(translate.getPropertiesContent());
-                                            });
-                                    auditDTO.setStatus(updateStatus.getStatus());
-                                    return auditDTO;
-                                }).collect(Collectors.toList()))
+                                                auditDTO.setStatus(YesOrNoEnum.YES.getValueStr());
+                                                return auditDTO;
+                                            })
+                                ).filter(it-> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList()))
                             ).collect(Collectors.toList());
-
+                            status.setStandardColumnCode(checkDetailList.stream().flatMap(checkDetailDTO-> checkDetailDTO.getAuditList()
+                                    .stream().map(MoreLanguageStatusCheckDetailAuditDTO::getStandardColumnCode)
+                            ).distinct().collect(Collectors.joining(COMMA)));
                             status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
                             // 清除更新标志
                             status.updateClear();

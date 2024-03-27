@@ -1,5 +1,7 @@
 package com.base.sbc.module.moreLanguage.dto;
 
+import cn.hutool.core.annotation.Alias;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,9 +18,13 @@ import java.util.List;
 @NoArgsConstructor
 public class MoreLanguageStatusCheckDetailDTO {
 
+    @Alias("l")
+    @JsonProperty("l")
     @ApiModelProperty(value = "语言编码")
     private String languageCode;
 
+    @Alias("a")
+    @JsonProperty("a")
     @ApiModelProperty(value = "标准列编码集合")
     private List<MoreLanguageStatusCheckDetailAuditDTO> auditList;
 

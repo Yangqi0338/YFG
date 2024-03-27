@@ -78,7 +78,7 @@ public class OpenHangTagController extends BaseController {
                 .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageDTO.getCountryCode()), CountryLanguage::getCode));
         if (StrUtil.isBlank(languageDTO.getCode())) throw new OtherException(MoreLanguageProperties.getMsg(NOT_INSERT, Opt.ofNullable(hangTagMoreLanguageDTO.getCountryName()).orElse("")));
         languageDTO.setUserCompany(super.getUserCompany());
-        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO, false, false));
+        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO));
     }
 
     @ApiOperation(value = "查询详情多语言")
@@ -121,8 +121,8 @@ public class OpenHangTagController extends BaseController {
             if (typeList.size() == 1) {
                 hangTagMoreLanguageDTO.setType(typeList.get(0));
             }
-
-            resultList.addAll((List<HangTagMoreLanguageBCSVO>) hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, true));
+            hangTagMoreLanguageDTO.setMergeWarnMsg(true);
+            resultList.addAll((List<HangTagMoreLanguageBCSVO>) hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO));
         }
         return selectSuccess(resultList);
     }

@@ -228,7 +228,6 @@ public class AddData {
                     newStatus = MORE_LANGUAGE_CV.copyMyself(it);
                     newStatus.setId(null);
                     newStatus.updateClear();
-                    newStatus.insertInit();
                 }
                 newStatus.setType(CountryLanguageType.findByCode(type));
                 List<MoreLanguageStatusCheckDetailDTO> checkDetailDTOS = new ArrayList<>();
@@ -239,9 +238,10 @@ public class AddData {
                     List<MoreLanguageStatusCheckDetailAuditDTO> auditDTOList = new ArrayList<>();
                     sameCodeList.get(0).getStandardColumnCodeList().forEach(standardColumnCode-> {
                         MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
-                        auditDTO.setStatus(it.getStatus());
                         auditDTO.setStandardColumnCode(standardColumnCode);
                         auditDTO.setContent("");
+                        auditDTO.setSource("");
+                        auditDTO.setStatus(YesOrNoEnum.YES.getValueStr());
                         auditDTOList.add(auditDTO);
                     });
                     checkDetailDTO.setAuditList(auditDTOList);

@@ -56,6 +56,9 @@ public class StyleCountryStatus extends BaseDataEntity<String> {
     /** 标准类型 */
     @ApiModelProperty(value = "标准类型"  )
     private CountryLanguageType type;
+    /** 标准列编码 */
+    @ApiModelProperty(value = "标准列编码"  )
+    private String standardColumnCode;
     /** 检查详情Json */
     @ApiModelProperty(value = "检查详情Json"  )
     private String checkDetailJson;
