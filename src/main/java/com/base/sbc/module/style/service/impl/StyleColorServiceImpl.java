@@ -2371,18 +2371,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
                 //品类
-                String prodCategoryName = dto.getProdCategoryName();
                 String prodCategory1stName = dto.getProdCategory1stName();
+                String prodCategoryName = dto.getProdCategoryName();
                 String prodCategory2ndName = dto.getProdCategory2ndName();
 
                 String key = prodCategory1stName + "-" + prodCategoryName + "-" + prodCategory2ndName;
                 if (checkMap.containsKey(key)) {
                     String mapValue = checkMap.get(key);
                     if (StrUtil.isNotEmpty(mapValue)) {
-                        style.setProdCategoryName(prodCategoryName);
-                        style.setProdCategory(mapValue.split("-")[0]);
                         style.setProdCategory1stName(prodCategory1stName);
-                        style.setProdCategory1st(mapValue.split("-")[1]);
+                        style.setProdCategory1st(mapValue.split("-")[0]);
+                        style.setProdCategoryName(prodCategoryName);
+                        style.setProdCategory(mapValue.split("-")[1]);
                         style.setProdCategory2ndName(prodCategory2ndName);
                         style.setProdCategory2nd(mapValue.split("-")[2]);
                     }else{
@@ -2621,14 +2621,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             if (checkMap.containsKey(updatekey)) {
                                 String updateMapValue = checkMap.get(updatekey);
                                 if (StrUtil.isNotEmpty(updateMapValue)) {
-                                    styleUpdate.setProdCategoryName(prodCategoryName1);
-                                    styleUpdate.setProdCategory(updateMapValue.split("-")[1]);
-                                    styleColorUpdate.setProductName(prodCategoryName1);
-                                    styleColorUpdate.setProductCode(updateMapValue.split("-")[1]);
                                     styleUpdate.setProdCategory1stName(prodCategory1stName1);
                                     styleUpdate.setProdCategory1st(updateMapValue.split("-")[0]);
+                                    styleUpdate.setProdCategoryName(prodCategoryName1);
+                                    styleUpdate.setProdCategory(updateMapValue.split("-")[1]);
                                     styleUpdate.setProdCategory2ndName(prodCategory2ndName1);
-                                    styleUpdate.setProdCategory2nd(updateMapValue.split("-")[1]);
+                                    styleUpdate.setProdCategory2nd(updateMapValue.split("-")[2]);
+                                    styleColorUpdate.setProductName(prodCategoryName1);
+                                    styleColorUpdate.setProductCode(updateMapValue.split("-")[1]);
                                 }else{
                                     throw new OtherException("第" + (i + 1) + "行,系统找不到对应的大类-品类-中类" + updatekey);
                                 }
