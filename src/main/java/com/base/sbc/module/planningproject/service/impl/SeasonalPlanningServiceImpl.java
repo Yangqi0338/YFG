@@ -672,7 +672,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             styleQueryWrapper.eq("planning_season_id",seasonalPlanningVo.getSeasonId());
             styleQueryWrapper.eq("prod_category1st",prodCategory1stCode);
             styleQueryWrapper.eq("prod_category",prodCategoryCode);
-            styleQueryWrapper.eq("band_code",bandCode);
+            // styleQueryWrapper.eq("band_code",bandCode);
             styleQueryWrapper.notEmptyEq("prod_category2nd",prodCategory2ndCode);
             List<Style> styles = styleService.list(styleQueryWrapper);
             List<String> styleIds = styles.stream().map(Style::getId).collect(Collectors.toList());
@@ -683,6 +683,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             //查询大货款号
             QueryWrapper<StyleColor> styleColorQueryWrapper = new QueryWrapper<>();
             styleColorQueryWrapper.select("id","style_no");
+            styleColorQueryWrapper.eq("band_code",bandCode);
             styleColorQueryWrapper.in("style_id",styleIds);
             List<StyleColor> styleColors = styleColorService.list(styleColorQueryWrapper);
             if (styleColors.isEmpty()){
