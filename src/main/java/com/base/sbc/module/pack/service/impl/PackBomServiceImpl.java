@@ -16,12 +16,14 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -33,9 +35,11 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
@@ -74,6 +78,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
@@ -144,6 +149,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Autowired
     private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
 
+    @Resource
+    private BasicsdatumSupplierService basicsdatumSupplierService;
+
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
 
@@ -212,6 +220,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 pbv.setIngredient(basicsdatumMaterial.getIngredient());
             }
         }
+        List<String> ids = list.stream().map(PackBomVo::getSupplierId).collect(Collectors.toList());
+        SFunction<BasicsdatumSupplier, String> codeFunc = BasicsdatumSupplier::getSupplierCode;
+        SFunction<BasicsdatumSupplier, String> valueFunc = BasicsdatumSupplier::getSupplierAbbreviation;
+        Map<String,String> supplierAbbreviationMap = basicsdatumSupplierService.list(new BaseLambdaQueryWrapper<BasicsdatumSupplier>()
+                .in(codeFunc, ids).select(codeFunc, valueFunc))
+                .stream().collect(Collectors.toMap(codeFunc, valueFunc));
+        list.forEach(it-> it.setSupplierAbbreviation(supplierAbbreviationMap.getOrDefault(it.getSupplierId(), null)));
     }
 
     @Override
