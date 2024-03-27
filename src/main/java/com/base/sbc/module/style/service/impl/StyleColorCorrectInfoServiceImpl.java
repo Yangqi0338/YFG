@@ -29,6 +29,8 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.mapper.PreProductionSampleTaskMapper;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.style.dto.AddRevampStyleColorDto;
 import com.base.sbc.module.style.dto.QueryStyleColorCorrectDto;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -44,6 +46,7 @@ import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,6 +82,9 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
     @Autowired
     private PreProductionSampleTaskMapper preProductionSampleTaskMapper;
+    @Lazy
+    @Autowired
+    private SmpService smpService;
 
     Logger log = LoggerFactory.getLogger(getClass());
 
@@ -259,8 +265,23 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
                     preProductionSampleTaskService.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
                 }
             }
+
+            TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
+            confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
+            confirmDateDto.setTechnicsDate(styleColorCorrectInfo.getTechnicsDate());
+            confirmDateDto.setType("technics_date");
+            smpService.styleColorCorrectInfoDate(confirmDateDto);
+
             styleColorCorrectInfo.setTechnicsDate(null);
             oldDto.setTechnicsDate(null);
+
+
+        }else{
+            TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
+            confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
+            confirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate());
+            confirmDateDto.setType("plan_control_date");
+            smpService.styleColorCorrectInfoDate(confirmDateDto);
         }
 
         //修改款式配色的设计 时间
@@ -284,7 +305,6 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         styleColorCorrectInfo.setDesignCorrectDate(null);
         styleColorCorrectInfo.setDesignDetailDate(null);
         saveOrUpdate(styleColorCorrectInfo);
-
         return styleColorCorrectInfo.getId();
     }
 

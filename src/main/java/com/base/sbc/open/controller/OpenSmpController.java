@@ -214,8 +214,7 @@ public class OpenSmpController extends BaseController {
         if (inspectCompanyDto == null) {
             escmMaterialCompnentInspectCompanyService.save(escmMaterialCompnentInspectCompanyDto);
         }else{
-            BeanUtils.copyProperties(inspectCompanyDto, escmMaterialCompnentInspectCompanyDto,"detailList");
-            escmMaterialCompnentInspectCompanyService.updateById(inspectCompanyDto);
+            escmMaterialCompnentInspectCompanyService.updateById(escmMaterialCompnentInspectCompanyDto);
         }
 
 

@@ -18,17 +18,4 @@ import java.util.Map;
 public interface OrderBookDetailMapper extends BaseEnhanceMapper<OrderBookDetail> {
      List<OrderBookDetailVo> queryPage(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
      List<Map<String, Object>> queryCountByOrderBookId(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
-
-     @DS("starRocks")
-     List<Map<String, Object>> queryStarRocks(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper, @Param("channel") String channel, @Param("total") Integer total);
-     @DS("starRocks")
-     List<Map<String, Object>> queryStarRocks1(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper, @Param("total") Integer total);
-     @DS("starRocks")
-     default List<Map<String, Object>> queryStarRocksTotal(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper) {
-          return queryStarRocks1(queryWrapper,1);
-     };
-     @DS("starRocks")
-     default List<Map<String, Object>> queryStarRocksDetail(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper) {
-          return queryStarRocks1(queryWrapper,0);
-     };
 }

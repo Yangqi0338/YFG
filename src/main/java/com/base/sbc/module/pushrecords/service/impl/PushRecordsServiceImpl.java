@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pushrecords.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.JsonStringUtils;
@@ -46,9 +47,19 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
 
         JSONObject json = JSON.parseObject(data);
 
+
+        if (StrUtil.isNotEmpty(json.getString("code"))) {
+            pushRecords.setRelatedId(json.getString("code"));
+        }else if(StrUtil.isNotEmpty(json.getString("styleNo"))){
+            pushRecords.setRelatedId(json.getString("styleNo"));
+        }else if(StrUtil.isNotEmpty(json.getString("bulkStyleNo"))){
+            pushRecords.setRelatedId(json.getString("bulkStyleNo"));
+        }else if(StrUtil.isNotEmpty(json.getString("designNo"))){
+            pushRecords.setRelatedId(json.getString("designNo"));
+        }
         pushRecords.setModuleName(moduleName);
         pushRecords.setFunctionName(functionName);
-        pushRecords.setRelatedId(json.getString("code"));
+        //pushRecords.setRelatedId(json.getString("code"));
         pushRecords.setRelatedName(json.getString("name"));
         pushRecords.setPushAddress(httpResp.getUrl());
         pushRecords.setPushContent(data);

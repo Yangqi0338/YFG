@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -24,6 +25,7 @@ import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialColorQueryDto;
@@ -49,6 +51,9 @@ import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -64,8 +69,10 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
+import com.base.sbc.module.smp.mapper.SaleProductIntoMapper;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.service.*;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -82,6 +89,7 @@ import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.config.constant.Constants.COMMA;
+import static com.base.sbc.module.common.convert.ConvertContext.ORDER_BOOK_CV;
 import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HANG_TAG_PRICING_LINE;
 
 
@@ -167,6 +175,12 @@ public class SmpService {
     private final BasicsdatumSupplierService basicsdatumSupplierService;
     private final HangTagServiceImpl hangTagService;
     private final FieldValService fieldValService;
+    private final SaleProductIntoMapper saleProductIntoMapper;
+
+    @Resource
+    @Lazy
+    private StyleColorCorrectInfoService styleColorCorrectInfoService;
+
 
     @Value("${interface.smpUrl:http://10.98.250.31:7006/pdm}")
     private String SMP_URL;
@@ -1472,7 +1486,7 @@ public class SmpService {
      */
     public int tagConfirmDates(List<String> ids, HangTagDeliverySCMStatusEnum type, Integer confirmStatus) {
         int index = 0;
-        List<TagConfirmDateDto> tagConfirmDate = new ArrayList<>();
+        List<TagConfirmDateDto> list = new ArrayList<>();
 
         Date date = confirmStatus.equals(0) ? null : new Date();
         if (type.lessThan(HANG_TAG_PRICING_LINE)) {
@@ -1487,7 +1501,7 @@ public class SmpService {
                         tagConfirmDateDto.setStyleNo(bulkStyleNo);
                         tagConfirmDateDto.setTechnicalConfirm(0);
                         tagConfirmDateDto.setTechnicalConfirmDate(null);
-                        tagConfirmDate.add(tagConfirmDateDto);
+                        list.add(tagConfirmDateDto);
                     }else{
                         //反审
                         tagConfirmDateDto.setStyleNo(bulkStyleNo);
@@ -1497,7 +1511,7 @@ public class SmpService {
                         tagConfirmDateDto.setTechnologistConfirmDate(null);
                         tagConfirmDateDto.setTechnicalConfirmDate(null);
                         tagConfirmDateDto.setQualityControlConfirmDate(null);
-                        tagConfirmDate.add(tagConfirmDateDto);
+                        list.add(tagConfirmDateDto);
                     }
                 }
                 if (HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM == type) {
@@ -1505,19 +1519,19 @@ public class SmpService {
                     tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setTechnologistConfirm(1);
                     tagConfirmDateDto.setTechnologistConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.TECHNICAL_CONFIRM == type) {
                     //技术确认
                     tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setTechnicalConfirm(1);
                     tagConfirmDateDto.setTechnicalConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.QUALITY_CONTROL_CONFIRM == type) {
                     //品控确认
                     tagConfirmDateDto.setStyleNo(bulkStyleNo);
                     tagConfirmDateDto.setQualityControlConfirm(1);
                     tagConfirmDateDto.setQualityControlConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 }
             }
         } else {
@@ -1535,26 +1549,26 @@ public class SmpService {
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setPlanCostConfirm(confirmStatus);
                     tagConfirmDateDto.setPlanCostConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PRODUCT_TAG_PRICE_CONFIRM == type) {
                     //商品吊牌确认
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setProductTagPriceConfirm(confirmStatus);
                     tagConfirmDateDto.setProductTagPriceConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 } else if (HangTagDeliverySCMStatusEnum.PLAN_TAG_PRICE_CONFIRM == type) {
                     //计控吊牌确认
                     tagConfirmDateDto.setStyleNo(styleNo);
                     tagConfirmDateDto.setPlanTagPriceConfirm(confirmStatus);
                     tagConfirmDateDto.setPlanTagPriceConfirmDate(date);
-                    tagConfirmDate.add(tagConfirmDateDto);
+                    list.add(tagConfirmDateDto);
                 }
             }
         }
-        String params = JSONArray.toJSONString(tagConfirmDate);
+        String params = JSONArray.toJSONString(list);
 
         HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
-        for (TagConfirmDateDto tagConfirmDateDto1 : tagConfirmDate) {
+        for (TagConfirmDateDto tagConfirmDateDto1 : list) {
 
             Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
             if (aBoolean) {
@@ -1563,6 +1577,26 @@ public class SmpService {
         }
 
         return index;
+    }
+
+    /**
+     * 正确样下发
+     */
+    public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto) {
+        String type = tagConfirmDateDto.getType();
+        if (null == tagConfirmDateDto.getPlanControlDate() && "plan_control_date".equals(type)) {//
+            String styleNo = tagConfirmDateDto.getStyleNo();
+            QueryWrapper<StyleColorCorrectInfo> queryWrapper = new QueryWrapper();
+            queryWrapper.eq("style_no", styleNo);
+            queryWrapper.eq("del_flag", "0");
+            List<StyleColorCorrectInfo> list = styleColorCorrectInfoService.list(queryWrapper);
+            if (CollUtil.isNotEmpty(list)) {
+                tagConfirmDateDto.setPlanControlDate(list.get(0).getPlanControlDate());
+            }
+        }
+        String params = JSONArray.toJSONString(Arrays.asList(tagConfirmDateDto));
+        HttpResp httpResp = restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params);
+        pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto), "scm", "下发吊牌和款式定价确认信息");
     }
 
     /**
@@ -1774,6 +1808,36 @@ public class SmpService {
             styleColorService.updateById(styleColor);
         }
         return i;
+    }
+
+    /**
+     * 修改商品尺码的时候验证
+     */
+    public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
+        Page<Object> page = saleProductIntoDto.startPage();
+        BaseQueryWrapper<?> qw = new BaseQueryWrapper<>();
+        qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
+        qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+
+        List<Map<String, Object>> totalMaps = saleProductIntoMapper.querySaleIntoPage(qw, 1);
+        List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
+
+        return CopyUtil.copy(page.toPageInfo(), dtoList);
+    }
+
+    /**
+     * 修改商品尺码的时候验证
+     */
+    public List<StyleSaleIntoDto> querySaleIntoPage(SaleProductIntoDto saleProductIntoDto) {
+        BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
+        qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+
+        List<Map<String, Object>> detailMaps = saleProductIntoMapper.querySaleIntoPage(qw, 0);
+        // 封装数据并转化Bean
+        detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
+        return ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
     }
 }
 

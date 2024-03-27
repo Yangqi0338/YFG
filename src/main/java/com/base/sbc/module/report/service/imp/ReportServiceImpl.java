@@ -90,7 +90,7 @@ public class ReportServiceImpl implements ReportService {
         List<String> materialNos = dto.getMaterialNos();
         String year = dto.getYear();
         String season = dto.getSeason();
-        QueryGenerator.reportParamMaterialsNoCheck(materialNos, year, season);
+        //QueryGenerator.reportParamMaterialsNoCheck(materialNos, year, season);
         qw.notEmptyIn("t.material_code", materialNos);
         qw.notEmptyEq("t.year", year);
         qw.notEmptyEq("t.season", season);
