@@ -202,4 +202,47 @@ public class AddData {
         standardColumnCountryTranslateService.saveOrUpdateBatch(tagList1);
         standardColumnCountryTranslateService.saveOrUpdateBatch(washingList1);
     }
+
+    @Test
+    public void setPdmHangTagDbV5(){
+        List<StandardColumnCountryTranslate> list = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                .eq(StandardColumnCountryTranslate::getCountryLanguageId, "1747439257242419202"
+                ).eq(StandardColumnCountryTranslate::getTitleCode, "DP13"));
+        String s = "1747439257368248321,1750450374088609794";
+        List<StandardColumnCountryTranslate> list1 = new ArrayList<>();
+        for (String newId : s.split(",")) {
+            list.forEach(it-> {
+                StandardColumnCountryTranslate translate = BeanUtil.copyProperties(it, StandardColumnCountryTranslate.class);
+                translate.updateClear();
+                translate.setId(null);
+                translate.setTitleCode("XM11");
+                translate.setCountryLanguageId(newId);
+                list1.add(translate);
+            });
+        }
+        System.out.println();
+        if (CollUtil.isNotEmpty(list1)) {
+            standardColumnCountryTranslateService.saveOrUpdateBatch(list1);
+        }
+
+        List<StandardColumnCountryTranslate> list2 = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                .eq(StandardColumnCountryTranslate::getCountryLanguageId, "1768897160130129922"
+                ).eq(StandardColumnCountryTranslate::getTitleCode, "DP13"));
+        String s1 = "1747433462421372929,1750450235617857538";
+        List<StandardColumnCountryTranslate> list3 = new ArrayList<>();
+        for (String newId : s1.split(",")) {
+            list2.forEach(it-> {
+                StandardColumnCountryTranslate translate = BeanUtil.copyProperties(it, StandardColumnCountryTranslate.class);
+                translate.updateClear();
+                translate.setId(null);
+                translate.setTitleCode("XM11");
+                translate.setCountryLanguageId(newId);
+                list3.add(translate);
+            });
+        }
+        System.out.println();
+        if (CollUtil.isNotEmpty(list3)) {
+            standardColumnCountryTranslateService.saveOrUpdateBatch(list3);
+        }
+    }
 }
