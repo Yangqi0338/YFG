@@ -795,7 +795,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							styleColor.getCompanyCode());
 					if (stylePricingVO != null) {
 						// 商品吊牌价确认
-						tagPrinting.setMerchApproved("1".equals(stylePricingVO.getProductTagPriceConfirm()));
+						tagPrinting.setMerchApproved("1".equals(stylePricingVO.getPlanTagPriceConfirm()));
 						// 系列
 						tagPrinting.setC8_Colorway_Series(stylePricingVO.getSeries());
 
