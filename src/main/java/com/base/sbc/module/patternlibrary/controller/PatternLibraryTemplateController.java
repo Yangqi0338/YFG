@@ -3,9 +3,11 @@ package com.base.sbc.module.patternlibrary.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplatePageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
+import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,33 +40,33 @@ public class PatternLibraryTemplateController {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryTemplatePageInfo);
     }
 
-    // @ApiOperation(value = "版型库-模板表详情")
-    // @GetMapping("/getDetail")
-    // public ApiResult<PatternLibraryVO> getDetail(String patternLibraryId) {
-    //     PatternLibraryVO patternLibraryVO = patternLibraryService.getDetail(patternLibraryId);
-    //     return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryVO);
-    // }
-    //
-    // @ApiOperation(value = "版型库-模板表新增/编辑")
-    // @PostMapping("/saveOrUpdateDetail")
-    // public ApiResult<String> saveOrUpdateDetail(PatternLibraryDTO patternLibraryDTO) {
-    //     Boolean resultFlag = patternLibraryService.saveOrUpdateDetails(patternLibraryDTO);
-    //     if (resultFlag) {
-    //         return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
-    //     } else {
-    //         return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
-    //     }
-    // }
-    //
-    // @ApiOperation(value = "版型库-模板表删除")
-    // @PostMapping("/removeDetail")
-    // public ApiResult<String> removeDetail(@RequestBody String patternLibraryId) {
-    //     Boolean resultFlag = patternLibraryService.removeDetail(patternLibraryId);
-    //     if (resultFlag) {
-    //         return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
-    //     } else {
-    //         return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
-    //     }
-    // }
+    @ApiOperation(value = "版型库-模板表详情")
+    @GetMapping("/getDetail")
+    public ApiResult<PatternLibraryTemplate> getDetail(String patternLibraryTemplateId) {
+        PatternLibraryTemplate patternLibraryTemplate = patternLibraryTemplateService.getDetail(patternLibraryTemplateId);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryTemplate);
+    }
+
+    @ApiOperation(value = "版型库-模板表新增/编辑")
+    @PostMapping("/saveOrUpdateDetail")
+    public ApiResult<String> saveOrUpdateDetail(@RequestBody PatternLibraryTemplate patternLibraryTemplate) {
+        Boolean resultFlag = patternLibraryTemplateService.saveOrUpdateDetails(patternLibraryTemplate);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
+    }
+
+    @ApiOperation(value = "版型库-模板表删除")
+    @PostMapping("/removeDetail")
+    public ApiResult<String> removeDetail(@RequestBody String patternLibraryId) {
+        Boolean resultFlag = patternLibraryTemplateService.removeDetail(patternLibraryId);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
+    }
 
 }

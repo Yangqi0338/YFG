@@ -25,7 +25,7 @@ public class PatternLibraryTemplate extends BaseDataEntity<String> implements Se
     private static final long serialVersionUID = 1L;
 
     /**
-     * 模板编码
+     * 模板编码 BX + soleId
      */
     @ApiModelProperty("模板编码")
     private String code;
@@ -34,7 +34,7 @@ public class PatternLibraryTemplate extends BaseDataEntity<String> implements Se
      * 唯一 ID 系统自动生成
      */
     @ApiModelProperty("唯一 ID 系统自动生成")
-    private String soleId;
+    private Integer soleId;
 
     /**
      * 模板名称

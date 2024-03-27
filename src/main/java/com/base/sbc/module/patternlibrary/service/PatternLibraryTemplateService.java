@@ -41,7 +41,7 @@ public interface PatternLibraryTemplateService extends IService<PatternLibraryTe
      * @param patternLibraryTemplateId 版型库主表 ID
      * @return 版型库-模板详情
      */
-    PatternLibraryVO getDetail(String patternLibraryTemplateId);
+    PatternLibraryTemplate getDetail(String patternLibraryTemplateId);
 
     /**
      * 版型库-模板删除
