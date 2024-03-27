@@ -2097,16 +2097,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException("只有重新打开或可编辑时才能停用");
         }
         StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
-        String styleId = styleColor.getStyleId();
-        Style style = styleService.getById(styleId);
-        if("1".equals(style.getEnableStatus())){
+        String styleColorId = styleColor.getStyleId();
+        if("1".equals(styleColor.getStatus())){
             throw new OtherException("该款已经停用");
         }
 
-        LambdaUpdateWrapper<Style> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.set(Style::getEnableStatus,"1");
-        updateWrapper.eq(Style::getId,styleId);
-        styleService.update(updateWrapper);
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getStatus,"1");
+        updateWrapper.eq(StyleColor::getId,styleColorId);
+        styleColorService.update(updateWrapper);
 
         //同步下游系统
         smpService.goodsAgent(new String[]{styleColor.getId()},true);
@@ -2136,16 +2135,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException("只有重新打开或可编辑时才能启用");
         }
         StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
-        String styleId = styleColor.getStyleId();
-        Style style = styleService.getById(styleId);
-        if("0".equals(style.getEnableStatus())){
+        String styleColorId = styleColor.getId();
+        if("0".equals(styleColor.getStatus())){
             throw new OtherException("该款已经启用");
         }
 
-        LambdaUpdateWrapper<Style> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.set(Style::getEnableStatus,"0");
-        updateWrapper.eq(Style::getId,styleId);
-        styleService.update(updateWrapper);
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getStatus,"0");
+        updateWrapper.eq(StyleColor::getId,styleColorId);
+        styleColorService.update(updateWrapper);
 
         //同步下游系统
         smpService.goodsAgent(new String[]{styleColor.getId()},true);
@@ -2909,7 +2907,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
                 boolean styleStatus = "0".equals(styleColor.getStatus());
                 if ("1".equals(status) && styleStatus) {
-                    rowText = commonPromptInfo(styleColorAgent != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "已下发到下游业务系统，需先运维人员解除卡控再导入数据！\n");
+                    rowText = commonPromptInfo(styleColorAgent != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "已下发到下游业务系统，需先解锁再导入数据！\n");
                 }else if ("2".equals(status) && styleStatus) {
                     if (styleColor != null) {
                         String styleId = styleColor.getStyleId();
