@@ -1,5 +1,6 @@
 package com.base.sbc.module.orderbook.dto;
 
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -70,6 +71,8 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
     private String bandCode;
 
     private String totalCommissioningSize;
+
+    private OrderBookChannelType channelType;
 
     public interface AssignPersonnel{}
 }

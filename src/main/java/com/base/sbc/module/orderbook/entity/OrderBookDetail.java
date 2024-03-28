@@ -19,7 +19,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -97,6 +96,21 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "状态:0：未提交，1：分配设计师，2：分配商企，3：待审核,4:审核通过,5:审核未通过")
     private OrderBookDetailStatusEnum status;
+    /**
+     * 设计师分配
+     */
+    @ApiModelProperty(value = "状态:0：未分配，1：已分配")
+    private YesOrNoEnum designerDistribute;
+    /**
+     * 线下商企分配
+     */
+    @ApiModelProperty(value = "状态:0：未分配，1：已分配")
+    private YesOrNoEnum offlineBusinessDistribute;
+    /**
+     * 线上商企分配
+     */
+    @ApiModelProperty(value = "状态:0：未分配，1：已分配")
+    private YesOrNoEnum onlineBusinessDistribute;
     /**
      * 审核状态
      */

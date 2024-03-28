@@ -531,7 +531,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     o.setDesignerCode(orderBookDetailSaveDto.getDesignerCode());
                 }
 
-                o.setStatus(OrderBookDetailStatusEnum.DESIGNER);
+                o.setDesignerDistribute(YesOrNoEnum.YES);
             }
         });
         /*保存*/
@@ -771,7 +771,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT)
                 throw new OtherException("已经发起审核,无法分配商企");
             orderBookDetail.setBusinessId("1");
-            orderBookDetail.setStatus(OrderBookDetailStatusEnum.BUSINESS);
+            if (OrderBookChannelType.ONLINE == dto.getChannelType()) {
+                orderBookDetail.setOnlineBusinessDistribute(YesOrNoEnum.YES);
+            }else {
+                orderBookDetail.setOfflineBusinessDistribute(YesOrNoEnum.YES);
+            }
         });
 
         boolean b = this.saveOrUpdateBatch(orderBookDetailList);
