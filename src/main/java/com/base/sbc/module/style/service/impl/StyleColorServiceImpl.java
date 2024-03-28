@@ -36,6 +36,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.config.utils.StringUtils.MatchStrType;
@@ -1412,6 +1413,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             updateWrapper.set("order_date", new Date());
             /*获取款式数据*/
             List<StyleColor> styleColorList = baseMapper.selectBatchIds(ids);
+            if (publicStyleColorDto.isCheckScmSendFlag()) {
+                styleColorList.stream().filter(it-> !YesOrNoEnum.YES.getValueStr().equals(it.getScmSendFlag())).forEach(styleColor-> {
+                    throw new OtherException(String.format("款式配色%s未下发", styleColor.getStyleNo()));
+                });
+            }
             Map<String, StyleColor> styleColorMap = styleColorList.stream().collect(Collectors.toMap(k -> k.getId(), v -> v, (a, b) -> b));
             /*获取款式id*/
             List<String> styleIdList = styleColorList.stream().map(StyleColor::getStyleId).collect(Collectors.toList());
