@@ -696,8 +696,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             for (StyleColor styleColor : styleColors) {
                 if (i%2!=0){
                     seasonalPlanningDetails.setStyleCategory("高奢");
-                    String[] split1 = styleColor.getStyleNo().split("-");
-                    if(split1.length > 1 && split[0].length() > 3 && 'S' == split[0].charAt(3)){
+                    int i1 = styleColor.getStyleNo().indexOf("-");
+                    System.out.println(styleColor.getStyleNo());
+                    System.out.println(styleColor.getStyleNo().charAt(styleColor.getStyleNo().length()-3));
+                    if(i1==-1 && 'S' == styleColor.getStyleNo().charAt(styleColor.getStyleNo().length()-3)){
                         styleColorList.add(styleColor);
                     }
                 }else {
