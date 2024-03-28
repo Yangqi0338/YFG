@@ -275,7 +275,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						if (HangTagStatusEnum.SUSPEND != e.getStatus()) {
 							switch (flowRecordVo.getName()) {
 							case "大货工艺员确认":
-								e.setStatus(HangTagStatusEnum.DESIGN_CHECK);
+								e.setStatus(HangTagStatusEnum.NOT_COMMIT);
 								break;
 							case "后技术确认":
 								e.setStatus(HangTagStatusEnum.TECH_CHECK);
@@ -430,7 +430,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		String id = hangTag.getId();
 
 		// 成分检查
-		if (hangTagDTO.getStatus().lessThan(HangTagStatusEnum.DESIGN_CHECK) && hangTagDTO.getStatus().greatThan(HangTagStatusEnum.NOT_INPUT)) {
+		if (hangTagDTO.getStatus() == HangTagStatusEnum.DESIGN_CHECK) {
 			strictCheckIngredientPercentage(Collections.singletonList(id));
 		}
 		/*检测报告*/
@@ -1447,7 +1447,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		HangTag hangTag = this.getById(reviewHangTag.getId());
 //		if (Arrays.asList(HangTagStatusEnum.TECH_CHECK, HangTagStatusEnum.SUSPEND, HangTagStatusEnum.QC_CHECK).contains(status)) {
-			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
+//			hangTag.setStatus(HangTagStatusEnum.DESIGN_CHECK);
+			hangTag.setStatus(HangTagStatusEnum.NOT_COMMIT);
 //		}
 //		if (HangTagStatusEnum.TRANSLATE_CHECK == status) {
 //			hangTag.setStatus(HangTagStatusEnum.QC_CHECK);
