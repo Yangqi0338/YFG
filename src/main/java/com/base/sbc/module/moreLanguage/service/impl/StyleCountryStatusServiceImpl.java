@@ -429,29 +429,34 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         if (needUpdateHangTag) {
             // 可能存在未处理的状态,需要筛选
             List<String> rightBulkStyleNoList = statusList.stream().map(StyleCountryStatus::getBulkStyleNo).collect(Collectors.toList());
-            hangTagList.stream().filter(it-> rightBulkStyleNoList.contains(it.getBulkStyleNo())).map(hangTag-> {
-                HangTagStatusEnum status = HangTagStatusEnum.PART_TRANSLATE_CHECK;
-                if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
-                    if (this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-                            .eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
-                            .ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)) >= size) {
-                        status = HangTagStatusEnum.FINISH;
-                    }
-                }
-                return Pair.of(status, hangTag);
-            }).collect(Collectors.groupingBy(Pair::getKey, Collectors.mapping(Pair::getValue, Collectors.toList()))).forEach((status,sameStatusHangTagList)-> {
-                // 直接调用吊牌更新接口, 将吊牌状态修改为完成
-                HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
-                statusDTO.setIds(sameStatusHangTagList.stream().map(HangTag::getId).distinct().collect(Collectors.toList()));
-                statusDTO.setStatus(status);
-                statusDTO.setUserCompany(getCompanyCode());
-                statusDTO.setCountryCode(countryCodeList);
-                // 设置为translate_check 打破循环
-                if (status == HangTagStatusEnum.PART_TRANSLATE_CHECK) {
-                    sameStatusHangTagList.forEach(it-> it.setStatus(HangTagStatusEnum.TRANSLATE_CHECK));
-                }
-                hangTagService.updateStatus(statusDTO,true, sameStatusHangTagList);
-            });
+            hangTagList.stream()
+                    .filter(it-> rightBulkStyleNoList.contains(it.getBulkStyleNo()))
+                    .map(hangTag-> {
+                        HangTagStatusEnum status = HangTagStatusEnum.PART_TRANSLATE_CHECK;
+                        if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
+                            if (this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+                                    .eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
+                                    .eq(StyleCountryStatus::getStatus, StyleCountryStatusEnum.CHECK)) >= size) {
+                                status = HangTagStatusEnum.FINISH;
+                            }
+                        }
+                        if (hangTag.getStatus() == status) return null;
+                        return Pair.of(status, hangTag);
+                    }).filter(Objects::nonNull)
+                    .collect(Collectors.groupingBy(Pair::getKey, Collectors.mapping(Pair::getValue, Collectors.toList())))
+                    .forEach((status,sameStatusHangTagList)-> {
+                        // 直接调用吊牌更新接口, 将吊牌状态修改为完成
+                        HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
+                        statusDTO.setIds(sameStatusHangTagList.stream().map(HangTag::getId).distinct().collect(Collectors.toList()));
+                        statusDTO.setStatus(status);
+                        statusDTO.setUserCompany(getCompanyCode());
+                        statusDTO.setCountryCode(countryCodeList);
+                        // 设置为translate_check 打破循环
+                        if (status == HangTagStatusEnum.PART_TRANSLATE_CHECK) {
+                            sameStatusHangTagList.forEach(it-> it.setStatus(HangTagStatusEnum.TRANSLATE_CHECK));
+                        }
+                        hangTagService.updateStatus(statusDTO,true, sameStatusHangTagList);
+                    });
         }
 
         return updateBatch;
