@@ -15,6 +15,7 @@ import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
+import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -126,6 +127,13 @@ public class PatternLibraryController {
         } else {
             return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
         }
+    }
+
+    @ApiOperation(value = "查询审批后的设计款号数据信息")
+    @GetMapping("/listStyle")
+    public ApiResult<List<Style>> listStyle() {
+        List<Style> styleList = patternLibraryService.listStyle();
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, styleList);
     }
 
     @ApiOperation(value = "根据设计款号查询相关数据")

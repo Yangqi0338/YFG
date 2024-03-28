@@ -5,6 +5,7 @@ import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
+import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -72,6 +73,13 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 审核是否成功
      */
     Boolean updateAuditsReject(List<String> patternLibraryIdList);
+
+   /**
+     * 查询审批后的设计款号数据信息
+     *
+     * @return 审批后的设计款号数据信息
+     */
+    List<Style> listStyle();
 
     /**
      * 根据设计款号查询相关数据

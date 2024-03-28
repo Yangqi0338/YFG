@@ -453,6 +453,17 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         return Boolean.TRUE;
     }
 
+
+    @Override
+    public List<Style> listStyle() {
+        return styleService.list(
+                new LambdaQueryWrapper<Style>()
+                        .eq(Style::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+                        .eq(Style::getEnableStatus, BaseGlobal.NO)
+                        .eq(Style::getConfirmStatus, "2")
+        );
+    }
+
     @Override
     public PatternLibraryVO getInfoByDesignNo(String designNo) {
         // 初始化返回的封装数据
