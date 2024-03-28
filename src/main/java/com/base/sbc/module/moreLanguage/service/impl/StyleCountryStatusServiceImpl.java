@@ -436,7 +436,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                         if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
                             if (this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
                                     .eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
-                                    .eq(StyleCountryStatus::getStatus, StyleCountryStatusEnum.CHECK)) >= size) {
+                                    .eq(StyleCountryStatus::getStatus, StyleCountryStatusEnum.CHECK)) >= (size * CountryLanguageType.values().length)) {
                                 status = HangTagStatusEnum.FINISH;
                             }
                         }

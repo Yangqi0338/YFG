@@ -1254,7 +1254,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					));
 				}
 				countryLanguageDtoList.forEach(countryLanguageDto -> {
-					languageList.add(buildTranslateResultList(translateList, singleLanguageTypeList, standardColumnCode, propertiesCodeList, countryLanguageDto, hangTagMoreLanguageBaseVO, statusCheckDetailList));
+					languageList.add(buildTranslateResultList(translateList.stream()
+									.filter(it-> it.getCountryLanguageId().equals(countryLanguageDto.getId()) && StrUtil.isNotBlank(it.getContent()))
+									.collect(Collectors.toList()),
+							singleLanguageTypeList, standardColumnCode, propertiesCodeList, countryLanguageDto, hangTagMoreLanguageBaseVO, statusCheckDetailList));
 				});
 			}
 			else { hangTagMoreLanguageBaseVO.setHasLanguage(false); }
@@ -1309,11 +1312,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			languageVO.setAuditStatus(StyleCountryStatusEnum.CHECK);
 		}
 		if (languageVO.getCannotFindStandardColumnContent()) {
-			translateList.stream().filter(it ->
-					languageIdList.contains(it.getCountryLanguageId()) &&
-							it.getPropertiesCode().equals(standardColumnCode) &&
-							StrUtil.isNotBlank(it.getContent())
-			).findFirst().ifPresent(titleTranslate -> {
+			translateList.stream().filter(it -> it.getPropertiesCode().equals(standardColumnCode)).findFirst().ifPresent(titleTranslate -> {
 				// 找到 设置翻译 以及 flag
 				languageVO.setCannotFindStandardColumnContent(false);
 				languageVO.setStandardColumnContent(titleTranslate.getContent());
@@ -1321,7 +1320,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 		if (languageVO.getCannotFindPropertiesContent()) {
 			List<StandardColumnCountryTranslate> countryTranslateList = translateList.stream()
-					.filter(it -> StrUtil.isNotBlank(it.getContent()) && languageIdList.contains(it.getCountryLanguageId()))
+					.filter(it -> it.getTitleCode().equals(standardColumnCode))
 					.collect(Collectors.toList());
 
 			countryTranslateList.stream().findFirst().ifPresent(translate -> {
