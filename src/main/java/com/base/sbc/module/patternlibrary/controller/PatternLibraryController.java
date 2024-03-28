@@ -67,8 +67,6 @@ public class PatternLibraryController {
         }
     }
 
-    // TODO：判断上装下装 不匹配 不让编辑
-
     @ApiOperation(value = "版型库批量编辑")
     @PostMapping("/updateDetails")
     public ApiResult<String> updateDetails(@RequestBody List<PatternLibraryDTO> patternLibraryDTOList) {
@@ -129,7 +127,7 @@ public class PatternLibraryController {
         }
     }
 
-    @ApiOperation(value = "查询审批后的设计款号数据信息")
+    @ApiOperation(value = "查询已开款的设计款号数据信息")
     @GetMapping("/listStyle")
     public ApiResult<List<Style>> listStyle() {
         List<Style> styleList = patternLibraryService.listStyle();

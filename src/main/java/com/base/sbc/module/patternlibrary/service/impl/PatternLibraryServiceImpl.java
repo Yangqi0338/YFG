@@ -32,6 +32,7 @@ import com.base.sbc.module.task.vo.FlowTaskDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,6 +77,12 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
     @Autowired
     private FlowableFeignService flowableFeignService;
+
+    @Value("${brand.puts}")
+    private List<String> brandPuts;
+
+    @Value("${brand.bottoms}")
+    private List<String> brandBottoms;
 
     @Override
     public PageInfo<PatternLibraryVO> listPages(PatternLibraryPageDTO patternLibraryPageDTO) {
@@ -285,6 +292,21 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             throw new OtherException("批量编辑只能选择待补齐！");
         }
         // 批量编辑
+        // 判断设计款的大类和选择的大类是否都属于上装或者下装
+        {
+            List<String> styleIdList = patternLibraryDTOList.
+                    stream().map(PatternLibraryDTO::getStyleId).collect(Collectors.toList());
+            List<Style> styleList = styleService.listByIds(styleIdList);
+            long num = 0L;
+            if (brandPuts.contains(patternLibraryDTOList.get(0).getProdCategory1st())) {
+                num = styleList.stream().filter(item -> !brandPuts.contains(item.getProdCategory1st())).count();
+            } else {
+                num = styleList.stream().filter(item -> !brandBottoms.contains(item.getProdCategory1st())).count();
+            }
+            if (num > 0L) {
+                throw new OtherException("款式所对应的大类和所选大类的上装下装不匹配！");
+            }
+        }
         // 修改主表数据
         List<PatternLibrary> patternLibraryList = new ArrayList<>(patternLibraryDTOList.size());
         for (PatternLibraryDTO patternLibraryDTO : patternLibraryDTOList) {
@@ -308,18 +330,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 }
         );
         if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
-            Map<String, List<PatternLibraryItem>> map = patternLibraryItemList
-                    .stream().collect(Collectors.groupingBy(PatternLibraryItem::getPatternLibraryId));
-            // 数据量不会很多先循环
-            for (Map.Entry<String, List<PatternLibraryItem>> stringListEntry : map.entrySet()) {
-                // 先删除此版型库下的数据且不是此 ID 集合下的数据
-                patternLibraryItemService.remove(
-                        new LambdaQueryWrapper<PatternLibraryItem>()
-                                .eq(PatternLibraryItem::getPatternLibraryId, stringListEntry.getKey())
-                                .notIn(PatternLibraryItem::getId, stringListEntry.getValue())
-                );
-            }
-            patternLibraryItemService.saveOrUpdateBatch(patternLibraryItemList);
+            patternLibraryItemService.saveBatch(patternLibraryItemList);
         }
         return true;
     }
@@ -460,7 +471,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 new LambdaQueryWrapper<Style>()
                         .eq(Style::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
                         .eq(Style::getEnableStatus, BaseGlobal.NO)
-                        .eq(Style::getConfirmStatus, "2")
+                        .eq(Style::getStatus, "1")
         );
     }
 

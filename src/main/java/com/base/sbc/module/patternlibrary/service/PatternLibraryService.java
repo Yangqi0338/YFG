@@ -75,9 +75,9 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     Boolean updateAuditsReject(List<String> patternLibraryIdList);
 
    /**
-     * 查询审批后的设计款号数据信息
+     * 查询已开款的设计款号数据信息
      *
-     * @return 审批后的设计款号数据信息
+     * @return 已开款后的设计款号数据信息
      */
     List<Style> listStyle();
 
