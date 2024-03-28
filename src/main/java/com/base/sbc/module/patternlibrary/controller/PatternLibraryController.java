@@ -14,6 +14,7 @@ import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
+import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 版型库-主表
@@ -139,6 +141,13 @@ public class PatternLibraryController {
     public ApiResult<PatternLibraryVO> getInfoByDesignNo(String styleNo) {
         PatternLibraryVO patternLibraryVO = patternLibraryService.getInfoByDesignNo(styleNo);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryVO);
+    }
+
+    @ApiOperation(value = "获取大类的类型")
+    @GetMapping("/getCategoriesType")
+    public ApiResult<CategoriesTypeVO> getCategoriesType() {
+        CategoriesTypeVO categoriesType = patternLibraryService.getCategoriesType();
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, categoriesType);
     }
 
 

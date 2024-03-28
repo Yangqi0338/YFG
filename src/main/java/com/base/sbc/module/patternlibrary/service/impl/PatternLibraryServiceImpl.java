@@ -23,6 +23,7 @@ import com.base.sbc.module.patternlibrary.entity.*;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper;
 import com.base.sbc.module.patternlibrary.service.*;
+import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -550,6 +551,17 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             patternLibraryVO.setPicFileId(style.getStylePic());
         }
         return patternLibraryVO;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public CategoriesTypeVO getCategoriesType() {
+        CategoriesTypeVO categoriesTypeVO = new CategoriesTypeVO();
+        categoriesTypeVO.setBrandPuts(brandPuts);
+        categoriesTypeVO.setBrandBottoms(brandBottoms);
+        return categoriesTypeVO;
     }
 
 

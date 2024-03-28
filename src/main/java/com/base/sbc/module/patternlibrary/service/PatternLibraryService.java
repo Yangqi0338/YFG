@@ -4,11 +4,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 版型库-主表 服务类
@@ -74,7 +76,7 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      */
     Boolean updateAuditsReject(List<String> patternLibraryIdList);
 
-   /**
+    /**
      * 查询已开款的设计款号数据信息
      *
      * @return 已开款后的设计款号数据信息
@@ -88,5 +90,12 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 相关数据
      */
     PatternLibraryVO getInfoByDesignNo(String designNo);
+
+    /**
+     * 判断大类的类型
+     *
+     * @return 大类类型 map
+     */
+    CategoriesTypeVO getCategoriesType();
 
 }
