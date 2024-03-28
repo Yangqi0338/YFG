@@ -56,5 +56,14 @@ public interface FlowableFeignService {
     @GetMapping(value = "/flowable/api/saas/task/todoList")
     public ApiResult todoList(@RequestParam Map<String,Object> queryVo);
 
+    @GetMapping(value = "/flowable/api/saas/task/complete")
+    ApiResult complete(@RequestParam("taskId") String taskId,
+                       @RequestParam("instanceId") String instanceId,
+                       @RequestParam("comment") String comment);
+
+    @GetMapping(value = "/flowable/api/saas/task/reject")
+    ApiResult reject(@RequestParam("taskId") String taskId,
+                     @RequestParam("comment") String comment);
+
 
 }

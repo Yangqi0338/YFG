@@ -65,6 +65,7 @@ public class TaskController {
         map.put("endTime",queryVo.getEndTime());
         map.put("procDefName",queryVo.getProcDefName());
         map.put("search",queryVo.getSearch());
+        map.put("businessKeyList",queryVo.getBusinessKeyList());
         ApiResult apiResult = flowableFeignService.todoList(map);
         Map<String,Object> data1 = (Map<String, Object>) apiResult.getData();
         String jsonString = JSON.toJSONString(data1);

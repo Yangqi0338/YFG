@@ -66,6 +66,8 @@ public class PatternLibraryController {
         }
     }
 
+    // TODO：判断上装下装 不匹配 不让编辑
+
     @ApiOperation(value = "版型库批量编辑")
     @PostMapping("/updateDetails")
     public ApiResult<String> updateDetails(@RequestBody List<PatternLibraryDTO> patternLibraryDTOList) {
@@ -104,10 +106,21 @@ public class PatternLibraryController {
         return patternLibraryService.updateById(patternLibrary);
     }
 
-    @ApiOperation(value = "版型库批量审核")
-    @PostMapping("/updateAudits")
-    public ApiResult<String> updateAudits(@RequestBody List<String> patternLibraryIdList) {
-        Boolean resultFlag = patternLibraryService.updateAudits(patternLibraryIdList);
+    @ApiOperation(value = "版型库批量审核通过")
+    @PostMapping("/updateAuditsPass")
+    public ApiResult<String> updateAuditsPass(@RequestBody List<String> patternLibraryIdList) {
+        Boolean resultFlag = patternLibraryService.updateAuditsPass(patternLibraryIdList);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
+    }
+
+    @ApiOperation(value = "版型库批量审核驳回")
+    @PostMapping("/updateAuditsReject")
+    public ApiResult<String> updateAuditsReject(@RequestBody List<String> patternLibraryIdList) {
+        Boolean resultFlag = patternLibraryService.updateAuditsReject(patternLibraryIdList);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
         } else {

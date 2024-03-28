@@ -58,12 +58,20 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     Boolean removeDetail(String patternLibraryId);
 
     /**
-     * 版型库批量审核
+     * 版型库批量审核通过
      *
      * @param patternLibraryIdList 版型库主表 ID 集合
      * @return 审核是否成功
      */
-    Boolean updateAudits(List<String> patternLibraryIdList);
+    Boolean updateAuditsPass(List<String> patternLibraryIdList);
+
+    /**
+     * 版型库批量审核驳回
+     *
+     * @param patternLibraryIdList 版型库主表 ID 集合
+     * @return 审核是否成功
+     */
+    Boolean updateAuditsReject(List<String> patternLibraryIdList);
 
     /**
      * 根据设计款号查询相关数据

@@ -2,22 +2,21 @@ package com.base.sbc.module.patternlibrary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
-import com.base.sbc.client.flowable.entity.AnswerDto;
+import com.base.sbc.client.flowable.service.FlowableFeignService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
-import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.constant.BaseConstant;
-import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.module.hangtag.entity.HangTag;
-import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.*;
@@ -29,14 +28,12 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.task.vo.FlowTaskDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.bouncycastle.util.Pack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -76,6 +73,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
     @Autowired
     private FlowableService flowableService;
+
+    @Autowired
+    private FlowableFeignService flowableFeignService;
 
     @Override
     public PageInfo<PatternLibraryVO> listPages(PatternLibraryPageDTO patternLibraryPageDTO) {
@@ -405,25 +405,52 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
     @Override
     @DuplicationCheck
-    @Transactional(rollbackFor = Exception.class)
-    public Boolean updateAudits(List<String> patternLibraryIdList) {
+    public Boolean updateAuditsPass(List<String> patternLibraryIdList) {
         if (ObjectUtil.isEmpty(patternLibraryIdList)) {
             throw new OtherException("请至少选择一条数据进行审核！");
         }
-        // 根据版型库主表 ID 集合批量审批数据 非 待审核 数据直接过滤
-        List<PatternLibrary> patternLibraryList = list(
-                new LambdaQueryWrapper<PatternLibrary>()
-                        .in(PatternLibrary::getId, patternLibraryIdList)
-                        .eq(PatternLibrary::getStatus, PatternLibraryStatusEnum.NO_REVIEWED.getCode())
-        );
-        if (ObjectUtil.isEmpty(patternLibraryList)) {
-            throw new OtherException("暂无需审核数据！");
+        // 查询到我的待办列表和这边选择的业务 ID 进行匹配，如果根据业务 ID 查询到了待办数据，
+        // 那么查询到的待办数据进行批量审核，如果一条都没有，提示没有数据审核
+        Map<String, Object> map = new HashMap<>();
+        map.put("businessKeyList", patternLibraryIdList);
+        ApiResult apiResult = flowableFeignService.todoList(map);
+        Map<String, Object> data = (Map<String, Object>) apiResult.getData();
+        String jsonString = JSON.toJSONString(data);
+        JSONObject jsonObject = JSON.parseObject(jsonString);
+        JSONArray jsonArray = jsonObject.getJSONArray("list");
+        List<FlowTaskDto> flowTaskDtoList = jsonArray.toJavaList(FlowTaskDto.class);
+        if (ObjectUtil.isNotEmpty(flowTaskDtoList)) {
+            throw new OtherException("勾选数据暂无审核！");
         }
-        // 批量修改成已审核的状态
-        patternLibraryList.forEach(item -> item.setStatus(PatternLibraryStatusEnum.REVIEWED.getCode()));
-        // TODO：审批流的操作 ——XHTE
-        // 更新修改数据
-        return updateBatchById(patternLibraryList);
+        for (FlowTaskDto flowTaskDto : flowTaskDtoList) {
+            flowableFeignService.complete(flowTaskDto.getTaskId(), flowTaskDto.getProcInsId(), "部件库批量审核通过");
+        }
+        return Boolean.TRUE;
+    }
+
+    @Override
+    @DuplicationCheck
+    public Boolean updateAuditsReject(List<String> patternLibraryIdList) {
+        if (ObjectUtil.isEmpty(patternLibraryIdList)) {
+            throw new OtherException("请至少选择一条数据进行审核！");
+        }
+        // 查询到我的待办列表和这边选择的业务 ID 进行匹配，如果根据业务 ID 查询到了待办数据，
+        // 那么查询到的待办数据进行批量审核，如果一条都没有，提示没有数据审核
+        Map<String, Object> map = new HashMap<>();
+        map.put("businessKeyList", patternLibraryIdList);
+        ApiResult apiResult = flowableFeignService.todoList(map);
+        Map<String, Object> data = (Map<String, Object>) apiResult.getData();
+        String jsonString = JSON.toJSONString(data);
+        JSONObject jsonObject = JSON.parseObject(jsonString);
+        JSONArray jsonArray = jsonObject.getJSONArray("list");
+        List<FlowTaskDto> flowTaskDtoList = jsonArray.toJavaList(FlowTaskDto.class);
+        if (ObjectUtil.isNotEmpty(flowTaskDtoList)) {
+            throw new OtherException("勾选数据暂无审核！");
+        }
+        for (FlowTaskDto flowTaskDto : flowTaskDtoList) {
+            flowableFeignService.reject(flowTaskDto.getTaskId(), "部件库批量审核驳回");
+        }
+        return Boolean.TRUE;
     }
 
     @Override
