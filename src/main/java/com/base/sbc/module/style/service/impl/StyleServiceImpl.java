@@ -72,10 +72,7 @@ import com.base.sbc.module.planning.entity.*;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
-import com.base.sbc.module.planning.vo.DimensionTotalVo;
-import com.base.sbc.module.planning.vo.DimensionalityListVo;
-import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
-import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
+import com.base.sbc.module.planning.vo.*;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
@@ -899,6 +896,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 获取围度系数
         DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
+
+        //region 为满足业务需求重新排序
+        logicSort(pdList);
+        //endregion
+
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         //款式打标-下单阶段逻辑，如果第一次查看下单阶段数据，则查询为空，复制一份设计阶段数据作为下单阶段数据
         if(StrUtil.isNotBlank(dto.getShowConfig()) && "styleMarkingOrder".equals(dto.getShowConfig()) && StrUtil.isNotBlank(dto.getStyleColorId())){
@@ -992,6 +994,53 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     }
 
+    /**
+     * 对维度洗漱重新排序
+     * groupsort为空时，按创建时间倒序排序
+     * groupsort 有值时，排在groupsort为空后面
+     * @param dimensionalityList
+     */
+    private static void logicSort(List<PlanningDimensionality> dimensionalityList) {
+        Map<String,Integer> sortMap = new HashMap<>();
+        for (PlanningDimensionality planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getFieldId()) && planningDimensionalityVo.getGroupSort() != null) {
+                sortMap.put(planningDimensionalityVo.getFieldId(),planningDimensionalityVo.getGroupSort());
+            }
+        }
+        for (PlanningDimensionality planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getFieldId()) && planningDimensionalityVo.getGroupSort() == null) {
+                Integer sort = sortMap.get(planningDimensionalityVo.getFieldId());
+                if (sort != null) {
+                    planningDimensionalityVo.setGroupSort(sortMap.get(planningDimensionalityVo.getFieldId()));
+                }
+            }
+        }
+
+        //重新排序
+        dimensionalityList.sort((o1, o2) -> {
+            if (o1.getGroupSort() == null) {
+                return 1;
+            }
+            if (o2.getGroupSort() == null) {
+                return 1;
+            }
+            if (o2.getGroupSort() == null && o1.getGroupSort() == null) {
+                if(o1.getCreateDate().getTime() < o2.getCreateDate().getTime()){
+                    return 1;
+                }
+                if(o1.getCreateDate().getTime() > o2.getCreateDate().getTime()){
+                    return -1;
+                }
+            }
+            if(o1.getGroupSort()>o2.getGroupSort()){
+                return 1;
+            }
+            if(o1.getGroupSort()<o2.getGroupSort()){
+                return -1;
+            }
+            return 0;
+        });
+    }
     /**
      * 查询围度系数
      *

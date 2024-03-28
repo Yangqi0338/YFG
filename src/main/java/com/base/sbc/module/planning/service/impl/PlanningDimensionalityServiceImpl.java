@@ -21,7 +21,6 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCoefficientTemplateService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -298,6 +297,25 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             return list;
         }
 
+        logicSort(dimensionalityList);
+
+        LinkedHashMap<String, List<PlanningDimensionalityVo>> map = dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
+        for (String s :map.keySet()){
+            PlanningDimensionalityVo planningDimensionalityVo = new PlanningDimensionalityVo();
+            planningDimensionalityVo.setList(map.get(s));
+            planningDimensionalityVo.setGroupName(s);
+            list.add(planningDimensionalityVo);
+        }
+        return list;
+    }
+
+    /**
+     * 对维度洗漱重新排序
+     * groupsort为空时，按创建时间倒序排序
+     * groupsort 有值时，排在groupsort为空后面
+     * @param dimensionalityList
+     */
+    private static void logicSort(List<PlanningDimensionalityVo> dimensionalityList) {
         Map<String,Integer> sortMap = new HashMap<>();
         for (PlanningDimensionalityVo planningDimensionalityVo : dimensionalityList) {
             if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() != null) {
@@ -316,10 +334,18 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         //重新排序
         dimensionalityList.sort((o1, o2) -> {
             if (o1.getGroupSort() == null) {
-                return -1;
+                return 1;
             }
             if (o2.getGroupSort() == null) {
-                return -1;
+                return 1;
+            }
+            if (o2.getGroupSort() == null && o1.getGroupSort() == null) {
+                if(o1.getCreateDate().getTime() < o2.getCreateDate().getTime()){
+                    return 1;
+                }
+                if(o1.getCreateDate().getTime() > o2.getCreateDate().getTime()){
+                    return -1;
+                }
             }
             if(o1.getGroupSort()>o2.getGroupSort()){
                 return 1;
@@ -329,15 +355,6 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             }
             return 0;
         });
-
-        LinkedHashMap<String, List<PlanningDimensionalityVo>> map = dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
-        for (String s :map.keySet()){
-            PlanningDimensionalityVo planningDimensionalityVo = new PlanningDimensionalityVo();
-            planningDimensionalityVo.setList(map.get(s));
-            planningDimensionalityVo.setGroupName(s);
-            list.add(planningDimensionalityVo);
-        }
-        return list;
     }
 
     /**
