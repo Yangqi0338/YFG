@@ -65,6 +65,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                 columnDefine.setHidden(userDefineItem.getHidden());
                 columnDefine.setAlignType(userDefineItem.getAlignType());
                 columnDefine.setFixType(userDefineItem.getFixType());
+                columnDefine.setIsEdit(userDefineItem.getIsEdit());
                 columnDefine.setColumnWidth(userDefineItem.getColumnWidth());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
                 columnDefine.setColumnColor(userDefineItem.getColumnColor());
