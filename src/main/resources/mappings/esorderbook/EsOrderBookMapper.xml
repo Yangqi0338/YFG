@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.esorderbook.mapper.EsOrderBookMapper">
+    <!--
+        ES订货本
+        创建人：your name
+        邮箱：your email
+        创建时间：2024-3-28 16:21:15
+        版本号：1.0
+      -->
+    <select id="findPage" resultType="com.base.sbc.module.esorderbook.vo.EsOrderBookItemVo">
+        SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+
+
+        </if>
+        from t_es_order_book_item item
+                 LEFT JOIN t_es_order_book head on item.head_id = head.id and head.del_flag = '0'
+                 LEFT JOIN t_style_color tsc on item.style_color_id = tsc.id and tsc.del_flag = '0'
+                 LEFT JOIN t_style ts on tsc.style_id = ts.id and ts.del_flag = '0'
+                 LEFT JOIN t_style_pricing tsp on
+
+    </select>
+
+</mapper>
