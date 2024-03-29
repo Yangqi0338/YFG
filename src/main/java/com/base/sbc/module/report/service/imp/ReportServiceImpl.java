@@ -276,16 +276,16 @@ public class ReportServiceImpl implements ReportService {
                     int compare = DateUtil.compare(lastDate, commissioningDate);
                     if (compare == 1) {
                         long betweenDay = DateUtil.between(sendMainFabricDate, commissioningDate, DateUnit.DAY);
-                        if (betweenDay > 2) {
-                            report.setSendMainFabricDay((betweenDay - 2) + "");
+                        if (betweenDay > 6) {
+                            report.setSendMainFabricDay((betweenDay - 6) + "");
                         } else {
                             report.setSendMainFabricDay("不延期");
                         }
                     } else {
                         //首单（没超出也是首单）
                         long betweenDay = DateUtil.between(sendMainFabricDate, commissioningDate, DateUnit.DAY);
-                        if (betweenDay > 6) {
-                            report.setSendMainFabricDay((betweenDay - 6) + "");
+                        if (betweenDay > 2) {
+                            report.setSendMainFabricDay((betweenDay - 2) + "");
                         } else {
                             report.setSendMainFabricDay("不延期");
                         }
@@ -305,15 +305,15 @@ public class ReportServiceImpl implements ReportService {
                     int compare = DateUtil.compare(lastDate, commissioningDate);
                     if (compare == 1) {
                         long betweenDay = DateUtil.between(designDetailDate, commissioningDate, DateUnit.DAY);
-                        if (betweenDay > 2) {
-                            report.setDesignDetailDay((betweenDay - 2) + "");
+                        if (betweenDay > 6) {
+                            report.setDesignDetailDay((betweenDay - 6) + "");
                         } else {
                             report.setDesignDetailDay("不延期");
                         }
                     } else {
                         long betweenDay = DateUtil.between(designDetailDate, commissioningDate, DateUnit.DAY);
-                        if (betweenDay > 6) {
-                            report.setDesignDetailDay((betweenDay - 6) + "");
+                        if (betweenDay > 2) {
+                            report.setDesignDetailDay((betweenDay - 2) + "");
                         } else {
                             report.setDesignDetailDay("不延期");
                         }
