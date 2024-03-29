@@ -3,9 +3,11 @@ package com.base.sbc.module.report.service.imp;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -52,7 +54,23 @@ public class ReportServiceImpl implements ReportService {
         List<String> bulkStyleNos = dto.getBulkStyleNos();
         String year = dto.getYear();
         String season = dto.getSeason();
-        QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
+        //QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
+
+        boolean yearIsNotBool = StrUtil.isNotEmpty(year) && StrUtil.isEmpty(season);
+        boolean seasonIsNotBool = StrUtil.isEmpty(year) && StrUtil.isNotEmpty(season);
+        boolean bulkStyleNosEmpty = CollUtil.isEmpty(bulkStyleNos);
+        boolean yearEmpty = StrUtil.isEmpty(year);
+        boolean seasonEmpty = StrUtil.isEmpty(season);
+        if (!bulkStyleNosEmpty && bulkStyleNos.size() > 2000) {
+            throw new OtherException("大货款号最多输入2000个！");
+        }
+        if (bulkStyleNosEmpty && (yearIsNotBool )) {
+            throw new OtherException("当大货款号为空的时候,年份必须输入查询！");
+        }
+        if (bulkStyleNosEmpty && yearEmpty ) {
+            throw new OtherException("请输入大货款号或年份参数查询！");
+        }
+
         qw.notEmptyIn("t.bulk_style_no", bulkStyleNos);
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
