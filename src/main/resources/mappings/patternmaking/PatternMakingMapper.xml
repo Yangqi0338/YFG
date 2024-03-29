@@ -45,7 +45,7 @@
             s.designer,
             p.design_send_date,
             p.prm_send_date,
-            p.prm_send_status,
+            (CASE WHEN p.break_off_pattern = '1' THEN '9' ELSE p.prm_send_status END),
             p.urgency,
             p.urgency_name,
             p.planning_season_id,
