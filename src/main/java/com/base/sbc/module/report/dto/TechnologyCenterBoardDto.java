@@ -3,7 +3,6 @@ package com.base.sbc.module.report.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,7 +14,7 @@ public class TechnologyCenterBoardDto {
     /**
      * 版房
      */
-    private List<String> plateHouseList;
+    private List<String> patternRoomList;
     /**
      * 年 ：year
      * 季 : season

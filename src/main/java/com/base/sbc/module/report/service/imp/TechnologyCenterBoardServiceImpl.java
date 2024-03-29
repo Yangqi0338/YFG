@@ -36,27 +36,32 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
 
 
         BaseQueryWrapper qw = getBaseQueryWrapper(new TechnologyCenterBoardDto(0, "打版任务", 0, Arrays.asList("待接收"), "count(0) as preAcceptedQuantity"));
-
+        qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
         TechnologyCenterBoardOverviewDataVo data = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw);
         BaseQueryWrapper qw1 = getBaseQueryWrapper(new TechnologyCenterBoardDto(0, "打版任务", 0, Arrays.asList("打版中"), "count(0) as plateMakingQuantity"));
 
         dataPermissionsService.getDataPermissionsForQw(qw1, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
+        qw1.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
 
         TechnologyCenterBoardOverviewDataVo data1 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw1);
         data.setPlateMakingQuantity(data1.getPlateMakingQuantity());
         BaseQueryWrapper qw2 = getBaseQueryWrapper(new TechnologyCenterBoardDto(0, "打版任务", 1, null, "count(0) as breakPlateMakingQuantity"));
 
         dataPermissionsService.getDataPermissionsForQw(qw2, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
+        qw2.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
 
         TechnologyCenterBoardOverviewDataVo data2 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw2);
         data.setBreakPlateMakingQuantity(data2.getBreakPlateMakingQuantity());
         BaseQueryWrapper qw3 = getBaseQueryWrapper(new TechnologyCenterBoardDto(0, "样衣任务", 0, Arrays.asList("裁剪开始"), "count(0) as cuttingStartQuantity"));
         dataPermissionsService.getDataPermissionsForQw(qw3, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
+        qw3.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
 
         TechnologyCenterBoardOverviewDataVo data3 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw3);
         data.setCuttingStartQuantity(data3.getCuttingStartQuantity());
         BaseQueryWrapper qw4 = getBaseQueryWrapper(new TechnologyCenterBoardDto(0, "样衣任务", 0, Arrays.asList("车缝进行中"), "count(0) as sewingStartQuantity"));
+        qw4.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
         dataPermissionsService.getDataPermissionsForQw(qw4, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
         TechnologyCenterBoardOverviewDataVo data4 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw4);
@@ -96,6 +101,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
         qw.ne("s.del_flag", "1");
         qw.in("p.disable_flag", "0");
         qw.between(" date_format(p.create_date,'%Y-%m-%d')", dto.getBetweenDate());
+        qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
 
         qw.select("count(0) as plateMakingDemandQuantity");
 
@@ -104,6 +110,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
         TechnologyCenterBoardOverviewDataVo data = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw);
 
         BaseQueryWrapper qw1 = getBaseQueryWrapper(new TechnologyCenterBoardDto(null, "打版任务", 0, Arrays.asList("打版完成"), "count(0) as plateMakingFinishQuantity"));
+        qw1.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
 
         dataPermissionsService.getDataPermissionsForQw(qw1, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
@@ -123,6 +130,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
         qw2.between(" date_format(p.create_date,'%Y-%m-%d')", dto.getBetweenDate());
         qw2.notEmptyEq("p.node", "样衣任务");
         qw2.select("count(0) as sampleFinishQuantity");
+        qw2.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
         dataPermissionsService.getDataPermissionsForQw(qw2, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
         TechnologyCenterBoardOverviewDataVo data2 = technologyCenterBoardMapper.getPlateMakeUnderwayData(qw2);
@@ -151,6 +160,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
             qw.eq("p.node", "样衣任务");
             qw.select(" p.stitcher_id as id,p.stitcher as userName,s.design_no as designNo,p.sample_type_name");
         }
+        qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
         List<TechnologyCenterBoardCurrentTaskVo> list = technologyCenterBoardMapper.getCurrentTaskData(qw);
@@ -230,6 +241,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 DateTime newDate = DateUtil.offsetDay(date, -(i));
                 String format = DateUtil.format(newDate, "yyyy-MM-dd");
                 qw.eq(" date_format(p.create_date,'%Y-%m-%d')", format);
+                qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
 
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
@@ -267,6 +279,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
 
 
                 qw.eq(" date_format(p.create_date,'%Y-%m-%d')", DateUtil.format(rangeToList.get(i), "yyyy-MM-dd"));
+                qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
@@ -313,6 +327,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String[] betweenDateDate = {DateUtil.format(startTime, "yyyy-MM-dd"), DateUtil.format(endTime, "yyyy-MM-dd")};
 
                 qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDateDate);
+                qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
@@ -359,6 +375,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String[] betweenDateDate = {DateUtil.format(startTime, "yyyy-MM-dd"), DateUtil.format(endTime, "yyyy-MM-dd")};
 
                 qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDateDate);
+                qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
@@ -406,6 +424,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String[] betweenDateDate = {DateUtil.format(startTime, "yyyy-MM-dd"), DateUtil.format(endTime, "yyyy-MM-dd")};
 
                 qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDateDate);
+                qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
@@ -452,6 +472,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String[] betweenDateDate = {DateUtil.format(startTime, "yyyy-MM-dd"), DateUtil.format(endTime, "yyyy-MM-dd")};
 
                 qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDateDate);
+                qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
@@ -499,6 +521,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
             qw.orderByDesc("count(0)");
             qw.last("limit 20");
         }
+        qw.notEmptyIn("p.pattern_room",dto.getPatternRoomList());
+
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
         List<TechnologyCenterBoardDesignerRankVo> designerRankList = technologyCenterBoardMapper.getDesignerRank(qw);
