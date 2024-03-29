@@ -544,7 +544,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 qw.le("p.receive_sample_date", split[1]);
             }
         }
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
         Page<TechnologyCenterTaskVo> page = null;
         if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
             page = PageHelper.startPage(dto);

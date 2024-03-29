@@ -231,6 +231,8 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String format = DateUtil.format(newDate, "yyyy-MM-dd");
                 qw.eq(" date_format(p.create_date,'%Y-%m-%d')", format);
 
+                dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
+
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
                 capacityNumber.setDateFormat(format);
                 capacityNumber.setBetweenDate(new String[]{DateUtil.format(DateUtil.offsetDay(new Date(), -6), "yyyy-MM-dd"), DateUtil.format(new Date(), "yyyy-MM-dd")});
@@ -265,6 +267,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
 
 
                 qw.eq(" date_format(p.create_date,'%Y-%m-%d')", DateUtil.format(rangeToList.get(i), "yyyy-MM-dd"));
+                dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
 
@@ -310,6 +313,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String[] betweenDateDate = {DateUtil.format(startTime, "yyyy-MM-dd"), DateUtil.format(endTime, "yyyy-MM-dd")};
 
                 qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDateDate);
+                dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
 
@@ -355,6 +359,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String[] betweenDateDate = {DateUtil.format(startTime, "yyyy-MM-dd"), DateUtil.format(endTime, "yyyy-MM-dd")};
 
                 qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDateDate);
+                dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
 
@@ -401,6 +406,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String[] betweenDateDate = {DateUtil.format(startTime, "yyyy-MM-dd"), DateUtil.format(endTime, "yyyy-MM-dd")};
 
                 qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDateDate);
+                dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
 
@@ -446,6 +452,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
                 String[] betweenDateDate = {DateUtil.format(startTime, "yyyy-MM-dd"), DateUtil.format(endTime, "yyyy-MM-dd")};
 
                 qw.between(" date_format(p.create_date,'%Y-%m-%d')", betweenDateDate);
+                dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
                 TechnologyCenterBoardCapacityNumberVo capacityNumber = technologyCenterBoardMapper.getCapacityNumber(qw);
 
@@ -492,6 +499,7 @@ public class TechnologyCenterBoardServiceImpl implements TechnologyCenterBoardSe
             qw.orderByDesc("count(0)");
             qw.last("limit 20");
         }
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK(),"p.");
 
         List<TechnologyCenterBoardDesignerRankVo> designerRankList = technologyCenterBoardMapper.getDesignerRank(qw);
         if (CollUtil.isNotEmpty(designerRankList)) {
