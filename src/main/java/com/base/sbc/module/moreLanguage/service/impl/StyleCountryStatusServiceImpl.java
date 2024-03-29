@@ -70,6 +70,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
@@ -399,16 +400,13 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                                             bulkStyleNo.equals(it.getBulkStyleNo()) &&
                                             code.equals(it.getCode()) &&
                                             standardColumnCode.equals(it.getStandardColumnCode())
-                                    ).flatMap(it-> it.getLanguageList().stream())
-                                            .filter(it-> languageCode.equals(it.getLanguageCode()))
-                                            .map(translate-> {
-                                                MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
-                                                auditDTO.setStandardColumnCode(standardColumnCode);
-                                                auditDTO.setSource(translate.getPropertiesCode());
-                                                auditDTO.setContent(translate.getPropertiesContent());
-                                                auditDTO.setStatus(YesOrNoEnum.YES.getValueStr());
-                                                return auditDTO;
-                                            })
+                                    ).flatMap(webBaseVO->
+                                        webBaseVO.getLanguageList().stream()
+                                                .filter(it-> languageCode.equals(it.getLanguageCode()))
+                                                .flatMap(translate->
+                                                    translate.buildAuditList(standardColumnCode, webBaseVO.getTitleCode()).stream()
+                                                )
+                                    )
                                 ).filter(it-> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList()))
                             ).collect(Collectors.toList());
                             status.setStandardColumnCode(checkDetailList.stream().flatMap(checkDetailDTO-> checkDetailDTO.getAuditList()

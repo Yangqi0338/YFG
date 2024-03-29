@@ -136,9 +136,7 @@ public class HangTagMoreLanguageBCSVO {
                 // 检查是否存在语种
                 if (!hasLanguage) return MoreLanguageProperties.getMsg(HAVEN_T_LANGUAGE,Opt.ofNullable(this.getCountryName()).orElse(""));
             } else {
-                CountryLanguageType countryLanguageType = CountryLanguageType.findByStandardColumnType(this.type);
-                String typeText = Opt.ofNullable(countryLanguageType).map(CountryLanguageType::getText).orElse("");
-                StringJoiner message = new StringJoiner(MoreLanguageProperties.checkItemSeparator,typeText + this.getStandardColumnName(),"").setEmptyValue("");
+                StringJoiner message = new StringJoiner(MoreLanguageProperties.checkItemSeparator,countryLanguageType.getText() + this.getStandardColumnName(),"").setEmptyValue("");
                 this.getLanguageList().forEach(language-> {
                     StringJoiner languageMsg = new StringJoiner(MoreLanguageProperties.checkMsgItemSeparator);
                     // 是否强制判断语言为中文,不进行校验

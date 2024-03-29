@@ -51,7 +51,6 @@ import static com.base.sbc.config.constant.Constants.COMMA;
 @Data
 public class MoreLanguageHangTagVO extends HangTagVO {
 
-    private static Object findIngredient;
     private final Map<String, MoreLanguageCodeMapping<?>> baseCodeMapping = MapUtil.ofEntries(
             MapUtil.entry("DP02", new MoreLanguageCodeMapping<>(MoreLanguageHangTagVO::getSaftyTypeCode, MoreLanguageHangTagVO::getSaftyType)),
 
