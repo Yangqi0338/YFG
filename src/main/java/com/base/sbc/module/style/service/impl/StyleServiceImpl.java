@@ -927,12 +927,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
-                Map<String, Integer> sortMap = pdList.stream().collect(Collectors.toMap(PlanningDimensionality::getFieldId, PlanningDimensionality::getSort, (a, b) -> b));
+                /*Map<String, Integer> sortMap = pdList.stream().collect(Collectors.toMap(PlanningDimensionality::getFieldId, PlanningDimensionality::getSort, (a, b) -> b));
                 CollUtil.sort(fieldManagementListByIds, (a, b) -> {
                     int n1 = MapUtil.getInt(sortMap, a.getId(), 0);
                     int n2 = MapUtil.getInt(sortMap, b.getId(), 0);
                     return NumberUtil.compare(n1, n2);
-                });
+                });*/
                 QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
                 if (BaseGlobal.YES.equals(listVo.getCategoryFlag())) {
                     queryFieldOptionConfigDto.setProdCategory2nd(dto.getProdCategory2nd());
