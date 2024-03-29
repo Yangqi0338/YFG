@@ -86,6 +86,15 @@ public class HangTagController extends BaseController {
         return selectSuccess(hangTagService.getDetailsByBulkStyleNo(bulkStyleNo, super.getUserCompany(), selectType));
     }
 
+
+    @ApiOperation(value = "刷新")
+    @GetMapping("/getRefresh")
+    @Deprecated
+    public void getRefresh(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType){
+        hangTagService.getRefresh(bulkStyleNo,super.getUserCompany(),selectType);
+        return;
+    }
+
     @ApiOperation(value = "查询详情多语言")
     @GetMapping("/getMoreLanguageDetailsByBulkStyleNo")
     public ApiResult getMoreLanguageDetailsByBulkStyleNo(@Valid HangTagMoreLanguageDTO hangTagMoreLanguageDTO) {
