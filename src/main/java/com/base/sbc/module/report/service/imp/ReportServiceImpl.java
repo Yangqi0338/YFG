@@ -56,16 +56,10 @@ public class ReportServiceImpl implements ReportService {
         String season = dto.getSeason();
         //QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
 
-        boolean yearIsNotBool = StrUtil.isNotEmpty(year) && StrUtil.isEmpty(season);
-        boolean seasonIsNotBool = StrUtil.isEmpty(year) && StrUtil.isNotEmpty(season);
         boolean bulkStyleNosEmpty = CollUtil.isEmpty(bulkStyleNos);
         boolean yearEmpty = StrUtil.isEmpty(year);
-        boolean seasonEmpty = StrUtil.isEmpty(season);
         if (!bulkStyleNosEmpty && bulkStyleNos.size() > 2000) {
             throw new OtherException("大货款号最多输入2000个！");
-        }
-        if (bulkStyleNosEmpty && (yearIsNotBool )) {
-            throw new OtherException("当大货款号为空的时候,年份必须输入查询！");
         }
         if (bulkStyleNosEmpty && yearEmpty ) {
             throw new OtherException("请输入大货款号或年份参数查询！");
