@@ -244,9 +244,6 @@ public class ReportServiceImpl implements ReportService {
             //订货本投产时间
             Date commissioningDate = report.getCommissioningDate();
             if (commissioningDate == null) {
-//                report.setSendMainFabricDay("不延期");
-//                report.setDesignDetailDay("不延期");
-//                report.setDesignCorrectDay("不延期");
                 continue;
             }
 
