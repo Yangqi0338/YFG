@@ -223,6 +223,19 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         }
         PatternLibrary patternLibrary = new PatternLibrary();
         BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
+        // 判断设计款的大类和选择的大类是否都属于上装或者下装
+        {
+            Style style = styleService.getById(patternLibraryDTO.getStyleId());
+            boolean flag = false;
+            if (brandPuts.contains(patternLibraryDTO.getProdCategory1st())) {
+                flag = brandPuts.contains(style.getProdCategory1st());
+            } else if (brandBottoms.contains(patternLibraryDTO.getProdCategory1st())) {
+                flag = brandBottoms.contains(style.getProdCategory1st());
+            }
+            if (flag) {
+                throw new OtherException("款式所对应的大类和所选大类的上装下装不匹配！");
+            }
+        }
         if (ObjectUtil.isEmpty(patternLibraryDTO.getId())) {
             // 新增
             // 新增主表数据
@@ -348,10 +361,10 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             List<String> styleIdList = patternLibraryDTOList.
                     stream().map(PatternLibraryDTO::getStyleId).collect(Collectors.toList());
             List<Style> styleList = styleService.listByIds(styleIdList);
-            long num = 0L;
+            long num = 1L;
             if (brandPuts.contains(patternLibraryDTOList.get(0).getProdCategory1st())) {
                 num = styleList.stream().filter(item -> !brandPuts.contains(item.getProdCategory1st())).count();
-            } else {
+            } else if (brandBottoms.contains(patternLibraryDTOList.get(0).getProdCategory1st())) {
                 num = styleList.stream().filter(item -> !brandBottoms.contains(item.getProdCategory1st())).count();
             }
             if (num > 0L) {
