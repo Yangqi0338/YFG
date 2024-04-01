@@ -11,7 +11,7 @@
         <result column="pattern_size" property="patternSize" />
         <result column="structure_key" property="structureKey" />
         <result column="structure_value" property="structureValue" />
-        <result column="desc" property="desc" />
+        <result column="description" property="description" />
         <result column="type" property="type" />
         <result column="create_id" property="createId" />
         <result column="create_name" property="createName" />

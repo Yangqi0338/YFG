@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternlibrary.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -57,6 +58,7 @@ public class PatternLibraryTemplate extends BaseDataEntity<String> implements Se
     /**
      * 模板子表信息
      */
+    @TableField(exist = false)
     @ApiModelProperty("模板子表信息")
     private List<PatternLibraryTemplateItem> patternLibraryTemplateItemList;
 

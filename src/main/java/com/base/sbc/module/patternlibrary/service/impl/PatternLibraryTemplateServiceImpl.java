@@ -43,7 +43,7 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
         queryWrapper
                 // 模板编码
                 .like(ObjectUtil.isNotEmpty(patternLibraryTemplatePageDTO.getSearch())
-                        , "tplt.code", patternLibraryTemplatePageDTO.getSearch())
+                        , "tpl.code", patternLibraryTemplatePageDTO.getSearch())
                 // 模板名称
                 .eq(ObjectUtil.isNotEmpty(patternLibraryTemplatePageDTO.getSearch())
                         , "tpl.name", patternLibraryTemplatePageDTO.getSearch());

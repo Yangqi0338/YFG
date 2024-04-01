@@ -98,11 +98,11 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     @Autowired
     private UploadFileService uploadFileService;
 
-    @Value("${brand.puts}")
-    private List<String> brandPuts;
+    @Value("${brand.puts:A01,A02,A03}")
+    private String brandPuts;
 
-    @Value("${brand.bottoms}")
-    private List<String> brandBottoms;
+    @Value("${brand.bottoms:A04}")
+    private String brandBottoms;
 
     @Override
     public PageInfo<PatternLibraryVO> listPages(PatternLibraryPageDTO patternLibraryPageDTO) {
@@ -226,11 +226,13 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         // 判断设计款的大类和选择的大类是否都属于上装或者下装
         {
             Style style = styleService.getById(patternLibraryDTO.getStyleId());
-            boolean flag = false;
+            boolean flag = true;
+            List<String> brandPuts = Arrays.asList(this.brandPuts.split(","));
+            List<String> brandBottoms = Arrays.asList(this.brandBottoms.split(","));
             if (brandPuts.contains(patternLibraryDTO.getProdCategory1st())) {
-                flag = brandPuts.contains(style.getProdCategory1st());
+                flag = !brandPuts.contains(style.getProdCategory1st());
             } else if (brandBottoms.contains(patternLibraryDTO.getProdCategory1st())) {
-                flag = brandBottoms.contains(style.getProdCategory1st());
+                flag = !brandBottoms.contains(style.getProdCategory1st());
             }
             if (flag) {
                 throw new OtherException("款式所对应的大类和所选大类的上装下装不匹配！");
@@ -296,39 +298,49 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             }
         }
 
-        SampleAttachmentDto fileSampleAttachmentDto = new SampleAttachmentDto();
-        fileSampleAttachmentDto.setFileId(patternLibraryDTO.getFileId());
-        // 保存文件附件信息
-        attachmentService.saveFiles(
-                patternLibrary.getId(),
-                Collections.singletonList(fileSampleAttachmentDto),
-                AttachmentTypeConstant.PATTERN_LIBRARY_FILE
-        );
-
-        // 初始化附件信息
-        SampleAttachmentDto picSampleAttachmentDto = new SampleAttachmentDto();
-        if (patternLibraryDTO.getPicSource().equals(1)) {
-            // 说明是文件上传的
-            picSampleAttachmentDto.setFileId(patternLibraryDTO.getPicId());
-        } else {
-            // 说明是选择已有图片的 此时需要重新下载图片并且上传
-            try {
-                MultipartFile multipartFile = uploadFileService.downloadImage(patternLibraryDTO.getPicId(), IdUtil.fastSimpleUUID() + "png");
-                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(multipartFile);
-                picSampleAttachmentDto.setFileId(attachmentVo.getFileId());
-                patternLibrary.setPicId(attachmentVo.getFileId());
-                patternLibrary.setPicUrl(attachmentVo.getUrl());
-                updateById(patternLibrary);
-            } catch (IOException e) {
-                throw new RuntimeException("文件保存失败，请刷新后重试！");
-            }
+        if (ObjectUtil.isNotEmpty(patternLibraryDTO.getFileId())) {
+            SampleAttachmentDto fileSampleAttachmentDto = new SampleAttachmentDto();
+            fileSampleAttachmentDto.setFileId(patternLibraryDTO.getFileId());
+            // 保存文件附件信息
+            attachmentService.saveFiles(
+                    patternLibrary.getId(),
+                    Collections.singletonList(fileSampleAttachmentDto),
+                    AttachmentTypeConstant.PATTERN_LIBRARY_FILE
+            );
         }
-        // 保存图片附件信息
-        attachmentService.saveFiles(
-                patternLibrary.getId(),
-                Collections.singletonList(picSampleAttachmentDto),
-                AttachmentTypeConstant.PATTERN_LIBRARY_PIC
-        );
+
+        if (ObjectUtil.isNotEmpty(patternLibraryDTO.getPicId())) {
+            // 初始化附件信息
+            SampleAttachmentDto picSampleAttachmentDto = new SampleAttachmentDto();
+            if (patternLibraryDTO.getPicSource().equals(1)) {
+                // 说明是文件上传的
+                picSampleAttachmentDto.setFileId(patternLibraryDTO.getPicId());
+            } else {
+                // 说明是选择已有图片的 此时需要重新下载图片并且上传
+                try {
+                    MultipartFile multipartFile = uploadFileService.downloadImage(patternLibraryDTO.getPicId(), IdUtil.fastSimpleUUID() + ".png");
+                    AttachmentVo attachmentVo = uploadFileService.uploadToMinio(
+                            multipartFile,
+                            "patternLibraryPic",
+                            patternLibraryDTO.getPatternLibraryBrandList().get(0).getBrandName()
+                    );
+                    picSampleAttachmentDto.setFileId(attachmentVo.getFileId());
+                    patternLibrary.setPicId(attachmentVo.getFileId());
+                    patternLibrary.setPicUrl(attachmentVo.getUrl());
+                    updateById(patternLibrary);
+                } catch (IOException e) {
+                    throw new RuntimeException("文件保存失败，请刷新后重试！");
+                }
+            }
+
+            // 保存图片附件信息
+            attachmentService.saveFiles(
+                    patternLibrary.getId(),
+                    Collections.singletonList(picSampleAttachmentDto),
+                    AttachmentTypeConstant.PATTERN_LIBRARY_PIC
+            );
+        }
+
         if (patternLibraryDTO.getStatus().equals(PatternLibraryStatusEnum.NO_REVIEWED.getCode())) {
             // 如果是提交 那么启动审批流
             flowableService.start(FlowableService.PATTERN_LIBRARY_APPROVAL,
@@ -362,6 +374,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                     stream().map(PatternLibraryDTO::getStyleId).collect(Collectors.toList());
             List<Style> styleList = styleService.listByIds(styleIdList);
             long num = 1L;
+            List<String> brandPuts = Arrays.asList(this.brandPuts.split(","));
+            List<String> brandBottoms = Arrays.asList(this.brandBottoms.split(","));
             if (brandPuts.contains(patternLibraryDTOList.get(0).getProdCategory1st())) {
                 num = styleList.stream().filter(item -> !brandPuts.contains(item.getProdCategory1st())).count();
             } else if (brandBottoms.contains(patternLibraryDTOList.get(0).getProdCategory1st())) {

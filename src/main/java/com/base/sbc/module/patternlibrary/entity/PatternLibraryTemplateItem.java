@@ -33,7 +33,7 @@ public class PatternLibraryTemplateItem extends BaseDataEntity<String> implement
      * 类型（1-可修改 2-不可修改）
      */
     @ApiModelProperty("类型（1-可修改 2-不可修改）")
-    private String type;
+    private Integer type;
 
     /**
      * 版型类型 code（取 PatternType 字典）
@@ -45,6 +45,6 @@ public class PatternLibraryTemplateItem extends BaseDataEntity<String> implement
      * 版型类型名称（取 PatternType 字典）
      */
     @ApiModelProperty("版型类型名称（取 PatternType 字典）")
-    private Integer patternTypeName;
+    private String patternTypeName;
 
 }

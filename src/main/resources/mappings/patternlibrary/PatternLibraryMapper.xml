@@ -20,6 +20,7 @@
         <result column="silhouette_code" property="silhouetteCode"/>
         <result column="silhouette_name" property="silhouetteName"/>
         <result column="template_code" property="templateCode"/>
+        <result column="template_name" property="templateName"/>
         <result column="file_id" property="fileId"/>
         <result column="material_code" property="materialCode"/>
         <result column="material_name" property="materialName"/>
@@ -42,7 +43,7 @@
         tpl.serial_number, tpl.id, tpl.`code`, tpl.design_no, tpl.style_id, tpl.brand, tpl.brand_name,
         tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,
         tpl.prod_category2nd,tpl.prod_category2nd_name, tpl.prod_category3rd, tpl.prod_category3rd_name,
-        tpl.silhouette_code,tpl.silhouette_name, tpl.template_code, tpl.file_id, tpl.material_code,
+        tpl.silhouette_code,tpl.silhouette_name, tpl.template_code,tpl.template_name, tpl.file_id, tpl.material_code,
         tpl.material_name, tpl.pic_id, tpl.pic_url, tpl.`status`, tpl.enable_flag, tpl.create_id, tpl.create_name,
         tpl.create_date,tpl.update_name, tpl.update_date, tpl.del_flag, tpl.company_code
         FROM t_pattern_library tpl

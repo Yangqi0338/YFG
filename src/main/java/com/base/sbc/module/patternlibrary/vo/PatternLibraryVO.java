@@ -124,6 +124,12 @@ public class PatternLibraryVO extends BaseDataEntity implements Serializable {
     private String templateCode;
 
     /**
+     * 模板名称（t_pattern_library name）
+     */
+    @ApiModelProperty("模板名称")
+    private String templateName;
+
+    /**
      * 文件 ID
      */
     @ApiModelProperty("文件 ID")

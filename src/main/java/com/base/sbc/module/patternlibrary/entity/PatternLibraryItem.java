@@ -63,7 +63,7 @@ public class PatternLibraryItem extends BaseDataEntity<String> implements Serial
      * 测量点说明/描述
      */
     @ApiModelProperty("测量点说明/描述")
-    private String desc;
+    private String description;
 
     /**
      * 类型（1-围度信息 2-长度信息 3-部位尺寸 4-设计部件）
