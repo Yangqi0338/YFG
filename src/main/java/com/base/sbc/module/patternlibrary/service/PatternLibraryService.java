@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternlibrary.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
@@ -10,7 +11,6 @@ import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 版型库-主表 服务类
@@ -63,25 +63,25 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     /**
      * 版型库批量审核通过
      *
-     * @param patternLibraryIdList 版型库主表 ID 集合
+     * @param auditsDTO 版型库主表 ID 集合
      * @return 审核是否成功
      */
-    Boolean updateAuditsPass(List<String> patternLibraryIdList);
+    Boolean updateAuditsPass(AuditsDTO auditsDTO);
 
     /**
      * 版型库批量审核驳回
      *
-     * @param patternLibraryIdList 版型库主表 ID 集合
+     * @param auditsDTO 版型库主表 ID 集合
      * @return 审核是否成功
      */
-    Boolean updateAuditsReject(List<String> patternLibraryIdList);
+    Boolean updateAuditsReject(AuditsDTO auditsDTO);
 
     /**
      * 查询已开款的设计款号数据信息
      *
      * @return 已开款后的设计款号数据信息
      */
-    List<Style> listStyle();
+    List<Style> listStyle(String search);
 
     /**
      * 根据设计款号查询相关数据

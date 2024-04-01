@@ -4,13 +4,11 @@ import com.base.sbc.module.patternlibrary.entity.Page;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryBrand;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryItem;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -140,10 +138,22 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String materialName;
 
     /**
-     * 图片文件 ID
+     * 图片 ID
      */
-    @ApiModelProperty("图片文件 ID")
-    private String picFileId;
+    @ApiModelProperty("图片 ID")
+    private String picId;
+
+    /**
+     * 图片 URL
+     */
+    @ApiModelProperty("图片 URL")
+    private String picUrl;
+
+    /**
+     * 图片来源（1-文件上传 2-已有图片选择），因为已有图片选择的需要重新下载并且上传所以需要区分
+     */
+    @ApiModelProperty("图片来源（1-文件上传 2-已有图片选择）")
+    private Integer picSource;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）

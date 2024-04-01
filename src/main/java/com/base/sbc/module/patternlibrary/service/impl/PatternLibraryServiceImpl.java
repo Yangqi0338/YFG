@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternlibrary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -12,11 +13,17 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.flowable.service.FlowableFeignService;
 import com.base.sbc.client.flowable.service.FlowableService;
+import com.base.sbc.config.CustomStylePicUpload;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.utils.AttachmentTypeConstant;
+import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.*;
@@ -25,6 +32,7 @@ import com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper;
 import com.base.sbc.module.patternlibrary.service.*;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
+import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -36,7 +44,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,6 +88,15 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
     @Autowired
     private FlowableFeignService flowableFeignService;
+
+    @Autowired
+    private AttachmentService attachmentService;
+
+    @Autowired
+    private CustomStylePicUpload customStylePicUpload;
+
+    @Autowired
+    private UploadFileService uploadFileService;
 
     @Value("${brand.puts}")
     private List<String> brandPuts;
@@ -191,9 +210,6 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 // 设置子表数据
                 patternLibraryVO.setPatternLibraryItemList(patternLibraryItemMap.get(patternLibraryVO.getId()));
             }
-
-            // 设置图片
-            stylePicUtils.setStylePic(patternLibraryVOList, "picFileId");
         }
         return new PageInfo<>(patternLibraryVOList);
     }
@@ -266,6 +282,40 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 patternLibraryItemService.saveOrUpdateBatch(patternLibraryItemList);
             }
         }
+
+        SampleAttachmentDto fileSampleAttachmentDto = new SampleAttachmentDto();
+        fileSampleAttachmentDto.setFileId(patternLibraryDTO.getFileId());
+        // 保存文件附件信息
+        attachmentService.saveFiles(
+                patternLibrary.getId(),
+                Collections.singletonList(fileSampleAttachmentDto),
+                AttachmentTypeConstant.PATTERN_LIBRARY_FILE
+        );
+
+        // 初始化附件信息
+        SampleAttachmentDto picSampleAttachmentDto = new SampleAttachmentDto();
+        if (patternLibraryDTO.getPicSource().equals(1)) {
+            // 说明是文件上传的
+            picSampleAttachmentDto.setFileId(patternLibraryDTO.getPicId());
+        } else {
+            // 说明是选择已有图片的 此时需要重新下载图片并且上传
+            try {
+                MultipartFile multipartFile = uploadFileService.downloadImage(patternLibraryDTO.getPicId(), IdUtil.fastSimpleUUID() + "png");
+                AttachmentVo attachmentVo = uploadFileService.uploadToMinio(multipartFile);
+                picSampleAttachmentDto.setFileId(attachmentVo.getFileId());
+                patternLibrary.setPicId(attachmentVo.getFileId());
+                patternLibrary.setPicUrl(attachmentVo.getUrl());
+                updateById(patternLibrary);
+            } catch (IOException e) {
+                throw new RuntimeException("文件保存失败，请刷新后重试！");
+            }
+        }
+        // 保存图片附件信息
+        attachmentService.saveFiles(
+                patternLibrary.getId(),
+                Collections.singletonList(picSampleAttachmentDto),
+                AttachmentTypeConstant.PATTERN_LIBRARY_PIC
+        );
         if (patternLibraryDTO.getStatus().equals(PatternLibraryStatusEnum.NO_REVIEWED.getCode())) {
             // 如果是提交 那么启动审批流
             flowableService.start(FlowableService.PATTERN_LIBRARY_APPROVAL,
@@ -348,9 +398,13 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         if (ObjectUtil.isEmpty(patternLibrary)) {
             throw new OtherException("当前数据不存在，请刷新后重试！");
         }
+
         BeanUtil.copyProperties(patternLibrary, patternLibraryVO);
-        // 设置图片
-        stylePicUtils.setStylePic(Collections.singletonList(patternLibraryVO), "picFileId");
+        AttachmentVo fileAttachmentVo = attachmentService.getAttachmentById(patternLibraryVO.getFileId());
+        patternLibraryVO.setFileAttachmentVo(fileAttachmentVo);
+
+        AttachmentVo picAttachmentVo = attachmentService.getAttachmentById(patternLibraryVO.getPicId());
+        patternLibraryVO.setPicAttachmentVo(picAttachmentVo);
 
         // 查询品类信息
         List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryBrandService.list(
@@ -417,7 +471,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
     @Override
     @DuplicationCheck
-    public Boolean updateAuditsPass(List<String> patternLibraryIdList) {
+    public Boolean updateAuditsPass(AuditsDTO auditsDTO) {
+        List<String> patternLibraryIdList = auditsDTO.getPatternLibraryIdList();
         if (ObjectUtil.isEmpty(patternLibraryIdList)) {
             throw new OtherException("请至少选择一条数据进行审核！");
         }
@@ -442,7 +497,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
     @Override
     @DuplicationCheck
-    public Boolean updateAuditsReject(List<String> patternLibraryIdList) {
+    public Boolean updateAuditsReject(AuditsDTO auditsDTO) {
+        List<String> patternLibraryIdList = auditsDTO.getPatternLibraryIdList();
         if (ObjectUtil.isEmpty(patternLibraryIdList)) {
             throw new OtherException("请至少选择一条数据进行审核！");
         }
@@ -465,15 +521,16 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         return Boolean.TRUE;
     }
 
-
     @Override
-    public List<Style> listStyle() {
-        return styleService.list(
-                new LambdaQueryWrapper<Style>()
-                        .eq(Style::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                        .eq(Style::getEnableStatus, BaseGlobal.NO)
-                        .eq(Style::getStatus, "1")
-        );
+    public List<Style> listStyle(String search) {
+        QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
+                .eq("s.enable_status", BaseGlobal.NO)
+                .eq("s.status", "1")
+                .like("s.design_no", search)
+                .orderByDesc("s.create_date");
+        // 获取已经生成版型库的数据
+        return baseMapper.listStyle(queryWrapper);
     }
 
     @Override
@@ -502,7 +559,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         // 大类 code
         patternLibraryVO.setProdCategory1st(style.getProdCategory1st());
         // 大类名称
-        patternLibraryVO.setProdCategory1stName(style.getProdCategory1st());
+        patternLibraryVO.setProdCategory1stName(style.getProdCategory1stName());
         // 品类 code
         patternLibraryVO.setProdCategory(style.getProdCategory());
         // 品类名称
@@ -529,11 +586,14 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 new LambdaQueryWrapper<StyleColor>()
                         .eq(StyleColor::getStyleId, style.getId())
                         .eq(StyleColor::getDelFlag, "0")
+                        .isNotNull(StyleColor::getStyleColorPic)
+                        .ne(StyleColor::getStyleColorPic, "")
+                        .groupBy(StyleColor::getStyleColorPic)
         );
-        // 初始化大货的图片 ID-URL 集合
-        List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
 
         if (ObjectUtil.isNotEmpty(styleColorList)) {
+            // 初始化大货的图片 ID-URL 集合
+            List<Map<String, String>> picFileIdList = new ArrayList<>(styleColorList.size());
             for (StyleColor styleColor : styleColorList) {
                 // 当作临时变量存储一下图片来源 ID
                 styleColor.setStyleNo(styleColor.getStyleColorPic());
@@ -541,14 +601,16 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             stylePicUtils.setStylePic(styleColorList, "styleColorPic");
             for (StyleColor styleColor : styleColorList) {
                 HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put(" picFileId", styleColor.getStyleNo());
-                hashMap.put(" url", styleColor.getStyleColorPic());
+                hashMap.put("picId", styleColor.getStyleNo());
+                hashMap.put("url", styleColor.getStyleColorPic());
                 picFileIdList.add(hashMap);
             }
-            patternLibraryVO.setPicFileIdList(picFileIdList);
+            patternLibraryVO.setPicIdList(picFileIdList);
         } else {
             // 如果没有大货信息 那就直接取款式的图片
-            patternLibraryVO.setPicFileId(style.getStylePic());
+            patternLibraryVO.setPicId(style.getStylePic());
+            stylePicUtils.setStylePic(Collections.singletonList(style), "stylePic");
+            patternLibraryVO.setPicUrl(style.getStylePic());
         }
         return patternLibraryVO;
     }

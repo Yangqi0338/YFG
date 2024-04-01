@@ -1,11 +1,7 @@
 package com.base.sbc.module.patternlibrary.vo;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.base.sbc.config.common.base.BaseDataEntity;
-import com.base.sbc.config.common.base.BaseEntity;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryBrand;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryItem;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
@@ -134,6 +130,12 @@ public class PatternLibraryVO extends BaseDataEntity implements Serializable {
     private String fileId;
 
     /**
+     * 文件附件信息
+     */
+    @ApiModelProperty("文件附件信息")
+    private AttachmentVo fileAttachmentVo;
+
+    /**
      * 面料 code，暂无
      */
     @ApiModelProperty("面料 code，暂无")
@@ -146,16 +148,28 @@ public class PatternLibraryVO extends BaseDataEntity implements Serializable {
     private String materialName;
 
     /**
-     * 图片文件 ID
+     * 图片 ID
      */
-    @ApiModelProperty("图片文件 ID")
-    private String picFileId;
+    @ApiModelProperty("图片 ID")
+    private String picId;
+
+    /**
+     * 图片 URL
+     */
+    @ApiModelProperty("图片 URL")
+    private String picUrl;
+
+    /**
+     * 图片附件信息
+     */
+    @ApiModelProperty("图片附件信息")
+    private AttachmentVo picAttachmentVo;
 
     /**
      * 大货图片文件 ID-URL 集合
      */
     @ApiModelProperty("大货图片文件 ID-URL 集合")
-    private List<Map<String, String>> picFileIdList;
+    private List<Map<String, String>> picIdList;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）

@@ -1,7 +1,5 @@
 package com.base.sbc.module.patternlibrary.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -134,10 +132,16 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String materialName;
 
     /**
-     * 图片文件 ID
+     * 图片 ID
      */
-    @ApiModelProperty("图片文件 ID")
-    private String picFileId;
+    @ApiModelProperty("图片 ID")
+    private String picId;
+
+    /**
+     * 图片 ID
+     */
+    @ApiModelProperty("图片 地址")
+    private String picUrl;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）

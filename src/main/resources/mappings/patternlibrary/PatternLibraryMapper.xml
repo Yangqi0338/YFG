@@ -21,9 +21,10 @@
         <result column="silhouette_name" property="silhouetteName"/>
         <result column="template_code" property="templateCode"/>
         <result column="file_id" property="fileId"/>
-        <result column="meterial_code" property="materialCode"/>
-        <result column="meterial_name" property="materialName"/>
-        <result column="pic_file_id" property="picFileId"/>
+        <result column="material_code" property="materialCode"/>
+        <result column="material_name" property="materialName"/>
+        <result column="pic_id" property="picId"/>
+        <result column="pic_url" property="picUrl"/>
         <result column="status" property="status"/>
         <result column="enable_flag" property="enableFlag"/>
         <result column="create_id" property="createId"/>
@@ -36,22 +37,13 @@
         <result column="company_code" property="companyCode"/>
     </resultMap>
 
-    <sql id="resultData">
-        tpl.serial_number, tpl.id, tpl.code, tpl.design_no, tpl.style_id, tpl.brand, tpl.brand_name,
-        tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,
-        tpl.prod_category2nd,tpl.prod_category2nd_name, tpl.prod_category3rd, tpl.prod_category3rd_name,
-        tpl.silhouette_code,tpl.silhouette_name, tpl.template_code, tpl.file_id, tpl.material_code,
-        tpl.material_name, tpl.pic_file_id, tpl.status, tpl.enable_flag, tpl.create_id, tpl.create_name,
-        tpl.create_date,tpl.update_name, tpl.update_date, tpl.del_flag, tpl.company_code
-    </sql>
-
     <select id="listPages" resultType="com.base.sbc.module.patternlibrary.vo.PatternLibraryVO">
         SELECT
         tpl.serial_number, tpl.id, tpl.`code`, tpl.design_no, tpl.style_id, tpl.brand, tpl.brand_name,
         tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,
         tpl.prod_category2nd,tpl.prod_category2nd_name, tpl.prod_category3rd, tpl.prod_category3rd_name,
         tpl.silhouette_code,tpl.silhouette_name, tpl.template_code, tpl.file_id, tpl.material_code,
-        tpl.material_name, tpl.pic_file_id, tpl.`status`, tpl.enable_flag, tpl.create_id, tpl.create_name,
+        tpl.material_name, tpl.pic_id, tpl.pic_url, tpl.`status`, tpl.enable_flag, tpl.create_id, tpl.create_name,
         tpl.create_date,tpl.update_name, tpl.update_date, tpl.del_flag, tpl.company_code
         FROM t_pattern_library tpl
         LEFT JOIN t_pattern_library_item tpli ON tpli.pattern_library_id = tpl.id
@@ -75,6 +67,18 @@
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
         GROUP BY tpl.id
+    </select>
+    <select id="listStyle" resultType="com.base.sbc.module.style.entity.Style">
+        SELECT
+        s.*
+        FROM t_style s
+        <where>
+            not EXISTS(select 1 from t_pattern_library tpl where tpl.style_id = s.id
+            AND tpl.del_flag = '0')
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>
     </select>
 
 </mapper>

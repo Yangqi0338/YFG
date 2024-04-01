@@ -81,11 +81,13 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
     @Override
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
-    public Boolean saveOrUpdateDetails(PatternLibraryTemplate patternLibraryTemplate) {
+    public Boolean saveOrUpdateDetail(PatternLibraryTemplate patternLibraryTemplate) {
         if (ObjectUtil.isEmpty(patternLibraryTemplate)) {
             throw new OtherException("新增/编辑数据不能为空！");
         }
         List<PatternLibraryTemplateItem> patternLibraryTemplateItemList = patternLibraryTemplate.getPatternLibraryTemplateItemList();
+        // 去除名称前后空格
+        patternLibraryTemplate.setName(patternLibraryTemplate.getName().trim());
         if (ObjectUtil.isEmpty(patternLibraryTemplate.getId())) {
             // 新增
             // 生成唯一的编码 防止并发重复

@@ -1,14 +1,9 @@
 package com.base.sbc.module.patternlibrary.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
-import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplatePageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
-import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.github.pagehelper.PageInfo;
-
-import java.util.List;
 
 /**
  * 版型库-模板表 服务类
@@ -32,7 +27,7 @@ public interface PatternLibraryTemplateService extends IService<PatternLibraryTe
      * @param patternLibraryTemplate 新增/编辑数据
      * @return 新增/编辑是否成功
      */
-    Boolean saveOrUpdateDetails(PatternLibraryTemplate patternLibraryTemplate);
+    Boolean saveOrUpdateDetail(PatternLibraryTemplate patternLibraryTemplate);
 
 
     /**
