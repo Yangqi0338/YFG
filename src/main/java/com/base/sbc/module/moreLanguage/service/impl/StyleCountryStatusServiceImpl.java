@@ -3,6 +3,7 @@ package com.base.sbc.module.moreLanguage.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
@@ -394,7 +395,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                             List<String> standardColumnCodeList = map.getOrDefault(code, new HashMap<>(1)).getOrDefault(type, new ArrayList<>());
 
                             List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageCodeList.stream().map(languageCode->
-                                new MoreLanguageStatusCheckDetailDTO(languageCode, standardColumnCodeList.stream().flatMap(standardColumnCode->
+                                new MoreLanguageStatusCheckDetailDTO(languageCode, CollUtil.distinct(standardColumnCodeList.stream().flatMap(standardColumnCode->
                                     webBaseVOList.stream().filter(it->
                                             type.equals(it.getCountryLanguageType()) &&
                                             bulkStyleNo.equals(it.getBulkStyleNo()) &&
@@ -407,8 +408,9 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                                                     translate.buildAuditList(standardColumnCode, webBaseVO.getTitleCode()).stream()
                                                 )
                                     )
-                                ).filter(it-> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList()))
-                            ).collect(Collectors.toList());
+                                ).filter(it-> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList()),
+                                        (MoreLanguageStatusCheckDetailAuditDTO it)-> it.getStandardColumnCode() + it.getSource(), true)
+                                )).collect(Collectors.toList());
                             status.setStandardColumnCode(checkDetailList.stream().flatMap(checkDetailDTO-> checkDetailDTO.getAuditList()
                                     .stream().map(MoreLanguageStatusCheckDetailAuditDTO::getStandardColumnCode)
                             ).distinct().collect(Collectors.joining(COMMA)));

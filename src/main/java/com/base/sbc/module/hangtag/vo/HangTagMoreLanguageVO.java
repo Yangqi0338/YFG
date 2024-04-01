@@ -139,7 +139,17 @@ public class HangTagMoreLanguageVO {
      * 审核状态
      */
     @ApiModelProperty(value = "审核状态")
-    protected StyleCountryStatusEnum auditStatus = StyleCountryStatusEnum.UNCHECK;
+    @JsonIgnore
+    protected StyleCountryStatusEnum contentAuditStatus = StyleCountryStatusEnum.UNCHECK;
+
+    @JsonIgnore
+    protected StyleCountryStatusEnum titleAuditStatus = StyleCountryStatusEnum.UNCHECK;
+
+    public StyleCountryStatusEnum getAuditStatus(){
+        return (!forceFindContent() || contentAuditStatus == StyleCountryStatusEnum.CHECK) && titleAuditStatus == StyleCountryStatusEnum.CHECK
+                ? StyleCountryStatusEnum.CHECK
+                : StyleCountryStatusEnum.UNCHECK;
+    }
 
     public List<MoreLanguageStatusCheckDetailAuditDTO> buildAuditList(String standardColumnCode, String titleCode){
         List<MoreLanguageStatusCheckDetailAuditDTO> auditDtoList = new ArrayList<>();

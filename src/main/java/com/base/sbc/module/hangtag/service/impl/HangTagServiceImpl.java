@@ -1299,24 +1299,21 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// 已审核包含这个标准类, 修正审核状态
 		statusCheckDetailList.stream().filter(it -> languageCode.equals(it.getLanguageCode()))
 				.findFirst().ifPresent(checkDetailDTO ->
-						checkDetailDTO.getAuditList().stream().filter(it -> YesOrNoEnum.YES.getValueStr().equals(it.getStatus()))
-								.forEach(it -> {
-									if (standardColumnCode.equals(it.getSource())) {
-										// 找到 设置翻译 以及 flag
-										languageVO.setCannotFindStandardColumnContent(false);
-										languageVO.setStandardColumnContent(it.getContent());
-									}
-									if (standardColumnCode.equals(it.getStandardColumnCode()) && propertiesCodeList.contains(it.getSource())) {
-										// 找到 设置翻译 以及 flag
-										languageVO.setCannotFindPropertiesContent(false);
-										languageVO.setPropertiesContent(it.getContent());
-									}
-								})
+						checkDetailDTO.getAuditList().forEach(it -> {
+							if (standardColumnCode.equals(it.getSource())) {
+								// 找到 设置翻译 以及 flag
+								languageVO.setCannotFindStandardColumnContent(false);
+								languageVO.setStandardColumnContent(it.getContent());
+								languageVO.setTitleAuditStatus(StyleCountryStatusEnum.findByCode(it.getStatus()));
+							}
+							if (standardColumnCode.equals(it.getStandardColumnCode()) && propertiesCodeList.contains(it.getSource())) {
+								// 找到 设置翻译 以及 flag
+								languageVO.setCannotFindPropertiesContent(false);
+								languageVO.setPropertiesContent(it.getContent());
+								languageVO.setContentAuditStatus(StyleCountryStatusEnum.findByCode(it.getStatus()));
+							}
+						})
 				);
-		// 单据数据有些没找到, 找实时数据
-		if (!languageVO.getCannotFindStandardColumnContent() && !languageVO.getCannotFindPropertiesContent()) {
-			languageVO.setAuditStatus(StyleCountryStatusEnum.CHECK);
-		}
 		if (languageVO.getCannotFindStandardColumnContent()) {
 			translateList.stream().filter(it -> it.getPropertiesCode().equals(standardColumnCode)).findFirst().ifPresent(titleTranslate -> {
 				// 找到 设置翻译 以及 flag

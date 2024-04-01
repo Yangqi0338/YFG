@@ -365,38 +365,42 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             // 仅更新做操作
             if (CollectionUtil.isNotEmpty(updateNewTranslateList)) {
                 taskList.add(()-> {
-                    String uniqueCode = countryLanguageList.get(0).getCode();
-                    // 获取已审核的当前国家中,存在对应编码的数据
-                    List<StyleCountryStatus> statusList = styleCountryStatusService.list(new LambdaQueryWrapper<StyleCountryStatus>()
-                            .eq(StyleCountryStatus::getStatus, StyleCountryStatusEnum.CHECK)
-                            .eq(StyleCountryStatus::getCountryCode, uniqueCode)
-                            .like(StyleCountryStatus::getStandardColumnCode, standardColumnCode)
-                    );
                     List<StyleCountryStatus> changeStatusList = new ArrayList<>();
-                    statusList.forEach(status-> {
-                        List<MoreLanguageStatusCheckDetailDTO> languageDetailList = JSONUtil.toList(status.getCheckDetailJson(), MoreLanguageStatusCheckDetailDTO.class);
-                        AtomicBoolean change = new AtomicBoolean(false);
-                        countryLanguageList.forEach(countryLanguage-> {
-                            List<StandardColumnCountryTranslate> countryTranslateList = updateNewTranslateList.stream()
-                                    .filter(it -> it.getCountryLanguageId().equals(countryLanguage.getId())).collect(Collectors.toList());
+                    countryLanguageList.forEach(countryLanguage -> {
+                        String languageCode = countryLanguage.getLanguageCode();
+                        List<String> sameLanguageCodeList = countryLanguageService.listOneField(new LambdaQueryWrapper<CountryLanguage>()
+                                .in(CountryLanguage::getLanguageCode, languageCode)
+                                .eq(CountryLanguage::getEnableFlag, YesOrNoEnum.YES)
+                                .eq(CountryLanguage::getType, type)
+                                .eq(isSingleLanguageFlag, CountryLanguage::getSingleLanguageFlag, YesOrNoEnum.NO), CountryLanguage::getCode
+                        );
 
-                            languageDetailList.stream().filter(it-> it.getLanguageCode().equals(countryLanguage.getLanguageCode())).forEach(languageDetail-> {
-                                List<MoreLanguageStatusCheckDetailAuditDTO> auditList = languageDetail.getAuditList().stream()
-                                        .filter(audit -> audit.getStandardColumnCode().equals(standardColumnCode))
-                                        .filter(audit -> countryTranslateList.stream().noneMatch(it-> it.getPropertiesCode().equals(audit.getSource())))
-                                        .peek(audit-> audit.setStatus(YesOrNoEnum.NO.getValueStr()))
-                                        .collect(Collectors.toList());
-                                if (auditList.size() != languageDetail.getAuditList().size()) {
-                                    languageDetail.setAuditList(auditList);
-                                    change.set(true);
-                                }
+                        List<StandardColumnCountryTranslate> countryTranslateList = updateNewTranslateList.stream()
+                                .filter(it -> it.getCountryLanguageId().equals(countryLanguage.getId())).collect(Collectors.toList());
+
+                        // 获取已审核的当前国家中,存在对应编码的数据
+                        List<StyleCountryStatus> statusList = styleCountryStatusService.list(new LambdaQueryWrapper<StyleCountryStatus>()
+                                .eq(StyleCountryStatus::getStatus, StyleCountryStatusEnum.CHECK)
+                                .in(StyleCountryStatus::getCountryCode, sameLanguageCodeList)
+                                .eq(StyleCountryStatus::getType, type)
+                                .like(StyleCountryStatus::getStandardColumnCode, standardColumnCode)
+                        );
+                        statusList.forEach(status-> {
+                            List<MoreLanguageStatusCheckDetailDTO> languageDetailList = JSONUtil.toList(status.getCheckDetailJson(), MoreLanguageStatusCheckDetailDTO.class);
+                            languageDetailList.stream().filter(it-> it.getLanguageCode().equals(languageCode)).forEach(languageDetail-> {
+                                countryTranslateList.forEach(translate -> {
+                                   languageDetail.getAuditList().stream()
+                                            .filter(audit -> audit.getStandardColumnCode().equals(standardColumnCode))
+                                            .filter(audit -> audit.getSource().equals(translate.getPropertiesCode()))
+                                            .forEach(audit-> audit.setStatus(YesOrNoEnum.NO.getValueStr()));
+                                });
                             });
+                            String checkDetailJson = JSONUtil.toJsonStr(languageDetailList.stream().filter(it -> CollUtil.isNotEmpty(it.getAuditList())).collect(Collectors.toList()));
+                            if (!status.getCheckDetailJson().equals(checkDetailJson)) {
+                                status.setCheckDetailJson(checkDetailJson);
+                                changeStatusList.add(status);
+                            }
                         });
-                        if (change.get()) {
-                            status.setCheckDetailJson(JSONUtil.toJsonStr(languageDetailList.stream().filter(it-> CollUtil.isNotEmpty(it.getAuditList())).collect(Collectors.toList())));
-                            status.setStandardColumnCode(ArrayUtil.join(ArrayUtil.removeEle(status.getStandardColumnCode().split(COMMA), standardColumnCode),COMMA));
-                            changeStatusList.add(status);
-                        }
                     });
                     if (CollUtil.isNotEmpty(changeStatusList)) {
                         styleCountryStatusService.saveOrUpdateBatch(changeStatusList);
