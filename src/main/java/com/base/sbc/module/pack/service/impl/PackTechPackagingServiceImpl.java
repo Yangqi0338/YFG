@@ -14,6 +14,10 @@ import com.base.sbc.module.pack.mapper.PackTechPackagingMapper;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * 类描述：资料包-工艺说明-包装方式和体积重量 service类
  *
@@ -47,6 +51,28 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
             return db;
         }
 
+    }
+
+    @Override
+    public PackTechPackaging Packaging(PackTechPackaging packaging) {
+        PackTechPackaging packTechPackaging = new PackTechPackaging();
+
+        if(packaging.getPackType().equals("C8_PackageSize")){
+            Pattern pattern = Pattern.compile("^(.*?):([0-9]+)\\*([0-9]+)cm$");
+            Matcher matcher = pattern.matcher(packaging.getPackagingBagStandardName());
+            if(matcher.matches()){
+                String   value1 = matcher.group(1);
+                String   value2 = matcher.group(2);
+                String   value3 = matcher.group(3);
+                packTechPackaging.setVolumeLength(new BigDecimal(value2));
+                packTechPackaging.setVolumeWidth(new BigDecimal(value3));
+            } else {
+                System.out.println("无法提取值");
+            }
+            return packTechPackaging;
+        }
+
+        return null;
     }
 
     @Override
