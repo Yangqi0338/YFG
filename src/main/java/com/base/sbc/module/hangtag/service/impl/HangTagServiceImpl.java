@@ -361,8 +361,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagInspectCompanyService.listByField("hang_tag_id", com.base.sbc.config.utils.StringUtils.convertList(hangTagVO.getId()));
 			if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
 				List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.listByIds(hangTagInspectCompanyList.stream().map(HangTagInspectCompany::getInspectCompanyId).collect(Collectors.toList()));
-				String[] split = hangTagVO.getRepIngredient().split("/n");
-				if(list.size()>0){
+				String[] split;
+				if(hangTagVO.getRepIngredient()!=null&&list.size()>0){
+					 split = hangTagVO.getRepIngredient().split("/n");
 					for(int i=0; i<list.size(); i++){
 						if(list.get(i).getRemark()!=null){
 							String rem=split[i]+":"+list.get(i).getRemark();
