@@ -365,7 +365,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				if(list.size()>0){
 					for(int i=0; i<list.size(); i++){
 						if(list.get(i).getRemark()!=null){
-							list.get(i).setRemark(split[i]+":"+list.get(i).getRemark());
+							String rem=split[i]+":"+list.get(i).getRemark();
+							list.get(i).setRemark(rem);
 						}
 					}
 				}
