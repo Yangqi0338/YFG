@@ -897,10 +897,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
 
-        //region 为满足业务需求重新排序
-        logicSort(pdList);
-        //endregion
-
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         //款式打标-下单阶段逻辑，如果第一次查看下单阶段数据，则查询为空，复制一份设计阶段数据作为下单阶段数据
         if(StrUtil.isNotBlank(dto.getShowConfig()) && "styleMarkingOrder".equals(dto.getShowConfig()) && StrUtil.isNotBlank(dto.getStyleColorId())){
@@ -922,10 +918,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (CollUtil.isEmpty(pdList)) {
                 return result;
             }
+
+
+
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds,dto.getPlanningSeasonId(),dto.getProdCategory(),dto.getChannel());
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
+                //region 为满足业务需求重新排序
+                logicSort(fieldManagementListByIds);
+                //endregion
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
                 /*Map<String, Integer> sortMap = pdList.stream().collect(Collectors.toMap(PlanningDimensionality::getFieldId, PlanningDimensionality::getSort, (a, b) -> b));
                 CollUtil.sort(fieldManagementListByIds, (a, b) -> {
@@ -933,6 +935,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     int n2 = MapUtil.getInt(sortMap, b.getId(), 0);
                     return NumberUtil.compare(n1, n2);
                 });*/
+
+
                 QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
                 if (BaseGlobal.YES.equals(listVo.getCategoryFlag())) {
                     queryFieldOptionConfigDto.setProdCategory2nd(dto.getProdCategory2nd());
@@ -1000,18 +1004,18 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      * groupsort 有值时，排在groupsort为空后面
      * @param dimensionalityList
      */
-    private static void logicSort(List<PlanningDimensionality> dimensionalityList) {
+    private static void logicSort(List<FieldManagementVo> dimensionalityList) {
         Map<String,Integer> sortMap = new HashMap<>();
-        for (PlanningDimensionality planningDimensionalityVo : dimensionalityList) {
-            if (StrUtil.isNotEmpty(planningDimensionalityVo.getFieldId()) && planningDimensionalityVo.getGroupSort() != null) {
-                sortMap.put(planningDimensionalityVo.getFieldId(),planningDimensionalityVo.getGroupSort());
+        for (FieldManagementVo planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() != null) {
+                sortMap.put(planningDimensionalityVo.getGroupName(),planningDimensionalityVo.getGroupSort());
             }
         }
-        for (PlanningDimensionality planningDimensionalityVo : dimensionalityList) {
-            if (StrUtil.isNotEmpty(planningDimensionalityVo.getFieldId()) && planningDimensionalityVo.getGroupSort() == null) {
-                Integer sort = sortMap.get(planningDimensionalityVo.getFieldId());
+        for (FieldManagementVo planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() == null) {
+                Integer sort = sortMap.get(planningDimensionalityVo.getGroupName());
                 if (sort != null) {
-                    planningDimensionalityVo.setGroupSort(sortMap.get(planningDimensionalityVo.getFieldId()));
+                    planningDimensionalityVo.setGroupSort(sortMap.get(planningDimensionalityVo.getGroupName()));
                 }
             }
         }
