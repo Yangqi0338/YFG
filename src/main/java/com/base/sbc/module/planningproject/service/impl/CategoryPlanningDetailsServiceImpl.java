@@ -273,8 +273,13 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                 for (PlanningDimensionality planningDimensionality : list) {
 
                     // 获取配置
-                    QueryWrapper<FieldOptionConfig> queryWrapper2 = new QueryWrapper<>();
+                    BaseQueryWrapper<FieldOptionConfig> queryWrapper2 = new BaseQueryWrapper<>();
                     queryWrapper2.eq("field_management_id", planningDimensionality.getFieldId());
+                    queryWrapper2.notEmptyEq("company_code", planningDimensionality.getCompanyCode());
+                    queryWrapper2.notEmptyEq("channel", planningDimensionality.getChannel());
+                    queryWrapper2.notEmptyIn("prod_category1st", planningDimensionality.getProdCategory1st());
+                    queryWrapper2.notEmptyIn("prod_category", planningDimensionality.getProdCategory());
+                    queryWrapper2.notEmptyIn("prod_category2nd", planningDimensionality.getProdCategory2nd());
                     List<FieldOptionConfig> list1 = fieldOptionConfigService.list(queryWrapper2);
                     // 如果没有配置就去全部的字段值
                     FieldManagement fieldManagement = fieldManagementService.getById(planningDimensionality.getFieldId());
