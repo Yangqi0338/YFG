@@ -365,7 +365,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				if(hangTagVO.getFabricDetails()!=null&&list.size()>0){
 					 split = hangTagVO.getFabricDetails().split("\n");
 					for(int i=0; i<list.size(); i++){
-						if(list.get(i).getRemark()!=null){
+						if(list.get(i).getRemark()!=null&&!list.get(i).getRemark().equals("")){
 							String rem=split[i].split(":")[1]+":"+list.get(i).getRemark();
 							list.get(i).setRemark(rem);
 						}
