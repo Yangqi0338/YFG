@@ -187,6 +187,7 @@
             s.design_no,
             p.cutter_finish_num,
             (CASE WHEN p.sgl_kitting = 0 THEN '否' ELSE '是' END) as sgl_kitting,
+            p.kitting_reason,
             p.stitcher_remark,
             p.stitcher,
             s.technician_name,

@@ -182,6 +182,9 @@ public class SampleBoardExcel {
     @Excel(name = "样衣组长确认齐套", replace = {"是_1", "否_0"})
     private String sglKitting;
 
+    @ApiModelProperty(value = "是否齐套原因")
+    private String kittingReason;
+
     @ApiModelProperty(value = "备注")
     private String stitcherRemark;
 

@@ -406,6 +406,9 @@ public class PatternMaking extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "是否参考样衣，0：否，1：是"  )
     private Integer referSample;
+
+    @ApiModelProperty(value = "是否齐套原因"  )
+    private String kittingReason;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
