@@ -23,6 +23,7 @@
             p.id,
             s.design_no,
             s.style_pic,
+            concat(s.year_name," ",s.season_name," ",s.brand_name) planningSeason,
             s.prod_category1st_name,
             s.prod_category_name,
             s.prod_category2nd_name,
