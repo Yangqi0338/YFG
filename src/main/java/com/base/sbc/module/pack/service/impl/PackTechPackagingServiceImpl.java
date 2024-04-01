@@ -70,6 +70,8 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
                 System.out.println("无法提取值");
             }
             return packTechPackaging;
+        } else if(packaging.getPackType().equals("C8_PackageSize")){
+
         }
 
         return null;
