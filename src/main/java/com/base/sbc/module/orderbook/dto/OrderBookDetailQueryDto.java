@@ -45,6 +45,11 @@ public class OrderBookDetailQueryDto extends Page {
     private String devtTypeName;
 
     /**
+     * 设计款号
+     */
+    private String designNo;
+
+    /**
      * 大货款号
      */
     private String bulkStyleNo;

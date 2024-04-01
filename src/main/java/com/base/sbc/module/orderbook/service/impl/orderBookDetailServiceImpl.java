@@ -837,14 +837,19 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         List<String> channelList = queryDto.getChannel().stream().map(OrderBookChannelType::getText).collect(Collectors.toList());
 
         String category1stCode = queryDto.getCategory1stCode();
+        String designNo = queryDto.getDesignNo();
         List<String> searchBulkStyleNoList = new ArrayList<>();
-        if (StrUtil.isNotBlank(category1stCode)) {
-            // 根据大类获取款式
-            List<String> styleIdList = styleService.listOneField(new LambdaQueryWrapper<Style>().eq(Style::getProdCategory1st, category1stCode), Style::getId);
-            if (CollUtil.isNotEmpty(styleIdList)) {
+        if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(designNo)) {
+            // 根据大类或设计款号获取款式
+            Opt.ofEmptyAble(styleService.listOneField(new BaseLambdaQueryWrapper<Style>()
+                    .notEmptyEq(Style::getProdCategory1st, category1stCode)
+                    .notEmptyEq(Style::getDesignNo, designNo), Style::getId)
+            ).ifPresent(styleIdList-> {
                 // 根据款式获取款号
-                searchBulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>().in(StyleColor::getStyleId, styleIdList), StyleColor::getStyleNo));
-            }
+                searchBulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>()
+                        .in(StyleColor::getStyleId, styleIdList), StyleColor::getStyleNo)
+                );
+            });
             if (CollUtil.isEmpty(searchBulkStyleNoList)) {
                 return new PageInfo<>();
             }
