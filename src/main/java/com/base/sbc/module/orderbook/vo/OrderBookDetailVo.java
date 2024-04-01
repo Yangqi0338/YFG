@@ -110,6 +110,12 @@ public class OrderBookDetailVo extends OrderBookDetail {
     private String devtTypeName;
 
     /**
+     * 面料类型
+     */
+    @ApiModelProperty(value = "面料类型")
+    private String fabricComposition;
+
+    /**
      * 厂家
      */
     @ApiModelProperty(value = "FOB厂家")

@@ -45,7 +45,9 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.dto.BasePageInfo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
+import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
@@ -225,6 +227,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             packBoms.addAll(packBomService.list(new LambdaQueryWrapper<PackBom>().in(PackBom::getId, packBomIds)));
         }
 
+        // 获取维度系数的面料数据
+        List<String> styleIdList = orderBookDetailVos.stream().map(OrderBookDetailVo::getStyleColorId).collect(Collectors.toList());
+        List<FieldVal> fvList = fieldValService.list(new LambdaQueryWrapper<FieldVal>()
+                .select(FieldVal::getForeignId, FieldVal::getValName)
+                .in(FieldVal::getForeignId, styleIdList)
+                .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY)
+                .eq(FieldVal::getFieldName, "MaterialQuality")
+        );
+
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
 
             // /*版型定位字段*/
@@ -244,6 +255,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
             orderBookDetailVo.setUnitFabricDosage(getDosageName.apply(orderBookDetailVo.getUnitFabricDosageIds()));
             orderBookDetailVo.setUnitDosage(getDosageName.apply(orderBookDetailVo.getUnitDosageIds()));
+
+            fvList.stream().filter(it-> it.getForeignId().equals(orderBookDetailVo.getStyleId())).findFirst().ifPresent(fv-> {
+                orderBookDetailVo.setFabricComposition(fv.getValName());
+            });
 
 
             if ("CMT".equals(orderBookDetailVo.getDevtTypeName())){
