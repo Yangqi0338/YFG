@@ -54,27 +54,51 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
     }
 
     @Override
-    public PackTechPackaging Packaging(PackTechPackaging packaging) {
+    public PackTechPackaging Packaging(String dependDictType,String dependCode) {
         PackTechPackaging packTechPackaging = new PackTechPackaging();
-
-        if(packaging.getPackType().equals("C8_PackageSize")){
-            Pattern pattern = Pattern.compile("^(.*?):([0-9]+)\\*([0-9]+)cm$");
-            Matcher matcher = pattern.matcher(packaging.getPackagingBagStandardName());
-            if(matcher.matches()){
-                String   value1 = matcher.group(1);
-                String   value2 = matcher.group(2);
-                String   value3 = matcher.group(3);
+        if(dependCode.equals("p1")){
+            Pattern pattern = Pattern.compile("^(.*?):([0-9]+)\\*([0-9]+)\\+([0-9]+)cm$");
+            Matcher matcher = pattern.matcher(dependDictType);
+            if(matcher.matches()) {
+                String value1 = matcher.group(1);
+                String value2 = matcher.group(2);
+                String value3 = matcher.group(3);
+                String value4 = matcher.group(4);
                 packTechPackaging.setVolumeLength(new BigDecimal(value2));
                 packTechPackaging.setVolumeWidth(new BigDecimal(value3));
+                packTechPackaging.setVolumeHeight(new BigDecimal(value4));
+                return packTechPackaging;
+            }else {
+                return packTechPackaging;
+                }
+        } else if(dependCode.equals("p2")){
+                Pattern pattern = Pattern.compile("^(.*?):([0-9]+)\\*([0-9]+)cm$");
+                Matcher matcher = pattern.matcher(dependDictType);
+                if(matcher.matches()){
+                    String   value2 = matcher.group(2);
+                    String   value3 = matcher.group(3);
+                    packTechPackaging.setVolumeLength(new BigDecimal(value2));
+                    packTechPackaging.setVolumeWidth(new BigDecimal(value3));
+                    return packTechPackaging;
+                } else {
+                    return packTechPackaging;
+                }
+        }else if(dependCode.equals("p3")){
+            Pattern pattern = Pattern.compile("^(.*?):([0-9]+)\\*([0-9]+)\\*([0-9]+)$");
+            Matcher matcher = pattern.matcher(dependDictType);
+            if(matcher.matches()){
+                String   value2 = matcher.group(2);
+                String   value3 = matcher.group(3);
+                String   value4 = matcher.group(4);
+                packTechPackaging.setVolumeLength(new BigDecimal(value2));
+                packTechPackaging.setVolumeWidth(new BigDecimal(value3));
+                packTechPackaging.setVolumeHeight(new BigDecimal(value4));
+                return packTechPackaging;
             } else {
-                System.out.println("无法提取值");
+                return packTechPackaging;
             }
-            return packTechPackaging;
-        } else if(packaging.getPackType().equals("C8_PackageSize")){
-
         }
-
-        return null;
+        return packTechPackaging;
     }
 
     @Override

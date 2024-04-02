@@ -87,6 +87,18 @@ public class PackTechPackaging extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "高")
     private BigDecimal volumeHeight;
+    @ApiModelProperty(value = "长")
+    private BigDecimal volumeLength1;
+
+    /**
+     * 宽
+     */
+    @ApiModelProperty(value = "宽")
+    private BigDecimal volumeWidth1;
+
+
+    @ApiModelProperty(value = "高")
+    private BigDecimal volumeHeight1;
 
     /**
      * 体积
