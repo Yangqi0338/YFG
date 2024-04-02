@@ -167,7 +167,6 @@
             p.pattern_design_id ,
             p.pat_diff,p.pat_diff_name,
             p.sample_bar_code sampleBarCode,
-
             CONCAT(s.year_name,s.season_name,s.brand_name) as season,
             s.style_pic,
             p.sample_type,
