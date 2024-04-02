@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -118,6 +119,15 @@ public class FieldManagementVo {
     /** 复盘检查标记 */
     @ApiModelProperty(value = "复盘检查标记"  )
     private String replayExamineFlag;
+    /** 组内排序 */
+    @ApiModelProperty(value = "组内排序"  )
+    private Integer sort;
+    /** 维度分组排序 */
+    @ApiModelProperty(value = "维度分组排序"  )
+    private Integer groupSort;
+    /** 维度数据创建时间 */
+    @ApiModelProperty(value = "维度数据创建时间"  )
+    private Date createDate;
 
     List<FieldManagementVo> list;
 
