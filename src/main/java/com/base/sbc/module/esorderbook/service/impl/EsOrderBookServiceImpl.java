@@ -73,6 +73,8 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     @Override
     public PageInfo<EsOrderBookItemVo> findPage(EsOrderBookQueryDto dto) {
         BaseQueryWrapper<EsOrderBookItemVo> qw = new BaseQueryWrapper<>();
+        qw.notEmptyEq("head.season_id", dto.getSeasonId());
+
         QueryGenerator.initQueryWrapperByMap(qw, dto);
         Page<Object> objects = PageHelper.startPage(dto);
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
@@ -188,6 +190,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
 
     @Override
     public ApiResult uploadStyleColorPics(Principal user, MultipartFile file, EsOrderBookItemVo vo) {
+
         return null;
     }
 

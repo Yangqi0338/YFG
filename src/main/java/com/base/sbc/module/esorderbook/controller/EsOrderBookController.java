@@ -6,8 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.esorderbook.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.esorderbook.dto.EsOrderBookQueryDto;
 import com.base.sbc.module.esorderbook.dto.EsOrderBookSaveDto;
@@ -45,6 +47,15 @@ public class EsOrderBookController {
 
     @Autowired
     private EsOrderBookService esOrderBookService;
+
+    @ApiOperation(value = "查询树结构")
+    @GetMapping("")
+    public List<EsOrderBook> queryYearBrandTree(EsOrderBookQueryDto dto){
+        LambdaQueryWrapper<EsOrderBook> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(EsOrderBook::getDelFlag, BaseGlobal.NO);
+        queryWrapper.eq(EsOrderBook::getSeasonId, dto.getSeasonId());
+        return esOrderBookService.list(queryWrapper);
+    }
 
     @ApiOperation(value = "分页查询")
     @GetMapping
