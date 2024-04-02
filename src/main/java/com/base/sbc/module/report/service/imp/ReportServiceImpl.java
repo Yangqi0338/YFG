@@ -245,6 +245,8 @@ public class ReportServiceImpl implements ReportService {
             Date commissioningDate = report.getCommissioningDate();
             if (commissioningDate == null) {
                 continue;
+            }else{
+                commissioningDate = DateUtil.parse(DateUtil.formatDate(commissioningDate),"yyyy-MM-dd");
             }
 
             String brandName = report.getBrandName();
@@ -255,15 +257,17 @@ public class ReportServiceImpl implements ReportService {
             if (latestCommissioningDate != null) {
                 Date lastDate = null;
                 if (latestCommissioningDate == null) {
-                    lastDate = new Date();
+                    lastDate = DateUtil.parse(DateUtil.formatDate(new Date()),"yyyy-MM-dd");
                 } else {
-                    lastDate = latestCommissioningDate.getLatestCommissioningDate();
+                    lastDate = DateUtil.parse(DateUtil.formatDate(latestCommissioningDate.getLatestCommissioningDate()),"yyyy-MM-dd");
                 }
 
                 /**面料详单*/
                 Date sendMainFabricDate = report.getSendMainFabricDate();
                 if (sendMainFabricDate == null) {
-                    sendMainFabricDate = new Date();
+                    sendMainFabricDate = DateUtil.parse(DateUtil.formatDate(new Date()),"yyyy-MM-dd");
+                }else{
+                    sendMainFabricDate = DateUtil.parse(DateUtil.formatDate(sendMainFabricDate),"yyyy-MM-dd");
                 }
 
                 //比较面料详单和投产日期
@@ -294,7 +298,10 @@ public class ReportServiceImpl implements ReportService {
                 /**明细单*/
                 Date designDetailDate = report.getDesignDetailDate();
                 if (designDetailDate == null) {
-                    designDetailDate = new Date();
+                    designDetailDate = DateUtil.parse(DateUtil.formatDate(new Date()),"yyyy-MM-dd");
+
+                }else{
+                    designDetailDate = DateUtil.parse(DateUtil.formatDate(designDetailDate),"yyyy-MM-dd");
                 }
 
                 int designDetailCompare = DateUtil.compare(designDetailDate, commissioningDate);
@@ -322,7 +329,9 @@ public class ReportServiceImpl implements ReportService {
                 /**正确样*/
                 Date designCorrectDate = report.getDesignCorrectDate();
                 if (designCorrectDate == null) {
-                    designCorrectDate = new Date();
+                    designCorrectDate = DateUtil.parse(DateUtil.formatDate(new Date()),"yyyy-MM-dd");
+                }else{
+                    designCorrectDate = DateUtil.parse(DateUtil.formatDate(designCorrectDate),"yyyy-MM-dd");
                 }
                 int designCorrectCompare = DateUtil.compare(designCorrectDate, commissioningDate);
 
