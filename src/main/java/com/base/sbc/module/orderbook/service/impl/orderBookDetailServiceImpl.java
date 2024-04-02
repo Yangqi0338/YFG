@@ -750,12 +750,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBook.setOrderStatus(OrderBookOrderStatusEnum.PART_ORDER);
         }
         orderBookService.updateById(orderBook);
-        orderBookDetails1.forEach(orderBookDetail -> {
-            PublicStyleColorDto colorDto = new PublicStyleColorDto();
-            colorDto.setOrderFlag(YesOrNoEnum.YES.getValueStr());
-            colorDto.setId(orderBookDetail.getStyleColorId());
-            styleColorService.updateOrderFlag(colorDto);
-        });
+        PublicStyleColorDto colorDto = new PublicStyleColorDto();
+        colorDto.setOrderFlag(YesOrNoEnum.YES.getValueStr());
+        colorDto.setCheckScmSendFlag(true);
+        colorDto.setId(orderBookDetails1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.joining(COMMA)));
+        styleColorService.updateOrderFlag(colorDto);
         return b;
     }
 
