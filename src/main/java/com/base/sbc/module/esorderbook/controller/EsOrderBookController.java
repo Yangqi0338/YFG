@@ -49,7 +49,7 @@ public class EsOrderBookController {
     private EsOrderBookService esOrderBookService;
 
     @ApiOperation(value = "查询树结构")
-    @GetMapping("")
+    @GetMapping("/headList")
     public List<EsOrderBook> queryYearBrandTree(EsOrderBookQueryDto dto){
         LambdaQueryWrapper<EsOrderBook> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(EsOrderBook::getDelFlag, BaseGlobal.NO);
