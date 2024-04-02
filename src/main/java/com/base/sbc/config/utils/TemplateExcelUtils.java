@@ -2,25 +2,13 @@ package com.base.sbc.config.utils;
 
 import com.alibaba.excel.metadata.data.ImageData;
 import com.alibaba.excel.metadata.data.WriteCellData;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.core.io.DefaultResourceLoader;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * EasyExcel 相关工具类
- */
-@Slf4j
-public class EasyExcelUtils {
 
+public class TemplateExcelUtils {
     /**
      * Excel所有图片设置
      *
@@ -80,51 +68,5 @@ public class EasyExcelUtils {
         return writeCellData;
     }
 
-    /**
-     * 单模板多 sheet获取
-     * @param path 路径
-     * @param sheetCount sheet数量
-     * @return 模板流
-     */
-    public static ByteArrayOutputStream templateSheetCreate(String path, Integer sheetCount) {
-        try{
-            InputStream fileInputStream = new DefaultResourceLoader().getResource(path).getInputStream();
-            XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
-            //设置模板的第一个sheet的名称
-            workbook.setSheetName(0, "Sheet0");
-            for (int i = 0; i < sheetCount-1; i++) {
-                // 复制模板，得到第i个sheet
-                int num = i + 1;
-                workbook.cloneSheet(0, "Sheet" + num);
-            }
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            //模板写到流里
-            workbook.write(bos);
-            return bos;
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
-    }
 
-    /**
-     * 下载excel
-     * @param fileName 文件名称
-     * @param bos 模板流
-     * @param response 响应
-     */
-    public static void downLoadExcel(String fileName, ByteArrayOutputStream bos, HttpServletResponse response) {
-        try (OutputStream out = response.getOutputStream()) {
-            response.setCharacterEncoding("UTF-8");
-            response.setHeader("content-Type", "application/vnd.ms-excel");
-            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName + ".xls", "UTF-8"));
-            response.setHeader("Content-Length", String.valueOf(bos.size()));
-            out.write(bos.toByteArray() );
-        } catch (Exception e) {
-            try {
-                throw new Exception(e.getMessage());
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
-    }
 }

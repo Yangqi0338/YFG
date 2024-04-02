@@ -61,7 +61,7 @@ public class FabricSummaryExportExcel {
     //=========================================================================
 
     @ApiModelProperty(value = "款式图"  )
-    public static String styleColorPic = "styleColorPic";
+    public static String stylePic = "stylePic";
 
     @ApiModelProperty(value = "部位名称"  )
     public static String partName = "partName";

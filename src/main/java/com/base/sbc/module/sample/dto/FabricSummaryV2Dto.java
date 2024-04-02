@@ -1,6 +1,6 @@
 package com.base.sbc.module.sample.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @ApiModel("面料汇总-查询")
 @AllArgsConstructor
 @NoArgsConstructor
-public class FabricSummaryV2Dto extends Page {
+public class FabricSummaryV2Dto extends QueryFieldDto {
 
     private String id;
 

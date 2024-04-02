@@ -7,9 +7,16 @@
 package com.base.sbc.module.fabricsummary.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
-/** 
+import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+/**
  * 类描述：款式管理-面料汇总 dao类
  * @address com.base.sbc.module.fabricsummary.dao.FabricSummaryDao
  * @author your name  
@@ -19,6 +26,9 @@ import com.base.sbc.module.fabricsummary.entity.FabricSummary;
  */
 @Mapper
 public interface FabricSummaryMapper extends BaseMapper<FabricSummary> {
+    List<String> fabricSummaryIdList(@Param(Constants.WRAPPER)BaseQueryWrapper<String> qw);
+
+    List<FabricSummaryInfoVo> fabricSummaryInfoVoList( @Param(Constants.WRAPPER) BaseQueryWrapper<FabricSummaryInfoVo> qw);
 // 自定义方法区 不替换的区域【other_start】
 
 

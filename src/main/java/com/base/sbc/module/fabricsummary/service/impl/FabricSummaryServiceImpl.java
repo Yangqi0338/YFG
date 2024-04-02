@@ -6,12 +6,26 @@
  *****************************************************************************/
 package com.base.sbc.module.fabricsummary.service.impl;
 
+import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.QueryGenerator;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabricsummary.mapper.FabricSummaryMapper;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryService;
+import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
+import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-/** 
+
+import java.util.List;
+
+/**
  * 类描述：款式管理-面料汇总 service类
  * @address com.base.sbc.module.fabricsummary.service.FabricSummaryService
  * @author your name
@@ -21,6 +35,42 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMapper, FabricSummary> implements FabricSummaryService {
+
+    @Autowired
+    private MinioUtils minioUtils;
+
+    @Autowired
+    private StylePicUtils stylePicUtils;
+    @Override
+    public  PageInfo<String> fabricSummaryIdList(FabricSummaryV2Dto dto) {
+        Page<String> page  = PageHelper.startPage(dto);
+        BaseQueryWrapper<String> qw = new BaseQueryWrapper<>();
+        if (StringUtils.isNotBlank(dto.getId())){
+            qw.eq("tfs.id",dto.getId());
+        }
+        qw.eq("tfs.company_code",dto.getCompanyCode());
+        QueryGenerator.initQueryWrapperByMap(qw, dto);
+        baseMapper.fabricSummaryIdList(qw);
+        return page.toPageInfo();
+    }
+
+    @Override
+    public List<FabricSummaryInfoVo> fabricSummaryInfoVoList(FabricSummaryV2Dto dto) {
+        BaseQueryWrapper<FabricSummaryInfoVo> qw = new BaseQueryWrapper<>();
+        if (StringUtils.isNotBlank(dto.getId())){
+            qw.eq("tfs.id",dto.getId());
+        }
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
+        qw.eq("tfs.company_code",dto.getCompanyCode());
+        List<FabricSummaryInfoVo> list = baseMapper.fabricSummaryInfoVoList(qw);
+        if (!isColumnHeard){
+            minioUtils.setObjectUrlToList(list, "imageUrl");
+            stylePicUtils.setStylePic(list, "stylePic");
+        }
+        return list;
+
+
+    }
 
 // 自定义方法区 不替换的区域【other_start】
 

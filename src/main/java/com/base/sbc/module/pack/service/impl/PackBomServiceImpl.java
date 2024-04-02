@@ -13,6 +13,12 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.metadata.data.WriteCellData;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -61,10 +67,7 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.vo.BomFabricVo;
-import com.base.sbc.module.sample.vo.FabricStyleVo;
-import com.base.sbc.module.sample.vo.FabricSummaryVO;
-import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
+import com.base.sbc.module.sample.vo.*;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
@@ -74,6 +77,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -84,7 +88,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
@@ -92,6 +99,7 @@ import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.STYLE_MANY_COLOR;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
 /**
  * 类描述：资料包-物料清单 service类
@@ -430,50 +438,29 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         return fabricSummaryService.saveBatch(summaryList);
     }
-
-
     @Override
-    public PageInfo<BomFabricVo> fabricSummaryListV2(FabricSummaryV2Dto dto) {
-        Page<FabricSummary> page = PageHelper.startPage(dto);
-        QueryWrapper<FabricSummary> qw = new QueryWrapper();
-        qw.eq("company_code",dto.getCompanyCode());
-        qw.eq(StringUtils.isNotBlank(dto.getId()),"id",dto.getId());
-        qw.eq(StringUtils.isNotBlank(dto.getFabricSummaryCode()),"fabric_summary_code",dto.getFabricSummaryCode());
-        qw.eq(StringUtils.isNotBlank(dto.getMaterialCode()),"material_code",dto.getMaterialCode());
-        qw.eq(StringUtils.isNotBlank(dto.getSupplierFabricCode()),"supplier_fabric_code",dto.getSupplierFabricCode());
-        qw.eq(StringUtils.isNotBlank(dto.getYearSuffix()),"year_suffix",dto.getYearSuffix());
-        qw.eq(StringUtils.isNotBlank(dto.getBrand()),"brand",dto.getBrand());
-        qw.eq(StringUtils.isNotBlank(dto.getEnquiryCode()),"enquiryCode",dto.getEnquiryCode());
-        qw.eq(StringUtils.isNotBlank(dto.getFittingResult()),"fittingResult",dto.getFittingResult());
-        qw.eq(StringUtils.isNotBlank(dto.getPhysicochemistryDetectionResult()),"physicochemistry_detection_result",dto.getPhysicochemistryDetectionResult());
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabric_summary.getK());
-
-        fabricSummaryService.list(qw);
-        PageInfo<FabricSummary> pageInfo = page.toPageInfo();
-        List<BomFabricVo> list = Lists.newArrayList();
-        for (FabricSummary fabricSummary : pageInfo.getList()) {
-            QueryWrapper<FabricSummaryStyle> queryWrapper = new QueryWrapper();
-            queryWrapper.eq("fabric_summary_id",fabricSummary.getId());
-            queryWrapper.eq("del_flag","0");
-            List<FabricSummaryStyle> fabricSummaryStyles = fabricSummaryStyleService.getBaseMapper().selectList(queryWrapper);
-            BomFabricVo bomFabricVo = new BomFabricVo();
-            BeanUtil.copyProperties(fabricSummary,bomFabricVo);
-            bomFabricVo.setFabricSummaryStyles(fabricSummaryStyles);
-
-            QueryWrapper<FabricSummaryPrintLog> qwr = new QueryWrapper();
-            qwr.eq("fabric_summary_id",fabricSummary.getId());
-            bomFabricVo.setPrintCount(fabricSummaryPrintLogService.count(qwr));
-            list.add(bomFabricVo);
-            minioUtils.setObjectUrlToObject(fabricSummary, "imageUrl");
+    public PageInfo<List<FabricSummaryInfoVo>> fabricSummaryListV2(FabricSummaryV2Dto dto){
+        //获取汇总id列表
+        PageInfo<String> fabricSummaryIdListPage = fabricSummaryService.fabricSummaryIdList(dto);
+        if (CollectionUtils.isEmpty(fabricSummaryIdListPage.getList())){
+            return new PageInfo<>();
         }
-        stylePicUtils.setStylePic(list, "stylePic");
-        stylePicUtils.setStylePic(list, "styleColorPic");
-        PageInfo<BomFabricVo> pageInfo2 =new PageInfo<>(list);
-        pageInfo2.setTotal(pageInfo.getTotal());
-        pageInfo2.setList(list);
+        List<FabricSummaryInfoVo> summaryInfoVos = fabricSummaryService.fabricSummaryInfoVoList(dto);
+        Map<String, List<FabricSummaryInfoVo>> map = summaryInfoVos.stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::getId));
 
+        List<List<FabricSummaryInfoVo>> result = new ArrayList<>();
+        for (String id : fabricSummaryIdListPage.getList()) {
+            List<FabricSummaryInfoVo> list = map.get(id);
+            if (list.size() > 1){
+                list =  list.stream().sorted(Comparator.comparing(FabricSummaryInfoVo::getSort)).collect(Collectors.toList());
+            }
+            result.add(list);
+        }
+        PageInfo<List<FabricSummaryInfoVo>> pageInfo = new PageInfo<>();
+        BeanUtil.copyProperties(fabricSummaryIdListPage, pageInfo);
+        pageInfo.setList(result);
+        return pageInfo;
 
-        return pageInfo2;
     }
 
     @Override
@@ -504,7 +491,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             fabricSummaries.add(fabricSummary);
             saveOrUpdateOperaLog(dtoList, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
         }
-
         return fabricSummaryService.updateBatchById(fabricSummaries);
     }
 
@@ -618,88 +604,122 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Override
     public void fabricSummaryExcel( HttpServletResponse response, FabricSummaryV2Dto dto) {
-        PageInfo<BomFabricVo> fabricStyleVoPageInfo = this.fabricSummaryListV2(dto);
-        if (CollectionUtils.isEmpty(fabricStyleVoPageInfo.getList())){
+        if (StringUtils.isEmpty(dto.getId())){
+            throw new OtherException("id不能为空");
+        }
+        PageInfo<List<FabricSummaryInfoVo>> pageInfo = this.fabricSummaryListV2(dto);
+        PageInfo<BomFabricVo> fabricStyleVoPageInfo = null;
+
+        if (CollectionUtils.isEmpty(pageInfo.getList())){
             throw new OtherException("没有数据");
         }
-        //TODO 靳帅 后续优化
-        List<BomFabricVo> list = fabricStyleVoPageInfo.getList();
-        Map<Integer, List<Map<String, Object>>> map = getExcelMap(list);
+        List<FabricSummaryInfoVo> fabricSummaryStyles = pageInfo.getList().get(0);
 
-        try {
-            ExcelUtils.exportExcel("src/main/resources/excelTemp/fabricSummaryTemplate.xlsx",map,"面料汇总详单.xlsx",response);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }finally{
+        //物料信息
+        Map<String, Object> materialMap = getMaterialMap(fabricSummaryStyles.get(0));
+        //截取款式的信息
+        Map<Integer, List<FabricSummaryInfoVo>> integerListMap = splitListIntoArrays(fabricSummaryStyles, 4);
+        try{
+            //获取模板流
+            ByteArrayOutputStream bos = EasyExcelUtils.templateSheetCreate("excelTemp/fabricSummaryTemplate.xlsx", integerListMap.size());
+            InputStream templateInputStream = new ByteArrayInputStream(bos.toByteArray());
+            //输出流
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            ExcelWriter excelWriter =
+                    EasyExcel.write(out)
+                            .withTemplate(templateInputStream)
+                            .build();
+            //填充模板数据
+            for (int i = 0; i < integerListMap.size(); i++) {
+                //创建对应的sheet
+                WriteSheet writeSheet = EasyExcel.writerSheet(i).build();
+                excelWriter.fill(materialMap,writeSheet);
+                List<FabricSummaryInfoVo> fabricSummaryStyleList =  integerListMap.get(i);
+                //款式信息 填充
+                for (int i1 = 0; i1 < fabricSummaryStyleList.size(); i1++) {
+                    excelWriter.fill(new FillWrapper("data"+i1, getStyleMap(fabricSummaryStyleList.get(i1))),writeSheet);
+                }
+            }
+            excelWriter.finish();
+            //打印日志
             FabricSummaryPrintLog fabricSummaryPrintLog = new FabricSummaryPrintLog();
             fabricSummaryPrintLog.insertInit();
             fabricSummaryPrintLog.setFabricSummaryId(dto.getId());
             fabricSummaryPrintLogService.save(fabricSummaryPrintLog);
+            //下载
+            EasyExcelUtils.downLoadExcel("面料汇总.xlsx",out,response);
+        }catch (Exception e){
+            throw new RuntimeException(e);
         }
     }
 
-    private Map<Integer, List<Map<String, Object>>>  getExcelMap(List<BomFabricVo> list){
-        BomFabricVo bomFabricVo = list.get(0);
-        Map<Integer, List<Map<String, Object>>>  map = new HashMap<>();
-        List<FabricSummaryStyle> fabricSummaryStyles = bomFabricVo.getFabricSummaryStyles();
-        Map<Integer, List<FabricSummaryStyle>> integerListMap = splitListIntoArrays(fabricSummaryStyles, 4);
+    private List<Map<String, Object>> getStyleMap(FabricSummaryInfoVo fabricSummaryStyle) {
+        List<Map<String, Object>> mapList = Lists.newArrayList();
+        Map<String, Object> objectMap = Maps.newHashMap();
 
-        for (int i = 0; i < integerListMap.size(); i++){
-            List<Map<String, Object>> mList1=new ArrayList<>();
-            Map<String,Object> objectMap = new HashMap<>();
-            objectMap.put("sheetName","sheet"+i);
-            if (StringUtils.isNotBlank(bomFabricVo.getPhysicochemistryDetectionResult())){
-                objectMap.put(FabricSummaryExportExcel.physicochemistryDetectionResult, Constants.ZERO_STR.equals(bomFabricVo.getPhysicochemistryDetectionResult()) ? "是":"否");
+        if (null != fabricSummaryStyle.getStylePic()){
+            WriteCellData<Void> voidWriteCellData = null;
+            try {
+                voidWriteCellData = TemplateExcelUtils.imageCells(HttpUtil.downloadBytes(fabricSummaryStyle.getStylePic()), 1000.0, 200.0,0.6,1.9);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-            if (StringUtils.isNotBlank(bomFabricVo.getFittingResult())){
-                objectMap.put(FabricSummaryExportExcel.fittingResult, Constants.ZERO_STR.equals(bomFabricVo.getFittingResult()) ? "不合适":"合适");
-            }
-            if (StringUtils.isNotBlank(bomFabricVo.getIsProtection())){
-                objectMap.put(FabricSummaryExportExcel.isProtection, Constants.ZERO_STR.equals(bomFabricVo.getIsProtection()) ? "否":"是");
-            }
-            objectMap.put(FabricSummaryExportExcel.enquiryCode, bomFabricVo.getEnquiryCode());
-            objectMap.put(FabricSummaryExportExcel.materialCode, bomFabricVo.getMaterialCode());
-            objectMap.put(FabricSummaryExportExcel.yearSuffix, bomFabricVo.getYearSuffix());
-            objectMap.put(FabricSummaryExportExcel.supplierName, bomFabricVo.getSupplierName());
-            objectMap.put(FabricSummaryExportExcel.supplierFabricCode, bomFabricVo.getSupplierFabricCode());
-            objectMap.put(FabricSummaryExportExcel.supplierFactoryIngredient, bomFabricVo.getSupplierFactoryIngredient());
-            objectMap.put(FabricSummaryExportExcel.widthName, bomFabricVo.getWidthName());
-            objectMap.put(FabricSummaryExportExcel.gramWeight, bomFabricVo.getGramWeight());
-            objectMap.put(FabricSummaryExportExcel.specification, bomFabricVo.getSpecification());
-            objectMap.put(FabricSummaryExportExcel.minimumOrderQuantity, bomFabricVo.getMinimumOrderQuantity());
-            objectMap.put(FabricSummaryExportExcel.productionDay, bomFabricVo.getProductionDay());
-            objectMap.put(FabricSummaryExportExcel.supplierQuotationPrice, bomFabricVo.getSupplierQuotationPrice());
-            objectMap.put(FabricSummaryExportExcel.createName, "测试");
-            List<FabricSummaryStyle> fontSummaryStyleList =  integerListMap.get(i);
-            for (int j = 0; j < fontSummaryStyleList.size(); j++) {
-                FabricSummaryStyle fabricSummaryStyle = fontSummaryStyleList.get(i);
-                objectMap.put(FabricSummaryExportExcel.styleColorPic+j,fabricSummaryStyle.getStyleColorPic());
-                objectMap.put(FabricSummaryExportExcel.partName+j,fabricSummaryStyle.getPartName());
-                objectMap.put(FabricSummaryExportExcel.bandName+j,fabricSummaryStyle.getBandName());
-                objectMap.put(FabricSummaryExportExcel.styleNo+j,fabricSummaryStyle.getStyleNo());
-                objectMap.put(FabricSummaryExportExcel.styleId+j,fabricSummaryStyle.getStyleId());
-                objectMap.put(FabricSummaryExportExcel.senderDesignerName+j,fabricSummaryStyle.getSenderDesignerName());
-                objectMap.put(FabricSummaryExportExcel.colorCrash+j,fabricSummaryStyle.getColorCrash());
-                objectMap.put(FabricSummaryExportExcel.materialColor+j,fabricSummaryStyle.getMaterialColor());
-                objectMap.put(FabricSummaryExportExcel.supplierColor+j,fabricSummaryStyle.getSupplierColor());
-                objectMap.put(FabricSummaryExportExcel.supplierColorNo+j,bomFabricVo.getSupplierColorNo());
-                objectMap.put(FabricSummaryExportExcel.unitUse+j,fabricSummaryStyle.getUnitUse());
-                objectMap.put(FabricSummaryExportExcel.totalProduction+j,fabricSummaryStyle.getTotalProduction());
-            }
-            mList1.add(objectMap);
-            map.put(i, mList1);
+            objectMap.put(FabricSummaryExportExcel.stylePic,voidWriteCellData);
         }
-        return map;
+
+
+        objectMap.put(FabricSummaryExportExcel.partName,fabricSummaryStyle.getPartName());
+        objectMap.put(FabricSummaryExportExcel.bandName,fabricSummaryStyle.getBandName());
+        objectMap.put(FabricSummaryExportExcel.styleNo,fabricSummaryStyle.getStyleNo());
+        objectMap.put(FabricSummaryExportExcel.styleId,fabricSummaryStyle.getStyleId());
+        objectMap.put(FabricSummaryExportExcel.senderDesignerName,fabricSummaryStyle.getSenderDesignerName());
+        objectMap.put(FabricSummaryExportExcel.colorCrash,fabricSummaryStyle.getColorCrash());
+        objectMap.put(FabricSummaryExportExcel.materialColor,fabricSummaryStyle.getMaterialColor());
+        objectMap.put(FabricSummaryExportExcel.supplierColor,fabricSummaryStyle.getSupplierColor());
+        objectMap.put(FabricSummaryExportExcel.supplierColorNo,fabricSummaryStyle.getSupplierColorNo());
+        objectMap.put(FabricSummaryExportExcel.unitUse,fabricSummaryStyle.getUnitUse());
+        objectMap.put(FabricSummaryExportExcel.totalProduction,fabricSummaryStyle.getTotalProduction());
+        mapList.add(objectMap);
+        return mapList;
+    }
+
+    private Map<String, Object> getMaterialMap(FabricSummaryInfoVo bomFabricVo) {
+        Map<String,Object> objectMap = new HashMap<>();
+        if (StringUtils.isNotBlank(bomFabricVo.getPhysicochemistryDetectionResult())){
+            objectMap.put(FabricSummaryExportExcel.physicochemistryDetectionResult, Constants.ZERO_STR.equals(bomFabricVo.getPhysicochemistryDetectionResult()) ? "是":"否");
+        }
+        if (StringUtils.isNotBlank(bomFabricVo.getFittingResult())){
+            objectMap.put(FabricSummaryExportExcel.fittingResult, Constants.ZERO_STR.equals(bomFabricVo.getFittingResult()) ? "不合适":"合适");
+        }
+        if (StringUtils.isNotBlank(bomFabricVo.getIsProtection())){
+            objectMap.put(FabricSummaryExportExcel.isProtection, Constants.ZERO_STR.equals(bomFabricVo.getIsProtection()) ? "否":"是");
+        }
+        objectMap.put(FabricSummaryExportExcel.enquiryCode, bomFabricVo.getEnquiryCode());
+        objectMap.put(FabricSummaryExportExcel.materialCode, bomFabricVo.getMaterialCode());
+        objectMap.put(FabricSummaryExportExcel.yearSuffix, bomFabricVo.getYearSuffix());
+        objectMap.put(FabricSummaryExportExcel.supplierName, bomFabricVo.getSupplierName());
+        objectMap.put(FabricSummaryExportExcel.supplierFabricCode, bomFabricVo.getSupplierFabricCode());
+        objectMap.put(FabricSummaryExportExcel.supplierFactoryIngredient, bomFabricVo.getSupplierFactoryIngredient());
+        objectMap.put(FabricSummaryExportExcel.widthName, bomFabricVo.getWidthName());
+        objectMap.put(FabricSummaryExportExcel.gramWeight, bomFabricVo.getGramWeight());
+        objectMap.put(FabricSummaryExportExcel.specification, bomFabricVo.getSpecification());
+        objectMap.put(FabricSummaryExportExcel.minimumOrderQuantity, bomFabricVo.getMinimumOrderQuantity());
+        objectMap.put(FabricSummaryExportExcel.productionDay, bomFabricVo.getProductionDay());
+        objectMap.put(FabricSummaryExportExcel.supplierQuotationPrice, bomFabricVo.getSupplierQuotationPrice());
+        objectMap.put(FabricSummaryExportExcel.createName, companyUserInfo.get().getCreateName());
+        return objectMap;
     }
 
 
-    private Map<Integer, List<FabricSummaryStyle>>   splitListIntoArrays(List<FabricSummaryStyle> list, int elementsPerSubList) {
-        Map<Integer, List<FabricSummaryStyle>> map = new HashMap<>();
+
+
+    private Map<Integer, List<FabricSummaryInfoVo>>  splitListIntoArrays(List<FabricSummaryInfoVo> list, int elementsPerSubList) {
+        Map<Integer, List<FabricSummaryInfoVo>> map = new HashMap<>();
         int index = 0;
         for (int i = 0; i < list.size(); i += elementsPerSubList) {
             int remainingElements = list.size() - i;
             int elementsToTake = Math.min(elementsPerSubList, remainingElements);
-            List<FabricSummaryStyle> subList = new ArrayList<>(list.subList(i, i + elementsToTake));
+            List<FabricSummaryInfoVo> subList = new ArrayList<>(list.subList(i, i + elementsToTake));
             map.put(index, subList);
             index++;
         }
@@ -1208,5 +1228,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         return count(new QueryWrapper<PackBom>().lambda().eq(PackBom::getBomVersionId, enableVersion.getId()));
 
+    }
+
+    public static void main(String[] args) {
+        String s = new IdGen().nextIdStr();
+        System.out.println(s);
     }
 }

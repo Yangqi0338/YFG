@@ -14,10 +14,7 @@ import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
 import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.vo.BomFabricVo;
-import com.base.sbc.module.sample.vo.FabricStyleVo;
-import com.base.sbc.module.sample.vo.FabricSummaryVO;
-import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
+import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -197,7 +194,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param dto
      * @return
      */
-    PageInfo<BomFabricVo> fabricSummaryListV2(FabricSummaryV2Dto dto);
+    PageInfo<List<FabricSummaryInfoVo>> fabricSummaryListV2(FabricSummaryV2Dto dto);
 
     /**
      * 物料汇总修改

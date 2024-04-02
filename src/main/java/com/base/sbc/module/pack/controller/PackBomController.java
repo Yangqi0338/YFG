@@ -26,6 +26,7 @@ import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.vo.BomFabricVo;
 import com.base.sbc.module.sample.vo.FabricStyleVo;
+import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -230,7 +231,7 @@ public class PackBomController extends BaseController{
 
     @GetMapping("/fabricSummary")
     @ApiOperation(value = "面料汇总列表")
-    public PageInfo<BomFabricVo> fabricSummaryListV2(FabricSummaryV2Dto dto) {
+    public PageInfo<List<FabricSummaryInfoVo>> fabricSummaryListV2(FabricSummaryV2Dto dto) {
         dto.setCompanyCode(super.getUserCompany());
         return packBomService.fabricSummaryListV2(dto);
     }
