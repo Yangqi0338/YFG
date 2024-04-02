@@ -14,6 +14,10 @@ import com.base.sbc.module.pack.mapper.PackTechPackagingMapper;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * 类描述：资料包-工艺说明-包装方式和体积重量 service类
  *
@@ -47,6 +51,54 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
             return db;
         }
 
+    }
+
+    @Override
+    public PackTechPackaging Packaging(String dependDictType,String dependCode) {
+        PackTechPackaging packTechPackaging = new PackTechPackaging();
+        if(dependCode.equals("p1")){
+            Pattern pattern = Pattern.compile("^(.*?):([0-9]+)\\*([0-9]+)\\+([0-9]+)cm$");
+            Matcher matcher = pattern.matcher(dependDictType);
+            if(matcher.matches()) {
+                String value1 = matcher.group(1);
+                String value2 = matcher.group(2);
+                String value3 = matcher.group(3);
+                String value4 = matcher.group(4);
+                packTechPackaging.setVolumeLength(new BigDecimal(value2));
+                packTechPackaging.setVolumeWidth(new BigDecimal(value3));
+                packTechPackaging.setVolumeHeight(new BigDecimal(value4));
+                return packTechPackaging;
+            }else {
+                return packTechPackaging;
+                }
+        } else if(dependCode.equals("p2")){
+                Pattern pattern = Pattern.compile("^(.*?):([0-9]+)\\*([0-9]+)cm$");
+                Matcher matcher = pattern.matcher(dependDictType);
+                if(matcher.matches()){
+                    String   value2 = matcher.group(2);
+                    String   value3 = matcher.group(3);
+                    packTechPackaging.setVolumeLength(new BigDecimal(value2));
+                    packTechPackaging.setVolumeWidth(new BigDecimal(value3));
+                    return packTechPackaging;
+                } else {
+                    return packTechPackaging;
+                }
+        }else if(dependCode.equals("p3")){
+            Pattern pattern = Pattern.compile("^(.*?):([0-9]+)\\*([0-9]+)\\*([0-9]+)$");
+            Matcher matcher = pattern.matcher(dependDictType);
+            if(matcher.matches()){
+                String   value2 = matcher.group(2);
+                String   value3 = matcher.group(3);
+                String   value4 = matcher.group(4);
+                packTechPackaging.setVolumeLength(new BigDecimal(value2));
+                packTechPackaging.setVolumeWidth(new BigDecimal(value3));
+                packTechPackaging.setVolumeHeight(new BigDecimal(value4));
+                return packTechPackaging;
+            } else {
+                return packTechPackaging;
+            }
+        }
+        return packTechPackaging;
     }
 
     @Override

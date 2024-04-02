@@ -35,6 +35,8 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 类描述：资料包-工艺说明 Controller类
@@ -133,6 +135,16 @@ public class PackTechSpecController {
     public PackTechPackaging savePackaging(@RequestBody PackTechPackaging packaging) {
         return packTechPackagingService.savePackaging(packaging);
     }
+
+
+
+    @ApiOperation(value = "保存包装方式长宽高回显")
+    @PostMapping("/packagingEcho")
+    public PackTechPackaging Packaging( @RequestParam("dependDictType") String dependDictType,@RequestParam("dependCode") String dependCode) {
+        PackTechPackaging packaging1 = packTechPackagingService.Packaging(dependDictType,dependCode);
+        return packaging1;
+    }
+
 
     @ApiOperation(value = "查询包装方式和体积重量")
     @GetMapping("/packaging")
