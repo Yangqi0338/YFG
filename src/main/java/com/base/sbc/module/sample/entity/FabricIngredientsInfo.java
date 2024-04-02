@@ -17,6 +17,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotBlank;
+
 /**
  * 类描述：调样-辅料信息 实体类
  * @address com.base.sbc.module.sample.entity.FabricIngredientsInfo
@@ -49,6 +51,14 @@ public class FabricIngredientsInfo extends BaseDataEntity<String> {
     /** 品类名称 */
     @ApiModelProperty(value = "品类名称"  )
     private String categoryName;
+    /** 品牌 */
+    @NotBlank(message = "品牌字段不能为空")
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @NotBlank(message = "品牌名称字段不能为空")
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
     /** 开发类型 */
     @ApiModelProperty(value = "开发类型"  )
     private String devType;

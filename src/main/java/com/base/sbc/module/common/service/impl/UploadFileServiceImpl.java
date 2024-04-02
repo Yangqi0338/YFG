@@ -201,6 +201,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         }
                         objectName =  "Material/" + basicsdatumMaterial.getYearName() + "/" + basicsdatumMaterial.getSeasonName() + "/" + basicsdatumMaterial.getMaterialCode() + "." + extName;
                         break;
+                    /*调料管理 面料、辅料图片上传 */
+                    case "fabricAtactiform":
+                    case "ingredientsAtactiform":
+                        objectName = "Seasoning/" + System.currentTimeMillis() + "." + extName;
+                        break;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                 }
