@@ -175,6 +175,7 @@
             p.sample_bar_code sampleBarCode,
             s.id as styleId,
             CONCAT(s.year_name,s.season_name,s.brand_name) as season,
+            s.planning_season_id,
             s.style_pic,
             p.sample_type,
             p.pat_seq_name,
