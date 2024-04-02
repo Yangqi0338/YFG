@@ -203,7 +203,7 @@ public class OpenSmpController extends BaseController {
     public ApiResult EscmMaterialCompnentInspectCompanyDto(@RequestBody JSONObject jsonObject){
         EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto = jsonObject.toJavaObject(EscmMaterialCompnentInspectCompanyDto.class);
 
-        String materialsNo = escmMaterialCompnentInspectCompanyDto.getMaterialsNo();
+        /*String materialsNo = escmMaterialCompnentInspectCompanyDto.getMaterialsNo();
         String year = escmMaterialCompnentInspectCompanyDto.getYear();
 
         QueryWrapper<EscmMaterialCompnentInspectCompanyDto> compnentInspectCompanyDtoQueryWrapper = new QueryWrapper<>();
@@ -215,8 +215,8 @@ public class OpenSmpController extends BaseController {
             escmMaterialCompnentInspectCompanyService.save(escmMaterialCompnentInspectCompanyDto);
         }else{
             escmMaterialCompnentInspectCompanyService.updateById(escmMaterialCompnentInspectCompanyDto);
-        }
-
+        }*/
+        escmMaterialCompnentInspectCompanyService.saveOrUpdate(escmMaterialCompnentInspectCompanyDto);
 
 
 

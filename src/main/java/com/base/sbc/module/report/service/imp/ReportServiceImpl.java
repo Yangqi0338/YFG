@@ -423,4 +423,21 @@ public class ReportServiceImpl implements ReportService {
         List<DesignOrderScheduleDetailsReportVo> list = getDesignOrderScheduleDetailsReportPage(dto).getList();
         ExcelUtils.exportExcelByTableCode(list, "设计下单进度明细报表", response, dto);
     }
+
+    @Override
+    public PageInfo<SeasonPlanPercentageVo> seasonPlanPercentage(SeasonPlanPercentageQueryDto dto) {
+        BaseQueryWrapper<SeasonPlanPercentageQueryDto> qw = new BaseQueryWrapper<>();
+        QueryGenerator.initQueryWrapperByMap(qw, dto);
+        PageHelper.startPage(dto);
+        List<SeasonPlanPercentageVo> list = reportMapper.seasonPlanPercentage(qw);
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public void seasonPlanPercentageExport(HttpServletResponse response, SeasonPlanPercentageQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<SeasonPlanPercentageVo> list = seasonPlanPercentage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "季节企划完成率报表", response, dto);
+    }
 }
