@@ -126,6 +126,12 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String fileId;
 
     /**
+     * 文件地址链接
+     */
+    @ApiModelProperty("文件地址链接")
+    private String fileAddress;
+
+    /**
      * 面料 code，暂无
      */
     @ApiModelProperty("面料 code，暂无")

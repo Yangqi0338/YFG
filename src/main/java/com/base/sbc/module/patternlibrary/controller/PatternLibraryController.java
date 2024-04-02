@@ -65,6 +65,17 @@ public class PatternLibraryController {
         }
     }
 
+    @ApiOperation(value = "版型库子表数据新增/编辑")
+    @PostMapping("/saveOrUpdateItemDetail")
+    public ApiResult<String> saveOrUpdateItemDetail(@RequestBody PatternLibraryDTO patternLibraryDTO) {
+        Boolean resultFlag = patternLibraryService.saveOrUpdateItemDetail(patternLibraryDTO);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
+    }
+
     @ApiOperation(value = "版型库批量编辑")
     @PostMapping("/updateDetails")
     public ApiResult<String> updateDetails(@RequestBody List<PatternLibraryDTO> patternLibraryDTOList) {
@@ -78,7 +89,7 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库删除")
     @PostMapping("/removeDetail")
-    public ApiResult<String> removeDetail(@RequestBody String patternLibraryId) {
+    public ApiResult<String> removeDetail(String patternLibraryId) {
         Boolean resultFlag = patternLibraryService.removeDetail(patternLibraryId);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
@@ -103,10 +114,10 @@ public class PatternLibraryController {
         return patternLibraryService.updateById(patternLibrary);
     }
 
-    @ApiOperation(value = "版型库批量审核通过")
-    @PostMapping("/updateAuditsPass")
-    public ApiResult<String> updateAuditsPass(@RequestBody AuditsDTO auditsDTO) {
-        Boolean resultFlag = patternLibraryService.updateAuditsPass(auditsDTO);
+    @ApiOperation(value = "版型库批量审核")
+    @PostMapping("/updateAudits")
+    public ApiResult<String> updateAudits(@RequestBody AuditsDTO auditsDTO) {
+        Boolean resultFlag = patternLibraryService.updateAudits(auditsDTO);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
         } else {
@@ -114,10 +125,10 @@ public class PatternLibraryController {
         }
     }
 
-    @ApiOperation(value = "版型库批量审核驳回")
-    @PostMapping("/updateAuditsReject")
-    public ApiResult<String> updateAuditsReject(@RequestBody AuditsDTO auditsDTO) {
-        Boolean resultFlag = patternLibraryService.updateAuditsReject(auditsDTO);
+    @ApiOperation(value = "版型库启用/禁用")
+    @PostMapping("/updateEnableFlag")
+    public ApiResult<String> updateEnableFlag(@RequestBody PatternLibraryDTO patternLibraryDTO) {
+        Boolean resultFlag = patternLibraryService.updateEnableFlag(patternLibraryDTO);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
         } else {

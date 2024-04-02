@@ -136,6 +136,12 @@ public class PatternLibraryVO extends BaseDataEntity implements Serializable {
     private String fileId;
 
     /**
+     * 文件地址链接
+     */
+    @ApiModelProperty("文件地址链接")
+    private String fileAddress;
+
+    /**
      * 文件附件信息
      */
     @ApiModelProperty("文件附件信息")
@@ -224,13 +230,37 @@ public class PatternLibraryVO extends BaseDataEntity implements Serializable {
     /**
      * 部件库-所属版型库
      */
-    @ApiModelProperty("部件库-所属版型库)")
+    @ApiModelProperty("部件库-所属版型库")
     private PatternLibraryTemplate patternLibraryTemplate;
 
     /**
      * 部件库-子表数据集合
      */
-    @ApiModelProperty("部件库-子表数据集合)")
+    @ApiModelProperty("部件库-子表数据集合")
     private List<PatternLibraryItem> patternLibraryItemList;
+
+    /**
+     * 部件库-子表围度数据
+     */
+    @ApiModelProperty("部件库-子表围度数据")
+    private String patternLibraryItemPattern;
+
+    /**
+     * 部件库-子表长度数据
+     */
+    @ApiModelProperty("部件库-子表长度数据")
+    private String patternLibraryItemLength;
+
+    /**
+     * 部件库-子表部位数据
+     */
+    @ApiModelProperty("部件库-子表部位数据")
+    private String patternLibraryItemPosition;
+
+    /**
+     * 部件库-子表部件数据
+     */
+    @ApiModelProperty("部件库-子表部件数据")
+    private String patternLibraryItemParts;
 
 }

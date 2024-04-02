@@ -22,6 +22,7 @@
         <result column="template_code" property="templateCode"/>
         <result column="template_name" property="templateName"/>
         <result column="file_id" property="fileId"/>
+        <result column="file_address" property="fileAddress"/>
         <result column="material_code" property="materialCode"/>
         <result column="material_name" property="materialName"/>
         <result column="pic_id" property="picId"/>

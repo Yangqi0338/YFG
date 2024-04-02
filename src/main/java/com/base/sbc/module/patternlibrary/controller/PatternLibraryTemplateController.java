@@ -3,6 +3,7 @@ package com.base.sbc.module.patternlibrary.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplateDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplatePageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryTemplateService;
@@ -58,8 +59,19 @@ public class PatternLibraryTemplateController {
 
     @ApiOperation(value = "版型库-模板表删除")
     @PostMapping("/removeDetail")
-    public ApiResult<String> removeDetail(@RequestBody String patternLibraryId) {
-        Boolean resultFlag = patternLibraryTemplateService.removeDetail(patternLibraryId);
+    public ApiResult<String> removeDetail(String patternLibraryTemplateId) {
+        Boolean resultFlag = patternLibraryTemplateService.removeDetail(patternLibraryTemplateId);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
+    }
+
+    @ApiOperation(value = "版型库-模板表启用/禁用")
+    @PostMapping("/updateEnableFlag")
+    public ApiResult<String> updateEnableFlag(@RequestBody PatternLibraryTemplateDTO patternLibraryTemplateDTO) {
+        Boolean resultFlag = patternLibraryTemplateService.updateEnableFlag(patternLibraryTemplateDTO);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
         } else {

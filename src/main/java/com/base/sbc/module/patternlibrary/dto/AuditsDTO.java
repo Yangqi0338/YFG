@@ -31,4 +31,10 @@ public class AuditsDTO implements Serializable {
     @ApiModelProperty("审批提交内容")
     private String comment;
 
+    /**
+     * 审批类型（1-通过 2-驳回）
+     */
+    @ApiModelProperty("审批类型（1-通过 2-驳回）")
+    private Integer type;
+
 }

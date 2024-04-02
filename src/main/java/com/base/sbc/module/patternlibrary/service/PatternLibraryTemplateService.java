@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternlibrary.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplateDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplatePageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.github.pagehelper.PageInfo;
@@ -45,5 +46,13 @@ public interface PatternLibraryTemplateService extends IService<PatternLibraryTe
      * @return 删除是否成功
      */
     Boolean removeDetail(String patternLibraryTemplateId);
+
+    /**
+     * 版型库-模板启用/禁用
+     *
+     * @param patternLibraryTemplateDTO 入参
+     * @return 启用/禁用是否成功
+     */
+    Boolean updateEnableFlag(PatternLibraryTemplateDTO patternLibraryTemplateDTO);
 
 }

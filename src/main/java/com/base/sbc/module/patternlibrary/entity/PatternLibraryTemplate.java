@@ -62,4 +62,11 @@ public class PatternLibraryTemplate extends BaseDataEntity<String> implements Se
     @ApiModelProperty("模板子表信息")
     private List<PatternLibraryTemplateItem> patternLibraryTemplateItemList;
 
+    /**
+     * 模板子表信息格式化后
+     */
+    @TableField(exist = false)
+    @ApiModelProperty("模板子表信息格式化后")
+    private String patternLibraryTemplateItem;
+
 }

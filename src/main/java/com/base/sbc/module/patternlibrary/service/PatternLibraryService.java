@@ -36,6 +36,14 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      */
     Boolean saveOrUpdateDetails(PatternLibraryDTO patternLibraryDTO);
 
+  /**
+     * 版型库子表新增/编辑
+     *
+     * @param patternLibraryDTO 新增/编辑数据
+     * @return 新增/编辑是否成功
+     */
+    Boolean saveOrUpdateItemDetail(PatternLibraryDTO patternLibraryDTO);
+
     /**
      * 版型库批量编辑
      *
@@ -61,20 +69,20 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     Boolean removeDetail(String patternLibraryId);
 
     /**
-     * 版型库批量审核通过
+     * 版型库批量审核
      *
      * @param auditsDTO 版型库主表 ID 集合
      * @return 审核是否成功
      */
-    Boolean updateAuditsPass(AuditsDTO auditsDTO);
+    Boolean updateAudits(AuditsDTO auditsDTO);
 
     /**
-     * 版型库批量审核驳回
+     * 版型库启用/禁用
      *
-     * @param auditsDTO 版型库主表 ID 集合
-     * @return 审核是否成功
+     * @param patternLibraryDTO 入参
+     * @return 启用/禁用是否成功
      */
-    Boolean updateAuditsReject(AuditsDTO auditsDTO);
+    Boolean updateEnableFlag(PatternLibraryDTO patternLibraryDTO);
 
     /**
      * 查询已开款的设计款号数据信息

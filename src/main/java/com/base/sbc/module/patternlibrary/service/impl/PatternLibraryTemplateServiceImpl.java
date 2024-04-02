@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplateDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplatePageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplateItem;
@@ -46,7 +48,10 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
                         , "tpl.code", patternLibraryTemplatePageDTO.getSearch())
                 // 模板名称
                 .eq(ObjectUtil.isNotEmpty(patternLibraryTemplatePageDTO.getSearch())
-                        , "tpl.name", patternLibraryTemplatePageDTO.getSearch());
+                        , "tpl.name", patternLibraryTemplatePageDTO.getSearch())
+                // 模板启用状态
+                .eq(ObjectUtil.isNotEmpty(patternLibraryTemplatePageDTO.getEnableFlag())
+                        , "tpl.enable_flag", patternLibraryTemplatePageDTO.getEnableFlag());
         // 列表分页
         PageHelper.startPage(patternLibraryTemplatePageDTO.getPageNum(), patternLibraryTemplatePageDTO.getPageSize());
         // 得到版型库主表数据集合
@@ -70,9 +75,31 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
             }
             // 设置模板子表数据
             for (PatternLibraryTemplate patternLibraryTemplate : patternLibraryTemplateList) {
-                patternLibraryTemplate.setPatternLibraryTemplateItemList(
-                        colpatternLibraryTemplateItemMap.get(patternLibraryTemplate.getId())
-                );
+                List<PatternLibraryTemplateItem> patternLibraryTemplateItems =
+                        colpatternLibraryTemplateItemMap.get(patternLibraryTemplate.getId());
+                patternLibraryTemplate.setPatternLibraryTemplateItemList(patternLibraryTemplateItems);
+                // 格式化成前端所需要的数据
+                List<String> modifiableList = patternLibraryTemplateItems.stream()
+                        .filter(item -> item.getType().equals(1))
+                        .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
+                List<String> notModifiableList = patternLibraryTemplateItems.stream()
+                        .filter(item -> item.getType().equals(2))
+                        .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
+                if (ObjectUtil.isNotEmpty(modifiableList) && ObjectUtil.isNotEmpty(notModifiableList)) {
+                    patternLibraryTemplate.setPatternLibraryTemplateItem(
+                            StringUtils.join(modifiableList, "/")
+                                    + "可修改\n" + StringUtils.join(notModifiableList, "/")
+                                    + "不可修改"
+                    );
+                } else if (ObjectUtil.isNotEmpty(notModifiableList)) {
+                    patternLibraryTemplate.setPatternLibraryTemplateItem(
+                            StringUtils.join(notModifiableList, "/") + "不可修改"
+                    );
+                } else if (ObjectUtil.isNotEmpty(modifiableList)) {
+                    patternLibraryTemplate.setPatternLibraryTemplateItem(
+                            StringUtils.join(modifiableList, "/") + "可修改"
+                    );
+                }
             }
         }
         return new PageInfo<>(patternLibraryTemplateList);
@@ -181,6 +208,24 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
                         .eq(PatternLibraryTemplateItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
         );
         return Boolean.TRUE;
+    }
+
+    /**
+     * @param patternLibraryTemplateDTO 入参
+     * @return
+     */
+    @Override
+    public Boolean updateEnableFlag(PatternLibraryTemplateDTO patternLibraryTemplateDTO) {
+        if (ObjectUtil.isEmpty(patternLibraryTemplateDTO.getId())) {
+            throw new OtherException("请选择数据启用/禁用！");
+        }
+        PatternLibraryTemplate patternLibraryTemplate = getById(patternLibraryTemplateDTO.getId());
+        if (ObjectUtil.isEmpty(patternLibraryTemplate)) {
+            throw new OtherException("当前数据不存在，请刷新后重试！");
+        }
+        patternLibraryTemplate.setEnableFlag(patternLibraryTemplateDTO.getEnableFlag());
+        updateById(patternLibraryTemplate);
+        return true;
     }
 
 }
