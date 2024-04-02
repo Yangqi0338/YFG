@@ -6,11 +6,15 @@
  *****************************************************************************/
 package com.base.sbc.module.esorderbook.controller;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.esorderbook.dto.EsOrderBookQueryDto;
+import com.base.sbc.module.esorderbook.dto.EsOrderBookSaveDto;
+import com.base.sbc.module.esorderbook.entity.EsOrderBook;
 import com.base.sbc.module.esorderbook.service.EsOrderBookService;
 import com.base.sbc.module.esorderbook.vo.EsOrderBookItemVo;
+import com.base.sbc.module.esorderbook.vo.EsOrderBookVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 import java.util.List;
 
 /**
@@ -46,15 +53,60 @@ public class EsOrderBookController {
     }
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
-    @DeleteMapping("/{id}")
-    public Boolean removeById(@PathVariable("id") String id) {
-        List<String> ids = StringUtils.convertList(id);
-        return esOrderBookService.removeByIds(ids);
+    @DeleteMapping("/del")
+    public ApiResult removeById(@RequestBody List<EsOrderBookItemVo> list) {
+        esOrderBookService.del(list);
+        return ApiResult.success("操作成功");
     }
 
+    @ApiOperation(value = "批量新增")
+    @PostMapping("/saveMain")
+    public ApiResult saveMain(@RequestBody EsOrderBookVo dto) {
+        EsOrderBook esOrderBook = esOrderBookService.saveMain(dto);
+        return ApiResult.success("操作成功", esOrderBook);
+    }
 
+    @ApiOperation(value = "修改组名")
+    @PostMapping("/updateHeadName")
+    public ApiResult updateHeadName(@RequestBody EsOrderBookItemVo vo) {
+        esOrderBookService.updateHeadName(vo);
+        return ApiResult.success("操作成功");
+    }
 
+    @ApiOperation(value = "批量新增行")
+    @PostMapping("/saveItemList")
+    public ApiResult saveItemList(@RequestBody EsOrderBookSaveDto dto) {
+        esOrderBookService.saveItemList(dto);
+        return ApiResult.success("操作成功");
+    }
 
+    @ApiOperation(value = "mango导入图片")
+    @PostMapping("/uploadStyleColorPics")
+    public ApiResult uploadStyleColorPics(Principal user, @RequestParam("file") MultipartFile file, @RequestParam("vo") EsOrderBookItemVo vo) {
+        return esOrderBookService.uploadStyleColorPics(user, file, vo);
+    }
+
+    @ApiOperation(value = "锁定")
+    @GetMapping("/lock")
+    public ApiResult lock(String id) {
+        List<String> ids = StringUtils.convertList(id);
+        esOrderBookService.lock(ids);
+        return ApiResult.success("操作成功");
+    }
+
+    @ApiOperation(value = "解锁")
+    @GetMapping("/unLock")
+    public ApiResult unLock(String id) {
+        List<String> ids = StringUtils.convertList(id);
+        esOrderBookService.unLock(ids);
+        return ApiResult.success("操作成功");
+    }
+
+    @ApiOperation(value = "数据导出Excel")
+    @GetMapping("/exportExcel")
+    public void exportExcel(HttpServletResponse response, EsOrderBookQueryDto dto) throws Exception {
+        esOrderBookService.exportExcel(response, dto);
+    }
 
 }
 

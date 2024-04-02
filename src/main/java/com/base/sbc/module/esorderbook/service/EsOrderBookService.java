@@ -6,11 +6,20 @@
  *****************************************************************************/
 package com.base.sbc.module.esorderbook.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.esorderbook.dto.EsOrderBookQueryDto;
+import com.base.sbc.module.esorderbook.dto.EsOrderBookSaveDto;
 import com.base.sbc.module.esorderbook.entity.EsOrderBook;
 import com.base.sbc.module.esorderbook.vo.EsOrderBookItemVo;
+import com.base.sbc.module.esorderbook.vo.EsOrderBookVo;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
 
 /**
  * 类描述：ES订货本 service类
@@ -23,11 +32,23 @@ import com.github.pagehelper.PageInfo;
  */
 public interface EsOrderBookService extends BaseService<EsOrderBook> {
 
-// 自定义方法区 不替换的区域【other_start】
 
     PageInfo<EsOrderBookItemVo> findPage(EsOrderBookQueryDto dto);
 
-// 自定义方法区 不替换的区域【other_end】
 
+    EsOrderBook saveMain(EsOrderBookVo dto);
 
+    void lock(List<String> ids);
+
+    void unLock(List<String> ids);
+
+    void exportExcel(HttpServletResponse response, EsOrderBookQueryDto dto) throws IOException;
+
+    void del(List<EsOrderBookItemVo> list);
+
+    void updateHeadName(EsOrderBookItemVo vo);
+
+    ApiResult uploadStyleColorPics(Principal user, MultipartFile file, EsOrderBookItemVo vo);
+
+    void saveItemList(EsOrderBookSaveDto dto);
 }

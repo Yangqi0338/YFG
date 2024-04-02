@@ -41,6 +41,16 @@ public class EsOrderBookItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "头表id")
     private String headId;
     /**
+     * 组图片
+     */
+    @ApiModelProperty(value = "款式配色id")
+    private String groupImg;
+    /**
+     * 组名
+     */
+    @ApiModelProperty(value = "款式配色id")
+    private String groupName;
+    /**
      * 款式配色id
      */
     @ApiModelProperty(value = "款式配色id")

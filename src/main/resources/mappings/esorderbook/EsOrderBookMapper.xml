@@ -14,15 +14,42 @@
             ${ew.sqlSelect}
         </if>
         <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
-
-
+            item.id id,
+            head.id headId,
+            tsp.id stylePricingId,
+            item.group_img,
+            item.group_name,
+            tsc.band_name,
+            tsc.new_date,
+            ts.prod_category1st_name,
+            ts.prod_category_name,
+            ts.prod_category2nd_name,
+            tsc.style_no,
+            tsc.style_color_pic,
+            tsc.color_name,
+            ts.design_no,
+            -- tsp.woolenYarnProcessingFee,
+            -- tsp.sewingProcessingFee,
+            -- tsp.coordinationProcessingFee,
+            -- tsp.totalCost,
+            -- (tsp.totalCost * tsp.actualMagnification) multiplePrice,
+            tsc.tag_price,
+            tsp.product_style_name,
+            -- tsp.actualMagnification,
+            ts.designer,
+            ts.devtType_name,
+            tsc.supplier_abbreviation,
+            tsc.supplier_no,
+            tsc.supplier_color,
+            item.isLock
         </if>
-        from t_es_order_book_item item
-                 LEFT JOIN t_es_order_book head on item.head_id = head.id and head.del_flag = '0'
-                 LEFT JOIN t_style_color tsc on item.style_color_id = tsc.id and tsc.del_flag = '0'
-                 LEFT JOIN t_style ts on tsc.style_id = ts.id and ts.del_flag = '0'
-                 LEFT JOIN t_style_pricing tsp on
-
+        FROM t_es_order_book_item item
+        LEFT JOIN t_es_order_book head on item.head_id = head.id and head.del_flag = '0'
+        LEFT JOIN t_style_color tsc on item.style_color_id = tsc.id and tsc.del_flag = '0'
+        LEFT JOIN t_style ts on tsc.style_id = ts.id and ts.del_flag = '0'
+        LEFT JOIN t_pack_info tpi on tpi.style_no = tsc.style_no and tpi.del_flag = '0'
+        LEFT JOIN t_style_pricing tsp on tsp.pack_id = tpi.id and tsp.del_flag = '0'
+        ${ew.customSqlSegment}
     </select>
 
 </mapper>

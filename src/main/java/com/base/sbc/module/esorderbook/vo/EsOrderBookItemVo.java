@@ -9,6 +9,8 @@ package com.base.sbc.module.esorderbook.vo;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * 类描述：ES订货本明细Vo 实体类
  *
@@ -24,11 +26,15 @@ public class EsOrderBookItemVo {
 
     private static final long serialVersionUID = 1L;
 
+    private String id;
+    private String headId;
+    private String stylePricingId;
 
     //搭配图片
-    private String img;
+    private String groupImg;
     //组
-    private String name;
+    private String groupName;
+    private String newGroupName;
     //波段
     private String bandName;
     //上新时间
@@ -37,35 +43,35 @@ public class EsOrderBookItemVo {
     private String prodCategory1stName;
     //品类
     private String prodCategoryName;
-    //中类*
+    //中类
     private String prodCategory2ndName;
     //大货款号
     private String styleNo;
     //大货图片
-    private String stylePic;
+    private String styleColorPic;
     //颜色
     private String colorName;
     //款式
     private String designNo;
     //毛纱加工费
-    private String a1;
+    private BigDecimal woolenYarnProcessingFee;
     //车缝加工费
-    private String a2;
+    private BigDecimal sewingProcessingFee;
     //外协加工费
-    private String a3;
+    private BigDecimal coordinationProcessingFee;
     //总成本
-    private String a4;
+    private BigDecimal totalCost;
     //倍价
-    private String a5;
+    private BigDecimal multiplePrice;
     //吊牌价
-    private String a8;
+    private BigDecimal tagPrice;
     //产品风格
-    private String a6;
+    private String productStyleName;
     //实际倍率
-    private String a7;
-    //设计师*
+    private BigDecimal actualMagnification;
+    //设计师
     private String designer;
-    //生产类型*
+    //生产类型
     private String devtTypeName;
     //厂家
     private String supplierAbbreviation;
