@@ -203,10 +203,10 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         break;
                     /*调料管理 面料、辅料图片上传 */
                     case "fabricAtactiform":
-                        objectName = "Seasoning/Fabric" + System.currentTimeMillis() + "." + extName;
+                        objectName = "Seasoning/Accessories/" + System.currentTimeMillis() + "." + extName;
                         break;
                     case "ingredientsAtactiform":
-                        objectName = "Seasoning/Accessories" + System.currentTimeMillis() + "." + extName;
+                        objectName = "Seasoning/Fabric/" + System.currentTimeMillis() + "." + extName;
                         break;
 
                     default:
