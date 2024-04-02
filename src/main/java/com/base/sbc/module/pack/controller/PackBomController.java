@@ -23,7 +23,9 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
-import com.base.sbc.module.sample.dto.FabricSummaryDTO;
+import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.vo.BomFabricVo;
+import com.base.sbc.module.sample.vo.FabricStyleVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -36,6 +38,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -208,9 +211,73 @@ public class PackBomController extends BaseController{
         if(StringUtils.isBlank(id) || StringUtils.isBlank(colorCode)){
             return selectAttributeNotRequirements("id, color");
         }
-
         return packBomService.packBomMaterialColor(userCompany, id, colorCode);
     }
+
+    @PostMapping("/bomFabricList")
+    @ApiOperation(value = "BOM使用物料列表")
+    public PageInfo<BomFabricVo> bomFabricList(@RequestBody @Valid BomFabricDto bomFabricDto) {
+        bomFabricDto.setCompanyCode(super.getUserCompany());
+        return  packBomService.bomFabricList(bomFabricDto,true);
+    }
+
+    @PostMapping("/fabricSummary")
+    @ApiOperation(value = "面料汇总-添加")
+    public boolean saveFabricSummary(@RequestBody @Valid  FabricSummarySaveDTO feedSummarySaveDTO) {
+        feedSummarySaveDTO.setCompanyCode(super.getUserCompany());
+        return packBomService.saveFabricSummary(feedSummarySaveDTO);
+    }
+
+    @GetMapping("/fabricSummary")
+    @ApiOperation(value = "面料汇总列表")
+    public PageInfo<BomFabricVo> fabricSummaryListV2(FabricSummaryV2Dto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        return packBomService.fabricSummaryListV2(dto);
+    }
+
+    @PutMapping("/updateFabricSummary")
+    @ApiOperation(value = "面料汇总列表修改")
+    public boolean updateFabricSummary(@RequestBody @Valid List<FabricSummaryV2Dto> dtoList) {
+        return packBomService.updateFabricSummary(dtoList);
+    }
+
+    @PostMapping("/fabricStyleList")
+    @ApiOperation(value = "物料对应款式列表")
+    public  PageInfo<FabricStyleVo> fabricStyleList(@RequestBody @Valid  FabricStyleDto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        return  packBomService.fabricStyleList(dto);
+    }
+
+    @PostMapping("/fabricSummaryStyle")
+    @ApiOperation(value = "面料汇总-款式添加")
+    public boolean addFabricSummaryStyle(@RequestBody @Valid  FabricSummaryStyleSaveDto dto) {
+        return  packBomService.saveFabricSummaryStyle(dto);
+    }
+
+    @PutMapping("/fabricSummaryStyle")
+    @ApiOperation(value = "面料汇总-款式修改")
+    public boolean updateFabricSummaryStyle(@RequestBody @Valid  List<FabricSummaryStyleDto> fabricSummaryStyleDtoList) {
+        return  packBomService.updateFabricSummaryStyle(fabricSummaryStyleDtoList);
+    }
+
+    @DeleteMapping ("/fabricSummaryStyle")
+    @ApiOperation(value = "面料汇总-款式删除")
+    public boolean deleteFabricSummaryStyle(@RequestBody @Valid  FabricSummaryStyleDto dto) {
+        return  packBomService.deleteFabricSummaryStyle(dto);
+    }
+
+
+    @ApiOperation(value = "/面料汇总导出")
+    @GetMapping("/fabricSummaryExcel")
+    @DuplicationCheck(type = 1,message = "服务已存在导出，请稍后...")
+    public void fabricSummaryExcel(HttpServletResponse response , FabricSummaryV2Dto dto) throws Exception {
+        dto.setCompanyCode(super.getUserCompany());
+        packBomService.fabricSummaryExcel(response,dto);
+    }
+
+
+
+
 }
 
 

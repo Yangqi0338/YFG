@@ -54,6 +54,7 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     @TableField(fill = FieldFill.INSERT)
     private String createId;
 
+
     /**  删除标记（0：正常；1：删除；） */
     @Length(min = 1, max = 1)
     @TableLogic(value = "0", delval = "1")

@@ -14,7 +14,11 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
+import com.base.sbc.module.sample.dto.BomFabricDto;
+import com.base.sbc.module.sample.dto.FabricStyleDto;
 import com.base.sbc.module.sample.dto.FabricSummaryDTO;
+import com.base.sbc.module.sample.vo.BomFabricVo;
+import com.base.sbc.module.sample.vo.FabricStyleVo;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import org.apache.ibatis.annotations.MapKey;
@@ -117,5 +121,12 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
     List<PackBomVo> getPackBomListOpen(PackCommonPageSearchDto packCommonPageSearchDto);
 
     List<PackBom> sumBomCost(@Param(Constants.WRAPPER) QueryWrapper<PackBom> qw);
+
+    List<BomFabricVo> bomFabricList(@Param("dto") BomFabricDto dto,
+                                @Param(Constants.WRAPPER)QueryWrapper qw);
+
+    List<FabricStyleVo> fabricStyleList(@Param("dto") FabricStyleDto dto, @Param(Constants.WRAPPER)QueryWrapper qw);
+
+    List<PackBom>  selectByForeignId(@Param(Constants.WRAPPER)QueryWrapper qc);
 // 自定义方法区 不替换的区域【other_end】
 }

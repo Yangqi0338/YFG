@@ -13,11 +13,14 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
-import com.base.sbc.module.sample.dto.FabricSummaryDTO;
+import com.base.sbc.module.sample.dto.*;
+import com.base.sbc.module.sample.vo.BomFabricVo;
+import com.base.sbc.module.sample.vo.FabricStyleVo;
 import com.base.sbc.module.sample.vo.FabricSummaryVO;
 import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.github.pagehelper.PageInfo;
 
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -173,4 +176,63 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param cost
      */
     void costUpdate(String packInfoId, BigDecimal cost);
+
+    /**
+     * BOM使用物料列表
+     * @param bomFabricDto
+     * @param isPictureShow 是否图片展示
+     * @return
+     */
+    PageInfo<BomFabricVo> bomFabricList(BomFabricDto bomFabricDto, boolean isPictureShow);
+
+    /**
+     * 保存物料汇总添加
+     * @param feedSummarySaveDTO
+     * @return
+     */
+    boolean saveFabricSummary(FabricSummarySaveDTO feedSummarySaveDTO);
+
+    /**
+     * 物料汇总列表
+     * @param dto
+     * @return
+     */
+    PageInfo<BomFabricVo> fabricSummaryListV2(FabricSummaryV2Dto dto);
+
+    /**
+     * 物料汇总修改
+     * @param dtoList
+     * @return
+     */
+    boolean updateFabricSummary(List<FabricSummaryV2Dto> dtoList);
+
+    /**
+     * 面料款式列表
+     * @param dto
+     * @return
+     */
+    PageInfo<FabricStyleVo> fabricStyleList(FabricStyleDto dto);
+
+    /**
+     * 添加物料汇总款式
+     * @param dto
+     * @return
+     */
+    boolean saveFabricSummaryStyle(FabricSummaryStyleSaveDto dto);
+
+    /**
+     * 修改物料汇总款式
+     * @param
+     * @return
+     */
+    boolean updateFabricSummaryStyle(List<FabricSummaryStyleDto> fabricSummaryStyleDtoList);
+
+    /**
+     * 删除物料汇总款式
+     * @param dto
+     * @return
+     */
+    boolean deleteFabricSummaryStyle(FabricSummaryStyleDto dto);
+
+    void fabricSummaryExcel( HttpServletResponse response, FabricSummaryV2Dto dto);
 }
