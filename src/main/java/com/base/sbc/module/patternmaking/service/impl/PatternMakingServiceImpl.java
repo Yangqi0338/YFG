@@ -503,8 +503,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto) {
-        QueryWrapper qw = new QueryWrapper();
-        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+
+        QueryGenerator.initQueryWrapperByMap(qw,dto);
+
+        /*qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.like(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type_name", dto.getSampleType());
         qw.eq(StrUtil.isNotBlank(dto.getUrgencyName()), "p.urgency_name", dto.getUrgencyName());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
@@ -514,7 +517,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "p.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "s.designer_id", StrUtil.split(dto.getDesignerIds(), CharUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
-        qw.eq( "p.disable_flag", BaseGlobal.NO);
+
         if (StrUtil.isNotBlank(dto.getDesignSendDate())) {
             String[] split = dto.getDesignSendDate().split(",");
             qw.ge("p.design_send_date", split[0]);
@@ -524,8 +527,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             String[] split = dto.getPrmSendDate().split(",");
             qw.ge("p.prm_send_date", split[0]);
             qw.le("p.prm_send_date", split[1]);
-        }
+        }*/
 
+        qw.eq( "p.disable_flag", BaseGlobal.NO);
         qw.eq("design_send_status", BaseGlobal.YES);
         qw.eq("s.del_flag", BaseGlobal.NO);
         qw.eq("p.del_flag", BaseGlobal.NO);

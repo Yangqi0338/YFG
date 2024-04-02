@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -116,6 +117,18 @@ public class LatestCommissioningDateServiceImpl extends BaseServiceImpl<LatestCo
         List<LatestCommissioningDateVo> list = findPage(dto).getList();
         List<LatestCommissioningDateExcel> latestCommissioningDateExcels = BeanUtil.copyToList(list, LatestCommissioningDateExcel.class);
         ExcelUtils.exportExcel(latestCommissioningDateExcels, LatestCommissioningDateExcel.class, "下单最晚投产日期.xlsx", new ExportParams("下单最晚投产日期", "下单最晚投产日期", ExcelType.HSSF), response);
+    }
+
+    @Override
+    public ApiResult updateMain(LatestCommissioningDate vo) {
+        LambdaUpdateWrapper<LatestCommissioningDate> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(LatestCommissioningDate::getLatestCommissioningDate, vo.getLatestCommissioningDate());
+        updateWrapper.set(LatestCommissioningDate::getUpdateId, getUserId());
+        updateWrapper.set(LatestCommissioningDate::getUpdateName, getUserName());
+        updateWrapper.set(LatestCommissioningDate::getUpdateDate, new Date());
+        updateWrapper.eq(LatestCommissioningDate::getId, vo.getId());
+        update(updateWrapper);
+        return ApiResult.success("修改成功");
     }
 
 // 自定义方法区 不替换的区域【other_end】

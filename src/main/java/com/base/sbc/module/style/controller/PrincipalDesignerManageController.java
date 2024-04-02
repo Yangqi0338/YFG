@@ -11,11 +11,10 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.style.dto.LatestCommissioningDateQueryDto;
-import com.base.sbc.module.style.entity.LatestCommissioningDate;
-import com.base.sbc.module.style.service.LatestCommissioningDateService;
-import com.base.sbc.module.style.vo.LatestCommissioningDateExcel;
-import com.base.sbc.module.style.vo.LatestCommissioningDateVo;
+import com.base.sbc.module.style.dto.PrincipalDesignerManageQueryDto;
+import com.base.sbc.module.style.service.PrincipalDesignerManageService;
+import com.base.sbc.module.style.vo.PrincipalDesignerManageExcel;
+import com.base.sbc.module.style.vo.PrincipalDesignerManageVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,53 +28,54 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
- * 类描述：下单最晚投产日期管理 Controller类
+ * 类描述：负责设计师配置表 Controller类
  *
  * @author your name
  * @version 1.0
- * @address com.base.sbc.module.style.web.LatestCommissioningDateController
+ * @address com.base.sbc.module.style.web.PrincipalDesignerManageController
  * @email your email
- * @date 创建时间：2024-3-11 19:05:30
+ * @date 创建时间：2024-3-18 16:27:53
  */
 @RestController
-@Api(tags = "下单最晚投产日期管理")
-@RequestMapping(value = BaseController.SAAS_URL + "/latestCommissioningDate", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@Api(tags = "负责设计师配置表")
+@RequestMapping(value = BaseController.SAAS_URL + "/principalDesignerManage", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class LatestCommissioningDateController {
+public class PrincipalDesignerManageController {
 
     @Autowired
-    private LatestCommissioningDateService latestCommissioningDateService;
+    private PrincipalDesignerManageService principalDesignerManageService;
 
     @ApiOperation(value = "分页查询")
     @GetMapping
-    public PageInfo<LatestCommissioningDateVo> page(LatestCommissioningDateQueryDto dto) {
-        return latestCommissioningDateService.findPage(dto);
+    public PageInfo<PrincipalDesignerManageVo> page(PrincipalDesignerManageQueryDto dto) {
+        return principalDesignerManageService.findPage(dto);
     }
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping("/{id}")
     public Boolean removeById(@PathVariable("id") String id) {
         List<String> ids = StringUtils.convertList(id);
-        return latestCommissioningDateService.removeByIds(ids);
+        return principalDesignerManageService.removeByIds(ids);
     }
+
 
     @ApiOperation(value = "导入Excel")
     @PostMapping("/importExcel")
     public ApiResult importExcel(@RequestParam("file") MultipartFile file) throws Exception {
-        List<LatestCommissioningDateExcel> list = ExcelImportUtil.importExcel(file.getInputStream(), LatestCommissioningDateExcel.class, new ImportParams());
-        return latestCommissioningDateService.importExcel(list);
+        List<PrincipalDesignerManageExcel> list = ExcelImportUtil.importExcel(file.getInputStream(), PrincipalDesignerManageExcel.class, new ImportParams());
+        return principalDesignerManageService.importExcel(list);
     }
 
     @ApiOperation(value = "数据导出Excel")
     @GetMapping("/exportExcel")
-    public void exportExcel(HttpServletResponse response, LatestCommissioningDateQueryDto dto) throws Exception {
-        latestCommissioningDateService.exportExcel(response, dto);
+    public void exportExcel(HttpServletResponse response, PrincipalDesignerManageQueryDto dto) throws Exception {
+        principalDesignerManageService.exportExcel(response, dto);
     }
 
     @ApiOperation(value = "修改")
     @PostMapping("/updateMain")
-    public ApiResult updateMain(@RequestBody LatestCommissioningDate vo) {
-        return latestCommissioningDateService.updateMain(vo);
+    public ApiResult updateMain(@RequestBody PrincipalDesignerManageVo vo) {
+        return principalDesignerManageService.updateMain(vo);
     }
 
 }
