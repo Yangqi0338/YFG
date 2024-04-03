@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.hangtag.mapper.HangTagMapper">
+    <insert id="addHangTagInspectCompany">
+        INSERT INTO
+        t_hang_tag_inspect_company
+        (id,inspect_company_id,hang_tag_id,create_id,create_name,create_date,update_id,update_name,update_date,company_code)
+        values
+        (#{htc.id},#{htc.inspectCompanyId},#{htc.hangTagId},#{htc.createId},#{htc.createName},#{htc.createDate},#{htc.updateId},#{htc.updateName},#{htc.updateDate},#{htc.companyCode})
+    </insert>
     <!--
         吊牌表
         创建人：xhj

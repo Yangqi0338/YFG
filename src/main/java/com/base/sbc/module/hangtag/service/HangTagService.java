@@ -59,6 +59,12 @@ public interface HangTagService extends BaseService<HangTag> {
 
 
     /**
+     * 刷新
+     */
+    HangTagVO getRefresh(String bulkStyleNo, String userCompany, String selectType);
+
+
+    /**
      * 保存
      *
      * @param hangTagDTO
