@@ -90,6 +90,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
 
         QueryGenerator.initQueryWrapperByMap(qw, dto);
         Page<Object> objects = PageHelper.startPage(dto);
+        qw.eq("item.del_flag",BaseGlobal.DEL_FLAG_NORMAL);
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
 
         //组装费用信息
@@ -150,7 +151,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     @Transactional
     public void del(List<EsOrderBookItemVo> list) {
         List<String> ids = list.stream().map(EsOrderBookItemVo::getId).collect(Collectors.toList());
-        removeByIds(ids);
+        esOrderBookItemService.removeByIds(ids);
     }
 
     @Override
