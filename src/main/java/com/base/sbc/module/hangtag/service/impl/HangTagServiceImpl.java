@@ -398,6 +398,48 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	@Override
+	public void getRefresh(String bulkStyleNo, String userCompany, String selectType) {
+		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(Collections.singletonList(bulkStyleNo), userCompany, selectType).stream().findFirst().orElse(null);
+		if (hangTagVO == null) {
+			return;
+		}
+
+		PackInfo packInfo = packInfoService
+				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
+		if (packInfo != null) {
+			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
+			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
+			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
+			List<PackBom> packBomList = packBomService.list(queryWrapper);
+			if (!packBomList.isEmpty()) {
+				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
+				if (!codes.isEmpty()) {
+					/*查询物料*/
+					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes), false);
+/*					List<BasicsdatumMaterial> list = basicsdatumMaterialService
+							.list(new QueryWrapper<BasicsdatumMaterial>().in("material_code", codes));*/
+					hangTagVO.setCompnentInspectCompanyDtoList(list);
+				}
+			}
+			if(hangTagVO.getId()!=null&&hangTagVO.getCompnentInspectCompanyDtoList().get(0).getId()!=null){
+				HangTagInspectCompany hangTagInspectCompany = new HangTagInspectCompany();
+				hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
+				hangTagInspectCompany.setHangTagId(hangTagVO.getId());
+				hangTagInspectCompany.setInspectCompanyId(hangTagVO.getCompnentInspectCompanyDtoList().get(0).getId());
+				hangTagInspectCompany.setCreateId(hangTagVO.getCreateId());
+				hangTagInspectCompany.setCreateName(hangTagVO.getCreateName());
+				hangTagInspectCompany.setCreateDate(hangTagVO.getCreateDate());
+				hangTagInspectCompany.setUpdateId(hangTagVO.getUpdateId());
+				hangTagInspectCompany.setUpdateName(hangTagVO.getUpdateName());
+				hangTagInspectCompany.setUpdateDate(hangTagVO.getUpdateDate());
+				hangTagInspectCompany.setCompanyCode(hangTagVO.getCompanyCode());
+				int i = hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
+			}
+		}
+		return ;
+	}
+
+	@Override
 	@Transactional(rollbackFor = { Exception.class })
 	public String save(HangTagDTO hangTagDTO, String userCompany) {
 		//判断大货款号是否存在

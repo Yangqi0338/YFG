@@ -26,7 +26,7 @@ public class EscmMaterialCompnentInspectCompanyServiceImpl extends BaseServiceIm
      * @return
      */
     @Override
-    public List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper) {
+    public List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper, boolean isInsert) {
         /*查询检查报告*/
         List<EscmMaterialCompnentInspectCompanyDto> list = list(queryWrapper);
         /*按物料分组*/
@@ -46,7 +46,9 @@ public class EscmMaterialCompnentInspectCompanyServiceImpl extends BaseServiceIm
                         List<EscmMaterialCompnentInspectCompanyDto> companyDtoList = BeanUtil.copyToList(value,EscmMaterialCompnentInspectCompanyDto.class);
                         maxYearItem.setCompanyDtoList(companyDtoList);
                         maxYearItem.setInspectCompanyId(maxYearItem.getId());
-                        maxYearItem.setId(null);
+                        if (isInsert) {
+                            maxYearItem.setId(null);
+                        }
                     }
                     return maxYearItem;
                 }).filter(Objects::nonNull).collect(Collectors.toList());
