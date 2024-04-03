@@ -46,6 +46,8 @@ public interface EsOrderBookService extends BaseService<EsOrderBook> {
 
     void del(List<EsOrderBookItemVo> list);
 
+    void delHead(String id);
+
     void updateHeadName(EsOrderBookItemVo vo);
 
     ApiResult uploadStyleColorPics(Principal user, MultipartFile file, EsOrderBookItemVo vo);

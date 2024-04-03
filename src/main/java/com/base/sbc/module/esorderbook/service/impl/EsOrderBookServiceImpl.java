@@ -8,6 +8,8 @@ package com.base.sbc.module.esorderbook.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -16,10 +18,14 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.esorderbook.dto.EsOrderBookQueryDto;
 import com.base.sbc.module.esorderbook.dto.EsOrderBookSaveDto;
 import com.base.sbc.module.esorderbook.entity.EsOrderBook;
@@ -44,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +76,10 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     private EsOrderBookItemService esOrderBookItemService;
     @Autowired
     private PlanningSeasonService planningSeasonService;
+    @Autowired
+    private UploadFileService uploadFileService;
+    @Autowired
+    private MinioUtils minioUtils;
 
     @Override
     public PageInfo<EsOrderBookItemVo> findPage(EsOrderBookQueryDto dto) {
@@ -145,6 +156,19 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     }
 
     @Override
+    @Transactional
+    public void delHead(String id) {
+        //查询一下是否全部删除了，给头数据也删除一下
+        List<EsOrderBookItem> headId = esOrderBookItemService.listByField("head_id", Collections.singleton(id));
+        List<String> dbHeadIds = headId.stream().map(EsOrderBookItem::getHeadId).distinct().collect(Collectors.toList());
+        if (CollUtil.isEmpty(dbHeadIds)) {
+            removeById(id);
+        } else {
+            throw new OtherException("该订货本中还有内容，无法删除");
+        }
+    }
+
+    @Override
     public EsOrderBook saveMain(EsOrderBookVo dto) {
         if (StrUtil.isEmpty(dto.getSeasonId())) {
             throw new OtherException("产品季id不能为空");
@@ -190,14 +214,24 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
 
     @Override
     public ApiResult uploadStyleColorPics(Principal user, MultipartFile file, EsOrderBookItemVo vo) {
-
+        String extName = FileUtil.extName(file.getOriginalFilename());
+        Assert.notEmpty(vo.getPlanningSeason(), "请先选中产品季");
+        AttachmentVo attachmentVo = uploadFileService.uploadToMinio(file, "PDM/esOrderBook/" + vo.getPlanningSeason() + "/" + System.currentTimeMillis() + "." + extName);
+        LambdaUpdateWrapper<EsOrderBookItem> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(EsOrderBookItem::getGroupImg, CommonUtils.removeQuery(attachmentVo.getUrl()));
+        updateWrapper.set(EsOrderBookItem::getUpdateId, getUserId());
+        updateWrapper.set(EsOrderBookItem::getUpdateName, getUserName());
+        updateWrapper.set(EsOrderBookItem::getUpdateDate, new Date());
+        updateWrapper.eq(EsOrderBookItem::getHeadId, vo.getHeadId());
+        updateWrapper.eq(EsOrderBookItem::getGroupName, vo.getGroupName());
+        esOrderBookItemService.update(updateWrapper);
         return null;
     }
 
     @Override
     public void saveItemList(EsOrderBookSaveDto dto) {
         String id = dto.getHead().getId();
-        List<EsOrderBookItem> itemList = BeanUtil.copyToList(dto.getItemList(),EsOrderBookItem.class);
+        List<EsOrderBookItem> itemList = BeanUtil.copyToList(dto.getItemList(), EsOrderBookItem.class);
         for (EsOrderBookItem esOrderBookItem : itemList) {
             esOrderBookItem.setHeadId(id);
             esOrderBookItem.insertInit();
