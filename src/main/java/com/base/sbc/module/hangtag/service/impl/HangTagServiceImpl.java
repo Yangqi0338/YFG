@@ -422,22 +422,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 			}
 			if(hangTagVO.getId()!=null&&hangTagVO.getCompnentInspectCompanyDtoList().get(0).getId()!=null){
-				List<EscmMaterialCompnentInspectCompanyDto> compnentInspectCompanyDtoList = hangTagVO.getCompnentInspectCompanyDtoList();
-				for(EscmMaterialCompnentInspectCompanyDto hangtag:compnentInspectCompanyDtoList){
-					HangTagInspectCompany hangTagInspectCompany = new HangTagInspectCompany();
-					hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
-					hangTagInspectCompany.setHangTagId(hangTagVO.getId());
-					hangTagInspectCompany.setInspectCompanyId(hangtag.getId());
-					hangTagInspectCompany.setCreateId(hangTagVO.getCreateId());
-					hangTagInspectCompany.setCreateName(hangTagVO.getCreateName());
-					hangTagInspectCompany.setCreateDate(hangTagVO.getCreateDate());
-					hangTagInspectCompany.setUpdateId(hangTagVO.getUpdateId());
-					hangTagInspectCompany.setUpdateName(hangTagVO.getUpdateName());
-					hangTagInspectCompany.setUpdateDate(hangTagVO.getUpdateDate());
-					hangTagInspectCompany.setCompanyCode(hangTagVO.getCompanyCode());
-					int i = hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
-				}
-
+				HangTagInspectCompany hangTagInspectCompany = new HangTagInspectCompany();
+				hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
+				hangTagInspectCompany.setHangTagId(hangTagVO.getId());
+				hangTagInspectCompany.setInspectCompanyId(hangTagVO.getCompnentInspectCompanyDtoList().get(0).getId());
+				hangTagInspectCompany.setCreateId(hangTagVO.getCreateId());
+				hangTagInspectCompany.setCreateName(hangTagVO.getCreateName());
+				hangTagInspectCompany.setCreateDate(hangTagVO.getCreateDate());
+				hangTagInspectCompany.setUpdateId(hangTagVO.getUpdateId());
+				hangTagInspectCompany.setUpdateName(hangTagVO.getUpdateName());
+				hangTagInspectCompany.setUpdateDate(hangTagVO.getUpdateDate());
+				hangTagInspectCompany.setCompanyCode(hangTagVO.getCompanyCode());
+				int i = hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
 			}
 		}
 		return ;
