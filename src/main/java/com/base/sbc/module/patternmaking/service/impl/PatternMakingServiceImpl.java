@@ -23,6 +23,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -35,6 +36,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -80,6 +82,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -823,6 +826,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("suspend_remarks", dto.getSuspendRemarks());
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
+        setSuspendDateRecord(uw, dto.getId(), BaseGlobal.YES);
         return update(uw);
     }
 
@@ -832,6 +836,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("suspend", BaseGlobal.NO);
         uw.eq("id", id);
         setUpdateInfo(uw);
+        setSuspendDateRecord(uw, id, BaseGlobal.NO);
         return update(uw);
     }
 
@@ -2574,6 +2579,41 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         redisUtils.set(key, dataMap);
         // 9、解除缓存锁
         redisUtils.del(lockKey);
+    }
+
+    /**
+     * 记录挂起时间
+     * @param uw uw
+     * @param id 打版管理 id
+     * @param suspend 挂起状态
+     */
+    private void setSuspendDateRecord(UpdateWrapper uw, String id, String suspend){
+        //获取打版管理
+        PatternMaking byId = getById(id);
+        if (byId == null){
+            return;
+        }
+        SuspendDateRecordVo suspendDateRecordVo;
+        if (StringUtils.isNotBlank(byId.getSuspendDateRecord())){
+            suspendDateRecordVo = JSONObject.parseObject(byId.getSuspendDateRecord(), SuspendDateRecordVo.class);
+        }else {
+            suspendDateRecordVo = new SuspendDateRecordVo();
+        }
+
+        String currentFlag = StringUtils.isNotBlank(suspendDateRecordVo.getCurrentFlag()) ? suspendDateRecordVo.getCurrentFlag() : new IdGen().nextIdStr();
+        Map<String, SuspendDateRecordVo.SuspendDate> suspendDateMap = CollectionUtils.isEmpty(suspendDateRecordVo.getSuspendDateMap()) ? Maps.newHashMap() : suspendDateRecordVo.getSuspendDateMap();
+        SuspendDateRecordVo.SuspendDate suspendDate = null == suspendDateMap.get(currentFlag) ? new SuspendDateRecordVo.SuspendDate() : suspendDateMap.get(currentFlag);
+
+        if (BaseGlobal.YES.equals(suspend)){
+            suspendDate.setStartTime(new Date());
+            suspendDateRecordVo.setCurrentFlag(currentFlag);
+        }else {
+            suspendDate.setEndTime(new Date());
+            suspendDateRecordVo.setCurrentFlag(null);
+        }
+        suspendDateMap.put(currentFlag, suspendDate);
+        suspendDateRecordVo.setSuspendDateMap(suspendDateMap);
+        uw.set("suspend_date_record", JSON.toJSONString(suspendDateRecordVo));
     }
 
     // 自定义方法区 不替换的区域【other_end】
