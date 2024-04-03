@@ -41,7 +41,7 @@
             tsc.supplier_abbreviation,
             tsc.supplier_no,
             tsc.supplier_color,
-            item.isLock
+            item.is_lock
         </if>
         FROM t_es_order_book_item item
         LEFT JOIN t_es_order_book head on item.head_id = head.id and head.del_flag = '0'
