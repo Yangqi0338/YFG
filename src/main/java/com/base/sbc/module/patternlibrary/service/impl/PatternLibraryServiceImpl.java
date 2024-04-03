@@ -108,6 +108,11 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     @Override
     public PageInfo<PatternLibraryVO> listPages(PatternLibraryPageDTO patternLibraryPageDTO) {
         QueryWrapper<PatternLibraryVO> queryWrapper = new QueryWrapper<>();
+        String templateCodes = patternLibraryPageDTO.getTemplateCodes();
+        String partsCodes = patternLibraryPageDTO.getPartsCodes();
+        patternLibraryPageDTO.setPartsCodeList(ObjectUtil.isNotEmpty(partsCodes) ? Arrays.asList(partsCodes.split(",")) : null);
+        String brands = patternLibraryPageDTO.getBrands();
+        patternLibraryPageDTO.setPartsCodeList(ObjectUtil.isNotEmpty(brands) ? Arrays.asList(brands.split(",")) : null);
         queryWrapper
                 // 版型编码
                 .like(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getCode())
@@ -125,8 +130,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getSilhouetteCode())
                         , "tpl.silhouette_code", patternLibraryPageDTO.getSilhouetteCode())
                 // 所属版型库
-                .in(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getTemplateCodeList())
-                        , "tpl.template_code", patternLibraryPageDTO.getTemplateCodeList())
+                .in(ObjectUtil.isNotEmpty(templateCodes)
+                        , "tpl.template_code", ObjectUtil.isNotEmpty(templateCodes) ? Arrays.asList(templateCodes.split(",")) : null)
                 // 状态
                 .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getStatus())
                         , "tpl.status", patternLibraryPageDTO.getStatus())
@@ -302,8 +307,11 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         PatternLibrary oldPatternLibrary = new PatternLibrary();
         if (ObjectUtil.isNotEmpty(patternLibraryDTO.getId())) {
             oldPatternLibrary = getById(patternLibraryDTO.getId());
+            if (!(oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_SUBMIT.getCode())
+                    || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode()))) {
+                throw new OtherException("当前状态不能编辑！");
+            }
         }
-
         PatternLibrary patternLibrary = new PatternLibrary();
         BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
         // 判断设计款的大类和选择的大类是否都属于上装或者下装
@@ -469,6 +477,10 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         if (ObjectUtil.isEmpty(patternLibrary)) {
             throw new OtherException("数据不存在，请刷新后重试！");
         }
+        if (!(patternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_SUBMIT.getCode())
+                || patternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode()))) {
+            throw new OtherException("当前状态不能编辑！");
+        }
         // 修改子表数据
         List<PatternLibraryItem> patternLibraryItemList = patternLibraryDTO.getPatternLibraryItemList();
         if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
@@ -626,6 +638,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         if (ObjectUtil.isEmpty(patternLibrary)) {
             throw new OtherException("当前数据不存在，请刷新后重试！");
         }
+        if (patternLibrary.getStatus().equals(PatternLibraryStatusEnum.REVIEWED.getCode())) {
+            throw new OtherException("已审核数据不能删除！");
+        }
         // 删除版型库主表数据
         removeById(patternLibraryId);
         // 删除版型库品类数据
@@ -654,8 +669,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         // 那么查询到的待办数据进行批量审核，如果一条都没有，提示没有数据审核
         Map<String, Object> map = new HashMap<>();
         map.put("businessKeyList", patternLibraryIdList);
-        map.put("pageNum",1);
-        map.put("pageSize",patternLibraryIdList.size());
+        map.put("pageNum", 1);
+        map.put("pageSize", patternLibraryIdList.size());
         ApiResult<Map<String, Object>> apiResult = flowableFeignService.todoList(map);
         JSONObject jsonObject = JSONUtil.parseObj(apiResult.getData());
         JSONArray jsonArray = jsonObject.getJSONArray("list");
@@ -677,10 +692,6 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         return Boolean.TRUE;
     }
 
-    /**
-     * @param patternLibraryDTO 入参
-     * @return
-     */
     @Override
     public Boolean updateEnableFlag(PatternLibraryDTO patternLibraryDTO) {
         if (ObjectUtil.isEmpty(patternLibraryDTO.getId())) {
@@ -694,7 +705,6 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         updateById(patternLibrary);
         return true;
     }
-
     @Override
     public List<Style> listStyle(String search) {
         QueryWrapper<Style> queryWrapper = new QueryWrapper<>();

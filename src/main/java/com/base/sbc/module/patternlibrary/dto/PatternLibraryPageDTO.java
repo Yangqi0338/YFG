@@ -27,10 +27,16 @@ public class PatternLibraryPageDTO extends Page implements Serializable {
     private String code;
 
     /**
+     * 品牌 code （多选逗号分隔）
+     */
+    @ApiModelProperty("品牌 code （多选逗号分隔）")
+    private String brands;
+
+    /**
      * 品牌 code 集合
      */
     @ApiModelProperty("品牌 code 集合")
-    private List<String> brand;
+    private List<String> brandList;
 
     /**
      * 大类 code
@@ -57,10 +63,16 @@ public class PatternLibraryPageDTO extends Page implements Serializable {
     private String silhouetteCode;
 
     /**
-     * 模板 code（t_pattern_library code）集合
+     * 模板 code（t_pattern_library code）（多选逗号分隔）
      */
-    @ApiModelProperty("模板 code 集合")
-    private List<String> templateCodeList;
+    @ApiModelProperty("模板 code （多选逗号分隔）")
+    private String templateCodes;
+
+    /**
+     * 涉及部件 code （多选逗号分隔）
+     */
+    @ApiModelProperty("涉及部件 code （多选逗号分隔）")
+    private String partsCodes;
 
     /**
      * 涉及部件 code 集合

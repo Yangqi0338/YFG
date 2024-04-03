@@ -59,9 +59,9 @@
                 #{item}
             </foreach>
         </if>
-        <if test="patternLibraryPageDTO.brand != null and patternLibraryPageDTO.brand.size > 0">
+        <if test="patternLibraryPageDTO.brandList != null and patternLibraryPageDTO.brandList.size > 0">
             AND tplb.brand IN
-            <foreach collection="patternLibraryPageDTO.brand" item="item" open="(" close=")" separator=",">
+            <foreach collection="patternLibraryPageDTO.brandList" item="item" open="(" close=")" separator=",">
                 #{item}
             </foreach>
         </if>
