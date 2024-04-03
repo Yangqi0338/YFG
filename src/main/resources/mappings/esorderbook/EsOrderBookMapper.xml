@@ -28,6 +28,7 @@
             tsc.style_color_pic,
             tsc.color_name,
             ts.design_no,
+            concat(ts.year, ts.season_name, ts.brand_name) planningSeason,
             -- tsp.woolenYarnProcessingFee,
             -- tsp.sewingProcessingFee,
             -- tsp.coordinationProcessingFee,
