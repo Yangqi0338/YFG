@@ -112,7 +112,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         String partsCodes = patternLibraryPageDTO.getPartsCodes();
         patternLibraryPageDTO.setPartsCodeList(ObjectUtil.isNotEmpty(partsCodes) ? Arrays.asList(partsCodes.split(",")) : null);
         String brands = patternLibraryPageDTO.getBrands();
-        patternLibraryPageDTO.setPartsCodeList(ObjectUtil.isNotEmpty(brands) ? Arrays.asList(brands.split(",")) : null);
+        patternLibraryPageDTO.setBrandList(ObjectUtil.isNotEmpty(brands) ? Arrays.asList(brands.split(",")) : null);
         queryWrapper
                 // 版型编码
                 .like(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getCode())
