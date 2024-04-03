@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.pack.mapper.PackingDictionaryMapper">
+    <insert id="addPacking">
+
+
+    </insert>
+
+    <select id="listPackingDictionary" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
+        SELECT
+        id,parent_id as parentId,name,volume_length as volumeLength,volume_width as volumeWidth,volume_height as volumeHeight,
+        del_flag as delFlag,create_id as createId,create_name as createName,create_date as createDate,
+        update_name as updateName,update_date as updateDate,update_id as updateId
+        FROM t_packaging_dictionary
+    </select>
+</mapper>
+
