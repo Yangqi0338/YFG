@@ -193,32 +193,24 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         if (dimensionalityDtoList.isEmpty()) {
             return new ArrayList<>();
         }
+        CheckMutexDto checkMutexDto = new CheckMutexDto();
+        checkMutexDto.setChannel(dimensionalityDtoList.get(0).getChannel());
+        checkMutexDto.setPlanningSeasonId(dimensionalityDtoList.get(0).getPlanningSeasonId());
+        checkMutexDto.setProdCategory(dimensionalityDtoList.get(0).getProdCategory());
+        checkMutexDto.setProdCategory2nd(dimensionalityDtoList.get(0).getProdCategory2nd());
+        planningDemandService.checkMutex(checkMutexDto);
 
-        UpdateDimensionalityDto updateDimensionalityDto = dimensionalityDtoList.get(0);
-        String planningSeasonIds = updateDimensionalityDto.getPlanningSeasonId();
-        for (String planningSeasonId : planningSeasonIds.split(",")) {
-            CheckMutexDto checkMutexDto = new CheckMutexDto();
-            checkMutexDto.setChannel(dimensionalityDtoList.get(0).getChannel());
-            checkMutexDto.setPlanningSeasonId(planningSeasonId);
-            checkMutexDto.setProdCategory(dimensionalityDtoList.get(0).getProdCategory());
-            checkMutexDto.setProdCategory2nd(dimensionalityDtoList.get(0).getProdCategory2nd());
-            planningDemandService.checkMutex(checkMutexDto);
-            for (UpdateDimensionalityDto dimensionalityDto : dimensionalityDtoList) {
-                dimensionalityDto.setPlanningSeasonId(planningSeasonId);
+        List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
+        list.forEach(p -> {
+            if (CommonUtils.isInitId(p.getId())) {
+                p.setId(null);
             }
-            List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
-            list.forEach(p -> {
-                if (CommonUtils.isInitId(p.getId())) {
-                    p.setId(null);
-                }
-            });
-            /*校验维度等级*/
-            saveOrUpdateBatch(list);
-            checkDimensionality(dimensionalityDtoList.get(0));
+        });
+        /*校验维度等级*/
+        saveOrUpdateBatch(list);
+        checkDimensionality(dimensionalityDtoList.get(0));
 
-        }
-
-        return new ArrayList<>();
+        return list;
     }
 
     /**
