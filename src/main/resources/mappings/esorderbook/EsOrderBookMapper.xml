@@ -38,6 +38,7 @@
             -- tsp.actualMagnification,
             ts.designer,
             ts.devt_type_name,
+            ps.pack_type as packType,
             tsc.supplier_abbreviation,
             tsc.supplier_no,
             tsc.supplier_color,
@@ -49,6 +50,7 @@
         LEFT JOIN t_style ts on tsc.style_id = ts.id and ts.del_flag = '0'
         LEFT JOIN t_pack_info tpi on tpi.style_no = tsc.style_no and tpi.del_flag = '0'
         LEFT JOIN t_style_pricing tsp on tsp.pack_id = tpi.id and tsp.del_flag = '0'
+        LEFT JOIN t_pack_info_status ps ON (tpi.id = ps.foreign_id and ps.del_flag = '0')
         ${ew.customSqlSegment}
     </select>
 

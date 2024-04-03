@@ -31,6 +31,8 @@ public class EsOrderBookItemVo {
     private String headId;
     private String stylePricingId;
 
+    private String packType;
+
     private String planningSeason;
     //搭配图片
     private String groupImg;

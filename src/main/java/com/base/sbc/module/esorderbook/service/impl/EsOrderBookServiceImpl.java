@@ -95,11 +95,13 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         //组装费用信息
         List<StylePricingVO> stylePricingList = list.stream().map(o -> {
             StylePricingVO vo = new StylePricingVO();
-            //vo.setStylePricingId();
+            vo.setStylePricingId(o.getStylePricingId());
+            vo.setPackType(o.getPackType());
+            vo.setProductionType(o.getDevtTypeName());
             return vo;
-        }).collect(Collectors.toList());
+        }).distinct().collect(Collectors.toList());
         stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true);
-        Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o));
+        Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
         for (EsOrderBookItemVo esOrderBookItemVo : list) {
             if (collect.containsKey(esOrderBookItemVo.getStylePricingId())) {
                 StylePricingVO stylePricingVO = collect.get(esOrderBookItemVo.getStylePricingId());
@@ -107,6 +109,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
                 esOrderBookItemVo.setSewingProcessingFee(stylePricingVO.getSewingProcessingFee());
                 esOrderBookItemVo.setCoordinationProcessingFee(stylePricingVO.getCoordinationProcessingFee());
                 esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
+                esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
                 esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(esOrderBookItemVo.getActualMagnification()));
             }
         }
