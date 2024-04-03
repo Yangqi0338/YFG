@@ -398,10 +398,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	}
 
 	@Override
-	public void getRefresh(String bulkStyleNo, String userCompany, String selectType) {
+	public HangTagVO getRefresh(String bulkStyleNo, String userCompany, String selectType) {
 		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(Collections.singletonList(bulkStyleNo), userCompany, selectType).stream().findFirst().orElse(null);
 		if (hangTagVO == null) {
-			return;
+			return new HangTagVO();
 		}
 
 		PackInfo packInfo = packInfoService
@@ -435,12 +435,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					hangTagInspectCompany.setUpdateName(hangTagVO.getUpdateName());
 					hangTagInspectCompany.setUpdateDate(hangTagVO.getUpdateDate());
 					hangTagInspectCompany.setCompanyCode(hangTagVO.getCompanyCode());
-					int i = hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
+					hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
 				}
-
+				return hangTagVO;
 			}
 		}
-		return ;
+		return new HangTagVO();
 	}
 
 	@Override
