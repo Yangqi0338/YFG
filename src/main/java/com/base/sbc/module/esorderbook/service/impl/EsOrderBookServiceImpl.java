@@ -151,14 +151,6 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     public void del(List<EsOrderBookItemVo> list) {
         List<String> ids = list.stream().map(EsOrderBookItemVo::getId).collect(Collectors.toList());
         removeByIds(ids);
-        //查询一下是否全部删除了，给头数据也删除一下
-        List<String> headIds = list.stream().map(EsOrderBookItemVo::getHeadId).distinct().collect(Collectors.toList());
-        List<EsOrderBookItem> headId = esOrderBookItemService.listByField("head_id", headIds);
-        List<String> dbHeadIds = headId.stream().map(EsOrderBookItem::getHeadId).distinct().collect(Collectors.toList());
-        headIds.removeAll(dbHeadIds);
-        if (CollUtil.isNotEmpty(headIds)) {
-            removeByIds(headIds);
-        }
     }
 
     @Override
