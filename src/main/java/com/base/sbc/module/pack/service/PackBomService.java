@@ -232,4 +232,11 @@ public interface PackBomService extends PackBaseService<PackBom> {
     boolean deleteFabricSummaryStyle(FabricSummaryStyleDto dto);
 
     void fabricSummaryExcel( HttpServletResponse response, FabricSummaryV2Dto dto);
+
+    /**
+     * 面料汇总删除
+     * @param dtoList
+     * @return
+     */
+    boolean deleteFabricSummary(List<FabricSummaryV2Dto> dtoList);
 }

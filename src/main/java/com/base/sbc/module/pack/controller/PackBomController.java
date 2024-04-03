@@ -242,6 +242,13 @@ public class PackBomController extends BaseController{
         return packBomService.updateFabricSummary(dtoList);
     }
 
+    @DeleteMapping ("/updateFabricSummary")
+    @ApiOperation(value = "面料汇总-删除")
+    public boolean deleteFabricSummary(@RequestBody @Valid List<FabricSummaryV2Dto> dtoList) {
+        return packBomService.deleteFabricSummary(dtoList);
+    }
+
+
     @PostMapping("/fabricStyleList")
     @ApiOperation(value = "物料对应款式列表")
     public  PageInfo<FabricStyleVo> fabricStyleList(@RequestBody @Valid  FabricStyleDto dto) {

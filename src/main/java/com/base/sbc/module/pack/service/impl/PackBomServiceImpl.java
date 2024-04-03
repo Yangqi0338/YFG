@@ -597,6 +597,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean deleteFabricSummaryStyle(FabricSummaryStyleDto dto) {
         FabricSummaryStyle fabricSummaryStyle = fabricSummaryStyleService.getById(dto.getId());
         if (null == fabricSummaryStyle){
@@ -661,6 +662,27 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean deleteFabricSummary(List<FabricSummaryV2Dto> dtoList) {
+        if (CollectionUtils.isEmpty(dtoList)){
+            return true;
+        }
+        List<String> ids = dtoList.stream().map(FabricSummaryV2Dto::getId).collect(Collectors.toList()).stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(ids)){
+            return true;
+        }
+        UpdateWrapper<FabricSummary> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.in("id",ids);
+        updateWrapper.in("del_flag",'0');
+        fabricSummaryService.update(updateWrapper);
+        UpdateWrapper<FabricSummaryStyle> updateWrapperStyle = new UpdateWrapper<>();
+        updateWrapper.in("fabric_summary_id",ids);
+        updateWrapper.in("del_flag",'0');
+        fabricSummaryStyleService.update(updateWrapperStyle);
+        return true;
     }
 
 
