@@ -105,11 +105,18 @@ public class PatternLibraryController {
     public boolean approval(@RequestBody AnswerDto dto) {
         PatternLibrary patternLibrary = patternLibraryService.getOne(new LambdaQueryWrapper<PatternLibrary>().eq(PatternLibrary::getId, dto.getBusinessKey()));
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
-            //审核通过
+            // 审核通过
             patternLibrary.setStatus(PatternLibraryStatusEnum.REVIEWED.getCode());
         } else {
-            //审核不通过
-            patternLibrary.setStatus(PatternLibraryStatusEnum.REJECTED.getCode());
+            // 审核不通过
+            if ("1".equals(dto.getRecallFlag())) {
+                // 撤回
+                patternLibrary.setStatus(PatternLibraryStatusEnum.NO_SUBMIT.getCode());
+
+            } else {
+                // 驳回
+                patternLibrary.setStatus(PatternLibraryStatusEnum.REJECTED.getCode());
+            }
         }
         return patternLibraryService.updateById(patternLibrary);
     }

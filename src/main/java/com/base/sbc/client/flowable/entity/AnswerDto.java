@@ -23,6 +23,8 @@ public class AnswerDto {
     private String confirmSay;
     @ApiModelProperty(value = "审批类型,pass:通过,reject:驳回,cancel:取消申请", example = "通过")
     private String approvalType;
+    @ApiModelProperty(value = "撤回标记", example = "1")
+    private String recallFlag;
     @ApiModelProperty(value = "流程参数")
     private Map<String, Object> variables;
 }
