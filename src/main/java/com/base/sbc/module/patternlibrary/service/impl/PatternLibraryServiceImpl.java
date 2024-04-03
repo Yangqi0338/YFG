@@ -3,9 +3,9 @@ package com.base.sbc.module.patternlibrary.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,6 +29,7 @@ import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.*;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper;
+import com.base.sbc.module.patternlibrary.mapper.PatternLibraryTemplateMapper;
 import com.base.sbc.module.patternlibrary.service.*;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
@@ -67,6 +68,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
     @Autowired
     private PatternLibraryItemService patternLibraryItemService;
+
+    @Autowired
+    private PatternLibraryTemplateMapper patternLibraryTemplateMapper;
 
     @Autowired
     private PatternLibraryTemplateService patternLibraryTemplateService;
@@ -143,11 +147,11 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             List<String> patterLibraryIdList = patternLibraryVOList
                     .stream().map(PatternLibraryVO::getId).collect(Collectors.toList());
             // *************** 查询品牌数据 ***************
-            // 根据主表 ID 查询子表数据
+            // 根据主表 ID 查询品类数据
             List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryBrandService.list(
                     new LambdaQueryWrapper<PatternLibraryBrand>()
                             .in(PatternLibraryBrand::getPatternLibraryId, patterLibraryIdList)
-                            .in(PatternLibraryBrand::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+                            .eq(PatternLibraryBrand::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
             );
             // 子表根据主表 ID 分组转成 map
             Map<String, List<PatternLibraryBrand>> patternLibraryBrandMap = Collections.emptyMap();
@@ -162,7 +166,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             List<PatternLibraryItem> patternLibraryItemList = patternLibraryItemService.list(
                     new LambdaQueryWrapper<PatternLibraryItem>()
                             .in(PatternLibraryItem::getPatternLibraryId, patterLibraryIdList)
-                            .in(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+                            .eq(PatternLibraryItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
             );
             // 子表根据主表 ID 分组转成 map
             Map<String, List<PatternLibraryItem>> patternLibraryItemMap = Collections.emptyMap();
@@ -174,67 +178,66 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
             // *************** 查询模板数据 ****************
             // 拿到分页后的模板 code 集合
-            Set<String> templateCodeList = patternLibraryVOList
-                    .stream().map(PatternLibraryVO::getTemplateCode).collect(Collectors.toSet());
-            // 根据模板 code 集合查询模板数据
-            List<PatternLibraryTemplate> patternLibraryTemplateList = patternLibraryTemplateService.list(
-                    new LambdaQueryWrapper<PatternLibraryTemplate>()
-                            .in(PatternLibraryTemplate::getCode, templateCodeList)
-                            .in(PatternLibraryTemplate::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-            );
-            // 模板数据根据模板 code 转成 map
-            Map<String, PatternLibraryTemplate> patternLibraryTemplateMap = Collections.emptyMap();
-            if (ObjectUtil.isNotEmpty(patternLibraryTemplateList)) {
-                patternLibraryTemplateMap = patternLibraryTemplateList
-                        .stream().collect(Collectors.toMap(PatternLibraryTemplate::getCode, item -> item));
-            }
-
-            // *************** 查询模板子表数据 ***************
-            // 如果模板数据不为空
-            if (ObjectUtil.isNotEmpty(patternLibraryTemplateList)) {
-                // 拿到模板数据的 ID 集合
-                Set<String> patternLibraryTemplateIdSet = patternLibraryTemplateList
-                        .stream().map(PatternLibraryTemplate::getId).collect(Collectors.toSet());
-                // 根据模板数据的 ID 集合 查询出模板子表的数据
-                List<PatternLibraryTemplateItem> patternLibraryTemplateItemList = patternLibraryTemplateItemService.list(
-                        new LambdaQueryWrapper<PatternLibraryTemplateItem>()
-                                .in(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplateIdSet)
-                                .in(PatternLibraryTemplateItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                );
-                // 按照模板 ID 分组
-                Map<String, List<PatternLibraryTemplateItem>> colpatternLibraryTemplateItemMap = Collections.emptyMap();
-                if (ObjectUtil.isNotEmpty(patternLibraryTemplateItemList)) {
-                    colpatternLibraryTemplateItemMap = patternLibraryTemplateItemList
-                            .stream().collect(Collectors.groupingBy(PatternLibraryTemplateItem::getTemplateId));
+            List<String> templateCodeList = patternLibraryVOList
+                    .stream().map(PatternLibraryVO::getTemplateCode).distinct().collect(Collectors.toList());
+            // 初始化模板 Map 数据
+            Map<String, PatternLibraryTemplate> patternLibraryTemplateMap = new HashMap<>();
+            if (ObjectUtil.isNotEmpty(templateCodeList)) {
+                // 根据模板 code 集合查询模板数据
+                List<PatternLibraryTemplate> patternLibraryTemplateList = patternLibraryTemplateMapper.listByCodes(templateCodeList);
+                // 模板数据根据模板 code 转成 map
+                if (ObjectUtil.isNotEmpty(patternLibraryTemplateList)) {
+                    patternLibraryTemplateMap = patternLibraryTemplateList
+                            .stream().collect(Collectors.toMap(PatternLibraryTemplate::getCode, item -> item));
                 }
-                // 设置模板子表数据
-                for (PatternLibraryTemplate patternLibraryTemplate : patternLibraryTemplateList) {
-                    List<PatternLibraryTemplateItem> patternLibraryTemplateItems =
-                            colpatternLibraryTemplateItemMap.get(patternLibraryTemplate.getId());
-                    if (ObjectUtil.isNotEmpty(patternLibraryTemplateItems)) {
-                        // 设置原始数据
-                        patternLibraryTemplate.setPatternLibraryTemplateItemList(patternLibraryTemplateItems);
-                        // 格式化成前端所需要的数据
-                        List<String> modifiableList = patternLibraryTemplateItems.stream()
-                                .filter(item -> item.getType().equals(1))
-                                .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
-                        List<String> notModifiableList = patternLibraryTemplateItems.stream()
-                                .filter(item -> item.getType().equals(2))
-                                .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
-                        if (ObjectUtil.isNotEmpty(modifiableList) && ObjectUtil.isNotEmpty(notModifiableList)) {
-                            patternLibraryTemplate.setPatternLibraryTemplateItem(
-                                    StringUtils.join(modifiableList, "/")
-                                            + "可修改\n" + StringUtils.join(notModifiableList, "/")
-                                            + "不可修改"
-                            );
-                        } else if (ObjectUtil.isNotEmpty(notModifiableList)) {
-                            patternLibraryTemplate.setPatternLibraryTemplateItem(
-                                    StringUtils.join(notModifiableList, "/") + "不可修改"
-                            );
-                        } else if (ObjectUtil.isNotEmpty(modifiableList)) {
-                            patternLibraryTemplate.setPatternLibraryTemplateItem(
-                                    StringUtils.join(modifiableList, "/") + "可修改"
-                            );
+
+                // *************** 查询模板子表数据 ***************
+                // 如果模板数据不为空
+                if (ObjectUtil.isNotEmpty(patternLibraryTemplateList)) {
+                    // 拿到模板数据的 ID 集合
+                    Set<String> patternLibraryTemplateIdSet = patternLibraryTemplateList
+                            .stream().map(PatternLibraryTemplate::getId).collect(Collectors.toSet());
+                    // 根据模板数据的 ID 集合 查询出模板子表的数据
+                    List<PatternLibraryTemplateItem> patternLibraryTemplateItemList = patternLibraryTemplateItemService.list(
+                            new LambdaQueryWrapper<PatternLibraryTemplateItem>()
+                                    .in(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplateIdSet)
+                                    .in(PatternLibraryTemplateItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+                    );
+                    // 按照模板 ID 分组
+                    Map<String, List<PatternLibraryTemplateItem>> colpatternLibraryTemplateItemMap = Collections.emptyMap();
+                    if (ObjectUtil.isNotEmpty(patternLibraryTemplateItemList)) {
+                        colpatternLibraryTemplateItemMap = patternLibraryTemplateItemList
+                                .stream().collect(Collectors.groupingBy(PatternLibraryTemplateItem::getTemplateId));
+                    }
+                    // 设置模板子表数据
+                    for (PatternLibraryTemplate patternLibraryTemplate : patternLibraryTemplateList) {
+                        List<PatternLibraryTemplateItem> patternLibraryTemplateItems =
+                                colpatternLibraryTemplateItemMap.get(patternLibraryTemplate.getId());
+                        if (ObjectUtil.isNotEmpty(patternLibraryTemplateItems)) {
+                            // 设置原始数据
+                            patternLibraryTemplate.setPatternLibraryTemplateItemList(patternLibraryTemplateItems);
+                            // 格式化成前端所需要的数据
+                            List<String> modifiableList = patternLibraryTemplateItems.stream()
+                                    .filter(item -> item.getType().equals(1))
+                                    .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
+                            List<String> notModifiableList = patternLibraryTemplateItems.stream()
+                                    .filter(item -> item.getType().equals(2))
+                                    .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
+                            if (ObjectUtil.isNotEmpty(modifiableList) && ObjectUtil.isNotEmpty(notModifiableList)) {
+                                patternLibraryTemplate.setPatternLibraryTemplateItem(
+                                        StringUtils.join(modifiableList, "/")
+                                                + "可修改\n" + StringUtils.join(notModifiableList, "/")
+                                                + "不可修改"
+                                );
+                            } else if (ObjectUtil.isNotEmpty(notModifiableList)) {
+                                patternLibraryTemplate.setPatternLibraryTemplateItem(
+                                        StringUtils.join(notModifiableList, "/") + "不可修改"
+                                );
+                            } else if (ObjectUtil.isNotEmpty(modifiableList)) {
+                                patternLibraryTemplate.setPatternLibraryTemplateItem(
+                                        StringUtils.join(modifiableList, "/") + "可修改"
+                                );
+                            }
                         }
                     }
                 }
@@ -352,7 +355,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 patternLibraryBrandService.remove(
                         new LambdaQueryWrapper<PatternLibraryBrand>()
                                 .eq(PatternLibraryBrand::getPatternLibraryId, patternLibrary.getId())
-                                .notIn(PatternLibraryBrand::getId, patternLibraryBrandIdList)
+                                .notIn(ObjectUtil.isNotEmpty(patternLibraryBrandIdList), PatternLibraryBrand::getId, patternLibraryBrandIdList)
                 );
                 for (PatternLibraryBrand patternLibraryBrand : patternLibraryBrandList) {
                     patternLibraryBrand.setPatternLibraryId(patternLibrary.getId());
@@ -374,7 +377,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 patternLibraryItemService.remove(
                         new LambdaQueryWrapper<PatternLibraryItem>()
                                 .eq(PatternLibraryItem::getPatternLibraryId, patternLibrary.getId())
-                                .notIn(PatternLibraryItem::getId, patternLibraryItemIdList)
+                                .notIn(ObjectUtil.isNotEmpty(patternLibraryItemIdList), PatternLibraryItem::getId, patternLibraryItemIdList)
                 );
                 for (PatternLibraryItem patternLibraryItem : patternLibraryItemList) {
                     patternLibraryItem.setPatternLibraryId(patternLibrary.getId());
@@ -476,7 +479,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             patternLibraryItemService.remove(
                     new LambdaQueryWrapper<PatternLibraryItem>()
                             .eq(PatternLibraryItem::getPatternLibraryId, patternLibrary.getId())
-                            .notIn(PatternLibraryItem::getId, patternLibraryItemIdList)
+                            .notIn(ObjectUtil.isNotEmpty(patternLibraryItemIdList), PatternLibraryItem::getId, patternLibraryItemIdList)
                             .eq(PatternLibraryItem::getType, patternLibraryDTO.getPatternLibraryItemType())
             );
             for (PatternLibraryItem patternLibraryItem : patternLibraryItemList) {
@@ -651,13 +654,13 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         // 那么查询到的待办数据进行批量审核，如果一条都没有，提示没有数据审核
         Map<String, Object> map = new HashMap<>();
         map.put("businessKeyList", patternLibraryIdList);
-        ApiResult apiResult = flowableFeignService.todoList(map);
-        Map<String, Object> data = (Map<String, Object>) apiResult.getData();
-        String jsonString = JSON.toJSONString(data);
-        JSONObject jsonObject = JSON.parseObject(jsonString);
+        map.put("pageNum",1);
+        map.put("pageSize",patternLibraryIdList.size());
+        ApiResult<Map<String, Object>> apiResult = flowableFeignService.todoList(map);
+        JSONObject jsonObject = JSONUtil.parseObj(apiResult.getData());
         JSONArray jsonArray = jsonObject.getJSONArray("list");
-        List<FlowTaskDto> flowTaskDtoList = jsonArray.toJavaList(FlowTaskDto.class);
-        if (ObjectUtil.isNotEmpty(flowTaskDtoList)) {
+        List<FlowTaskDto> flowTaskDtoList = jsonArray.toList(FlowTaskDto.class);
+        if (ObjectUtil.isEmpty(flowTaskDtoList)) {
             throw new OtherException("勾选数据暂无审核！");
         }
         for (FlowTaskDto flowTaskDto : flowTaskDtoList) {

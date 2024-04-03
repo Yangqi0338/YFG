@@ -20,4 +20,14 @@
         <result column="company_code" property="companyCode" />
     </resultMap>
 
+    <select id="listByCodes" resultType="com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate">
+        select tplt.*
+        from t_pattern_library_template tplt
+        where
+        tplt.code in
+        <foreach collection="templateCodeList" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
 </mapper>

@@ -157,5 +157,12 @@ public class PatternLibraryController {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, categoriesType);
     }
 
+    @ApiOperation(value = "获取所有的筛选条件")
+    @GetMapping("/getAllFilterCriteria")
+    public ApiResult<CategoriesTypeVO> getAllFilterCriteria() {
+        CategoriesTypeVO categoriesType = patternLibraryService.getCategoriesType();
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, categoriesType);
+    }
+
 
 }

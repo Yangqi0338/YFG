@@ -1,11 +1,7 @@
 package com.base.sbc.module.patternlibrary.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.base.sbc.module.patternlibrary.dto.PatternLibraryTemplatePageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplate;
-import com.base.sbc.module.patternlibrary.entity.PatternLibraryTemplateItem;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,5 +15,14 @@ import java.util.List;
  */
 @Mapper
 public interface PatternLibraryTemplateMapper extends BaseMapper<PatternLibraryTemplate> {
+
+    /**
+     * 根据模板编码批量查询数据
+     * @param templateCodeList 模板编码集合
+     * @return 模板信息
+     */
+    List<PatternLibraryTemplate> listByCodes(
+            @Param("templateCodeList") List<String> templateCodeList
+    );
 
 }

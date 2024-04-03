@@ -45,13 +45,13 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
         queryWrapper
                 // 模板编码
                 .like(ObjectUtil.isNotEmpty(patternLibraryTemplatePageDTO.getSearch())
-                        , "tpl.code", patternLibraryTemplatePageDTO.getSearch())
+                        , "code", patternLibraryTemplatePageDTO.getSearch())
                 // 模板名称
                 .eq(ObjectUtil.isNotEmpty(patternLibraryTemplatePageDTO.getSearch())
-                        , "tpl.name", patternLibraryTemplatePageDTO.getSearch())
+                        , "name", patternLibraryTemplatePageDTO.getSearch())
                 // 模板启用状态
                 .eq(ObjectUtil.isNotEmpty(patternLibraryTemplatePageDTO.getEnableFlag())
-                        , "tpl.enable_flag", patternLibraryTemplatePageDTO.getEnableFlag());
+                        , "enable_flag", patternLibraryTemplatePageDTO.getEnableFlag());
         // 列表分页
         PageHelper.startPage(patternLibraryTemplatePageDTO.getPageNum(), patternLibraryTemplatePageDTO.getPageSize());
         // 得到版型库主表数据集合
@@ -78,27 +78,29 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
                 List<PatternLibraryTemplateItem> patternLibraryTemplateItems =
                         colpatternLibraryTemplateItemMap.get(patternLibraryTemplate.getId());
                 patternLibraryTemplate.setPatternLibraryTemplateItemList(patternLibraryTemplateItems);
-                // 格式化成前端所需要的数据
-                List<String> modifiableList = patternLibraryTemplateItems.stream()
-                        .filter(item -> item.getType().equals(1))
-                        .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
-                List<String> notModifiableList = patternLibraryTemplateItems.stream()
-                        .filter(item -> item.getType().equals(2))
-                        .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
-                if (ObjectUtil.isNotEmpty(modifiableList) && ObjectUtil.isNotEmpty(notModifiableList)) {
-                    patternLibraryTemplate.setPatternLibraryTemplateItem(
-                            StringUtils.join(modifiableList, "/")
-                                    + "可修改\n" + StringUtils.join(notModifiableList, "/")
-                                    + "不可修改"
-                    );
-                } else if (ObjectUtil.isNotEmpty(notModifiableList)) {
-                    patternLibraryTemplate.setPatternLibraryTemplateItem(
-                            StringUtils.join(notModifiableList, "/") + "不可修改"
-                    );
-                } else if (ObjectUtil.isNotEmpty(modifiableList)) {
-                    patternLibraryTemplate.setPatternLibraryTemplateItem(
-                            StringUtils.join(modifiableList, "/") + "可修改"
-                    );
+                if (ObjectUtil.isNotEmpty(patternLibraryTemplateItems)) {
+                    // 格式化成前端所需要的数据
+                    List<String> modifiableList = patternLibraryTemplateItems.stream()
+                            .filter(item -> item.getType().equals(1))
+                            .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
+                    List<String> notModifiableList = patternLibraryTemplateItems.stream()
+                            .filter(item -> item.getType().equals(2))
+                            .map(PatternLibraryTemplateItem::getPatternTypeName).collect(Collectors.toList());
+                    if (ObjectUtil.isNotEmpty(modifiableList) && ObjectUtil.isNotEmpty(notModifiableList)) {
+                        patternLibraryTemplate.setPatternLibraryTemplateItem(
+                                StringUtils.join(modifiableList, "/")
+                                        + "可修改\n" + StringUtils.join(notModifiableList, "/")
+                                        + "不可修改"
+                        );
+                    } else if (ObjectUtil.isNotEmpty(notModifiableList)) {
+                        patternLibraryTemplate.setPatternLibraryTemplateItem(
+                                StringUtils.join(notModifiableList, "/") + "不可修改"
+                        );
+                    } else if (ObjectUtil.isNotEmpty(modifiableList)) {
+                        patternLibraryTemplate.setPatternLibraryTemplateItem(
+                                StringUtils.join(modifiableList, "/") + "可修改"
+                        );
+                    }
                 }
             }
         }
@@ -154,12 +156,17 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
                 patternLibraryTemplateItemService.remove(
                         new LambdaQueryWrapper<PatternLibraryTemplateItem>()
                                 .eq(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplate.getId())
-                                .notIn(PatternLibraryTemplateItem::getId, patternLibraryTemplateItemIdList)
+                                .notIn(ObjectUtil.isNotEmpty(patternLibraryTemplateItemIdList), PatternLibraryTemplateItem::getId, patternLibraryTemplateItemIdList)
                 );
                 for (PatternLibraryTemplateItem patternLibraryTemplateItem : patternLibraryTemplateItemList) {
                     patternLibraryTemplateItem.setTemplateId(patternLibraryTemplate.getId());
                 }
                 patternLibraryTemplateItemService.saveOrUpdateBatch(patternLibraryTemplateItemList);
+            } else {
+                patternLibraryTemplateItemService.remove(
+                        new LambdaQueryWrapper<PatternLibraryTemplateItem>()
+                                .eq(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplate.getId())
+                );
             }
         }
         return Boolean.TRUE;
@@ -201,12 +208,12 @@ public class PatternLibraryTemplateServiceImpl extends ServiceImpl<PatternLibrar
         }
         // 删除版型库主表数据
         removeById(patternLibraryTemplate);
-        // 删除版型库-模板子表数据
-        patternLibraryTemplateItemService.remove(
-                new LambdaQueryWrapper<PatternLibraryTemplateItem>()
-                        .eq(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplate.getId())
-                        .eq(PatternLibraryTemplateItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-        );
+        // 删除版型库-模板子表数据  -- 不删除 用作其他引用处查询关联
+        // patternLibraryTemplateItemService.remove(
+        //         new LambdaQueryWrapper<PatternLibraryTemplateItem>()
+        //                 .eq(PatternLibraryTemplateItem::getTemplateId, patternLibraryTemplate.getId())
+        //                 .eq(PatternLibraryTemplateItem::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+        // );
         return Boolean.TRUE;
     }
 
