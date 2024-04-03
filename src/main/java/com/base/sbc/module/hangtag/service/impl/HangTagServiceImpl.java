@@ -421,10 +421,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					hangTagVO.setCompnentInspectCompanyDtoList(list);
 				}
 			}
-			if(hangTagVO.getId()!=null&&hangTagVO.getCompnentInspectCompanyDtoList().size()>0){
+			if(hangTagVO != null && StrUtil.isNotBlank(hangTagVO.getId()) && hangTagVO.getCompnentInspectCompanyDtoList() != null && !hangTagVO.getCompnentInspectCompanyDtoList().isEmpty()){
 				List<EscmMaterialCompnentInspectCompanyDto> compnentInspectCompanyDtoList = hangTagVO.getCompnentInspectCompanyDtoList();
 				for(EscmMaterialCompnentInspectCompanyDto hangtag:compnentInspectCompanyDtoList){
-					if(hangtag.getId()!=null){
+					if(hangtag != null && StrUtil.isNotBlank(hangtag.getId())){
 						HangTagInspectCompany hangTagInspectCompany = new HangTagInspectCompany();
 						hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
 						hangTagInspectCompany.setHangTagId(hangTagVO.getId());
@@ -436,7 +436,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						hangTagInspectCompany.setUpdateName(hangTagVO.getUpdateName());
 						hangTagInspectCompany.setUpdateDate(hangTagVO.getUpdateDate());
 						hangTagInspectCompany.setCompanyCode(hangTagVO.getCompanyCode());
-						hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
+						HangTagInspectCompany hangTag = hangTagMapper.listHangTagInspectCompany(hangtag.getId(), hangTagVO.getId());
+						if(hangTag!=null&&hangTag.getDelFlag().equals("0")){
+							continue;
+						}else{
+							hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
+						}
 					}
 				}
 				return hangTagVO;
