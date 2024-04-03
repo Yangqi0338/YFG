@@ -58,7 +58,7 @@ VALUES (REPLACE(UUID(), '-', ''),
         '0',
         'hangTagReport', -- tableCode
         '品牌',
-        'brand', -- 这里直接带上表里的别名
+        'ts.brand', -- 这里直接带上表里的别名
         'dict',
         'C8_Brand');
 
@@ -122,7 +122,7 @@ VALUES (REPLACE(UUID(), '-', ''),
         '0',
         'designOrderScheduleDetailsReport', -- tableCode
         '品牌',
-        'brand', -- 这里直接带上表里的别名
+        'ts.brand', -- 这里直接带上表里的别名
         'dict',
         'C8_Brand');
 
@@ -185,7 +185,7 @@ VALUES (REPLACE(UUID(), '-', ''),
         '0',
         'styleSizeReport', -- tableCode
         '品牌',
-        'brand', -- 这里直接带上表里的别名
+        'ts.brand', -- 这里直接带上表里的别名
         'dict',
         'C8_Brand');
 
@@ -249,6 +249,6 @@ VALUES (REPLACE(UUID(), '-', ''),
         '0',
         'stylePackBomMaterialReport', -- tableCode
         '品牌',
-        'brand', -- 这里直接带上表里的别名
+        'ts.brand', -- 这里直接带上表里的别名
         'dict',
         'C8_Brand');

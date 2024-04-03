@@ -64,7 +64,7 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("t.create_date");
         // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagReport.getK(),"ts.");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagReport.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
@@ -139,7 +139,7 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("tsc.create_date");
         // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagReport.getK(),"ts.");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.stylePackBomMaterialReport.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StylePackBomMaterialReportVo> list = reportMapper.getStylePackBomListReport(qw);
@@ -177,7 +177,7 @@ public class ReportServiceImpl implements ReportService {
         QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
         qw.orderByDesc("tsc.create_date");
         // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagReport.getK(),"ts.");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleSizeReport.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
@@ -240,7 +240,7 @@ public class ReportServiceImpl implements ReportService {
         qw.orderByDesc("tsc.create_date");
 
         // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagReport.getK(),"ts.");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.designOrderScheduleDetailsReport.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
