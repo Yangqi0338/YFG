@@ -513,6 +513,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabric_summary.getK(), "sc.");
         baseMapper.fabricStyleList(dto, qw);
         PageInfo<FabricStyleVo> pageInfo = page.toPageInfo();
+        pageInfo.getList().forEach(item -> {
+            item.setMaterialCode(fabricSummary.getMaterialCode());
+        });
         stylePicUtils.setStylePic(pageInfo.getList(), "stylePic");
         stylePicUtils.setStylePic(pageInfo.getList(), "styleColorPic");
         return pageInfo;
@@ -608,13 +611,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             throw new OtherException("id不能为空");
         }
         PageInfo<List<FabricSummaryInfoVo>> pageInfo = this.fabricSummaryListV2(dto);
-        PageInfo<BomFabricVo> fabricStyleVoPageInfo = null;
 
         if (CollectionUtils.isEmpty(pageInfo.getList())){
             throw new OtherException("没有数据");
         }
         List<FabricSummaryInfoVo> fabricSummaryStyles = pageInfo.getList().get(0);
-
         //物料信息
         Map<String, Object> materialMap = getMaterialMap(fabricSummaryStyles.get(0));
         //截取款式的信息
@@ -637,7 +638,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 List<FabricSummaryInfoVo> fabricSummaryStyleList =  integerListMap.get(i);
                 //款式信息 填充
                 for (int i1 = 0; i1 < fabricSummaryStyleList.size(); i1++) {
-                    excelWriter.fill(new FillWrapper("data"+i1, getStyleMap(fabricSummaryStyleList.get(i1))),writeSheet);
+                    FabricSummaryInfoVo fabricSummaryStyle = fabricSummaryStyleList.get(i1);
+                    //填充字段信息
+                    excelWriter.fill(new FillWrapper("data"+i1, getStyleMap(fabricSummaryStyle)),writeSheet);
+                    //填充图片信息
+                    List<Map<String, Object>> imgMap = getImgMap(fabricSummaryStyle);
+                    if (CollectionUtils.isNotEmpty(imgMap)){
+                        excelWriter.fill(new FillWrapper("img"+i1, imgMap),writeSheet);
+                    }
+
                 }
             }
             excelWriter.finish();
@@ -653,36 +662,60 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
     }
 
+
+    /**
+     * 填充图片
+     * @param fabricSummaryStyle
+     * @return
+     */
+    private List<Map<String, Object>> getImgMap(FabricSummaryInfoVo fabricSummaryStyle){
+        if (StringUtils.isEmpty(fabricSummaryStyle.getStylePic())){
+            return null;
+        }
+        List<Map<String, Object>> mapList = Lists.newArrayList();
+        Map<String, Object> objectMap = Maps.newHashMap();
+            WriteCellData<Void> voidWriteCellData = null;
+        try {
+            voidWriteCellData = TemplateExcelUtils.imageCells(HttpUtil.downloadBytes(fabricSummaryStyle.getStylePic()), 200.0, 100.0, 0.6,1.9);
+       } catch (IOException e) {
+            log.error("getImgMap error",e);
+        }
+        objectMap.put(FabricSummaryExportExcel.stylePic,voidWriteCellData);
+        mapList.add(objectMap);
+        return mapList;
+    }
+
+    /**
+     * 填充字段的一些信息
+     * @param fabricSummaryStyle
+     * @return
+     */
     private List<Map<String, Object>> getStyleMap(FabricSummaryInfoVo fabricSummaryStyle) {
         List<Map<String, Object>> mapList = Lists.newArrayList();
         Map<String, Object> objectMap = Maps.newHashMap();
-
-        if (null != fabricSummaryStyle.getStylePic()){
-            WriteCellData<Void> voidWriteCellData = null;
-            try {
-                voidWriteCellData = TemplateExcelUtils.imageCells(HttpUtil.downloadBytes(fabricSummaryStyle.getStylePic()), 1000.0, 200.0,0.6,1.9);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            objectMap.put(FabricSummaryExportExcel.stylePic,voidWriteCellData);
-        }
-
-
         objectMap.put(FabricSummaryExportExcel.partName,fabricSummaryStyle.getPartName());
         objectMap.put(FabricSummaryExportExcel.bandName,fabricSummaryStyle.getBandName());
         objectMap.put(FabricSummaryExportExcel.styleNo,fabricSummaryStyle.getStyleNo());
         objectMap.put(FabricSummaryExportExcel.styleId,fabricSummaryStyle.getStyleId());
-        objectMap.put(FabricSummaryExportExcel.senderDesignerName,fabricSummaryStyle.getSenderDesignerName());
+        objectMap.put(FabricSummaryExportExcel.senderDesignerName,fabricSummaryStyle.getPatternDesignName());
         objectMap.put(FabricSummaryExportExcel.colorCrash,fabricSummaryStyle.getColorCrash());
         objectMap.put(FabricSummaryExportExcel.materialColor,fabricSummaryStyle.getMaterialColor());
         objectMap.put(FabricSummaryExportExcel.supplierColor,fabricSummaryStyle.getSupplierColor());
         objectMap.put(FabricSummaryExportExcel.supplierColorNo,fabricSummaryStyle.getSupplierColorNo());
         objectMap.put(FabricSummaryExportExcel.unitUse,fabricSummaryStyle.getUnitUse());
         objectMap.put(FabricSummaryExportExcel.totalProduction,fabricSummaryStyle.getTotalProduction());
+        if (StringUtils.isNotBlank(fabricSummaryStyle.getTotalProduction()) && null != fabricSummaryStyle.getUnitUse()){
+            objectMap.put(FabricSummaryExportExcel.needMeter, Double.parseDouble(fabricSummaryStyle.getTotalProduction())*fabricSummaryStyle.getUnitUse().doubleValue());
+        }
         mapList.add(objectMap);
         return mapList;
     }
 
+    /**
+     * 填充面料信息
+     * @param bomFabricVo
+     * @return
+     */
     private Map<String, Object> getMaterialMap(FabricSummaryInfoVo bomFabricVo) {
         Map<String,Object> objectMap = new HashMap<>();
         if (StringUtils.isNotBlank(bomFabricVo.getPhysicochemistryDetectionResult())){
@@ -711,8 +744,12 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     }
 
 
-
-
+    /**
+     * 截取集合
+     * @param list
+     * @param elementsPerSubList
+     * @return
+     */
     private Map<Integer, List<FabricSummaryInfoVo>>  splitListIntoArrays(List<FabricSummaryInfoVo> list, int elementsPerSubList) {
         Map<Integer, List<FabricSummaryInfoVo>> map = new HashMap<>();
         int index = 0;
@@ -1230,8 +1267,5 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     }
 
-    public static void main(String[] args) {
-        String s = new IdGen().nextIdStr();
-        System.out.println(s);
-    }
+
 }

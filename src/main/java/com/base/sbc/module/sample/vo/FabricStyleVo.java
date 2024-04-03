@@ -12,4 +12,8 @@ public class FabricStyleVo extends FabricSummaryStyle {
 
     @ApiModelProperty(value = "选择标识，0未选择，1选择")
     private String choiceFlag;
+
+    /** 物料编号 */
+    @ApiModelProperty(value = "物料编号"  )
+    private String materialCode;
 }

@@ -113,4 +113,12 @@ public class FabricSummaryInfoVo extends FabricSummary {
     /** 款式图 */
     @ApiModelProperty(value = "款式图"  )
     private String stylePic;
+
+    /** 款式图 */
+    @ApiModelProperty(value = "版师名称"  )
+    private String patternDesignName;
+
+    /** 款式图 */
+    @ApiModelProperty(value = "版师id")
+    private String patternDesignId;
 }

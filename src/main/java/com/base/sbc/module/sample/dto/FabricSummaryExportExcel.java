@@ -96,4 +96,8 @@ public class FabricSummaryExportExcel {
     @ApiModelProperty(value = "总投产"  )
     public static String totalProduction = "totalProduction";
 
+    @ApiModelProperty(value = "需求米数"  )
+    public static String needMeter = "needMeter";
+
+
 }
