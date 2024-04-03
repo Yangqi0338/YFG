@@ -102,7 +102,14 @@ public class EsOrderBookController {
 
     @ApiOperation(value = "mango导入图片")
     @PostMapping("/uploadStyleColorPics")
-    public ApiResult uploadStyleColorPics(Principal user, @RequestParam("file") MultipartFile file, @RequestParam("vo") EsOrderBookItemVo vo) {
+    public ApiResult uploadStyleColorPics(Principal user, @RequestParam("file") MultipartFile file,
+                                          @RequestParam("planningSeason") String planningSeason,
+                                          @RequestParam("headId") String headId,
+                                          @RequestParam("groupName") String groupName) {
+        EsOrderBookItemVo vo = new EsOrderBookItemVo();
+        vo.setPlanningSeason(planningSeason);
+        vo.setHeadId(headId);
+        vo.setGroupName(groupName);
         return esOrderBookService.uploadStyleColorPics(user, file, vo);
     }
 

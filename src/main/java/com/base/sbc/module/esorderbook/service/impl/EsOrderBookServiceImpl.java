@@ -114,7 +114,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
                 esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(esOrderBookItemVo.getActualMagnification()));
             }
         }
-        stylePicUtils.setStyleColorPic2(list, "groupImg");
+        minioUtils.setObjectUrlToList(list, "groupImg");
         stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
     }
@@ -224,7 +224,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         updateWrapper.eq(EsOrderBookItem::getHeadId, vo.getHeadId());
         updateWrapper.eq(EsOrderBookItem::getGroupName, vo.getGroupName());
         esOrderBookItemService.update(updateWrapper);
-        return null;
+        return ApiResult.success("操作成功");
     }
 
     @Override
