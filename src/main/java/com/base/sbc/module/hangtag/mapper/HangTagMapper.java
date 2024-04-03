@@ -55,5 +55,8 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
 
 // 自定义方法区 不替换的区域【other_end】
     int addHangTagInspectCompany(@Param("htc")HangTagInspectCompany htc);
+
+    HangTagInspectCompany listHangTagInspectCompany(@Param("inspectCompanyId")String inspectCompanyId,@Param("hangTagId")String hangTagId);
+
 }
 
