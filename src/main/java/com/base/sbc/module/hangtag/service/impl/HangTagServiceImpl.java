@@ -380,18 +380,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		PackInfo packInfo = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (packInfo != null) {
-
-			QueryWrapper<PackBomVersion> packBomVersionQueryWrapper = new QueryWrapper<>();
-			packBomVersionQueryWrapper.eq("foreign_id",packInfo.getForeignId());
-			packBomVersionQueryWrapper.eq("status",BaseGlobal.YES);
-			packBomVersionQueryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
-			packBomVersionQueryWrapper.last("limit 1");
-			PackBomVersion packBomVersion = packBomVersionService.getOne(packBomVersionQueryWrapper);
+			PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(packInfo.getId(), StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
 
 			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
 			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
 			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
-			if (packBomVersion != null) {
+			if (ObjectUtil.isNotEmpty(packBomVersion)) {
 				queryWrapper.eq("bom_version_id",packBomVersion.getId());
 			}
 			List<PackBom> packBomList = packBomService.list(queryWrapper);
