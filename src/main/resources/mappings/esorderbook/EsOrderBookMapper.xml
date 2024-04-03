@@ -37,7 +37,7 @@
             tsp.product_style_name,
             -- tsp.actualMagnification,
             ts.designer,
-            ts.devtType_name,
+            ts.devt_type_name,
             tsc.supplier_abbreviation,
             tsc.supplier_no,
             tsc.supplier_color,
