@@ -86,4 +86,8 @@ public class EsOrderBookItemVo {
     //锁定
     private String isLock;
 
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
 }

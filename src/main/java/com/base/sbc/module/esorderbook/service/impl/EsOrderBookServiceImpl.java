@@ -114,6 +114,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
             }
         }
         stylePicUtils.setStyleColorPic2(list, "groupImg");
+        stylePicUtils.setStyleColorPic2(list, "styleColorPic");
         return new PageInfo<>(list);
     }
 
