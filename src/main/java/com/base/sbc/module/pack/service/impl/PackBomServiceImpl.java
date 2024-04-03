@@ -172,6 +172,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Autowired
     private FabricSummaryStyleService fabricSummaryStyleService;
 
+    @Lazy
     @Autowired
     private OrderBookDetailService orderBookDetailService;
 
