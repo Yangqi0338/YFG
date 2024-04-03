@@ -44,6 +44,10 @@ public class EsOrderBookQueryDto extends QueryFieldDto {
      */
     @ApiModelProperty(value = "产品季节id")
     private String seasonId;
+
+    private String headId;
+
+    private String yearName;
     /**
      * 产品季节名称
      */

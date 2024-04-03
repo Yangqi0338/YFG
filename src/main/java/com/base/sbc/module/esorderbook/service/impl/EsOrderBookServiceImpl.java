@@ -85,6 +85,8 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     public PageInfo<EsOrderBookItemVo> findPage(EsOrderBookQueryDto dto) {
         BaseQueryWrapper<EsOrderBookItemVo> qw = new BaseQueryWrapper<>();
         qw.notEmptyEq("head.season_id", dto.getSeasonId());
+        qw.notEmptyEq("ts.year_name", dto.getYearName());
+        qw.notEmptyEq("head.id", dto.getHeadId());
 
         QueryGenerator.initQueryWrapperByMap(qw, dto);
         Page<Object> objects = PageHelper.startPage(dto);
