@@ -2602,8 +2602,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         String currentFlag = StringUtils.isNotBlank(suspendDateRecordVo.getCurrentFlag()) ? suspendDateRecordVo.getCurrentFlag() : new IdGen().nextIdStr();
         Map<String, SuspendDateRecordVo.SuspendDate> suspendDateMap = CollectionUtils.isEmpty(suspendDateRecordVo.getSuspendDateMap()) ? Maps.newHashMap() : suspendDateRecordVo.getSuspendDateMap();
-        SuspendDateRecordVo.SuspendDate suspendDate = null == suspendDateMap.get(currentFlag) ? new SuspendDateRecordVo.SuspendDate() : suspendDateMap.get(currentFlag);
-
+        SuspendDateRecordVo.SuspendDate suspendDate = null == suspendDateMap.get(currentFlag) ? new SuspendDateRecordVo.SuspendDate(byId.getStatus(),byId.getNode()) : suspendDateMap.get(currentFlag);
         if (BaseGlobal.YES.equals(suspend)){
             suspendDate.setStartTime(new Date());
             suspendDateRecordVo.setCurrentFlag(currentFlag);
