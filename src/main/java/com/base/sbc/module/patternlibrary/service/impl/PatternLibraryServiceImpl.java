@@ -507,11 +507,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         if (ObjectUtil.isEmpty(patternLibraryDTOList)) {
             throw new OtherException("批量编辑数据不能为空！");
         }
-        long count = patternLibraryDTOList
+        if (patternLibraryDTOList
                 .stream()
-                .filter(item -> item.getStatus().equals(PatternLibraryStatusEnum.NO_PADDED.getCode()))
-                .count();
-        if (patternLibraryDTOList.size() != count) {
+                .anyMatch(item -> !item.getStatus().equals(PatternLibraryStatusEnum.NO_PADDED.getCode()))) {
             throw new OtherException("批量编辑只能选择待补齐！");
         }
         // 批量编辑
@@ -520,8 +518,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             List<String> styleIdList = patternLibraryDTOList.
                     stream().map(PatternLibraryDTO::getStyleId).collect(Collectors.toList());
             List<Style> styleList = styleService.listByIds(styleIdList);
-            boolean flag = isFlag(patternLibraryDTOList.get(0).getProdCategory1st(), styleList);
-            if (!flag) {
+            if (!isFlag(patternLibraryDTOList.get(0).getProdCategory1st(), styleList)) {
                 throw new OtherException("款式所对应的大类和所选大类的上装下装不匹配！");
             }
         }
