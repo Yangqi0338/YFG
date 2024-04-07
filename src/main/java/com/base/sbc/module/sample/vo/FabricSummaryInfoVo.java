@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 
 @Data
 public class FabricSummaryInfoVo extends FabricSummary {
+    @ApiModelProperty(value = "款式id"  )
+    private String fabricSummaryStyleId;
     /** 款式(大货款号) */
     @ApiModelProperty(value = "款式(大货款号)"  )
     private String styleNo;

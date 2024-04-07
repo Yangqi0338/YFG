@@ -23,6 +23,7 @@
     <select id="fabricSummaryInfoVoList" resultType="com.base.sbc.module.sample.vo.FabricSummaryInfoVo">
         select
             tfs.id as id,
+           tfss.id as fabric_summary_style_id,
             tfs.*,
             tfss.*
         from t_fabric_summary tfs left join t_fabric_summary_style tfss on tfs. id = tfss.fabric_summary_id
