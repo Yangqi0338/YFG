@@ -14,5 +14,16 @@ public interface PackingDictionaryMapper {
      */
     List<PackingDictionary> listPackingDictionary();
 
+    /**
+     * 新增
+     * @param dto
+     * @return
+     */
     int addPacking(@Param("dto") PackingDictionary dto);
+    /**
+     * 查询是否存在
+     */
+    PackingDictionary queryPackingDictionary(@Param("parentId")String parentId,@Param("name")String name);
+
+    int updatePacking(@Param("dto") PackingDictionary dto);
 }

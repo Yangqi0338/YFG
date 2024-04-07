@@ -43,4 +43,10 @@ public class PackingDictionaryController {
         return packingDictionaryService.save(dto);
     }
 
+    @ApiOperation(value = "修改")
+    @PostMapping("/updatePacking")
+    public Integer update(@RequestBody PackingDictionary dto){
+        return packingDictionaryService.update(dto);
+    }
+
 }

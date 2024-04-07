@@ -3,7 +3,7 @@ package com.base.sbc.module.pack.service;
 import com.base.sbc.module.pack.dto.PackingDictionaryDto;
 import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.github.pagehelper.PageInfo;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.apache.ibatis.annotations.Param;
 
 public interface PackingDictionaryService {
     /**
@@ -19,4 +19,15 @@ public interface PackingDictionaryService {
      * @return
      */
     int save(PackingDictionary dto);
+
+    /**
+     *查询是否存在
+     * @param parentId
+     * @param name
+     * @return
+     */
+    PackingDictionary queryPackingDictionary(String parentId,String name);
+
+
+    int update(PackingDictionary dto);
 }

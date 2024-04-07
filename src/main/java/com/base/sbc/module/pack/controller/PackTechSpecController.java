@@ -141,6 +141,8 @@ public class PackTechSpecController {
     @ApiOperation(value = "保存包装方式长宽高回显")
     @PostMapping("/packagingEcho")
     public PackTechPackaging Packaging( @RequestParam("dependDictType") String dependDictType,@RequestParam("dependCode") String dependCode) {
+
+
         PackTechPackaging packaging1 = packTechPackagingService.Packaging(dependDictType,dependCode);
         return packaging1;
     }
