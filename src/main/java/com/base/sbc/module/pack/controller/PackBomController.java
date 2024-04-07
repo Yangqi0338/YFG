@@ -245,8 +245,8 @@ public class PackBomController extends BaseController{
 
     @DeleteMapping ("/fabricSummary")
     @ApiOperation(value = "面料汇总-删除")
-    public boolean deleteFabricSummary(@RequestBody @Valid List<FabricSummaryV2Dto> dtoList) {
-        return packBomService.deleteFabricSummary(dtoList);
+    public boolean deleteFabricSummary(String id) {
+        return packBomService.deleteFabricSummary(id);
     }
 
 
@@ -271,8 +271,8 @@ public class PackBomController extends BaseController{
 
     @DeleteMapping ("/fabricSummaryStyle")
     @ApiOperation(value = "面料汇总-款式删除")
-    public boolean deleteFabricSummaryStyle(@RequestBody @Valid  FabricSummaryStyleDto dto) {
-        return  packBomService.deleteFabricSummaryStyle(dto);
+    public boolean deleteFabricSummaryStyle(String id) {
+        return  packBomService.deleteFabricSummaryStyle(id);
     }
 
 

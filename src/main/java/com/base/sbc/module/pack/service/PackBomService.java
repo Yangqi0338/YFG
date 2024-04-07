@@ -227,10 +227,10 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     /**
      * 删除物料汇总款式
-     * @param dto
+     * @param id
      * @return
      */
-    boolean deleteFabricSummaryStyle(FabricSummaryStyleDto dto);
+    boolean deleteFabricSummaryStyle(String id);
 
     void fabricSummaryExcel( HttpServletResponse response, FabricSummaryV2Dto dto);
 
@@ -239,7 +239,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param dtoList
      * @return
      */
-    boolean deleteFabricSummary(List<FabricSummaryV2Dto> dtoList);
+    boolean deleteFabricSummary(String dtoList);
 
     PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto);
 }
