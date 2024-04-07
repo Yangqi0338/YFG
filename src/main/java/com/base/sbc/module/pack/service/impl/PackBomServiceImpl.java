@@ -418,11 +418,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (CollectionUtils.isEmpty(bomFabricVos)){
             return true;
         }
-        //过滤已经选择过的物料，防止重复添加
-        List<BomFabricVo> voList = bomFabricVos.stream().filter(item -> Constants.ONE_STR.equals(item.getChoiceFlag())).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(voList)){
-            throw new OtherException(voList.get(0).getMaterialCode()+"的物料已经添加，请勿重复添加！");
-        }
+
         List<FabricSummary> summaryList = Lists.newArrayList();
         Map<String, String> fabricInfoMap = fabricInfos.stream().filter(item ->StringUtils.isNotBlank(item.getWidthName())).collect(Collectors.toList())
                 .stream().collect(Collectors.toMap(FabricSummarySaveDTO.FabricInfo::getMaterialCode, FabricSummarySaveDTO.FabricInfo::getWidthName));
