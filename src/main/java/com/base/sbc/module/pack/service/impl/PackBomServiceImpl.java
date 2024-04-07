@@ -680,6 +680,17 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return true;
     }
 
+    @Override
+    public PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto) {
+        QueryWrapper qw = new QueryWrapper<>();
+        qw.eq("del_flag","0");
+        qw.eq(StringUtils.isNotBlank(dto.getCreateName()),"create_name",dto.getCreateName());
+        qw.eq(StringUtils.isNotBlank(dto.getFabricSummaryId()),"fabric_summary_id",dto.getFabricSummaryId());
+        Page<FabricSummaryPrintLog> page = PageHelper.startPage(dto);
+        fabricSummaryPrintLogService.list(qw);
+        return page.toPageInfo();
+    }
+
 
     /**
      * 填充图片
