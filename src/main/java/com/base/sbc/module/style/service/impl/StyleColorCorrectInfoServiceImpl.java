@@ -276,7 +276,9 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
             oldDto.setTechnicsDate(null);
 
 
-        }else{
+        }
+
+        if (styleColorCorrectInfo.getPlanControlDate() == null || !DateUtil.isSameTime(styleColorCorrectInfo.getPlanControlDate(),oldDto.getPlanControlDate())) {
             TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
             confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
             confirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate());
