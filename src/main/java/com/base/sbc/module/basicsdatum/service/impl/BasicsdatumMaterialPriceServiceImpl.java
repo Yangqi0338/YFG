@@ -12,6 +12,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumMaterialPriceMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -83,6 +84,14 @@ public class BasicsdatumMaterialPriceServiceImpl
             });
             super.saveBatch(basicsdatumMaterialPrices);
         }
+    }
+
+    @Override
+    public String getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo) {
+        QueryWrapper qw = new QueryWrapper<>();
+        qw.in("p.supplier_material_code", materialSupplierInfo.getSupplierMaterialCode());
+        qw.eq("bu.supplier_abbreviation", materialSupplierInfo.getSupplierAbbreviation());
+        return getBaseMapper().supplierAbbreviation(qw);
     }
 
 // 自定义方法区 不替换的区域【other_end】

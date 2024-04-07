@@ -32,6 +32,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
@@ -385,6 +386,16 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (ObjectUtils.isNotEmpty(packDesignStatus) && BasicNumber.ONE.getNumber().equals(packDesignStatus.getBomStatus())){
             throw new RuntimeException("物料已转大货，不允许更新！");
         }
+        for (MaterialSupplierInfo materialSupplierInfo : dto.getMaterialSupplierInfos()) {
+            String materialCode = basicsdatumMaterialService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
+            if (StringUtils.isEmpty(materialCode)){
+                throw new RuntimeException("此供应商未有物料关联："+materialSupplierInfo.getSupplierAbbreviation());
+            }
+
+        }
+
+        BasicsdatumMaterialQueryDto basicsdatumMaterialQueryDto = new BasicsdatumMaterialQueryDto();
+        basicsdatumMaterialService.getBomSelMaterialList(basicsdatumMaterialQueryDto);
 
         return false;
     }

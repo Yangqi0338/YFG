@@ -49,6 +49,7 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockService;
@@ -873,6 +874,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         minioUtils.setObjectUrlToList(list, "materialsImageUrl");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public String getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo) {
+        return materialPriceService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
     }
 
     /**
