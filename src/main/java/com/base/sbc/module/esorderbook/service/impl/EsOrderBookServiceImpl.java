@@ -349,15 +349,15 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         Integer sortIndex = vo.getSortIndex();
         String type = vo.getType();
         if("0".equals(type)){
-            EsOrderBookItem esOrderBookItem = itemListBy.get(sortIndex);
+            EsOrderBookItem esOrderBookItem = itemListBy.get(sortIndex-1);
             esOrderBookItem.setSortIndex(sortIndex-1);
-            EsOrderBookItem esOrderBookItem1 = itemListBy.get(sortIndex - 1);
+            EsOrderBookItem esOrderBookItem1 = itemListBy.get(sortIndex - 2);
             esOrderBookItem1.setSortIndex(sortIndex+1);
             esOrderBookItemService.updateBatchById(Arrays.asList(esOrderBookItem,esOrderBookItem1));
         }else{
-            EsOrderBookItem esOrderBookItem = itemListBy.get(sortIndex);
+            EsOrderBookItem esOrderBookItem = itemListBy.get(sortIndex-1);
             esOrderBookItem.setSortIndex(sortIndex+1);
-            EsOrderBookItem esOrderBookItem1 = itemListBy.get(sortIndex + 1);
+            EsOrderBookItem esOrderBookItem1 = itemListBy.get(sortIndex);
             esOrderBookItem1.setSortIndex(sortIndex-1);
             esOrderBookItemService.updateBatchById(Arrays.asList(esOrderBookItem,esOrderBookItem1));
         }
