@@ -289,5 +289,19 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         esOrderBookItemService.saveBatch(itemList);
     }
 
+    @Override
+    @Transactional
+    public void updateItemList(List<EsOrderBookItemVo> itemList) {
+        for (EsOrderBookItemVo esOrderBookItemVo : itemList) {
+            LambdaUpdateWrapper<EsOrderBookItem> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(EsOrderBookItem::getSortIndex, esOrderBookItemVo.getSortIndex());
+            updateWrapper.set(EsOrderBookItem::getUpdateId, getUserId());
+            updateWrapper.set(EsOrderBookItem::getUpdateName, getUserName());
+            updateWrapper.set(EsOrderBookItem::getUpdateDate, new Date());
+            updateWrapper.eq(EsOrderBookItem::getId, esOrderBookItemVo.getId());
+            esOrderBookItemService.update(updateWrapper);
+        }
+    }
+
 
 }

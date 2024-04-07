@@ -139,6 +139,13 @@ public class EsOrderBookController {
         esOrderBookService.exportExcel(response, dto);
     }
 
+    @ApiOperation(value = "修改行顺序")
+    @PostMapping("/updateItemList")
+    public ApiResult updateItemList(@RequestBody List<EsOrderBookItemVo> list) {
+        esOrderBookService.updateItemList(list);
+        return ApiResult.success("操作成功");
+    }
+
 }
 
 
