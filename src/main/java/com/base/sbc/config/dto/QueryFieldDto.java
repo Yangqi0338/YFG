@@ -3,6 +3,7 @@ package com.base.sbc.config.dto;
 import com.base.sbc.config.common.base.Page;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -23,4 +24,6 @@ public class QueryFieldDto extends Page {
 
     /*是否导出图片*/
     private String imgFlag;
+
+    private List<String> idList;
 }

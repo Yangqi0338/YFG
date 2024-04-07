@@ -30,6 +30,8 @@ public class EsOrderBookItemVo {
     private String styleColorId;
     private String headId;
     private String stylePricingId;
+    private String groupId;
+    private Integer sortIndex;
 
     private String packType;
 

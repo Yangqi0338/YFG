@@ -41,14 +41,19 @@ public class EsOrderBookItem extends BaseDataEntity<String> {
     @ApiModelProperty(value = "头表id")
     private String headId;
     /**
+     * 组id
+     */
+    @ApiModelProperty(value = "组id")
+    private String groupId;
+    /**
      * 组图片
      */
-    @ApiModelProperty(value = "款式配色id")
+    @ApiModelProperty(value = "组图片")
     private String groupImg;
     /**
      * 组名
      */
-    @ApiModelProperty(value = "款式配色id")
+    @ApiModelProperty(value = "组名")
     private String groupName;
     /**
      * 款式配色id
@@ -60,5 +65,10 @@ public class EsOrderBookItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否锁定（0：否，1：是）")
     private String isLock;
+    /**
+     * 款式配色id
+     */
+    @ApiModelProperty(value = "款式配色id")
+    private Integer sortIndex;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

@@ -72,6 +72,13 @@ public class EsOrderBookController {
     }
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
+    @DeleteMapping("/delItem")
+    public ApiResult delItem(@RequestBody List<EsOrderBookItemVo> list) {
+        esOrderBookService.delItem(list);
+        return ApiResult.success("操作成功");
+    }
+
+    @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping("/delHead/{id}")
     public ApiResult delHead(@PathVariable String id) {
         esOrderBookService.delHead(id);

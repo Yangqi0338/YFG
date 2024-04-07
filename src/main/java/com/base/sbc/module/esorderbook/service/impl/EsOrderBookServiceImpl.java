@@ -84,10 +84,23 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         qw.notEmptyEq("head.season_id", dto.getSeasonId());
         qw.notEmptyEq("ts.year_name", dto.getYearName());
         qw.notEmptyEq("head.id", dto.getHeadId());
+        qw.notEmptyIn("item.id",dto.getIdList());
 
         QueryGenerator.initQueryWrapperByMap(qw, dto);
         Page<Object> objects = PageHelper.startPage(dto);
         qw.eq("item.del_flag", BaseGlobal.DEL_FLAG_NORMAL);
+
+        StringBuilder sbStr = new StringBuilder("order by CASE ");
+        for (int i = 1; i <= 12; i++) {
+            sbStr.append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("A' THEN ").append(i).append("0")
+                    .append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("B' THEN ").append(i).append("1")
+                    .append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("C' THEN ").append(i).append("2")
+                    .append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("D' THEN ").append(i).append("3")
+                    .append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("E' THEN ").append(i).append("4");
+        }
+        sbStr.append(" ELSE 999 END,SUBSTRING_INDEX(item.group_name,'-',-1),item.sort_index");
+        qw.last(sbStr.toString());
+        
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
 
         //组装费用信息
@@ -179,6 +192,15 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
             queryWrapper.in(EsOrderBookItem::getGroupName, groupNames);
             esOrderBookItemService.remove(queryWrapper);
         }
+        //this.saveOperaLog("删除", "es订货本", sampleStyleColor.getColorName(), sampleStyleColor.getStyleNo(), styleColor, styleColor1);
+    }
+
+    @Override
+    @Transactional
+    public void delItem(List<EsOrderBookItemVo> list) {
+        List<String> ids = list.stream().map(EsOrderBookItemVo::getId).collect(Collectors.toList());
+        esOrderBookItemService.removeByIds(ids);
+        //this.saveOperaLog("删除", "es订货本", sampleStyleColor.getColorName(), sampleStyleColor.getStyleNo(), styleColor, styleColor1);
     }
 
     @Override
@@ -258,6 +280,8 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     public void saveItemList(EsOrderBookSaveDto dto) {
         String id = dto.getHead().getId();
         List<EsOrderBookItem> itemList = BeanUtil.copyToList(dto.getItemList(), EsOrderBookItem.class);
+        String groupName = itemList.get(0).getGroupName();
+
         for (EsOrderBookItem esOrderBookItem : itemList) {
             esOrderBookItem.setHeadId(id);
             esOrderBookItem.insertInit();
