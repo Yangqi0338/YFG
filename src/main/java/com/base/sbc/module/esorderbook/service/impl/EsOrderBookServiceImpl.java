@@ -50,10 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -90,7 +87,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
 
         QueryGenerator.initQueryWrapperByMap(qw, dto);
         Page<Object> objects = PageHelper.startPage(dto);
-        qw.eq("item.del_flag",BaseGlobal.DEL_FLAG_NORMAL);
+        qw.eq("item.del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
 
         //组装费用信息
@@ -120,25 +117,45 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     }
 
     @Override
-    public void lock(List<String> ids) {
-        LambdaUpdateWrapper<EsOrderBookItem> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.set(EsOrderBookItem::getIsLock, BaseGlobal.YES);
-        updateWrapper.set(EsOrderBookItem::getUpdateId, getUserId());
-        updateWrapper.set(EsOrderBookItem::getUpdateName, getUserName());
-        updateWrapper.set(EsOrderBookItem::getUpdateDate, new Date());
-        updateWrapper.in(EsOrderBookItem::getId, ids);
-        esOrderBookItemService.update(updateWrapper);
+    @Transactional
+    public void lock(List<EsOrderBookItemVo> list) {
+        Map<String, List<String>> headIdGroupNames =
+                list.stream().collect(Collectors.groupingBy(EsOrderBookItemVo::getHeadId,
+                        Collectors.mapping(EsOrderBookItemVo::getGroupName, Collectors.toList())));
+        LambdaUpdateWrapper<EsOrderBookItem> updateWrapper;
+        for (Map.Entry<String, List<String>> entry : headIdGroupNames.entrySet()) {
+            String headId = entry.getKey();
+            List<String> groupNames = entry.getValue();
+            updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(EsOrderBookItem::getIsLock, BaseGlobal.YES);
+            updateWrapper.set(EsOrderBookItem::getUpdateId, getUserId());
+            updateWrapper.set(EsOrderBookItem::getUpdateName, getUserName());
+            updateWrapper.set(EsOrderBookItem::getUpdateDate, new Date());
+            updateWrapper.eq(EsOrderBookItem::getHeadId, headId);
+            updateWrapper.in(EsOrderBookItem::getGroupName, groupNames);
+            esOrderBookItemService.update(updateWrapper);
+        }
     }
 
     @Override
-    public void unLock(List<String> ids) {
-        LambdaUpdateWrapper<EsOrderBookItem> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.set(EsOrderBookItem::getIsLock, BaseGlobal.NO);
-        updateWrapper.set(EsOrderBookItem::getUpdateId, getUserId());
-        updateWrapper.set(EsOrderBookItem::getUpdateName, getUserName());
-        updateWrapper.set(EsOrderBookItem::getUpdateDate, new Date());
-        updateWrapper.in(EsOrderBookItem::getId, ids);
-        esOrderBookItemService.update(updateWrapper);
+    @Transactional
+    public void unLock(List<EsOrderBookItemVo> list) {
+        Map<String, List<String>> headIdGroupNames =
+                list.stream().collect(Collectors.groupingBy(EsOrderBookItemVo::getHeadId,
+                        Collectors.mapping(EsOrderBookItemVo::getGroupName, Collectors.toList())));
+        LambdaUpdateWrapper<EsOrderBookItem> updateWrapper;
+        for (Map.Entry<String, List<String>> entry : headIdGroupNames.entrySet()) {
+            String headId = entry.getKey();
+            List<String> groupNames = entry.getValue();
+            updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(EsOrderBookItem::getIsLock, BaseGlobal.NO);
+            updateWrapper.set(EsOrderBookItem::getUpdateId, getUserId());
+            updateWrapper.set(EsOrderBookItem::getUpdateName, getUserName());
+            updateWrapper.set(EsOrderBookItem::getUpdateDate, new Date());
+            updateWrapper.eq(EsOrderBookItem::getHeadId, headId);
+            updateWrapper.in(EsOrderBookItem::getGroupName, groupNames);
+            esOrderBookItemService.update(updateWrapper);
+        }
     }
 
     @Override
@@ -150,8 +167,18 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     @Override
     @Transactional
     public void del(List<EsOrderBookItemVo> list) {
-        List<String> ids = list.stream().map(EsOrderBookItemVo::getId).collect(Collectors.toList());
-        esOrderBookItemService.removeByIds(ids);
+        Map<String, List<String>> headIdGroupNames =
+                list.stream().collect(Collectors.groupingBy(EsOrderBookItemVo::getHeadId,
+                        Collectors.mapping(EsOrderBookItemVo::getGroupName, Collectors.toList())));
+        LambdaQueryWrapper<EsOrderBookItem> queryWrapper;
+        for (Map.Entry<String, List<String>> entry : headIdGroupNames.entrySet()) {
+            String headId = entry.getKey();
+            List<String> groupNames = entry.getValue();
+            queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(EsOrderBookItem::getHeadId, headId);
+            queryWrapper.in(EsOrderBookItem::getGroupName, groupNames);
+            esOrderBookItemService.remove(queryWrapper);
+        }
     }
 
     @Override

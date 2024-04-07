@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
-import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.esorderbook.dto.EsOrderBookQueryDto;
 import com.base.sbc.module.esorderbook.dto.EsOrderBookSaveDto;
 import com.base.sbc.module.esorderbook.entity.EsOrderBook;
@@ -114,18 +113,16 @@ public class EsOrderBookController {
     }
 
     @ApiOperation(value = "锁定")
-    @GetMapping("/lock")
-    public ApiResult lock(String id) {
-        List<String> ids = StringUtils.convertList(id);
-        esOrderBookService.lock(ids);
+    @PostMapping("/lock")
+    public ApiResult lock(@RequestBody List<EsOrderBookItemVo> list) {
+        esOrderBookService.lock(list);
         return ApiResult.success("操作成功");
     }
 
     @ApiOperation(value = "解锁")
-    @GetMapping("/unLock")
-    public ApiResult unLock(String id) {
-        List<String> ids = StringUtils.convertList(id);
-        esOrderBookService.unLock(ids);
+    @PostMapping("/unLock")
+    public ApiResult unLock(@RequestBody List<EsOrderBookItemVo> list) {
+        esOrderBookService.unLock(list);
         return ApiResult.success("操作成功");
     }
 

@@ -38,9 +38,9 @@ public interface EsOrderBookService extends BaseService<EsOrderBook> {
 
     EsOrderBook saveMain(EsOrderBookVo dto);
 
-    void lock(List<String> ids);
+    void lock(List<EsOrderBookItemVo> list);
 
-    void unLock(List<String> ids);
+    void unLock(List<EsOrderBookItemVo> list);
 
     void exportExcel(HttpServletResponse response, EsOrderBookQueryDto dto) throws IOException;
 
