@@ -5,3 +5,6 @@ alter table t_country_language change column country_name name varchar(255) defa
 drop table t_country_model;
 drop table t_standard_column_translate;
 drop table t_style_country_print_record;
+alter table t_style_country_status change column country_name name varchar(255) default null comment '名称';
+alter table t_style_country_status change column country_code code varchar(50) default null comment '编码';
+alter table t_style_country_status add column print_time datetime default null comment '打印时间';
