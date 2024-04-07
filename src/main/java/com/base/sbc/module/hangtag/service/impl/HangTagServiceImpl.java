@@ -355,6 +355,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (StringUtils.isEmpty(hangTagVO.getStatus())) {
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_COMMIT);
 		}
+		PackInfo pack = packInfoService
+				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
+		if (pack != null) {
+			PackBomVersion enableVersion = packBomVersionService.getEnableVersion(pack.getId(), StrUtil.equals(hangTagVO.getBomStatus(), BaseGlobal.YES) ? PackUtils.PACK_TYPE_BIG_GOODS : PackUtils.PACK_TYPE_DESIGN);
+			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", pack.getId());
+			queryWrapper.eq("unusable_flag", BaseGlobal.NO);
+			queryWrapper.eq("pack_type", StrUtil.equals(hangTagVO.getBomStatus(), BaseGlobal.YES) ? PackUtils.PACK_TYPE_BIG_GOODS : PackUtils.PACK_TYPE_DESIGN);
+			if (ObjectUtil.isEmpty(enableVersion)) {
+				queryWrapper.eq("bom_version_id", enableVersion.getId());
+			}
+			List<PackBom> packBomList = packBomService.list(queryWrapper);
 
 		PackInfo pack = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
