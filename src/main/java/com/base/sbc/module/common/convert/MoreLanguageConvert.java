@@ -3,11 +3,19 @@ package com.base.sbc.module.common.convert;
 import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.moreLanguage.dto.CountryDTO;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageGroupDto;
+import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.module.moreLanguage.dto.CountryTypeLanguageSaveDto;
 import com.base.sbc.module.moreLanguage.dto.LanguageSaveDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCountryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelResultDTO;
+import com.base.sbc.module.moreLanguage.dto.StyleCountryStatusDto;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
@@ -57,7 +65,6 @@ public interface MoreLanguageConvert {
     List<MoreLanguageStatusCountryDto> copyList2CountryDTO(List<StyleCountryStatus> source);
 
     @Mappings({
-            @Mapping(target = "code", source = "countryCode"),
             @Mapping(target = "status", source = "status", qualifiedByName = "getText"),
             @Mapping(target = "time", source = "updateDate"),
             @Mapping(target = "person", source = "updateName"),
@@ -68,5 +75,15 @@ public interface MoreLanguageConvert {
         return Opt.ofNullable(source).orElse(StyleCountryStatusEnum.UNCHECK).getText();
     };
     StyleCountryStatus copyMyself(StyleCountryStatus source);
+    CountryLanguage copyMyself(CountryLanguage source);
+    CountryLanguageGroupDto copy2Group(CountryLanguageDto source);
+    List<CountryLanguageGroupDto> copyList2Group(List<CountryLanguageDto> source);
+    CountryQueryDto copy2QueryDto(MoreLanguageQueryDto source);
+    CountryQueryDto copy2QueryDto(HangTagMoreLanguageDTO source);
+    CountryTypeLanguageSaveDto copy2SaveDto(CountryLanguage source);
+    CountryLanguageDto copy2Dto(CountryLanguage source);
+    StyleCountryStatusDto copy2StatusDto(CountryLanguageDto source);
+    List<CountryLanguageDto> copyList2Dto(List<CountryLanguage> source);
+
 
 }

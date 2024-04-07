@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.entity;
 
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnType;
@@ -44,24 +45,27 @@ public class CountryLanguage extends BaseDataEntity<String> {
     /** 编码索引 */
     @ApiModelProperty(value = "编码索引"  )
     private Integer codeIndex;
-    /** 国家编码 */
-    @ApiModelProperty(value = "国家编码"  )
-    private String countryCode;
-    /** 国家名称 */
-    @ApiModelProperty(value = "国家名称"  )
-    private String countryName;
+//    /** 国家编码 */
+//    @ApiModelProperty(value = "国家编码"  )
+//    private String countryCode;
+    /** 名称 */
+    @ApiModelProperty(value = "名称"  )
+    private String name;
     /** 国家编码 */
     @ApiModelProperty(value = "语言编码"  )
     private String languageCode;
-    /** 国家名称 */
-    @ApiModelProperty(value = "语言名称"  )
-    private String languageName;
+//    /** 国家名称 */
+//    @ApiModelProperty(value = "语言名称"  )
+//    private String languageName;
     /** 国家编码 */
     @ApiModelProperty(value = "币种编码"  )
     private String coinCode;
     /** 国家名称 */
     @ApiModelProperty(value = "币种名称"  )
     private String coinName;
+    /** 号型语种 */
+    @ApiModelProperty(value = "号型语种"  )
+    private String modelLanguageCode;
     /** 国家名称 */
     @ApiModelProperty(value = "启用状态"  )
     private YesOrNoEnum enableFlag;
@@ -78,5 +82,9 @@ public class CountryLanguage extends BaseDataEntity<String> {
     @ApiModelProperty(value = "排序"  )
     private Integer sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public String getLanguageCodeByColumnCode(String standardColumnCode) {
+        return standardColumnCode.equals(MoreLanguageProperties.modelStandardColumnCode) ? this.getModelLanguageCode() : this.getLanguageCode();
+    }
 
 }

@@ -7,6 +7,7 @@
 package com.base.sbc.module.hangtag.dto;
 
 import com.alibaba.druid.sql.visitor.functions.If;
+import com.base.sbc.config.common.annotation.ValidCondition;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.enums.business.SystemSource;
@@ -40,21 +41,19 @@ public class HangTagMoreLanguageSystemDTO {
     @NotBlank(message = "大货款号不能为空")
     private String bulkStyleNo;
     /**
-     * 国家编码
-     */
-    @ApiModelProperty(value = "国家编码")
-    @NotBlank(message = "国家编码不能为空")
-    private String countryCode;
-    /**
-     * 国家名字
-     */
-    @ApiModelProperty(value = "国家名字")
-    private String countryName;
-    /**
      * 语言编码
      */
     @ApiModelProperty(value = "语言编码")
+//    @ValidCondition(column = "type", columnValue = "2", checkClass={NotNull.class})
+    @NotNull(message = "吊牌语言不能为空")
     private String languageCode;
+    /**
+     * 号型语言编码
+     */
+    @ApiModelProperty(value = "号型语言编码")
+//    @ValidCondition(column = "type", columnValue = "2", checkClass={NotNull.class})
+    @NotNull(message = "号型语言不能为空")
+    private Integer modelLanguageCode;
     /**
      * 吊牌类型
      */

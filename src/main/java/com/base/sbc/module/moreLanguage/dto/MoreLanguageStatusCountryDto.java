@@ -29,12 +29,12 @@ import java.util.List;
 public class MoreLanguageStatusCountryDto {
 
     @ExcelIgnore
-    @ApiModelProperty(value = "国家语言编码")
+    @ApiModelProperty(value = "模板编码")
     private String code;
 
-    @Excel(name = "国家", width = 10.0)
-    @ApiModelProperty(value = "国家名称")
-    private String countryName;
+    @Excel(name = "模板名称", width = 10.0)
+    @ApiModelProperty(value = "模板名称")
+    private String name;
 
     @Excel(name = "审核状态", width = 15.0)
     private String status;

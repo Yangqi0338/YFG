@@ -9,10 +9,8 @@ package com.base.sbc.module.hangtag.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -21,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.flowable.service.FlowableService;
@@ -30,9 +29,12 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.*;
+import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -41,12 +43,17 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.basicsdatum.service.impl.BasicsdatumModelTypeServiceImpl;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.hangtag.dto.*;
+import com.base.sbc.module.hangtag.dto.HangTagDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
+import com.base.sbc.module.hangtag.dto.HangTagUpdateStatusDTO;
+import com.base.sbc.module.hangtag.dto.InspectCompanyDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.module.hangtag.entity.HangTagInspectCompany;
@@ -58,19 +65,24 @@ import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.HangTagInspectCompanyService;
 import com.base.sbc.module.hangtag.service.HangTagLogService;
 import com.base.sbc.module.hangtag.service.HangTagService;
-import com.base.sbc.module.hangtag.vo.*;
+import com.base.sbc.module.hangtag.vo.HangTagListVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
+import com.base.sbc.module.hangtag.vo.HangTagVO;
+import com.base.sbc.module.hangtag.vo.HangTagVoExcel;
+import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageGroup;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
-import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailOldDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.mapper.StyleCountryStatusMapper;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
-import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -84,7 +96,6 @@ import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.base.sbc.module.standard.entity.StandardColumn;
-import com.base.sbc.module.standard.service.StandardColumnService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.entity.StyleMainAccessories;
@@ -110,12 +121,22 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import springfox.documentation.spring.web.json.Json;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -203,8 +224,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Lazy
 	private StyleCountryStatusService styleCountryStatusService;
 
-	@Autowired
-	private StandardColumnCountryRelationService standardColumnCountryRelationService;
+	public static final SFunction<HangTag, String> idFunc = HangTag::getId;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -603,7 +623,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					styleCountryStatusService.updateStatus(partCheckTranslateList.stream().map(hangTag-> {
 						StyleCountryStatus status = new StyleCountryStatus();
 						status.setBulkStyleNo(hangTag.getBulkStyleNo());
-						status.setCountryCode(hangTagUpdateStatusDTO.getCountryCode());
+						status.setCode(hangTagUpdateStatusDTO.getCountryCode());
 						status.setStatus(StyleCountryStatusEnum.CHECK);
 						return status;
 					}).collect(Collectors.toList()), multiCheckList, multiCheck);
@@ -1052,9 +1072,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 获取吊牌成分
 		List<HangTagIngredient> allIngredientList = hangTagIngredientService.list(new BaseLambdaQueryWrapper<HangTagIngredient>()
-				.notEmptyIn(HangTagIngredient::getHangTagId, hangTagVOList.stream().map(HangTagVO::getId).collect(Collectors.toList()))
-				.select(HangTagIngredient::getIngredientCode, HangTagIngredient::getIngredientName, HangTagIngredient::getIngredientDescriptionCode, HangTagIngredient::getIngredientDescription,
-						HangTagIngredient::getTypeCode, HangTagIngredient::getType, HangTagIngredient::getIngredientSecondCode, HangTagIngredient::getIngredientSecondName, HangTagIngredient::getHangTagId)
+				.notEmptyIn(HangTagIngredient::getHangTagId, hangTagVOList.stream().map(idFunc).collect(Collectors.toList()))
 		);
 
 		// 获取吊牌的modelType
@@ -1112,7 +1130,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// 获取吊牌状态
 		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusMapper.selectList(new BaseLambdaQueryWrapper<StyleCountryStatus>()
 				.notNullEq(StyleCountryStatus::getStatus, hangTagMoreLanguageDTO.getDocumentStatusLimit())
-				.notEmptyEq(StyleCountryStatus::getCountryCode, hangTagMoreLanguageDTO.getCode())
+				.notEmptyEq(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
 				.notEmptyEq(StyleCountryStatus::getType, hangTagMoreLanguageDTO.getType())
 				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
 
@@ -1148,7 +1166,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<HangTagMoreLanguageCheckDTO> codeMappingList = Opt.ofNullable(hangTagMoreLanguageDTO.getHangTagMoreLanguageCheckDTOList()).orElse(new ArrayList<>());
 		// 根据传入的检查Bean, 确定这个国家需要检查的吊牌 和 语言
 		List<HangTagMoreLanguageCheckDTO> mappingList = codeMappingList.stream().filter(it -> it.getCode().equals(code)).collect(Collectors.toList());
-		if (!mappingList.isEmpty()) {
+		if (CollUtil.isNotEmpty(mappingList)) {
 			countryMappingBulkStyleNoList = mappingList.stream().flatMap(it-> Arrays.stream(it.getBulkStyleNo().split(COMMA))).collect(Collectors.toList());
 		}
 		sameCodeList.removeIf(countryLanguageDto-> !mappingList.isEmpty() && mappingList.stream().noneMatch(it-> it.match(countryLanguageDto)));
@@ -1186,7 +1204,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 				String checkDetailJson = styleCountryStatusList.stream()
 						.filter(it -> bulkStyleNo.equals(it.getBulkStyleNo())
-								&& code.equals(it.getCountryCode())
+								&& code.equals(it.getCode())
 								&& countryLanguageType == it.getType()
 						).findFirst().map(StyleCountryStatus::getCheckDetailJson).orElse("[]");
 

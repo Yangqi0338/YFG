@@ -12,6 +12,7 @@ import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,6 +20,8 @@ import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.CONTENT_FORMAT;
 
@@ -108,6 +111,29 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
                 this.isGroup ? MoreLanguageProperties.multiSeparator : "",
                 Opt.ofNullable(this.propertiesName).orElse("")
         );
+    }
+
+    @JsonIgnore
+    public Map<String, List<MoreLanguageStatusCheckDetailAuditDTO>> buildAuditMap(){
+        return getLanguageList().stream().collect(Collectors.toMap(HangTagMoreLanguageVO::getLanguageCode, (languageDto)-> {
+            List<MoreLanguageStatusCheckDetailAuditDTO> auditDtoList = new ArrayList<>();
+            if (languageDto.forceFindContent()) {
+                MoreLanguageStatusCheckDetailAuditDTO contentStatus = new MoreLanguageStatusCheckDetailAuditDTO();
+                contentStatus.setStandardColumnCode(standardColumnCode);
+                contentStatus.setSource(this.getPropertiesCode());
+                contentStatus.setContent(languageDto.getPropertiesContent());
+                contentStatus.setStatus(YesOrNoEnum.YES.getValueStr());
+                auditDtoList.add(contentStatus);
+            }
+
+            MoreLanguageStatusCheckDetailAuditDTO titleStatus = new MoreLanguageStatusCheckDetailAuditDTO();
+            titleStatus.setStandardColumnCode(titleCode);
+            titleStatus.setSource(standardColumnCode);
+            titleStatus.setContent(languageDto.getStandardColumnContent());
+            titleStatus.setStatus(YesOrNoEnum.YES.getValueStr());
+            auditDtoList.add(titleStatus);
+            return auditDtoList;
+        }));
     }
 
 }

@@ -1,6 +1,8 @@
 package com.base.sbc.module.common.convert;
 
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
@@ -52,6 +54,8 @@ public interface HangTagConvert {
     void countryTranslate2MoreLanguageVO(StandardColumnCountryTranslate source, @MappingTarget HangTagMoreLanguageVO target);
 
     MoreLanguageHangTagVO copy2MoreLanguage(HangTagVO source);
+    HangTag copy2Entity(HangTagListVO source);
+    List<HangTag> copyList2Entity(List<HangTagListVO> source);
     List<MoreLanguageHangTagVO> copyList2MoreLanguage(List<HangTagVO> source);
     MoreLanguageTagPrinting copy2MoreLanguage(TagPrinting source);
     MoreLanguageTagPrinting.Size copy2MoreLanguage(TagPrinting.Size source);

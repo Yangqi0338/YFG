@@ -60,6 +60,7 @@ public class MoreLanguageProperties {
     public static String languageCodePrefix = "Y";
     public static Integer languageCodeZeroFill = 10;
     public static String excelTranslateContentField = "content";
+    public static String modelStandardColumnCode = "DP06";
     public static String excelTitle = "温馨提示：请您按照导入规测进行导入，否测可能影响到导入成功，请注意。\n" +
             "1、如若需要删除内容信息，请删除整行信息。\n" +
             "2、请不要删除表头信息。\n" +
@@ -226,9 +227,13 @@ public class MoreLanguageProperties {
         MoreLanguageProperties.notCheckStandardColumnCode = notCheckStandardColumnCode;
     }
 
+    public void setModelStandardColumnCode(String modelStandardColumnCode) {
+        MoreLanguageProperties.modelStandardColumnCode = modelStandardColumnCode;
+    }
+
     @Getter
     public enum MoreLanguageMsgEnum {
-        NOT_INSERT("PDM未创建%s国家语言数据"),
+        NOT_INSERT("PDM未创建对应的语言号型数据"),
         HAVEN_T_TAG("不存在%s的吊牌信息"),
         HAVEN_T_LANGUAGE("%s不存在该语种"),
         HAVEN_T_CONTENT("%s未翻译"),

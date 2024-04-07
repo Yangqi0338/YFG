@@ -11,6 +11,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.exception.OtherException;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -333,6 +334,10 @@ public class CommonUtils {
 
     public static <T, K> Collector<T, ?, Map<K, List<T>>> groupingBy(Function<? super T, ? extends K> classifier) {
         return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.toList());
+    }
+
+    public static <T, K, U> Collector<T, ?, Map<K, List<U>>> groupingBy(Function<? super T, ? extends K> classifier, Function<? super T, ? extends U> mapper) {
+        return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.mapping(mapper, Collectors.toList()));
     }
 
     public static <T, U extends Enum<U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor) {

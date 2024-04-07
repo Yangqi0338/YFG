@@ -30,20 +30,4 @@ public class MoreLanguageStatusCheckDetailDTO {
     @Alias("a")
     @ApiModelProperty(value = "标准列编码集合")
     private List<MoreLanguageStatusCheckDetailAuditDTO> auditList;
-
-    private static Stream<MoreLanguageStatusCheckDetailAuditDTO> buildAuditList(HangTagMoreLanguageVO languageVO, String standardColumnCode){
-        MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
-        auditDTO.setStandardColumnCode(standardColumnCode);
-        auditDTO.setSource(languageVO.getPropertiesCode());
-        auditDTO.setContent(languageVO.getPropertiesContent());
-        auditDTO.setStatus(YesOrNoEnum.YES.getValueStr());
-
-        MoreLanguageStatusCheckDetailAuditDTO titleStatus = new MoreLanguageStatusCheckDetailAuditDTO();
-        titleStatus.setStandardColumnCode("DP00");
-        titleStatus.setSource(standardColumnCode);
-        titleStatus.setContent(languageVO.getStandardColumnContent());
-        titleStatus.setStatus(YesOrNoEnum.YES.getValueStr());
-
-        return Stream.of(titleStatus, auditDTO);
-    }
 }

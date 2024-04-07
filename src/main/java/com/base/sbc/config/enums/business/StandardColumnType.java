@@ -57,7 +57,7 @@ public enum StandardColumnType {
     }
 
     public static List<StandardColumnType> findRootList(){
-        return Arrays.stream(StandardColumnType.values()).filter(it-> it.code.contains("_root")).collect(Collectors.toList());
+        return Arrays.stream(StandardColumnType.values()).filter(it-> StrUtil.toUnderlineCase(it.code).contains("_root")).collect(Collectors.toList());
     }
 
     public StandardColumnType findParent(){
