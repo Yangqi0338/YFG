@@ -317,86 +317,56 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         // 判断设计款的大类和选择的大类是否都属于上装或者下装
         {
             Style style = styleService.getById(patternLibraryDTO.getStyleId());
-            boolean flag = true;
-            List<String> brandPuts = Arrays.asList(this.brandPuts.split(","));
-            List<String> brandBottoms = Arrays.asList(this.brandBottoms.split(","));
-            if (brandPuts.contains(patternLibraryDTO.getProdCategory1st())) {
-                flag = !brandPuts.contains(style.getProdCategory1st());
-            } else if (brandBottoms.contains(patternLibraryDTO.getProdCategory1st())) {
-                flag = !brandBottoms.contains(style.getProdCategory1st());
-            }
-            if (flag) {
+            if (!isFlag(patternLibraryDTO.getProdCategory1st(), Collections.singletonList(style))) {
                 throw new OtherException("款式所对应的大类和所选大类的上装下装不匹配！");
             }
         }
-        if (ObjectUtil.isEmpty(patternLibraryDTO.getId())) {
-            // 新增
-            // 新增主表数据
-            save(patternLibrary);
-            // 新增品牌数据
-            List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryDTO.getPatternLibraryBrandList();
-            if (ObjectUtil.isNotEmpty(patternLibraryBrandList)) {
-                for (PatternLibraryBrand patternLibraryBrand : patternLibraryBrandList) {
-                    patternLibraryBrand.setPatternLibraryId(patternLibrary.getId());
-                }
-                patternLibraryBrandService.saveBatch(patternLibraryBrandList);
+
+        // 新增/修改主表数据
+        saveOrUpdate(patternLibrary);
+        // 修改品牌数据
+        List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryDTO.getPatternLibraryBrandList();
+        if (ObjectUtil.isNotEmpty(patternLibraryBrandList)) {
+            List<String> patternLibraryBrandIdList = patternLibraryBrandList
+                    .stream().map(PatternLibraryBrand::getId)
+                    .filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+            // 先删除此版型库下的数据且不是此 ID 集合下的数据
+            patternLibraryBrandService.remove(
+                    new LambdaQueryWrapper<PatternLibraryBrand>()
+                            .eq(PatternLibraryBrand::getPatternLibraryId, patternLibrary.getId())
+                            .notIn(ObjectUtil.isNotEmpty(patternLibraryBrandIdList), PatternLibraryBrand::getId, patternLibraryBrandIdList)
+            );
+            for (PatternLibraryBrand patternLibraryBrand : patternLibraryBrandList) {
+                patternLibraryBrand.setPatternLibraryId(patternLibrary.getId());
             }
-            // 新增子表数据
-            List<PatternLibraryItem> patternLibraryItemList = patternLibraryDTO.getPatternLibraryItemList();
-            if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
-                for (PatternLibraryItem patternLibraryItem : patternLibraryItemList) {
-                    patternLibraryItem.setPatternLibraryId(patternLibrary.getId());
-                }
-                patternLibraryItemService.saveBatch(patternLibraryItemList);
-            }
+            patternLibraryBrandService.saveOrUpdateBatch(patternLibraryBrandList);
         } else {
-            // 编辑
-            // 修改主表数据
-            updateById(patternLibrary);
-            // 修改品牌数据
-            List<PatternLibraryBrand> patternLibraryBrandList = patternLibraryDTO.getPatternLibraryBrandList();
-            if (ObjectUtil.isNotEmpty(patternLibraryBrandList)) {
-                List<String> patternLibraryBrandIdList = patternLibraryBrandList
-                        .stream().map(PatternLibraryBrand::getId)
-                        .filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
-                // 先删除此版型库下的数据且不是此 ID 集合下的数据
-                patternLibraryBrandService.remove(
-                        new LambdaQueryWrapper<PatternLibraryBrand>()
-                                .eq(PatternLibraryBrand::getPatternLibraryId, patternLibrary.getId())
-                                .notIn(ObjectUtil.isNotEmpty(patternLibraryBrandIdList), PatternLibraryBrand::getId, patternLibraryBrandIdList)
-                );
-                for (PatternLibraryBrand patternLibraryBrand : patternLibraryBrandList) {
-                    patternLibraryBrand.setPatternLibraryId(patternLibrary.getId());
-                }
-                patternLibraryBrandService.saveOrUpdateBatch(patternLibraryBrandList);
-            } else {
-                patternLibraryBrandService.remove(
-                        new LambdaQueryWrapper<PatternLibraryBrand>()
-                                .eq(PatternLibraryBrand::getPatternLibraryId, patternLibrary.getId())
-                );
+            patternLibraryBrandService.remove(
+                    new LambdaQueryWrapper<PatternLibraryBrand>()
+                            .eq(PatternLibraryBrand::getPatternLibraryId, patternLibrary.getId())
+            );
+        }
+        // 修改子表数据
+        List<PatternLibraryItem> patternLibraryItemList = patternLibraryDTO.getPatternLibraryItemList();
+        if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
+            List<String> patternLibraryItemIdList = patternLibraryItemList
+                    .stream().map(PatternLibraryItem::getId)
+                    .filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+            // 先删除此版型库下的数据且不是此 ID 集合下的数据
+            patternLibraryItemService.remove(
+                    new LambdaQueryWrapper<PatternLibraryItem>()
+                            .eq(PatternLibraryItem::getPatternLibraryId, patternLibrary.getId())
+                            .notIn(ObjectUtil.isNotEmpty(patternLibraryItemIdList), PatternLibraryItem::getId, patternLibraryItemIdList)
+            );
+            for (PatternLibraryItem patternLibraryItem : patternLibraryItemList) {
+                patternLibraryItem.setPatternLibraryId(patternLibrary.getId());
             }
-            // 修改子表数据
-            List<PatternLibraryItem> patternLibraryItemList = patternLibraryDTO.getPatternLibraryItemList();
-            if (ObjectUtil.isNotEmpty(patternLibraryItemList)) {
-                List<String> patternLibraryItemIdList = patternLibraryItemList
-                        .stream().map(PatternLibraryItem::getId)
-                        .filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
-                // 先删除此版型库下的数据且不是此 ID 集合下的数据
-                patternLibraryItemService.remove(
-                        new LambdaQueryWrapper<PatternLibraryItem>()
-                                .eq(PatternLibraryItem::getPatternLibraryId, patternLibrary.getId())
-                                .notIn(ObjectUtil.isNotEmpty(patternLibraryItemIdList), PatternLibraryItem::getId, patternLibraryItemIdList)
-                );
-                for (PatternLibraryItem patternLibraryItem : patternLibraryItemList) {
-                    patternLibraryItem.setPatternLibraryId(patternLibrary.getId());
-                }
-                patternLibraryItemService.saveOrUpdateBatch(patternLibraryItemList);
-            } else {
-                patternLibraryItemService.remove(
-                        new LambdaQueryWrapper<PatternLibraryItem>()
-                                .eq(PatternLibraryItem::getPatternLibraryId, patternLibrary.getId())
-                );
-            }
+            patternLibraryItemService.saveOrUpdateBatch(patternLibraryItemList);
+        } else {
+            patternLibraryItemService.remove(
+                    new LambdaQueryWrapper<PatternLibraryItem>()
+                            .eq(PatternLibraryItem::getPatternLibraryId, patternLibrary.getId())
+            );
         }
 
         if (ObjectUtil.isNotEmpty(patternLibraryDTO.getFileId())) {
@@ -465,6 +435,28 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     }
 
     /**
+     * 比较目标大类和来源款式信息集合中的大类是否同属于上装或者下装
+     *
+     * @param targetProdCategory1st 目标大类
+     * @param sourceStyleList       来源款式信息集合
+     * @return true 代表是 false 代表否
+     */
+    private boolean isFlag(String targetProdCategory1st, List<Style> sourceStyleList) {
+        // 默认是否
+        boolean flag = false;
+        // 获取上装的数据
+        List<String> brandPuts = Arrays.asList(this.brandPuts.split(","));
+        // 获取下装的数据
+        List<String> brandBottoms = Arrays.asList(this.brandBottoms.split(","));
+        if (brandPuts.contains(targetProdCategory1st)) {
+            flag = sourceStyleList.stream().allMatch(item -> brandPuts.contains(item.getProdCategory1st()));
+        } else if (brandBottoms.contains(targetProdCategory1st)) {
+            flag = sourceStyleList.stream().allMatch(item -> brandBottoms.contains(item.getProdCategory1st()));
+        }
+        return flag;
+    }
+
+    /**
      * @param patternLibraryDTO 新增/编辑数据
      * @return
      */
@@ -528,15 +520,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             List<String> styleIdList = patternLibraryDTOList.
                     stream().map(PatternLibraryDTO::getStyleId).collect(Collectors.toList());
             List<Style> styleList = styleService.listByIds(styleIdList);
-            long num = 1L;
-            List<String> brandPuts = Arrays.asList(this.brandPuts.split(","));
-            List<String> brandBottoms = Arrays.asList(this.brandBottoms.split(","));
-            if (brandPuts.contains(patternLibraryDTOList.get(0).getProdCategory1st())) {
-                num = styleList.stream().filter(item -> !brandPuts.contains(item.getProdCategory1st())).count();
-            } else if (brandBottoms.contains(patternLibraryDTOList.get(0).getProdCategory1st())) {
-                num = styleList.stream().filter(item -> !brandBottoms.contains(item.getProdCategory1st())).count();
-            }
-            if (num > 0L) {
+            boolean flag = isFlag(patternLibraryDTOList.get(0).getProdCategory1st(), styleList);
+            if (!flag) {
                 throw new OtherException("款式所对应的大类和所选大类的上装下装不匹配！");
             }
         }
@@ -705,6 +690,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         updateById(patternLibrary);
         return true;
     }
+
     @Override
     public List<Style> listStyle(String search) {
         QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
@@ -799,9 +785,6 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         return patternLibraryVO;
     }
 
-    /**
-     * @return
-     */
     @Override
     public CategoriesTypeVO getCategoriesType() {
         CategoriesTypeVO categoriesTypeVO = new CategoriesTypeVO();
