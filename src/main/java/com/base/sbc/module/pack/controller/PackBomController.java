@@ -290,12 +290,11 @@ public class PackBomController extends BaseController{
         return  packBomService.printFabricSummaryLog(dto);
     }
 
-//    @ApiOperation(value = "/面料是否需要更新")
-//    @GetMapping("/needUpdate")
-//    public boolean needUpdate(FabricSummaryV2Dto dto) {
-//
-//        return packBomService.needUpdate(dto);
-//    }
+    @ApiOperation(value = "/面料是否需要更新")
+    @GetMapping("/ifNeedUpdate")
+    public boolean ifNeedUpdate(String id) {
+        return packBomService.ifNeedUpdate(id);
+    }
 
 
 }

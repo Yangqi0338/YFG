@@ -621,7 +621,7 @@
                 t  join  t_pack_info tpi on tpi.id = t.foreign_id and tpi.del_flag = '0'
                    left join t_style_color sc on tpi.style_color_id = sc.id and sc.del_flag = '0' and sc.bom_status = '1'
                    left join t_fabric_summary_style tfs on sc.style_no = tfs.style_no and tfs.del_flag = '0'
-                   left join t_style ts on sc.id = ts.style_id and ts.del_flag = '0'
+                   left join t_style ts on ts.id = sc.style_id and ts.del_flag = '0'
                    where tpi.company_code = #{dto.companyCode}
                     <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
                         ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

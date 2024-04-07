@@ -242,4 +242,6 @@ public interface PackBomService extends PackBaseService<PackBom> {
     boolean deleteFabricSummary(String dtoList);
 
     PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto);
+
+    boolean ifNeedUpdate(String id);
 }

@@ -689,6 +689,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return page.toPageInfo();
     }
 
+    @Override
+    public boolean ifNeedUpdate(String id) {
+        FabricSummary fabricSummary = fabricSummaryService.getById(id);
+        if (fabricSummary != null){
+           throw new OtherException("面料不存在");
+       }
+        return false;
+    }
+
 
     /**
      * 填充图片
