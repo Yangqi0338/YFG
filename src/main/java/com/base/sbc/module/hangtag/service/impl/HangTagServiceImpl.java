@@ -68,8 +68,10 @@ import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationSer
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -161,7 +163,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private final StyleService styleService;
 	private final BasicsdatumSizeService basicsdatumSizeService;
 
-	private final BasicsdatumMaterialService basicsdatumMaterialService;
 	private final PackBomService packBomService;
 	@Autowired
 	@Lazy
@@ -198,9 +199,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Lazy
 	private StyleCountryStatusService styleCountryStatusService;
 
-	@Autowired
-	private StandardColumnCountryRelationService standardColumnCountryRelationService;
 
+	@Resource
+	private PackBomVersionService packBomVersionService;
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
@@ -379,9 +380,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		PackInfo packInfo = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (packInfo != null) {
+			PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(packInfo.getId(), StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
+
 			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
 			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
 			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
+			if (ObjectUtil.isNotEmpty(packBomVersion)) {
+				queryWrapper.eq("bom_version_id",packBomVersion.getId());
+			}
 			List<PackBom> packBomList = packBomService.list(queryWrapper);
 			if (!packBomList.isEmpty()) {
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());

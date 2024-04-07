@@ -6,6 +6,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -21,6 +23,7 @@ import com.base.sbc.module.style.service.LatestCommissioningDateService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -47,6 +50,9 @@ public class ReportServiceImpl implements ReportService {
     @Resource
     private LatestCommissioningDateService commissioningDateService;
 
+    @Resource
+    private DataPermissionsService dataPermissionsService;
+
     @Override
     public PageInfo<HangTagReportVo> getHangTagReortPage(HangTagReportQueryDto dto) {
         BaseQueryWrapper<HangTagReportQueryDto> qw = new BaseQueryWrapper<>();
@@ -69,6 +75,9 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("t.create_date");
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagReport.getK());
+
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<HangTagReportVo> list = reportMapper.getHangTagReortList(qw);
@@ -141,6 +150,8 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("tsc.create_date");
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.stylePackBomMaterialReport.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StylePackBomMaterialReportVo> list = reportMapper.getStylePackBomListReport(qw);
@@ -177,6 +188,8 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.season", season);
         QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
         qw.orderByDesc("tsc.create_date");
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleSizeReport.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
@@ -237,6 +250,10 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.season", seasonParam);
         QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNosParam, yearParam, seasonParam);
         qw.orderByDesc("tsc.create_date");
+
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.designOrderScheduleDetailsReport.getK());
+
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<DesignOrderScheduleDetailsReportVo> list = reportMapper.getDesignOrderScheduleDetailsReport(qw);
