@@ -26,9 +26,13 @@ public class EsOrderBookItemVo {
 
     private static final long serialVersionUID = 1L;
 
+    private String type;
+
     private String id;
     private String styleColorId;
     private String headId;
+    private String headName;
+    private String seasonId;
     private String stylePricingId;
     private String groupId;
     private Integer sortIndex;

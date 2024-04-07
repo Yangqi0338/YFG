@@ -16,6 +16,8 @@
         <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             item.id id,
             head.id headId,
+            head.season_id seasonId,
+            head.name headName,
             tsp.id stylePricingId,
             item.group_id,
             item.group_img,

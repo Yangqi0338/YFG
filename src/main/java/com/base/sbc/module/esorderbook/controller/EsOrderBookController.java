@@ -140,9 +140,9 @@ public class EsOrderBookController {
     }
 
     @ApiOperation(value = "修改行顺序")
-    @PostMapping("/updateItemList")
-    public ApiResult updateItemList(@RequestBody List<EsOrderBookItemVo> list) {
-        esOrderBookService.updateItemList(list);
+    @PostMapping("/updateItemSort")
+    public ApiResult updateItemSort(@RequestBody EsOrderBookItemVo vo) {
+        esOrderBookService.updateItemSort(vo);
         return ApiResult.success("操作成功");
     }
 

@@ -14,7 +14,6 @@ import com.base.sbc.module.esorderbook.entity.EsOrderBook;
 import com.base.sbc.module.esorderbook.vo.EsOrderBookItemVo;
 import com.base.sbc.module.esorderbook.vo.EsOrderBookVo;
 import com.github.pagehelper.PageInfo;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
@@ -57,6 +56,5 @@ public interface EsOrderBookService extends BaseService<EsOrderBook> {
 
     void saveItemList(EsOrderBookSaveDto dto);
 
-    @Transactional
-    void updateItemList(List<EsOrderBookItemVo> itemList);
+    void updateItemSort(EsOrderBookItemVo vo);
 }

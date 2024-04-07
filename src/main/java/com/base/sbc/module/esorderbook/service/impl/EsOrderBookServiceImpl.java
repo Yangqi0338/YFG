@@ -84,7 +84,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         qw.notEmptyEq("head.season_id", dto.getSeasonId());
         qw.notEmptyEq("ts.year_name", dto.getYearName());
         qw.notEmptyEq("head.id", dto.getHeadId());
-        qw.notEmptyIn("item.id",dto.getIdList());
+        qw.notEmptyIn("item.id", dto.getIdList());
 
         QueryGenerator.initQueryWrapperByMap(qw, dto);
         Page<Object> objects = PageHelper.startPage(dto);
@@ -100,7 +100,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         }
         sbStr.append(" ELSE 999 END,SUBSTRING_INDEX(item.group_name,'-',-1),item.sort_index");
         qw.last(sbStr.toString());
-        
+
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
 
         //组装费用信息
@@ -192,7 +192,9 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
             queryWrapper.in(EsOrderBookItem::getGroupName, groupNames);
             esOrderBookItemService.remove(queryWrapper);
         }
-        //this.saveOperaLog("删除", "es订货本", sampleStyleColor.getColorName(), sampleStyleColor.getStyleNo(), styleColor, styleColor1);
+        for (EsOrderBookItemVo esOrderBookItemVo : list) {
+            this.saveOperaLog("删除", "es订货本", esOrderBookItemVo.getHeadName() + "_" + esOrderBookItemVo.getGroupName(), esOrderBookItemVo.getStyleNo(), new EsOrderBook(), null);
+        }
     }
 
     @Override
@@ -200,7 +202,29 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     public void delItem(List<EsOrderBookItemVo> list) {
         List<String> ids = list.stream().map(EsOrderBookItemVo::getId).collect(Collectors.toList());
         esOrderBookItemService.removeByIds(ids);
+        //单行删除时，重新排序当前组所有数据
+        String headId = list.get(0).getHeadId();
+        String groupName = list.get(0).getGroupName();
+        List<EsOrderBookItem> itemListBy = getItemListBy(headId, groupName);
+        if (itemListBy.size() == 1) {
+            itemListBy.get(0).setSortIndex(-1);
+            esOrderBookItemService.updateBatchById(itemListBy);
+        } else if (itemListBy.size() > 1) {
+            for (int i = 0; i < itemListBy.size(); i++) {
+                itemListBy.get(i).setSortIndex(i + 1);
+            }
+            itemListBy.get(itemListBy.size() - 1).setSortIndex(999);
+            esOrderBookItemService.updateBatchById(itemListBy);
+        }
         //this.saveOperaLog("删除", "es订货本", sampleStyleColor.getColorName(), sampleStyleColor.getStyleNo(), styleColor, styleColor1);
+    }
+
+    private List<EsOrderBookItem> getItemListBy(String headId, String groupName) {
+        LambdaQueryWrapper<EsOrderBookItem> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(EsOrderBookItem::getHeadId, headId);
+        queryWrapper.eq(EsOrderBookItem::getGroupName, groupName);
+        queryWrapper.orderByAsc(EsOrderBookItem::getSortIndex);
+        return esOrderBookItemService.list(queryWrapper);
     }
 
     @Override
@@ -281,25 +305,61 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         String id = dto.getHead().getId();
         List<EsOrderBookItem> itemList = BeanUtil.copyToList(dto.getItemList(), EsOrderBookItem.class);
         String groupName = itemList.get(0).getGroupName();
+        //根据headId + groupName 查询是否存在重复数据，重复数据跳过添加
+        List<EsOrderBookItem> list = getItemListBy(id, groupName);
+        List<String> styleColorIds = list.stream().map(EsOrderBookItem::getStyleColorId).distinct().collect(Collectors.toList());
 
-        for (EsOrderBookItem esOrderBookItem : itemList) {
-            esOrderBookItem.setHeadId(id);
-            esOrderBookItem.insertInit();
+        itemList = itemList.stream().filter(o -> !styleColorIds.contains(o.getStyleColorId())).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(itemList)) {
+            Integer sortIndex = 1;
+            if (list.size() == 1) {
+                EsOrderBookItem esOrderBookItem = list.get(0);
+                esOrderBookItem.setSortIndex(sortIndex);
+                esOrderBookItemService.updateById(esOrderBookItem);
+                sortIndex++;
+            } else if (list.size() > 1) {
+                sortIndex = list.get(list.size() - 2).getSortIndex();
+                EsOrderBookItem esOrderBookItem = list.get(list.size() - 1);
+                esOrderBookItem.setSortIndex(sortIndex + 1);
+                esOrderBookItemService.updateById(esOrderBookItem);
+                sortIndex++;
+            }
+            for (EsOrderBookItem esOrderBookItem : itemList) {
+                esOrderBookItem.setHeadId(id);
+                esOrderBookItem.setSortIndex(sortIndex);
+                esOrderBookItem.insertInit();
+                sortIndex++;
+            }
+            if (list.size() == 0 && itemList.size() == 1) {
+                //当前组只有一条，设置为-1，标识不能进行移动
+                itemList.get(0).setSortIndex(-1);
+            } else {
+                //最后一条设置999，标识不能向下移动
+                itemList.get(itemList.size() - 1).setSortIndex(999);
+            }
+            esOrderBookItemService.saveBatch(itemList);
         }
-        esOrderBookItemService.saveBatch(itemList);
     }
 
     @Override
     @Transactional
-    public void updateItemList(List<EsOrderBookItemVo> itemList) {
-        for (EsOrderBookItemVo esOrderBookItemVo : itemList) {
-            LambdaUpdateWrapper<EsOrderBookItem> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.set(EsOrderBookItem::getSortIndex, esOrderBookItemVo.getSortIndex());
-            updateWrapper.set(EsOrderBookItem::getUpdateId, getUserId());
-            updateWrapper.set(EsOrderBookItem::getUpdateName, getUserName());
-            updateWrapper.set(EsOrderBookItem::getUpdateDate, new Date());
-            updateWrapper.eq(EsOrderBookItem::getId, esOrderBookItemVo.getId());
-            esOrderBookItemService.update(updateWrapper);
+    public void updateItemSort(EsOrderBookItemVo vo) {
+        //type 0表示上移， 1表示下移
+        List<EsOrderBookItem> itemListBy = getItemListBy(vo.getHeadId(), vo.getGroupName());
+        Integer sortIndex = vo.getSortIndex();
+        String type = vo.getType();
+        if("0".equals(type)){
+            EsOrderBookItem esOrderBookItem = itemListBy.get(sortIndex);
+            esOrderBookItem.setSortIndex(sortIndex-1);
+            EsOrderBookItem esOrderBookItem1 = itemListBy.get(sortIndex - 1);
+            esOrderBookItem1.setSortIndex(sortIndex+1);
+            esOrderBookItemService.updateBatchById(Arrays.asList(esOrderBookItem,esOrderBookItem1));
+        }else{
+            EsOrderBookItem esOrderBookItem = itemListBy.get(sortIndex);
+            esOrderBookItem.setSortIndex(sortIndex+1);
+            EsOrderBookItem esOrderBookItem1 = itemListBy.get(sortIndex + 1);
+            esOrderBookItem1.setSortIndex(sortIndex-1);
+            esOrderBookItemService.updateBatchById(Arrays.asList(esOrderBookItem,esOrderBookItem1));
         }
     }
 
