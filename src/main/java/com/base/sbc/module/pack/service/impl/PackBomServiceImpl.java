@@ -602,9 +602,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (StringUtils.isEmpty(id)){
             return true;
         }
-        QueryWrapper<FabricSummaryStyle> wrapper = new QueryWrapper<>();
+        UpdateWrapper<FabricSummaryStyle> wrapper = new UpdateWrapper<>();
         wrapper.eq("id",id);
-        wrapper.eq("del_flag", "1");
+        wrapper.set("del_flag", "1");
         return fabricSummaryStyleService.update(wrapper);
     }
 
@@ -676,11 +676,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         UpdateWrapper<FabricSummary> updateWrapper = new UpdateWrapper<>();
         updateWrapper.in("id",ids);
-        updateWrapper.in("del_flag",'1');
+        updateWrapper.set("del_flag",'1');
         fabricSummaryService.update(updateWrapper);
         UpdateWrapper<FabricSummaryStyle> updateWrapperStyle = new UpdateWrapper<>();
         updateWrapper.in("fabric_summary_id",ids);
-        updateWrapper.in("del_flag",'1');
+        updateWrapper.set("del_flag",'1');
         fabricSummaryStyleService.update(updateWrapperStyle);
         return true;
     }
