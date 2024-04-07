@@ -15,8 +15,11 @@ public class FabricSummaryStyleDto {
     @ApiModelProperty(value = "排序"  )
     private Integer sort;
 
-    @ApiModelProperty(value = "总投产"  )
+    @ApiModelProperty(value = "总投产-投产件数"  )
     private String totalProduction;
+
+    @ApiModelProperty(value = "是否撞色,0否 1是"  )
+    private String colorCrash;
 
 
 }

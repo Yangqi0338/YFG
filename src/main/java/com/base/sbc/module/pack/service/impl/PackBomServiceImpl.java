@@ -483,6 +483,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (StringUtils.isNotEmpty(dto.getFittingResult())){
             fabricSummary.setFittingResult(dto.getFittingResult());
         }
+        if (StringUtils.isNotEmpty(dto.getFittingResult())){
+            fabricSummary.setFittingResult(dto.getFittingResult());
+        }
+        if (StringUtils.isNotEmpty(dto.getWidthName())){
+            fabricSummary.setWidthName(dto.getWidthName());
+        }
+        if (StringUtils.isNotEmpty(dto.getPhysicochemistryDetectionResult())){
+            fabricSummary.setPhysicochemistryDetectionResult(dto.getPhysicochemistryDetectionResult());
+        }
         fabricSummary.updateInit();
         saveOrUpdateOperaLog(dto, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
         return fabricSummaryService.updateById(fabricSummary);
@@ -582,10 +591,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             if (null != fabricSummaryStyleDto.getSort()){
                 fabricSummaryStyle.setSort(fabricSummaryStyleDto.getSort());
             }
+            if (null != fabricSummaryStyleDto.getTotalProduction()){
+                fabricSummaryStyle.setTotalProduction(fabricSummaryStyleDto.getTotalProduction());
+            }
+            if (null != fabricSummaryStyleDto.getColorCrash()){
+                fabricSummaryStyle.setColorCrash(fabricSummaryStyleDto.getColorCrash());
+            }
             list.add(fabricSummaryStyle);
             saveOrUpdateOperaLog(fabricSummaryStyleDtoList, fabricSummaryStyle, genOperaLogEntity(fabricSummaryStyle, "修改"));
         }
-
         return fabricSummaryStyleService.updateBatchById(list);
     }
 
@@ -672,8 +686,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         updateWrapper.set("del_flag",'1');
         fabricSummaryService.update(updateWrapper);
         UpdateWrapper<FabricSummaryStyle> updateWrapperStyle = new UpdateWrapper<>();
-        updateWrapper.in("fabric_summary_id",ids);
-        updateWrapper.set("del_flag",'1');
+        updateWrapperStyle.in("fabric_summary_id",ids);
+        updateWrapperStyle.set("del_flag",'1');
         fabricSummaryStyleService.update(updateWrapperStyle);
         return true;
     }

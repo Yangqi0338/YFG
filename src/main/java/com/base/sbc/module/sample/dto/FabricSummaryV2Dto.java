@@ -48,4 +48,7 @@ public class FabricSummaryV2Dto extends QueryFieldDto {
     @ApiModelProperty(value = "生产周期-期货"  )
     private BigDecimal productionDay;
 
+    @ApiModelProperty(value = "规格名称"  )
+    private String widthName;
+
 }
