@@ -18,10 +18,8 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackTechPackagingService;
-import com.base.sbc.module.pack.service.PackTechSpecService;
+import com.base.sbc.module.pack.entity.PackingDictionary;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -63,6 +61,8 @@ public class PackTechSpecController {
     private PackInfoStatusService packInfoStatusService;
     @Autowired
     private PackInfoService packInfoService;
+    @Autowired
+    private PackingDictionaryService packingDictionaryService;
     @Autowired
     private UserUtils userUtils;
     final String lockField = "techSpecLockFlag";
@@ -140,11 +140,9 @@ public class PackTechSpecController {
 
     @ApiOperation(value = "保存包装方式长宽高回显")
     @PostMapping("/packagingEcho")
-    public PackTechPackaging Packaging( @RequestParam("dependDictType") String dependDictType,@RequestParam("dependCode") String dependCode) {
-
-
-        PackTechPackaging packaging1 = packTechPackagingService.Packaging(dependDictType,dependCode);
-        return packaging1;
+    public PackingDictionary Packaging(@RequestParam("parentId") String parentId,@RequestParam("name") String name) {
+        PackingDictionary packingDictionary = packingDictionaryService.queryPackingDictionary(parentId, name);
+        return packingDictionary;
     }
 
 

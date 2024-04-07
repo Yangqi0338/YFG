@@ -103,7 +103,7 @@ public class PackTechPackaging extends BaseDataEntity<String> {
      * 叠装高
      */
     @ApiModelProperty(value = "叠装高")
-    private BigDecimal stackedHeight1;
+    private BigDecimal stackedHeight;
 
     /**
      * 体积
