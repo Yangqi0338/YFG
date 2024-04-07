@@ -12,7 +12,6 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -43,6 +42,7 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
@@ -78,7 +78,6 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
@@ -151,6 +150,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Resource
     private BasicsdatumSupplierService basicsdatumSupplierService;
+
+    @Autowired
+    @Lazy
+    private PackInfoStatusService packInfoStatusService;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -365,6 +368,25 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 }
             }
         }
+    }
+
+    @Override
+    public boolean updateMaterial(MaterialUpdateDto dto) {
+        QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("version", dto.getBomVersionId());
+        queryWrapper.eq("del_flag", "0");
+        queryWrapper.eq("foreign_id",dto.getForeignId());
+        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        List<PackBom> packBoms = list(queryWrapper);
+        if (CollectionUtil.isEmpty(packBoms)){
+            throw new RuntimeException("物料不存在");
+        }
+        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        if (ObjectUtils.isNotEmpty(packDesignStatus) && BasicNumber.ONE.getNumber().equals(packDesignStatus.getBomStatus())){
+            throw new RuntimeException("物料已转大货，不允许更新！");
+        }
+
+        return false;
     }
 
 

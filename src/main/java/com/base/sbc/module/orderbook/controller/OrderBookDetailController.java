@@ -1,47 +1,35 @@
 package com.base.sbc.module.orderbook.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
-import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.common.base.Page;
-import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.RemoveDto;
+import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
-import com.base.sbc.module.orderbook.dto.OrderBookFollowUpSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
-import com.base.sbc.module.orderbook.entity.OrderBookFollowUp;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
-import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.service.StylePricingService;
-import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -390,4 +378,17 @@ public class OrderBookDetailController extends BaseController {
         boolean b = orderBookDetailService.updateById(dto);
         return updateSuccess(b);
     }
+
+
+    /**
+     * 订货本-更新面料信息
+     */
+    @ApiOperation(value = "订货本详情-更新物料信息")
+    @PostMapping("/updateMaterial")
+    @DuplicationCheck(time = 10)
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateMaterial(@RequestBody @Valid MaterialUpdateDto dto) {
+        return orderBookDetailService.updateMaterial(dto);
+    }
+
 }

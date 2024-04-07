@@ -4,14 +4,10 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Editor;
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.lang.func.Consumer3;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -24,18 +20,11 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.StylePutIntoType;
-import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -48,6 +37,7 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
@@ -56,13 +46,8 @@ import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
-import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleChannelVo;
-import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleSizeMapVo;
-import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
-import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
+import com.base.sbc.module.orderbook.vo.*;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -83,12 +68,9 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.github.pagehelper.StringUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -96,10 +78,8 @@ import org.springframework.util.ObjectUtils;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -955,6 +935,17 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return result;
     }
 
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean updateMaterial(MaterialUpdateDto dto) {
+        //补充信息
+        getSupplementSupplierInfo(dto);
+        return  packBomService.updateMaterial(dto);
+    }
+
+
+
+
     /**
      * 查询款式定价数据
      */
@@ -1013,4 +1004,33 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
 
     }
+
+    /**
+     * 补充供应商信息
+     * @param dto
+     * @return
+     */
+    private void getSupplementSupplierInfo(MaterialUpdateDto dto){
+        String[] fabricCodes = dto.getFabricCode().replace("\n", "").split(",");
+        String[] fabricFactoryNames = dto.getFabricFactoryName().replace("\n", "").split(",");
+        if (fabricCodes.length != fabricFactoryNames.length){
+            throw new RuntimeException("面料和面料厂家需要一一对应，请检测后再更新");
+        }
+        List<MaterialSupplierInfo> list = new ArrayList<>();
+        for (int i = 0; i < fabricCodes.length; i++) {
+            String supplierAbbreviation;
+            try{
+                supplierAbbreviation = fabricFactoryNames[i].substring(fabricFactoryNames[i].indexOf(":") + 1, fabricFactoryNames[i].length() - 1);
+            }catch (Exception e){
+                throw new RuntimeException("面料厂家格式问题："+ fabricFactoryNames[i]);
+            }
+            MaterialSupplierInfo materialSupplierInfo = new MaterialSupplierInfo();
+            materialSupplierInfo.setSupplierAbbreviation(supplierAbbreviation);
+            materialSupplierInfo.setSupplierMaterialCode(fabricCodes[i]);
+            list.add(materialSupplierInfo);
+        }
+        dto.setMaterialSupplierInfos(list);
+    }
+
+
 }

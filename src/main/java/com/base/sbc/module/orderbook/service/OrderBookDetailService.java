@@ -1,19 +1,17 @@
 package com.base.sbc.module.orderbook.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
-import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.github.pagehelper.PageInfo;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -86,4 +84,6 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     Map<OrderBookChannelType, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto);
 
     PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto dto);
+
+    boolean updateMaterial(MaterialUpdateDto dto);
 }
