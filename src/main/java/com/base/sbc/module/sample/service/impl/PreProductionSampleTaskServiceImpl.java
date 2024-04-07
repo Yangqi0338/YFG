@@ -236,6 +236,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         } else {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
         }
+        qw.orderByDesc("t.create_date");
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
