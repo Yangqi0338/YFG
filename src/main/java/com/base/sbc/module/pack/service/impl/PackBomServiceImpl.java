@@ -466,33 +466,26 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean updateFabricSummary(List<FabricSummaryV2Dto> dtoList) {
-        if (CollectionUtils.isEmpty(dtoList)){
-            return true;
+    public boolean updateFabricSummary(FabricSummaryV2Dto dto) {
+        FabricSummary fabricSummary = fabricSummaryService.getById(dto.getId());
+        if (null == fabricSummary){
+            throw new OtherException("数据不存在！");
         }
-        List<FabricSummary> fabricSummaries = Lists.newArrayList();;
-        for (FabricSummaryV2Dto dto : dtoList) {
-            FabricSummary fabricSummary = fabricSummaryService.getById(dto.getId());
-            if (null == fabricSummary){
-                throw new OtherException("数据不存在！");
-            }
-            if (StringUtils.isNotEmpty(dto.getEnquiryCode())){
-                fabricSummary.setEnquiryCode(dto.getEnquiryCode());
-            }
-            if (StringUtils.isNotEmpty(dto.getYearSuffix())){
-                fabricSummary.setYearSuffix(dto.getYearSuffix());
-            }
-            if (null != dto.getProductionDay()){
-                fabricSummary.setProductionDay(dto.getProductionDay());
-            }
-            if (StringUtils.isNotEmpty(dto.getFittingResult())){
-                fabricSummary.setFittingResult(dto.getFittingResult());
-            }
-            fabricSummary.updateInit();
-            fabricSummaries.add(fabricSummary);
-            saveOrUpdateOperaLog(dtoList, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
+        if (StringUtils.isNotEmpty(dto.getEnquiryCode())){
+            fabricSummary.setEnquiryCode(dto.getEnquiryCode());
         }
-        return fabricSummaryService.updateBatchById(fabricSummaries);
+        if (StringUtils.isNotEmpty(dto.getYearSuffix())){
+            fabricSummary.setYearSuffix(dto.getYearSuffix());
+        }
+        if (null != dto.getProductionDay()){
+            fabricSummary.setProductionDay(dto.getProductionDay());
+        }
+        if (StringUtils.isNotEmpty(dto.getFittingResult())){
+            fabricSummary.setFittingResult(dto.getFittingResult());
+        }
+        fabricSummary.updateInit();
+        saveOrUpdateOperaLog(dto, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
+        return fabricSummaryService.updateById(fabricSummary);
     }
 
     @Override

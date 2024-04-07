@@ -199,10 +199,10 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     /**
      * 物料汇总修改
-     * @param dtoList
+     * @param dto
      * @return
      */
-    boolean updateFabricSummary(List<FabricSummaryV2Dto> dtoList);
+    boolean updateFabricSummary(FabricSummaryV2Dto dto);
 
     /**
      * 面料款式列表

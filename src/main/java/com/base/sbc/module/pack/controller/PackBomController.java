@@ -239,8 +239,8 @@ public class PackBomController extends BaseController{
 
     @PutMapping("/fabricSummary")
     @ApiOperation(value = "面料汇总列表修改")
-    public boolean updateFabricSummary(@RequestBody @Valid List<FabricSummaryV2Dto> dtoList) {
-        return packBomService.updateFabricSummary(dtoList);
+    public boolean updateFabricSummary(@RequestBody @Valid FabricSummaryV2Dto dto) {
+        return packBomService.updateFabricSummary(dto);
     }
 
     @DeleteMapping ("/fabricSummary")
@@ -289,6 +289,13 @@ public class PackBomController extends BaseController{
     public PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto) {
         return  packBomService.printFabricSummaryLog(dto);
     }
+
+//    @ApiOperation(value = "/面料是否需要更新")
+//    @GetMapping("/needUpdate")
+//    public boolean needUpdate(FabricSummaryV2Dto dto) {
+//
+//        return packBomService.needUpdate(dto);
+//    }
 
 
 }
