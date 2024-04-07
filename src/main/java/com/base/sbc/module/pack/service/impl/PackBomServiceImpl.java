@@ -395,6 +395,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         Page<BomFabricVo> page = PageHelper.startPage(bomFabricDto);
         QueryWrapper qw = new QueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabric_summary.getK(), "tb.");
+        qw.like(StringUtils.isNotBlank(bomFabricDto.getMaterialCode()), "tb.material_code", bomFabricDto.getCategoryId());
+        qw.like(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "tb.material_code_name", bomFabricDto.getCategoryId());
+        qw.eq(StringUtils.isNotBlank(bomFabricDto.getCategoryId()), "tb.category_id", bomFabricDto.getCategoryId());
+        qw.like(StringUtils.isNotBlank(bomFabricDto.getSupplierMaterialCode()), "tb.supplier_material_code", bomFabricDto.getSupplierMaterialCode());
         baseMapper.bomFabricList(bomFabricDto, qw);
         PageInfo<BomFabricVo> pageInfo = page.toPageInfo();
         if (isPictureShow){
