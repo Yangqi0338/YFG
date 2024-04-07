@@ -440,7 +440,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return fabricSummaryService.saveBatch(summaryList);
     }
     @Override
-    public PageInfo<List<FabricSummaryInfoVo>> fabricSummaryListV2(FabricSummaryV2Dto dto){
+    public PageInfo<FabricSummaryInfoVo> fabricSummaryListV2(FabricSummaryV2Dto dto){
         //获取汇总id列表
         PageInfo<String> fabricSummaryIdListPage = fabricSummaryService.fabricSummaryIdList(dto);
         if (CollectionUtils.isEmpty(fabricSummaryIdListPage.getList())){
@@ -449,15 +449,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         List<FabricSummaryInfoVo> summaryInfoVos = fabricSummaryService.fabricSummaryInfoVoList(dto);
         Map<String, List<FabricSummaryInfoVo>> map = summaryInfoVos.stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::getId));
 
-        List<List<FabricSummaryInfoVo>> result = new ArrayList<>();
+        List<FabricSummaryInfoVo> result = new ArrayList<>();
         for (String id : fabricSummaryIdListPage.getList()) {
             List<FabricSummaryInfoVo> list = map.get(id);
             if (list.size() > 1){
                 list =  list.stream().sorted(Comparator.comparing(FabricSummaryInfoVo::getSort)).collect(Collectors.toList());
             }
-            result.add(list);
+            result.addAll(list);
         }
-        PageInfo<List<FabricSummaryInfoVo>> pageInfo = new PageInfo<>();
+        PageInfo<FabricSummaryInfoVo> pageInfo = new PageInfo<>();
         BeanUtil.copyProperties(fabricSummaryIdListPage, pageInfo);
         pageInfo.setList(result);
         return pageInfo;
@@ -612,16 +612,15 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (StringUtils.isEmpty(dto.getId())){
             throw new OtherException("id不能为空");
         }
-        PageInfo<List<FabricSummaryInfoVo>> pageInfo = this.fabricSummaryListV2(dto);
+        PageInfo<FabricSummaryInfoVo> pageInfo = this.fabricSummaryListV2(dto);
 
         if (CollectionUtils.isEmpty(pageInfo.getList())){
             throw new OtherException("没有数据");
         }
-        List<FabricSummaryInfoVo> fabricSummaryStyles = pageInfo.getList().get(0);
         //物料信息
-        Map<String, Object> materialMap = getMaterialMap(fabricSummaryStyles.get(0));
+        Map<String, Object> materialMap = getMaterialMap(pageInfo.getList().get(0));
         //截取款式的信息
-        Map<Integer, List<FabricSummaryInfoVo>> integerListMap = splitListIntoArrays(fabricSummaryStyles, 4);
+        Map<Integer, List<FabricSummaryInfoVo>> integerListMap = splitListIntoArrays(pageInfo.getList(), 4);
         try{
             //获取模板流
             ByteArrayOutputStream bos = EasyExcelUtils.templateSheetCreate("excelTemp/fabricSummaryTemplate.xlsx", integerListMap.size());

@@ -194,7 +194,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param dto
      * @return
      */
-    PageInfo<List<FabricSummaryInfoVo>> fabricSummaryListV2(FabricSummaryV2Dto dto);
+    PageInfo<FabricSummaryInfoVo> fabricSummaryListV2(FabricSummaryV2Dto dto);
 
     /**
      * 物料汇总修改

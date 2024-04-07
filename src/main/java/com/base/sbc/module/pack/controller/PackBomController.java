@@ -231,7 +231,7 @@ public class PackBomController extends BaseController{
 
     @GetMapping("/fabricSummary")
     @ApiOperation(value = "面料汇总列表")
-    public PageInfo<List<FabricSummaryInfoVo>> fabricSummaryListV2(FabricSummaryV2Dto dto) {
+    public PageInfo<FabricSummaryInfoVo> fabricSummaryListV2(FabricSummaryV2Dto dto) {
         dto.setCompanyCode(super.getUserCompany());
         return packBomService.fabricSummaryListV2(dto);
     }
