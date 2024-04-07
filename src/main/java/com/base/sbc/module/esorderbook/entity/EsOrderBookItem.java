@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.esorderbook.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -70,5 +71,8 @@ public class EsOrderBookItem extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "款式配色id")
     private Integer sortIndex;
+
+    @TableField(exist = false)
+    private String styleNo;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

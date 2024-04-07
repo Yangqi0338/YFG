@@ -54,7 +54,7 @@ public interface EsOrderBookService extends BaseService<EsOrderBook> {
 
     ApiResult uploadStyleColorPics(Principal user, MultipartFile file, EsOrderBookItemVo vo);
 
-    void saveItemList(EsOrderBookSaveDto dto);
+    ApiResult saveItemList(EsOrderBookSaveDto dto);
 
     void updateItemSort(EsOrderBookItemVo vo);
 }

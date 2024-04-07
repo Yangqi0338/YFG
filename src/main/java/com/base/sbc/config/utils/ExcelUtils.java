@@ -535,7 +535,7 @@ public class ExcelUtils {
             ExcelExportEntity excelEntity = new ExcelExportEntity();
             excelEntity.setKey(columnDefine.getColumnCode());
             excelEntity.setName(columnDefine.getColumnName());
-            excelEntity.setWidth((double) columnDefine.getColumnWidth() / 5);
+            excelEntity.setWidth((double) columnDefine.getColumnWidth() / 6.8);
             //excelEntity.setHeight(excel.height());
             //excelEntity.setNeedMerge(excel.needMerge());
             //excelEntity.setMergeVertical(excel.mergeVertical());
@@ -560,11 +560,12 @@ public class ExcelUtils {
                 imgColumns.add(columnDefine.getColumnCode());
                 //将key拼接1，后续将byte[]处理到对应字段上
                 excelEntity.setKey(columnDefine.getColumnCode() + "1");
+            } else if (StrUtil.isNotEmpty(columnDefine.getColumnType()) && "date".equals(columnDefine.getColumnType())) {
+                excelEntity.setFormat(columnDefine.getDataFormat());
             }
 
             //excelEntity.setSuffix(excel.suffix());
             //excelEntity.setDatabaseFormat(excel.databaseFormat());
-            excelEntity.setFormat(columnDefine.getDataFormat());
             //excelEntity.setStatistics(excel.isStatistics());
             //excelEntity.setHyperlink(excel.isHyperlink());
             //excelEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));

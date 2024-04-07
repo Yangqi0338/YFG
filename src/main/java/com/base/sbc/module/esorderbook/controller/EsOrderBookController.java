@@ -102,8 +102,7 @@ public class EsOrderBookController {
     @ApiOperation(value = "批量新增行")
     @PostMapping("/saveItemList")
     public ApiResult saveItemList(@RequestBody EsOrderBookSaveDto dto) {
-        esOrderBookService.saveItemList(dto);
-        return ApiResult.success("操作成功");
+        return esOrderBookService.saveItemList(dto);
     }
 
     @ApiOperation(value = "mango导入图片")
