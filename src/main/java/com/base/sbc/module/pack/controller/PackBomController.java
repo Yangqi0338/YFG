@@ -237,7 +237,7 @@ public class PackBomController extends BaseController{
         return packBomService.fabricSummaryListV2(dto);
     }
 
-    @PutMapping("/updateFabricSummary")
+    @PutMapping("/fabricSummary")
     @ApiOperation(value = "面料汇总列表修改")
     public boolean updateFabricSummary(@RequestBody @Valid List<FabricSummaryV2Dto> dtoList) {
         return packBomService.updateFabricSummary(dtoList);
