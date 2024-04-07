@@ -24,6 +24,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -33,13 +34,14 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
@@ -151,6 +153,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Resource
     private BasicsdatumSupplierService basicsdatumSupplierService;
+
+    @Autowired
+    private BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
@@ -869,4 +874,157 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return count(new QueryWrapper<PackBom>().lambda().eq(PackBom::getBomVersionId, enableVersion.getId()));
 
     }
+
+    @Override
+    public ApiResult getRenovatePackBomInfo(String id) {
+        // 1.查询packBom
+        List<String> split = StrUtil.split(id, CharUtil.COMMA);
+        PackBom packBom = getById(split.get(0));
+
+        // 2.查询配料，比较变更
+        if (null != packBom && StrUtil.isNotEmpty(packBom.getMaterialId())) {
+            BasicsdatumMaterialVo basicsdatumMaterialVo = basicsdatumMaterialService.getBasicsdatumMaterial(packBom.getMaterialId());
+            if (null != basicsdatumMaterialVo) {
+                String desc = checkPackBomUpdate(packBom, basicsdatumMaterialVo);
+                return ApiResult.success("查询成功！", desc);
+            }
+        }
+
+        return ApiResult.success("查询成功！", null);
+    }
+
+    @Override
+    public boolean renovatePackBom(String id) {
+        // 1.查询packBom
+        List<String> split = StrUtil.split(id, CharUtil.COMMA);
+        PackBom packBom = getById(split.get(0));
+
+        // 2.查询配料，更新packBom
+        if (null != packBom && StrUtil.isNotEmpty(packBom.getMaterialId())) {
+            BasicsdatumMaterialVo basicsdatumMaterialVo = basicsdatumMaterialService.getBasicsdatumMaterial(packBom.getMaterialId());
+            if (null != basicsdatumMaterialVo) {
+                syncPackBomFromMaterial(packBom, basicsdatumMaterialVo);
+
+                // 3.保存新的 packBom
+                updateById(packBom);
+                return true;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 比较 packBom 和 BasicsDatumMaterial 是否有变更
+      * @param packBom
+      * @param basicsdatumMaterialVo
+     */
+    private String checkPackBomUpdate( PackBom packBom, BasicsdatumMaterialVo basicsdatumMaterialVo) {
+        StringBuffer desc = new StringBuffer();
+        if (!StringUtils.equals(normalizeString(packBom.getImageUrl()), normalizeString(basicsdatumMaterialVo.getImageUrl()))) {
+            desc.append("物料图片：old " + packBom.getImageUrl() + " new " + basicsdatumMaterialVo.getImageUrl() + "\n");
+        }
+        if (!StringUtils.equals(normalizeString(packBom.getMaterialCodeName()), normalizeString(basicsdatumMaterialVo.getMaterialCodeName()))) {
+            desc.append("材料：old " + packBom.getMaterialCodeName() + " new " + basicsdatumMaterialVo.getMaterialCodeName() + "\n");
+        }
+        if (!StringUtils.equals(normalizeString(packBom.getStockUnitCode()), normalizeString(basicsdatumMaterialVo.getStockUnitCode()))) {
+            desc.append("库存单位：old " + packBom.getStockUnitCode() + " new " + basicsdatumMaterialVo.getStockUnitCode() + "\n");
+        }
+        if (!StringUtils.equals(normalizeString(packBom.getGramWeight()), normalizeString(basicsdatumMaterialVo.getGramWeight()))) {
+            desc.append("克重：old " + packBom.getGramWeight() + " new " + basicsdatumMaterialVo.getGramWeight() + "\n");
+        }
+        if (!StringUtils.equals(normalizeString(packBom.getAuxiliaryMaterial()), normalizeString(basicsdatumMaterialVo.getAuxiliaryMaterial()))) {
+            desc.append("辅料材质：old " + packBom.getAuxiliaryMaterial() + " new " + basicsdatumMaterialVo.getAuxiliaryMaterial()+ "\n");
+        }
+        if (!StringUtils.equals(normalizeString(packBom.getPurchaseUnitCode()), normalizeString(basicsdatumMaterialVo.getPurchaseUnitCode()))) {
+            desc.append("采购单位：old " + packBom.getPurchaseUnitCode() + " new " + basicsdatumMaterialVo.getPurchaseUnitCode() + "\n");
+        }
+        if (!StringUtils.equals(normalizeString(packBom.getIngredient()), normalizeString(basicsdatumMaterialVo.getIngredient()))) {
+            desc.append("成分：old " + packBom.getIngredient() + " new " + basicsdatumMaterialVo.getIngredient() + "\n");
+        }
+        if (!packBom.getSupplierPrice().equals(basicsdatumMaterialVo.getSupplierQuotationPrice())) {
+            desc.append("供应商报价：old " + packBom.getSupplierPrice() + " new " + basicsdatumMaterialVo.getSupplierQuotationPrice() + "\n");
+        }
+        if (!StringUtils.equals(normalizeString(packBom.getSupplierMaterialCode()), normalizeString(basicsdatumMaterialVo.getSupplierFabricCode()))) {
+            desc.append("供应商物料号：old " + packBom.getSupplierMaterialCode() + " new " + basicsdatumMaterialVo.getSupplierFabricCode() + "\n");
+        }
+        if (!StringUtils.equals(normalizeString(packBom.getSupplierFactoryIngredient()), normalizeString(basicsdatumMaterialVo.getFactoryComposition()))) {
+            desc.append("厂家成分：old " + packBom.getSupplierFactoryIngredient() + " new " + basicsdatumMaterialVo.getFactoryComposition() + "\n");
+        }
+
+        // 获取默认供应商
+        if (StringUtils.isNotEmpty(basicsdatumMaterialVo.getMaterialCode())) {
+            String materialCode = basicsdatumMaterialVo.getMaterialCode();
+            BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+            queryWrapper.eq("material_code", materialCode);
+
+            List<BasicsdatumMaterialColor> basicsdatumMaterialColors = basicsdatumMaterialColorService.list(queryWrapper);
+            if (CollectionUtils.isNotEmpty(basicsdatumMaterialColors)) {
+                if (!StringUtils.equals(normalizeString(packBom.getColorPic()), normalizeString(basicsdatumMaterialColors.get(0).getPicture()))) {
+                    desc.append("颜色图片：old " + packBom.getSupplierFactoryIngredient() + " new " + basicsdatumMaterialVo.getFactoryComposition() + "\n");
+                }
+            }
+
+            queryWrapper.eq("select_flag", 1);
+            List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = basicsdatumMaterialPriceService.list(queryWrapper);
+            if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)) {
+                if (!packBom.getPrice().equals(basicsdatumMaterialPrices.get(0).getQuotationPrice())) {
+                    desc.append("单价：old " + packBom.getPrice() + " new " + basicsdatumMaterialPrices.get(0).getQuotationPrice() + "\n");
+                    packBom.setPrice(basicsdatumMaterialPrices.get(0).getQuotationPrice());
+                    BigDecimal oldCost = packBom.getCost();
+                    packBom.calculateCost();
+                    desc.append("成本：old " + oldCost + " new " + packBom.getCost() + "\n");
+                }
+            }
+        }
+
+        return desc.toString();
+    }
+
+    // 辅助方法,用来标准化String值，忽略空字符串
+    public static String normalizeString(String str) {
+        return str == null || str.isEmpty() ? null : str; // 如果为null或空字符串，统一返回null
+    }
+
+    /**
+     * 同步最新材料库数据至PackBom
+     * @param packBom
+     * @param basicsdatumMaterialVo
+     */
+    private void syncPackBomFromMaterial (PackBom packBom, BasicsdatumMaterialVo basicsdatumMaterialVo) {
+        packBom.setImageUrl(basicsdatumMaterialVo.getImageUrl());
+        packBom.setMaterialCodeName(basicsdatumMaterialVo.getMaterialCodeName());
+        packBom.setStockUnitCode(basicsdatumMaterialVo.getStockUnitCode());
+        packBom.setGramWeight(basicsdatumMaterialVo.getGramWeight());
+        packBom.setAuxiliaryMaterial(basicsdatumMaterialVo.getAuxiliaryMaterial());
+        packBom.setPurchaseUnitCode(basicsdatumMaterialVo.getPurchaseUnitCode());
+        packBom.setIngredient(basicsdatumMaterialVo.getIngredient());
+        packBom.setSupplierPrice(basicsdatumMaterialVo.getSupplierQuotationPrice());
+        packBom.setSupplierMaterialCode(basicsdatumMaterialVo.getSupplierFabricCode());
+        packBom.setSupplierFactoryIngredient(basicsdatumMaterialVo.getFactoryComposition());
+
+
+        // 获取默认供应商
+        if (StringUtils.isNotEmpty(basicsdatumMaterialVo.getMaterialCode())) {
+            String materialCode = basicsdatumMaterialVo.getMaterialCode();
+            BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+            queryWrapper.eq("material_code", materialCode);
+
+            List<BasicsdatumMaterialColor> basicsdatumMaterialColorList = basicsdatumMaterialColorService.list(queryWrapper);
+            if (CollectionUtils.isNotEmpty(basicsdatumMaterialColorList)) {
+                packBom.setColor(basicsdatumMaterialColorList.get(0).getColorName());
+                packBom.setColorCode(basicsdatumMaterialColorList.get(0).getColorCode());
+                packBom.setColorPic(basicsdatumMaterialColorList.get(0).getPicture());
+            }
+
+            queryWrapper.eq("select_flag", 1);
+            List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = basicsdatumMaterialPriceService.list(queryWrapper);
+            if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)) {
+                packBom.setPrice(basicsdatumMaterialPrices.get(0).getQuotationPrice());
+                packBom.calculateCost();
+            }
+
+        }
+    }
+
 }
