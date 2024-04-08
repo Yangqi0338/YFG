@@ -1013,7 +1013,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         packBom.setSupplierMaterialCode(basicsdatumMaterialVo.getSupplierFabricCode());
         packBom.setSupplierFactoryIngredient(basicsdatumMaterialVo.getFactoryComposition());
 
-
         // 获取默认供应商
         if (StringUtils.isNotEmpty(basicsdatumMaterialVo.getMaterialCode())) {
             String materialCode = basicsdatumMaterialVo.getMaterialCode();
@@ -1038,7 +1037,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 packBom.setPrice(basicsdatumMaterialPrices.get(0).getQuotationPrice());
                 packBom.calculateCost();
             }
-
         }
     }
 }
