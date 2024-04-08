@@ -12,21 +12,19 @@ import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.fabricsummary.mapper.FabricSummaryMapper;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
+import com.base.sbc.module.fabricsummary.mapper.FabricSummaryMapper;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryService;
 import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,8 +68,12 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         qw.orderByAsc("tfs.id");
         Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
         List<FabricSummaryInfoVo> list = getBaseMapper().fabricSummaryInfoVoList(qw);
+        if (CollectionUtils.isNotEmpty(list)){
+            list = list.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        }
         PageInfo<FabricSummaryInfoVo> pageInfo = page.toPageInfo();
         if (isColumnHeard){
+            pageInfo.setList(list);
             return pageInfo;
         }
         minioUtils.setObjectUrlToList(list, "imageUrl");

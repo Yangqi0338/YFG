@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +25,9 @@ public class FabricSummaryStyleDto {
 
     @ApiModelProperty(value = "款式版本号"  )
     private Integer fabricSummaryStyleVersion;
+
+    @ApiModelProperty(value = "单件用量"  )
+    private BigDecimal unitUse;
 
 
 }

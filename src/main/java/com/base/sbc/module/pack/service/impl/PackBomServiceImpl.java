@@ -602,6 +602,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 if (null != fabricSummaryStyleDto.getColorCrash()){
                     fabricSummaryStyle.setColorCrash(fabricSummaryStyleDto.getColorCrash());
                 }
+                if (null != fabricSummaryStyleDto.getUnitUse()){
+                    fabricSummaryStyle.setUnitUse(fabricSummaryStyleDto.getUnitUse());
+                }
                 list.add(fabricSummaryStyle);
                 saveOrUpdateOperaLog(fabricSummaryStyleDtoList, fabricSummaryStyle, genOperaLogEntity(fabricSummaryStyle, "修改"));
             }
