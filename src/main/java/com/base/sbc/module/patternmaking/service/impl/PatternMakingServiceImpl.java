@@ -510,7 +510,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         QueryGenerator.initQueryWrapperByMap(qw,dto);
 
-        /*qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        //不要注释，滞留款查询正在使用这些条件
+        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.like(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type_name", dto.getSampleType());
         qw.eq(StrUtil.isNotBlank(dto.getUrgencyName()), "p.urgency_name", dto.getUrgencyName());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
@@ -530,7 +531,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             String[] split = dto.getPrmSendDate().split(",");
             qw.ge("p.prm_send_date", split[0]);
             qw.le("p.prm_send_date", split[1]);
-        }*/
+        }
 
         qw.eq( "p.disable_flag", BaseGlobal.NO);
         qw.eq("design_send_status", BaseGlobal.YES);
