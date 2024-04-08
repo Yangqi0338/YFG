@@ -970,10 +970,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)) {
                 if (!packBom.getPrice().stripTrailingZeros().equals(basicsdatumMaterialPrices.get(0).getQuotationPrice().stripTrailingZeros())) {
                     desc.append("单价 旧值：" + packBom.getPrice() + " 新值：" + basicsdatumMaterialPrices.get(0).getQuotationPrice() + "\n");
-                    packBom.setPrice(basicsdatumMaterialPrices.get(0).getQuotationPrice());
-                    BigDecimal oldCost = packBom.getCost();
-                    packBom.calculateCost();
-                    desc.append("成本 旧值：" + oldCost + " 新值：" + packBom.getCost() + "\n");
                 }
             }
         }
