@@ -24,6 +24,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -125,6 +126,17 @@ public class PatternLibraryController {
     @PostMapping("/excelImport")
     public ApiResult<String> excelImport(@RequestParam("file") MultipartFile file) {
         Boolean resultFlag = patternLibraryService.excelImport(file);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
+    }
+
+    @ApiOperation(value = "版型库 Excel 导出")
+    @PostMapping("/excelExport")
+    public ApiResult<String> excelExport(@RequestBody PatternLibraryPageDTO patternLibraryPageDTO, HttpServletResponse response) {
+        Boolean resultFlag = patternLibraryService.excelExport(patternLibraryPageDTO, response);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
         } else {

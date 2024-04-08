@@ -91,4 +91,10 @@ public class PatternLibraryPageDTO extends Page implements Serializable {
      */
     @ApiModelProperty("启用状态（0-停用，1-启用)")
     private Integer enableFlag;
+
+    /**
+     * 是否导出（0-否，1-是)
+     */
+    @ApiModelProperty("是否导出（0-否，1-是)")
+    private Integer isExcel = 0;
 }

@@ -11,6 +11,7 @@ import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -92,6 +93,14 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 导入是否成功
      */
     Boolean excelImport(MultipartFile file);
+
+    /**
+     * 版型库
+     *
+     * @param patternLibraryPageDTO 查询条件
+     * @return 导出是否成功
+     */
+    Boolean excelExport(PatternLibraryPageDTO patternLibraryPageDTO, HttpServletResponse response);
 
     /**
      * 查询已开款的设计款号数据信息

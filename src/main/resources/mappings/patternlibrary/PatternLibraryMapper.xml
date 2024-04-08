@@ -68,7 +68,6 @@
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
-        GROUP BY tpl.id
     </select>
     <select id="listStyle" resultType="com.base.sbc.module.style.entity.Style">
         SELECT

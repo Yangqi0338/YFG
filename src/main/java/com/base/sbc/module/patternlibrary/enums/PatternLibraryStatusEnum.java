@@ -1,6 +1,5 @@
 package com.base.sbc.module.patternlibrary.enums;
 
-import lombok.Data;
 import lombok.Getter;
 
 @Getter
@@ -18,6 +17,15 @@ public enum PatternLibraryStatusEnum {
     PatternLibraryStatusEnum(Integer code, String value) {
         this.code = code;
         this.value = value;
+    }
+
+    public static String getValueByCode(Integer code) {
+        for (PatternLibraryStatusEnum value : PatternLibraryStatusEnum.values()) {
+            if (value.getCode().equals(code)) {
+                return value.getValue();
+            }
+        }
+        return "未知状态";
     }
 
 }
