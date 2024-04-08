@@ -236,6 +236,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         } else {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
         }
+        qw.orderByDesc("t.create_date");
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
@@ -270,19 +271,19 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
         List<PreProductionSampleTaskVoExcel> list = CopyUtil.copy(sampleTaskVoList, PreProductionSampleTaskVoExcel.class);
 
-
+        ExcelUtils.exportExcelByTableCode(list, "产前样看板", response, dto);
         /*开启一个线程池*/
-        ExecutorService executor = ExecutorBuilder.create()
+        /*ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
                 .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
                 .build();
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
-                /*获取图片链接*/
+                *//*获取图片链接*//*
                 stylePicUtils.setStylePic(list, "stylePic",30);
                 minioUtils.setObjectUrlToList(list, "samplePic");
-                /*计时器*/
+                *//*计时器*//*
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (PreProductionSampleTaskVoExcel preProductionSampleTaskVoExcel : list) {
                     executor.submit(() -> {
@@ -305,7 +306,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             log.info(e.getMessage());
         } finally {
             executor.shutdown();
-        }
+        }*/
     }
 
     @Override
