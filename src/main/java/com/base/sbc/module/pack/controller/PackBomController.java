@@ -297,6 +297,12 @@ public class PackBomController extends BaseController{
         return packBomService.ifNeedUpdate(id);
     }
 
+    @ApiOperation(value = "/面料更新同步")
+    @PutMapping("/fabricSummarySync")
+    public boolean fabricSummarySync(String id) {
+        return packBomService.fabricSummarySync(id);
+    }
+
 
 }
 

@@ -875,6 +875,17 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return new PageInfo<>(list);
     }
 
+    @Override
+    public BasicsdatumMaterial getMaterialByCode(String materialCode) {
+        QueryWrapper<BasicsdatumMaterial> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("material_code", materialCode);
+        List<BasicsdatumMaterial> list = list(queryWrapper);
+        if (CollUtil.isNotEmpty(list)){
+            return null;
+        }
+        return list.get(0);
+    }
+
     /**
      * 得到商品款图片
      * @param vo

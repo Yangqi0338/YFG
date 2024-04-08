@@ -55,19 +55,23 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
     }
 
     @Override
-    public List<FabricSummaryInfoVo> fabricSummaryInfoVoList(FabricSummaryV2Dto dto) {
+    public PageInfo<FabricSummaryInfoVo> fabricSummaryInfoVoList(FabricSummaryV2Dto dto) {
+        Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
         BaseQueryWrapper<FabricSummaryInfoVo> qw = new BaseQueryWrapper<>();
         if (StringUtils.isNotBlank(dto.getId())){
             qw.eq("tfs.id",dto.getId());
         }
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.eq("tfs.company_code",dto.getCompanyCode());
+        qw.orderByAsc("tfs.id");
         List<FabricSummaryInfoVo> list = baseMapper.fabricSummaryInfoVoList(qw);
+        PageInfo<FabricSummaryInfoVo> pageInfo = page.toPageInfo();
         if (!isColumnHeard){
             minioUtils.setObjectUrlToList(list, "imageUrl");
             stylePicUtils.setStylePic(list, "stylePic");
         }
-        return list;
+        pageInfo.setList(list);
+        return pageInfo;
 
 
     }

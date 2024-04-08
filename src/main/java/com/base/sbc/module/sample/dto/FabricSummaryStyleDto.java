@@ -21,5 +21,8 @@ public class FabricSummaryStyleDto {
     @ApiModelProperty(value = "是否撞色,0否 1是"  )
     private String colorCrash;
 
+    @ApiModelProperty(value = "款式版本号"  )
+    private Integer fabricSummaryStyleVersion;
+
 
 }
