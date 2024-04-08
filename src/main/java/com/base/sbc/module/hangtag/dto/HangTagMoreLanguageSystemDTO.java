@@ -45,14 +45,14 @@ public class HangTagMoreLanguageSystemDTO {
      */
     @ApiModelProperty(value = "语言编码")
 //    @ValidCondition(column = "type", columnValue = "2", checkClass={NotNull.class})
-    @NotNull(message = "吊牌语言不能为空")
+//    @NotNull(message = "吊牌语言不能为空")
     private String languageCode;
     /**
      * 号型语言编码
      */
     @ApiModelProperty(value = "号型语言编码")
 //    @ValidCondition(column = "type", columnValue = "2", checkClass={NotNull.class})
-    @NotNull(message = "号型语言不能为空")
+//    @NotNull(message = "号型语言不能为空")
     private Integer modelLanguageCode;
     /**
      * 吊牌类型
