@@ -357,25 +357,25 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 
 
-		if(StrUtil.isNotBlank(hangTagVO.getId())){
-			// 查询检测报告
-			List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagInspectCompanyService.listByField("hang_tag_id", com.base.sbc.config.utils.StringUtils.convertList(hangTagVO.getId()));
-			if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
-				List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.listByIds(hangTagInspectCompanyList.stream().map(HangTagInspectCompany::getInspectCompanyId).collect(Collectors.toList()));
-				String[] split;
-				if (StrUtil.isNotEmpty(hangTagVO.getFabricDetails()) && list.size() > 0) {
-					split = hangTagVO.getFabricDetails().split("\n");
-					for (int i = 0; i < list.size(); i++) {
-						if (list.get(i).getRemark() != null && !list.get(i).getRemark().equals("")) {
-							String rem = split[i].split(":")[1] + ":" + list.get(i).getRemark();
-							list.get(i).setRemark(rem);
-						}
-					}
-				}
-				hangTagVO.setCompnentInspectCompanyDtoList(list);
-				return hangTagVO;
-			}
-		}
+//		if(StrUtil.isNotBlank(hangTagVO.getId())){
+//			// 查询检测报告
+//			List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagInspectCompanyService.listByField("hang_tag_id", com.base.sbc.config.utils.StringUtils.convertList(hangTagVO.getId()));
+//			if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
+//				List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.listByIds(hangTagInspectCompanyList.stream().map(HangTagInspectCompany::getInspectCompanyId).collect(Collectors.toList()));
+//				String[] split;
+//				if (StrUtil.isNotEmpty(hangTagVO.getFabricDetails()) && list.size() > 0) {
+//					split = hangTagVO.getFabricDetails().split("\n");
+//					for (int i = 0; i < list.size(); i++) {
+//						if (list.get(i).getRemark() != null && !list.get(i).getRemark().equals("")) {
+//							String rem = split[i].split(":")[1] + ":" + list.get(i).getRemark();
+//							list.get(i).setRemark(rem);
+//						}
+//					}
+//				}
+//				hangTagVO.setCompnentInspectCompanyDtoList(list);
+//				return hangTagVO;
+//			}
+//		}
 
 		PackInfo packInfo = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
