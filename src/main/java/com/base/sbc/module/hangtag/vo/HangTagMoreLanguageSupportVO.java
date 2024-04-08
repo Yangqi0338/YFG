@@ -78,13 +78,6 @@ public class HangTagMoreLanguageSupportVO {
     protected String tableName;
 
     /**
-     * 国家编码
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "国家编码")
-    protected String countryCode;
-
-    /**
      * 具体数据的编码
      */
     @JsonIgnore

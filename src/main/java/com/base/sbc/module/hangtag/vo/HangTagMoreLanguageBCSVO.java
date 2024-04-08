@@ -43,16 +43,10 @@ public class HangTagMoreLanguageBCSVO {
     private String bulkStyleNo;
 
     /**
-     * 国家语言Id
-     */
-    @ApiModelProperty(value = "国家语言Id")
-    private String countryCode;
-
-    /**
      * 国家语言名字
      */
     @ApiModelProperty(value = "国家语言名字")
-    private String countryName;
+    private String name;
 
     /**
      * 成功列表
@@ -99,8 +93,7 @@ public class HangTagMoreLanguageBCSVO {
 
     public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList, boolean cnCheck) {
         HangTagMoreLanguageBCSChildrenBaseVO groupChildrenVO = childrenList.get(0);
-        this.countryCode = groupChildrenVO.getCountryCode();
-        this.countryName = groupChildrenVO.getCountryName();
+        this.name = groupChildrenVO.getName();
         this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageBaseVO::getBulkStyleNo).distinct().collect(Collectors.joining(COMMA));
         // 是否中文语言检查
         childrenList.forEach(it-> it.setCnCheck(cnCheck));
@@ -130,11 +123,11 @@ public class HangTagMoreLanguageBCSVO {
             // 如果连语言都没
             if (languageEmpty) {
                 // 检查是否创建了国家语言
-                if (StrUtil.isBlank(this.getCode())) return MoreLanguageProperties.getMsg(NOT_INSERT, Opt.ofNullable(this.getCountryName()).orElse(""));
+                if (StrUtil.isBlank(this.getCode())) return MoreLanguageProperties.getMsg(NOT_INSERT, Opt.ofNullable(this.getName()).orElse(""));
                 // 检查是否有标准列, 款号肯定有, 所以只能判断下级设置是否成功
                 if (StrUtil.isBlank(this.getStandardColumnId()) || StrUtil.isBlank(this.getStandardColumnCode())) return MoreLanguageProperties.getMsg(HAVEN_T_TAG, this.getBulkStyleNo());
                 // 检查是否存在语种
-                if (!hasLanguage) return MoreLanguageProperties.getMsg(HAVEN_T_LANGUAGE,Opt.ofNullable(this.getCountryName()).orElse(""));
+                if (!hasLanguage) return MoreLanguageProperties.getMsg(HAVEN_T_LANGUAGE,Opt.ofNullable(this.getName()).orElse(""));
             } else {
                 StringJoiner message = new StringJoiner(MoreLanguageProperties.checkItemSeparator,countryLanguageType.getText() + this.getStandardColumnName(),"").setEmptyValue("");
                 this.getLanguageList().forEach(language-> {

@@ -75,10 +75,10 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     private YesOrNoEnum showFlag;
 
     /**
-     * 国家名
+     * 模板名
      */
-    @ApiModelProperty(value = "国家名")
-    private String countryName;
+    @ApiModelProperty(value = "模板名")
+    private String name;
 
     /**
      * 具体数据
