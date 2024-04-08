@@ -89,6 +89,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
     private final ReentrantLock saveLock = new ReentrantLock();
 
     public static final SFunction<CountryLanguage, String> languageCodeFunc = CountryLanguage::getLanguageCode;
+    public static final SFunction<CountryLanguage, String> modelLanguageCodeFunc = CountryLanguage::getModelLanguageCode;
     public static final SFunction<CountryLanguage, String> nameFunc = CountryLanguage::getName;
     public static final SFunction<CountryLanguage, String> codeFunc = CountryLanguage::getCode;
     public static final SFunction<CountryLanguage, Integer> codeIndexFunc = CountryLanguage::getCodeIndex;
@@ -168,6 +169,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             if (!cache && !this.exists(queryWrapper)) throw new OtherException(MoreLanguageProperties.getMsg(INCORRECT_COUNTRY_LANGUAGE));
         }
         String code = countryTypeLanguageSaveDto.getCode();
+        baseCountryLanguage.setCode(code);
 
         /* ----------------------------保存---------------------------- */
 

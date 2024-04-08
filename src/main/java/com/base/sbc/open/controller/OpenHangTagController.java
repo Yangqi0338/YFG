@@ -8,15 +8,18 @@ package com.base.sbc.open.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
@@ -40,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -47,6 +51,11 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.OPEN_CV;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.enableFlagFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.languageCodeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.modelLanguageCodeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.singleLanguageFlagFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.typeFunc;
 
 /**
  * 类描述：吊牌表 Controller类
@@ -77,9 +86,11 @@ public class OpenHangTagController extends BaseController {
         HangTagMoreLanguageDTO languageDTO = OPEN_CV.copy2MoreLanguageDTO(hangTagMoreLanguageDTO);
         // 找PDM这边DB中的国家语言唯一编码
         languageDTO.setCode(countryLanguageService.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
-                .notEmptyEq(CountryLanguage::getModelLanguageCode, OPEN_CV.getModelLanguageCode(hangTagMoreLanguageDTO.getModelLanguageCode()))
-                .notEmptyEq(CountryLanguage::getLanguageCode, hangTagMoreLanguageDTO.getLanguageCode()),
-                CountryLanguage::getCode)
+                .notEmptyEq(modelLanguageCodeFunc, OPEN_CV.getModelLanguageCode(hangTagMoreLanguageDTO.getModelLanguageCode()))
+                .notEmptyEq(languageCodeFunc, hangTagMoreLanguageDTO.getLanguageCode())
+                .eq(singleLanguageFlagFunc, YesOrNoEnum.NO)
+                .eq(typeFunc, languageDTO.getType())
+                , CountryLanguage::getCode)
         );
         if (StrUtil.isBlank(languageDTO.getCode())) throw new OtherException(MoreLanguageProperties.getMsg(NOT_INSERT));
         languageDTO.setUserCompany(super.getUserCompany());
@@ -95,13 +106,18 @@ public class OpenHangTagController extends BaseController {
         List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList = new ArrayList<>();
         // 根据国家分组
         hangTagMoreLanguageSystemDTOList.stream().collect(Collectors.groupingBy(it->
-                Opt.ofBlankAble(it.getLanguageCode()).orElse(" ") + "-" +
-                Opt.ofBlankAble(OPEN_CV.getModelLanguageCode(it.getModelLanguageCode())).orElse(" "))
-        ).forEach((key, sameKeyList)-> {
+                CommonUtils.saftyStrJoin("-",
+                                OPEN_CV.getTypeByCsvIndex(it.getType()).getCode(),
+                                it.getLanguageCode(),
+                                OPEN_CV.getModelLanguageCode(it.getModelLanguageCode())
+                        ).toString()
+        )).forEach((key, sameKeyList)-> {
             // 获取内部编码
             String code = countryLanguageService.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
-                            .notEmptyEq(CountryLanguage::getLanguageCode, key.split("-")[0])
-                            .notEmptyEq(CountryLanguage::getModelLanguageCode, key.split("-")[1])
+                            .notEmptyEq(languageCodeFunc, key.split("-")[1])
+                            .notEmptyEq(modelLanguageCodeFunc, key.split("-")[2])
+                            .eq(singleLanguageFlagFunc, YesOrNoEnum.NO)
+                            .eq(typeFunc, key.split("-")[0])
                             , CountryLanguage::getCode);
             List<HangTagMoreLanguageBaseVO> baseList = new ArrayList<>();
             sameKeyList.forEach(hangTagMoreLanguageSystemDTO->{

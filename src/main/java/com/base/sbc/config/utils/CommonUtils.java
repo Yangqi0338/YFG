@@ -3,6 +3,7 @@ package com.base.sbc.config.utils;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Opt;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.*;
 import cn.hutool.core.util.ReflectUtil;
@@ -357,6 +358,10 @@ public class CommonUtils {
     }
     public static StrJoiner strJoin(CharSequence delimiter) {
         return strJoin(delimiter, StrJoiner.NullMode.IGNORE);
+    }
+
+    public static StrJoiner saftyStrJoin(CharSequence delimiter, CharSequence... str) {
+        return strJoin(delimiter, StrJoiner.NullMode.IGNORE).append(Arrays.stream(str).map(it-> Opt.ofBlankAble(it).orElse(" ")).collect(Collectors.toList()));
     }
 
     public static StrJoiner strJoin(CharSequence delimiter, StrJoiner.NullMode nullMode) {
