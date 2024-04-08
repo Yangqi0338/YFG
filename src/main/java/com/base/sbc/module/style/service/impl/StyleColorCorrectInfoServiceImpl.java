@@ -278,13 +278,26 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
         }
 
-        if (styleColorCorrectInfo.getPlanControlDate() == null || oldDto.getPlanControlDate() == null || !DateUtil.isSameTime(styleColorCorrectInfo.getPlanControlDate(), oldDto.getPlanControlDate())) {
+        //region 下发scm
+        boolean sendFlag = false;
+        if (styleColorCorrectInfo.getPlanControlDate() == null && oldDto.getPlanControlDate() == null) {
+            sendFlag = false;
+        } else if (styleColorCorrectInfo.getPlanControlDate() == null && oldDto.getPlanControlDate() != null) {
+            sendFlag = true;
+        } else if (styleColorCorrectInfo.getPlanControlDate() != null && oldDto.getPlanControlDate() == null) {
+            sendFlag = true;
+        } else if (!DateUtil.isSameTime(styleColorCorrectInfo.getPlanControlDate(), oldDto.getPlanControlDate())) {
+            sendFlag = true;
+        }
+
+        if (sendFlag) {
             TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
             confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
             confirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate());
             confirmDateDto.setType("plan_control_date");
             smpService.styleColorCorrectInfoDate(confirmDateDto);
         }
+        //endregion
 
         //修改款式配色的设计 时间
         AddRevampStyleColorDto styleColor = new AddRevampStyleColorDto();
