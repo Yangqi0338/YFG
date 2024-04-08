@@ -21,7 +21,10 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.SeatMatchFlagEnum;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.band.service.BandService;
 import com.base.sbc.module.common.dto.AdTree;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -285,7 +288,6 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
     @Transactional(rollbackFor = {Exception.class})
     public PlanningSummaryVo planningSummary(Principal user, PlanningBoardSearchDto dto, List<PlanningDemandVo> demandList) {
         //维度统计数据
-        QueryGenerator.initQueryWrapperByMapNoDataPermission()
         List<List<String>> demandSummary = CollUtil.newArrayList(
                 //维度
                 CollUtil.newArrayList(),
@@ -362,6 +364,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         scQw.in("fv.val", dValues);
         scQw.notNull("fv.val");
         scQw.notNull("fv.val_name");
+        //数据权限
+        dataPermissionsService.getDataPermissionsForQw(scQw, DataPermissionsBusinessTypeEnum.planningBoard.getK());
         List<DemandOrderSkcVo> demandOrderSkcVos = styleColorMapper.queryDemandOrderSkc(scQw);
         amcFeignService.setUserAvatarToList(demandOrderSkcVos);
         /*查询款式配色图*/
