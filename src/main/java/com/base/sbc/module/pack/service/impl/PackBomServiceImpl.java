@@ -27,7 +27,6 @@ import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -400,8 +399,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         Page<BomFabricVo> page = PageHelper.startPage(bomFabricDto);
         QueryWrapper qw = new QueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabric_summary.getK(), "tb.");
-        qw.like(StringUtils.isNotBlank(bomFabricDto.getMaterialCode()), "tb.material_code", bomFabricDto.getCategoryId());
-        qw.like(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "tb.material_code_name", bomFabricDto.getCategoryId());
+        qw.like(StringUtils.isNotBlank(bomFabricDto.getMaterialCode()), "tb.material_code", bomFabricDto.getMaterialCode());
+        qw.like(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "tb.material_code_name", bomFabricDto.getMaterialCodeName());
         qw.eq(StringUtils.isNotBlank(bomFabricDto.getCategoryId()), "tb.category_id", bomFabricDto.getCategoryId());
         qw.like(StringUtils.isNotBlank(bomFabricDto.getSupplierMaterialCode()), "tb.supplier_material_code", bomFabricDto.getSupplierMaterialCode());
         baseMapper.bomFabricList(bomFabricDto, qw);
@@ -446,7 +445,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     }
     @Override
     public PageInfo<FabricSummaryInfoVo> fabricSummaryListV2(FabricSummaryV2Dto dto){
-        BaseQueryWrapper<FabricSummaryInfoVo> qw = new BaseQueryWrapper<>();
         return fabricSummaryService.fabricSummaryInfoVoList(dto);
 
     }
