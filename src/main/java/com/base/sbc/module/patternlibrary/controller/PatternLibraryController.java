@@ -22,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -98,29 +99,6 @@ public class PatternLibraryController {
         }
     }
 
-    /**
-     * 审批回调
-     */
-    @PostMapping("/approval")
-    public boolean approval(@RequestBody AnswerDto dto) {
-        PatternLibrary patternLibrary = patternLibraryService.getOne(new LambdaQueryWrapper<PatternLibrary>().eq(PatternLibrary::getId, dto.getBusinessKey()));
-        if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
-            // 审核通过
-            patternLibrary.setStatus(PatternLibraryStatusEnum.REVIEWED.getCode());
-        } else {
-            // 审核不通过
-            if ("1".equals(dto.getRecallFlag())) {
-                // 撤回
-                patternLibrary.setStatus(PatternLibraryStatusEnum.NO_SUBMIT.getCode());
-
-            } else {
-                // 驳回
-                patternLibrary.setStatus(PatternLibraryStatusEnum.REJECTED.getCode());
-            }
-        }
-        return patternLibraryService.updateById(patternLibrary);
-    }
-
     @ApiOperation(value = "版型库批量审核")
     @PostMapping("/updateAudits")
     public ApiResult<String> updateAudits(@RequestBody AuditsDTO auditsDTO) {
@@ -136,6 +114,17 @@ public class PatternLibraryController {
     @PostMapping("/updateEnableFlag")
     public ApiResult<String> updateEnableFlag(@RequestBody PatternLibraryDTO patternLibraryDTO) {
         Boolean resultFlag = patternLibraryService.updateEnableFlag(patternLibraryDTO);
+        if (resultFlag) {
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
+        } else {
+            return ApiResult.error(ResultConstant.OPERATION_FAILED, 400);
+        }
+    }
+
+    @ApiOperation(value = "版型库 Excel 导入")
+    @PostMapping("/excelImport")
+    public ApiResult<String> excelImport(@RequestParam("file") MultipartFile file) {
+        Boolean resultFlag = patternLibraryService.excelImport(file);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
         } else {
@@ -171,5 +160,24 @@ public class PatternLibraryController {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, categoriesType);
     }
 
+    @PostMapping("/approval")
+    public boolean approval(@RequestBody AnswerDto dto) {
+        PatternLibrary patternLibrary = patternLibraryService.getOne(new LambdaQueryWrapper<PatternLibrary>().eq(PatternLibrary::getId, dto.getBusinessKey()));
+        if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
+            // 审核通过
+            patternLibrary.setStatus(PatternLibraryStatusEnum.REVIEWED.getCode());
+        } else {
+            // 审核不通过
+            if ("1".equals(dto.getRecallFlag())) {
+                // 撤回
+                patternLibrary.setStatus(PatternLibraryStatusEnum.NO_SUBMIT.getCode());
+
+            } else {
+                // 驳回
+                patternLibrary.setStatus(PatternLibraryStatusEnum.REJECTED.getCode());
+            }
+        }
+        return patternLibraryService.updateById(patternLibrary);
+    }
 
 }

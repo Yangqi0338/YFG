@@ -9,6 +9,7 @@ import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      */
     Boolean saveOrUpdateDetails(PatternLibraryDTO patternLibraryDTO);
 
-  /**
+    /**
      * 版型库子表新增/编辑
      *
      * @param patternLibraryDTO 新增/编辑数据
@@ -83,6 +84,14 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 启用/禁用是否成功
      */
     Boolean updateEnableFlag(PatternLibraryDTO patternLibraryDTO);
+
+    /**
+     * 版型库导入
+     *
+     * @param file Excel 文件
+     * @return 导入是否成功
+     */
+    Boolean excelImport(MultipartFile file);
 
     /**
      * 查询已开款的设计款号数据信息

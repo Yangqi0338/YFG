@@ -6,11 +6,13 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.service.FlowableFeignService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -23,11 +25,14 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
+import com.base.sbc.module.patternlibrary.dto.ExcelImportDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.*;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
+import com.base.sbc.module.patternlibrary.listener.PatterLibraryListener;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryMapper;
 import com.base.sbc.module.patternlibrary.mapper.PatternLibraryTemplateMapper;
 import com.base.sbc.module.patternlibrary.service.*;
@@ -99,6 +104,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     @Autowired
     private UploadFileService uploadFileService;
 
+    @Autowired
+    private CcmFeignService ccmFeignService;
+
     @Value("${brand.puts:A01,A02,A03}")
     private String brandPuts;
 
@@ -131,7 +139,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                         , "tpl.silhouette_code", patternLibraryPageDTO.getSilhouetteCode())
                 // 所属版型库
                 .in(ObjectUtil.isNotEmpty(templateCodes)
-                        , "tpl.template_code", ObjectUtil.isNotEmpty(templateCodes) ? Arrays.asList(templateCodes.split(",")) : null)
+                        , "tpl.template_code",
+                        ObjectUtil.isNotEmpty(templateCodes) ? Arrays.asList(templateCodes.split(",")) : null)
                 // 状态
                 .eq(ObjectUtil.isNotEmpty(patternLibraryPageDTO.getStatus())
                         , "tpl.status", patternLibraryPageDTO.getStatus())
@@ -189,7 +198,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             Map<String, PatternLibraryTemplate> patternLibraryTemplateMap = new HashMap<>();
             if (ObjectUtil.isNotEmpty(templateCodeList)) {
                 // 根据模板 code 集合查询模板数据
-                List<PatternLibraryTemplate> patternLibraryTemplateList = patternLibraryTemplateMapper.listByCodes(templateCodeList);
+                List<PatternLibraryTemplate> patternLibraryTemplateList
+                        = patternLibraryTemplateMapper.listByCodes(templateCodeList);
                 // 模板数据根据模板 code 转成 map
                 if (ObjectUtil.isNotEmpty(patternLibraryTemplateList)) {
                     patternLibraryTemplateMap = patternLibraryTemplateList
@@ -264,14 +274,18 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                     patternLibraryVO.setPatternLibraryItemPattern(
                             patternLibraryItemLists.stream()
                                     .filter(item -> item.getType().equals(1))
-                                    .map(item -> item.getName() + "：" + Optional.ofNullable(item.getStructureValue()).orElse("暂无") + "\n")
+                                    .map(item -> item.getName()
+                                            + "："
+                                            + Optional.ofNullable(item.getStructureValue()).orElse("暂无") + "\n")
                                     .collect(Collectors.joining(""))
                     );
                     // 长度
                     patternLibraryVO.setPatternLibraryItemLength(
                             patternLibraryItemLists.stream()
                                     .filter(item -> item.getType().equals(2))
-                                    .map(item -> item.getName() + "：" + Optional.ofNullable(item.getStructureValue()).orElse("暂无") + "\n")
+                                    .map(item -> item.getName()
+                                            + "："
+                                            + Optional.ofNullable(item.getStructureValue()).orElse("暂无") + "\n")
                                     .collect(Collectors.joining(""))
                     );
                     // 部位
@@ -301,7 +315,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     @Transactional(rollbackFor = Exception.class)
     public Boolean saveOrUpdateDetails(PatternLibraryDTO patternLibraryDTO) {
         if (ObjectUtil.isEmpty(patternLibraryDTO)) {
-            throw new OtherException("新增/编辑数据不能为空！");
+            throw new OtherException(ResultConstant.OPERATION_DATA_NOT_EMPTY);
         }
         // 获取旧数据
         PatternLibrary oldPatternLibrary = new PatternLibrary();
@@ -309,7 +323,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             oldPatternLibrary = getById(patternLibraryDTO.getId());
             if (!(oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_SUBMIT.getCode())
                     || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode()))) {
-                throw new OtherException("当前状态不能编辑！");
+                throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
             }
         }
         PatternLibrary patternLibrary = new PatternLibrary();
@@ -317,8 +331,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         // 判断设计款的大类和选择的大类是否都属于上装或者下装
         {
             Style style = styleService.getById(patternLibraryDTO.getStyleId());
-            if (!isFlag(patternLibraryDTO.getProdCategory1st(), Collections.singletonList(style))) {
-                throw new OtherException("款式所对应的大类和所选大类的上装下装不匹配！");
+            if (!isBelong(patternLibraryDTO.getProdCategory1st(), Collections.singletonList(style))) {
+                throw new OtherException(ResultConstant.CATEGORY_PUT_BOTTOMS_MISMATCH);
             }
         }
 
@@ -407,7 +421,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                         patternLibrary.setPicUrl(attachmentVo.getUrl());
                         updateById(patternLibrary);
                     } catch (IOException e) {
-                        throw new RuntimeException("文件保存失败，请刷新后重试！");
+                        throw new RuntimeException(ResultConstant.FILE_SAVE_FAIL_REFRESH_TRY_AGAIN);
                     }
                 }
 
@@ -441,7 +455,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
      * @param sourceStyleList       来源款式信息集合
      * @return true 代表是 false 代表否
      */
-    private boolean isFlag(String targetProdCategory1st, List<Style> sourceStyleList) {
+    private boolean isBelong(String targetProdCategory1st, List<Style> sourceStyleList) {
         // 默认是否
         boolean flag = false;
         // 获取上装的数据
@@ -456,22 +470,20 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         return flag;
     }
 
-    /**
-     * @param patternLibraryDTO 新增/编辑数据
-     * @return
-     */
     @Override
+    @DuplicationCheck
+    @Transactional(rollbackFor = Exception.class)
     public Boolean saveOrUpdateItemDetail(PatternLibraryDTO patternLibraryDTO) {
         if (ObjectUtil.isEmpty(patternLibraryDTO)) {
-            throw new OtherException("数据不存在，请刷新后重试！");
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
         }
         PatternLibrary patternLibrary = getById(patternLibraryDTO.getId());
         if (ObjectUtil.isEmpty(patternLibrary)) {
-            throw new OtherException("数据不存在，请刷新后重试！");
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
         }
         if (!(patternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_SUBMIT.getCode())
                 || patternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode()))) {
-            throw new OtherException("当前状态不能编辑！");
+            throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
         }
         // 修改子表数据
         List<PatternLibraryItem> patternLibraryItemList = patternLibraryDTO.getPatternLibraryItemList();
@@ -505,12 +517,12 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateDetails(List<PatternLibraryDTO> patternLibraryDTOList) {
         if (ObjectUtil.isEmpty(patternLibraryDTOList)) {
-            throw new OtherException("批量编辑数据不能为空！");
+            throw new OtherException(ResultConstant.OPERATION_DATA_NOT_EMPTY);
         }
         if (patternLibraryDTOList
                 .stream()
                 .anyMatch(item -> !item.getStatus().equals(PatternLibraryStatusEnum.NO_PADDED.getCode()))) {
-            throw new OtherException("批量编辑只能选择待补齐！");
+            throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
         }
         // 批量编辑
         // 判断设计款的大类和选择的大类是否都属于上装或者下装
@@ -518,8 +530,8 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             List<String> styleIdList = patternLibraryDTOList.
                     stream().map(PatternLibraryDTO::getStyleId).collect(Collectors.toList());
             List<Style> styleList = styleService.listByIds(styleIdList);
-            if (!isFlag(patternLibraryDTOList.get(0).getProdCategory1st(), styleList)) {
-                throw new OtherException("款式所对应的大类和所选大类的上装下装不匹配！");
+            if (!isBelong(patternLibraryDTOList.get(0).getProdCategory1st(), styleList)) {
+                throw new OtherException(ResultConstant.CATEGORY_PUT_BOTTOMS_MISMATCH);
             }
         }
         // 修改主表数据
@@ -553,14 +565,14 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     @Override
     public PatternLibraryVO getDetail(String patternLibraryId) {
         if (ObjectUtil.isEmpty(patternLibraryId)) {
-            throw new OtherException("请选择数据查看！");
+            throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
         }
         // 初始化返回数据
         PatternLibraryVO patternLibraryVO = new PatternLibraryVO();
         // 根据版型库主表 ID 查询版型库主表信息
         PatternLibrary patternLibrary = getById(patternLibraryId);
         if (ObjectUtil.isEmpty(patternLibrary)) {
-            throw new OtherException("当前数据不存在，请刷新后重试！");
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
         }
 
         BeanUtil.copyProperties(patternLibrary, patternLibraryVO);
@@ -613,15 +625,15 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeDetail(String patternLibraryId) {
         if (ObjectUtil.isEmpty(patternLibraryId)) {
-            throw new OtherException("请选择数据删除！");
+            throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
         }
         // 根据版型库主表 ID 查询版型库主表信息
         PatternLibrary patternLibrary = getById(patternLibraryId);
         if (ObjectUtil.isEmpty(patternLibrary)) {
-            throw new OtherException("当前数据不存在，请刷新后重试！");
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
         }
         if (patternLibrary.getStatus().equals(PatternLibraryStatusEnum.REVIEWED.getCode())) {
-            throw new OtherException("已审核数据不能删除！");
+            throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
         }
         // 删除版型库主表数据
         removeById(patternLibraryId);
@@ -645,7 +657,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     public Boolean updateAudits(AuditsDTO auditsDTO) {
         List<String> patternLibraryIdList = auditsDTO.getPatternLibraryIdList();
         if (ObjectUtil.isEmpty(patternLibraryIdList)) {
-            throw new OtherException("请至少选择一条数据进行审核！");
+            throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
         }
         // 查询到我的待办列表和这边选择的业务 ID 进行匹配，如果根据业务 ID 查询到了待办数据，
         // 那么查询到的待办数据进行批量审核，如果一条都没有，提示没有数据审核
@@ -658,7 +670,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         JSONArray jsonArray = jsonObject.getJSONArray("list");
         List<FlowTaskDto> flowTaskDtoList = jsonArray.toList(FlowTaskDto.class);
         if (ObjectUtil.isEmpty(flowTaskDtoList)) {
-            throw new OtherException("勾选数据暂无审核！");
+            throw new OtherException(ResultConstant.SELECT_DATA_NOT_ACTION);
         }
         for (FlowTaskDto flowTaskDto : flowTaskDtoList) {
             if (auditsDTO.getType().equals(1)) {
@@ -675,16 +687,105 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     }
 
     @Override
+    @DuplicationCheck
+    @Transactional(rollbackFor = Exception.class)
     public Boolean updateEnableFlag(PatternLibraryDTO patternLibraryDTO) {
         if (ObjectUtil.isEmpty(patternLibraryDTO.getId())) {
-            throw new OtherException("请选择数据启用/禁用！");
+            throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
         }
         PatternLibrary patternLibrary = getById(patternLibraryDTO.getId());
         if (ObjectUtil.isEmpty(patternLibrary)) {
-            throw new OtherException("当前数据不存在，请刷新后重试！");
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
         }
         patternLibrary.setEnableFlag(patternLibraryDTO.getEnableFlag());
         updateById(patternLibrary);
+        return true;
+    }
+
+    @Override
+    @DuplicationCheck
+    @Transactional(rollbackFor = Exception.class)
+    public Boolean excelImport(MultipartFile file) {
+        if (ObjectUtil.isEmpty(file)) {
+            throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
+        }
+        // 这里 需要指定读用哪个class去读，然后读取第一个sheet 文件流会自动关闭
+        PatterLibraryListener patterLibraryListener = new PatterLibraryListener();
+        try {
+            EasyExcel.read(file.getInputStream(), ExcelImportDTO.class, patterLibraryListener).sheet().doRead();
+        } catch (IOException e) {
+            throw new OtherException(e.getMessage());
+        }
+        // 没有拿到数据也返回一场
+        List<ExcelImportDTO> cachedDataList = patterLibraryListener.getCachedDataList();
+        if (ObjectUtil.isEmpty(cachedDataList)) {
+            throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
+        }
+        // 任意一个字段值为空直接抛出异常
+        if (cachedDataList.stream().anyMatch(item ->
+                ObjectUtil.isEmpty(item.getCode())
+                        || ObjectUtil.isEmpty(item.getBrandName())
+                        || ObjectUtil.isEmpty(item.getEnableFlag()))) {
+            throw new OtherException(ResultConstant.IMPORT_FIELD_VALUE_NOT_EMPTY);
+
+        }
+        // 拿到所有的设计编号
+        Set<String> styleNoSet = cachedDataList.stream().map(ExcelImportDTO::getCode).collect(Collectors.toSet());
+        // 根据设计编号查询款式信息
+        List<Style> styleList = listStyle(null);
+        if (ObjectUtil.isEmpty(styleList) || (styleNoSet.size() != styleList.size())) {
+            throw new OtherException(ResultConstant.CODE_NO_CORRESPONDING_STYLE_OR_ALREADY_EXISTS);
+        }
+        Map<String, Style> styleMap = styleList.stream().collect(Collectors.toMap(Style::getDesignNo, item -> item));
+        // 拿到品牌字典数据
+        Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMapTurnOver("C8_Brand");
+        Map<String, String> brandMap = dictInfoToMap.get("C8_Brand");
+
+        // 初始化需要新增的数据
+        List<PatternLibrary> patternLibraryList = new ArrayList<>();
+        // 组装数据
+        for (ExcelImportDTO excelImportDTO : cachedDataList) {
+            PatternLibrary patternLibrary = new PatternLibrary();
+            PatternLibraryVO patternLibraryVO = new PatternLibraryVO();
+            Style style = styleMap.get(excelImportDTO.getCode());
+            setValue(patternLibraryVO, style);
+            BeanUtil.copyProperties(patternLibraryVO, patternLibrary);
+            // 默认状态是待补齐
+            patternLibrary.setStatus(PatternLibraryStatusEnum.NO_PADDED.getCode());
+
+            String[] brandNameList = excelImportDTO.getBrandName().split("/");
+            List<PatternLibraryBrand> patternLibraryBrandList = new ArrayList<>();
+            for (String name : brandNameList) {
+                String code = brandMap.get(name);
+                if (ObjectUtil.isEmpty(code)) {
+                    throw new OtherException(ResultConstant.BRAND_DATA_NOT_EXIST);
+                }
+                PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
+                patternLibraryBrand.setBrand(code);
+                patternLibraryBrand.setBrandName(name);
+                patternLibraryBrandList.add(patternLibraryBrand);
+            }
+
+            patternLibrary.setPatternLibraryBrandList(patternLibraryBrandList);
+            if (!"启用".equals(excelImportDTO.getEnableFlag()) && !"禁用".equals(excelImportDTO.getEnableFlag())) {
+                // 默认启用
+                patternLibrary.setEnableFlag(1);
+            } else {
+                patternLibrary.setEnableFlag("启用".equals(excelImportDTO.getEnableFlag()) ? 1 : 0);
+
+            }
+            patternLibraryList.add(patternLibrary);
+        }
+        saveBatch(patternLibraryList);
+        List<PatternLibraryBrand> brandList = new ArrayList<>();
+        for (PatternLibrary patternLibrary : patternLibraryList) {
+            List<PatternLibraryBrand> patternLibraryBrandList = patternLibrary.getPatternLibraryBrandList();
+            for (PatternLibraryBrand patternLibraryBrand : patternLibraryBrandList) {
+                patternLibraryBrand.setPatternLibraryId(patternLibrary.getId());
+            }
+            brandList.addAll(patternLibraryBrandList);
+        }
+        patternLibraryBrandService.saveBatch(brandList);
         return true;
     }
 
@@ -694,9 +795,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
                 .eq("s.enable_status", BaseGlobal.NO)
                 .eq("s.status", "1")
-                .like("s.design_no", search)
+                .like(ObjectUtil.isNotEmpty(search), "s.design_no", search)
                 .orderByDesc("s.create_date");
-        // 获取已经生成版型库的数据
+        // 获取还没有生成版型库的数据
         return baseMapper.listStyle(queryWrapper);
     }
 
@@ -705,7 +806,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         // 初始化返回的封装数据
         PatternLibraryVO patternLibraryVO = new PatternLibraryVO();
         if (ObjectUtil.isEmpty(designNo)) {
-            throw new OtherException("请选择设计款号！");
+            throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
         }
         Style style = styleService.getOne(
                 new LambdaQueryWrapper<Style>()
@@ -715,34 +816,9 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                         .eq(Style::getConfirmStatus, "2")
         );
         if (ObjectUtil.isEmpty(style)) {
-            throw new OtherException("设计款不存在，请刷新后重试！");
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
         }
-        // 设计款号
-        patternLibraryVO.setDesignNo(style.getDesignNo());
-        // 版型编码 等同于设计款号
-        patternLibraryVO.setCode(style.getDesignNo());
-        // 款式 ID
-        patternLibraryVO.setStyleId(style.getId());
-        // 大类 code
-        patternLibraryVO.setProdCategory1st(style.getProdCategory1st());
-        // 大类名称
-        patternLibraryVO.setProdCategory1stName(style.getProdCategory1stName());
-        // 品类 code
-        patternLibraryVO.setProdCategory(style.getProdCategory());
-        // 品类名称
-        patternLibraryVO.setProdCategoryName(style.getProdCategoryName());
-        // 中类 code
-        patternLibraryVO.setProdCategory2nd(style.getProdCategory2nd());
-        // 中类名称
-        patternLibraryVO.setProdCategory2ndName(style.getProdCategory2ndName());
-        // 小类 code
-        patternLibraryVO.setProdCategory3rd(style.getProdCategory3rd());
-        // 小类名称
-        patternLibraryVO.setProdCategory3rdName(style.getProdCategory3rdName());
-        // 廓形 code
-        patternLibraryVO.setSilhouetteCode(style.getSilhouette());
-        // 廓形名称
-        patternLibraryVO.setSilhouetteName(style.getSilhouetteName());
+        setValue(patternLibraryVO, style);
         // 生成品牌
         PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
         patternLibraryBrand.setBrand(style.getBrand());
@@ -780,6 +856,40 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
             patternLibraryVO.setPicUrl(style.getStylePic());
         }
         return patternLibraryVO;
+    }
+
+    /**
+     * 版型库数据设置款式信息
+     * @param patternLibraryVO 版型库对象数据
+     * @param style 款式信息
+     */
+    private static void setValue(PatternLibraryVO patternLibraryVO, Style style) {
+        // 设计款号
+        patternLibraryVO.setDesignNo(style.getDesignNo());
+        // 版型编码 等同于设计款号
+        patternLibraryVO.setCode(style.getDesignNo());
+        // 款式 ID
+        patternLibraryVO.setStyleId(style.getId());
+        // 大类 code
+        patternLibraryVO.setProdCategory1st(style.getProdCategory1st());
+        // 大类名称
+        patternLibraryVO.setProdCategory1stName(style.getProdCategory1stName());
+        // 品类 code
+        patternLibraryVO.setProdCategory(style.getProdCategory());
+        // 品类名称
+        patternLibraryVO.setProdCategoryName(style.getProdCategoryName());
+        // 中类 code
+        patternLibraryVO.setProdCategory2nd(style.getProdCategory2nd());
+        // 中类名称
+        patternLibraryVO.setProdCategory2ndName(style.getProdCategory2ndName());
+        // 小类 code
+        patternLibraryVO.setProdCategory3rd(style.getProdCategory3rd());
+        // 小类名称
+        patternLibraryVO.setProdCategory3rdName(style.getProdCategory3rdName());
+        // 廓形 code
+        patternLibraryVO.setSilhouetteCode(style.getSilhouette());
+        // 廓形名称
+        patternLibraryVO.setSilhouetteName(style.getSilhouetteName());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternlibrary.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -8,6 +9,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 版型库-主表
@@ -166,4 +168,11 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
      */
     @ApiModelProperty("启用状态（0-停用，1-启用)")
     private Integer enableFlag;
+
+    /**
+     * 品牌集合
+     */
+    @ApiModelProperty("品牌集合")
+    @TableField(exist = false)
+    private List<PatternLibraryBrand> patternLibraryBrandList;
 }

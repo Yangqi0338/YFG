@@ -21,12 +21,21 @@ public class PatternLibraryBrand extends BaseDataEntity<String> implements Seria
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty("部件库 ID（t_pattern_library id）")
+    /**
+     * 部件库 ID（t_pattern_library id）
+     */
+    @ApiModelProperty("部件库 ID")
     private String patternLibraryId;
 
+    /**
+     * 品牌 code
+     */
     @ApiModelProperty("品牌 code")
     private String brand;
 
+    /**
+     * 品牌名称
+     */
     @ApiModelProperty("品牌名称")
     private String brandName;
 }
