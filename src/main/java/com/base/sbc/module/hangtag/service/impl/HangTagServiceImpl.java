@@ -356,26 +356,45 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_COMMIT);
 		}
 
+		PackInfo pack = packInfoService
+				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
+		if (pack != null) {
+			PackBomVersion enableVersion = packBomVersionService.getEnableVersion(pack.getId(), StrUtil.equals(hangTagVO.getBomStatus(), BaseGlobal.YES) ? PackUtils.PACK_TYPE_BIG_GOODS : PackUtils.PACK_TYPE_DESIGN);
+			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", pack.getId());
+			queryWrapper.eq("unusable_flag", BaseGlobal.NO);
+			queryWrapper.eq("pack_type", StrUtil.equals(hangTagVO.getBomStatus(), BaseGlobal.YES) ? PackUtils.PACK_TYPE_BIG_GOODS : PackUtils.PACK_TYPE_DESIGN);
+			if (ObjectUtil.isEmpty(enableVersion)) {
+				queryWrapper.eq("bom_version_id", enableVersion.getId());
+			}
+			List<PackBom> packBomList = packBomService.list(queryWrapper);
 
-//		if(StrUtil.isNotBlank(hangTagVO.getId())){
-//			// 查询检测报告
-//			List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagInspectCompanyService.listByField("hang_tag_id", com.base.sbc.config.utils.StringUtils.convertList(hangTagVO.getId()));
-//			if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
-//				List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.listByIds(hangTagInspectCompanyList.stream().map(HangTagInspectCompany::getInspectCompanyId).collect(Collectors.toList()));
-//				String[] split;
-//				if (StrUtil.isNotEmpty(hangTagVO.getFabricDetails()) && list.size() > 0) {
-//					split = hangTagVO.getFabricDetails().split("\n");
-//					for (int i = 0; i < list.size(); i++) {
-//						if (list.get(i).getRemark() != null && !list.get(i).getRemark().equals("")) {
-//							String rem = split[i].split(":")[1] + ":" + list.get(i).getRemark();
-//							list.get(i).setRemark(rem);
-//						}
-//					}
-//				}
-//				hangTagVO.setCompnentInspectCompanyDtoList(list);
-//				return hangTagVO;
-//			}
-//		}
+			if (StrUtil.isNotBlank(hangTagVO.getId())&&!packBomList.isEmpty()) {
+				// 查询检测报告
+				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
+				List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagInspectCompanyService.listByField("hang_tag_id", com.base.sbc.config.utils.StringUtils.convertList(hangTagVO.getId()));
+				if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
+					if (!codes.isEmpty()) {
+						List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
+						String[] split;
+						if (StrUtil.isNotEmpty(hangTagVO.getFabricDetails()) && list.size() > 0) {
+							split = hangTagVO.getFabricDetails().split("\n");
+							int minSize = Math.min(list.size(), split.length); // 获取 list 和 split 数组的最小长度
+							for (int i = 0; i < minSize; i++) {//循环判断做数据处理
+								if (split[i] != null && split[i].split(":").length > 1 && list.get(i) != null && list.get(i).getRemark() != null && !list.get(i).getRemark().equals("")) {
+									String[] parts = split[i].split(":");
+									if (parts.length > 1) {
+										String rem = parts[1] + ":" + list.get(i).getRemark();//拼接字符串
+										list.get(i).setRemark(rem);
+									}
+								}
+							}
+						}
+						hangTagVO.setCompnentInspectCompanyDtoList(list);
+						return hangTagVO;
+					}
+				}
+			}
+		}
 
 		PackInfo packInfo = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
@@ -413,9 +432,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		PackInfo packInfo = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (packInfo != null) {
+			PackBomVersion enableVersion = packBomVersionService.getEnableVersion(packInfo.getId(), StrUtil.equals(hangTagVO.getBomStatus(), BaseGlobal.YES) ? PackUtils.PACK_TYPE_BIG_GOODS : PackUtils.PACK_TYPE_DESIGN);
 			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
 			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
 			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
+			if(ObjectUtil.isEmpty(enableVersion)){
+				queryWrapper.eq("bom_version_id",enableVersion.getId());
+			}
 			List<PackBom> packBomList = packBomService.list(queryWrapper);
 			if (!packBomList.isEmpty()) {
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
