@@ -23,7 +23,11 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：款式管理-面料汇总 service类
@@ -56,7 +60,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
 
     @Override
     public PageInfo<FabricSummaryInfoVo> fabricSummaryInfoVoList(FabricSummaryV2Dto dto) {
-        Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
+
         BaseQueryWrapper<FabricSummaryInfoVo> qw = new BaseQueryWrapper<>();
         if (StringUtils.isNotBlank(dto.getId())){
             qw.eq("tfs.id",dto.getId());
@@ -64,13 +68,26 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.eq("tfs.company_code",dto.getCompanyCode());
         qw.orderByAsc("tfs.id");
-        List<FabricSummaryInfoVo> list = baseMapper.fabricSummaryInfoVoList(qw);
+        Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
+        List<FabricSummaryInfoVo> list = getBaseMapper().fabricSummaryInfoVoList(qw);
         PageInfo<FabricSummaryInfoVo> pageInfo = page.toPageInfo();
-        if (!isColumnHeard){
-            minioUtils.setObjectUrlToList(list, "imageUrl");
-            stylePicUtils.setStylePic(list, "stylePic");
+        if (isColumnHeard){
+            return pageInfo;
         }
-        pageInfo.setList(list);
+        minioUtils.setObjectUrlToList(list, "imageUrl");
+        stylePicUtils.setStylePic(list, "stylePic");
+
+        Map<String, List<FabricSummaryInfoVo>> map = list.stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::getId));
+
+        List<FabricSummaryInfoVo> result = new ArrayList<>();
+        for (String s : map.keySet()) {
+            List<FabricSummaryInfoVo> fabricSummaryInfoVoList = map.get(s);
+            if (fabricSummaryInfoVoList.size() > 1){
+                fabricSummaryInfoVoList =  fabricSummaryInfoVoList.stream().sorted(Comparator.comparing(FabricSummaryInfoVo::getSort)).collect(Collectors.toList());
+            }
+            result.addAll(fabricSummaryInfoVoList);
+        }
+        pageInfo.setList(result);
         return pageInfo;
 
 

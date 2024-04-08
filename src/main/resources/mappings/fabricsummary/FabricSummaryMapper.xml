@@ -22,10 +22,15 @@
 
     <select id="fabricSummaryInfoVoList" resultType="com.base.sbc.module.sample.vo.FabricSummaryInfoVo">
         select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             tfs.id as id,
-           tfss.id as fabric_summary_style_id,
+            tfss.id as fabric_summary_style_id,
             tfs.*,
             tfss.*
+        </if>
         from t_fabric_summary tfs left join t_fabric_summary_style tfss on tfs. id = tfss.fabric_summary_id
         where tfs.del_flag = '0' and tfss.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">

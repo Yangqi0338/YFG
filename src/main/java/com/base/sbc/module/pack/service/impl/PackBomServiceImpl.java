@@ -27,6 +27,7 @@ import com.base.sbc.client.ccm.enums.CcmBaseSettingEnum;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -445,19 +446,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     }
     @Override
     public PageInfo<FabricSummaryInfoVo> fabricSummaryListV2(FabricSummaryV2Dto dto){
-        PageInfo<FabricSummaryInfoVo> pageInfo = fabricSummaryService.fabricSummaryInfoVoList(dto);
-        Map<String, List<FabricSummaryInfoVo>> map = pageInfo.getList().stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::getId));
-
-        List<FabricSummaryInfoVo> result = new ArrayList<>();
-        for (String s : map.keySet()) {
-            List<FabricSummaryInfoVo> list = map.get(s);
-            if (list.size() > 1){
-                list =  list.stream().sorted(Comparator.comparing(FabricSummaryInfoVo::getSort)).collect(Collectors.toList());
-            }
-            result.addAll(list);
-        }
-        pageInfo.setList(result);
-        return pageInfo;
+        BaseQueryWrapper<FabricSummaryInfoVo> qw = new BaseQueryWrapper<>();
+        return fabricSummaryService.fabricSummaryInfoVoList(dto);
 
     }
 
@@ -890,7 +880,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         objectMap.put(FabricSummaryExportExcel.styleId,fabricSummaryStyle.getDesignNo());
         objectMap.put(FabricSummaryExportExcel.senderDesignerName,fabricSummaryStyle.getPatternDesignName());
         objectMap.put(FabricSummaryExportExcel.colorCrash,"1".equals(fabricSummaryStyle.getColorCrash()) ? "是":"否");
-        objectMap.put(FabricSummaryExportExcel.materialColor,fabricSummaryStyle.getMaterialColor());
+        objectMap.put(FabricSummaryExportExcel.materialColor,fabricSummaryStyle.getColorName());
         objectMap.put(FabricSummaryExportExcel.supplierColor,fabricSummaryStyle.getSupplierColor());
         objectMap.put(FabricSummaryExportExcel.supplierColorNo,fabricSummaryStyle.getSupplierColorNo());
         objectMap.put(FabricSummaryExportExcel.unitUse,fabricSummaryStyle.getUnitUse());
