@@ -10,9 +10,6 @@ import java.util.List;
 @Data
 public class FabricSummaryStyleSaveDto {
 
-    @ApiModelProperty(value = "物料编号"  )
-    private String materialCode;
-
     @ApiModelProperty(value = "汇总Id"  )
     @NotBlank(message = "汇总Id不能为空")
     private String fabricSummaryId;

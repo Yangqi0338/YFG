@@ -530,9 +530,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (CollectionUtils.isEmpty(dto.getStyleNos())){
             return true;
         }
+        FabricSummary fabricSummary = fabricSummaryService.getById(dto.getFabricSummaryId());
+        if (null == fabricSummary){
+            throw new OtherException("汇总主题不存在");
+        }
         FabricStyleDto fabricStyleDto = new FabricStyleDto();
         fabricStyleDto.setCompanyCode(getCompanyCode());
-        fabricStyleDto.setMaterialCode(dto.getMaterialCode());
+        fabricStyleDto.setMaterialCode(fabricSummary.getMaterialCode());
         QueryWrapper qw = new QueryWrapper();
         qw.in("sc.style_no", dto.getStyleNos());
         List<FabricStyleVo> fabricStyleVos = baseMapper.fabricStyleList(fabricStyleDto, qw);
@@ -549,7 +553,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             fabricSummaryStyle.insertInit();
             QueryWrapper qc = new QueryWrapper();
             qc.eq("pb.foreign_id",fabricSummaryStyle.getForeignId());
-            qc.eq("pb.material_code",dto.getMaterialCode());
+            qc.eq("pb.material_code",fabricSummary.getMaterialCode());
             List<PackBom> packBomList = baseMapper.selectByForeignId(qc);
             PackBom packBom ;
             if (CollectionUtils.isNotEmpty(packBomList) && packBomList.size() > 1){
@@ -727,8 +731,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (CollectionUtils.isEmpty(fabricSummaryStyles)){
             return needUpdateVo;
         }
-
-
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("material_code",fabricSummary.getMaterialCode());
+        queryWrapper.eq("del_flag","0");
+        queryWrapper.eq("del_flag","0");
+//        basicsdatumMaterialPriceService.li
 
         return needUpdateVo;
     }
