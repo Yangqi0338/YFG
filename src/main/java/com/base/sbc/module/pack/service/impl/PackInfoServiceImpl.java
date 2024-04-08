@@ -441,6 +441,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 .or().likeRight("name",pageDto.getPackType()));
 //        qw.eq("path", pageDto.getPackType()).or().likeRight("name",pageDto.getPackType());
         qw.orderByDesc("id");
+        qw.ne("json_content", "[]");
         Page<OperaLogEntity> objects = PageHelper.startPage(pageDto);
         operaLogService.list(qw);
         return objects.toPageInfo();
