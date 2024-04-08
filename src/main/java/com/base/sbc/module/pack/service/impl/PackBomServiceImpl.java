@@ -704,12 +704,33 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     }
 
     @Override
-    public boolean ifNeedUpdate(String id) {
+    public NeedUpdateVo ifNeedUpdate(String id) {
         FabricSummary fabricSummary = fabricSummaryService.getById(id);
         if (fabricSummary != null){
-           throw new OtherException("面料不存在");
-       }
-        return false;
+           throw new OtherException("物料不存在");
+        }
+        String materialCode = fabricSummary.getMaterialCode();
+        //bom中物料的使用次数
+        QueryWrapper qw = new QueryWrapper();
+        qw.eq("material_code",materialCode);
+        int  materialBomCount  = baseMapper.materialBomCount(qw);
+        NeedUpdateVo needUpdateVo = new NeedUpdateVo();
+        needUpdateVo.setStatus("0");
+        if (materialBomCount <= 0){
+            needUpdateVo.setStatus("2");
+            return needUpdateVo;
+        }
+        QueryWrapper<FabricSummaryStyle> objectQueryWrapper = new QueryWrapper<>();
+        objectQueryWrapper.eq("fabric_summary_id",fabricSummary.getId());
+        objectQueryWrapper.eq("del_flag","0");
+        List<FabricSummaryStyle> fabricSummaryStyles = fabricSummaryStyleService.list(objectQueryWrapper);
+        if (CollectionUtils.isEmpty(fabricSummaryStyles)){
+            return needUpdateVo;
+        }
+
+
+
+        return needUpdateVo;
     }
 
 

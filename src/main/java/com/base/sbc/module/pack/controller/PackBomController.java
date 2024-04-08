@@ -28,6 +28,7 @@ import com.base.sbc.module.sample.dto.*;
 import com.base.sbc.module.sample.vo.BomFabricVo;
 import com.base.sbc.module.sample.vo.FabricStyleVo;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
+import com.base.sbc.module.sample.vo.NeedUpdateVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -292,7 +293,7 @@ public class PackBomController extends BaseController{
 
     @ApiOperation(value = "/面料是否需要更新")
     @GetMapping("/ifNeedUpdate")
-    public boolean ifNeedUpdate(String id) {
+    public NeedUpdateVo ifNeedUpdate(String id) {
         return packBomService.ifNeedUpdate(id);
     }
 

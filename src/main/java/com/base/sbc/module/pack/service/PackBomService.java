@@ -243,5 +243,5 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto);
 
-    boolean ifNeedUpdate(String id);
+    NeedUpdateVo ifNeedUpdate(String id);
 }

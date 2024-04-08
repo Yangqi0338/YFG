@@ -636,5 +636,13 @@
         </if>
     </select>
 
+    <select id="materialBomCount" resultType="java.lang.Integer">
+        select count(1)  from t_pack_bom pb  join t_pack_bom_version pbv on pbv.id = pb.bom_version_id and pbv.del_flag = '0' and pbv.pack_type = 'packBigGoods'
+        where  pb.material_id is not null and pb.material_id != ''
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
