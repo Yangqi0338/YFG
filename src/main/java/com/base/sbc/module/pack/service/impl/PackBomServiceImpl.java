@@ -39,6 +39,7 @@ import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -731,11 +732,24 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (CollectionUtils.isEmpty(fabricSummaryStyles)){
             return needUpdateVo;
         }
-        QueryWrapper queryWrapper = new QueryWrapper<>();
+        QueryWrapper<BasicsdatumMaterialPrice> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("material_code",fabricSummary.getMaterialCode());
+        queryWrapper.eq("select_flag","1");
         queryWrapper.eq("del_flag","0");
-        queryWrapper.eq("del_flag","0");
-//        basicsdatumMaterialPriceService.li
+        List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = basicsdatumMaterialPriceService.list(queryWrapper);
+        if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)){
+            BasicsdatumMaterialPrice basicsdatumMaterialPrice = basicsdatumMaterialPrices.get(0);
+            if (!fabricSummary.getSupplierId().equals(basicsdatumMaterialPrice.getSupplierId()) || !fabricSummary.getSupplierFabricCode().equals(basicsdatumMaterialPrice.getSupplierMaterialCode())){
+                //面料供应商改变
+                needUpdateVo.setStatus("1");
+            }else {
+                //检测 含税价格是否改变
+                if (!fabricSummary.getSupplierQuotationPrice().toString().equals(basicsdatumMaterialPrice.getQuotationPrice().toString())){
+                    needUpdateVo.setStatus("1");
+                }
+            }
+        }
+
 
         return needUpdateVo;
     }
