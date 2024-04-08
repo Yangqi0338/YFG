@@ -32,6 +32,15 @@ public enum DataPermissionsBusinessTypeEnum {
     pre_production_sample_board("pre_production_sample_board", "产前样看板"),
     PatternMakingWeekMonthView("PatternMakingWeekMonthView", "版类对比"),
     CategorySummaryCount("CategorySummaryCount", "品类汇总统计"),
+
+    hangTagReport("hangTagReport", "电商充绒量报表"),
+
+    designOrderScheduleDetailsReport("designOrderScheduleDetailsReport", "设计下单进度明细报表"),
+
+    styleSizeReport("styleSizeReport", "尺寸查询报表"),
+
+    stylePackBomMaterialReport("stylePackBomMaterialReport", "BOM清单查询报表"),
+
     work_log("work_log","工作小账"),
     ;
     private final String k;

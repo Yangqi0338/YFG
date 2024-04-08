@@ -68,8 +68,10 @@ import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationSer
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
 import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.utils.PackUtils;
@@ -161,7 +163,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private final StyleService styleService;
 	private final BasicsdatumSizeService basicsdatumSizeService;
 
-	private final BasicsdatumMaterialService basicsdatumMaterialService;
 	private final PackBomService packBomService;
 	@Autowired
 	@Lazy
@@ -198,9 +199,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Lazy
 	private StyleCountryStatusService styleCountryStatusService;
 
-	@Autowired
-	private StandardColumnCountryRelationService standardColumnCountryRelationService;
 
+	@Resource
+	private PackBomVersionService packBomVersionService;
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
@@ -362,11 +363,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
 				List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.listByIds(hangTagInspectCompanyList.stream().map(HangTagInspectCompany::getInspectCompanyId).collect(Collectors.toList()));
 				String[] split;
-				if(hangTagVO.getFabricDetails()!=null&&list.size()>0){
-					 split = hangTagVO.getFabricDetails().split("\n");
-					for(int i=0; i<list.size(); i++){
-						if(list.get(i).getRemark()!=null&&!list.get(i).getRemark().equals("")){
-							String rem=split[i].split(":")[1]+":"+list.get(i).getRemark();
+				if (StrUtil.isNotEmpty(hangTagVO.getFabricDetails()) && list.size() > 0) {
+					split = hangTagVO.getFabricDetails().split("\n");
+					for (int i = 0; i < list.size(); i++) {
+						if (list.get(i).getRemark() != null && !list.get(i).getRemark().equals("")) {
+							String rem = split[i].split(":")[1] + ":" + list.get(i).getRemark();
 							list.get(i).setRemark(rem);
 						}
 					}
@@ -379,9 +380,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		PackInfo packInfo = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (packInfo != null) {
+			PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(packInfo.getId(), StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
+
 			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
 			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
 			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
+			if (ObjectUtil.isNotEmpty(packBomVersion)) {
+				queryWrapper.eq("bom_version_id",packBomVersion.getId());
+			}
 			List<PackBom> packBomList = packBomService.list(queryWrapper);
 			if (!packBomList.isEmpty()) {
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
@@ -395,6 +401,59 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		}
 		return hangTagVO;
+	}
+
+	@Override
+	public HangTagVO getRefresh(String bulkStyleNo, String userCompany, String selectType) {
+		HangTagVO hangTagVO = hangTagMapper.getDetailsByBulkStyleNo(Collections.singletonList(bulkStyleNo), userCompany, selectType).stream().findFirst().orElse(null);
+		if (hangTagVO == null) {
+			return new HangTagVO();
+		}
+
+		PackInfo packInfo = packInfoService
+				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
+		if (packInfo != null) {
+			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
+			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
+			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
+			List<PackBom> packBomList = packBomService.list(queryWrapper);
+			if (!packBomList.isEmpty()) {
+				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
+				if (!codes.isEmpty()) {
+					/*查询物料*/
+					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes), false);
+/*					List<BasicsdatumMaterial> list = basicsdatumMaterialService
+							.list(new QueryWrapper<BasicsdatumMaterial>().in("material_code", codes));*/
+					hangTagVO.setCompnentInspectCompanyDtoList(list);
+				}
+			}
+			if(hangTagVO != null && StrUtil.isNotBlank(hangTagVO.getId()) && hangTagVO.getCompnentInspectCompanyDtoList() != null && !hangTagVO.getCompnentInspectCompanyDtoList().isEmpty()){
+				List<EscmMaterialCompnentInspectCompanyDto> compnentInspectCompanyDtoList = hangTagVO.getCompnentInspectCompanyDtoList();
+				for(EscmMaterialCompnentInspectCompanyDto hangtag:compnentInspectCompanyDtoList){
+					if(hangtag != null && StrUtil.isNotBlank(hangtag.getId())){
+						HangTagInspectCompany hangTagInspectCompany = new HangTagInspectCompany();
+						hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
+						hangTagInspectCompany.setHangTagId(hangTagVO.getId());
+						hangTagInspectCompany.setInspectCompanyId(hangtag.getId());
+						hangTagInspectCompany.setCreateId(hangTagVO.getCreateId());
+						hangTagInspectCompany.setCreateName(hangTagVO.getCreateName());
+						hangTagInspectCompany.setCreateDate(hangTagVO.getCreateDate());
+						hangTagInspectCompany.setUpdateId(hangTagVO.getUpdateId());
+						hangTagInspectCompany.setUpdateName(hangTagVO.getUpdateName());
+						hangTagInspectCompany.setUpdateDate(hangTagVO.getUpdateDate());
+						hangTagInspectCompany.setCompanyCode(hangTagVO.getCompanyCode());
+						HangTagInspectCompany hangTag = hangTagMapper.listHangTagInspectCompany(hangtag.getId(), hangTagVO.getId());
+						if(hangTag!=null&&hangTag.getDelFlag().equals("0")){
+							continue;
+						}else{
+							hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
+						}
+					}
+				}
+				return hangTagVO;
+			}
+		}
+		return new HangTagVO();
 	}
 
 	@Override
