@@ -41,7 +41,7 @@
             tsc.tag_price,
             tsp.product_style_name,
             -- tsp.actualMagnification,
-            (CASE WHEN s.designer != '' THEN SUBSTRING_INDEX(ts.designer, ',', 1) ELSE '' END) as designer,
+            (CASE WHEN ts.designer != '' THEN SUBSTRING_INDEX(ts.designer, ',', 1) ELSE '' END) as designer,
             ts.devt_type_name,
             tsc.supplier_abbreviation,
             tsc.supplier_no,
