@@ -15,6 +15,7 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
@@ -24,6 +25,7 @@ import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -49,7 +51,7 @@ import java.util.regex.Pattern;
 @Api(tags = "资料包-工艺说明")
 @RequestMapping(value = BaseController.SAAS_URL + "/packTechSpec", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class PackTechSpecController {
+public class PackTechSpecController extends BaseController{
 
     @Autowired
     private PackTechSpecService packTechSpecService;
@@ -134,6 +136,13 @@ public class PackTechSpecController {
     @PostMapping("/packaging")
     public PackTechPackaging savePackaging(@RequestBody PackTechPackaging packaging) {
         return packTechPackagingService.savePackaging(packaging);
+    }
+
+    @ApiOperation(value = "保存包装方式同步吊牌详情")
+    @GetMapping("/getDetailsByBulkStyleNo")
+    @Deprecated
+    public HangTagVO updatePackaging(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType) {
+        return packTechPackagingService.updatePackaging(bulkStyleNo, super.getUserCompany(), selectType);
     }
 
 

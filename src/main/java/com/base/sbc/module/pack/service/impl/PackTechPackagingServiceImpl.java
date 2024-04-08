@@ -9,9 +9,12 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
+import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.mapper.PackTechPackagingMapper;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,6 +35,8 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
 
 
 // 自定义方法区 不替换的区域【other_start】
+    @Autowired
+    private HangTagServiceImpl hangTagService;
 
 
     @Override
@@ -50,6 +55,7 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
             updateById(db);
             return db;
         }
+
 
     }
 
@@ -99,6 +105,13 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
             }
         }
         return packTechPackaging;
+    }
+
+    @Override
+    public HangTagVO updatePackaging(String bulkStyleNo, String userCompany, String selectType) {
+
+
+        return null;
     }
 
     @Override
