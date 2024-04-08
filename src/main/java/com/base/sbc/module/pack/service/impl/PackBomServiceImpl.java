@@ -916,13 +916,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     /**
      * 比较 packBom 和 BasicsDatumMaterial 是否有变更
-      * @param packBom
-      * @param basicsdatumMaterialVo
+     * @param packBom
+     * @param basicsdatumMaterialVo
      */
     private String checkPackBomUpdate( PackBom packBom, BasicsdatumMaterial basicsdatumMaterialVo) {
         StringBuffer desc = new StringBuffer();
         if (!StringUtils.equals(normalizeString(packBom.getImageUrl()), normalizeString(basicsdatumMaterialVo.getImageUrl()))) {
-            desc.append("物料图片 旧值：" + packBom.getImageUrl() + " 新值：" + basicsdatumMaterialVo.getImageUrl() + "\n");
+            desc.append("物料图片地址有变更" + "\n");
         }
         if (!StringUtils.equals(normalizeString(packBom.getMaterialCodeName()), normalizeString(basicsdatumMaterialVo.getMaterialCodeName()))) {
             desc.append("材料 旧值：" + packBom.getMaterialCodeName() + " 新值：" + basicsdatumMaterialVo.getMaterialCodeName() + "\n");
@@ -942,8 +942,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (!StringUtils.equals(normalizeString(packBom.getIngredient()), normalizeString(basicsdatumMaterialVo.getIngredient()))) {
             desc.append("成分 旧值：" + packBom.getIngredient() + " 新值：" + basicsdatumMaterialVo.getIngredient() + "\n");
         }
-        if (!packBom.getSupplierPrice().stripTrailingZeros().equals(basicsdatumMaterialVo.getSupplierQuotationPrice().stripTrailingZeros())) {
-            desc.append("供应商报价 旧值：" + packBom.getSupplierPrice() + " 新值：" + basicsdatumMaterialVo.getSupplierQuotationPrice() + "\n");
+        if (normalizeBigDecimal(packBom.getSupplierPrice()).compareTo(normalizeBigDecimal(basicsdatumMaterialVo.getSupplierQuotationPrice())) != 0) {
+            desc.append("供应商报价 旧值：" + normalizeBigDecimal(packBom.getSupplierPrice()) + " 新值：" + normalizeBigDecimal(basicsdatumMaterialVo.getSupplierQuotationPrice()) + "\n");
         }
         if (!StringUtils.equals(normalizeString(packBom.getSupplierMaterialCode()), normalizeString(basicsdatumMaterialVo.getSupplierFabricCode()))) {
             desc.append("供应商物料号 旧值：" + packBom.getSupplierMaterialCode() + " 新值：" + basicsdatumMaterialVo.getSupplierFabricCode() + "\n");
@@ -961,7 +961,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             List<BasicsdatumMaterialColor> basicsdatumMaterialColors = basicsdatumMaterialColorService.list(queryWrapper);
             if (CollectionUtils.isNotEmpty(basicsdatumMaterialColors)) {
                 if (!StringUtils.equals(normalizeString(packBom.getColorPic()), normalizeString(basicsdatumMaterialColors.get(0).getPicture()))) {
-                    desc.append("颜色图片 旧值：" + packBom.getSupplierFactoryIngredient() + " 新值：" + basicsdatumMaterialVo.getFactoryComposition() + "\n");
+                    desc.append("颜色图片地址字段有变更" + "\n");
                 }
             }
 
@@ -981,9 +981,18 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return desc.toString();
     }
 
-    // 辅助方法,用来标准化String值，忽略空字符串
+    /**
+     * 辅助方法,用来标准化String值，忽略空字符串
+     */
     private String normalizeString(String str) {
-        return str == null || str.isEmpty() ? null : str; // 如果为null或空字符串，统一返回null
+        return StringUtils.isBlank(str) ? null : str; // 如果为null或空字符串，统一返回null
+    }
+
+    /**
+     * 辅助方法,用来标准化BigDecimal 空值返回0.0000
+     */
+    private BigDecimal normalizeBigDecimal(BigDecimal bigDecimal) {
+        return bigDecimal == null ? BigDecimal.ZERO.setScale(4) : bigDecimal.setScale(4, BigDecimal.ROUND_UP);
     }
 
     /**
@@ -1032,5 +1041,4 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
         }
     }
-
 }
