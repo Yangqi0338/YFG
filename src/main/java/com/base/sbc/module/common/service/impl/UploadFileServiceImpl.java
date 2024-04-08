@@ -203,11 +203,11 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                         break;
                     /* 版型库文件 */
                     case "patternLibraryFile":
-                        objectName = "Pattern/" + code + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                        objectName = "Pattern/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     /* 版型库图片 */
                     case "patternLibraryPic":
-                        objectName = "PatternImage/" + code + "/" + DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
+                        objectName = "PatternImage/" + code + "/" + System.currentTimeMillis() + "." + extName;
                         break;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
