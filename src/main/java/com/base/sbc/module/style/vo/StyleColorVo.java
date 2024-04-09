@@ -489,4 +489,9 @@ public class StyleColorVo {
      */
     private Integer groupCount;
 
+    /**
+     * 产品季
+     */
+    private String planningSeason;
+
 }
