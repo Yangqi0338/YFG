@@ -362,6 +362,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
             for (EsOrderBookItem esOrderBookItem : itemList) {
                 esOrderBookItem.setHeadId(id);
                 esOrderBookItem.setSortIndex(sortIndex);
+                esOrderBookItem.setIsLock(BaseGlobal.NO);
                 esOrderBookItem.insertInit();
                 sortIndex++;
             }
