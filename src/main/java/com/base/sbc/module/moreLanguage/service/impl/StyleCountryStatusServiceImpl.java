@@ -533,8 +533,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
                     TypeLanguageDto typeLanguageDto = new TypeLanguageDto();
                     typeLanguageDto.setType(type);
-                    List<LanguageSaveDto> languageDtoList = new ArrayList<>();
-                    typeLanguageDto.setLanguageList(languageDtoList);
+                    typeLanguageDto.setLanguageList(sameTypeList.stream().map(MORE_LANGUAGE_CV::copy2Save).collect(Collectors.toList()));
                     typeLanguageDtoList.add(typeLanguageDto);
 
                     // 获取审核状态
@@ -544,11 +543,8 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                             .eq(typeFunc, type)
                             .eq(codeFunc, recordDto.getCode())
                     )).ifPresent(styleCountryStatus-> {
-                        languageDtoList.addAll(sameTypeList.stream().map(MORE_LANGUAGE_CV::copy2Save)
-                                .peek(it-> it.setPrintTime(styleCountryStatus.getPrintTime())).collect(Collectors.toList())
-                        );
-
-                        recordDto.setStatusCode(Opt.ofNullable(styleCountryStatus.getStatus()).orElse(StyleCountryStatusEnum.UNCHECK));
+                        typeLanguageDto.getLanguageList().forEach(it-> it.setPrintTime(styleCountryStatus.getPrintTime()));
+                        recordDto.setStatusCode(styleCountryStatus.getStatus());
                     });
                 });
         recordDto.setTypeLanguageDtoList(typeLanguageDtoList);
