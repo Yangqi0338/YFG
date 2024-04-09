@@ -227,7 +227,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private StyleCountryStatusService styleCountryStatusService;
 
 	public static final SFunction<HangTag, String> idFunc = HangTag::getId;
-	private CcmFeignService ccmFeignService;
+	private final CcmFeignService ccmFeignService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
