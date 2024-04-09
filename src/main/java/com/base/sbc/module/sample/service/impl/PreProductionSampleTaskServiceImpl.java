@@ -463,6 +463,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         uw.set("grading_date", dto.getGradingDate());
         //面辅料信息
         uw.set("material_info", dto.getMaterialInfo());
+        //技术接收时间
+        uw.set("tech_receive_time", dto.getTechReceiveTime());
         update(uw);
 
         // 修改裁剪时间和车缝时间
