@@ -1422,9 +1422,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									List<?> list = listFunc.apply(printing);
 									for (Object dataObj : list) {
 										String sourceStr = codeFunc.apply(dataObj);
-										String str = StrUtil.replace(sourceStr, result.getPropertiesName(), languageVO.getPropertiesContent());
-										if (!sourceStr.equals(str)) {
-											valueFunc.accept(dataObj, str);
+										if (StrUtil.isNotBlank(sourceStr)) {
+											String str = StrUtil.replace(sourceStr, result.getPropertiesName(), languageVO.getPropertiesContent());
+											if (!sourceStr.equals(str)) {
+												valueFunc.accept(dataObj, str);
+											}
 										}
 									}
 								}
