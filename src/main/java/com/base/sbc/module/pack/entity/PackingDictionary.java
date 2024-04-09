@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @TableName("t_packaging_dictionary")
 @ApiModel("资料包-工艺说明-包装方式和体积重量字典 PackTechPackaging")
 public class PackingDictionary extends BaseDataEntity<String> {
+
+    private static final long serialVersionUID = 1L;
     /**
      * 主数据id
      */

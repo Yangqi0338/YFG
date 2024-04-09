@@ -9,23 +9,53 @@
     </insert>
     <update id="updatePacking">
         UPDATE t_packaging_dictionary
-        SET
-        packaging_form = #{packagingForm},
-        packaging_form_name = #{dto.packagingFormName},
-        parent_id = #{dto.parentId},
-        name = #{dto.name},
-        volume_length = #{dto.volumeLength},
-        volume_width = #{dto.volumeWidth},
-        volume_height = #{dto.volumeHeight},
-        del_flag = #{dto.delFlag},
-        create_id = #{dto.createId},
-        create_name = #{dto.createName},
-        create_date = #{dto.createDate},
-        update_name = #{dto.updateName},
-        update_date = #{dto.updateDate},
-        update_id = #{dto.updateId}
+        <set>
+            <trim suffixOverrides=",">
+                <if test="packagingForm != null">
+                    packaging_form = #{packagingForm},
+                </if>
+                <if test="dto.packagingFormName != null">
+                    packaging_form_name = #{dto.packagingFormName},
+                </if>
+                <if test="dto.parentId != null">
+                    parent_id = #{dto.parentId},
+                </if>
+                <if test="dto.name != null">
+                    name = #{dto.name},
+                </if>
+                <if test="dto.volumeLength != null">
+                    volume_length = #{dto.volumeLength},
+                </if>
+                <if test="dto.volumeWidth != null">
+                    volume_width = #{dto.volumeWidth},
+                </if>
+                <if test="dto.volumeHeight != null">
+                    volume_height = #{dto.volumeHeight},
+                </if>
+                <if test="dto.delFlag != null">
+                    del_flag = #{dto.delFlag},
+                </if>
+                <if test="dto.createId != null">
+                    create_id = #{dto.createId},
+                </if>
+                <if test="dto.createName != null">
+                    create_name = #{dto.createName},
+                </if>
+                <if test="dto.createDate != null">
+                    create_date = #{dto.createDate},
+                </if>
+                <if test="dto.updateName != null">
+                    update_name = #{dto.updateName},
+                </if>
+                <if test="dto.updateDate != null">
+                    update_date = #{dto.updateDate},
+                </if>
+                <if test="dto.updateId != null">
+                    update_id = #{dto.updateId}
+                </if>
+            </trim>
+        </set>
         WHERE id = #{dto.id}
-
     </update>
 
     <select id="listPackingDictionary" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
@@ -54,7 +84,6 @@
         del_flag as delFlag,create_id as createId,create_name as createName,create_date as createDate,
         update_name as updateName,update_date as updateDate,update_id as updateId
         FROM t_packaging_dictionary where parent_id=#{parentId} and name=#{name} and del_flag='0'
-        ORDER BY update_date DESC
         LIMIT 1
     </select>
 </mapper>
