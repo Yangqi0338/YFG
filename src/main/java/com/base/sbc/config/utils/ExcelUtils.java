@@ -18,6 +18,7 @@ import cn.afterturn.easypoi.util.PoiReflectorUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -27,6 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import lombok.extern.slf4j.Slf4j;
@@ -517,6 +519,7 @@ public class ExcelUtils {
 
     public static void exportExcelByTableCode(List<?> list, String name, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
         exportExcelByTableCode(list, name + "xlsx", new ExportParams(name, name, ExcelType.HSSF), response, queryFieldDto);
+
     }
 
     public static void exportExcelByTableCode(List<?> list, String fileName, ExportParams exportParams, HttpServletResponse response, QueryFieldDto queryFieldDto) throws IOException {
@@ -527,7 +530,7 @@ public class ExcelUtils {
         Assert.notEmpty(detail, "没有找到对应列配置，请联系管理员维护");
         List<ExcelExportEntity> excelParams = new ArrayList<>();
 
-        List<String> imgColumns = new ArrayList<>();
+        Map<String,String> imgColumnMap = new HashMap<>();
         for (ColumnDefine columnDefine : detail) {
             if (BaseGlobal.NO.equals(columnDefine.getHidden())) {
                 continue;
@@ -537,9 +540,11 @@ public class ExcelUtils {
             excelEntity.setName(columnDefine.getColumnName());
             excelEntity.setWidth((double) columnDefine.getColumnWidth() / 6.8);
             //excelEntity.setHeight(excel.height());
-            //excelEntity.setNeedMerge(excel.needMerge());
-            //excelEntity.setMergeVertical(excel.mergeVertical());
-            //excelEntity.setMergeRely(excel.mergeRely());
+            if("1".equals(columnDefine.getColumnMerge())){
+                excelEntity.setNeedMerge(true);
+                excelEntity.setMergeVertical(true);
+                //excelEntity.setMergeRely(excel.mergeRely());
+            }
             if (StrUtil.isNotEmpty(columnDefine.getDictType())) {
                 JSONArray jsonArray = JSONArray.parseArray(columnDefine.getDictType());
                 String[] replace = new String[jsonArray.size() + 1];
@@ -557,7 +562,7 @@ public class ExcelUtils {
             if (StrUtil.isNotEmpty(columnDefine.getColumnType()) && "img".equals(columnDefine.getColumnType())) {
                 excelEntity.setExportImageType(2);
                 excelEntity.setType(2);
-                imgColumns.add(columnDefine.getColumnCode());
+                imgColumnMap.put(columnDefine.getColumnCode(),columnDefine.getDataFormat());
                 //将key拼接1，后续将byte[]处理到对应字段上
                 excelEntity.setKey(columnDefine.getColumnCode() + "1");
             } else if (StrUtil.isNotEmpty(columnDefine.getColumnType()) && "date".equals(columnDefine.getColumnType())) {
@@ -584,13 +589,15 @@ public class ExcelUtils {
 
         JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
 
-        if (CollUtil.isNotEmpty(imgColumns) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
+        if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
             StylePicUtils stylePicUtils = SpringUtil.getBean(StylePicUtils.class);
+            MinioUtils minioUtils = SpringUtil.getBean(MinioUtils.class);
             ExecutorService executor = ExecutorBuilder.create()
                     .setCorePoolSize(8)
                     .setMaxPoolSize(10)
                     .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
                     .build();
+            Map<String,byte[]> picMap = Collections.synchronizedMap(new HashMap<>());
             try {
                 /*导出图片*/
                 if (CollUtil.isNotEmpty(list) && list.size() > 1500) {
@@ -601,9 +608,26 @@ public class ExcelUtils {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     executor.submit(() -> {
                         try {
-                            for (String imgColumn : imgColumns) {
-                                String imgUrl = stylePicUtils.getStyleColorUrl2(imgColumn, 30);
-                                jsonObject.put(imgColumn + "1", HttpUtil.downloadBytes(imgUrl));
+                            for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
+                                String imgColumn = entry.getKey();
+                                String type = entry.getValue();
+
+                                byte[] bytes;
+                                if(picMap.containsKey(imgColumn)){
+                                    bytes = picMap.get(imgColumn);
+                                }else{
+                                    String imgUrl;
+                                    if(StrUtil.isEmpty(type) || "stylePic".equals(type)){
+                                        //stylePic
+                                        imgUrl = stylePicUtils.getStyleColorUrl2(imgColumn, 30);
+                                    }else {
+                                        //minio
+                                        imgUrl = minioUtils.getObjectUrl(jsonObject.getString(imgColumn));
+                                    }
+                                    bytes = HttpUtil.downloadBytes(imgUrl);
+                                }
+
+                                jsonObject.put(imgColumn + "1", bytes);
                             }
                         } catch (Exception e) {
                             log.error(e.getMessage());

@@ -180,7 +180,15 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     @Override
     public void exportExcel(HttpServletResponse response, EsOrderBookQueryDto dto) throws IOException {
         List<EsOrderBookItemVo> list = findPage(dto).getList();
-        ExcelUtils.exportExcelByTableCode(list, "es订货本", response, dto);
+        String name = "es订货本";
+        if (StrUtil.isNotBlank(dto.getYearName())) {
+            name = dto.getYearName() + "-" + name;
+        } else if (StrUtil.isNotBlank(dto.getSeasonName())) {
+            name = dto.getSeasonName() + "-" + name;
+        } else if (StrUtil.isNotBlank(dto.getName())) {
+            name = dto.getName() + "-" + name;
+        }
+        ExcelUtils.exportExcelByTableCode(list, name, response, dto);
     }
 
     @Override
@@ -284,7 +292,7 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
     public void updateHeadName(EsOrderBookItemVo vo) {
         //查询是否存在重复组名
         List<EsOrderBookItem> itemListBy = getItemListBy(vo.getHeadId(), vo.getNewGroupName());
-        if(itemListBy.size() > 0){
+        if (itemListBy.size() > 0) {
             throw new OtherException("存在相同组名!");
         }
         LambdaUpdateWrapper<EsOrderBookItem> updateWrapper = new LambdaUpdateWrapper<>();
@@ -325,13 +333,13 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         StringBuilder returnStr = new StringBuilder("操作成功!");
         List<String> styleNos = new ArrayList<>();
         itemList = itemList.stream().filter(o -> {
-            if(!styleColorIds.contains(o.getStyleColorId())){
+            if (!styleColorIds.contains(o.getStyleColorId())) {
                 return true;
             }
             styleNos.add(o.getStyleNo());
             return false;
         }).collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(styleNos)){
+        if (CollUtil.isNotEmpty(styleNos)) {
             returnStr.append("过滤款号：").append(String.join(",", styleNos)).append("在该组中已存在");
         }
         if (CollUtil.isNotEmpty(itemList)) {
@@ -378,21 +386,21 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         String type = vo.getType();
         EsOrderBookItem esOrderBookItem;
         EsOrderBookItem esOrderBookItem1;
-        if("0".equals(type)){
-            if(sortIndex == 999){
-                esOrderBookItem = itemListBy.get(itemListBy.size()-1);
+        if ("0".equals(type)) {
+            if (sortIndex == 999) {
+                esOrderBookItem = itemListBy.get(itemListBy.size() - 1);
                 esOrderBookItem1 = itemListBy.get(itemListBy.size() - 2);
-            }else{
-                esOrderBookItem = itemListBy.get(sortIndex-1);
+            } else {
+                esOrderBookItem = itemListBy.get(sortIndex - 1);
                 esOrderBookItem1 = itemListBy.get(sortIndex - 2);
             }
-        }else{
-            esOrderBookItem = itemListBy.get(sortIndex-1);
+        } else {
+            esOrderBookItem = itemListBy.get(sortIndex - 1);
             esOrderBookItem1 = itemListBy.get(sortIndex);
         }
         esOrderBookItem.setSortIndex(esOrderBookItem1.getSortIndex());
         esOrderBookItem1.setSortIndex(sortIndex);
-        esOrderBookItemService.updateBatchById(Arrays.asList(esOrderBookItem,esOrderBookItem1));
+        esOrderBookItemService.updateBatchById(Arrays.asList(esOrderBookItem, esOrderBookItem1));
     }
 
 
