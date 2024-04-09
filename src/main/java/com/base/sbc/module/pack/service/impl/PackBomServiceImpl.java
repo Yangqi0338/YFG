@@ -939,9 +939,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (!StringUtils.equals(normalizeString(packBom.getPurchaseUnitCode()), normalizeString(basicsdatumMaterialVo.getPurchaseUnitCode()))) {
             desc.append("采购单位 旧值：" + packBom.getPurchaseUnitCode() + " 新值：" + basicsdatumMaterialVo.getPurchaseUnitCode() + "\n");
         }
-        if (!StringUtils.equals(normalizeString(packBom.getIngredient()), normalizeString(basicsdatumMaterialVo.getIngredient()))) {
-            desc.append("成分 旧值：" + packBom.getIngredient() + " 新值：" + basicsdatumMaterialVo.getIngredient() + "\n");
-        }
         if (normalizeBigDecimal(packBom.getSupplierPrice()).compareTo(normalizeBigDecimal(basicsdatumMaterialVo.getSupplierQuotationPrice())) != 0) {
             desc.append("供应商报价 旧值：" + normalizeBigDecimal(packBom.getSupplierPrice()) + " 新值：" + normalizeBigDecimal(basicsdatumMaterialVo.getSupplierQuotationPrice()) + "\n");
         }
@@ -1004,7 +1001,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         packBom.setGramWeight(basicsdatumMaterialVo.getGramWeight());
         packBom.setAuxiliaryMaterial(basicsdatumMaterialVo.getAuxiliaryMaterial());
         packBom.setPurchaseUnitCode(basicsdatumMaterialVo.getPurchaseUnitCode());
-        packBom.setIngredient(basicsdatumMaterialVo.getIngredient());
         packBom.setSupplierPrice(basicsdatumMaterialVo.getSupplierQuotationPrice());
         packBom.setSupplierMaterialCode(basicsdatumMaterialVo.getSupplierFabricCode());
         packBom.setSupplierFactoryIngredient(basicsdatumMaterialVo.getFactoryComposition());
