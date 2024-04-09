@@ -14,6 +14,8 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.CountryLanguageType;
@@ -60,6 +62,7 @@ import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.google.common.base.Functions;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.select.Collector;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +108,7 @@ import static com.base.sbc.module.common.convert.ConvertContext.OPEN_CV;
  */
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryStatusMapper, StyleCountryStatus> implements StyleCountryStatusService {
 
     @Autowired
@@ -125,6 +129,8 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
     @Autowired
     private RedisUtils redisUtils;
+
+    private final CcmFeignService ccmFeignService;
 
     public static final SFunction<StyleCountryStatus, String> bulkStyleNoFunc = StyleCountryStatus::getBulkStyleNo;
     public static final SFunction<StyleCountryStatus, StyleCountryStatusEnum> statusFunc = StyleCountryStatus::getStatus;
@@ -521,6 +527,12 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         if (CollectionUtil.isEmpty(countryLanguageDtoList)) {
             throw new OtherException(MoreLanguageProperties.getMsg(NOT_FOUND_COUNTRY_LANGUAGE));
         }
+
+        // 装饰名字
+        List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList(MoreLanguageProperties.languageDictCode);
+        countryLanguageDtoList.forEach(countryLanguageDto -> {
+            countryLanguageDto.buildLanguageName(dictList);
+        });
 
         // 封装基础数据
         StyleCountryStatusDto recordDto = MORE_LANGUAGE_CV.copy2StatusDto(countryLanguageDtoList.get(0));

@@ -41,13 +41,11 @@ import java.util.List;
 public interface MoreLanguageConvert {
     MoreLanguageConvert INSTANCE = Mappers.getMapper(MoreLanguageConvert.class);
 
-    List<LanguageSaveDto> copyList2Save(List<CountryLanguage> source);
-
     @Mappings({
             @Mapping(target = "countryLanguageId",source = "id"),
             @Mapping(target = "countryLanguageType",source = "type")
     })
-    LanguageSaveDto copy2Save(CountryLanguage source);
+    LanguageSaveDto copy2Save(CountryLanguageDto source);
 
     @Mappings({
             @Mapping(target = "model", ignore = true),
