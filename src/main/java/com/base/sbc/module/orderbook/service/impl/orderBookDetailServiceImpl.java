@@ -563,77 +563,51 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
-    public Map<String, Object> queryCount(OrderBookDetailQueryDto dto) {
+    public Map<String, Double> queryCount(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         List<OrderBookDetailVo> querylistAll = this.getBaseMapper().queryPage(queryWrapper);
-        HashMap<String, Object> hashMap =new HashMap<>();
-        float materialSum = 0;
-        float materialMoneySum = 0;
-        float braidingSum = 0;
-        float tagPriceSum = 0;
-        float totalProductionSum = 0;
-        float onlineProductionSum = 0;
-        float offlineProductionSum = 0;
+        HashMap<String, Double> hashMap =new HashMap<>();
+        double materialMoneySum = 0;
+        double tagPriceSum = 0;
+
+        OrderBookChannelType[] channelTypes = OrderBookChannelType.values();
+        Map<OrderBookChannelType, Double> sumMap = new HashMap<>(channelTypes.length);
+
         for (OrderBookDetailVo orderBookDetailVo : querylistAll) {
             String commissioningSize = orderBookDetailVo.getCommissioningSize();
             if (StrUtil.isNotEmpty(commissioningSize)){
                 JSONObject jsonObject = JSON.parseObject(commissioningSize);
                 if (jsonObject!= null){
                     for (String sizeName : jsonObject.keySet()) {
-                        Object o =  hashMap.get(sizeName);
-                        try {
-                            if (ObjectUtil.isNotEmpty(o)){
-                                hashMap.put(sizeName,(Float)o+jsonObject.getFloat(sizeName));
-                            }else {
-                                hashMap.put(sizeName, jsonObject.getFloat(sizeName));
+                        Double num = hashMap.getOrDefault(sizeName, 0.0);
+                        for (OrderBookChannelType channelType : channelTypes) {
+                            Double sum = sumMap.getOrDefault(channelType, 0.0);
+                            if (sizeName.endsWith(channelType.getFill())) {
+                                sum += num;
                             }
-                        } catch (Exception ignored) {
-
+                            sumMap.put(channelType, sum);
                         }
+                        hashMap.put(sizeName, jsonObject.getDouble(sizeName) + num);
                     }
-
                 }
             }
-            try {
-                materialSum +=  Float.parseFloat(orderBookDetailVo.getMaterial());
-            } catch (Exception ignored) {
-            }
-            try {
-                materialMoneySum +=  Float.parseFloat(orderBookDetailVo.getTagPrice().multiply(new BigDecimal(orderBookDetailVo.getMaterial())).toString());
-            } catch (Exception ignored) {
-            }
-            try {
-                braidingSum +=  Float.parseFloat(orderBookDetailVo.getBraiding());
-            } catch (Exception ignored) {
-            }
-            try {
-
-                tagPriceSum +=  Float.parseFloat(orderBookDetailVo.getTagPrice().toString());
-            } catch (Exception ignored) {
-            }
-            try {
-                onlineProductionSum +=  Float.parseFloat(orderBookDetailVo.getOnlineProduction());
-            } catch (Exception ignored) {
-            }
-            try {
-                offlineProductionSum +=  Float.parseFloat(orderBookDetailVo.getOfflineProduction());
-            } catch (Exception ignored) {
-            }
-            try {
-//                totalProductionSum +=  Float.parseFloat(orderBookDetailVo.getTotalProduction());
-                totalProductionSum +=  onlineProductionSum + offlineProductionSum;
-            } catch (Exception ignored) {
-            }
+            Double tagPrice = Opt.ofNullable(orderBookDetailVo.getTagPrice()).map(BigDecimal::doubleValue).orElse(0.0);
+            tagPriceSum += tagPrice;
+            materialMoneySum += tagPrice * (NumberUtil.parseDouble(orderBookDetailVo.getMaterial()) + NumberUtil.parseDouble(orderBookDetailVo.getOnlineMaterial()));
         }
-        hashMap.put("materialSum", materialSum);
+        hashMap.put("materialSum", querylistAll.stream().map(OrderBookDetailVo::getMaterial).mapToDouble(NumberUtil::parseDouble).sum());
+        hashMap.put("onlineMaterialSum", querylistAll.stream().map(OrderBookDetailVo::getOnlineMaterial).mapToDouble(NumberUtil::parseDouble).sum());
         hashMap.put("materialMoneySum", materialMoneySum);
-        hashMap.put("braidingSum", braidingSum);
+        hashMap.put("braidingSum", querylistAll.stream().map(OrderBookDetailVo::getBraiding).mapToDouble(NumberUtil::parseDouble).sum());
+        hashMap.put("onlineBraidingSum", querylistAll.stream().map(OrderBookDetailVo::getOnlineBraiding).mapToDouble(NumberUtil::parseDouble).sum());
         hashMap.put("tagPriceSum", tagPriceSum);
-        hashMap.put("totalProductionSum", totalProductionSum);
-        hashMap.put("onlineProductionSum", onlineProductionSum);
-        hashMap.put("offlineProductionSum", offlineProductionSum);
-        hashMap.put("total", querylistAll.size());
+        hashMap.put("totalProductionSum", querylistAll.stream().map(OrderBookDetailVo::getTotalProduction).mapToDouble(NumberUtil::parseDouble).sum());
+        hashMap.put("onlineProductionSum", querylistAll.stream().map(OrderBookDetailVo::getOnlineProduction).mapToDouble(NumberUtil::parseDouble).sum());
+        hashMap.put("offlineProductionSum", querylistAll.stream().map(OrderBookDetailVo::getOfflineProduction).mapToDouble(NumberUtil::parseDouble).sum());
+        hashMap.put("onlineSum", sumMap.get(OrderBookChannelType.ONLINE));
+        hashMap.put("offlineSum", sumMap.get(OrderBookChannelType.OFFLINE));
+        hashMap.put("total", (double) querylistAll.size());
         return hashMap;
     }
 

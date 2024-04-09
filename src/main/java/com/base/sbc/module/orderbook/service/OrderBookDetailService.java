@@ -73,7 +73,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      */
     boolean assignmentDesigner(List<OrderBookDetailSaveDto> dto);
 
-    Map<String, Object> queryCount(OrderBookDetailQueryDto dto);
+    Map<String, Double> queryCount(OrderBookDetailQueryDto dto);
 
     void submitForApproval(OrderBookDetailSaveDto dto);
 
