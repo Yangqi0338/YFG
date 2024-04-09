@@ -90,16 +90,19 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         Page<Object> objects = PageHelper.startPage(dto);
         qw.eq("item.del_flag", BaseGlobal.DEL_FLAG_NORMAL);
 
-        StringBuilder sbStr = new StringBuilder("order by CASE ");
+        StringBuilder sbStr = new StringBuilder("(CASE ");
         for (int i = 1; i <= 12; i++) {
-            sbStr.append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("A' THEN ").append(i).append("0")
-                    .append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("B' THEN ").append(i).append("1")
-                    .append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("C' THEN ").append(i).append("2")
-                    .append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("D' THEN ").append(i).append("3")
-                    .append(" WHEN SUBSTRING_INDEX(item.group_name,'-',1) = '").append(i).append("E' THEN ").append(i).append("4");
+            sbStr.append(" WHEN SUBSTRING_INDEX(item.group_name,\"-\",1) = \"").append(i).append("A\" THEN ").append(i).append("0")
+                    .append(" WHEN SUBSTRING_INDEX(item.group_name,\"-\",1) = \"").append(i).append("B\" THEN ").append(i).append("1")
+                    .append(" WHEN SUBSTRING_INDEX(item.group_name,\"-\",1) = \"").append(i).append("C\" THEN ").append(i).append("2")
+                    .append(" WHEN SUBSTRING_INDEX(item.group_name,\"-\",1) = \"").append(i).append("D\" THEN ").append(i).append("3")
+                    .append(" WHEN SUBSTRING_INDEX(item.group_name,\"-\",1) = \"").append(i).append("E\" THEN ").append(i).append("4");
         }
-        sbStr.append(" ELSE 999 END,SUBSTRING_INDEX(item.group_name,'-',-1),item.sort_index");
-        qw.last(sbStr.toString());
+        sbStr.append(" ELSE 999 END)");
+        qw.orderByAsc(sbStr.toString());
+        qw.orderByAsc("(SUBSTRING_INDEX(item.group_name,\"-\",-1))");
+        qw.orderByAsc("item.sort_index");
+
 
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
 
