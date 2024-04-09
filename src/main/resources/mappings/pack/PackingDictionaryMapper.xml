@@ -83,8 +83,7 @@
         id,packaging_form as packagingForm,packaging_form_name as packagingFormName,parent_id as parentId,name,volume_length as volumeLength,volume_width as volumeWidth,volume_height as volumeHeight,
         del_flag as delFlag,create_id as createId,create_name as createName,create_date as createDate,
         update_name as updateName,update_date as updateDate,update_id as updateId
-        FROM t_packaging_dictionary where parent_id=#{parentId} and name=#{name} and del_flag='0'
-        LIMIT 1
+        FROM t_packaging_dictionary AS pd where pd.parent_id=#{parentId} and pd.name=#{name} and del_flag='0'
     </select>
 </mapper>
 

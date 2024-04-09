@@ -118,12 +118,7 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
             detailsByBulkStyleNo.setPackagingFormCode(hangTagVO.getPackagingFormCode());
             detailsByBulkStyleNo.setPackagingBagStandard(hangTagVO.getPackagingBagStandard());
             detailsByBulkStyleNo.setPackagingBagStandardCode(hangTagVO.getPackagingBagStandardCode());
-            boolean save = hangTagService.save(detailsByBulkStyleNo);
-            if(save){
-                return i="添加成功";
-            }
-        }else{
-            boolean save = hangTagService.save(hangTagVO);
+            boolean save = hangTagService.saveOrUpdate(detailsByBulkStyleNo);
             if(save){
                 return i="添加成功";
             }

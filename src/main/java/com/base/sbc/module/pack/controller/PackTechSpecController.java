@@ -141,7 +141,7 @@ public class PackTechSpecController extends BaseController{
     @ApiOperation(value = "保存包装方式同步吊牌详情")
     @GetMapping("/savePackagingHangtag")
     @Deprecated
-    public String updatePackaging(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType,@Valid HangTagVO hangTagVO) {
+    public String updatePackaging(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType,@RequestBody HangTagVO hangTagVO) {
         return packTechPackagingService.updatePackaging(bulkStyleNo, super.getUserCompany(), selectType,hangTagVO);
     }
 
