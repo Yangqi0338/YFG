@@ -43,6 +43,7 @@ import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
+import com.base.sbc.module.moreLanguage.dto.LanguageSaveDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusDto;
@@ -532,6 +533,8 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
 
                     TypeLanguageDto typeLanguageDto = new TypeLanguageDto();
                     typeLanguageDto.setType(type);
+                    List<LanguageSaveDto> languageDtoList = new ArrayList<>();
+                    typeLanguageDto.setLanguageList(languageDtoList);
                     typeLanguageDtoList.add(typeLanguageDto);
 
                     // 获取审核状态
@@ -541,7 +544,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                             .eq(typeFunc, type)
                             .eq(codeFunc, recordDto.getCode())
                     )).ifPresent(styleCountryStatus-> {
-                        typeLanguageDto.setLanguageList(sameTypeList.stream().map(MORE_LANGUAGE_CV::copy2Save)
+                        languageDtoList.addAll(sameTypeList.stream().map(MORE_LANGUAGE_CV::copy2Save)
                                 .peek(it-> it.setPrintTime(styleCountryStatus.getPrintTime())).collect(Collectors.toList())
                         );
 
