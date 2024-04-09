@@ -29,8 +29,8 @@ public interface PackTechPackagingService extends PackBaseService<PackTechPackag
 // 自定义方法区 不替换的区域【other_end】
 
     PackTechPackaging Packaging(String dependDictType,String dependCode);
-
-    HangTagVO updatePackaging(String bulkStyleNo, String userCompany, String selectType);
+//同步吊牌详情的包装方式
+    String updatePackaging(String bulkStyleNo, String userCompany, String selectType,HangTagVO hangTagVO);
 
 
 }

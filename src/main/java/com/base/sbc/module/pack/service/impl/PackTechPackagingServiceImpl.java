@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
@@ -108,10 +109,27 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
     }
 
     @Override
-    public HangTagVO updatePackaging(String bulkStyleNo, String userCompany, String selectType) {
+    public String updatePackaging(String bulkStyleNo, String userCompany, String selectType,HangTagVO hangTagVO) {
+        String i=null;
+        //查询吊牌详情
+        HangTagVO detailsByBulkStyleNo = hangTagService.getDetailsByBulkStyleNo(bulkStyleNo, userCompany, selectType);
+        if(detailsByBulkStyleNo!=null){
+            detailsByBulkStyleNo.setPackagingForm(hangTagVO.getPackagingForm());
+            detailsByBulkStyleNo.setPackagingFormCode(hangTagVO.getPackagingFormCode());
+            detailsByBulkStyleNo.setPackagingBagStandard(hangTagVO.getPackagingBagStandard());
+            detailsByBulkStyleNo.setPackagingBagStandardCode(hangTagVO.getPackagingBagStandardCode());
+            boolean save = hangTagService.save(detailsByBulkStyleNo);
+            if(save){
+                return i="添加成功";
+            }
+        }else{
+            boolean save = hangTagService.save(hangTagVO);
+            if(save){
+                return i="添加成功";
+            }
+        }
 
-
-        return null;
+        return i;
     }
 
     @Override
