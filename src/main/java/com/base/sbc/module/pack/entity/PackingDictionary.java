@@ -19,12 +19,23 @@ public class PackingDictionary extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "主数据id")
     private String id;
+
     /**
-     * 包装code
+     * 包装形式
+     */
+    @ApiModelProperty(value = "包装形式")
+    private String packagingForm;
+    /**
+     * 包装形式名称
+     */
+    @ApiModelProperty(value = "包装形式名称")
+    private String packagingFormName;
+    /**
+     * 包装袋标准
      */
     private String parentId;
     /**
-     * 包装名称
+     * 包装袋标准名称
      */
     private String name;
 

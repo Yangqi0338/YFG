@@ -3,13 +3,18 @@
 <mapper namespace="com.base.sbc.module.pack.mapper.PackingDictionaryMapper">
     <insert id="addPacking">
         INSERT INTO t_packaging_dictionary
-        ( parent_id, name, volume_length, volume_width, volume_height, del_flag, create_id, create_name, create_date, update_name, update_date, update_id)
+        ( packaging_form ,packaging_form_name,parent_id, name, volume_length, volume_width, volume_height, del_flag, create_id, create_name, create_date, update_name, update_date, update_id)
         VALUES
-        ( #{dto.parentId}, #{dto.name}, #{dto.volumeLength}, #{dto.volumeWidth}, #{dto.volumeHeight}, #{dto.delFlag}, #{dto.createId}, #{dto.createName}, #{dto.createDate}, #{dto.updateName}, #{dto.updateDate},#{dto.updateId})
+        ( #{dto.packagingForm},#{dto.packagingFormName}, #{dto.parentId}, #{dto.name}, #{dto.volumeLength}, #{dto.volumeWidth}, #{dto.volumeHeight}, #{dto.delFlag}, #{dto.createId}, #{dto.createName}, #{dto.createDate}, #{dto.updateName}, #{dto.updateDate},#{dto.updateId})
     </insert>
     <update id="updatePacking">
         UPDATE t_packaging_dictionary
-        SET volume_length = #{dto.volumeLength},
+        SET
+        packaging_form = #{packagingForm},
+        packaging_form_name = #{dto.packagingFormName},
+        parent_id = #{dto.parentId},
+        name = #{dto.name},
+        volume_length = #{dto.volumeLength},
         volume_width = #{dto.volumeWidth},
         volume_height = #{dto.volumeHeight},
         del_flag = #{dto.delFlag},
@@ -19,20 +24,33 @@
         update_name = #{dto.updateName},
         update_date = #{dto.updateDate},
         update_id = #{dto.updateId}
-        WHERE parent_id = #{dto.parentId} AND name = #{dto.name}
+        WHERE id = #{dto.id}
 
     </update>
 
     <select id="listPackingDictionary" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
         SELECT
-        id,parent_id as parentId,name,volume_length as volumeLength,volume_width as volumeWidth,volume_height as volumeHeight,
-        del_flag as delFlag,create_id as createId,create_name as createName,create_date as createDate,
-        update_name as updateName,update_date as updateDate,update_id as updateId
-        FROM t_packaging_dictionary where del_flag='0'
+        id,
+        packaging_form as packagingForm,
+        packaging_form_name as packagingFormName,
+        parent_id as parentId,
+        name,
+        volume_length as volumeLength,
+        volume_width as volumeWidth,
+        volume_height as volumeHeight,
+        del_flag as delFlag,
+        create_id as createId,
+        create_name as createName,
+        create_date as createDate,
+        update_name as updateName,
+        update_date as updateDate,
+        update_id as updateId
+        FROM t_packaging_dictionary
+        WHERE del_flag='0'
     </select>
     <select id="queryPackingDictionary" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
         SELECT
-        id,parent_id as parentId,name,volume_length as volumeLength,volume_width as volumeWidth,volume_height as volumeHeight,
+        id,packaging_form as packagingForm,packaging_form_name as packagingFormName,parent_id as parentId,name,volume_length as volumeLength,volume_width as volumeWidth,volume_height as volumeHeight,
         del_flag as delFlag,create_id as createId,create_name as createName,create_date as createDate,
         update_name as updateName,update_date as updateDate,update_id as updateId
         FROM t_packaging_dictionary where parent_id=#{parentId} and name=#{name} and del_flag='0'
