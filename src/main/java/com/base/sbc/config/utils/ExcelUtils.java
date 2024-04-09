@@ -63,6 +63,8 @@ public class ExcelUtils {
 
     private static final Log logger = LogFactory.getLog(ExcelUtils.class);
 
+    private static final List<String> filters = Arrays.asList("row-select","operation");
+
 
 
     /**
@@ -532,7 +534,7 @@ public class ExcelUtils {
 
         Map<String,String> imgColumnMap = new HashMap<>();
         for (ColumnDefine columnDefine : detail) {
-            if (BaseGlobal.NO.equals(columnDefine.getHidden())) {
+            if (BaseGlobal.NO.equals(columnDefine.getHidden()) || filters.contains(columnDefine.getColumnCode()) ) {
                 continue;
             }
             ExcelExportEntity excelEntity = new ExcelExportEntity();
