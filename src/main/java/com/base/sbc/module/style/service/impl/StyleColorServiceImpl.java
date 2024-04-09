@@ -280,7 +280,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             }
         } else {
             queryWrapper.eq("ts.del_flag", "0");
-            queryWrapper.orderByDesc("ts.id");
+            // 2474
+            queryWrapper.orderByDesc("CAST(ts.year AS SIGNED)");
+            queryWrapper.orderByDesc("ts.create_date");
+//            queryWrapper.orderByDesc("ts.id");
 //            查询款式配色
             sampleStyleColorList = baseMapper.styleColorList(queryWrapper);
             if( StrUtil.equals(queryDto.getExcelFlag(),BaseGlobal.YES) ){
