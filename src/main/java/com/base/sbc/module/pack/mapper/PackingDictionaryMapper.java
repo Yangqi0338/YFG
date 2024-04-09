@@ -20,6 +20,8 @@ public interface PackingDictionaryMapper {
      * @return
      */
     int addPacking(@Param("dto") PackingDictionary dto);
+
+    PackingDictionary queryPacking(@Param("parentId")String parentId,@Param("name")String name);
     /**
      * 查询是否存在
      */

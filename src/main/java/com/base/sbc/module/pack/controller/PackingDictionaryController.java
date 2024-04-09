@@ -39,13 +39,13 @@ public class PackingDictionaryController {
 
     @ApiOperation(value = "新增")
     @PostMapping("/savePacking")
-    public Integer save(@RequestBody PackingDictionary dto) {
+    public String save(@RequestBody PackingDictionary dto) {
         return packingDictionaryService.save(dto);
     }
 
     @ApiOperation(value = "修改")
     @PostMapping("/updatePacking")
-    public Integer update(@RequestBody PackingDictionary dto){
+    public String update(@RequestBody PackingDictionary dto){
         return packingDictionaryService.update(dto);
     }
 

@@ -18,7 +18,7 @@ public interface PackingDictionaryService {
      * @param dto
      * @return
      */
-    int save(PackingDictionary dto);
+    String save(PackingDictionary dto);
 
     /**
      *查询是否存在
@@ -27,5 +27,5 @@ public interface PackingDictionaryService {
     PackingDictionary queryPackingDictionary(PackingDictionary dto);
 
 
-    int update(PackingDictionary dto);
+    String update(PackingDictionary dto);
 }

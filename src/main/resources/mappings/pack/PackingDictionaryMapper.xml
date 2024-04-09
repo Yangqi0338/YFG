@@ -103,5 +103,17 @@
         </if>
         AND pd.del_flag='0'
     </select>
+    <select id="queryPacking" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
+        SELECT
+        id, packaging_form AS packagingForm, packaging_form_name AS packagingFormName, parent_id AS parentId, name,
+        volume_length AS volumeLength, volume_width AS volumeWidth, volume_height AS volumeHeight,
+        del_flag AS delFlag, create_id AS createId, create_name AS createName, create_date AS createDate,
+        update_name AS updateName, update_date AS updateDate, update_id AS updateId
+        FROM t_packaging_dictionary AS pd
+        WHERE
+         pd.parent_id = #{parentId}
+        AND pd.name = #{name}
+        AND pd.del_flag = '0'
+    </select>
 </mapper>
 
