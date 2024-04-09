@@ -5,10 +5,11 @@
 * 不得使用、复制、修改或发布本软件.
 *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumBrandSeasonDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBrandSeasonService;
 import com.github.pagehelper.PageHelper;
@@ -34,7 +35,7 @@ import java.util.List;
 @Api(tags = "品牌-季度表")
 @RequestMapping(value = BaseController.SAAS_URL + "/basicsdatumBrandSeason", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class BasicsdatumBrandSeasonController{
+public class BasicsdatumBrandSeasonController extends BaseController {
 
 	@Autowired
 	private BasicsdatumBrandSeasonService basicsdatumBrandSeasonService;
@@ -53,6 +54,22 @@ public class BasicsdatumBrandSeasonController{
 		return basicsdatumBrandSeasonService.getById(id);
 	}
 
+	@ApiOperation(value = "条件查询")
+	@GetMapping("/getBrandSeason")
+	public ApiResult getBrandSeason(@RequestBody BasicsdatumBrandSeason basicsdatumBrandSeason) {
+		if (null == basicsdatumBrandSeason) {
+			return ApiResult.error("查询条件为空", 500);
+		}
+		QueryWrapper<BasicsdatumBrandSeason> queryWrapper = new QueryWrapper<>();
+		if (StringUtils.isNotBlank(basicsdatumBrandSeason.getBrand())) {
+			queryWrapper.eq("brand", basicsdatumBrandSeason.getBrand());
+		}
+		if (StringUtils.isNotBlank(basicsdatumBrandSeason.getSeason())) {
+			queryWrapper.eq("season", basicsdatumBrandSeason.getSeason());
+		}
+		return selectSuccess(basicsdatumBrandSeasonService.list(queryWrapper));
+	}
+
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping("/{id}")
 	public Boolean removeById(@PathVariable("id") String id) {
@@ -61,21 +78,15 @@ public class BasicsdatumBrandSeasonController{
 	}
 
 	@ApiOperation(value = "保存")
-	@PostMapping
-	public BasicsdatumBrandSeasonDto save(@RequestBody BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
-		basicsdatumBrandSeasonService.addAndUpdateBasicsdatumBrandSeason(basicsdatumBrandSeasonDto);
-		return basicsdatumBrandSeasonDto;
+	@PostMapping("/add")
+	public ApiResult save(@RequestBody BasicsdatumBrandSeason basicsdatumBrandSeason) {
+		return basicsdatumBrandSeasonService.addAndUpdateBasicsdatumBrandSeason(basicsdatumBrandSeason);
 	}
 
 	@ApiOperation(value = "修改")
-	@PutMapping
-	public BasicsdatumBrandSeasonDto update(@RequestBody BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
-		boolean b = basicsdatumBrandSeasonService.addAndUpdateBasicsdatumBrandSeason(basicsdatumBrandSeasonDto);
-		if (!b) {
-			//影响行数为0（数据未改变或者数据不存在）
-			//返回影响行数需要配置jdbcURL参数useAffectedRows=true
-		}
-		return basicsdatumBrandSeasonDto;
+	@PostMapping("/update")
+	public ApiResult update(@RequestBody BasicsdatumBrandSeason basicsdatumBrandSeason) {
+		return basicsdatumBrandSeasonService.addAndUpdateBasicsdatumBrandSeason(basicsdatumBrandSeason);
 	}
 
 }

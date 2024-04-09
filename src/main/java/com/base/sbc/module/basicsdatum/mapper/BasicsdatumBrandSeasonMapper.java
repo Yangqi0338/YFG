@@ -9,9 +9,6 @@ package com.base.sbc.module.basicsdatum.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
-import org.apache.ibatis.annotations.Param;
-
-import java.util.List;
 
 /**
  * 类描述：品牌-季度表 dao类
@@ -24,12 +21,6 @@ import java.util.List;
 @Mapper
 public interface BasicsdatumBrandSeasonMapper extends BaseMapper<BasicsdatumBrandSeason> {
 // 自定义方法区 不替换的区域【other_start】
-    /**
-     * 根据 品牌code、季度和月份查询
-     */
-    List<BasicsdatumBrandSeason> getBasicsdatumBrandSeason(@Param("brand") String brand,
-                                                           @Param("season") String season,
-                                                           @Param("status") String month);
 
 // 自定义方法区 不替换的区域【other_end】
 }

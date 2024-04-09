@@ -6,14 +6,21 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.dto.BasicsdatumBrandSeasonDto;
+import com.base.sbc.module.basicsdatum.enums.MonthEnum;
+import com.base.sbc.module.basicsdatum.enums.SeasonEnum;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBrandSeasonMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBrandSeasonService;
 import org.springframework.stereotype.Service;
-/** 
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
+
+/**
  * 类描述：品牌-季度表 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumBrandSeasonService
  * @author 谭博文
@@ -24,22 +31,57 @@ import org.springframework.stereotype.Service;
 @Service
 public class BasicsdatumBrandSeasonServiceImpl extends BaseServiceImpl<BasicsdatumBrandSeasonMapper, BasicsdatumBrandSeason> implements BasicsdatumBrandSeasonService {
 
-
 // 自定义方法区 不替换的区域【other_start】
     @Override
-    public Boolean addAndUpdateBasicsdatumBrandSeason(BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
-        if (null == basicsdatumBrandSeasonDto) {
-            return false;
+    public ApiResult addAndUpdateBasicsdatumBrandSeason(BasicsdatumBrandSeason basicsdatumBrandSeason) {
+        if (null == basicsdatumBrandSeason) {
+            return ApiResult.error("参数为空", 500);
         }
-        // 新增
-        if (StringUtils.isBlank(basicsdatumBrandSeasonDto.getId())){
 
+        ApiResult apiResult = checkParam(basicsdatumBrandSeason);
+        if (!apiResult.getSuccess()) {
+            return apiResult;
         }
+        if (StringUtils.isBlank(basicsdatumBrandSeason.getId())){
+            save(basicsdatumBrandSeason);
+            return ApiResult.success("操作完成");
+        }
+        updateById(basicsdatumBrandSeason);
+        return ApiResult.success("操作完成");
     }
 
 
 // 自定义方法区 不替换的区域【other_end】
-	private boolean checkParam() {
+	private ApiResult checkParam(BasicsdatumBrandSeason basicsdatumBrandSeason) {
+        if (StringUtils.isBlank(basicsdatumBrandSeason.getBrand())) {
+            return ApiResult.error("品牌字段为空", 500);
+        }
+        if (StringUtils.isBlank(basicsdatumBrandSeason.getSeason()) || null == SeasonEnum.getBycode(basicsdatumBrandSeason.getSeason())) {
+            return ApiResult.error("季节字段为空或者不存在的季节code", 500);
+        }
+        if (StringUtils.isBlank(basicsdatumBrandSeason.getMonth()) || null == MonthEnum.getBycode(basicsdatumBrandSeason.getMonth())) {
+            return ApiResult.error("月份字段为空或者不存在的月份code", 500);
+        }
 
+        // 校验品牌-季度-月份是否存在数据库
+        QueryWrapper<BasicsdatumBrandSeason> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("brand", basicsdatumBrandSeason.getBrand());
+        List<BasicsdatumBrandSeason> basicsdatumBrandSeasons = this.list(queryWrapper);
+        if (CollectionUtils.isEmpty(basicsdatumBrandSeasons)) {
+            return ApiResult.success();
+        }
+        // 是否已经添加该月份
+        BasicsdatumBrandSeason monthBrandSeason = basicsdatumBrandSeasons.stream().filter(b ->StringUtils.equals(b.getMonth(), basicsdatumBrandSeason.getMonth())).findFirst().orElse(null);
+        if (null != monthBrandSeason) {
+            if (StringUtils.isBlank(basicsdatumBrandSeason.getId())) {
+                return ApiResult.error("该月份已存在", 500);
+            }
+            if (!StringUtils.equals(monthBrandSeason.getId(), basicsdatumBrandSeason.getId())) {
+                return ApiResult.error("该月份已存在", 500);
+            }
+        }
+        return ApiResult.success();
     }
+
+
 }
