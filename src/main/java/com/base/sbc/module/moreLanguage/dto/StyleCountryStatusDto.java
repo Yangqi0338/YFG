@@ -23,7 +23,7 @@ public class StyleCountryStatusDto extends CountryDTO {
     private List<TypeLanguageDto> typeLanguageDtoList;
 
     @JsonIgnore
-    private StyleCountryStatusEnum statusCode;
+    private StyleCountryStatusEnum statusCode = StyleCountryStatusEnum.UNCHECK;
 
     public String getStatus() {
         return statusCode.getText();

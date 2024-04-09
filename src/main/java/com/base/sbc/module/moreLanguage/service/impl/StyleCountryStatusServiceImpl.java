@@ -529,20 +529,24 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         // 根据类型排序分组, 封装该款号拥有的LanguageList
         countryLanguageDtoList.stream().sorted(CommonUtils.comparing(CountryLanguage::getType))
                 .collect(CommonUtils.groupingBy(CountryLanguageDto::getType)).forEach((type, sameTypeList)-> {
+
+                    TypeLanguageDto typeLanguageDto = new TypeLanguageDto();
+                    typeLanguageDto.setType(type);
+                    typeLanguageDtoList.add(typeLanguageDto);
+
                     // 获取审核状态
-                    StyleCountryStatus styleCountryStatus = this.findOne(new LambdaQueryWrapper<StyleCountryStatus>()
+                    Opt.ofNullable(this.findOne(new LambdaQueryWrapper<StyleCountryStatus>()
                             .select(statusFunc, printTimeFunc)
                             .eq(bulkStyleNoFunc, bulkStyleNo)
                             .eq(typeFunc, type)
                             .eq(codeFunc, recordDto.getCode())
-                    );
-                    TypeLanguageDto typeLanguageDto = new TypeLanguageDto();
-                    typeLanguageDto.setType(type);
-                    typeLanguageDto.setLanguageList(sameTypeList.stream().map(MORE_LANGUAGE_CV::copy2Save)
-                            .peek(it-> it.setPrintTime(styleCountryStatus.getPrintTime())).collect(Collectors.toList())
-                    );
-                    typeLanguageDtoList.add(typeLanguageDto);
-                    recordDto.setStatusCode(Opt.ofNullable(styleCountryStatus.getStatus()).orElse(StyleCountryStatusEnum.UNCHECK));
+                    )).ifPresent(styleCountryStatus-> {
+                        typeLanguageDto.setLanguageList(sameTypeList.stream().map(MORE_LANGUAGE_CV::copy2Save)
+                                .peek(it-> it.setPrintTime(styleCountryStatus.getPrintTime())).collect(Collectors.toList())
+                        );
+
+                        recordDto.setStatusCode(Opt.ofNullable(styleCountryStatus.getStatus()).orElse(StyleCountryStatusEnum.UNCHECK));
+                    });
                 });
         recordDto.setTypeLanguageDtoList(typeLanguageDtoList);
 
