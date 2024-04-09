@@ -41,7 +41,7 @@
 
     <select id="listPages" resultType="com.base.sbc.module.patternlibrary.vo.PatternLibraryVO">
         SELECT
-        tpl.serial_number, tpl.id, tpl.`code`, tpl.design_no, tpl.style_id
+        tpl.serial_number, tpl.id, tpl.`code`, tpl.design_no, tpl.style_id,
         tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,
         tpl.prod_category2nd,tpl.prod_category2nd_name, tpl.prod_category3rd, tpl.prod_category3rd_name,
         tpl.silhouette_code,tpl.silhouette_name, tpl.template_code,tpl.template_name, tpl.file_id, tpl.material_code,
