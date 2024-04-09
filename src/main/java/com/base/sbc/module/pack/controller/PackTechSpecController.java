@@ -149,8 +149,8 @@ public class PackTechSpecController extends BaseController{
 
     @ApiOperation(value = "保存包装方式长宽高回显")
     @PostMapping("/packagingEcho")
-    public PackingDictionary Packaging(@RequestBody String parentId,@RequestBody String name) {
-        PackingDictionary packingDictionary = packingDictionaryService.queryPackingDictionary(parentId, name);
+    public PackingDictionary Packaging(@RequestBody PackingDictionary packing ) {
+        PackingDictionary packingDictionary = packingDictionaryService.queryPackingDictionary(packing.getParentId(),packing.getName());
         return packingDictionary;
     }
 
