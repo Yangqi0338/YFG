@@ -5,6 +5,7 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumBrandSeasonDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
 
@@ -20,6 +21,13 @@ public interface BasicsdatumBrandSeasonService extends BaseService<BasicsdatumBr
 
 // 自定义方法区 不替换的区域【other_start】
 
+    /**
+     * 新增和更新 BasicsdatumBrandSeason
+     *
+     * @param basicsdatumBrandSeasonDto
+     * @return
+     */
+    Boolean addAndUpdateBasicsdatumBrandSeason(BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto);
 
 
 // 自定义方法区 不替换的区域【other_end】

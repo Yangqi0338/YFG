@@ -5,9 +5,6 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.dto;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import com.base.sbc.config.common.base.Page;
@@ -20,9 +17,9 @@ import com.base.sbc.config.common.base.Page;
  * @version 1.0
  */
 @Data
-public class BasicsdatumBrandSeasonQueryDto extends Page {
+public class BasicsdatumBrandSeasonDto extends Page {
 
-	private static final long serialVersionUID = 1L;
+	private String id;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
 
 

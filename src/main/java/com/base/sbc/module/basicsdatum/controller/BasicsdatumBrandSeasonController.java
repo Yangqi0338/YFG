@@ -8,6 +8,7 @@ package com.base.sbc.module.basicsdatum.controller;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumBrandSeasonDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBrandSeasonService;
 import com.github.pagehelper.PageHelper;
@@ -61,20 +62,20 @@ public class BasicsdatumBrandSeasonController{
 
 	@ApiOperation(value = "保存")
 	@PostMapping
-	public BasicsdatumBrandSeason save(@RequestBody BasicsdatumBrandSeason basicsdatumBrandSeason) {
-		basicsdatumBrandSeasonService.save(basicsdatumBrandSeason);
-		return basicsdatumBrandSeason;
+	public BasicsdatumBrandSeasonDto save(@RequestBody BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
+		basicsdatumBrandSeasonService.addAndUpdateBasicsdatumBrandSeason(basicsdatumBrandSeasonDto);
+		return basicsdatumBrandSeasonDto;
 	}
 
 	@ApiOperation(value = "修改")
 	@PutMapping
-	public BasicsdatumBrandSeason update(@RequestBody BasicsdatumBrandSeason basicsdatumBrandSeason) {
-		boolean b = basicsdatumBrandSeasonService.updateById(basicsdatumBrandSeason);
+	public BasicsdatumBrandSeasonDto update(@RequestBody BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
+		boolean b = basicsdatumBrandSeasonService.addAndUpdateBasicsdatumBrandSeason(basicsdatumBrandSeasonDto);
 		if (!b) {
 			//影响行数为0（数据未改变或者数据不存在）
 			//返回影响行数需要配置jdbcURL参数useAffectedRows=true
 		}
-		return basicsdatumBrandSeason;
+		return basicsdatumBrandSeasonDto;
 	}
 
 }

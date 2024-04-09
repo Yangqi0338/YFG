@@ -6,6 +6,8 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.service.impl;
 
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumBrandSeasonDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBrandSeasonMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
@@ -22,10 +24,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class BasicsdatumBrandSeasonServiceImpl extends BaseServiceImpl<BasicsdatumBrandSeasonMapper, BasicsdatumBrandSeason> implements BasicsdatumBrandSeasonService {
 
-// 自定义方法区 不替换的区域【other_start】
 
+// 自定义方法区 不替换的区域【other_start】
+    @Override
+    public Boolean addAndUpdateBasicsdatumBrandSeason(BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
+        if (null == basicsdatumBrandSeasonDto) {
+            return false;
+        }
+        // 新增
+        if (StringUtils.isBlank(basicsdatumBrandSeasonDto.getId())){
+
+        }
+    }
 
 
 // 自定义方法区 不替换的区域【other_end】
-	
+	private boolean checkParam() {
+
+    }
 }
