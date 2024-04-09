@@ -802,10 +802,14 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
 
         }
         // 拿到所有的设计编号
+        List<String> styleNoList = cachedDataList.stream().map(ExcelImportDTO::getCode).collect(Collectors.toList());
         Set<String> styleNoSet = cachedDataList.stream().map(ExcelImportDTO::getCode).collect(Collectors.toSet());
+        if (styleNoSet.size() != styleNoList.size()) {
+            throw new OtherException(ResultConstant.LAYOUT_CODES_CANNOT_BE_REPEATED);
+        }
         // 根据设计编号查询款式信息
-        List<Style> styleList = listStyle(null);
-        if (ObjectUtil.isEmpty(styleList) || (styleNoSet.size() != styleList.size())) {
+        List<Style> styleList = listStyle(null, styleNoList);
+        if (ObjectUtil.isEmpty(styleList) || (styleNoList.size() != styleList.size())) {
             throw new OtherException(ResultConstant.CODE_NO_CORRESPONDING_STYLE_OR_ALREADY_EXISTS);
         }
         Map<String, Style> styleMap = styleList.stream().collect(Collectors.toMap(Style::getDesignNo, item -> item));
@@ -902,12 +906,13 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
     }
 
     @Override
-    public List<Style> listStyle(String search) {
+    public List<Style> listStyle(String search, List<String> styleNoList) {
         QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
                 .eq("s.enable_status", BaseGlobal.NO)
                 .eq("s.status", "1")
                 .like(ObjectUtil.isNotEmpty(search), "s.design_no", search)
+                .in(ObjectUtil.isNotEmpty(styleNoList), "s.design_no", styleNoList)
                 .orderByDesc("s.create_date");
         // 获取还没有生成版型库的数据
         return baseMapper.listStyle(queryWrapper);

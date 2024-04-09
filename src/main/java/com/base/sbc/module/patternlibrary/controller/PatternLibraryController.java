@@ -149,7 +149,7 @@ public class PatternLibraryController {
     @ApiOperation(value = "查询已开款的设计款号数据信息")
     @GetMapping("/listStyle")
     public ApiResult<List<Style>> listStyle(String search) {
-        List<Style> styleList = patternLibraryService.listStyle(search);
+        List<Style> styleList = patternLibraryService.listStyle(search, null);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, styleList);
     }
 

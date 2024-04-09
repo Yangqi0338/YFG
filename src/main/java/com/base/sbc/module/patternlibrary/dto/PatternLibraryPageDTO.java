@@ -96,5 +96,5 @@ public class PatternLibraryPageDTO extends Page implements Serializable {
      * 是否导出（0-否，1-是)
      */
     @ApiModelProperty("是否导出（0-否，1-是)")
-    private Integer isExcel;
+    private Integer isExcel = 0;
 }

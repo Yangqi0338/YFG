@@ -108,7 +108,7 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      *
      * @return 已开款后的设计款号数据信息
      */
-    List<Style> listStyle(String search);
+    List<Style> listStyle(String search, List<String> styleNoList);
 
     /**
      * 根据设计款号查询相关数据

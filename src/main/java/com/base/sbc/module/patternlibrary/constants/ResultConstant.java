@@ -21,6 +21,7 @@ public class ResultConstant {
     public static final String IMPORT_FIELD_VALUE_NOT_EMPTY = "导入字段值不能为空！";
     public static final String NO_DATA_EXPORT = "暂无导出数据！";
     public static final String CODE_NO_CORRESPONDING_STYLE_OR_ALREADY_EXISTS = "版型编码没有对应的设计款或者已存在！";
+    public static final String LAYOUT_CODES_CANNOT_BE_REPEATED = "版型编码不能重复！";
     public static final String BRAND_DATA_NOT_EXIST = "品牌数据不存在！";
     public static final String FILTER_TYPE_DOES_NOT_EXIST = "筛选条件类型不存在！";
 
