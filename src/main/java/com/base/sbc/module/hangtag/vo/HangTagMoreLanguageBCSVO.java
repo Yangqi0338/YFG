@@ -43,9 +43,9 @@ public class HangTagMoreLanguageBCSVO {
     private String bulkStyleNo;
 
     /**
-     * 国家语言名字
+     * 模板名称
      */
-    @ApiModelProperty(value = "国家语言名字")
+    @ApiModelProperty(value = "模板名称")
     private String name;
 
     /**

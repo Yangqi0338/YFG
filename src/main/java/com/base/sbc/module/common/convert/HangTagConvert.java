@@ -40,6 +40,7 @@ public interface HangTagConvert {
     HangTagMoreLanguageVO copy2MoreLanguageVO(CountryLanguage source);
     @Mappings({
             @Mapping(target = "code", ignore = true),
+            @Mapping(target = "name", ignore = true),
             @Mapping(target = "standardColumnCode", source = "code"),
             @Mapping(target = "standardColumnName", source = "name"),
             @Mapping(target = "standardColumnId", source = "id"),

@@ -44,12 +44,6 @@ public class TagPrintingSupportVO extends TagPrinting {
 
     @Override
     @JsonIgnore
-    public Boolean getTranslateApproved() {
-        return super.getTranslateApproved();
-    }
-
-    @Override
-    @JsonIgnore
     public Boolean getTechApproved() {
         return super.getTechApproved();
     }

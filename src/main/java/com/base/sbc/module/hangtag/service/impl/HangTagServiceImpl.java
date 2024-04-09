@@ -918,8 +918,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				tagPrinting.setOPStandard(hangTag.getExecuteStandard());
 				// 品控部确认
 				tagPrinting.setApproved(hangTag.getStatus().greatThan(HangTagStatusEnum.QC_CHECK) && HangTagStatusEnum.SUSPEND != hangTag.getStatus());
-				// 翻译确认
-				tagPrinting.setTranslateApproved(hangTag.getStatus() == HangTagStatusEnum.FINISH);
 				// 温馨提示
 				tagPrinting.setAttention(hangTag.getWarmTips());
 				// 后技术确认
@@ -1096,11 +1094,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagVO.setSizeList(modelTypeList.stream().filter(it-> it.getCode().equals(hangTagVO.getModelType())).collect(Collectors.toList()));
 		});
 
+		// 获取吊牌状态
+		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusMapper.selectList(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+				.notEmptyEq(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
+				.notEmptyEq(StyleCountryStatus::getType, hangTagMoreLanguageDTO.getType())
+				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
+
 		// 根据国家分组
 		// 获取需要实时翻译
 		hangTagMoreLanguageDTO.setDecorate(source != SystemSource.PRINT);
 //		hangTagMoreLanguageDTO.setDocumentStatusLimit(source.greatThan(SystemSource.INTERNAL_LINE) ? StyleCountryStatusEnum.CHECK: null);
-		List<HangTagMoreLanguageBaseVO> resultList = buildResultList(hangTagMoreLanguageDTO, countryLanguageList, bulkStyleNoList, hangTagVOList);
+		List<HangTagMoreLanguageBaseVO> resultList = buildResultList(hangTagMoreLanguageDTO, countryLanguageList, bulkStyleNoList, hangTagVOList, styleCountryStatusList);
 
 		resultList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getStandardColumnId, Comparator.nullsFirst(String::compareTo)));
 //				 存入redis, 若审核确认了,减少
@@ -1112,13 +1116,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				);
 			});
 		});
-		return decorateResultList(source, resultList, hangTagVOList);
+		if (source == SystemSource.SYSTEM) return resultList;
+		return decorateResultList(source, resultList, hangTagVOList, styleCountryStatusList);
 	}
 
 	private List<HangTagMoreLanguageBaseVO> buildResultList(HangTagMoreLanguageDTO hangTagMoreLanguageDTO,
 															List<CountryLanguageDto> countryLanguageList,
 															List<String> bulkStyleNoList,
-															List<MoreLanguageHangTagVO> hangTagVOList
+															List<MoreLanguageHangTagVO> hangTagVOList,
+															List<StyleCountryStatus> styleCountryStatusList
 	) {
 		List<HangTagMoreLanguageBaseVO> resultList = new ArrayList<>();
 		Set<String> codeList = CollUtil.set(false, hangTagMoreLanguageDTO.getCode().split(COMMA));
@@ -1134,13 +1140,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			});
 			standardColumnMap.put(code, standardColumnList);
 		});
-
-		// 获取吊牌状态
-		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusMapper.selectList(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-				.notNullEq(StyleCountryStatus::getStatus, hangTagMoreLanguageDTO.getDocumentStatusLimit())
-				.notEmptyEq(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
-				.notEmptyEq(StyleCountryStatus::getType, hangTagMoreLanguageDTO.getType())
-				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
 
 		// 查询单语言
 		CountryQueryDto languageDto = new CountryQueryDto();
@@ -1223,7 +1222,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		String checkDetailJson = styleCountryStatusList.stream().filter(it -> type == it.getType()).findFirst().map(StyleCountryStatus::getCheckDetailJson).orElse("[]");
 		List<MoreLanguageStatusCheckDetailDTO> statusCheckDetailList = JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailDTO.class);
-
 
 		// 从codeMapping 获取 处理Func
 		List<String> allPropertiesCodeList = dataList.stream().flatMap(it -> {
@@ -1362,10 +1360,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		return languageVO;
 	}
 
-	private Object decorateResultList(SystemSource source, List<HangTagMoreLanguageBaseVO> resultList, List<MoreLanguageHangTagVO> hangTagVOList) {
+	private Object decorateResultList(SystemSource source, List<HangTagMoreLanguageBaseVO> resultList, List<MoreLanguageHangTagVO> hangTagVOList, List<StyleCountryStatus> countryStatusList) {
 		switch (source) {
-			case SYSTEM:
-				return resultList;
 			case PDM:
 				resultList.removeIf(it-> it.getShowFlag() == YesOrNoEnum.NO);
 				List<HangTagMoreLanguageWebBaseVO> webBaseList = HANG_TAG_CV.copyList2Web(resultList);
@@ -1388,19 +1384,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				// 假定为只传一个款
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
 				tagPrinting.setC8_APPBOM_StorageReq(null);
-
-//				String bulkStyleNo = tagPrinting.getStyleCode();
-//				List<HangTagMoreLanguagePrinterBaseVO> hangTagMoreLanguagePrinterBaseVOS = HANG_TAG_CV.copyList2Print(resultList);
+				String bulkStyleNo = tagPrinting.getStyleCode();
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
-				// 假定单国家
-//				List<String> countryCodeList = resultList.stream().map(HangTagMoreLanguageBaseVO::getCode).collect(Collectors.toList());
-//				List<StyleCountryStatus> countryStatusList = styleCountryStatusService.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-//						.notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
-//						.eq(StyleCountryStatus::getBulkStyleNo, bulkStyleNo)
-//						.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
-//				);
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
 					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
 					// 获取所有的语言
@@ -1419,7 +1406,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 							printing.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
 							if (!MoreLanguageProperties.internalLanguageCode.equals(languageCode)) {
-
 								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 								if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
 
@@ -1445,9 +1431,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						}
 
 						// 全部审核完才为true，所以直接判断吊牌状态即可
-//						printing.setTranslateApproved(countryStatusList.stream().anyMatch(it->
-//								it.getBulkStyleNo().equals(bulkStyleNo) && it.getCountryCode().equals(code))
-//						);
+						printing.setTranslateApproved(countryStatusList.stream().anyMatch(it->
+								it.getBulkStyleNo().equals(bulkStyleNo) && it.getCode().equals(code) && it.getStatus() == StyleCountryStatusEnum.CHECK
+						));
 						tagPrintingList.add(printing);
 					});
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
