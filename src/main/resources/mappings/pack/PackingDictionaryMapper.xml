@@ -11,8 +11,8 @@
         UPDATE t_packaging_dictionary
         <set>
             <trim suffixOverrides=",">
-                <if test="packagingForm != null">
-                    packaging_form = #{packagingForm},
+                <if test="dto.packagingForm != null">
+                    packaging_form = #{dto.packagingForm},
                 </if>
                 <if test="dto.packagingFormName != null">
                     packaging_form_name = #{dto.packagingFormName},
