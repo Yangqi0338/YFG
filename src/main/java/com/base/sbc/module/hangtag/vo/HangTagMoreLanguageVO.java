@@ -151,25 +151,4 @@ public class HangTagMoreLanguageVO {
                 : StyleCountryStatusEnum.UNCHECK;
     }
 
-    public List<MoreLanguageStatusCheckDetailAuditDTO> buildAuditList(String standardColumnCode, String titleCode){
-        List<MoreLanguageStatusCheckDetailAuditDTO> auditDtoList = new ArrayList<>();
-        if (forceFindContent()) {
-            MoreLanguageStatusCheckDetailAuditDTO contentStatus = new MoreLanguageStatusCheckDetailAuditDTO();
-            contentStatus.setStandardColumnCode(standardColumnCode);
-            contentStatus.setSource(this.getPropertiesCode());
-            contentStatus.setContent(this.getPropertiesContent());
-            contentStatus.setStatus(YesOrNoEnum.YES.getValueStr());
-            auditDtoList.add(contentStatus);
-        }
-
-        MoreLanguageStatusCheckDetailAuditDTO titleStatus = new MoreLanguageStatusCheckDetailAuditDTO();
-        titleStatus.setStandardColumnCode(titleCode);
-        titleStatus.setSource(standardColumnCode);
-        titleStatus.setContent(this.getStandardColumnContent());
-        titleStatus.setStatus(YesOrNoEnum.YES.getValueStr());
-        auditDtoList.add(titleStatus);
-
-        return auditDtoList;
-    }
-
 }

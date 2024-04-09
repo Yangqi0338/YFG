@@ -13,6 +13,9 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
@@ -88,6 +91,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
 
     private final StandardColumnService standardColumnService;
     private final StyleCountryStatusService styleCountryStatusService;
+    private final CcmFeignService ccmFeignService;
 
     @Setter
     private MoreLanguageExcelQueryDto excelQueryDto;
@@ -192,6 +196,13 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             if (CollectionUtil.isEmpty(countryLanguageList)) {
                 throw new OtherException("未找到对应的国家语言数据");
             }
+
+            // 装饰名字
+            List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList(MoreLanguageProperties.languageDictCode);
+            countryLanguageList.forEach(countryLanguageDto -> {
+                countryLanguageDto.buildLanguageName(dictList);
+            });
+
             exportMapping.setCountryLanguageList(countryLanguageList);
 
             baseSource = new StandardColumnCountryTranslate();

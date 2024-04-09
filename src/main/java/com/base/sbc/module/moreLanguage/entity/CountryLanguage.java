@@ -45,18 +45,12 @@ public class CountryLanguage extends BaseDataEntity<String> {
     /** 编码索引 */
     @ApiModelProperty(value = "编码索引"  )
     private Integer codeIndex;
-//    /** 国家编码 */
-//    @ApiModelProperty(value = "国家编码"  )
-//    private String countryCode;
     /** 名称 */
     @ApiModelProperty(value = "名称"  )
     private String name;
     /** 国家编码 */
     @ApiModelProperty(value = "语言编码"  )
     private String languageCode;
-//    /** 国家名称 */
-//    @ApiModelProperty(value = "语言名称"  )
-//    private String languageName;
     /** 国家编码 */
     @ApiModelProperty(value = "币种编码"  )
     private String coinCode;

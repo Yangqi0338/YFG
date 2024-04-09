@@ -22,6 +22,8 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
@@ -225,6 +227,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private StyleCountryStatusService styleCountryStatusService;
 
 	public static final SFunction<HangTag, String> idFunc = HangTag::getId;
+	private CcmFeignService ccmFeignService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -1065,6 +1068,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<CountryLanguageDto> countryLanguageList = countryLanguageService.listQuery(countryQueryDto);
 		if (CollectionUtil.isEmpty(countryLanguageList)) throw new OtherException(MoreLanguageProperties.getMsg(HAVEN_T_COUNTRY_LANGUAGE));
 
+		// 装饰名字
+		List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList(MoreLanguageProperties.languageDictCode);
+		countryLanguageList.forEach(countryLanguageDto -> {
+			countryLanguageDto.buildLanguageName(dictList);
+		});
+
 		// 获取所有的吊牌
 		List<MoreLanguageHangTagVO> hangTagVOList = HANG_TAG_CV.copyList2MoreLanguage(hangTagMapper.getDetailsByBulkStyleNo(
 				bulkStyleNoList, hangTagMoreLanguageDTO.getUserCompany(), hangTagMoreLanguageDTO.getSelectType()
@@ -1185,7 +1194,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					String parentStandardCode = standardColumnList.stream().filter(it -> type.getStandardColumnType() == it.getType())
 							.map(StandardColumn::getCode).findFirst().orElseThrow(() -> new OtherException("未定位到维护内容数据"));
 					moreLanguageBaseVO.setTitleCode(parentStandardCode);
-					buildBulkResultList(hangTagMoreLanguageDTO, (MoreLanguageCodeMapping<Object>) codeMap.get(standardColumnCode), hangTagVO, sameCodeList, moreLanguageBaseVO, standardColumn,
+					buildBulkResultList(hangTagMoreLanguageDTO, (MoreLanguageCodeMapping<Object>) codeMap.get(standardColumnCode),
+							hangTagVO, sameCodeList, moreLanguageBaseVO, standardColumn,
 							styleCountryStatusList.stream().filter(it-> bulkStyleNo.equals(it.getBulkStyleNo()) && code.equals(it.getCode())).collect(Collectors.toList()),
 							singleLanguageDtoList, resultList);
 				});
@@ -1379,13 +1389,13 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
 				tagPrinting.setC8_APPBOM_StorageReq(null);
 
-				String bulkStyleNo = tagPrinting.getStyleCode();
+//				String bulkStyleNo = tagPrinting.getStyleCode();
 //				List<HangTagMoreLanguagePrinterBaseVO> hangTagMoreLanguagePrinterBaseVOS = HANG_TAG_CV.copyList2Print(resultList);
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				// 假定单国家
-				List<String> countryCodeList = resultList.stream().map(HangTagMoreLanguageBaseVO::getCode).collect(Collectors.toList());
+//				List<String> countryCodeList = resultList.stream().map(HangTagMoreLanguageBaseVO::getCode).collect(Collectors.toList());
 //				List<StyleCountryStatus> countryStatusList = styleCountryStatusService.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
 //						.notEmptyIn(StyleCountryStatus::getCountryCode, countryCodeList)
 //						.eq(StyleCountryStatus::getBulkStyleNo, bulkStyleNo)
