@@ -6,6 +6,7 @@ import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
+import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
@@ -123,5 +124,13 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 大类类型 map
      */
     CategoriesTypeVO getCategoriesType();
+
+    /**
+     * 获取所有的筛选条件
+     *
+     * @param type 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-设计部件 7-审核状态 8-是否启用）
+     * @return 筛选条件数据集合
+     */
+    List<FilterCriteriaVO> getAllFilterCriteria(Integer type);
 
 }

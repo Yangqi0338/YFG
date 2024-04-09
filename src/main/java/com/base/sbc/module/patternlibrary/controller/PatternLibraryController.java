@@ -13,11 +13,13 @@ import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
+import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -134,8 +136,8 @@ public class PatternLibraryController {
     }
 
     @ApiOperation(value = "版型库 Excel 导出")
-    @PostMapping("/excelExport")
-    public ApiResult<String> excelExport(@RequestBody PatternLibraryPageDTO patternLibraryPageDTO, HttpServletResponse response) {
+    @GetMapping("/excelExport")
+    public ApiResult<String> excelExport(PatternLibraryPageDTO patternLibraryPageDTO, HttpServletResponse response) {
         Boolean resultFlag = patternLibraryService.excelExport(patternLibraryPageDTO, response);
         if (resultFlag) {
             return ApiResult.success(ResultConstant.OPERATION_SUCCESS);
@@ -167,9 +169,13 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "获取所有的筛选条件")
     @GetMapping("/getAllFilterCriteria")
-    public ApiResult<CategoriesTypeVO> getAllFilterCriteria() {
-        CategoriesTypeVO categoriesType = patternLibraryService.getCategoriesType();
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, categoriesType);
+    public ApiResult<List<FilterCriteriaVO>> getAllFilterCriteria(
+            @ApiParam(
+                    name = "type",
+                    value = "筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-设计部件 7-审核状态 8-是否启用）"
+            ) Integer type) {
+        List<FilterCriteriaVO> list = patternLibraryService.getAllFilterCriteria(type);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, list);
     }
 
     @PostMapping("/approval")

@@ -38,6 +38,7 @@ import com.base.sbc.module.patternlibrary.mapper.PatternLibraryTemplateMapper;
 import com.base.sbc.module.patternlibrary.service.*;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.ExcelExportVO;
+import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.style.entity.Style;
@@ -881,7 +882,7 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
                 excelExportVO.setUpdateDate(simpleDateFormat.format(patternLibraryVO.getUpdateDate()));
                 excelExportVO.setStatus(PatternLibraryStatusEnum.getValueByCode(patternLibraryVO.getStatus()));
                 excelExportVO.setPicUrl(
-                       ObjectUtil.isNotEmpty(patternLibraryVO.getPicUrl()) ? new URL(patternLibraryVO.getPicUrl()) : null
+                        ObjectUtil.isNotEmpty(patternLibraryVO.getPicUrl()) ? new URL(patternLibraryVO.getPicUrl()) : null
                 );
                 excelExportVO.setEnableFlag(
                         patternLibraryVO.getEnableFlag().equals(0)
@@ -1010,6 +1011,25 @@ public class PatternLibraryServiceImpl extends ServiceImpl<PatternLibraryMapper,
         categoriesTypeVO.setBrandPuts(brandPuts);
         categoriesTypeVO.setBrandBottoms(brandBottoms);
         return categoriesTypeVO;
+    }
+
+    /**
+     * @param type 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-设计部件 7-审核状态 8-是否启用）
+     * @return
+     */
+    @Override
+    public List<FilterCriteriaVO> getAllFilterCriteria(Integer type) {
+        if (ObjectUtil.isEmpty(type) || type < 1 || type > 8) {
+            throw new OtherException(ResultConstant.FILTER_TYPE_DOES_NOT_EXIST);
+        }
+        QueryWrapper<PatternLibraryVO> queryWrapper = new QueryWrapper<>();
+
+        // 权限设置
+        dataPermissionsService.getDataPermissionsForQw(
+                queryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "tpl"
+        );
+        // 得到版型库主表数据集合
+        return baseMapper.getAllFilterCriteria(queryWrapper, type);
     }
 
 

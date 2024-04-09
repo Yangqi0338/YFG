@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
+import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import org.apache.ibatis.annotations.Mapper;
@@ -30,6 +31,18 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
     List<PatternLibraryVO> listPages(
             @Param(Constants.WRAPPER) QueryWrapper<PatternLibraryVO> queryWrapper,
             @Param("patternLibraryPageDTO") PatternLibraryPageDTO patternLibraryPageDTO
+    );
+
+    /**
+     * 版型库筛选条件查询
+     * @param queryWrapper 筛选条件
+     * @param type 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-设计部件 7-审核状态 8-是否启用）
+     * @return 分页列表
+     */
+    List<FilterCriteriaVO> getAllFilterCriteria(
+            @Param(Constants.WRAPPER) QueryWrapper<PatternLibraryVO> queryWrapper,
+            @Param("type") Integer type
+
     );
 
     /**
