@@ -22,11 +22,9 @@ public interface PackingDictionaryService {
 
     /**
      *查询是否存在
-     * @param parentId
-     * @param name
      * @return
      */
-    PackingDictionary queryPackingDictionary(String parentId,String name);
+    PackingDictionary queryPackingDictionary(PackingDictionary dto);
 
 
     int update(PackingDictionary dto);

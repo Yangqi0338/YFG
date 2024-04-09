@@ -38,7 +38,7 @@ public class PackingDictionaryServiceImpl implements PackingDictionaryService {
 
     @Override
     public int save(PackingDictionary dto) {
-        PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(dto.getParentId(), dto.getName());
+        PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(dto);
         if(packingDictionary!=null){
             return 0;
         }else{
@@ -48,8 +48,8 @@ public class PackingDictionaryServiceImpl implements PackingDictionaryService {
     }
 
     @Override
-    public PackingDictionary queryPackingDictionary(String parentId, String name) throws NotFoundException {
-        PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(parentId, name);
+    public PackingDictionary queryPackingDictionary(PackingDictionary dto) throws NotFoundException {
+        PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(dto);
         if (packingDictionary == null) {
             throw new NotFoundException("未找到相关的装箱字典信息");
         }
@@ -58,7 +58,7 @@ public class PackingDictionaryServiceImpl implements PackingDictionaryService {
 
     @Override
     public int update(PackingDictionary dto) {
-        PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(dto.getParentId(),dto.getName());
+        PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(dto);
         if(packingDictionary!=null){
             return 0;
         }else{

@@ -80,10 +80,28 @@
     </select>
     <select id="queryPackingDictionary" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
         SELECT
-        id,packaging_form as packagingForm,packaging_form_name as packagingFormName,parent_id as parentId,name,volume_length as volumeLength,volume_width as volumeWidth,volume_height as volumeHeight,
-        del_flag as delFlag,create_id as createId,create_name as createName,create_date as createDate,
-        update_name as updateName,update_date as updateDate,update_id as updateId
-        FROM t_packaging_dictionary AS pd where pd.parent_id=#{parentId} and pd.name=#{name} and del_flag='0'
+        id, packaging_form AS packagingForm, packaging_form_name AS packagingFormName, parent_id AS parentId, name,
+        volume_length AS volumeLength, volume_width AS volumeWidth, volume_height AS volumeHeight,
+        del_flag AS delFlag, create_id AS createId, create_name AS createName, create_date AS createDate,
+        update_name AS updateName, update_date AS updateDate, update_id AS updateId
+        FROM t_packaging_dictionary AS pd
+        WHERE 1=1
+        <if test="dto.parentId != null">
+            AND pd.parent_id = #{dto.parentId}
+        </if>
+        <if test="dto.name != null">
+            AND pd.name = #{dto.name}
+        </if>
+        <if test="dto.volumeLength != null">
+            AND pd.volume_length = #{dto.volumeLength}
+        </if>
+        <if test="dto.volumeWidth != null">
+            AND pd.volume_width = #{dto.volumeWidth}
+        </if>
+        <if test="dto.volumeHeight != null">
+            AND pd.volume_height = #{dto.volumeHeight}
+        </if>
+        AND pd.del_flag='0'
     </select>
 </mapper>
 
