@@ -559,6 +559,12 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         if (ObjectUtil.isEmpty(patternLibraryIdList)) {
             throw new OtherException(ResultConstant.PLEASE_SELECT_DATA);
         }
+
+        List<PatternLibrary> patternLibraryList = listByIds(patternLibraryIdList);
+        if (ObjectUtil.isEmpty(patternLibraryList) || patternLibraryList.size() != patternLibraryIdList.size()) {
+            throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
+        }
+
         // 查询到我的待办列表和这边选择的业务 ID 进行匹配，如果根据业务 ID 查询到了待办数据，
         // 那么查询到的待办数据进行批量审核，如果一条都没有，提示没有数据审核
         Map<String, Object> map = new HashMap<>();
@@ -572,8 +578,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         if (ObjectUtil.isEmpty(flowTaskDtoList)) {
             throw new OtherException(ResultConstant.SELECT_DATA_NOT_ACTION);
         }
-        // 查询新数据 用作日志匹配
-        List<PatternLibrary> oldPatternLibraryList = listDetail(patternLibraryIdList);
         // 保存日志
         for (FlowTaskDto flowTaskDto : flowTaskDtoList) {
             if (auditsDTO.getType().equals(1)) {
@@ -587,8 +591,8 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             }
         }
         // 查询新数据 用作日志匹配
-        List<PatternLibrary> newPatternLibraryList = listDetail(patternLibraryIdList);
-
+        List<PatternLibrary> newPatternLibraryList = BeanUtil.copyToList(patternLibraryList, PatternLibrary.class);
+        newPatternLibraryList.forEach(item -> item.setStatus(auditsDTO.getType().equals(1) ? 4:5));
         // 保存日志
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setName(GeneralConstant.LOG_NAME);
@@ -596,7 +600,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
         operaLogEntity.setDocumentCodeField("code");
         operaLogEntity.setDocumentNameField("code");
-        this.updateBatchOperaLog(newPatternLibraryList, oldPatternLibraryList,operaLogEntity);
+        this.updateBatchOperaLog(newPatternLibraryList, patternLibraryList,operaLogEntity);
         return Boolean.TRUE;
     }
 
