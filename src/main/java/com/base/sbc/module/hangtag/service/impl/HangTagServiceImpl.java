@@ -170,7 +170,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Lazy
 	private DataPermissionsService dataPermissionsService;
 	private final BasicsdatumModelTypeService basicsdatumModelTypeService;
-	private final PackTechPackagingService packTechPackagingService;
+	@Autowired
+	@Lazy
+	private PackTechPackagingService packTechPackagingService;
 
 
 	@Autowired
