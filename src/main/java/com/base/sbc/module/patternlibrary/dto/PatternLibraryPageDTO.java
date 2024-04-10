@@ -27,58 +27,64 @@ public class PatternLibraryPageDTO extends Page implements Serializable {
     private String code;
 
     /**
-     * 品牌 code （多选逗号分隔）
+     * 品牌名称 （多选逗号分隔）
      */
-    @ApiModelProperty("品牌 code （多选逗号分隔）")
-    private String brands;
+    @ApiModelProperty("品牌名称 （多选逗号分隔）")
+    private String brandNames;
 
     /**
-     * 品牌 code 集合
+     * 品牌名称集合
      */
-    @ApiModelProperty("品牌 code 集合")
-    private List<String> brandList;
+    @ApiModelProperty("品牌名称集合")
+    private List<String> brandNameList;
 
     /**
-     * 大类 code
+     * 大类名称
      */
-    @ApiModelProperty("大类 code")
-    private String prodCategory1st;
+    @ApiModelProperty("大类名称")
+    private String prodCategory1stName;
 
     /**
-     * 品类 code
+     * 品类名称
      */
-    @ApiModelProperty("品类 code")
-    private String prodCategory;
+    @ApiModelProperty("品类名称")
+    private String prodCategoryName;
 
     /**
-     * 中类 code
+     * 中类名称
      */
-    @ApiModelProperty("中类 code")
-    private String prodCategory2nd;
+    @ApiModelProperty("中类名称")
+    private String prodCategory2ndName;
 
     /**
-     * 廓形 code
+     * 小类名称
      */
-    @ApiModelProperty("廓形 code")
-    private String silhouetteCode;
+    @ApiModelProperty("小类名称")
+    private String prodCategory3rdName;
 
     /**
-     * 模板 code（t_pattern_library code）（多选逗号分隔）
+     * 廓形名称
      */
-    @ApiModelProperty("模板 code （多选逗号分隔）")
-    private String templateCodes;
+    @ApiModelProperty("廓形名称")
+    private String silhouetteName;
 
     /**
-     * 涉及部件 code （多选逗号分隔）
+     * 模板名称（多选逗号分隔）（t_pattern_library name）
      */
-    @ApiModelProperty("涉及部件 code （多选逗号分隔）")
-    private String partsCodes;
+    @ApiModelProperty("模板名称（多选逗号分隔）")
+    private String templateName;
 
     /**
-     * 涉及部件 code 集合
+     * 涉及部件名称 （多选逗号分隔）
      */
-    @ApiModelProperty("涉及部件 code 集合")
-    private List<String> partsCodeList;
+    @ApiModelProperty("涉及部件名称 （多选逗号分隔）")
+    private String partsNames;
+
+    /**
+     * 涉及部件名称集合
+     */
+    @ApiModelProperty("涉及部件名称集合")
+    private List<String> partsNameList;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）

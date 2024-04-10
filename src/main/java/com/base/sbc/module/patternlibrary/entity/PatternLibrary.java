@@ -3,6 +3,7 @@ package com.base.sbc.module.patternlibrary.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.module.common.vo.AttachmentVo;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -10,6 +11,7 @@ import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 版型库-主表
@@ -98,6 +100,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String prodCategory3rdName;
 
     /**
+     * 所属品类 大类/品类/中类/小类
+     */
+    @ApiModelProperty("所属品类 大类/品类/中类/小类")
+    @TableField(exist = false)
+    private String allProdCategoryNames;
+
+    /**
      * 廓形 code
      */
     @ApiModelProperty("廓形 code")
@@ -134,6 +143,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String fileAddress;
 
     /**
+     * 文件附件信息
+     */
+    @ApiModelProperty("文件附件信息")
+    @TableField(exist = false)
+    private AttachmentVo fileAttachmentVo;
+
+    /**
      * 面料 code，暂无
      */
     @ApiModelProperty("面料 code，暂无")
@@ -152,10 +168,24 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String picId;
 
     /**
-     * 图片 ID
+     * 图片 URL
      */
-    @ApiModelProperty("图片 地址")
+    @ApiModelProperty("图片 URL")
     private String picUrl;
+
+    /**
+     * 图片附件信息
+     */
+    @ApiModelProperty("图片附件信息")
+    @TableField(exist = false)
+    private AttachmentVo picAttachmentVo;
+
+    /**
+     * 大货图片文件 ID-URL 集合
+     */
+    @ApiModelProperty("大货图片文件 ID-URL 集合")
+    @TableField(exist = false)
+    private List<Map<String, String>> picIdList;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）
@@ -170,9 +200,66 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private Integer enableFlag;
 
     /**
+     * 品牌（多个/分隔）
+     */
+    @ApiModelProperty("品牌（多个/分隔）")
+    @TableField(exist = false)
+    private String brandNames;
+
+    /**
      * 品牌集合
      */
     @ApiModelProperty("品牌集合")
     @TableField(exist = false)
     private List<PatternLibraryBrand> patternLibraryBrandList;
+
+    /**
+     * 部件库-所属版型库
+     */
+    @ApiModelProperty("部件库-所属版型库")
+    @TableField(exist = false)
+    private PatternLibraryTemplate patternLibraryTemplate;
+
+    /**
+     * 模板子表信息格式化后
+     */
+    @ApiModelProperty("模板子表信息格式化后")
+    @TableField(exist = false)
+    private String patternLibraryTemplateItem;
+
+    /**
+     * 部件库-子表数据集合
+     */
+    @ApiModelProperty("部件库-子表数据集合")
+    @TableField(exist = false)
+    private List<PatternLibraryItem> patternLibraryItemList;
+
+    /**
+     * 部件库-子表围度数据
+     */
+    @ApiModelProperty("部件库-子表围度数据")
+    @TableField(exist = false)
+    private String patternLibraryItemPattern;
+
+    /**
+     * 部件库-子表长度数据
+     */
+    @ApiModelProperty("部件库-子表长度数据")
+    @TableField(exist = false)
+    private String patternLibraryItemLength;
+
+    /**
+     * 部件库-子表部位数据
+     */
+    @ApiModelProperty("部件库-子表部位数据")
+    @TableField(exist = false)
+    private String patternLibraryItemPosition;
+
+    /**
+     * 部件库-子表部件数据
+     */
+    @ApiModelProperty("部件库-子表部件数据")
+    @TableField(exist = false)
+    private String patternLibraryItemParts;
+
 }

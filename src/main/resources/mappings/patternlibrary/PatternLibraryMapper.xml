@@ -53,15 +53,15 @@
         LEFT JOIN t_pattern_library_brand tplb ON tplb.pattern_library_id = tpl.id
         WHERE
         tpl.del_flag = '0'
-        <if test="patternLibraryPageDTO.partsCodeList != null and patternLibraryPageDTO.partsCodeList.size > 0">
-            AND tpli.code IN
-            <foreach collection="patternLibraryPageDTO.partsCodeList" item="item" open="(" close=")" separator=",">
+        <if test="patternLibraryPageDTO.partsNameList != null and patternLibraryPageDTO.partsNameList.size > 0">
+            AND tpli.name IN
+            <foreach collection="patternLibraryPageDTO.partsNameList" item="item" open="(" close=")" separator=",">
                 #{item}
             </foreach>
         </if>
-        <if test="patternLibraryPageDTO.brandList != null and patternLibraryPageDTO.brandList.size > 0">
-            AND tplb.brand IN
-            <foreach collection="patternLibraryPageDTO.brandList" item="item" open="(" close=")" separator=",">
+        <if test="patternLibraryPageDTO.brandNameList != null and patternLibraryPageDTO.brandNameList.size > 0">
+            AND tplb.brand_name IN
+            <foreach collection="patternLibraryPageDTO.brandNameList" item="item" open="(" close=")" separator=",">
                 #{item}
             </foreach>
         </if>
@@ -76,20 +76,20 @@
             tpl.`code`
         </if>
         <if test="type == 2">
-            tplb.brand, tplb.brand_name
+            tplb.brand_name
         </if>
         <if test="type == 3">
-            tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,
-            tpl.prod_category2nd,tpl.prod_category2nd_name, tpl.prod_category3rd, tpl.prod_category3rd_name
+           tpl.prod_category1st_name,tpl.prod_category_name,
+            tpl.prod_category2nd_name, tpl.prod_category3rd_name
         </if>
         <if test="type == 4">
-            tpl.silhouette_code,tpl.silhouette_name
+            tpl.silhouette_name
         </if>
         <if test="type == 5">
-            tpl.template_code,tpl.template_name
+            tpl.template_name
         </if>
         <if test="type == 6">
-            tpli.code as parts_code, tpli.name as parts_name
+            tpli.name as parts_name
         </if>
         <if test="type == 7">
             tpl.`status`
@@ -107,24 +107,45 @@
         </if>
         WHERE
         tpl.del_flag = '0'
+        <if test="type == 2">
+            and (tplb.brand_name is not null and tplb.brand_name != '')
+        </if>
+        <if test="type == 3">
+            and (tpl.prod_category1st_name is not null and tpl.prod_category1st_name != '')
+        </if>
+        <if test="type == 4">
+            and (tpl.silhouette_name is not null and tpl.silhouette_name != '')
+        </if>
+        <if test="type == 5">
+            and (tpl.template_name is not null and tpl.template_name != '')
+        </if>
+        <if test="type == 6">
+            and (tpli.name is not null and tpli.name != '')
+        </if>
+        <if test="type == 7">
+            and tpl.`status` is not null
+        </if>
+        <if test="type == 8">
+            and tpl.enable_flag is not null
+        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
         <if test="type == 2">
-            group by tplb.brand, tplb.brand_name
+            group by tplb.brand_name
         </if>
         <if test="type == 3">
-            group by tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,
-            tpl.prod_category2nd,tpl.prod_category2nd_name, tpl.prod_category3rd, tpl.prod_category3rd_name
+            group by tpl.prod_category1st_name, tpl.prod_category_name,
+            tpl.prod_category2nd_name,tpl.prod_category3rd_name
         </if>
         <if test="type == 4">
-            group by tpl.silhouette_code,tpl.silhouette_name
+            group by tpl.silhouette_name
         </if>
         <if test="type == 5">
-            group by tpl.template_code,tpl.template_name
+            group by tpl.template_name
         </if>
         <if test="type == 6">
-            group by tpli.code, tpli.name
+            group by tpli.name
         </if>
         <if test="type == 7">
             group by tpl.`status`
