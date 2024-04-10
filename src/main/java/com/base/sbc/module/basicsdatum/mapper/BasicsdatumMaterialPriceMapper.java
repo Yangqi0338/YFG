@@ -31,7 +31,7 @@ public interface BasicsdatumMaterialPriceMapper extends BaseMapper<BasicsdatumMa
 
     List<BomSelMaterialVo> findDefaultToBomSel(@Param(Constants.WRAPPER) QueryWrapper<BasicsdatumMaterialPrice> qw);
 
-    String supplierAbbreviation(@Param(Constants.WRAPPER)QueryWrapper qw);
+    List<String> supplierAbbreviation(@Param(Constants.WRAPPER)QueryWrapper qw);
 
 
 // 自定义方法区 不替换的区域【other_end】

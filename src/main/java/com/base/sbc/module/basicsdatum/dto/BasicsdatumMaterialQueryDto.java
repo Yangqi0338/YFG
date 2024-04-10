@@ -92,4 +92,8 @@ public class BasicsdatumMaterialQueryDto extends Page {
 
 	@ApiModelProperty(value = "供应商色号")
 	private String supplierColorCode;
+
+	/** 物料编号 */
+	@ApiModelProperty(value = "物料编号--非模糊查询")
+	private String materialCodeNoLike;
 }

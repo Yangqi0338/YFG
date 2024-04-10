@@ -6,6 +6,8 @@ import lombok.Data;
 
 @Data
 public class MaterialSupplierInfo {
+    @ApiModelProperty(value = "物料code")
+    private String materialCode;
     @ApiModelProperty(value = "供应商简称")
     private String supplierAbbreviation;
     @ApiModelProperty(value = "供应商物料编码")

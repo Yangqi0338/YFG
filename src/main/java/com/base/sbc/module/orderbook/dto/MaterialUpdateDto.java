@@ -26,6 +26,9 @@ public class MaterialUpdateDto {
     @NotEmpty(message = "cmt面料不能为空")
     private String fabricFactoryName;
 
+    @ApiModelProperty(value = "物料code")
+    private String materialCode;
+
     List<MaterialSupplierInfo> materialSupplierInfos;;
 
 

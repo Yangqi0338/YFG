@@ -386,7 +386,6 @@ public class OrderBookDetailController extends BaseController {
     @ApiOperation(value = "订货本详情-更新物料信息")
     @PostMapping("/updateMaterial")
     @DuplicationCheck(time = 10)
-    @Transactional(rollbackFor = Exception.class)
     public boolean updateMaterial(@RequestBody @Valid MaterialUpdateDto dto) {
         return orderBookDetailService.updateMaterial(dto);
     }

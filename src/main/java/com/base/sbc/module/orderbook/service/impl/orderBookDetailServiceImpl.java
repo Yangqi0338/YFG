@@ -1011,22 +1011,37 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * @return
      */
     private void getSupplementSupplierInfo(MaterialUpdateDto dto){
-        String[] fabricCodes = dto.getFabricCode().replace("\n", "").split(",");
-        String[] fabricFactoryNames = dto.getFabricFactoryName().replace("\n", "").split(",");
-        if (fabricCodes.length != fabricFactoryNames.length){
+        List<String> fabricCodes = Arrays.asList(dto.getFabricCode().replace("\n", "").split(","));
+        List<String> fabricFactoryNames = Arrays.asList(dto.getFabricFactoryName().replace("\n", "").split(","));
+        if (fabricCodes.size() != fabricFactoryNames.size() ){
             throw new RuntimeException("面料和面料厂家需要一一对应，请检测后再更新");
         }
+        if (fabricCodes.contains("") || fabricFactoryNames.contains("")){
+            throw new RuntimeException("面料和面料厂家不能为空，请输入正确的格式");
+        }
+        List<String>  materialCodes = new ArrayList<>();
+        if(StringUtils.isNotBlank(dto.getMaterialCode())){
+             materialCodes = Arrays.asList(dto.getMaterialCode().replace("\n", "").split(","));
+            if (materialCodes.size() != fabricFactoryNames.size()){
+                throw new RuntimeException("如果要替换面料，请保持厂家数量与物料编号保持一致！");
+            }
+        }
+
         List<MaterialSupplierInfo> list = new ArrayList<>();
-        for (int i = 0; i < fabricCodes.length; i++) {
+        for (int i = 0; i < fabricCodes.size(); i++) {
             String supplierAbbreviation;
             try{
-                supplierAbbreviation = fabricFactoryNames[i].substring(fabricFactoryNames[i].indexOf(":") + 1, fabricFactoryNames[i].length() - 1);
+                supplierAbbreviation = fabricFactoryNames.get(i).contains(":") ?
+                        (fabricFactoryNames.get(i).substring(fabricFactoryNames.get(i).indexOf(":") + 1)) : fabricFactoryNames.get(i);
             }catch (Exception e){
-                throw new RuntimeException("面料厂家格式问题："+ fabricFactoryNames[i]);
+                throw new RuntimeException("面料厂家格式问题："+ fabricFactoryNames.get(i));
             }
             MaterialSupplierInfo materialSupplierInfo = new MaterialSupplierInfo();
             materialSupplierInfo.setSupplierAbbreviation(supplierAbbreviation);
-            materialSupplierInfo.setSupplierMaterialCode(fabricCodes[i]);
+            materialSupplierInfo.setSupplierMaterialCode(fabricCodes.get(i));
+            if (StringUtils.isNotBlank(dto.getMaterialCode())){
+                materialSupplierInfo.setMaterialCode(materialCodes.get(i));
+            }
             list.add(materialSupplierInfo);
         }
         dto.setMaterialSupplierInfos(list);

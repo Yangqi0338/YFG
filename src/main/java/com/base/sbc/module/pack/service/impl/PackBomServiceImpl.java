@@ -13,6 +13,7 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -49,10 +50,7 @@ import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
-import com.base.sbc.module.pack.vo.PackBomColorVo;
-import com.base.sbc.module.pack.vo.PackBomSizeVo;
-import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
@@ -62,11 +60,13 @@ import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleVo;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -372,32 +372,111 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     }
 
     @Override
+    @Transactional(rollbackFor = {Exception.class})
     public boolean updateMaterial(MaterialUpdateDto dto) {
         QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("version", dto.getBomVersionId());
+        queryWrapper.eq("bom_version_id", dto.getBomVersionId());
         queryWrapper.eq("del_flag", "0");
         queryWrapper.eq("foreign_id",dto.getForeignId());
-        QueryWrapper<PackBom> qw = new QueryWrapper<>();
         List<PackBom> packBoms = list(queryWrapper);
         if (CollectionUtil.isEmpty(packBoms)){
-            throw new RuntimeException("物料不存在");
+            throw new OtherException("bom物料不存在");
         }
-        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
-        if (ObjectUtils.isNotEmpty(packDesignStatus) && BasicNumber.ONE.getNumber().equals(packDesignStatus.getBomStatus())){
-            throw new RuntimeException("物料已转大货，不允许更新！");
+        Map<String, List<PackBom>> map = packBoms.stream().collect(Collectors.groupingBy(PackBom::getMaterialCode, Collectors.toList()));
+        // 检查是否可以更新
+        checkUpdateMaterial(dto,map);
+
+        PackInfo packInfo = packInfoService.getById(dto.getForeignId());
+        if (null == packInfo){
+            throw new OtherException("资料包不存在");
         }
+        //获取款式信息
+        StyleVo styleVo = styleService.getDetail(packInfo.getForeignId());
+        //尺码id
+        List<String> productSizes = StringUtils.isBlank(styleVo.getProductSizes())? new ArrayList<>() : Arrays.asList(styleVo.getProductSizes().split(","));
+        //尺码型号类型
+        List<String> sizeIds = StringUtils.isBlank(styleVo.getSizeIds())?  new ArrayList<>() : Arrays.asList(styleVo.getSizeIds().substring(1).split(","));
+
         for (MaterialSupplierInfo materialSupplierInfo : dto.getMaterialSupplierInfos()) {
             String materialCode = basicsdatumMaterialService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
             if (StringUtils.isEmpty(materialCode)){
-                throw new RuntimeException("此供应商未有物料关联："+materialSupplierInfo.getSupplierAbbreviation());
+                throw new OtherException("此供应商未有物料关联："+materialSupplierInfo.getSupplierAbbreviation());
+            }
+            List<PackBom> packBomList = map.get(materialSupplierInfo.getMaterialCode());
+            //已有的物料，不做处理
+            if (materialCode.equals(materialSupplierInfo.getMaterialCode())){
+                continue;
+            }
+            //获取物料信息
+            BasicsdatumMaterialQueryDto basicsdatumMaterialQueryDto = new BasicsdatumMaterialQueryDto();
+            basicsdatumMaterialQueryDto.setMaterialCodeNoLike(materialCode);
+            List<BomSelMaterialVo> list = basicsdatumMaterialService.getBomSelMaterialList(basicsdatumMaterialQueryDto).getList();
+            if (CollectionUtils.isEmpty(list)){
+                log.error("updateMaterial 物料不存在："+ JSON.toJSONString(basicsdatumMaterialQueryDto));
+                throw new OtherException("物料不存在");
+            }
+            PackBomDto packBomDto = new PackBomDto();
+            BeanUtil.copyProperties(list.get(0), packBomDto);
+            packBomDto.setBomVersionId(dto.getBomVersionId());
+            //补充规格信息
+            fullPackBomDto(packBomDto, sizeIds, productSizes,list.get(0));
+            //是否替换
+            if (StringUtils.isNotBlank(materialSupplierInfo.getMaterialCode())){
+                UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
+                uw.in("id", packBomList.get(0).getId());
+                uw.set("del_flag", "1");
+                update(uw);
+            }
+            saveBatchByDto(dto.getBomVersionId(),"0",Lists.newArrayList(packBomDto));
+        }
+        return true;
+    }
+
+    /**
+     * 检查更新物料
+     * @param dto
+     * @param map
+     */
+    private void checkUpdateMaterial(MaterialUpdateDto dto, Map<String, List<PackBom>> map) {
+        //检查需要替换的物料编号是否在bom中
+        if (StringUtils.isNotBlank(dto.getMaterialCode())){
+
+            for (MaterialSupplierInfo materialSupplierInfo : dto.getMaterialSupplierInfos()) {
+                List<PackBom> packBoms1 = map.get(materialSupplierInfo.getMaterialCode());
+                if (CollectionUtil.isEmpty(packBoms1)){
+                    throw new OtherException("需要替换的:"+materialSupplierInfo.getMaterialCode()+"物料编号在bom中未有关联！");
+                }
+                if (packBoms1.get(0).getScmSendFlag().equals("1")){
+                    throw new OtherException("物料："+materialSupplierInfo.getMaterialCode()+"已发送，暂不允许替换");
+                }
+
             }
 
         }
+        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        if (ObjectUtils.isNotEmpty(packDesignStatus) && BasicNumber.ONE.getNumber().equals(packDesignStatus.getBomStatus())){
+            throw new OtherException("物料已转大货，不允许更新！");
+        }
+    }
 
-        BasicsdatumMaterialQueryDto basicsdatumMaterialQueryDto = new BasicsdatumMaterialQueryDto();
-        basicsdatumMaterialService.getBomSelMaterialList(basicsdatumMaterialQueryDto);
 
-        return false;
+    private void fullPackBomDto(PackBomDto dto, List<String> sizeRangeSizeIds, List<String> sizeRangeSizes, BomSelMaterialVo bomSelMaterialVo) {
+        if (CollectionUtils.isEmpty(sizeRangeSizeIds) || CollectionUtils.isEmpty(sizeRangeSizes)){
+            return;
+        }
+        if (sizeRangeSizeIds.size() != sizeRangeSizes.size()){
+            throw new RuntimeException("尺码信息异常");
+        }
+        List<PackBomSizeDto> packBomSizeList = Lists.newArrayList();
+        for (int i = 0; i < sizeRangeSizeIds.size(); i++) {
+            PackBomSizeDto packBomSizeDto = new PackBomSizeDto();
+            packBomSizeDto.setSize(sizeRangeSizes.get(i));
+            packBomSizeDto.setSizeId(sizeRangeSizeIds.get(i));
+            packBomSizeDto.setWidth(bomSelMaterialVo.getTranslate());
+            packBomSizeDto.setWidthCode(bomSelMaterialVo.getTranslateCode());
+            packBomSizeList.add(packBomSizeDto);
+        }
+        dto.setPackBomSizeList(packBomSizeList);
     }
 
 

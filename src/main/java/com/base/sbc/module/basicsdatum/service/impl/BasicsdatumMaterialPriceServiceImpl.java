@@ -90,8 +90,9 @@ public class BasicsdatumMaterialPriceServiceImpl
     public String getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo) {
         QueryWrapper qw = new QueryWrapper<>();
         qw.in("p.supplier_material_code", materialSupplierInfo.getSupplierMaterialCode());
-        qw.eq("bu.supplier_abbreviation", materialSupplierInfo.getSupplierAbbreviation());
-        return getBaseMapper().supplierAbbreviation(qw);
+        qw.eq("bm.supplier_abbreviation", materialSupplierInfo.getSupplierAbbreviation());
+        List<String> list = getBaseMapper().supplierAbbreviation(qw);
+        return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
     }
 
 // 自定义方法区 不替换的区域【other_end】
