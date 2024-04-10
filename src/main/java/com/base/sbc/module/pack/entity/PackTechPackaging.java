@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
 
+import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -112,10 +113,23 @@ public class PackTechPackaging extends BaseDataEntity<String> {
     private String volume;
 
     public String getVolume() {
-        if (volumeLength == null || volumeWidth == null || volumeHeight == null) {
+        if (volumeLength == null || volumeWidth == null) {
             return null;
         }
-        return volumeLength.multiply(volumeWidth).multiply(volumeHeight).toString();
+        return volumeLength.multiply(volumeWidth).multiply(Opt.ofNullable(volumeHeight).orElse(BigDecimal.ZERO)).toString();
+    }
+
+    /**
+     * 叠装体积
+     */
+    @ApiModelProperty(value = "叠装体积")
+    private String stackedVolume;
+
+    public String getStackedVolume() {
+        if (stackedLength == null || stackedWidth == null) {
+            return null;
+        }
+        return stackedLength.multiply(stackedWidth).multiply(Opt.ofNullable(stackedHeight).orElse(BigDecimal.ZERO)).toString();
     }
 
     /**

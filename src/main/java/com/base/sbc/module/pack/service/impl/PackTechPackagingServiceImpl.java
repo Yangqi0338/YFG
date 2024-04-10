@@ -7,16 +7,21 @@
 package com.base.sbc.module.pack.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
+import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.mapper.PackTechPackagingMapper;
+import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.regex.Matcher;
@@ -39,8 +44,12 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
     @Autowired
     private HangTagServiceImpl hangTagService;
 
+    @Autowired
+    private PackInfoService packInfoService;
+
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PackTechPackaging savePackaging(PackTechPackaging packaging) {
         if (StringUtils.isAnyBlank(packaging.getPackType(), packaging.getForeignId())) {
             throw new OtherException("PackType、ForeignId必填");
@@ -54,6 +63,18 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
             saveOrUpdateOperaLog(packaging, db, genOperaLogEntity(db, "修改"));
             BeanUtil.copyProperties(packaging, db, "id");
             updateById(db);
+
+            // 包装袋标准判断逻辑
+            PackInfo packInfo = packInfoService.getById(db.getForeignId());
+            if (packInfo != null) {
+                HangTagVO hangTagVO = hangTagService.getDetailsByBulkStyleNo(packInfo.getStyleNo(), packInfo.getCompanyCode(), null);
+                if (hangTagVO != null && hangTagVO.getStatus().greatThan(HangTagStatusEnum.NOT_COMMIT)) {
+                    if (StrUtil.equals(hangTagVO.getPackagingFormCode(), db.getPackagingForm()) ||
+                            StrUtil.equals(hangTagVO.getPackagingBagStandardCode(), db.getPackagingBagStandard())) {
+                        throw new OtherException("吊牌已保存并提交,无法修改包装袋标准,请反审吊牌后再进行保存");
+                    }
+                }
+            }
             return db;
         }
 
