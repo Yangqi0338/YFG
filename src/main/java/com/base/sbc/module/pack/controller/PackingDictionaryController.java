@@ -1,6 +1,7 @@
 package com.base.sbc.module.pack.controller;
 
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.pack.dto.PackBusinessOpinionDto;
 import com.base.sbc.module.pack.dto.PackInfoSearchPageDto;
@@ -24,7 +25,7 @@ import javax.validation.Valid;
 @Api(tags = "资料包字典")
 @RequestMapping(value = BaseController.SAAS_URL + "/packTechSpec", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class PackingDictionaryController {
+public class PackingDictionaryController extends BaseController{
 
 
     @Autowired
@@ -39,14 +40,23 @@ public class PackingDictionaryController {
 
     @ApiOperation(value = "新增")
     @PostMapping("/savePacking")
-    public String save(@RequestBody PackingDictionary dto) {
-        return packingDictionaryService.save(dto);
+    public boolean save(@RequestBody PackingDictionary dto) {
+        boolean save = packingDictionaryService.save(dto);
+        return save;
     }
 
     @ApiOperation(value = "修改")
     @PostMapping("/updatePacking")
-    public String update(@RequestBody PackingDictionary dto){
-        return packingDictionaryService.update(dto);
+    public ApiResult update(@RequestBody PackingDictionary dto){
+        boolean update = packingDictionaryService.update(dto);
+        return update ? this.updateSuccess(update): this.updateNotFound();
+    }
+
+
+    @ApiOperation(value = "删除")
+    @PostMapping("/delPacking")
+    public boolean delPacking(@RequestBody PackingDictionary dto){
+        return packingDictionaryService.dele(dto);
     }
 
 }

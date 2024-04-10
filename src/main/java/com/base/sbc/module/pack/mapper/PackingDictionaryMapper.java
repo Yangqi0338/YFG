@@ -27,5 +27,10 @@ public interface PackingDictionaryMapper {
      */
     PackingDictionary queryPackingDictionary(@Param("dto") PackingDictionary dto);
 
+    /**
+     * 修改
+     * @param dto
+     * @return
+     */
     int updatePacking(@Param("dto") PackingDictionary dto);
 }

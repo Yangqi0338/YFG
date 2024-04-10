@@ -1,5 +1,6 @@
 package com.base.sbc.module.pack.service.impl;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.pack.dto.PackingDictionaryDto;
 import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.base.sbc.module.pack.mapper.PackingDictionaryMapper;
@@ -37,33 +38,38 @@ public class PackingDictionaryServiceImpl implements PackingDictionaryService {
     }
 
     @Override
-    public String save(PackingDictionary dto) {
+    public boolean save(PackingDictionary dto) {
         PackingDictionary packingDictionary = packingDictionaryMapper.queryPacking(dto.getParentId(),dto.getName());
         if(packingDictionary!=null){
-            return "已存在添加失败";
-        }else{
-            int i = packingDictionaryMapper.addPacking(dto);
-            return "添加成功";
+         return  false;
         }
+        int i = packingDictionaryMapper.addPacking(dto);
+        return true;
     }
 
     @Override
     public PackingDictionary queryPackingDictionary(PackingDictionary dto) throws NotFoundException {
         PackingDictionary packingDictionary =  packingDictionaryMapper.queryPacking(dto.getParentId(),dto.getName());
         if (packingDictionary == null) {
-            throw new NotFoundException("未找到相关的装箱字典信息");
+            return new PackingDictionary();
         }
         return packingDictionary;
     }
 
     @Override
-    public String update(PackingDictionary dto) {
+    public boolean update(PackingDictionary dto) {
         PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(dto);
         if(packingDictionary!=null){
-            return "修改失败";
+          return  false;
         }else{
             int i = packingDictionaryMapper.updatePacking(dto);
-            return "修改成功";
         }
+        return true;
+    }
+
+    @Override
+    public boolean dele(PackingDictionary dto) {
+        int i = packingDictionaryMapper.updatePacking(dto);
+        return true;
     }
 }

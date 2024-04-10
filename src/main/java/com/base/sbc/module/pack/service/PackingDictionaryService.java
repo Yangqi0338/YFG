@@ -1,5 +1,6 @@
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.pack.dto.PackingDictionaryDto;
 import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.github.pagehelper.PageInfo;
@@ -18,7 +19,7 @@ public interface PackingDictionaryService {
      * @param dto
      * @return
      */
-    String save(PackingDictionary dto);
+    boolean save(PackingDictionary dto);
 
     /**
      *查询是否存在
@@ -27,5 +28,7 @@ public interface PackingDictionaryService {
     PackingDictionary queryPackingDictionary(PackingDictionary dto);
 
 
-    String update(PackingDictionary dto);
+    boolean update(PackingDictionary dto);
+
+    boolean dele(PackingDictionary dto);
 }
