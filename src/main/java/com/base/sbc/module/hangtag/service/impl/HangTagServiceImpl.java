@@ -70,10 +70,12 @@ import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
+import com.base.sbc.module.pack.entity.PackTechPackaging;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
+import com.base.sbc.module.pack.service.PackTechPackagingService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -168,6 +170,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Lazy
 	private DataPermissionsService dataPermissionsService;
 	private final BasicsdatumModelTypeService basicsdatumModelTypeService;
+	private final PackTechPackagingService packTechPackagingService;
 
 
 	@Autowired
@@ -355,6 +358,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (StringUtils.isEmpty(hangTagVO.getStatus())) {
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_COMMIT);
 		}
+		PackInfo pack = packInfoService
+				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
+		if (pack != null) {
+			PackBomVersion enableVersion = packBomVersionService.getEnableVersion(pack.getId(), StrUtil.equals(hangTagVO.getBomStatus(), BaseGlobal.YES) ? PackUtils.PACK_TYPE_BIG_GOODS : PackUtils.PACK_TYPE_DESIGN);
+			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", pack.getId());
+			queryWrapper.eq("unusable_flag", BaseGlobal.NO);
+			queryWrapper.eq("pack_type", StrUtil.equals(hangTagVO.getBomStatus(), BaseGlobal.YES) ? PackUtils.PACK_TYPE_BIG_GOODS : PackUtils.PACK_TYPE_DESIGN);
+			if (ObjectUtil.isEmpty(enableVersion)) {
+				queryWrapper.eq("bom_version_id", enableVersion.getId());
+			}
+			List<PackBom> packBomList = packBomService.list(queryWrapper);
 
 		PackInfo pack = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
@@ -596,6 +610,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			//region 2023-12-06 吊牌保存需要修改工艺员确认状态
 			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM, 1);
 			//endregion
+
+			// 修正工艺单说明的包装袋标准
+			// 获取大货标准资料包
+			Opt.ofNullable(
+					packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
+			).ifPresent(packInfo-> {
+				packTechPackagingService.update(new LambdaUpdateWrapper<PackTechPackaging>()
+						.eq(PackTechPackaging::getForeignId,packInfo.getId())
+						.set(PackTechPackaging::getPackagingForm, hangTagDTO.getPackagingFormCode())
+						.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
+						.set(PackTechPackaging::getPackagingBagStandard, hangTagDTO.getPackagingBagStandardCode())
+						.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard())
+				);
+			});
 
 		}catch (Exception ignored){
 		}

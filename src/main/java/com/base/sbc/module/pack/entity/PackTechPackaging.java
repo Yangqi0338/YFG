@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.entity;
 
+import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
@@ -87,18 +88,23 @@ public class PackTechPackaging extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "高")
     private BigDecimal volumeHeight;
-    @ApiModelProperty(value = "长")
-    private BigDecimal volumeLength1;
+    /**
+     * 叠装长
+     */
+    @ApiModelProperty(value = "叠装长")
+    private BigDecimal stackedLength;
 
     /**
-     * 宽
+     * 叠装宽
      */
-    @ApiModelProperty(value = "宽")
-    private BigDecimal volumeWidth1;
+    @ApiModelProperty(value = "叠装宽")
+    private BigDecimal stackedWidth;
 
-
-    @ApiModelProperty(value = "高")
-    private BigDecimal volumeHeight1;
+    /**
+     * 叠装高
+     */
+    @ApiModelProperty(value = "叠装高")
+    private BigDecimal stackedHeight;
 
     /**
      * 体积
@@ -107,10 +113,23 @@ public class PackTechPackaging extends BaseDataEntity<String> {
     private String volume;
 
     public String getVolume() {
-        if (volumeLength == null || volumeWidth == null || volumeHeight == null) {
+        if (volumeLength == null || volumeWidth == null) {
             return null;
         }
-        return volumeLength.multiply(volumeWidth).multiply(volumeHeight).toString();
+        return volumeLength.multiply(volumeWidth).multiply(Opt.ofNullable(volumeHeight).orElse(BigDecimal.ZERO)).toString();
+    }
+
+    /**
+     * 叠装体积
+     */
+    @ApiModelProperty(value = "叠装体积")
+    private String stackedVolume;
+
+    public String getStackedVolume() {
+        if (stackedLength == null || stackedWidth == null) {
+            return null;
+        }
+        return stackedLength.multiply(stackedWidth).multiply(Opt.ofNullable(stackedHeight).orElse(BigDecimal.ZERO)).toString();
     }
 
     /**
