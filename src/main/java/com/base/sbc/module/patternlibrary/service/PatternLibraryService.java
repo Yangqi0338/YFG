@@ -7,7 +7,6 @@ import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
-import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +28,7 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @param patternLibraryPageDTO 查询条件
      * @return 版型库列表分页数据
      */
-    PageInfo<PatternLibraryVO> listPages(PatternLibraryPageDTO patternLibraryPageDTO);
+    PageInfo<PatternLibrary> listPages(PatternLibraryPageDTO patternLibraryPageDTO);
 
     /**
      * 版型库新增/编辑
@@ -61,7 +60,7 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @param patternLibraryId 版型库主表 ID
      * @return 版型库详情
      */
-    PatternLibraryVO getDetail(String patternLibraryId);
+    PatternLibrary getDetail(String patternLibraryId);
 
     /**
      * 版型库删除
@@ -116,7 +115,7 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @param designNo 设计款号
      * @return 相关数据
      */
-    PatternLibraryVO getInfoByDesignNo(String designNo);
+    PatternLibrary getInfoByDesignNo(String designNo);
 
     /**
      * 判断大类的类型

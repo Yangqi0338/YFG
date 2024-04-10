@@ -8,13 +8,13 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 版型库-主表VO
+ * 上下装 VO
  *
  * @author XHTE
  * @create 2024-03-22
  */
 @Data
-@ApiModel(value = "PatternLibraryVO对象", description = "版型库-主表VO")
+@ApiModel(value = "CategoriesTypeVO对象", description = "上下装 VO")
 public class CategoriesTypeVO extends BaseDataEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;

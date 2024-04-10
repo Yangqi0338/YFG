@@ -39,7 +39,7 @@
         <result column="company_code" property="companyCode"/>
     </resultMap>
 
-    <select id="listPages" resultType="com.base.sbc.module.patternlibrary.vo.PatternLibraryVO">
+    <select id="listPages" resultType="com.base.sbc.module.patternlibrary.entity.PatternLibrary">
         SELECT
         tpl.serial_number, tpl.id, tpl.`code`, tpl.design_no, tpl.style_id,
         tpl.prod_category1st,tpl.prod_category1st_name, tpl.prod_category, tpl.prod_category_name,

@@ -14,7 +14,6 @@ import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
-import com.base.sbc.module.patternlibrary.vo.PatternLibraryVO;
 import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -46,16 +45,16 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "版型库列表")
     @PostMapping("/listPages")
-    public ApiResult<PageInfo<PatternLibraryVO>> listPages(@RequestBody PatternLibraryPageDTO patternLibraryPageDTO) {
-        PageInfo<PatternLibraryVO> patternLibraryIPage = patternLibraryService.listPages(patternLibraryPageDTO);
+    public ApiResult<PageInfo<PatternLibrary>> listPages(@RequestBody PatternLibraryPageDTO patternLibraryPageDTO) {
+        PageInfo<PatternLibrary> patternLibraryIPage = patternLibraryService.listPages(patternLibraryPageDTO);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryIPage);
     }
 
     @ApiOperation(value = "版型库详情")
     @GetMapping("/getDetail")
-    public ApiResult<PatternLibraryVO> getDetail(String patternLibraryId) {
-        PatternLibraryVO patternLibraryVO = patternLibraryService.getDetail(patternLibraryId);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryVO);
+    public ApiResult<PatternLibrary> getDetail(String patternLibraryId) {
+        PatternLibrary patternLibrary = patternLibraryService.getDetail(patternLibraryId);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibrary);
     }
 
     @ApiOperation(value = "版型库新增/编辑")
@@ -155,9 +154,9 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "根据设计款号查询相关数据")
     @GetMapping("/getInfoByDesignNo")
-    public ApiResult<PatternLibraryVO> getInfoByDesignNo(String styleNo) {
-        PatternLibraryVO patternLibraryVO = patternLibraryService.getInfoByDesignNo(styleNo);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibraryVO);
+    public ApiResult<PatternLibrary> getInfoByDesignNo(String styleNo) {
+        PatternLibrary patternLibrary = patternLibraryService.getInfoByDesignNo(styleNo);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibrary);
     }
 
     @ApiOperation(value = "获取大类的类型")

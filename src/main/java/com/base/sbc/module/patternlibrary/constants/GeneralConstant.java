@@ -9,5 +9,7 @@ package com.base.sbc.module.patternlibrary.constants;
 public class GeneralConstant {
 
     public static final String LOG_NAME = "版型库";
+    public static final String ENABLE = "启用";
+    public static final String DISABLE = "禁用";
 
 }
