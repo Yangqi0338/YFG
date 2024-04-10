@@ -1,6 +1,7 @@
 package com.base.sbc.module.pack.service.impl;
 
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.pack.dto.PackingDictionaryDto;
 import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.base.sbc.module.pack.mapper.PackingDictionaryMapper;
@@ -41,7 +42,7 @@ public class PackingDictionaryServiceImpl implements PackingDictionaryService {
     public boolean save(PackingDictionary dto) {
         PackingDictionary packingDictionary = packingDictionaryMapper.queryPacking(dto.getParentId(),dto.getName());
         if(packingDictionary!=null){
-         return  false;
+          throw new OtherException("已存在相同包装袋标准和形式，无法添加");
         }
         int i = packingDictionaryMapper.addPacking(dto);
         return true;
@@ -60,11 +61,12 @@ public class PackingDictionaryServiceImpl implements PackingDictionaryService {
     public boolean update(PackingDictionary dto) {
         PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(dto);
         if(packingDictionary!=null){
-          return  false;
+            packingDictionaryMapper.updatePacking(dto);
+          return  true;
         }else{
-            int i = packingDictionaryMapper.updatePacking(dto);
+//            int i = packingDictionaryMapper.updatePacking(dto);
+            throw new OtherException("已存在相同包装袋标准和形式，无法修改");
         }
-        return true;
     }
 
     @Override
