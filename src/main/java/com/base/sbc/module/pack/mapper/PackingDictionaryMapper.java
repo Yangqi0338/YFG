@@ -1,5 +1,6 @@
 package com.base.sbc.module.pack.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.module.pack.entity.PackingDictionary;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -7,7 +8,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 @Mapper
-public interface PackingDictionaryMapper {
+public interface PackingDictionaryMapper extends BaseMapper<PackingDictionary> {
     /**
      * 列表查询
      * @return

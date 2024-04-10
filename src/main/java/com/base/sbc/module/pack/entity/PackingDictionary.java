@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.math.BigDecimal;
 
@@ -19,12 +20,14 @@ public class PackingDictionary extends BaseDataEntity<String> {
      * 主数据id
      */
     @ApiModelProperty(value = "主数据id")
+    @NotBlank(message = "缺少必要的id参数")
     private String id;
 
     /**
      * 包装形式
      */
     @ApiModelProperty(value = "包装形式")
+    @NotBlank(message = "缺少必要的包装形式")
     private String packagingForm;
     /**
      * 包装形式名称
@@ -34,6 +37,7 @@ public class PackingDictionary extends BaseDataEntity<String> {
     /**
      * 包装袋标准
      */
+    @NotBlank(message = "缺少必要的包装袋标准")
     private String parentId;
     /**
      * 包装袋标准名称

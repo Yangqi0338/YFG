@@ -47,7 +47,7 @@ public class PackingDictionaryController extends BaseController{
 
     @ApiOperation(value = "修改")
     @PostMapping("/updatePacking")
-    public ApiResult update(@RequestBody PackingDictionary dto){
+    public ApiResult update(@RequestBody @Valid PackingDictionary dto){
         boolean update = packingDictionaryService.update(dto);
         return update ? this.updateSuccess(update): this.updateNotFound();
     }

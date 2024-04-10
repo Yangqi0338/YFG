@@ -1,6 +1,8 @@
 package com.base.sbc.module.pack.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.pack.dto.PackingDictionaryDto;
 import com.base.sbc.module.pack.entity.PackingDictionary;
@@ -59,13 +61,19 @@ public class PackingDictionaryServiceImpl implements PackingDictionaryService {
 
     @Override
     public boolean update(PackingDictionary dto) {
+//        PackingDictionary packingDictionary = packingDictionaryMapper.selectById(dto.getId());
+//        if(packingDictionary == null) {
+//            throw new OtherException("不存在对应的包装袋标准和形式");
+//        }
+//        boolean existsUniqueCode = packingDictionaryMapper.exists(new BaseLambdaQueryWrapper<PackingDictionary>().notNullNe(PackingDictionary::getId, dto.getId())
+//                .eq(PackingDictionary::getParentId, dto.getParentId()).eq(PackingDictionary::getPackagingForm, dto.getPackagingForm()));
+//        if (existsUniqueCode) throw new OtherException("已存在相同包装袋标准和形式，无法修改");
         PackingDictionary packingDictionary = packingDictionaryMapper.queryPackingDictionary(dto);
         if(packingDictionary!=null){
-            packingDictionaryMapper.updatePacking(dto);
-          return  true;
-        }else{
-//            int i = packingDictionaryMapper.updatePacking(dto);
             throw new OtherException("已存在相同包装袋标准和形式，无法修改");
+        }else{
+            packingDictionaryMapper.updatePacking(dto);
+            return  true;
         }
     }
 
