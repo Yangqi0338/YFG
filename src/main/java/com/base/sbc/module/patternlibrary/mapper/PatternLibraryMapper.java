@@ -35,7 +35,7 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
     /**
      * 版型库筛选条件查询
      * @param queryWrapper 筛选条件
-     * @param type 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-设计部件 7-审核状态 8-是否启用）
+     * @param type 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-涉及部件 7-审核状态 8-是否启用）
      * @return 分页列表
      */
     List<FilterCriteriaVO> getAllFilterCriteria(

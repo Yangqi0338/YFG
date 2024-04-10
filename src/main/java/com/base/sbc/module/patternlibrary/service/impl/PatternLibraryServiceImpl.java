@@ -211,15 +211,16 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
         // 获取旧数据
         PatternLibrary oldPatternLibrary = new PatternLibrary();
-        if (ObjectUtil.isNotEmpty(patternLibraryDTO.getId())) {
-            oldPatternLibrary = getById(patternLibraryDTO.getId());
+        String patternLibraryId = patternLibraryDTO.getId();
+        if (ObjectUtil.isNotEmpty(patternLibraryId)) {
+            oldPatternLibrary = getById(patternLibraryId);
             if (!(oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.NO_SUBMIT.getCode())
                     || oldPatternLibrary.getStatus().equals(PatternLibraryStatusEnum.REJECTED.getCode()))) {
                 throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
             }
 
             // 查询旧数据 用作日志匹配
-            oldPatternLibrary = getDetail(patternLibraryDTO.getId());
+            oldPatternLibrary = getDetail(patternLibraryId);
         }
         PatternLibrary patternLibrary = new PatternLibrary();
         BeanUtil.copyProperties(patternLibraryDTO, patternLibrary);
@@ -342,7 +343,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
 
         // 查询新数据 用作日志匹配
-        PatternLibrary newPatternLibrary = getDetail(patternLibraryDTO.getId());
+        PatternLibrary newPatternLibrary = getDetail(patternLibrary.getId());
         // 保存日志
         this.saveOperaLog("新增/编辑", GeneralConstant.LOG_NAME, patternLibrary.getId(), patternLibrary.getCode(), patternLibrary.getCode(), newPatternLibrary, oldPatternLibrary);
 
@@ -467,7 +468,13 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 查询新数据 用作日志匹配
         List<PatternLibrary> newPatternLibraryList = listDetail(patternLibraryDTOList.stream().map(PatternLibraryDTO::getId).collect(Collectors.toList()));
         // 保存日志
-        this.saveOperaLogBatch("批量编辑", GeneralConstant.LOG_NAME, newPatternLibraryList, oldPatternLibraryList);
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName(GeneralConstant.LOG_NAME);
+        operaLogEntity.setType("批量编辑");
+
+        operaLogEntity.setDocumentCodeField("code");
+        operaLogEntity.setDocumentNameField("code");
+        this.updateBatchOperaLog(newPatternLibraryList, oldPatternLibraryList,operaLogEntity);
         return true;
     }
 
@@ -581,8 +588,15 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
         // 查询新数据 用作日志匹配
         List<PatternLibrary> newPatternLibraryList = listDetail(patternLibraryIdList);
+
         // 保存日志
-        this.saveOperaLogBatch("批量审核", GeneralConstant.LOG_NAME, newPatternLibraryList, oldPatternLibraryList);
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName(GeneralConstant.LOG_NAME);
+        operaLogEntity.setType("批量编辑");
+
+        operaLogEntity.setDocumentCodeField("code");
+        operaLogEntity.setDocumentNameField("code");
+        this.updateBatchOperaLog(newPatternLibraryList, oldPatternLibraryList,operaLogEntity);
         return Boolean.TRUE;
     }
 
@@ -622,7 +636,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         } catch (IOException e) {
             throw new OtherException(e.getMessage());
         }
-        // 没有拿到数据也返回一场
+        // 没有拿到数据也返回异常
         List<ExcelImportDTO> cachedDataList = patterLibraryListener.getCachedDataList();
         if (ObjectUtil.isEmpty(cachedDataList)) {
             throw new OtherException(ResultConstant.IMPORT_DATA_NOT_EMPTY);
@@ -684,7 +698,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             }
             patternLibraryList.add(patternLibrary);
         }
-        // 保存日志
         saveBatch(patternLibraryList);
         List<PatternLibraryBrand> brandList = new ArrayList<>();
         for (PatternLibrary patternLibrary : patternLibraryList) {
@@ -705,7 +718,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         operaLogEntity.setDocumentCodeField("code");
         operaLogEntity.setDocumentNameField("code");
         this.saveBatchOperaLog(newPatternLibraryList, operaLogEntity);
-        // this.saveOperaLogBatch("导入", GeneralConstant.LOG_NAME, newPatternLibraryList, oldPatternLibraryList);
         return true;
     }
 
@@ -828,7 +840,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     }
 
     /**
-     * @param type 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-设计部件 7-审核状态 8-是否启用）
+     * @param type 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-涉及部件 7-审核状态 8-是否启用）
      * @return
      */
     @Override

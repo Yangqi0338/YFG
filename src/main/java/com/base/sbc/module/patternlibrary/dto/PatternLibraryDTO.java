@@ -198,8 +198,8 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private List<PatternLibraryItem> patternLibraryItemList;
 
     /**
-     * 部件库-子表数据类型 用作列表修改判断（1-围度信息 2-长度信息 3-部位尺寸 4-设计部件）
+     * 部件库-子表数据类型 用作列表修改判断（1-围度信息 2-长度信息 3-部位尺寸 4-涉及部件）
      */
-    @ApiModelProperty("部件库-子表数据类型（1-围度信息 2-长度信息 3-部位尺寸 4-设计部件）")
+    @ApiModelProperty("部件库-子表数据类型（1-围度信息 2-长度信息 3-部位尺寸 4-涉及部件）")
     private Integer patternLibraryItemType;
 }
