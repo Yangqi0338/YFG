@@ -561,14 +561,18 @@ public class ExcelUtils {
             }
             excelEntity.setOrderNum(columnDefine.getSortOrder());
             //excelEntity.setWrap(excel.isWrap());
-            if (StrUtil.isNotEmpty(columnDefine.getColumnType()) && "img".equals(columnDefine.getColumnType())) {
-                excelEntity.setExportImageType(2);
-                excelEntity.setType(2);
-                imgColumnMap.put(columnDefine.getColumnCode(),columnDefine.getDataFormat());
-                //将key拼接1，后续将byte[]处理到对应字段上
-                excelEntity.setKey(columnDefine.getColumnCode() + "1");
-            } else if (StrUtil.isNotEmpty(columnDefine.getColumnType()) && "date".equals(columnDefine.getColumnType())) {
-                excelEntity.setFormat(columnDefine.getDataFormat());
+            if(StrUtil.isNotEmpty(columnDefine.getColumnType())){
+                if ("img".equals(columnDefine.getColumnType())) {
+                    excelEntity.setExportImageType(2);
+                    excelEntity.setType(2);
+                    imgColumnMap.put(columnDefine.getColumnCode(),columnDefine.getDataFormat());
+                    //将key拼接1，后续将byte[]处理到对应字段上
+                    excelEntity.setKey(columnDefine.getColumnCode() + "1");
+                } else if ("date".equals(columnDefine.getColumnType())) {
+                    excelEntity.setFormat(columnDefine.getDataFormat());
+                } else if ("num".equals(columnDefine.getColumnType())) {
+                    excelEntity.setType(10);
+                }
             }
 
             //excelEntity.setSuffix(excel.suffix());
