@@ -57,7 +57,7 @@ public class BasicsdatumBrandSeasonController extends BaseController {
 		if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getMonth())) {
 			queryWrapper.eq("month", basicsdatumBrandSeasonDto.getMonth());
 		}
-		List<BasicsdatumBrandSeason> list = basicsdatumBrandSeasonService.list();
+		List<BasicsdatumBrandSeason> list = basicsdatumBrandSeasonService.list(queryWrapper);
 		return new PageInfo<>(list);
 	}
 
