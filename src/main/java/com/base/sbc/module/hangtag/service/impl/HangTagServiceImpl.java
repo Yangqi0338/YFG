@@ -368,31 +368,20 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", pack.getId());
 			queryWrapper.eq("unusable_flag", BaseGlobal.NO);
 			queryWrapper.eq("pack_type", StrUtil.equals(hangTagVO.getBomStatus(), BaseGlobal.YES) ? PackUtils.PACK_TYPE_BIG_GOODS : PackUtils.PACK_TYPE_DESIGN);
-			if (ObjectUtil.isEmpty(enableVersion)) {
+			if (ObjectUtil.isNotEmpty(enableVersion)) {
 				queryWrapper.eq("bom_version_id", enableVersion.getId());
 			}
 			List<PackBom> packBomList = packBomService.list(queryWrapper);
 
-			if (StrUtil.isNotBlank(hangTagVO.getId())&&!packBomList.isEmpty()) {
+			if (StrUtil.isNotBlank(hangTagVO.getId()) && CollUtil.isNotEmpty(packBomList)) {
 				// 查询检测报告
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
 				List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagInspectCompanyService.listByField("hang_tag_id", com.base.sbc.config.utils.StringUtils.convertList(hangTagVO.getId()));
 				if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
-					if (!codes.isEmpty()) {
+					if (CollUtil.isNotEmpty(codes)) {
 						List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
-						String[] split;
-						if (StrUtil.isNotEmpty(hangTagVO.getFabricDetails()) && list.size() > 0) {
-							split = hangTagVO.getFabricDetails().split("\n");
-							int minSize = Math.min(list.size(), split.length); // 获取 list 和 split 数组的最小长度
-							for (int i = 0; i < minSize; i++) {//循环判断做数据处理
-								if (split[i] != null && split[i].split(":").length > 1 && list.get(i) != null && list.get(i).getRemark() != null && !list.get(i).getRemark().equals("")) {
-									String[] parts = split[i].split(":");
-									if (parts.length > 1) {
-										String rem = parts[1] + ":" + list.get(i).getRemark();//拼接字符串
-										list.get(i).setRemark(rem);
-									}
-								}
-							}
+						for (EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto : list) {
+							escmMaterialCompnentInspectCompanyDto.setRemark(escmMaterialCompnentInspectCompanyDto.getMaterialsNo()+":"+escmMaterialCompnentInspectCompanyDto.getRemark());
 						}
 						hangTagVO.setCompnentInspectCompanyDtoList(list);
 						return hangTagVO;
@@ -418,39 +407,36 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
 			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
 			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
-			if(ObjectUtil.isEmpty(enableVersion)){
+			if(ObjectUtil.isNotEmpty(enableVersion)){
 				queryWrapper.eq("bom_version_id",enableVersion.getId());
 			}
 			List<PackBom> packBomList = packBomService.list(queryWrapper);
-			if (!packBomList.isEmpty()) {
+			if (CollUtil.isNotEmpty(packBomList)) {
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
-				if (!codes.isEmpty()) {
+				if (CollUtil.isNotEmpty(codes)) {
 					/*查询物料*/
 					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes), false);
-/*					List<BasicsdatumMaterial> list = basicsdatumMaterialService
-							.list(new QueryWrapper<BasicsdatumMaterial>().in("material_code", codes));*/
 					hangTagVO.setCompnentInspectCompanyDtoList(list);
 				}
 			}
-			if(hangTagVO != null && StrUtil.isNotBlank(hangTagVO.getId()) && hangTagVO.getCompnentInspectCompanyDtoList() != null && !hangTagVO.getCompnentInspectCompanyDtoList().isEmpty()){
+			if(hangTagVO != null && CollUtil.isNotEmpty(hangTagVO.getCompnentInspectCompanyDtoList())){
 				List<EscmMaterialCompnentInspectCompanyDto> compnentInspectCompanyDtoList = hangTagVO.getCompnentInspectCompanyDtoList();
-				for(EscmMaterialCompnentInspectCompanyDto hangtag:compnentInspectCompanyDtoList){
-					if(hangtag != null && StrUtil.isNotBlank(hangtag.getId())){
-						HangTagInspectCompany hangTagInspectCompany = new HangTagInspectCompany();
-						hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
-						hangTagInspectCompany.setHangTagId(hangTagVO.getId());
-						hangTagInspectCompany.setInspectCompanyId(hangtag.getId());
-						hangTagInspectCompany.setCreateId(hangTagVO.getCreateId());
-						hangTagInspectCompany.setCreateName(hangTagVO.getCreateName());
-						hangTagInspectCompany.setCreateDate(hangTagVO.getCreateDate());
-						hangTagInspectCompany.setUpdateId(hangTagVO.getUpdateId());
-						hangTagInspectCompany.setUpdateName(hangTagVO.getUpdateName());
-						hangTagInspectCompany.setUpdateDate(hangTagVO.getUpdateDate());
-						hangTagInspectCompany.setCompanyCode(hangTagVO.getCompanyCode());
-						HangTagInspectCompany hangTag = hangTagMapper.listHangTagInspectCompany(hangtag.getId(), hangTagVO.getId());
-						if(hangTag!=null&&hangTag.getDelFlag().equals("0")){
-							continue;
-						}else{
+				for (EscmMaterialCompnentInspectCompanyDto compnentInspectCompanyDto : compnentInspectCompanyDtoList) {
+					if(compnentInspectCompanyDto != null){
+						//查询检测报告与吊牌关联数据，如果存在不更新数据，不存在则新增
+						QueryWrapper<HangTagInspectCompany> inspectCompanyQueryWrapper = new QueryWrapper<>();
+						inspectCompanyQueryWrapper.eq("inspect_company_id",compnentInspectCompanyDto.getId());
+						inspectCompanyQueryWrapper.eq("hang_tag_id",hangTagVO.getId());
+						inspectCompanyQueryWrapper.eq("del_flag","0");
+						List<HangTagInspectCompany> list = hangTagInspectCompanyService.list(inspectCompanyQueryWrapper);
+
+						//根据吊牌id和检测报告id找不到检测报告记录则新增
+						if(CollUtil.isEmpty(list)){
+							HangTagInspectCompany hangTagInspectCompany = new HangTagInspectCompany();
+							hangTagInspectCompany.setId(IdUtil.getSnowflakeNextIdStr());
+							hangTagInspectCompany.setHangTagId(hangTagVO.getId());
+							hangTagInspectCompany.setInspectCompanyId(compnentInspectCompanyDto.getId());
+							hangTagInspectCompany.preInsert();
 							hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
 						}
 					}
