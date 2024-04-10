@@ -410,29 +410,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		}
 
-		PackInfo packInfo = packInfoService
-				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
-		if (packInfo != null) {
-			PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(packInfo.getId(), StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
-
-			QueryWrapper<PackBom> queryWrapper = new QueryWrapper<PackBom>().eq("foreign_id", packInfo.getId());
-			queryWrapper.eq("unusable_flag",BaseGlobal.NO);
-			queryWrapper.eq("pack_type",StrUtil.equals(hangTagVO.getBomStatus(),BaseGlobal.YES)? PackUtils.PACK_TYPE_BIG_GOODS :PackUtils.PACK_TYPE_DESIGN);
-			if (ObjectUtil.isNotEmpty(packBomVersion)) {
-				queryWrapper.eq("bom_version_id",packBomVersion.getId());
-			}
-			List<PackBom> packBomList = packBomService.list(queryWrapper);
-			if (!packBomList.isEmpty()) {
-				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
-				if (!codes.isEmpty()) {
-					/*查询物料*/
-					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes));
-/*					List<BasicsdatumMaterial> list = basicsdatumMaterialService
-							.list(new QueryWrapper<BasicsdatumMaterial>().in("material_code", codes));*/
-					hangTagVO.setCompnentInspectCompanyDtoList(list);
-				}
-			}
-		}
 		return hangTagVO;
 	}
 
