@@ -10,6 +10,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumBrandSeasonDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBrandSeasonService;
 import com.github.pagehelper.PageHelper;
@@ -42,8 +43,20 @@ public class BasicsdatumBrandSeasonController extends BaseController {
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping
-	public PageInfo<BasicsdatumBrandSeason> page(Page page) {
-		PageHelper.startPage(page);
+	public PageInfo<BasicsdatumBrandSeason> page(BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
+		if (null == basicsdatumBrandSeasonDto) {
+			return null;
+		}
+		QueryWrapper<BasicsdatumBrandSeason> queryWrapper = new QueryWrapper<>();
+		if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getBrand())) {
+			queryWrapper.eq("brand", basicsdatumBrandSeasonDto.getBrand());
+		}
+		if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getSeason())) {
+			queryWrapper.eq("season", basicsdatumBrandSeasonDto.getSeason());
+		}
+		if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getMonth())) {
+			queryWrapper.eq("month", basicsdatumBrandSeasonDto.getMonth());
+		}
 		List<BasicsdatumBrandSeason> list = basicsdatumBrandSeasonService.list();
 		return new PageInfo<>(list);
 	}
@@ -54,7 +67,7 @@ public class BasicsdatumBrandSeasonController extends BaseController {
 		return basicsdatumBrandSeasonService.getById(id);
 	}
 
-	@ApiOperation(value = "条件查询")
+/*	@ApiOperation(value = "条件查询")
 	@GetMapping("/getBrandSeason")
 	public ApiResult getBrandSeason(@RequestBody BasicsdatumBrandSeason basicsdatumBrandSeason) {
 		if (null == basicsdatumBrandSeason) {
@@ -68,7 +81,7 @@ public class BasicsdatumBrandSeasonController extends BaseController {
 			queryWrapper.eq("season", basicsdatumBrandSeason.getSeason());
 		}
 		return selectSuccess(basicsdatumBrandSeasonService.list(queryWrapper));
-	}
+	}*/
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping("/{id}")
