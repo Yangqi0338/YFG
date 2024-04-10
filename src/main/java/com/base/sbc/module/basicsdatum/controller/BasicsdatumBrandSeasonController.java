@@ -57,8 +57,7 @@ public class BasicsdatumBrandSeasonController extends BaseController {
 		if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getMonth())) {
 			queryWrapper.eq("month", basicsdatumBrandSeasonDto.getMonth());
 		}
-		List<BasicsdatumBrandSeason> list = basicsdatumBrandSeasonService.list(queryWrapper);
-		return new PageInfo<>(list);
+		return new PageInfo<>(basicsdatumBrandSeasonService.list(queryWrapper));
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
