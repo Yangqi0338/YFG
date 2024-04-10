@@ -118,7 +118,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                     .notNullEq(typeFunc, countryQueryDto.getType())
                     .notEmptyIn(languageCodeFunc, countryQueryDto.getLanguageCode())
                     .notEmptyLike(nameFunc, countryQueryDto.getName())
-                    .notEmptyEq(enableFlagFunc, countryQueryDto.getEnableFlag())
+                    .notNullEq(enableFlagFunc, countryQueryDto.getEnableFlag())
                     .eq(singleLanguageFlagFunc, countryQueryDto.isSingleLanguage() ? YesOrNoEnum.YES : YesOrNoEnum.NO)
                     .orderByDesc(codeIndexFunc).orderByAsc(Arrays.asList(typeFunc, sortFunc))
             );
@@ -184,7 +184,7 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                 CountryLanguageType type = typeLanguageSaveDto.getType();
                 String modelLanguageCode = typeLanguageSaveDto.getModelLanguageCode();
                 List<String> languageCodeList = typeLanguageSaveDto.getLanguageCodeList();
-                boolean modelLanguageCodeBlank = StrUtil.isBlank(modelLanguageCode);
+                boolean modelLanguageCodeBlank = type == CountryLanguageType.WASHING || StrUtil.isBlank(modelLanguageCode);
                 if (type == CountryLanguageType.TAG && modelLanguageCodeBlank) throw new OtherException("未选择号型语言");
 
                 // 深拷贝基础的国家语言实体类

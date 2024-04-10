@@ -146,9 +146,10 @@ public class HangTagMoreLanguageVO {
     protected StyleCountryStatusEnum titleAuditStatus = StyleCountryStatusEnum.UNCHECK;
 
     public StyleCountryStatusEnum getAuditStatus(){
-        return (!forceFindContent() || contentAuditStatus == StyleCountryStatusEnum.CHECK) && titleAuditStatus == StyleCountryStatusEnum.CHECK
+        StyleCountryStatusEnum statusEnum = (!forceFindContent() || contentAuditStatus == StyleCountryStatusEnum.CHECK) && titleAuditStatus == StyleCountryStatusEnum.CHECK
                 ? StyleCountryStatusEnum.CHECK
                 : StyleCountryStatusEnum.UNCHECK;
+        return statusEnum;
     }
 
 }

@@ -120,7 +120,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
             if (languageDto.forceFindContent()) {
                 MoreLanguageStatusCheckDetailAuditDTO contentStatus = new MoreLanguageStatusCheckDetailAuditDTO();
                 contentStatus.setStandardColumnCode(standardColumnCode);
-                contentStatus.setSource(this.getPropertiesCode());
+                contentStatus.setSource(languageDto.getPropertiesCode());
                 contentStatus.setContent(languageDto.getPropertiesContent());
                 contentStatus.setStatus(YesOrNoEnum.YES.getValueStr());
                 auditDtoList.add(contentStatus);

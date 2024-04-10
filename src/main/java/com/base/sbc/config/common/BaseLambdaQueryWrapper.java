@@ -34,8 +34,8 @@ public class BaseLambdaQueryWrapper<T> extends LambdaQueryWrapper<T> {
         this.mainQueryWrapper = mainQueryWrapper;
     }
 
-    public <R> BaseLambdaQueryWrapper<T> notEmptyEq(SFunction<T, R> column, R val) {
-        this.eq(!StringUtils.isEmpty(val), column, val);
+    public BaseLambdaQueryWrapper<T> notEmptyEq(SFunction<T, ?> column, String val) {
+        this.eq(StrUtil.isNotBlank(val), column, val);
         return this;
     }
 

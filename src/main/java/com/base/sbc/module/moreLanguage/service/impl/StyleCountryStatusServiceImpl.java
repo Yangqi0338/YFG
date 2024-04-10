@@ -328,11 +328,11 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         // 有可能比传入的更新款号少,因为可以不导入直接在吊牌列表进行审核更改状态,这时是新增一条状态数据
         // 只查吊牌
         List<StyleCountryStatus> styleCountryStatusList = this.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-                        .and(andOperation->
-                                andOperation.eq(typeFunc, CountryLanguageType.WASHING).or(it->
-                                        it.in(bulkStyleNoFunc, bulkStyleNoList).in(StrUtil.isNotBlank(codeList),codeFunc, codeList)
-                                )
+                .and(andOperation->
+                        andOperation.eq(typeFunc, CountryLanguageType.WASHING).or(it->
+                                it.in(bulkStyleNoFunc, bulkStyleNoList).in(StrUtil.isNotBlank(codeList),codeFunc, codeList)
                         )
+                )
         );
 
         // 获取吊牌状态
@@ -396,12 +396,13 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
             languageDTO.setUserCompany(userUtils.getCompanyCode());
             webBaseVOList.addAll((List<HangTagMoreLanguageBaseVO>) hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO));
         }
-        Map<StandardColumnType, List<HangTagMoreLanguageBaseVO>> listMap = webBaseVOList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getType));
+        Map<CountryLanguageType, List<HangTagMoreLanguageBaseVO>> listMap = webBaseVOList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCountryLanguageType));
 
         // 封装转化为实体类列表
         List<StyleCountryStatus> statusList = updateStatusList.stream().flatMap(updateStatus -> {
             String countryCode = updateStatus.getCode();
             String bulkStyleNo = updateStatus.getBulkStyleNo();
+            List<StyleCountryStatus> bulkCountryStatusList = styleCountryStatusList.stream().filter(it -> bulkStyleNo.equals(it.getBulkStyleNo())).collect(Collectors.toList());
             StyleCountryStatus baseStatus = MORE_LANGUAGE_CV.copyMyself(updateStatus);
             baseStatus.setStatus(StyleCountryStatusEnum.UNCHECK);
             return countryDTOList.stream()
@@ -411,19 +412,24 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                         List<StyleCountryStatus> sameCodeStatusList = new ArrayList<>();
 
                         countryDTO.getLanguageCodeTypeMap().forEach((type,languageCodeList)-> {
-                            StandardColumnType standardColumnType = type.getStandardColumnType();
                             // 获取对应的标准列编码列表,并封装检查专用的详情json (用作审核之后,翻译新增了一个标准列关联,可以做对应的标记以及反审)
                             List<String> standardColumnCodeList = map.getOrDefault(code, new HashMap<>(1)).getOrDefault(type, new ArrayList<>());
                             // 获取组装的审核列信息
-                            Map<String, List<Map<String, List<MoreLanguageStatusCheckDetailAuditDTO>>>> standardColumnCodeMap = listMap.get(standardColumnType).stream().filter(it ->
-                                    code.equals(it.getCode()) && type.equals(it.getCountryLanguageType()) && bulkStyleNo.equals(it.getBulkStyleNo())
-                            ).collect(CommonUtils.groupingBy(HangTagMoreLanguageBaseVO::getStandardColumnCode, HangTagMoreLanguageBaseVO::buildAuditMap));
+                            Map<String, List<Map<String, List<MoreLanguageStatusCheckDetailAuditDTO>>>> standardColumnCodeMap =
+                                    listMap.getOrDefault(type, new ArrayList<>()).stream().filter(it ->
+                                            code.equals(it.getCode()) && type.equals(it.getCountryLanguageType()) && bulkStyleNo.equals(it.getBulkStyleNo())
+                                    ).collect(CommonUtils.groupingBy(HangTagMoreLanguageBaseVO::getStandardColumnCode, HangTagMoreLanguageBaseVO::buildAuditMap));
 
+                            // 获取其他模板的洗唛数据
+                            List<StyleCountryStatus> handlerStatusList = bulkCountryStatusList.stream().filter(it ->
+                                    it.getType().equals(type) && type == CountryLanguageType.WASHING && !it.getCode().equals(code)
+                            ).collect(Collectors.toList());
                             // 获取已存在的数据或直接使用空数据
-                            Opt.ofEmptyAble(styleCountryStatusList.stream().filter(it ->
-                                    it.getType().equals(type) &&
-                                            (type == CountryLanguageType.WASHING || (it.getCode().equals(code) && it.getBulkStyleNo().equals(bulkStyleNo)))
-                            ).collect(Collectors.toList())).orElse(Collections.singletonList(baseStatus)).forEach(status-> {
+                            handlerStatusList.add(bulkCountryStatusList.stream().filter(it ->
+                                    it.getType().equals(type) && it.getCode().equals(code)
+                            ).findFirst().orElse(baseStatus));
+
+                            handlerStatusList.forEach(status-> {
                                 // 深拷贝
                                 status = MORE_LANGUAGE_CV.copyMyself(status);
                                 // 如果状态一样,就不修改
@@ -438,7 +444,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                                 List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageCodeList.stream().map(languageCode-> {
                                     List<MoreLanguageStatusCheckDetailAuditDTO> languageAuditList = standardColumnCodeList.stream().flatMap(standardColumnCode ->
                                             // 获取当前标准列当前语言的审核列表
-                                            standardColumnCodeMap.get(standardColumnCode).stream().flatMap(mapList -> mapList.get(languageCode).stream())
+                                            standardColumnCodeMap.getOrDefault(standardColumnCode, new ArrayList<>()).stream().flatMap(mapList -> mapList.get(languageCode).stream())
                                     ).filter(it -> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList());
                                     return new MoreLanguageStatusCheckDetailDTO(languageCode, CollUtil.distinct(languageAuditList, (it)-> it.getStandardColumnCode() + it.getSource(), true));
                                 }).collect(Collectors.toList());
