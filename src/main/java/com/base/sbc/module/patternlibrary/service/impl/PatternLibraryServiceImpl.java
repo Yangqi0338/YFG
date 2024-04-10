@@ -592,7 +592,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 保存日志
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setName(GeneralConstant.LOG_NAME);
-        operaLogEntity.setType("批量编辑");
+        operaLogEntity.setType("批量审核");
 
         operaLogEntity.setDocumentCodeField("code");
         operaLogEntity.setDocumentNameField("code");
