@@ -472,9 +472,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             if (null == fabricSummary){
                 throw new OtherException("数据不存在！");
             }
-//            if (!fabricSummary.getFabricSummaryVersion().equals(dto.getFabricSummaryVersion())){
-//                throw new OtherException("当前版本异常，请刷新页面后再提交");
-//            }
+            if (!fabricSummary.getFabricSummaryVersion().equals(dto.getFabricSummaryVersion())){
+                throw new OtherException("当前版本异常，请刷新页面后再提交");
+            }
             if (StringUtils.isNotEmpty(dto.getEnquiryCode())){
                 fabricSummary.setEnquiryCode(dto.getEnquiryCode());
             }
