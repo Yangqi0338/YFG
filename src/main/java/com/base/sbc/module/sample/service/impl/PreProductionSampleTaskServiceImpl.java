@@ -32,7 +32,6 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
-import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
@@ -58,7 +57,6 @@ import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
@@ -462,7 +460,15 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         }
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.eq("id", dto.getId());
-        update(dto, uw);
+        //是否齐套
+        uw.set("kitting", dto.getKitting());
+        //放码日期
+        uw.set("grading_date", dto.getGradingDate());
+        //面辅料信息
+        uw.set("material_info", dto.getMaterialInfo());
+        //技术接收时间
+        uw.set("tech_receive_time", dto.getTechReceiveTime());
+        update(uw);
 
         // 修改裁剪时间和车缝时间
         QueryWrapper<NodeStatus> queryWrapper1 = new BaseQueryWrapper<>();
