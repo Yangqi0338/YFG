@@ -43,6 +43,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
@@ -434,6 +435,19 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         for (BomFabricVo bomFabricVo : bomFabricVos) {
             FabricSummary fabricSummary = new FabricSummary();
             BeanUtil.copyProperties(bomFabricVo,fabricSummary);
+            //获取物料颜色
+            List<BasicsdatumMaterialColorSelectVo> materialCodes = basicsdatumMaterialService.getMaterialCodes(bomFabricVo.getMaterialCode());
+            if (CollectionUtils.isNotEmpty(materialCodes)){
+
+                StringBuilder materialColor = new StringBuilder();
+                materialCodes.forEach(item ->{
+                    if (StringUtils.isNotBlank(item.getColor())){
+                        materialColor.append(item.getColor()).append(",");
+                    }
+                });
+                fabricSummary.setMaterialColor(materialColor.toString());
+            }
+
             fabricSummary.setWidthName(fabricInfoMap.get(bomFabricVo.getMaterialCode()));
             fabricSummary.setId( new IdGen().nextIdStr());
             fabricSummary.setFabricSummaryCode("ML"+System.currentTimeMillis());
@@ -458,9 +472,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             if (null == fabricSummary){
                 throw new OtherException("数据不存在！");
             }
-            if (!fabricSummary.getFabricSummaryVersion().equals(dto.getFabricSummaryVersion())){
-                throw new OtherException("当前版本异常，请刷新页面后再提交");
-            }
+//            if (!fabricSummary.getFabricSummaryVersion().equals(dto.getFabricSummaryVersion())){
+//                throw new OtherException("当前版本异常，请刷新页面后再提交");
+//            }
             if (StringUtils.isNotEmpty(dto.getEnquiryCode())){
                 fabricSummary.setEnquiryCode(dto.getEnquiryCode());
             }

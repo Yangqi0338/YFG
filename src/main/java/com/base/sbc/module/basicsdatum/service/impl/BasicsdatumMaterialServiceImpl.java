@@ -886,6 +886,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return list.get(0);
     }
 
+    @Override
+    public List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode) {
+        return this.baseMapper.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), materialCode);
+    }
+
     /**
      * 得到商品款图片
      * @param vo
