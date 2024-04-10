@@ -7,8 +7,10 @@
 package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumBrandSeasonDto;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumBrandSeasonVo;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：品牌-季度表 service类
@@ -30,6 +32,10 @@ public interface BasicsdatumBrandSeasonService extends BaseService<BasicsdatumBr
      */
     ApiResult addAndUpdateBasicsdatumBrandSeason(BasicsdatumBrandSeason basicsdatumBrandSeasonDto);
 
+    /**
+     * 分页查询
+     */
+    PageInfo<BasicsdatumBrandSeason> queryPage(BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto);
 
 // 自定义方法区 不替换的区域【other_end】
 

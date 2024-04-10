@@ -44,20 +44,7 @@ public class BasicsdatumBrandSeasonController extends BaseController {
 	@ApiOperation(value = "分页查询")
 	@GetMapping
 	public PageInfo<BasicsdatumBrandSeason> page(BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
-		if (null == basicsdatumBrandSeasonDto) {
-			return null;
-		}
-		QueryWrapper<BasicsdatumBrandSeason> queryWrapper = new QueryWrapper<>();
-		if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getBrand())) {
-			queryWrapper.eq("brand", basicsdatumBrandSeasonDto.getBrand());
-		}
-		if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getSeason())) {
-			queryWrapper.eq("season", basicsdatumBrandSeasonDto.getSeason());
-		}
-		if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getMonth())) {
-			queryWrapper.eq("month", basicsdatumBrandSeasonDto.getMonth());
-		}
-		return new PageInfo<>(basicsdatumBrandSeasonService.list(queryWrapper));
+		return basicsdatumBrandSeasonService.queryPage(basicsdatumBrandSeasonDto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")
@@ -65,22 +52,6 @@ public class BasicsdatumBrandSeasonController extends BaseController {
 	public BasicsdatumBrandSeason getById(@PathVariable("id") String id) {
 		return basicsdatumBrandSeasonService.getById(id);
 	}
-
-/*	@ApiOperation(value = "条件查询")
-	@GetMapping("/getBrandSeason")
-	public ApiResult getBrandSeason(@RequestBody BasicsdatumBrandSeason basicsdatumBrandSeason) {
-		if (null == basicsdatumBrandSeason) {
-			return ApiResult.error("查询条件为空", 500);
-		}
-		QueryWrapper<BasicsdatumBrandSeason> queryWrapper = new QueryWrapper<>();
-		if (StringUtils.isNotBlank(basicsdatumBrandSeason.getBrand())) {
-			queryWrapper.eq("brand", basicsdatumBrandSeason.getBrand());
-		}
-		if (StringUtils.isNotBlank(basicsdatumBrandSeason.getSeason())) {
-			queryWrapper.eq("season", basicsdatumBrandSeason.getSeason());
-		}
-		return selectSuccess(basicsdatumBrandSeasonService.list(queryWrapper));
-	}*/
 
 	@ApiOperation(value = "删除-通过id查询,多个逗号分开")
 	@DeleteMapping("/{id}")

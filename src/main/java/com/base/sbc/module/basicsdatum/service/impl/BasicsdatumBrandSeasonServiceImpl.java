@@ -8,13 +8,20 @@ package com.base.sbc.module.basicsdatum.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumBrandSeasonDto;
 import com.base.sbc.module.basicsdatum.enums.MonthEnum;
 import com.base.sbc.module.basicsdatum.enums.SeasonEnum;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumBrandSeasonVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBrandSeasonMapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumBrandSeasonService;
+import com.base.sbc.module.planning.vo.PlanningChannelVo;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -50,8 +57,28 @@ public class BasicsdatumBrandSeasonServiceImpl extends BaseServiceImpl<Basicsdat
         return ApiResult.success("操作完成");
     }
 
+    @Override
+    public PageInfo queryPage(BasicsdatumBrandSeasonDto basicsdatumBrandSeasonDto) {
+        if (null == basicsdatumBrandSeasonDto) {
+            return null;
+        }
+        BaseQueryWrapper<BasicsdatumBrandSeason> queryWrapper = new BaseQueryWrapper<>();
+        if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getBrand())) {
+            queryWrapper.eq("brand", basicsdatumBrandSeasonDto.getBrand());
+        }
+        if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getSeason())) {
+            queryWrapper.eq("season", basicsdatumBrandSeasonDto.getSeason());
+        }
+        if (StringUtils.isNotBlank(basicsdatumBrandSeasonDto.getMonth())) {
+            queryWrapper.eq("month", basicsdatumBrandSeasonDto.getMonth());
+        }
+        Page<BasicsdatumBrandSeason> page = PageHelper.startPage(basicsdatumBrandSeasonDto);
+        getBaseMapper().selectList(queryWrapper);
+        return page.toPageInfo();
+    }
 
-// 自定义方法区 不替换的区域【other_end】
+
+    // 自定义方法区 不替换的区域【other_end】
 	private ApiResult checkParam(BasicsdatumBrandSeason basicsdatumBrandSeason) {
         if (StringUtils.isBlank(basicsdatumBrandSeason.getBrand())) {
             return ApiResult.error("品牌字段为空", 500);
