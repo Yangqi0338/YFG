@@ -16,6 +16,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -24,11 +25,13 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
@@ -228,7 +231,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private StyleCountryStatusService styleCountryStatusService;
 
 	public static final SFunction<HangTag, String> idFunc = HangTag::getId;
-	private final CcmFeignService ccmFeignService;
+	private final CcmService ccmService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -1068,10 +1071,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (CollectionUtil.isEmpty(countryLanguageList)) throw new OtherException(MoreLanguageProperties.getMsg(HAVEN_T_COUNTRY_LANGUAGE));
 
 		// 装饰名字
-		List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList(MoreLanguageProperties.languageDictCode);
-		countryLanguageList.forEach(countryLanguageDto -> {
-			countryLanguageDto.buildLanguageName(dictList);
-		});
+		String dictInfo = ccmService.getOpenDictInfo(BaseConstant.DEF_COMPANY_CODE, MoreLanguageProperties.languageDictCode);
+		JSONObject dictJsonObject = JSON.parseObject(dictInfo);
+		if (dictJsonObject.getBoolean(BaseConstant.SUCCESS)) {
+			List<BasicBaseDict> dictList = dictJsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+			countryLanguageList.forEach(countryLanguageDto -> {
+				countryLanguageDto.buildLanguageName(dictList);
+			});
+		}
 
 		// 获取所有的吊牌
 		List<MoreLanguageHangTagVO> hangTagVOList = HANG_TAG_CV.copyList2MoreLanguage(hangTagMapper.getDetailsByBulkStyleNo(
