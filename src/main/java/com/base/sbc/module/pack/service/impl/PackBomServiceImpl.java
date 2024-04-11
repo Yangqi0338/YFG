@@ -472,9 +472,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             if (null == fabricSummary){
                 throw new OtherException("数据不存在！");
             }
-            if (!fabricSummary.getFabricSummaryVersion().equals(dto.getFabricSummaryVersion())){
-                throw new OtherException("当前版本异常，请刷新页面后再提交");
-            }
             if (StringUtils.isNotEmpty(dto.getEnquiryCode())){
                 fabricSummary.setEnquiryCode(dto.getEnquiryCode());
             }
@@ -498,7 +495,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             }
             fabricSummary.updateInit();
             saveOrUpdateOperaLog(dto, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
-            fabricSummary.setFabricSummaryVersion(fabricSummary.getFabricSummaryVersion() + 1);
             return fabricSummaryService.updateById(fabricSummary);
         }finally{
             saveLock.unlock();
@@ -603,10 +599,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 if (null == fabricSummaryStyle){
                     throw new OtherException("款式不存在");
                 }
-                if (!fabricSummaryStyle.getFabricSummaryStyleVersion().equals(fabricSummaryStyleDto.getFabricSummaryStyleVersion())){
-                    throw new OtherException("当前版本异常，请刷新页面后再提交");
-                }
-                fabricSummaryStyle.setFabricSummaryStyleVersion(fabricSummaryStyleDto.getFabricSummaryStyleVersion()+1);
                 if (null != fabricSummaryStyleDto.getSort()){
                     fabricSummaryStyle.setSort(fabricSummaryStyleDto.getSort());
                 }

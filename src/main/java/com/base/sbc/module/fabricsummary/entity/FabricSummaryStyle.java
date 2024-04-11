@@ -7,6 +7,7 @@
 package com.base.sbc.module.fabricsummary.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -148,8 +149,10 @@ public class FabricSummaryStyle extends BaseDataEntity<String> {
     @ApiModelProperty(value = "版师id")
     private String patternDesignId;
 
-    @ApiModelProperty(value = "款式版本号"  )
-    private Integer fabricSummaryStyleVersion;
+    @ApiModelProperty(value = "版本号"  )
+    @Version
+    private Integer version;
+
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

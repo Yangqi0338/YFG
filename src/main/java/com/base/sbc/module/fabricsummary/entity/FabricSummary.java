@@ -7,6 +7,7 @@
 package com.base.sbc.module.fabricsummary.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -128,11 +129,12 @@ public class FabricSummary extends BaseDataEntity<String> {
     @ApiModelProperty(value = "纱支规格"  )
     private String specification;
 
-    @ApiModelProperty(value = "版本号"  )
-    private Integer fabricSummaryVersion;
-
     @ApiModelProperty(value = "物料颜色"  )
     private String materialColor;
+
+    @ApiModelProperty(value = "版本号"  )
+    @Version
+    private Integer version;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
