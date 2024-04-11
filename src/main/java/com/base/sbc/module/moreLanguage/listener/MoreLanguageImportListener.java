@@ -15,9 +15,11 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyBuilder;
@@ -302,14 +304,13 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             baseEntity.setDocumentName(standardColumnName);
             baseEntity.setDocumentCode(standardColumnCode);
             baseEntity.setName("多语言翻译");
-            String code = excelQueryDto.getCode();
+            baseEntity.setPath(excelQueryDto.getCode() + ":" + type.getCode());
             baseEntity.setContent(countryLanguageList.get(0).getName() + ":" + type.getText());
             if (excelQueryDto.getSingleLanguageFlag() == YesOrNoEnum.YES) {
                 baseEntity.setName("单语言翻译");
-                code = excelQueryDto.getLanguageCode();
+                baseEntity.setPath(excelQueryDto.getLanguageCode() + ":" + type.getCode());
                 baseEntity.setContent(countryLanguageList.get(0).getLanguageName() + ":" + type.getText());
             };
-            baseEntity.setPath(code + ":" + type.getCode());
 
             List<String> countryLanguageIdList = countryLanguageList.stream().map(idFunc).collect(Collectors.toList());
             List<StandardColumnCountryTranslate> updateOldTranslateList = standardColumnCountryTranslateService.list(
@@ -397,18 +398,19 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 });
 
                 // 同步其他type但隐藏的数据
-                List<CountryLanguageDto> typeList = exportMapping.getTotalCountryLanguageList().stream()
-                        .filter(it -> it.getType() != type).collect(Collectors.toList());
-                StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
-                queryDto.setCodeList(Collections.singletonList(standardColumnCode));
-                queryDto.setShowFlag(YesOrNoEnum.NO);
-                queryDto.setTypeList(typeList.stream().flatMap(it-> it.getType().getStandardColumnType().getChildrenTypeList().stream()).distinct().collect(Collectors.toList()));
                 taskList.add(() -> {
-                    List<StandardColumnDto> standardColumnDtoList = standardColumnService.listQuery(queryDto);
-                    if (CollectionUtil.isNotEmpty(standardColumnDtoList)) {
+                    List<CountryLanguageDto> typeList = exportMapping.getTotalCountryLanguageList().stream().filter(it -> it.getType() != type).collect(Collectors.toList());
+                    List<String> propertiesCodeList = updateNewTranslateList.stream().map(propertiesCodeFunc).collect(Collectors.toList());
+
+                    boolean needSync = standardColumnService.exists(new BaseLambdaQueryWrapper<StandardColumn>()
+                            .in(StandardColumn::getCode, StandardColumnType.findRootList().contains(standardColumn.getType()) ? propertiesCodeList : standardColumnCode)
+                            .eq(StandardColumn::getShowFlag, YesOrNoEnum.NO)
+                            .in(StandardColumn::getType, typeList.stream().flatMap(it -> it.getType().getStandardColumnType().getChildrenTypeList().stream()).distinct().collect(Collectors.toList()))
+                    );
+                    if (needSync) {
                         List<StandardColumnCountryTranslate> list = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
                                 .in(countryLanguageIdFunc, typeList.stream().map(idFunc).collect(Collectors.toList()))
-                                .in(propertiesCodeFunc, updateNewTranslateList.stream().map(propertiesCodeFunc).collect(Collectors.toList()))
+                                .in(propertiesCodeFunc, propertiesCodeList)
                                 .eq(titleCodeFunc, standardColumnCode)
                         );
 
