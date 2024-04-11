@@ -19,6 +19,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
+import com.base.sbc.module.orderbook.dto.OrderBookDetailProductionDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
@@ -134,6 +135,15 @@ public class OrderBookDetailController extends BaseController {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
         return updateSuccess(orderBookDetailService.placeAnOrder(dto, ids));
+    }
+
+    /**
+     * 订货本投产
+     */
+    @ApiModelProperty(value = "订货本详情-投产")
+    @PostMapping("/placeAnProduction")
+    public ApiResult placeAnProduction(@RequestBody @Valid OrderBookDetailProductionDto dto) {
+        return updateSuccess(orderBookDetailService.placeAnProduction(dto));
     }
 
     /**

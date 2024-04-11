@@ -45,6 +45,7 @@ import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
+import com.base.sbc.module.orderbook.dto.OrderBookDetailProductionDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
@@ -572,7 +573,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         double tagPriceSum = 0;
 
         OrderBookChannelType[] channelTypes = OrderBookChannelType.values();
-        Map<OrderBookChannelType, Double> sumMap = new HashMap<>(channelTypes.length);
+        Map<OrderBookChannelType, Double> totalMap = new HashMap<>(channelTypes.length);
 
         for (OrderBookDetailVo orderBookDetailVo : querylistAll) {
             String commissioningSize = orderBookDetailVo.getCommissioningSize();
@@ -580,15 +581,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 JSONObject jsonObject = JSON.parseObject(commissioningSize);
                 if (jsonObject!= null){
                     for (String sizeName : jsonObject.keySet()) {
-                        Double num = hashMap.getOrDefault(sizeName, 0.0);
+                        Double sum = hashMap.getOrDefault(sizeName, 0.0);
+                        Double num = Opt.ofNullable(NumberUtil.parseDouble(jsonObject.getString(sizeName))).orElse(0.0);
                         for (OrderBookChannelType channelType : channelTypes) {
-                            Double sum = sumMap.getOrDefault(channelType, 0.0);
+                            Double total = totalMap.getOrDefault(channelType, 0.0);
                             if (sizeName.endsWith(channelType.getFill())) {
-                                sum += num;
+                                total += sum;
                             }
-                            sumMap.put(channelType, sum);
+                            totalMap.put(channelType, total);
                         }
-                        hashMap.put(sizeName, jsonObject.getDouble(sizeName) + num);
+                        hashMap.put(sizeName, sum + num);
                     }
                 }
             }
@@ -605,8 +607,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         hashMap.put("totalProductionSum", querylistAll.stream().map(OrderBookDetailVo::getTotalProduction).mapToDouble(NumberUtil::parseDouble).sum());
         hashMap.put("onlineProductionSum", querylistAll.stream().map(OrderBookDetailVo::getOnlineProduction).mapToDouble(NumberUtil::parseDouble).sum());
         hashMap.put("offlineProductionSum", querylistAll.stream().map(OrderBookDetailVo::getOfflineProduction).mapToDouble(NumberUtil::parseDouble).sum());
-        hashMap.put("onlineSum", sumMap.get(OrderBookChannelType.ONLINE));
-        hashMap.put("offlineSum", sumMap.get(OrderBookChannelType.OFFLINE));
+        hashMap.put("onlineSum", totalMap.get(OrderBookChannelType.ONLINE));
+        hashMap.put("offlineSum", totalMap.get(OrderBookChannelType.OFFLINE));
         hashMap.put("total", (double) querylistAll.size());
         return hashMap;
     }
@@ -679,31 +681,36 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
+
+        List<OrderBookDetailVo> cancelOrderBookDetailList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (OrderBookDetailAuditStatusEnum.NOT_COMMIT == orderBookDetail.getAuditStatus()){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+"未提交审核，不能驳回审核");
             }
+
+            // 如果已经开始投产，需要等待下游投产接口完成后,再调用取消投产接口
+            if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)) {
+                cancelOrderBookDetailList.add(orderBookDetail);
+            }
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT_SUSPEND);
             orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.NOT_COMMIT);
             orderBookDetail.setIsLock(YesOrNoEnum.NO);
-            orderBookDetail.setIsOrder(YesOrNoEnum.NO);
-            orderBookDetail.setCommissioningDate(null);
+            orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         this.updateBatchById(orderBookDetails1);
 
         List<String> orderBookIdList = orderBookDetails1.stream().map(OrderBookDetail::getOrderBookId).distinct().collect(Collectors.toList());
         for (String orderBookId : orderBookIdList) {
-            LambdaQueryWrapper<OrderBookDetail> ew = new LambdaQueryWrapper<OrderBookDetail>().eq(OrderBookDetail::getOrderBookId, orderBookId);
-            long totalCount = this.count(ew);
-            long rightStatusCount = this.count(ew.and(it-> it.eq(OrderBookDetail::getIsOrder, YesOrNoEnum.NO).or().isNull(OrderBookDetail::getIsOrder)));
+            boolean rightStatusExists = this.exists(new LambdaQueryWrapper<OrderBookDetail>()
+                    .eq(OrderBookDetail::getOrderBookId, orderBookId)
+                    .ne(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.NOT_COMMIT));
 
             orderBookService.update(new LambdaUpdateWrapper<OrderBook>()
                     .set(OrderBook::getStatus,OrderBookStatusEnum.SUSPEND)
-                    .set(OrderBook::getOrderStatus,totalCount == rightStatusCount ? OrderBookOrderStatusEnum.NOT_COMMIT : OrderBookOrderStatusEnum.PART_ORDER)
+                    .set(OrderBook::getOrderStatus,rightStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.NOT_COMMIT)
                     .eq(OrderBook::getId,orderBookId));
         }
-
     }
 
     @Override
@@ -724,7 +731,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
             orderBookDetail.setIsLock(YesOrNoEnum.YES);
-            orderBookDetail.setIsOrder(YesOrNoEnum.YES);
+            orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDERING);
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT);
             orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.FINISH);
             orderBookDetail.setCommissioningDate(new Date());
@@ -733,18 +740,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         boolean b = this.updateBatchById(orderBookDetails1);
 
         // 检查是否下属详情是否全部完成审核
-        LambdaQueryWrapper<OrderBookDetail> ew = new LambdaQueryWrapper<OrderBookDetail>().eq(OrderBookDetail::getOrderBookId, dto.getOrderBookId());
-        long totalCount = this.count(ew);
-        long rightStatusCount = this.count(ew.eq(OrderBookDetail::getIsOrder, YesOrNoEnum.YES));
+        boolean warnStatusExists = this.exists(new LambdaQueryWrapper<OrderBookDetail>()
+                .eq(OrderBookDetail::getOrderBookId, dto.getOrderBookId())
+                .ne(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.ORDER)
+        );
 
         OrderBook orderBook = orderBookService.getById(dto.getOrderBookId());
-        if (totalCount == rightStatusCount) {
-            orderBook.setStatus(OrderBookStatusEnum.CONFIRM);
-            orderBook.setOrderStatus(OrderBookOrderStatusEnum.ORDER);
-        }else {
-            orderBook.setStatus(OrderBookStatusEnum.PART_CONFIRM);
-            orderBook.setOrderStatus(OrderBookOrderStatusEnum.PART_ORDER);
-        }
+        orderBook.setStatus(warnStatusExists ? OrderBookStatusEnum.PART_CONFIRM : OrderBookStatusEnum.CONFIRM);
+        orderBook.setOrderStatus(warnStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.ORDER);
+
         orderBookService.updateById(orderBook);
         PublicStyleColorDto colorDto = new PublicStyleColorDto();
         colorDto.setOrderFlag(YesOrNoEnum.YES.getValueStr());
@@ -1047,6 +1051,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return true;
     }
 
+
+    @Override
+    public boolean placeAnProduction(OrderBookDetailProductionDto dto) {
+        return false;
+    }
+
+    @Override
+    public boolean placeAnCancelProduction(OrderBookDetailProductionDto dto) {
+        return false;
+    }
 
     /**
      * 查询款式定价数据

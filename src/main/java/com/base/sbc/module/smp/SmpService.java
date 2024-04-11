@@ -23,6 +23,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.RFIDProperties;
+import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.resttemplate.RestTemplateService;
@@ -80,6 +81,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -87,6 +90,7 @@ import org.springframework.transaction.TransactionStatus;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
@@ -1842,6 +1846,28 @@ public class SmpService {
         // 封装数据并转化Bean
         detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
         return ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
+    }
+
+    /**
+     * 订货本一键投产
+     */
+    @Async
+    public Future<Object> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
+        String jsonString = JsonStringUtils.toJSONString(scmProductionDto);
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_PRODUCTION_IN_URL, jsonString);
+        Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "smp", "订货本一键投产");
+        return new AsyncResult<>(aBoolean);
+    }
+
+    /**
+     * 反审核投产单
+     */
+    @Async
+    public Future<Object> facPrdOrderUpCheck(ScmProductionDto scmProductionDto) {
+        String jsonString = JsonStringUtils.toJSONString(scmProductionDto);
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_CANCEL_PRODUCTION_URL, jsonString);
+        Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "smp", "反审核投产单");
+        return new AsyncResult<>(aBoolean);
     }
 }
 

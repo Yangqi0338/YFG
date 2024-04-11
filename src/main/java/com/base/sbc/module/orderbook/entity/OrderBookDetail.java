@@ -13,6 +13,7 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -97,7 +98,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 状态
      */
     @ApiModelProperty(value = "状态:0：未提交，1：分配设计师，2：分配商企，3：待审核,4:审核通过,5:审核未通过")
-    private OrderBookDetailStatusEnum status;
+    private OrderBookDetailStatusEnum status = OrderBookDetailStatusEnum.NOT_COMMIT;
     /**
      * 设计师分配
      */
@@ -356,15 +357,15 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     private String fabricType;
 
     /**
-     * 是否下单（0：否，1：是）
+     * 下单状态
      */
-    @ApiModelProperty(value = "是否下单（0：否，1：是）")
-    private YesOrNoEnum isOrder;
+    @ApiModelProperty(value = "下单状态 0未下单 1投产失败 2下单中 3投产中 4已下单")
+    private OrderBookDetailOrderStatusEnum orderStatus = OrderBookDetailOrderStatusEnum.NOT_COMMIT;
     /**
      * 是否锁定（0：否，1：是）
      */
     @ApiModelProperty(value = "是否锁定（0：否，1：是）")
-    private YesOrNoEnum isLock;
+    private YesOrNoEnum isLock = YesOrNoEnum.NO;
 
     /**
      * 品牌
