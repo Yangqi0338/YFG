@@ -536,6 +536,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         for (StyleColor styleColor : styleColorList) {
             // 保存工艺信息
             fieldValService.save(styleColor.getId(), FieldValDataGroupConstant.STYLE_COLOR, fieldValList);
+            fieldValService.save(styleColor.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER, fieldValList);
             /*获取全部的主款或配饰*/
             if (CollUtil.isNotEmpty(saveDtoList)) {
                 saveDtoList.forEach(s -> s.setStyleColorId(styleColor.getId()));
