@@ -501,7 +501,10 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             // 将单语言的翻译修正为模板翻译id
             translateList.forEach(translate-> {
                 languageDtoList.stream().filter(it -> translate.getCountryLanguageId().equals(it.getId())).findFirst().flatMap(countryLanguageDto ->
-                        countryLanguageList.stream().filter(it -> countryLanguageDto.getLanguageCode().equals(it.getLanguageCodeByColumnCode(standardColumnCode))).findFirst()
+                        countryLanguageList.stream().filter(it ->
+                                countryLanguageDto.getLanguageCode().equals(it.getLanguageCodeByColumnCode(standardColumnCode))
+                                        && countryLanguageDto.getType() == it.getType()
+                        ).findFirst()
                 ).ifPresent(countryLanguage -> {
                     translate.setCountryLanguageId(countryLanguage.getId());
                 });

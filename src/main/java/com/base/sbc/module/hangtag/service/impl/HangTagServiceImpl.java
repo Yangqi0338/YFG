@@ -1254,7 +1254,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			);
 			translateList.addAll(list.stream().peek(translate-> {
 				singleLanguageDtoList.stream().filter(it -> translate.getCountryLanguageId().equals(it.getId())).findFirst().flatMap(countryLanguageDto ->
-						sameCodeList.stream().filter(it -> countryLanguageDto.getLanguageCode().equals(it.getLanguageCodeByColumnCode(standardColumnCode))).findFirst()
+						sameCodeList.stream().filter(it ->
+								countryLanguageDto.getLanguageCode().equals(it.getLanguageCodeByColumnCode(standardColumnCode))
+										&& countryLanguageDto.getType() == it.getType()
+						).findFirst()
 				).ifPresent(countryLanguage -> {
                     translate.setCountryLanguageId(countryLanguage.getId());
                 });
@@ -1316,17 +1319,18 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		statusCheckDetailList.stream().filter(it -> languageCode.equals(it.getLanguageCode()))
 				.findFirst().ifPresent(checkDetailDTO ->
 						checkDetailDTO.getAuditList().forEach(it -> {
+							StyleCountryStatusEnum statusEnum = StyleCountryStatusEnum.findByCode(it.getStatus());
 							if (standardColumnCode.equals(it.getSource())) {
 								// 找到 设置翻译 以及 flag
-								languageVO.setCannotFindStandardColumnContent(false);
+								languageVO.setCannotFindStandardColumnContent(statusEnum != StyleCountryStatusEnum.CHECK);
 								languageVO.setStandardColumnContent(it.getContent());
-								languageVO.setTitleAuditStatus(StyleCountryStatusEnum.findByCode(it.getStatus()));
+								languageVO.setTitleAuditStatus(statusEnum);
 							}
 							if (standardColumnCode.equals(it.getStandardColumnCode()) && propertiesCode.equals(it.getSource())) {
 								// 找到 设置翻译 以及 flag
-								languageVO.setCannotFindPropertiesContent(false);
+								languageVO.setCannotFindPropertiesContent(statusEnum != StyleCountryStatusEnum.CHECK);
 								languageVO.setPropertiesContent(it.getContent());
-								languageVO.setContentAuditStatus(StyleCountryStatusEnum.findByCode(it.getStatus()));
+								languageVO.setContentAuditStatus(statusEnum);
 							}
 						})
 				);

@@ -132,7 +132,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
             titleStatus.setContent(languageDto.getStandardColumnContent());
             titleStatus.setStatus(YesOrNoEnum.YES.getValueStr());
             auditDtoList.add(titleStatus);
-            return auditDtoList;
+            return auditDtoList.stream().filter(it-> StrUtil.isNotBlank(it.getContent())).collect(Collectors.toList());
         }));
     }
 

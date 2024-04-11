@@ -51,6 +51,11 @@ public interface HangTagConvert {
     HangTagMoreLanguageVO copyMyself(HangTagMoreLanguageVO source);
     CountryQueryDto copy2CountryQuery(HangTagMoreLanguageDTO source);
     HangTagMoreLanguageBaseVO copy2MoreLanguageBaseVO(CountryLanguageDto source);
+    @Mappings({
+            @Mapping(target = "createTime", source = "createDate"),
+            @Mapping(target = "updateTime", source = "updateDate"),
+            @Mapping(target = "propertiesCode", ignore = true),
+    })
     void countryTranslate2MoreLanguageVO(StandardColumnCountryTranslate source, @MappingTarget HangTagMoreLanguageVO target);
 
     MoreLanguageHangTagVO copy2MoreLanguage(HangTagVO source);
