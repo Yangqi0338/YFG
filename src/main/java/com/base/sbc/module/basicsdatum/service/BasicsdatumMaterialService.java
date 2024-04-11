@@ -166,6 +166,6 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @param materialSupplierInfo
 	 * @return
 	 */
-	String getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo);
+	List<String> getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo);
 }
 

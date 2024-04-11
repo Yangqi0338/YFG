@@ -42,7 +42,7 @@ public interface BasicsdatumMaterialPriceService extends BaseService<Basicsdatum
      */
     void copyByMaterialCode(String materialCode, String newMaterialCode);
 
-    String getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo);
+    List<String> getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo);
 
 
 // 自定义方法区 不替换的区域【other_end】

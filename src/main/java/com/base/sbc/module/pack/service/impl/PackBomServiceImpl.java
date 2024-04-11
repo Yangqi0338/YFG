@@ -398,10 +398,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         List<String> sizeIds = StringUtils.isBlank(styleVo.getSizeIds())?  new ArrayList<>() : Arrays.asList(styleVo.getSizeIds().substring(1).split(","));
 
         for (MaterialSupplierInfo materialSupplierInfo : dto.getMaterialSupplierInfos()) {
-            String materialCode = basicsdatumMaterialService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
-            if (StringUtils.isEmpty(materialCode)){
+            List<String> materialCodes = basicsdatumMaterialService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
+            if (CollectionUtils.isEmpty(materialCodes)){
                 throw new OtherException("此供应商未有物料关联："+materialSupplierInfo.getSupplierAbbreviation());
             }
+            if (materialCodes.size() > 1){
+                throw new OtherException("供应商"+materialSupplierInfo.getSupplierAbbreviation()+"关联了多个物料:"+JSON.toJSONString(materialCodes)+"，请检查是否有脏数据！");
+            }
+            String materialCode = materialCodes.get(0);
             List<PackBom> packBomList = map.get(materialSupplierInfo.getMaterialCode());
             //已有的物料，不做处理
             if (materialCode.equals(materialSupplierInfo.getMaterialCode())){

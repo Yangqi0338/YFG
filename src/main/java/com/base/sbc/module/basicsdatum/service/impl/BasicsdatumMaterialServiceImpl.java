@@ -878,7 +878,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
-    public String getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo) {
+    public List<String> getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo) {
         return materialPriceService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
     }
 
