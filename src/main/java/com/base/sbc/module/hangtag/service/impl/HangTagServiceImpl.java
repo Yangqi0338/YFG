@@ -381,7 +381,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (CollUtil.isNotEmpty(codes)) {
 						List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
 						for (EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto : list) {
-							escmMaterialCompnentInspectCompanyDto.setRemark(escmMaterialCompnentInspectCompanyDto.getMaterialsNo()+":"+escmMaterialCompnentInspectCompanyDto.getRemark());
+							if (StrUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto.getRemark())) {
+								escmMaterialCompnentInspectCompanyDto.setRemark(escmMaterialCompnentInspectCompanyDto.getMaterialsNo()+":"+escmMaterialCompnentInspectCompanyDto.getRemark());
+							}
 						}
 						hangTagVO.setCompnentInspectCompanyDtoList(list);
 						return hangTagVO;
