@@ -231,24 +231,19 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
             if (CollectionUtil.isNotEmpty(newCountryLanguageList)) {
                 this.saveOrUpdateBatch(newCountryLanguageList);
 
-                List<StandardColumn> rootStandardColumnList = standardColumnService.list(new LambdaQueryWrapper<StandardColumn>()
+                // 查询当前数据库的隐藏标准列 和 维护内容列
+                List<StandardColumn> extendStandardColumnList = standardColumnService.list(new LambdaQueryWrapper<StandardColumn>()
                         .select(StandardColumn::getCode, StandardColumn::getType)
-                        .in(StandardColumn::getType, StandardColumnType.findRootList())
-                );
-
-                // 查询当前数据库的隐藏标准列
-                List<String> notShowStandardColumnCodeList = standardColumnService.listOneField(
-                        new BaseLambdaQueryWrapper<StandardColumn>().eq(StandardColumn::getShowFlag, YesOrNoEnum.NO), StandardColumn::getCode
+                        .and(it-> it.in(StandardColumn::getType, StandardColumnType.findRootList()).or().eq(StandardColumn::getShowFlag, YesOrNoEnum.NO))
                 );
 
                 Map<CountryLanguageType, List<String>> typeListMap = countryTypeLanguageSaveDto.getTypeLanguage()
                         .stream().collect(Collectors.toMap(TypeLanguageSaveDto::getType, (typeLanguageSaveDto)-> {
                             List<String> standardColumnCodeList = typeLanguageSaveDto.getStandardColumnCodeList();
-                            rootStandardColumnList.stream().filter(it-> it.getType().equals(typeLanguageSaveDto.getType().getStandardColumnType())).findFirst().ifPresent(standardColumn -> {
+                            extendStandardColumnList.stream().filter(it-> it.getType().equals(typeLanguageSaveDto.getType().getStandardColumnType())).findFirst().ifPresent(standardColumn -> {
                                 standardColumnCodeList.add(standardColumn.getCode());
                             });
                             standardColumnCodeList.add(MoreLanguageProperties.modelStandardColumnCode);
-                            standardColumnCodeList.addAll(notShowStandardColumnCodeList);
                             return CollUtil.distinct(standardColumnCodeList);
                         }));
 
