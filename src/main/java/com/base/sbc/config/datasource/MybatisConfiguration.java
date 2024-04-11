@@ -8,8 +8,6 @@ import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.extension.injector.methods.InsertBatchSomeColumn;
-import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.base.sbc.config.AutoFillFieldValueConfig;
 import com.github.pagehelper.PageHelper;
@@ -102,7 +100,8 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
             sessionFactoryBean.setGlobalConfig(globalConfig);
 
             //添加分页插件、打印sql插件
-            Interceptor[] plugins = new Interceptor[]{pageHelper(), sqlPrintInterceptor(), mybatisPlusInterceptor()};
+            // !!!!!!!!!!!!!!! 不能加Mybatis-Plus的分页器,会导致全局的旧版分页失效 (因为PageHelper的JSqlParse版本太低了, 高版本的MP分页器会覆盖掉) !!!!!!!!!!!!!!!
+            Interceptor[] plugins = new Interceptor[]{pageHelper(), sqlPrintInterceptor()};
             sessionFactoryBean.setPlugins(plugins);
 
             return sessionFactoryBean.getObject();
@@ -177,11 +176,4 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
         };
     }
 
-    @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptor(){
-        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-        //注册乐观锁插件
-        interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
-        return interceptor;
-    }
 }
