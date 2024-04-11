@@ -11,6 +11,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -131,10 +132,10 @@ public class OrderBookDetailController extends BaseController {
     @ApiModelProperty(value = "订货本详情-下单")
     @PostMapping("/placeAnOrder")
     public ApiResult placeAnOrder(@RequestBody OrderBookDetailQueryDto dto) {
-        String ids = dto.getIds();
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        return updateSuccess(orderBookDetailService.placeAnOrder(dto, ids));
+        dto.setUserName(super.getUser().getUsername());
+        return updateSuccess(orderBookDetailService.placeAnOrder(dto));
     }
 
     /**
@@ -142,7 +143,9 @@ public class OrderBookDetailController extends BaseController {
      */
     @ApiModelProperty(value = "订货本详情-投产")
     @PostMapping("/placeAnProduction")
-    public ApiResult placeAnProduction(@RequestBody @Valid OrderBookDetailProductionDto dto) {
+    public ApiResult placeAnProduction(@RequestBody @Valid OrderBookDetailQueryDto dto) {
+        dto.setCompanyCode(super.getUserCompany());
+        dto.setUserId(super.getUserId());
         return updateSuccess(orderBookDetailService.placeAnProduction(dto));
     }
 
@@ -162,10 +165,10 @@ public class OrderBookDetailController extends BaseController {
     @PostMapping("/placeAnOrderAll")
     @Transactional(rollbackFor = Exception.class)
     public ApiResult placeAnOrderAll(@RequestBody OrderBookDetailQueryDto dto) {
-        String orderBookId = dto.getOrderBookId();
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        return updateSuccess(orderBookDetailService.placeAnOrder(dto, orderBookId));
+        dto.setUserName(super.getUser().getUsername());
+        return updateSuccess(orderBookDetailService.placeAnOrder(dto));
     }
 
     /**
@@ -207,7 +210,31 @@ public class OrderBookDetailController extends BaseController {
         return orderBookDetailService.designConfirm(dto);
     }
 
+    /**
+     * 投产填写资料
+     */
+    @ApiOperation(value = "订货本详情-投产填写资料")
+    @PostMapping("/productionConfirm")
+    @DuplicationCheck(time = 10)
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult productionConfirm(@RequestBody OrderBookDetailSaveDto dto) {
+        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+        if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)) {
+            throw new OtherException("不允许修改已发起投产的数据");
+        }
+        //修改吊牌价
+        styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
 
+        //修改倍率和系数
+        StylePricingSaveDTO stylePricingSaveDTO =new StylePricingSaveDTO();
+        stylePricingSaveDTO.setId(dto.getStylePricingId());
+        stylePricingSaveDTO.setPackId(dto.getPackInfoId());
+        stylePricingSaveDTO.setPlanningRate(dto.getRate());
+        stylePricingSaveDTO.setProductStyle(dto.getProductStyleName());
+        stylePricingService.updateById(stylePricingSaveDTO);
+
+        return insertSuccess(orderBookDetailService.updateById(dto));
+    }
 
     /**
      * 商企填写资料

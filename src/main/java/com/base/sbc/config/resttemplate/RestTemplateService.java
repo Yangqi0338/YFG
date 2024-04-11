@@ -1,5 +1,8 @@
 package com.base.sbc.config.resttemplate;
 
+import cn.hutool.core.lang.TypeReference;
+import cn.hutool.core.util.BooleanUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
@@ -12,6 +15,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Map;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.DESIGN_BOM_TO_BIG_GOODS_CHECK_SWITCH;
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.SEND_FLAG;
@@ -57,19 +63,14 @@ public class RestTemplateService {
 
             JSONObject jsonObject = JSONObject.parseObject(body);
 
-
             if (jsonObject != null) {
                 httpResp.setMessage(jsonObject.getString("message"));
                 httpResp.setCode(jsonObject.getString("code"));
-                httpResp.setSuccess(true);
-
+                httpResp.setSuccess(BooleanUtil.toBoolean(jsonObject.getOrDefault("success", "").toString()));
+                httpResp.setDataMap(JSON.parseObject(jsonObject.getString("data"), new TypeReference<List<Map<String,Object>>>() {}.getType()));
                 if ("0000000".equals(httpResp.getCode())) {
                     httpResp.setSuccess(true);
-                } else {
-                    httpResp.setSuccess(jsonObject.getBoolean("success"));
                 }
-
-                //);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,15 +2,9 @@ package com.base.sbc.config.enums.business.orderBook;
 
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.base.sbc.config.enums.business.StylePutIntoType;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * {@code 描述：订货本渠道类型}

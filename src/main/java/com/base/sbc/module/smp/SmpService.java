@@ -1,4 +1,12 @@
 package com.base.sbc.module.smp;
+import cn.hutool.core.lang.TypeReference;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.BooleanUtil;
+import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.enums.business.ProductionType;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.config.enums.smp.StylePutIntoType;
+import com.google.common.collect.Maps;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -80,15 +88,21 @@ import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -1848,26 +1862,38 @@ public class SmpService {
         return ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
     }
 
+    public ApiResult<List<ScmProductionBudgetDto>> productionBudgetList(ScmProductionBudgetQueryDto productionBudgetQueryDto) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("data",productionBudgetQueryDto);
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_BILL_PRODUCTION_BUDGET_LIST_URL, jsonObject.toJSONString());
+        pushRecordsService.pushRecordSave(httpResp, jsonObject.toJSONString(), "scm", "预算号查询");
+        ApiResult<List<ScmProductionBudgetDto>> result = ApiResult.success(httpResp.getMessage(), httpResp.getData(ScmProductionBudgetDto.class));
+        result.setSuccess(httpResp.isSuccess());
+        return result;
+    }
+
     /**
      * 订货本一键投产
      */
     @Async
-    public Future<Object> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
+    public Future<HttpResp> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
         String jsonString = JsonStringUtils.toJSONString(scmProductionDto);
         HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_PRODUCTION_IN_URL, jsonString);
-        Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "smp", "订货本一键投产");
-        return new AsyncResult<>(aBoolean);
+        pushRecordsService.pushRecordSave(httpResp, jsonString, "scm", "订货本一键投产");
+        return new AsyncResult<>(httpResp);
     }
 
     /**
      * 反审核投产单
      */
     @Async
-    public Future<Object> facPrdOrderUpCheck(ScmProductionDto scmProductionDto) {
-        String jsonString = JsonStringUtils.toJSONString(scmProductionDto);
-        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_CANCEL_PRODUCTION_URL, jsonString);
-        Boolean aBoolean = pushRecordsService.pushRecordSave(httpResp, jsonString, "smp", "反审核投产单");
-        return new AsyncResult<>(aBoolean);
+    public Future<HttpResp> facPrdOrderUpCheck(String orderNo) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("orderNo",orderNo);
+        jsonObject.put("loginName",orderNo);
+        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_CANCEL_PRODUCTION_URL, jsonObject.toJSONString());
+        pushRecordsService.pushRecordSave(httpResp, jsonObject.toJSONString(), "scm", "反审核投产单");
+        return new AsyncResult<>(httpResp);
     }
 }
 

@@ -3,7 +3,7 @@ package com.base.sbc.module.common.convert;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.business.StylePutIntoType;
+import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;

@@ -10,6 +10,8 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.ttl.TtlCallable;
+import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -71,6 +73,7 @@ import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
+import com.base.sbc.module.smp.dto.ScmProductionDto;
 import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -92,6 +95,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -715,10 +721,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean placeAnOrder(OrderBookDetailQueryDto dto, String orderBookId) {
-        if (StringUtils.isEmpty(orderBookId)) {
-            throw new OtherException("请选订货本");
-        }
+    public boolean placeAnOrder(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
@@ -734,7 +737,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDERING);
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT);
             orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.FINISH);
-            orderBookDetail.setCommissioningDate(new Date());
+            orderBookDetail.setOrderPerson(dto.getUserId());
+            orderBookDetail.setOrderPersonName(dto.getUserName());
+            orderBookDetail.setOrderDate(new Date());
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
@@ -747,7 +752,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         OrderBook orderBook = orderBookService.getById(dto.getOrderBookId());
         orderBook.setStatus(warnStatusExists ? OrderBookStatusEnum.PART_CONFIRM : OrderBookStatusEnum.CONFIRM);
-        orderBook.setOrderStatus(warnStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.ORDER);
 
         orderBookService.updateById(orderBook);
         PublicStyleColorDto colorDto = new PublicStyleColorDto();
@@ -1051,10 +1055,51 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return true;
     }
 
+    ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(8, 8,
+                                                        0L,TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(16), r -> {
+        Thread thread = new Thread(r,"调scm下游系统");
+        thread.setUncaughtExceptionHandler((Thread t,Throwable e) -> {
+            if(e != null){
+                e.printStackTrace();
+                throw new OtherException(e.getMessage());
+            }
+        });
+        return thread;
+    });
 
     @Override
-    public boolean placeAnProduction(OrderBookDetailProductionDto dto) {
-        return false;
+    @Transactional(rollbackFor = Exception.class)
+    public boolean placeAnProduction(OrderBookDetailQueryDto dto) {
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
+        for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
+            if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)){
+                throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已投产,请勿重新提交");
+            }
+        }
+
+        for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
+            orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
+            orderBookDetail.setCommissioningDate(new Date());
+        }
+        List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
+        boolean b = this.updateBatchById(orderBookDetails1);
+
+        // 检查是否下属详情是否全部完成审核
+        boolean warnStatusExists = this.exists(new LambdaQueryWrapper<OrderBookDetail>()
+                .eq(OrderBookDetail::getOrderBookId, dto.getOrderBookId())
+                .ne(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.ORDER)
+        );
+
+        OrderBook orderBook = orderBookService.getById(dto.getOrderBookId());
+        orderBook.setOrderStatus(warnStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.ORDER);
+        orderBookService.updateById(orderBook);
+
+        ScmProductionDto productionDto = new ScmProductionDto();
+        threadPoolExecutor.submit(TtlCallable.get(()-> smpService.saveFacPrdOrder(productionDto)));
+
+        return b;
     }
 
     @Override

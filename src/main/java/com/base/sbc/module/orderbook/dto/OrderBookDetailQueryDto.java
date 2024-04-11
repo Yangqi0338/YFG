@@ -15,6 +15,7 @@ public class OrderBookDetailQueryDto extends Page {
      * 当前用户登录id
      */
     private String userId;
+    private String userName;
 
     private String id;
 

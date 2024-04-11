@@ -80,7 +80,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     void placeAnOrderReject(OrderBookDetailQueryDto dto);
 
-    boolean placeAnOrder(OrderBookDetailQueryDto dto, String orderBookId);
+    boolean placeAnOrder(OrderBookDetailQueryDto dto);
 
     boolean assignPersonnel(OrderBookDetailSaveDto dto);
 
@@ -94,7 +94,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     boolean removeByIds(RemoveDto removeDto);
 
-    boolean placeAnProduction(OrderBookDetailProductionDto dto);
+    boolean placeAnProduction(OrderBookDetailQueryDto dto);
 
     boolean placeAnCancelProduction(OrderBookDetailProductionDto dto);
 }

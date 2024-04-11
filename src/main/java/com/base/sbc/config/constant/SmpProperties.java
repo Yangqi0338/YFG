@@ -54,6 +54,7 @@ public class SmpProperties {
     public static String SMP_URL = buildUrl(SMP_BASE_URL, "/pdm/");
     public static String OA_URL = buildUrl(OA_BASE_URL, "/mps-interfaces/sample/");
     public static String SCM_MF_URL = buildUrl(SCM_BASE_URL, "/new-mf-fac/");
+    public static String SCM_BILL_URL = buildUrl(SCM_BASE_URL, "/escm-app/bill/");
 
     public void setScmUrl(String scmUrl) {
         SCM_URL = buildUrl(SCM_BASE_URL, scmUrl);
@@ -67,15 +68,22 @@ public class SmpProperties {
     public void setScmMfUrl(String scmMfUrl) {
         SCM_MF_URL = buildUrl(SCM_BASE_URL, scmMfUrl);
     }
+    public void setScmBillUrl(String scmBillUrl) {
+        SCM_BILL_URL = buildUrl(SCM_BASE_URL, scmBillUrl);
+    }
 
-    public static String SCM_MF_PRODUCTION_IN_URL = "/v1/api/facPrdOrder/facPrdOrderUpCheck";
-    public static String SCM_MF_CANCEL_PRODUCTION_URL = "/v1/api/facPrdOrder/saveFacPrdOrder";
+    public static String SCM_MF_PRODUCTION_IN_URL = buildUrl(SCM_MF_URL, "/v1/api/facPrdOrder/saveFacPrdOrder");
+    public static String SCM_MF_CANCEL_PRODUCTION_URL = buildUrl(SCM_MF_URL, "/v1/api/facPrdOrder/facPrdOrderUpCheck");
+    public static String SCM_BILL_PRODUCTION_BUDGET_LIST_URL = buildUrl(SCM_BILL_URL, "/productionBudget/option/List");
 
     public void setScmMfProductionInUrl(String scmMfProductionInUrl) {
         SCM_MF_PRODUCTION_IN_URL = buildUrl(SCM_MF_URL, scmMfProductionInUrl);
     }
     public void setScmMfCancelProductionUrl(String scmMfCancelProductionUrl) {
         SCM_MF_CANCEL_PRODUCTION_URL = buildUrl(SCM_MF_URL, scmMfCancelProductionUrl);
+    }
+    public void setScmBillProductionBudgetListUrl(String scmBillProductionBudgetListUrl) {
+        SCM_BILL_PRODUCTION_BUDGET_LIST_URL = buildUrl(SCM_BILL_URL, scmBillProductionBudgetListUrl);
     }
 
     @Getter

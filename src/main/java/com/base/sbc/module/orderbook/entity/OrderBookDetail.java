@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.validator.constraints.NotBlank;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -119,12 +120,6 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "审核状态:0：未审批，1：待审批，2：已审批")
     private OrderBookDetailAuditStatusEnum auditStatus;
-
-//    /**
-//     * 商企确认(0:未确认，1：已确认)
-//     */
-//    @ApiModelProperty(value = "商企确认(0:未确认，1：已确认)")
-//    private String businessConfirm;
     /**
      * 系数编码
      */
@@ -396,6 +391,58 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "版本号"  )
     @Version
     private Integer version;
+
+    /**
+     * 下单人
+     */
+    @ApiModelProperty(value = "下单人")
+    private String orderPerson;
+
+    /**
+     * 下单人名
+     */
+    @ApiModelProperty(value = "下单人名")
+    private String orderPersonName;
+
+    /**
+     * 下单时间
+     */
+    @ApiModelProperty(value = "下单时间")
+    private Date orderDate;
+
+    /**
+     * 投产编码
+     */
+    @ApiModelProperty(value = "投产编码")
+    private String orderNo;
+
+    /**
+     * 投产下发状态
+     */
+    @ApiModelProperty(value = "投产下发状态")
+    private String orderSendStatus;
+
+    /**
+     * 投产下发错误信息
+     */
+    @ApiModelProperty(value = "投产下发错误信息")
+    private String orderSendWarnMsg;
+
+    /** 商品要求货期 */
+    @ApiModelProperty(value = "商品要求货期")
+    private Date deliveryAt;
+
+    /** 销售分类 */
+    @ApiModelProperty(value = "销售分类")
+    private String saleTypeId;
+
+    /** 预算号 */
+    @ApiModelProperty(value = "预算号")
+    private String budgetNo;
+
+    /** 合并投产 */
+    @ApiModelProperty(value = "合并投产")
+    private YesOrNoEnum facMerge;
 
 }
 
