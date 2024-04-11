@@ -400,7 +400,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                 List<CountryLanguageDto> typeList = exportMapping.getTotalCountryLanguageList().stream()
                         .filter(it -> it.getType() != type).collect(Collectors.toList());
                 StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
-                queryDto.setCodeList(Collections.singletonList(code));
+                queryDto.setCodeList(Collections.singletonList(standardColumnCode));
                 queryDto.setShowFlag(YesOrNoEnum.NO);
                 queryDto.setTypeList(typeList.stream().flatMap(it-> it.getType().getStandardColumnType().getChildrenTypeList().stream()).distinct().collect(Collectors.toList()));
                 taskList.add(() -> {
