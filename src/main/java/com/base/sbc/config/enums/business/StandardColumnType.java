@@ -60,8 +60,8 @@ public enum StandardColumnType {
         return Arrays.stream(StandardColumnType.values()).filter(it-> it.code.contains("_root")).collect(Collectors.toList());
     }
 
-    public static StandardColumnType findParent(StandardColumnType type){
-        return Arrays.stream(StandardColumnType.values()).filter(it-> it.childrenTypeList.contains(type)).findFirst().orElse(null);
+    public StandardColumnType findParent(){
+        return Arrays.stream(StandardColumnType.values()).filter(it-> it.childrenTypeList.contains(this)).findFirst().orElse(null);
     }
 
     public static StandardColumnType findByCode(String code) {

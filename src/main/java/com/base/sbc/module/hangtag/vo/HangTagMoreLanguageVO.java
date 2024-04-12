@@ -9,15 +9,20 @@ package com.base.sbc.module.hangtag.vo;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.CONTENT_FORMAT;
 
@@ -96,10 +101,6 @@ public class HangTagMoreLanguageVO {
         return forceFindContent() && this.cannotFindPropertiesContent;
     }
 
-    /**
-     * 标准列模型
-     */
-    @JsonIgnore
     @ApiModelProperty(value = "标准列模型")
     protected StandardColumnModel model;
 
@@ -138,6 +139,37 @@ public class HangTagMoreLanguageVO {
      * 审核状态
      */
     @ApiModelProperty(value = "审核状态")
-    protected StyleCountryStatusEnum auditStatus = StyleCountryStatusEnum.UNCHECK;
+    @JsonIgnore
+    protected StyleCountryStatusEnum contentAuditStatus = StyleCountryStatusEnum.UNCHECK;
+
+    @JsonIgnore
+    protected StyleCountryStatusEnum titleAuditStatus = StyleCountryStatusEnum.UNCHECK;
+
+    public StyleCountryStatusEnum getAuditStatus(){
+        return (!forceFindContent() || contentAuditStatus == StyleCountryStatusEnum.CHECK) && titleAuditStatus == StyleCountryStatusEnum.CHECK
+                ? StyleCountryStatusEnum.CHECK
+                : StyleCountryStatusEnum.UNCHECK;
+    }
+
+    public List<MoreLanguageStatusCheckDetailAuditDTO> buildAuditList(String standardColumnCode, String titleCode){
+        List<MoreLanguageStatusCheckDetailAuditDTO> auditDtoList = new ArrayList<>();
+        if (forceFindContent()) {
+            MoreLanguageStatusCheckDetailAuditDTO contentStatus = new MoreLanguageStatusCheckDetailAuditDTO();
+            contentStatus.setStandardColumnCode(standardColumnCode);
+            contentStatus.setSource(this.getPropertiesCode());
+            contentStatus.setContent(this.getPropertiesContent());
+            contentStatus.setStatus(YesOrNoEnum.YES.getValueStr());
+            auditDtoList.add(contentStatus);
+        }
+
+        MoreLanguageStatusCheckDetailAuditDTO titleStatus = new MoreLanguageStatusCheckDetailAuditDTO();
+        titleStatus.setStandardColumnCode(titleCode);
+        titleStatus.setSource(standardColumnCode);
+        titleStatus.setContent(this.getStandardColumnContent());
+        titleStatus.setStatus(YesOrNoEnum.YES.getValueStr());
+        auditDtoList.add(titleStatus);
+
+        return auditDtoList;
+    }
 
 }

@@ -1,13 +1,18 @@
 package com.base.sbc.module.moreLanguage.dto;
 
 import cn.hutool.core.annotation.Alias;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageVO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * @author 卞康
@@ -19,13 +24,26 @@ import java.util.List;
 public class MoreLanguageStatusCheckDetailDTO {
 
     @Alias("l")
-    @JsonProperty("l")
     @ApiModelProperty(value = "语言编码")
     private String languageCode;
 
     @Alias("a")
-    @JsonProperty("a")
     @ApiModelProperty(value = "标准列编码集合")
     private List<MoreLanguageStatusCheckDetailAuditDTO> auditList;
 
+    private static Stream<MoreLanguageStatusCheckDetailAuditDTO> buildAuditList(HangTagMoreLanguageVO languageVO, String standardColumnCode){
+        MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
+        auditDTO.setStandardColumnCode(standardColumnCode);
+        auditDTO.setSource(languageVO.getPropertiesCode());
+        auditDTO.setContent(languageVO.getPropertiesContent());
+        auditDTO.setStatus(YesOrNoEnum.YES.getValueStr());
+
+        MoreLanguageStatusCheckDetailAuditDTO titleStatus = new MoreLanguageStatusCheckDetailAuditDTO();
+        titleStatus.setStandardColumnCode("DP00");
+        titleStatus.setSource(standardColumnCode);
+        titleStatus.setContent(languageVO.getStandardColumnContent());
+        titleStatus.setStatus(YesOrNoEnum.YES.getValueStr());
+
+        return Stream.of(titleStatus, auditDTO);
+    }
 }

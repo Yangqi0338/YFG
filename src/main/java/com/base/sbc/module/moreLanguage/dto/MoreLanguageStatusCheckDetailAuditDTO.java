@@ -19,22 +19,18 @@ import java.util.Map;
 public class MoreLanguageStatusCheckDetailAuditDTO {
 
     @Alias("scc")
-    @JsonProperty("scc")
     @ApiModelProperty(value = "语言编码")
     private String standardColumnCode;
 
     @Alias("sc")
-    @JsonProperty("sc")
     @ApiModelProperty(value = "单据原值")
     private String source;
 
     @Alias("c")
-    @JsonProperty("c")
     @ApiModelProperty(value = "单据翻译")
     private String content;
 
     @Alias("s")
-    @JsonProperty("s")
     @ApiModelProperty(value = "状态")
     private String status;
 

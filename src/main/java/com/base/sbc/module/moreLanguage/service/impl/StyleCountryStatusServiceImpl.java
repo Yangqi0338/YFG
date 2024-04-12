@@ -3,6 +3,7 @@ package com.base.sbc.module.moreLanguage.service.impl;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.Pair;
@@ -70,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
@@ -393,24 +395,22 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                             List<String> standardColumnCodeList = map.getOrDefault(code, new HashMap<>(1)).getOrDefault(type, new ArrayList<>());
 
                             List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageCodeList.stream().map(languageCode->
-                                new MoreLanguageStatusCheckDetailDTO(languageCode, standardColumnCodeList.stream().flatMap(standardColumnCode->
+                                new MoreLanguageStatusCheckDetailDTO(languageCode, CollUtil.distinct(standardColumnCodeList.stream().flatMap(standardColumnCode->
                                     webBaseVOList.stream().filter(it->
                                             type.equals(it.getCountryLanguageType()) &&
                                             bulkStyleNo.equals(it.getBulkStyleNo()) &&
                                             code.equals(it.getCode()) &&
                                             standardColumnCode.equals(it.getStandardColumnCode())
-                                    ).flatMap(it-> it.getLanguageList().stream())
-                                            .filter(it-> languageCode.equals(it.getLanguageCode()))
-                                            .map(translate-> {
-                                                MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
-                                                auditDTO.setStandardColumnCode(standardColumnCode);
-                                                auditDTO.setSource(translate.getPropertiesCode());
-                                                auditDTO.setContent(translate.getPropertiesContent());
-                                                auditDTO.setStatus(YesOrNoEnum.YES.getValueStr());
-                                                return auditDTO;
-                                            })
-                                ).filter(it-> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList()))
-                            ).collect(Collectors.toList());
+                                    ).flatMap(webBaseVO->
+                                        webBaseVO.getLanguageList().stream()
+                                                .filter(it-> languageCode.equals(it.getLanguageCode()))
+                                                .flatMap(translate->
+                                                    translate.buildAuditList(standardColumnCode, webBaseVO.getTitleCode()).stream()
+                                                )
+                                    )
+                                ).filter(it-> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList()),
+                                        (MoreLanguageStatusCheckDetailAuditDTO it)-> it.getStandardColumnCode() + it.getSource(), true)
+                                )).collect(Collectors.toList());
                             status.setStandardColumnCode(checkDetailList.stream().flatMap(checkDetailDTO-> checkDetailDTO.getAuditList()
                                     .stream().map(MoreLanguageStatusCheckDetailAuditDTO::getStandardColumnCode)
                             ).distinct().collect(Collectors.joining(COMMA)));
@@ -436,7 +436,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                         if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
                             if (this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
                                     .eq(StyleCountryStatus::getBulkStyleNo, hangTag.getBulkStyleNo())
-                                    .eq(StyleCountryStatus::getStatus, StyleCountryStatusEnum.CHECK)) >= size) {
+                                    .eq(StyleCountryStatus::getStatus, StyleCountryStatusEnum.CHECK)) >= (size * CountryLanguageType.values().length)) {
                                 status = HangTagStatusEnum.FINISH;
                             }
                         }
