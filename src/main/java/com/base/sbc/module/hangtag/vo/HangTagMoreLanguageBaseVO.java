@@ -92,8 +92,10 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "审核状态")
     public StyleCountryStatusEnum getAuditStatus(){
         // 内部有一个未审核,那就是未审核
-        return getLanguageList().stream().anyMatch(it-> it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK)
-                 ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
+        return getLanguageList().stream().anyMatch(it->
+                MoreLanguageProperties.checkInternal(it.getLanguageCode()) &&
+                it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK
+        ) ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
     };
 
     protected String findStandardColumnName() {

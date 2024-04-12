@@ -127,6 +127,10 @@ public class MoreLanguageProperties {
         return (StandardColumn) RedisStaticFunUtils.hget(RedisKeyConstant.STANDARD_COLUMN_LIST.build(), type.getCode() + RedisKeyBuilder.COMMA + standardColumnCode);
     }
 
+    public static Boolean checkInternal(String languageCode) {
+        return !MoreLanguageProperties.internalLanguageCode.equals(languageCode) || MoreLanguageProperties.internalCheck;
+    }
+
     public void setInternalLanguageCode(String internalLanguageCode) {
         MoreLanguageProperties.internalLanguageCode = internalLanguageCode;
     }

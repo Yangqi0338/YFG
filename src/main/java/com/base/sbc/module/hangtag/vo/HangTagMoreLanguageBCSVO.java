@@ -98,12 +98,10 @@ public class HangTagMoreLanguageBCSVO {
         return message.toString();
     }
 
-    public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList, boolean cnCheck) {
+    public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList) {
         HangTagMoreLanguageBCSChildrenBaseVO groupChildrenVO = childrenList.get(0);
         this.name = groupChildrenVO.getName();
         this.bulkStyleNo = childrenList.stream().map(HangTagMoreLanguageBaseVO::getBulkStyleNo).distinct().collect(Collectors.joining(COMMA));
-        // 是否中文语言检查
-        childrenList.forEach(it-> it.setCnCheck(cnCheck));
         // 看是否存在错误信息,将其分到正确或错误列表
         childrenList.stream().collect(Collectors.groupingBy(it-> StrUtil.isBlank(it.getPrinterCheckMessage()))).forEach((isSuccess,successFailureList)-> {
             if (isSuccess) {
@@ -112,11 +110,6 @@ public class HangTagMoreLanguageBCSVO {
                 this.failureList = successFailureList;
             }
         });
-    }
-
-    public HangTagMoreLanguageBCSVO(List<HangTagMoreLanguageBCSChildrenBaseVO> childrenList) {
-        // 默认不检查中文
-        this(childrenList, MoreLanguageProperties.internalCheck);
     }
 
     public static class HangTagMoreLanguageBCSChildrenBaseVO extends HangTagMoreLanguageBaseVO {
@@ -140,7 +133,7 @@ public class HangTagMoreLanguageBCSVO {
                 this.getLanguageList().forEach(language-> {
                     StringJoiner languageMsg = new StringJoiner(MoreLanguageProperties.checkMsgItemSeparator);
                     // 是否强制判断语言为中文,不进行校验
-                    if (!MoreLanguageProperties.internalLanguageCode.equals(language.getLanguageCode()) || cnCheck) {
+                    if (MoreLanguageProperties.checkInternal(language.getLanguageCode())) {
                         if (language.getCannotFindStandardColumnContent()) languageMsg.add(MoreLanguageProperties.getMsg(HAVEN_T_CONTENT, FIELD));
                         if (language.getCannotFindPropertiesContent())  languageMsg.add(MoreLanguageProperties.getMsg(HAVEN_T_CONTENT, CONTENT));
                         if (languageMsg.length() > 0) {
