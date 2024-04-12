@@ -102,10 +102,6 @@
 
     <select id="styleColorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
         select
-        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
-            ${ew.sqlSelect}
-        </if>
-        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             concat(ts.year_name," ",ts.season_name," ",ts.brand_name) planningSeason,
             ts.task_level,
             ts.task_level_name,
