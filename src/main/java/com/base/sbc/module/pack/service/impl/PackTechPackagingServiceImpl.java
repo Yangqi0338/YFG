@@ -65,25 +65,25 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
             updateById(db);
 
             // 包装袋标准判断逻辑
-            PackInfo packInfo = packInfoService.getById(db.getForeignId());
-            if (packInfo != null) {
-                String styleNo = packInfo.getStyleNo();
-                HangTagVO hangTagVO = hangTagService.getDetailsByBulkStyleNo(styleNo, packInfo.getCompanyCode(), null);
-                if (hangTagVO != null && hangTagVO.getStatus().greatThan(HangTagStatusEnum.NOT_COMMIT)) {
-                    if (StrUtil.equals(hangTagVO.getPackagingFormCode(), db.getPackagingForm()) ||
-                            StrUtil.equals(hangTagVO.getPackagingBagStandardCode(), db.getPackagingBagStandard())) {
-                        throw new OtherException("吊牌已保存并提交,无法修改包装袋标准,请反审吊牌后再进行保存");
-                    }
-                }else {
-                    hangTagVO = new HangTagVO();
-                    hangTagVO.setPackagingFormCode(packaging.getPackagingForm());
-                    hangTagVO.setPackagingForm(packaging.getPackagingFormName());
-                    hangTagVO.setPackagingBagStandardCode(packaging.getPackagingBagStandard());
-                    hangTagVO.setPackagingBagStandard(packaging.getPackagingBagStandardName());
-                }
-
-                updatePackaging(styleNo, packInfo.getCompanyCode(), null, hangTagVO);
-            }
+//            PackInfo packInfo = packInfoService.getById(db.getForeignId());
+//            if (packInfo != null) {
+//                String styleNo = packInfo.getStyleNo();
+//                HangTagVO hangTagVO = hangTagService.getDetailsByBulkStyleNo(styleNo, packInfo.getCompanyCode(), null);
+//                if (hangTagVO != null && hangTagVO.getStatus().greatThan(HangTagStatusEnum.NOT_COMMIT)) {
+//                    if (!StrUtil.equals(hangTagVO.getPackagingFormCode(), db.getPackagingForm()) ||
+//                            !StrUtil.equals(hangTagVO.getPackagingBagStandardCode(), db.getPackagingBagStandard())) {
+//                        throw new OtherException("吊牌已保存并提交,无法修改包装袋标准,请反审吊牌后再进行保存");
+//                    }
+//                }else {
+//                    hangTagVO = new HangTagVO();
+//                    hangTagVO.setPackagingFormCode(packaging.getPackagingForm());
+//                    hangTagVO.setPackagingForm(packaging.getPackagingFormName());
+//                    hangTagVO.setPackagingBagStandardCode(packaging.getPackagingBagStandard());
+//                    hangTagVO.setPackagingBagStandard(packaging.getPackagingBagStandardName());
+//                }
+//
+//                updatePackaging(styleNo, packInfo.getCompanyCode(), null, hangTagVO);
+//            }
             return db;
         }
 
