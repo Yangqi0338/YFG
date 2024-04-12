@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
@@ -88,12 +89,18 @@ public class HangTagMoreLanguageBCSVO {
 
         // 有可能已经翻译完了，但是没有审核,需要做处理
         // 品控未确认
-        this.successList.stream().filter(it-> it.getStatus().lessThan(HangTagStatusEnum.FINISH)).collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getStatus))
-                .forEach((status, sameStatusList)-> {
-                    sameStatusList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo).distinct().forEach(bulkStyleNo-> {
-                        message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator + (status != HangTagStatusEnum.TRANSLATE_CHECK ? "技术审核未确认" : "翻译审核未确认"));
-                    });
+        this.successList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getStatus)).forEach((status, sameStatusList)-> {
+            List<HangTagMoreLanguageBCSChildrenBaseVO> unCheckList = sameStatusList.stream().filter(it -> it.getAuditStatus() != StyleCountryStatusEnum.CHECK).collect(Collectors.toList());
+            if (status.lessThan(HangTagStatusEnum.FINISH)) {
+                sameStatusList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo).distinct().forEach(bulkStyleNo-> {
+                    message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator + (status != HangTagStatusEnum.TRANSLATE_CHECK ? "技术审核未确认" : "翻译审核未确认"));
                 });
+            }else if (CollUtil.isNotEmpty(unCheckList)){
+                unCheckList.stream().map(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo).distinct().forEach(bulkStyleNo-> {
+                    message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator +"翻译审核未确认");
+                });
+            }
+        });
 
         return message.toString();
     }
