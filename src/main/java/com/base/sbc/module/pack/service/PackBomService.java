@@ -202,7 +202,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param dto
      * @return
      */
-    boolean updateFabricSummary(FabricSummaryV2Dto dto);
+    FabricStyleUpdateResultVo updateFabricSummary(FabricSummaryV2Dto dto);
 
     /**
      * 面料款式列表
@@ -223,7 +223,7 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param
      * @return
      */
-    boolean updateFabricSummaryStyle(List<FabricSummaryStyleDto> fabricSummaryStyleDtoList);
+    FabricStyleUpdateResultVo updateFabricSummaryStyle(FabricSummaryStyleDto fabricSummaryStyleDto);
 
     /**
      * 删除物料汇总款式

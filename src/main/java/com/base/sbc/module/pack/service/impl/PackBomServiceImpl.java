@@ -465,7 +465,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean updateFabricSummary(FabricSummaryV2Dto dto) {
+    public FabricStyleUpdateResultVo updateFabricSummary(FabricSummaryV2Dto dto) {
         saveLock.lock();
         try{
             FabricSummary fabricSummary = fabricSummaryService.getById(dto.getId());
@@ -496,10 +496,18 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             if (StringUtils.isNotEmpty(dto.getPhysicochemistryDetectionResult())){
                 fabricSummary.setPhysicochemistryDetectionResult(dto.getPhysicochemistryDetectionResult());
             }
-            fabricSummary.setFabricSummaryVersion(fabricSummary.getFabricSummaryVersion() + 1);
+            Integer fabricSummaryVersion = fabricSummary.getFabricSummaryVersion()+1;
+            fabricSummary.setFabricSummaryVersion(fabricSummaryVersion);
             fabricSummary.updateInit();
             saveOrUpdateOperaLog(dto, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
-            return fabricSummaryService.updateById(fabricSummary);
+            FabricStyleUpdateResultVo result = new FabricStyleUpdateResultVo();
+            result.setId(fabricSummary.getId());
+            boolean b = fabricSummaryService.updateById(fabricSummary);
+            result.setResult(b);
+            if (b){
+                result.setFabricSummaryVersion(fabricSummaryVersion);
+            }
+            return result;
         }finally{
             saveLock.unlock();
         }
@@ -594,35 +602,40 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean updateFabricSummaryStyle(List<FabricSummaryStyleDto> fabricSummaryStyleDtoList) {
+    public FabricStyleUpdateResultVo updateFabricSummaryStyle(FabricSummaryStyleDto fabricSummaryStyleDto) {
         saveLock.lock();
         try{
-            List<FabricSummaryStyle> list = Lists.newArrayList();
-            for (FabricSummaryStyleDto fabricSummaryStyleDto : fabricSummaryStyleDtoList) {
-                FabricSummaryStyle fabricSummaryStyle = fabricSummaryStyleService.getById(fabricSummaryStyleDto.getId());
-                if (null == fabricSummaryStyle){
-                    throw new OtherException("款式不存在");
-                }
-                if (!fabricSummaryStyle.getFabricSummaryStyleVersion().equals(fabricSummaryStyleDto.getFabricSummaryStyleVersion())){
-                    throw new OtherException("当前版本异常，请刷新页面后再提交");
-                }
-                fabricSummaryStyle.setFabricSummaryStyleVersion(fabricSummaryStyleDto.getFabricSummaryStyleVersion()+1);
-                if (null != fabricSummaryStyleDto.getSort()){
-                    fabricSummaryStyle.setSort(fabricSummaryStyleDto.getSort());
-                }
-                if (null != fabricSummaryStyleDto.getTotalProduction()){
-                    fabricSummaryStyle.setTotalProduction(fabricSummaryStyleDto.getTotalProduction());
-                }
-                if (null != fabricSummaryStyleDto.getColorCrash()){
-                    fabricSummaryStyle.setColorCrash(fabricSummaryStyleDto.getColorCrash());
-                }
-                if (null != fabricSummaryStyleDto.getUnitUse()){
-                    fabricSummaryStyle.setUnitUse(fabricSummaryStyleDto.getUnitUse());
-                }
-                list.add(fabricSummaryStyle);
-                saveOrUpdateOperaLog(fabricSummaryStyleDtoList, fabricSummaryStyle, genOperaLogEntity(fabricSummaryStyle, "修改"));
+            FabricSummaryStyle fabricSummaryStyle = fabricSummaryStyleService.getById(fabricSummaryStyleDto.getId());
+            if (null == fabricSummaryStyle){
+                throw new OtherException("款式不存在");
             }
-            return fabricSummaryStyleService.updateBatchById(list);
+            if (!fabricSummaryStyle.getFabricSummaryStyleVersion().equals(fabricSummaryStyleDto.getFabricSummaryStyleVersion())){
+                throw new OtherException("当前版本异常，请刷新页面后再提交");
+            }
+            Integer fabricSummaryStyleVersion = fabricSummaryStyleDto.getFabricSummaryStyleVersion()+1;
+            fabricSummaryStyle.setFabricSummaryStyleVersion(fabricSummaryStyleVersion);
+            if (null != fabricSummaryStyleDto.getSort()){
+                fabricSummaryStyle.setSort(fabricSummaryStyleDto.getSort());
+            }
+            if (null != fabricSummaryStyleDto.getTotalProduction()){
+                fabricSummaryStyle.setTotalProduction(fabricSummaryStyleDto.getTotalProduction());
+            }
+            if (null != fabricSummaryStyleDto.getColorCrash()){
+                fabricSummaryStyle.setColorCrash(fabricSummaryStyleDto.getColorCrash());
+            }
+            if (null != fabricSummaryStyleDto.getUnitUse()){
+                fabricSummaryStyle.setUnitUse(fabricSummaryStyleDto.getUnitUse());
+            }
+            saveOrUpdateOperaLog(fabricSummaryStyleDto, fabricSummaryStyle, genOperaLogEntity(fabricSummaryStyle, "修改"));
+            boolean b = fabricSummaryStyleService.updateById(fabricSummaryStyle);
+            FabricStyleUpdateResultVo result =  new FabricStyleUpdateResultVo();
+            result.setId(fabricSummaryStyle.getId());
+            result.setResult(b);
+            if (b){
+                result.setFabricSummaryStyleVersion(fabricSummaryStyleVersion);
+            }
+
+            return result;
         } finally {
             saveLock.unlock();
         }

@@ -25,10 +25,7 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.sample.dto.*;
-import com.base.sbc.module.sample.vo.BomFabricVo;
-import com.base.sbc.module.sample.vo.FabricStyleVo;
-import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
-import com.base.sbc.module.sample.vo.NeedUpdateVo;
+import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -240,7 +237,7 @@ public class PackBomController extends BaseController{
 
     @PutMapping("/fabricSummary")
     @ApiOperation(value = "面料汇总列表修改")
-    public boolean updateFabricSummary(@RequestBody @Valid FabricSummaryV2Dto dto) {
+    public FabricStyleUpdateResultVo updateFabricSummary(@RequestBody @Valid FabricSummaryV2Dto dto) {
         return packBomService.updateFabricSummary(dto);
     }
 
@@ -266,8 +263,8 @@ public class PackBomController extends BaseController{
 
     @PutMapping("/fabricSummaryStyle")
     @ApiOperation(value = "面料汇总-款式修改")
-    public boolean updateFabricSummaryStyle(@RequestBody @Valid  List<FabricSummaryStyleDto> fabricSummaryStyleDtoList) {
-        return  packBomService.updateFabricSummaryStyle(fabricSummaryStyleDtoList);
+    public FabricStyleUpdateResultVo updateFabricSummaryStyle(@RequestBody @Valid  FabricSummaryStyleDto fabricSummaryStyleDto) {
+        return  packBomService.updateFabricSummaryStyle(fabricSummaryStyleDto);
     }
 
     @DeleteMapping ("/fabricSummaryStyle")
