@@ -1229,6 +1229,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<CountryLanguageDto> countryLanguageDtoList = sameCodeList.stream().filter(it -> type == it.getType()).collect(Collectors.toList());
 
 		String checkDetailJson = styleCountryStatusList.stream().filter(it -> type == it.getType()).findFirst().map(StyleCountryStatus::getCheckDetailJson).orElse("[]");
+		StyleCountryStatusEnum countryStatusEnum = styleCountryStatusList.stream().filter(it -> type == it.getType())
+				.findFirst().map(StyleCountryStatus::getStatus).orElse(StyleCountryStatusEnum.UNCHECK);
 		List<MoreLanguageStatusCheckDetailDTO> statusCheckDetailList = JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailDTO.class);
 
 		// 从codeMapping 获取 处理Func
@@ -1289,7 +1291,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					List<StandardColumnCountryTranslate> countryTranslateList = translateList.stream()
 							.filter(it -> countryLanguageDto.getId().contains(it.getCountryLanguageId()))
 							.collect(Collectors.toList());
-					languageList.add(buildTranslateResultList(countryTranslateList, standardColumnCode, propertiesCodeList,
+					languageList.add(buildTranslateResultList(countryTranslateList, standardColumnCode, propertiesCodeList, countryStatusEnum,
 							countryLanguageDto, hangTagMoreLanguageBaseVO, statusCheckDetailList));
 				});
 			}
@@ -1301,6 +1303,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private HangTagMoreLanguageVO buildTranslateResultList(List<StandardColumnCountryTranslate> translateList,
 														   String standardColumnCode,
 														   List<String> propertiesCodeList,
+														   StyleCountryStatusEnum countryStatusEnum,
 														   CountryLanguageDto countryLanguageDto,
 														   HangTagMoreLanguageBaseVO hangTagMoreLanguageBaseVO,
 														   List<MoreLanguageStatusCheckDetailDTO> statusCheckDetailList
@@ -1319,7 +1322,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		statusCheckDetailList.stream().filter(it -> languageCode.equals(it.getLanguageCode()))
 				.findFirst().ifPresent(checkDetailDTO ->
 						checkDetailDTO.getAuditList().forEach(it -> {
-							StyleCountryStatusEnum statusEnum = StyleCountryStatusEnum.findByCode(it.getStatus());
+							StyleCountryStatusEnum statusEnum = (countryStatusEnum == StyleCountryStatusEnum.CHECK) ? StyleCountryStatusEnum.findByCode(it.getStatus()) : countryStatusEnum;
 							if (standardColumnCode.equals(it.getSource())) {
 								// 找到 设置翻译 以及 flag
 								languageVO.setCannotFindStandardColumnContent(statusEnum != StyleCountryStatusEnum.CHECK);
