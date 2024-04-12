@@ -239,8 +239,11 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
 
                 Map<CountryLanguageType, List<String>> typeListMap = countryTypeLanguageSaveDto.getTypeLanguage()
                         .stream().collect(Collectors.toMap(TypeLanguageSaveDto::getType, (typeLanguageSaveDto)-> {
+                            StandardColumnType standardColumnType = typeLanguageSaveDto.getType().getStandardColumnType();
+                            List<StandardColumnType> typeList = standardColumnType.getChildrenTypeList();
+                            typeList.add(standardColumnType);
                             List<String> standardColumnCodeList = typeLanguageSaveDto.getStandardColumnCodeList();
-                            extendStandardColumnList.stream().filter(it-> it.getType().equals(typeLanguageSaveDto.getType().getStandardColumnType())).findFirst().ifPresent(standardColumn -> {
+                            extendStandardColumnList.stream().filter(it-> typeList.contains(it.getType())).findFirst().ifPresent(standardColumn -> {
                                 standardColumnCodeList.add(standardColumn.getCode());
                             });
                             standardColumnCodeList.add(MoreLanguageProperties.modelStandardColumnCode);
