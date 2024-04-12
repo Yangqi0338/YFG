@@ -72,6 +72,7 @@ import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
 import com.base.sbc.module.smp.dto.ScmProductionDto;
 import com.base.sbc.module.style.dto.PublicStyleColorDto;
@@ -1096,8 +1097,21 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         orderBook.setOrderStatus(warnStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.ORDER);
         orderBookService.updateById(orderBook);
 
-        ScmProductionDto productionDto = new ScmProductionDto();
-        threadPoolExecutor.submit(TtlCallable.get(()-> smpService.saveFacPrdOrder(productionDto)));
+        for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
+            ScmProductionDto productionDto = ORDER_BOOK_CV.copy2ProductionDto(orderBookDetail);
+            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getCommissioningSize())).orElse(new JSONObject());
+            for (OrderBookChannelType channelType : OrderBookChannelType.values()) {
+                String fill = channelType.getFill();
+                Map<String, String> map = productionDto.getAllSizeMap().getOrDefault(channelType, new HashMap<>(8));
+                jsonObject.forEach((key,value)-> {
+                    if (key.endsWith(fill)) {
+                        map.put(StrUtil.replaceLast(key,fill,""), value.toString());
+                    }
+                });
+            }
+            productionDto.setLoginName(dto.getUserId());
+            TtlCallable<HttpResp> callable = smpService.saveFacPrdOrder(productionDto);
+        }
 
         return b;
     }

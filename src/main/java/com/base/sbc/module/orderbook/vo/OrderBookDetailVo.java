@@ -1,5 +1,9 @@
 package com.base.sbc.module.orderbook.vo;
 
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.StrUtil;
+import com.base.sbc.config.enums.business.ProductionType;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -104,7 +108,9 @@ public class OrderBookDetailVo extends OrderBookDetail {
      * 生产类型
      */
     @ApiModelProperty(value = "生产类型")
-    private String devtTypeName;
+    public String getDevtTypeName(){
+        return Opt.ofNullable(this.devtType).map(ProductionType::getText).orElse("");
+    }
 
     /**
      * 面料类型
@@ -308,5 +314,23 @@ public class OrderBookDetailVo extends OrderBookDetail {
             return "1";
         }
     }
+
+    /**
+     * 生产类型
+     */
+    @ApiModelProperty(value = "生产类型")
+    private ProductionType devtType;
+
+    /**
+     * 年份
+     */
+    @JsonIgnore
+    private String yearName;
+
+    /**
+     * 季节
+     */
+    @JsonIgnore
+    private String seasonName;
 
 }

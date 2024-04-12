@@ -2,6 +2,7 @@ package com.base.sbc.module.smp;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.BooleanUtil;
+import com.alibaba.ttl.TtlCallable;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
@@ -87,6 +88,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -104,7 +107,10 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
@@ -121,6 +127,7 @@ import static com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum.HAN
  */
 @Service
 @RequiredArgsConstructor
+@Configuration
 public class SmpService {
 
     private final DataSourceTransactionManager dataSourceTransactionManager;
@@ -1872,28 +1879,44 @@ public class SmpService {
         return result;
     }
 
+    @Bean("scmThreadPoolExecutor")
+    public ThreadPoolExecutor threadPoolExecutor(){
+        return new ThreadPoolExecutor(8, 8, 0L, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<>(16), r -> {
+            Thread thread = new Thread(r,"调scm下游系统");
+            thread.setUncaughtExceptionHandler((Thread t,Throwable e) -> {
+                if(e != null){ throw new OtherException(e.getMessage()); }
+            });
+            return thread;
+        });
+    }
+
     /**
      * 订货本一键投产
      */
-    @Async
-    public Future<HttpResp> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
+    @Async("scmThreadPoolExecutor")
+    public TtlCallable<HttpResp> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
         String jsonString = JsonStringUtils.toJSONString(scmProductionDto);
-        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_PRODUCTION_IN_URL, jsonString);
-        pushRecordsService.pushRecordSave(httpResp, jsonString, "scm", "订货本一键投产");
-        return new AsyncResult<>(httpResp);
+        return TtlCallable.get(()-> {
+            HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_PRODUCTION_IN_URL, jsonString);
+            pushRecordsService.pushRecordSave(httpResp, jsonString, "scm", "订货本一键投产");
+            return httpResp;
+        });
     }
 
     /**
      * 反审核投产单
      */
-    @Async
-    public Future<HttpResp> facPrdOrderUpCheck(String orderNo) {
+    @Async("scmThreadPoolExecutor")
+    public TtlCallable<HttpResp> facPrdOrderUpCheck(String orderNo) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderNo",orderNo);
         jsonObject.put("loginName",orderNo);
-        HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_CANCEL_PRODUCTION_URL, jsonObject.toJSONString());
-        pushRecordsService.pushRecordSave(httpResp, jsonObject.toJSONString(), "scm", "反审核投产单");
-        return new AsyncResult<>(httpResp);
+        return TtlCallable.get(()-> {
+            HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_CANCEL_PRODUCTION_URL, jsonObject.toJSONString());
+            pushRecordsService.pushRecordSave(httpResp, jsonObject.toJSONString(), "scm", "反审核投产单");
+            return httpResp;
+        });
     }
 }
 

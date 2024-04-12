@@ -31,16 +31,16 @@ public class ScmProductionSupportDto {
     
     /** 渠道名称 */
     @JsonIgnore
-    private String channelTypeName;
+    private String channelName;
     
     /** 尺码组合 */
     @JsonIgnore
-    private Map<OrderBookChannelType, Map<String, String>> allSizeMap;
+    private Map<OrderBookChannelType, Map<String, String>> allSizeMap = new HashMap<>();
 
     /** 渠道类型 */
     @JsonIgnore
     public List<OrderBookChannelType> getChannelTypeList(){
-        return Arrays.stream(OrderBookChannelType.values()).filter(it-> channelTypeName.contains(it.getText())).collect(Collectors.toList());
+        return Arrays.stream(OrderBookChannelType.values()).filter(it-> channelName.contains(it.getText())).collect(Collectors.toList());
     }
     
     /** 是否单渠道 */

@@ -25,7 +25,7 @@
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
         tsc.his_style_no as hisStyleNo,
-        ts.devt_type_name,
+        ts.devt_type,
         ts.size_codes,
         tsc.band_name,
         tsc.band_code,
@@ -44,7 +44,11 @@
         tpi.name as bomName,
         tob.channel as channel,
         tob.channel_name as channelName,
-        IFNULL(tobl.material,0) * IFNULL(tsc.tag_price,0) as materialMoney
+        IFNULL(tobl.material,0) * IFNULL(tsc.tag_price,0) as materialMoney,
+
+        <!-- 一键投产 -->
+        ts.year_name,
+        ts.season_name
         FROM
         t_order_book_detail tobl
         left join t_style_color tsc on tobl.style_color_id = tsc.id and tsc.del_flag='0'

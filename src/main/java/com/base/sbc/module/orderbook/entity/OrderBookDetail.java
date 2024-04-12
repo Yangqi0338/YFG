@@ -15,6 +15,7 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
+import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -443,6 +444,10 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     /** 合并投产 */
     @ApiModelProperty(value = "合并投产")
     private YesOrNoEnum facMerge;
+
+    /** 下单类型 */
+    @ApiModelProperty(value = "下单类型")
+    private StylePutIntoType placeOrderType;
 
 }
 

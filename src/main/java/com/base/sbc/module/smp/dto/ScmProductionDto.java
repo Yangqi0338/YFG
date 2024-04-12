@@ -128,9 +128,12 @@ public class ScmProductionDto extends ScmProductionSupportDto {
     
     /** 集货单号 */
     private String shippingAreaNo;
-    
+
     /** 是否投产合并 */
+    private YesOrNoEnum facMerge;
+
     public String getFacMerge(){
+        if (facMerge != null) return facMerge.getName();
         return isSingleChannel() ? YesOrNoEnum.NO.getName() : YesOrNoEnum.YES.getName();
     };
 
