@@ -770,7 +770,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
                 .eq("s.enable_status", BaseGlobal.NO)
-                .eq("s.status", "1")
+                .in("s.status", "1", "2")
                 .like(ObjectUtil.isNotEmpty(search), "s.design_no", search)
                 .in(ObjectUtil.isNotEmpty(styleNoList), "s.design_no", styleNoList)
                 .orderByDesc("s.create_date");
