@@ -243,9 +243,9 @@ public class CountryLanguageServiceImpl extends BaseServiceImpl<CountryLanguageM
                             List<StandardColumnType> typeList = standardColumnType.getChildrenTypeList();
                             typeList.add(standardColumnType);
                             List<String> standardColumnCodeList = typeLanguageSaveDto.getStandardColumnCodeList();
-                            extendStandardColumnList.stream().filter(it-> typeList.contains(it.getType())).findFirst().ifPresent(standardColumn -> {
-                                standardColumnCodeList.add(standardColumn.getCode());
-                            });
+                            standardColumnCodeList.addAll(extendStandardColumnList.stream().filter(it-> typeList.contains(it.getType()))
+                                    .map(StandardColumn::getCode).collect(Collectors.toList()));
+
                             standardColumnCodeList.add(MoreLanguageProperties.modelStandardColumnCode);
                             return CollUtil.distinct(standardColumnCodeList);
                         }));
