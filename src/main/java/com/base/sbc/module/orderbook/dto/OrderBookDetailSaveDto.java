@@ -1,6 +1,7 @@
 package com.base.sbc.module.orderbook.dto;
 
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -73,6 +74,14 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
     private String totalCommissioningSize;
 
     private OrderBookChannelType channelType;
+
+    /**
+     * 部门
+     * {@link OrderBookDepartmentEnum}
+     */
+    @ApiModelProperty(value = "部门：1 设计部，2 线下商企，3 线上商企"  )
+    @NotEmpty(message = "分配部门不能为空")
+    private String department;
 
     public interface AssignPersonnel{}
 }

@@ -2,6 +2,7 @@ package com.base.sbc.module.orderbook.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -14,6 +15,7 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEn
 import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -64,6 +66,9 @@ public class OrderBookDetailController extends BaseController {
     private final OrderBookService orderBookService;
     private final StylePricingService stylePricingService;
     private final AmcFeignService amcFeignService;
+    private final RedisUtils redisUtils;
+
+    private final String BUSINESS_KEY = "business_modify_%s";
 
     @ApiOperation(value = "订货本详情-分页条件查询")
     @GetMapping("/queryPage")
@@ -204,24 +209,95 @@ public class OrderBookDetailController extends BaseController {
     @DuplicationCheck(time = 10)
     @Transactional(rollbackFor = Exception.class)
     public ApiResult businessConfirm(@RequestBody OrderBookDetailSaveDto dto) {
-        OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
-//        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
-        if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
-            throw new OtherException("不允许修改已发起审批的数据");
+
+        String key = BUSINESS_KEY + OrderBookChannelType.OFFLINE.name();
+        boolean aBoolean = redisUtils.setNx(key, 10);
+        if (!aBoolean) {
+            return ApiResult.error("有别的同事正在操作，请稍后重试",10302);
         }
-        dto.setBusinessConfirm("1");
-        //修改吊牌价
-        styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
+        try{
+            OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+//        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT) {
+            if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
+                throw new OtherException("不允许修改已发起审批的数据");
+            }
+            dto.setBusinessConfirm("1");
+            //修改吊牌价
 
-        //修改倍率和系数
-        StylePricingSaveDTO stylePricingSaveDTO =new StylePricingSaveDTO();
-        stylePricingSaveDTO.setId(dto.getStylePricingId());
-        stylePricingSaveDTO.setPackId(dto.getPackInfoId());
-        stylePricingSaveDTO.setPlanningRate(dto.getRate());
-        stylePricingSaveDTO.setProductStyle(dto.getProductStyleName());
-        stylePricingService.updateById(stylePricingSaveDTO);
+            styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
 
-        return insertSuccess(orderBookDetailService.updateById(dto));
+            orderBookDetail.setTargetTime(dto.getTargetTime());
+            orderBookDetail.setProductionUrgencyName(dto.getProductionUrgencyName());
+            orderBookDetail.setProductionUrgencyCode(dto.getProductionUrgencyCode());
+
+            orderBookDetail.setMaterial(dto.getMaterial());
+            orderBookDetail.setBraiding(dto.getBraiding());
+            orderBookDetail.setOfflineProduction(dto.getOfflineProduction());
+            orderBookDetail.setOfflineCommissioningSize(dto.getOfflineCommissioningSize());
+
+            //修改倍率和系数
+            StylePricingSaveDTO stylePricingSaveDTO =new StylePricingSaveDTO();
+            stylePricingSaveDTO.setId(dto.getStylePricingId());
+            stylePricingSaveDTO.setPackId(dto.getPackInfoId());
+            stylePricingSaveDTO.setPlanningRate(dto.getRate());
+            stylePricingSaveDTO.setProductStyle(dto.getProductStyleName());
+            stylePricingService.updateById(stylePricingSaveDTO);
+
+            QueryWrapper<OrderBookDetail> uw = new QueryWrapper<>();
+            uw.lambda().eq(OrderBookDetail::getId, orderBookDetail.getId());
+            OrderBookDetail updateBookDetail =  new OrderBookDetail();
+            updateBookDetail.setTargetTime(orderBookDetail.getTargetTime());
+            updateBookDetail.setProductionUrgencyName(orderBookDetail.getProductionUrgencyName());
+            updateBookDetail.setProductionUrgencyCode(orderBookDetail.getProductionUrgencyCode());
+
+            updateBookDetail.setTotalProduction(orderBookDetail.getTotalProduction());
+            updateBookDetail.setTotalCommissioningSize(orderBookDetail.getTotalProduction());
+
+            updateBookDetail.setMaterial(orderBookDetail.getMaterial());
+            updateBookDetail.setBraiding(orderBookDetail.getBraiding());
+            updateBookDetail.setOfflineProduction(orderBookDetail.getOfflineProduction());
+            updateBookDetail.setOfflineCommissioningSize(orderBookDetail.getOfflineCommissioningSize());
+            updateBookDetail.setVersion(orderBookDetail.getVersion());
+            return insertSuccess(orderBookDetailService.update(updateBookDetail,uw));
+        }finally{
+            redisUtils.del(key);
+        }
+
+    }
+
+
+    /**
+     * 商企填写资料
+     */
+
+    @ApiOperation(value = "订货本详情-线下商企填写资料")
+    @PostMapping("/onlineBusinessConfirm")
+    @DuplicationCheck(time = 10)
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResult onlineBusinessConfirm(@RequestBody OrderBookDetailSaveDto dto) {
+        String key = BUSINESS_KEY + OrderBookChannelType.ONLINE.name();
+        boolean aBoolean = redisUtils.setNx(key, 10);
+        if (!aBoolean) {
+            return ApiResult.error("有别的同事正在操作，请稍后重试",10302);
+        }
+        try{
+            OrderBookDetail orderBookDetail = orderBookDetailService.getById(dto.getId());
+            if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
+                throw new OtherException("不允许修改已发起审批的数据");
+            }
+            UpdateWrapper<OrderBookDetail> uw = new UpdateWrapper<>();
+            uw.lambda().eq(OrderBookDetail::getId, orderBookDetail.getId());
+            uw.lambda().eq(OrderBookDetail::getTotalProduction, orderBookDetail.getTotalProduction());
+            uw.lambda().eq(OrderBookDetail::getTotalCommissioningSize, orderBookDetail.getTotalProduction());
+            uw.lambda().eq(OrderBookDetail::getOfflineCommissioningSize, orderBookDetail.getOfflineCommissioningSize());
+            uw.lambda().eq(OrderBookDetail::getOnlineMaterial, orderBookDetail.getOnlineMaterial());
+            uw.lambda().eq(OrderBookDetail::getOnlineCommissioningSize, orderBookDetail.getOnlineCommissioningSize());
+            uw.lambda().eq(OrderBookDetail::getOnlineProduction, orderBookDetail.getOnlineProduction());
+            return insertSuccess(orderBookDetailService.update(uw));
+        }finally{
+            redisUtils.del(key);
+        }
+
     }
 
     /**

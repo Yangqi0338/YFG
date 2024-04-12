@@ -143,6 +143,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (null == openDataAuth) {
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         }
+        //数据过滤
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "tobl.");
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
         if (CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
 
@@ -281,10 +283,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
 
             String orderBookChannel = orderBookList.stream().filter(it -> it.getId().equals(orderBookDetailVo.getOrderBookId())).findFirst().map(OrderBook::getChannel).orElse("");
-            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
-
+//            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
             Map<String, String> sizeModelMap = sizeList.stream().filter(it -> StrUtil.contains(orderBookDetailVo.getSizeCodes(), it.getCode()))
                     .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
+            JSONObject jsonObject = getCommissioningSize(orderBookDetailVo, sizeModelMap);
             sizeModelMap.forEach((key,value)-> {
                 for (OrderBookChannelType channel : OrderBookChannelType.values()) {
                     jsonObject.put(key+ channel.getFill() + "Size",value);
@@ -761,17 +763,23 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (orderBookDetailList.size() < idList.size()){
             throw new OtherException("订货本详情不存在");
         }
+        OrderBookDepartmentEnum departmentEnum = OrderBookDepartmentEnum.getByCode(dto.getDepartment());
         orderBookDetailList.forEach(orderBookDetail -> {
             if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT)
                 throw new OtherException("已经发起审核,无法分配商企");
-            orderBookDetail.setBusinessId("1");
-            if (OrderBookChannelType.ONLINE == dto.getChannelType()) {
-                orderBookDetail.setOnlineBusinessDistribute(YesOrNoEnum.YES);
-            }else {
-                orderBookDetail.setOfflineBusinessDistribute(YesOrNoEnum.YES);
-            }
-        });
 
+            if (OrderBookDepartmentEnum.DESIGN.getCode().equals(orderBookDetail.getDepartment()) &&
+                    departmentEnum != OrderBookDepartmentEnum.OFFLINE){
+                throw new OtherException("请先分配线下商企！");
+            }
+
+            if (departmentEnum == OrderBookDepartmentEnum.ONLINE && StringUtils.isBlank(orderBookDetail.getOfflineProduction())){
+                throw new OtherException("分配线上商企，线下投产不能为空！");
+            }
+
+            orderBookDetail.setBusinessId("1");
+            orderBookDetail.setDepartment(departmentEnum.getCode());
+        });
         boolean b = this.saveOrUpdateBatch(orderBookDetailList);
         if (b) {
             // 发送通知消息给对应的人员
@@ -817,13 +825,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         List<String> channelList = queryDto.getChannel().stream().map(OrderBookChannelType::getText).collect(Collectors.toList());
 
         String category1stCode = queryDto.getCategory1stCode();
-        String designNo = queryDto.getDesignNo();
+        String registeringNo = queryDto.getRegisteringNo();
         List<String> searchBulkStyleNoList = new ArrayList<>();
-        if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(designNo)) {
+        if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(registeringNo)) {
             // 根据大类或设计款号获取款式
             Opt.ofEmptyAble(styleService.listOneField(new BaseLambdaQueryWrapper<Style>()
                     .notEmptyEq(Style::getProdCategory1st, category1stCode)
-                    .notEmptyEq(Style::getDesignNo, designNo), Style::getId)
+                    .notEmptyEq(Style::getRegisteringNo, registeringNo), Style::getRegisteringNo)
             ).ifPresent(styleIdList-> {
                 // 根据款式获取款号
                 searchBulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>()
@@ -945,7 +953,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
 
 
-
     /**
      * 查询款式定价数据
      */
@@ -1045,6 +1052,57 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             list.add(materialSupplierInfo);
         }
         dto.setMaterialSupplierInfos(list);
+    }
+
+
+    /**
+     * 获取投产尺寸，如果线上或者线下尺寸为空则补偿
+     * @param orderBookDetailVo
+     * @param sizeModelMap
+     * @return
+     */
+    private JSONObject getCommissioningSize(OrderBookDetailVo orderBookDetailVo, Map<String, String> sizeModelMap) {
+        JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
+        if (StringUtils.isEmpty(orderBookDetailVo.getOfflineCommissioningSize())
+                && StringUtils.isEmpty(orderBookDetailVo.getOnlineCommissioningSize())) {
+            return jsonObject;
+        }
+        //线下
+        JSONObject offlineJsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getOfflineCommissioningSize())).orElse(new JSONObject());
+        //线上
+        JSONObject onlineJsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getOnlineCommissioningSize())).orElse(new JSONObject());
+        offlineJsonObject.putAll(onlineJsonObject);
+        if (offlineJsonObject.size() ==0 && jsonObject.size() > 0){
+            offlineJsonObject.putAll(fullJSONObject(jsonObject, sizeModelMap, OrderBookChannelType.OFFLINE));
+
+        }
+
+        if (onlineJsonObject.size() ==0 && jsonObject.size() != 0){
+            offlineJsonObject.putAll(fullJSONObject(jsonObject, sizeModelMap, OrderBookChannelType.ONLINE));
+        }
+        return offlineJsonObject;
+    }
+
+    /**
+     * 数据补充转换
+     * @param jsonObject
+     * @param sizeModelMap
+     * @param orderBookChannelType
+     * @return
+     */
+    private JSONObject fullJSONObject(JSONObject jsonObject, Map<String, String> sizeModelMap, OrderBookChannelType orderBookChannelType){
+        JSONObject result = new JSONObject();
+        sizeModelMap.forEach((k,v)->{
+            String fill = k + orderBookChannelType.getFill();
+            String percentageFill = k + orderBookChannelType.getPercentageFill();
+            if (jsonObject.get(fill) != null){
+                result.put(fill, jsonObject.get(fill));
+            }
+            if (jsonObject.get(percentageFill) != null){
+                result.put(percentageFill, jsonObject.get(percentageFill));
+            }
+        });
+        return result;
     }
 
 

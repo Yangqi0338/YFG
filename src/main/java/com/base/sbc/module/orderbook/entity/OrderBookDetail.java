@@ -8,8 +8,10 @@ package com.base.sbc.module.orderbook.entity;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.Version;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -325,7 +327,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 投产尺码
      */
     @ApiModelProperty(value = "投产尺码")
-    private String commissioningSize;
+        private String commissioningSize;
 
     /**
      * 原款号
@@ -373,6 +375,30 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "brand")
     private String brand;
+
+
+    /**
+     * 部门
+     * {@link OrderBookDepartmentEnum}
+     */
+    @ApiModelProperty(value = "部门：design 设计部，offline 线下商企，online 线上商企"  )
+    private String department;
+
+    /**
+     * 线下投产尺码
+     */
+    @ApiModelProperty(value = "投产尺码")
+    private String offlineCommissioningSize;
+
+    /**
+     * 线上投产尺码
+     */
+    @ApiModelProperty(value = "投产尺码")
+    private String onlineCommissioningSize;
+
+    @ApiModelProperty(value = "版本号"  )
+    @Version
+    private Integer version;
 
 }
 
