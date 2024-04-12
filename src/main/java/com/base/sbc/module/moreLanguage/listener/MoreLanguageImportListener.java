@@ -299,6 +299,7 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
             StandardColumn standardColumn = (StandardColumn) titleObject;
             String standardColumnName = standardColumn.getName();
             String standardColumnCode = standardColumn.getCode();
+            StandardColumnType standardColumnType = standardColumn.getType();
 
             OperaLogEntity baseEntity = new OperaLogEntity();
             baseEntity.setDocumentName(standardColumnName);
@@ -402,31 +403,48 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     List<CountryLanguageDto> typeList = exportMapping.getTotalCountryLanguageList().stream().filter(it -> it.getType() != type).collect(Collectors.toList());
                     List<String> propertiesCodeList = updateNewTranslateList.stream().map(propertiesCodeFunc).collect(Collectors.toList());
 
+                    boolean isRoot = StandardColumnType.findRootList().contains(standardColumnType);
+                    List<StandardColumnType> standardColumnTypeList = typeList.stream().flatMap(it ->
+                            it.getType().getStandardColumnType().getChildrenTypeList().stream()
+                    ).distinct().collect(Collectors.toList());
                     boolean needSync = standardColumnService.exists(new BaseLambdaQueryWrapper<StandardColumn>()
-                            .in(StandardColumn::getCode, StandardColumnType.findRootList().contains(standardColumn.getType()) ? propertiesCodeList : standardColumnCode)
+                            .in(StandardColumn::getCode, isRoot ? propertiesCodeList : Collections.singletonList(standardColumnCode))
                             .eq(StandardColumn::getShowFlag, YesOrNoEnum.NO)
-                            .in(StandardColumn::getType, typeList.stream().flatMap(it -> it.getType().getStandardColumnType().getChildrenTypeList().stream()).distinct().collect(Collectors.toList()))
+                            .in(StandardColumn::getType, standardColumnTypeList)
                     );
-                    if (needSync) {
-                        List<StandardColumnCountryTranslate> list = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-                                .in(countryLanguageIdFunc, typeList.stream().map(idFunc).collect(Collectors.toList()))
-                                .in(propertiesCodeFunc, propertiesCodeList)
-                                .eq(titleCodeFunc, standardColumnCode)
-                        );
 
-                        List<StandardColumnCountryTranslate> syncTranslateList = typeList.stream().flatMap(countryLanguage ->
-                                BeanUtil.copyToList(updateNewTranslateList, StandardColumnCountryTranslate.class).stream().peek(translate -> {
-                                    translate.setId(null);
-                                    translate.setCreateDate(null);
-                                    translate.updateClear();
-                                    list.stream().filter(it-> translate.getTitleCode().equals(it.getTitleCode()) && translate.getPropertiesCode().equals(it.getPropertiesCode()))
-                                            .findFirst().ifPresent(oldTranslate-> {
-                                                translate.setId(oldTranslate.getId());
-                                                translate.setCreateDate(oldTranslate.getCreateDate());
-                                            });
-                                    translate.setCountryLanguageId(countryLanguage.getId());
-                                })
-                        ).collect(Collectors.toList());
+                    if (needSync) {
+                        List<String> titleCodeList = new ArrayList<>();
+                        if (isRoot) {
+                            titleCodeList.addAll(standardColumnService.listOneField(new BaseLambdaQueryWrapper<StandardColumn>()
+                                    .ne(StandardColumn::getType, standardColumnType), StandardColumn::getCode
+                            ));
+                        }else titleCodeList.add(standardColumnCode);
+
+                        List<StandardColumnCountryTranslate> syncTranslateList = new ArrayList<>();
+                        titleCodeList.forEach(titleCode-> {
+                            List<StandardColumnCountryTranslate> list = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                                    .in(countryLanguageIdFunc, typeList.stream().map(idFunc).collect(Collectors.toList()))
+                                    .in(propertiesCodeFunc, propertiesCodeList)
+                                    .eq(titleCodeFunc, titleCode)
+                            );
+
+                            syncTranslateList.addAll(typeList.stream().flatMap(countryLanguage ->
+                                    BeanUtil.copyToList(updateNewTranslateList, StandardColumnCountryTranslate.class).stream().peek(translate -> {
+                                        translate.setId(null);
+                                        translate.setCreateDate(null);
+                                        translate.updateClear();
+                                        translate.setTitleCode(titleCode);
+                                        list.stream().filter(it-> translate.getTitleCode().equals(it.getTitleCode()) && translate.getPropertiesCode().equals(it.getPropertiesCode()))
+                                                .findFirst().ifPresent(oldTranslate-> {
+                                                    translate.setId(oldTranslate.getId());
+                                                    translate.setCreateDate(oldTranslate.getCreateDate());
+                                                });
+                                        translate.setCountryLanguageId(countryLanguage.getId());
+                                    })
+                            ).collect(Collectors.toList()));
+                        });
+
                         standardColumnCountryTranslateService.saveOrUpdateBatch(syncTranslateList);
                     }
                 });
