@@ -68,7 +68,7 @@ public class OrderBookDetailController extends BaseController {
     private final AmcFeignService amcFeignService;
     private final RedisUtils redisUtils;
 
-    private final String BUSINESS_KEY = "business_modify_%s";
+    private final String BUSINESS_KEY = "business_modify_%s_%s";
 
     @ApiOperation(value = "订货本详情-分页条件查询")
     @GetMapping("/queryPage")
@@ -210,7 +210,7 @@ public class OrderBookDetailController extends BaseController {
     @Transactional(rollbackFor = Exception.class)
     public ApiResult businessConfirm(@RequestBody OrderBookDetailSaveDto dto) {
 
-        String key = BUSINESS_KEY + OrderBookChannelType.OFFLINE.name();
+        String key = String.format(BUSINESS_KEY, dto.getId(),OrderBookChannelType.OFFLINE.name()) ;
         boolean aBoolean = redisUtils.setNx(key, 10);
         if (!aBoolean) {
             return ApiResult.error("有别的同事正在操作，请稍后重试",10302);
@@ -221,7 +221,7 @@ public class OrderBookDetailController extends BaseController {
             if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
                 throw new OtherException("不允许修改已发起审批的数据");
             }
-            dto.setBusinessConfirm("1");
+
             //修改吊牌价
 
             styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
@@ -275,7 +275,7 @@ public class OrderBookDetailController extends BaseController {
     @DuplicationCheck(time = 10)
     @Transactional(rollbackFor = Exception.class)
     public ApiResult onlineBusinessConfirm(@RequestBody OrderBookDetailSaveDto dto) {
-        String key = BUSINESS_KEY + OrderBookChannelType.ONLINE.name();
+        String key = String.format(BUSINESS_KEY, dto.getId(), OrderBookChannelType.ONLINE.name());
         boolean aBoolean = redisUtils.setNx(key, 10);
         if (!aBoolean) {
             return ApiResult.error("有别的同事正在操作，请稍后重试",10302);

@@ -428,7 +428,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
             throw new OtherException("不允许修改已发起审批的数据");
         }
-        dto.setDesignerConfirm("1");
         boolean isUpdate=false;
         /*查询配色数据*/
         StyleColor styleColor =  styleColorService.getById(dto.getStyleColorId());

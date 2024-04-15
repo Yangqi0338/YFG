@@ -118,16 +118,12 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "审核状态:0：未审批，1：待审批，2：已审批")
     private OrderBookDetailAuditStatusEnum auditStatus;
-    /**
-     * 设计师确认(0:未确认，1：已确认)
-     */
-    @ApiModelProperty(value = "设计师确认(0:未确认，1：已确认)")
-    private String designerConfirm;
-    /**
-     * 商企确认(0:未确认，1：已确认)
-     */
-    @ApiModelProperty(value = "商企确认(0:未确认，1：已确认)")
-    private String businessConfirm;
+
+//    /**
+//     * 商企确认(0:未确认，1：已确认)
+//     */
+//    @ApiModelProperty(value = "商企确认(0:未确认，1：已确认)")
+//    private String businessConfirm;
     /**
      * 系数编码
      */
