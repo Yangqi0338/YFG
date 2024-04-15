@@ -91,7 +91,6 @@ import com.base.sbc.open.dto.MoreLanguageTagPrintingList;
 import com.base.sbc.open.dto.TagPrintingSupportVO.CodeMapping;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -105,7 +104,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
-import sun.nio.cs.ext.PCK;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -775,8 +773,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 									materialCodeNames = CollUtil.join(
 											packBomList
 													.stream()
+													.filter(item ->
+															item.getCategoryName().contains("特殊吊牌")
+																	|| item.getMaterialCodeName().contains("钦扣")
+																	|| item.getMaterialCodeName().contains("备扣袋")
+													)
 													.map(PackBom::getMaterialCodeName)
-													.filter(item -> item.contains("特殊吊牌"))
 													.collect(Collectors.toList()),
 											",");
 
