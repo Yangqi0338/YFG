@@ -225,6 +225,9 @@ public class OrderBookDetailController extends BaseController {
             }
             //线上修改
             if (!isOnline){
+                if (null == dto.getVersion()){
+                    throw new OtherException("请传入正确的版本号！");
+                }
                 //修改吊牌价
                 styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
 
