@@ -474,7 +474,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
         operaLogEntity.setDocumentCodeField("code");
         operaLogEntity.setDocumentNameField("code");
-        this.updateBatchOperaLog(newPatternLibraryList, oldPatternLibraryList,operaLogEntity);
+        this.updateBatchOperaLog(newPatternLibraryList, oldPatternLibraryList, operaLogEntity);
         return true;
     }
 
@@ -592,7 +592,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
         // 查询新数据 用作日志匹配
         List<PatternLibrary> newPatternLibraryList = BeanUtil.copyToList(patternLibraryList, PatternLibrary.class);
-        newPatternLibraryList.forEach(item -> item.setStatus(auditsDTO.getType().equals(1) ? 4:5));
+        newPatternLibraryList.forEach(item -> item.setStatus(auditsDTO.getType().equals(1) ? 4 : 5));
         // 保存日志
         OperaLogEntity operaLogEntity = new OperaLogEntity();
         operaLogEntity.setName(GeneralConstant.LOG_NAME);
@@ -600,7 +600,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
         operaLogEntity.setDocumentCodeField("code");
         operaLogEntity.setDocumentNameField("code");
-        this.updateBatchOperaLog(newPatternLibraryList, patternLibraryList,operaLogEntity);
+        this.updateBatchOperaLog(newPatternLibraryList, patternLibraryList, operaLogEntity);
         return Boolean.TRUE;
     }
 
@@ -790,7 +790,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                         .eq(Style::getDesignNo, designNo)
                         .eq(Style::getEnableStatus, "0")
                         .eq(Style::getDelFlag, "0")
-                        .eq(Style::getConfirmStatus, "2")
+                        .in(Style::getStatus, "1", "2")
         );
         if (ObjectUtil.isEmpty(style)) {
             throw new OtherException(ResultConstant.DATA_NOT_EXIST_REFRESH_TRY_AGAIN);
@@ -888,7 +888,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
      * 版型库数据设置款式信息
      *
      * @param patternLibrary 版型库对象数据
-     * @param style            款式信息
+     * @param style          款式信息
      */
     private static void setValue(PatternLibrary patternLibrary, Style style) {
         // 设计款号
@@ -978,15 +978,15 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     /**
      * 设置返回值
      *
-     * @param patternLibrary          主表返回对象
+     * @param patternLibrary            主表返回对象
      * @param patternLibraryTemplateMap 模板表 map
      * @param patternLibraryBrandMap    品类表 map
      * @param patternLibraryItemMap     子表 map
      */
     private static void setPatternLibrary(PatternLibrary patternLibrary,
-                                            Map<String, PatternLibraryTemplate> patternLibraryTemplateMap,
-                                            Map<String, List<PatternLibraryBrand>> patternLibraryBrandMap,
-                                            Map<String, List<PatternLibraryItem>> patternLibraryItemMap) {
+                                          Map<String, PatternLibraryTemplate> patternLibraryTemplateMap,
+                                          Map<String, List<PatternLibraryBrand>> patternLibraryBrandMap,
+                                          Map<String, List<PatternLibraryItem>> patternLibraryItemMap) {
         // 设置所属版型库数据
         patternLibrary.setPatternLibraryTemplate(
                 patternLibraryTemplateMap.get(patternLibrary.getTemplateCode())
@@ -1110,6 +1110,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
     /**
      * 批量查询详情 用作批量修改时的日志记录
+     *
      * @param patternLibraryIdList 版型库 id 集合
      * @return 版型库信息集合
      */
