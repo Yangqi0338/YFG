@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.vo;
 
+import com.base.sbc.config.vo.EditPermissionReturnVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,7 +26,7 @@ import java.util.Optional;
 @Data
 
 @ApiModel("样衣-款式配色 SampleStyleColor")
-public class StyleColorVo {
+public class StyleColorVo extends EditPermissionReturnVo {
     /**
      * 是否撞色
      */

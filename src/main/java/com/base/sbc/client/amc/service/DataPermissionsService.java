@@ -137,55 +137,8 @@ public class DataPermissionsService {
      * @see DataPermissionsBusinessTypeEnum
      */
     public <T> Map getDataPermissionsForQw(String companyCode, String uerId, String businessType, String operateType, String tablePre, String[] authorityFields, boolean isAssignFields) {
-        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":";
-        //删除amc的数据权限状态
-        Map<String,String> redisType=new HashMap<>();
-        if(redisAmcUtils.hasKey(dataPermissionsKey+"businessTypeAll:POWERSTATE")){
-            String businessTypeAllByUerId= (String) redisAmcUtils.get(dataPermissionsKey+"businessTypeAll:POWERSTATE");
-            if(businessTypeAllByUerId.indexOf(uerId) !=-1){
-                redisType.put("0",uerId);
-                if(!businessTypeAllByUerId.equals(uerId)){
-                    String[] autoUserIds=businessTypeAllByUerId.split(uerId);
-                    businessTypeAllByUerId=autoUserIds[0].endsWith(",")?(autoUserIds[0].substring(0,autoUserIds[0].length()-2)):autoUserIds[0].startsWith(",")?(autoUserIds[0].substring(1)):autoUserIds[0];
-                    if(autoUserIds.length>1){
-                        businessTypeAllByUerId+=(StringUtils.isNotBlank(businessTypeAllByUerId)?",":"")+(autoUserIds[1].endsWith(",")?(autoUserIds[1].substring(0,autoUserIds[1].length()-2)):autoUserIds[1].startsWith(",")?(autoUserIds[1].substring(1)):autoUserIds[1]);
-                    }
-                }else {
-                    businessTypeAllByUerId="";
-                }
-                if(StringUtils.isNotBlank(businessTypeAllByUerId)){
-                    redisAmcUtils.set(dataPermissionsKey+"businessTypeAll:POWERSTATE",businessTypeAllByUerId);
-                }
-            }
-            if(StringUtils.isBlank(businessTypeAllByUerId)){
-                redisAmcUtils.del(dataPermissionsKey+"businessTypeAll:POWERSTATE");
-            }
-        }
-        if(redisAmcUtils.hasKey(dataPermissionsKey + businessType + ":"+"POWERSTATE")){
-            redisType.put("1","");
-            redisAmcUtils.del(dataPermissionsKey + businessType + ":"+"POWERSTATE");
-        }
-        if (redisType.containsKey("0")){
-            redisUtils.removePatternAndIndexOf(dataPermissionsKey, redisType.get("0"));
-        }
-        dataPermissionsKey = dataPermissionsKey + businessType + ":";
-        if (redisType.containsKey("1")){
-            redisUtils.removePattern(dataPermissionsKey);
-        }
-        dataPermissionsKey += uerId + ":";
         Map<String, Object> ret = new HashMap<>();
-        ret.put("authorityState", Boolean.TRUE);
-        ret.put("authorityField","");
-        ret.put("dataPermissionsKey",dataPermissionsKey);
-        List<DataPermissionVO> dataPermissionsList;
-        if (!redisUtils.hasKey(dataPermissionsKey+operateType)) {
-            dataPermissionsList = this.getDataPermissions(businessType,operateType);
-            //默认开启角色的数据隔离
-            Random random=new Random();
-            redisUtils.set(dataPermissionsKey +operateType, dataPermissionsList, 10*12*60*60*(random.nextInt(4)+1));//如数据的隔离不失效
-        } else {
-            dataPermissionsList = (List<DataPermissionVO>) redisUtils.get(dataPermissionsKey +operateType);
-        }
+        List<DataPermissionVO> dataPermissionsList = getDataPermissionKey(companyCode, uerId, businessType, operateType, ret);
         if (CollectionUtils.isEmpty(dataPermissionsList)) {
             return ret;
         }
@@ -275,6 +228,59 @@ public class DataPermissionsService {
             ret.put("authorityField", authorityFieldStr);
         }
         return ret;
+    }
+
+    public List<DataPermissionVO> getDataPermissionKey(String companyCode, String uerId, String businessType, String operateType, Map<String, Object> ret) {
+        String dataPermissionsKey = "USERISOLATION:" + companyCode + ":";
+        //删除amc的数据权限状态
+        Map<String,String> redisType=new HashMap<>();
+        if(redisAmcUtils.hasKey(dataPermissionsKey+"businessTypeAll:POWERSTATE")){
+            String businessTypeAllByUerId= (String) redisAmcUtils.get(dataPermissionsKey+"businessTypeAll:POWERSTATE");
+            if(businessTypeAllByUerId.contains(uerId)){
+                redisType.put("0", uerId);
+                if(!businessTypeAllByUerId.equals(uerId)){
+                    String[] autoUserIds=businessTypeAllByUerId.split(uerId);
+                    businessTypeAllByUerId=autoUserIds[0].endsWith(",")?(autoUserIds[0].substring(0,autoUserIds[0].length()-2)):autoUserIds[0].startsWith(",")?(autoUserIds[0].substring(1)):autoUserIds[0];
+                    if(autoUserIds.length>1){
+                        businessTypeAllByUerId+=(StringUtils.isNotBlank(businessTypeAllByUerId)?",":"")+(autoUserIds[1].endsWith(",")?(autoUserIds[1].substring(0,autoUserIds[1].length()-2)):autoUserIds[1].startsWith(",")?(autoUserIds[1].substring(1)):autoUserIds[1]);
+                    }
+                }else {
+                    businessTypeAllByUerId="";
+                }
+                if(StringUtils.isNotBlank(businessTypeAllByUerId)){
+                    redisAmcUtils.set(dataPermissionsKey+"businessTypeAll:POWERSTATE",businessTypeAllByUerId);
+                }
+            }
+            if(StringUtils.isBlank(businessTypeAllByUerId)){
+                redisAmcUtils.del(dataPermissionsKey+"businessTypeAll:POWERSTATE");
+            }
+        }
+        if(redisAmcUtils.hasKey(dataPermissionsKey + businessType + ":"+"POWERSTATE")){
+            redisType.put("1","");
+            redisAmcUtils.del(dataPermissionsKey + businessType + ":"+"POWERSTATE");
+        }
+        if (redisType.containsKey("0")){
+            redisUtils.removePatternAndIndexOf(dataPermissionsKey, redisType.get("0"));
+        }
+        dataPermissionsKey = dataPermissionsKey + businessType + ":";
+        if (redisType.containsKey("1")){
+            redisUtils.removePattern(dataPermissionsKey);
+        }
+        dataPermissionsKey += uerId + ":";
+        ret.put("authorityState", Boolean.TRUE);
+        ret.put("authorityField","");
+        ret.put("dataPermissionsKey",dataPermissionsKey);
+        List<DataPermissionVO> dataPermissionsList;
+        dataPermissionsList = this.getDataPermissions(businessType,operateType);
+        /*if (!redisUtils.hasKey(dataPermissionsKey+operateType)) {
+            dataPermissionsList = this.getDataPermissions(businessType,operateType);
+            //默认开启角色的数据隔离
+            Random random=new Random();
+            redisUtils.set(dataPermissionsKey +operateType, dataPermissionsList, 10*12*60*60*(random.nextInt(4)+1));//如数据的隔离不失效
+        } else {
+            dataPermissionsList = (List<DataPermissionVO>) redisUtils.get(dataPermissionsKey +operateType);
+        }*/
+        return dataPermissionsList;
     }
 
 
