@@ -24,6 +24,7 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
@@ -56,7 +57,9 @@ import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
+import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
+import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
@@ -114,6 +117,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Resource
     @Lazy
     private SmpService smpService;
+
+    private final RedisUtils redisUtils;
+
+    private final StylePricingService stylePricingService;
+
+    private final String BUSINESS_KEY = "business_modify_%s_%s";
 
     @Override
     public BasePageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
@@ -589,15 +598,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             } catch (Exception ignored) {
             }
             try {
-                totalProductionSum +=  Float.parseFloat(orderBookDetailVo.getTotalProduction());
-            } catch (Exception ignored) {
-            }
-            try {
                 onlineProductionSum +=  Float.parseFloat(orderBookDetailVo.getOnlineProduction());
             } catch (Exception ignored) {
             }
             try {
                 offlineProductionSum +=  Float.parseFloat(orderBookDetailVo.getOfflineProduction());
+            } catch (Exception ignored) {
+            }
+            try {
+//                totalProductionSum +=  Float.parseFloat(orderBookDetailVo.getTotalProduction());
+                totalProductionSum +=  onlineProductionSum + offlineProductionSum;
             } catch (Exception ignored) {
             }
         }
@@ -950,6 +960,87 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return  packBomService.updateMaterial(dto);
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public UpdateResultVo businessConfirm(OrderBookDetailSaveDto dto) {
+        //是否线上
+        boolean isOnline = OrderBookChannelType.ONLINE.name().equals(dto.getModifyType());
+
+        String key = String.format(BUSINESS_KEY, dto.getId(),dto.getModifyType()) ;
+        boolean aBoolean = redisUtils.setNx(key, 10);
+        if (!aBoolean) {
+            throw new OtherException("有别的同事正在操作，请稍后重试");
+        }
+        try{
+            OrderBookDetail orderBookDetail = this.getById(dto.getId());
+            if (orderBookDetail.getAuditStatus() == OrderBookDetailAuditStatusEnum.FINISH) {
+                throw new OtherException("不允许修改已发起审批的数据");
+            }
+            UpdateResultVo updateResultVo = new UpdateResultVo();
+            updateResultVo.setId(orderBookDetail.getId());
+            //线上修改
+            if (!isOnline){
+                if (null == dto.getVersion()){
+                    throw new OtherException("请传入正确的版本号！");
+                }
+                if (!dto.getVersion().equals(orderBookDetail.getVersion())){
+                    updateResultVo.setResult(false);
+                    return updateResultVo;
+                }
+                //修改吊牌价
+                styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
+
+                orderBookDetail.setTargetTime(dto.getTargetTime());
+                orderBookDetail.setProductionUrgencyName(dto.getProductionUrgencyName());
+                orderBookDetail.setProductionUrgencyCode(dto.getProductionUrgencyCode());
+
+                orderBookDetail.setMaterial(dto.getMaterial());
+                orderBookDetail.setBraiding(dto.getBraiding());
+                orderBookDetail.setOfflineProduction(dto.getOfflineProduction());
+                orderBookDetail.setOfflineCommissioningSize(dto.getOfflineCommissioningSize());
+
+                //修改倍率和系数
+                StylePricingSaveDTO stylePricingSaveDTO =new StylePricingSaveDTO();
+                stylePricingSaveDTO.setId(dto.getStylePricingId());
+                stylePricingSaveDTO.setPackId(dto.getPackInfoId());
+                stylePricingSaveDTO.setPlanningRate(dto.getRate());
+                stylePricingSaveDTO.setProductStyle(dto.getProductStyleName());
+                stylePricingService.updateById(stylePricingSaveDTO);
+
+                QueryWrapper<OrderBookDetail> uw = new QueryWrapper<>();
+                uw.lambda().eq(OrderBookDetail::getId, orderBookDetail.getId());
+                OrderBookDetail updateBookDetail =  new OrderBookDetail();
+                updateBookDetail.setTargetTime(orderBookDetail.getTargetTime());
+                updateBookDetail.setProductionUrgencyName(orderBookDetail.getProductionUrgencyName());
+                updateBookDetail.setProductionUrgencyCode(orderBookDetail.getProductionUrgencyCode());
+
+                updateBookDetail.setTotalProduction(orderBookDetail.getTotalProduction());
+                updateBookDetail.setTotalCommissioningSize(orderBookDetail.getTotalCommissioningSize());
+
+                updateBookDetail.setMaterial(orderBookDetail.getMaterial());
+                updateBookDetail.setBraiding(orderBookDetail.getBraiding());
+                updateBookDetail.setOfflineProduction(orderBookDetail.getOfflineProduction());
+                updateBookDetail.setOfflineCommissioningSize(orderBookDetail.getOfflineCommissioningSize());
+                updateBookDetail.setVersion(dto.getVersion());
+                updateResultVo.setResult(this.update(updateBookDetail,uw));
+                updateResultVo.setVersion(updateBookDetail.getVersion());
+                return updateResultVo;
+            }else {
+                UpdateWrapper<OrderBookDetail> uw = new UpdateWrapper<>();
+                uw.lambda().eq(OrderBookDetail::getId, orderBookDetail.getId());
+                uw.lambda().eq(OrderBookDetail::getTotalProduction, orderBookDetail.getTotalProduction());
+                uw.lambda().eq(OrderBookDetail::getTotalCommissioningSize, orderBookDetail.getTotalCommissioningSize());
+                uw.lambda().eq(OrderBookDetail::getOnlineMaterial, orderBookDetail.getOnlineMaterial());
+                uw.lambda().eq(OrderBookDetail::getOnlineCommissioningSize, orderBookDetail.getOnlineCommissioningSize());
+                uw.lambda().eq(OrderBookDetail::getOnlineProduction, orderBookDetail.getOnlineProduction());
+                updateResultVo.setVersion(orderBookDetail.getVersion());
+                updateResultVo.setResult(this.update(uw));
+                return updateResultVo;
+            }
+        }finally{
+            redisUtils.del(key);
+        }
+    }
 
 
     /**

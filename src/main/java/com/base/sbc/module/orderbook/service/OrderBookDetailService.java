@@ -11,6 +11,7 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.UpdateResultVo;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -86,4 +87,6 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto dto);
 
     boolean updateMaterial(MaterialUpdateDto dto);
+
+    UpdateResultVo businessConfirm(OrderBookDetailSaveDto dto);
 }

@@ -442,6 +442,12 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
      * @param map
      */
     private void checkUpdateMaterial(MaterialUpdateDto dto, Map<String, List<PackBom>> map) {
+
+        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        if (ObjectUtils.isNotEmpty(packDesignStatus) && BasicNumber.ONE.getNumber().equals(packDesignStatus.getBomStatus())){
+            throw new OtherException("物料已转大货，不允许更新！");
+        }
+
         //检查需要替换的物料编号是否在bom中
         if (StringUtils.isNotBlank(dto.getMaterialCode())){
 
@@ -450,17 +456,16 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 if (CollectionUtil.isEmpty(packBoms1)){
                     throw new OtherException("需要替换的:"+materialSupplierInfo.getMaterialCode()+"物料编号在bom中未有关联！");
                 }
-                if (packBoms1.get(0).getScmSendFlag().equals("1")){
+                List<PackBom> packBoms = packBoms1.stream().filter(item -> !"1".equals(item.getScmSendFlag())).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(packBoms)){
                     throw new OtherException("物料："+materialSupplierInfo.getMaterialCode()+"已发送，暂不允许替换");
                 }
+                map.put(materialSupplierInfo.getMaterialCode(),packBoms);
 
             }
 
         }
-        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
-        if (ObjectUtils.isNotEmpty(packDesignStatus) && BasicNumber.ONE.getNumber().equals(packDesignStatus.getBomStatus())){
-            throw new OtherException("物料已转大货，不允许更新！");
-        }
+
     }
 
 
