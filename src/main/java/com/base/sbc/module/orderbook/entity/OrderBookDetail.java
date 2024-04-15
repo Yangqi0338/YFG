@@ -441,6 +441,10 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "预算号")
     private String budgetNo;
 
+    /** 预算号 */
+    @ApiModelProperty(value = "预算号")
+    private String budgetNoId;
+
     /** 合并投产 */
     @ApiModelProperty(value = "合并投产")
     private YesOrNoEnum facMerge;

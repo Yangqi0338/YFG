@@ -32,6 +32,7 @@ import com.base.sbc.config.utils.BigDecimalUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.config.utils.ValidationUtil;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
@@ -84,6 +85,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -734,7 +736,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
 
         for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
-            orderBookDetail.setIsLock(YesOrNoEnum.YES);
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDERING);
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT);
             orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.FINISH);
@@ -1078,11 +1079,33 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已投产,请勿重新提交");
             }
+            if (orderBookDetail.getStatus() != (OrderBookDetailStatusEnum.AUDIT)){
+                throw new OtherException(orderBookDetail.getBulkStyleNo()+ "未下单,无法发起投产");
+            }
         }
 
+        List<ScmProductionDto> scmProductionDtoList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
+            orderBookDetail.setIsLock(YesOrNoEnum.YES);
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
             orderBookDetail.setCommissioningDate(new Date());
+
+            ScmProductionDto productionDto = ORDER_BOOK_CV.copy2ProductionDto(orderBookDetail);
+            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getCommissioningSize())).orElse(new JSONObject());
+            for (OrderBookChannelType channelType : OrderBookChannelType.values()) {
+                String fill = channelType.getFill();
+                Map<String, String> map = productionDto.getAllSizeMap().getOrDefault(channelType, new HashMap<>(8));
+                jsonObject.forEach((key,value)-> {
+                    if (key.endsWith(fill)) {
+                        map.put(StrUtil.replaceLast(key,fill,""), value.toString());
+                    }
+                });
+                productionDto.getAllSizeMap().put(channelType, map);
+            }
+            productionDto.setLoginName(dto.getUserId());
+            // 检查必填参数是否校验完成
+            ValidationUtil.validate(productionDto);
+            scmProductionDtoList.add(productionDto);
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
@@ -1097,21 +1120,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         orderBook.setOrderStatus(warnStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.ORDER);
         orderBookService.updateById(orderBook);
 
-        for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
-            ScmProductionDto productionDto = ORDER_BOOK_CV.copy2ProductionDto(orderBookDetail);
-            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getCommissioningSize())).orElse(new JSONObject());
-            for (OrderBookChannelType channelType : OrderBookChannelType.values()) {
-                String fill = channelType.getFill();
-                Map<String, String> map = productionDto.getAllSizeMap().getOrDefault(channelType, new HashMap<>(8));
-                jsonObject.forEach((key,value)-> {
-                    if (key.endsWith(fill)) {
-                        map.put(StrUtil.replaceLast(key,fill,""), value.toString());
-                    }
-                });
-            }
-            productionDto.setLoginName(dto.getUserId());
-            TtlCallable<HttpResp> callable = smpService.saveFacPrdOrder(productionDto);
-        }
+        scmProductionDtoList.forEach(productionDto-> {
+            smpService.saveFacPrdOrder(productionDto);
+        });
+
+//        TtlRunnable.get(()-> {
+//            callableList.forEach(callable-> {
+//                HttpResp call = callable.call();
+//
+//            });
+//        });
 
         return b;
     }

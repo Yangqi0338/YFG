@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pushrecords.mapper.PushRecordsMapper;
 import com.base.sbc.module.pushrecords.entity.PushRecords;
@@ -69,6 +70,28 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         pushRecords.setResponseStatusCode(httpResp.getCode());
         this.save(pushRecords);
         return httpResp.isSuccess();
+    }
+
+    @Override
+    public Boolean prePushRecordSave(String url, String data, String moduleName, String functionName) {
+        PushRecords pushRecords = new PushRecords();
+
+        JSONObject json = JSON.parseObject(data);
+        pushRecords.setRelatedId(json.getString("code"));
+        pushRecords.setRelatedName(json.getString("name"));
+        pushRecords.setModuleName(moduleName);
+        pushRecords.setFunctionName(functionName);
+        pushRecords.setPushAddress(url);
+        pushRecords.setPushContent(data);
+        for (SmpProperties.SystemEnums systemEnums : SmpProperties.SystemEnums.values()) {
+            if (url.startsWith(systemEnums.getBaseUrl())) {
+                pushRecords.setPushCount(systemEnums.getRetryNum());
+            }
+        }
+
+        pushRecords.setPushStatus("无响应");
+        this.save(pushRecords);
+        return true;
     }
 
 

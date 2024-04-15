@@ -222,17 +222,6 @@ public class OrderBookDetailController extends BaseController {
         if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)) {
             throw new OtherException("不允许修改已发起投产的数据");
         }
-        //修改吊牌价
-        styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
-
-        //修改倍率和系数
-        StylePricingSaveDTO stylePricingSaveDTO =new StylePricingSaveDTO();
-        stylePricingSaveDTO.setId(dto.getStylePricingId());
-        stylePricingSaveDTO.setPackId(dto.getPackInfoId());
-        stylePricingSaveDTO.setPlanningRate(dto.getRate());
-        stylePricingSaveDTO.setProductStyle(dto.getProductStyleName());
-        stylePricingService.updateById(stylePricingSaveDTO);
-
         return insertSuccess(orderBookDetailService.updateById(dto));
     }
 

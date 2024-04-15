@@ -88,17 +88,15 @@ public class SmpProperties {
 
     @Getter
     public enum SystemEnums {
-        SCM("http://10.8.250.100:1980/", "20","3"),
-        SMP("http://10.98.250.31:7006/", "20","3"),
-        OA("http://10.8.240.161:40002/", "20","3"),
+        SCM("http://10.8.250.100:1980/", "3"),
+        SMP("http://10.98.250.31:7006/","3"),
+        OA("http://10.8.240.161:40002/", "3"),
         ;
         /** 基础连接 */
         private final String baseUrl;
-        private final String maxWaitTime;
         private final String retryNum;
-        SystemEnums(String baseUrl, String maxWaitTime, String retryNum) {
+        SystemEnums(String baseUrl, String retryNum) {
             this.baseUrl = baseUrl;
-            this.maxWaitTime = maxWaitTime;
             this.retryNum = retryNum;
         }
     }

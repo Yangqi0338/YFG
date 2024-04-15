@@ -321,16 +321,10 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @ApiModelProperty(value = "生产类型")
     private ProductionType devtType;
 
-    /**
-     * 年份
-     */
-    @JsonIgnore
+
     private String yearName;
 
-    /**
-     * 季节
-     */
-    @JsonIgnore
+
     private String seasonName;
 
 }

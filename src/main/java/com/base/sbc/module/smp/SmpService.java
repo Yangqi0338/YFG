@@ -1896,10 +1896,12 @@ public class SmpService {
      */
     @Async("scmThreadPoolExecutor")
     public TtlCallable<HttpResp> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
-        String jsonString = JsonStringUtils.toJSONString(scmProductionDto);
+        JSONObject jsonObject = JSONObject.parseObject(JsonStringUtils.toJSONString(scmProductionDto));
+        jsonObject.put("code",scmProductionDto.getOrderBookDetailId());
         return TtlCallable.get(()-> {
-            HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_PRODUCTION_IN_URL, jsonString);
-            pushRecordsService.pushRecordSave(httpResp, jsonString, "scm", "订货本一键投产");
+            HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_PRODUCTION_IN_URL, jsonObject.toJSONString());
+            pushRecordsService.pushRecordSave(httpResp, jsonObject.toJSONString(), "scm", "订货本一键投产");
+            Thread.sleep(500);
             return httpResp;
         });
     }
@@ -1908,13 +1910,14 @@ public class SmpService {
      * 反审核投产单
      */
     @Async("scmThreadPoolExecutor")
-    public TtlCallable<HttpResp> facPrdOrderUpCheck(String orderNo) {
+    public TtlCallable<HttpResp> facPrdOrderUpCheck(String orderNo, String loginName) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderNo",orderNo);
-        jsonObject.put("loginName",orderNo);
+        jsonObject.put("loginName",loginName);
         return TtlCallable.get(()-> {
             HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_MF_CANCEL_PRODUCTION_URL, jsonObject.toJSONString());
             pushRecordsService.pushRecordSave(httpResp, jsonObject.toJSONString(), "scm", "反审核投产单");
+            Thread.sleep(500);
             return httpResp;
         });
     }
