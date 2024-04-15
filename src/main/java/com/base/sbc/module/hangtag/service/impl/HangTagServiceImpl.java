@@ -71,11 +71,13 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
+import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
+import com.base.sbc.module.pack.service.PackingDictionaryService;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -103,6 +105,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -205,8 +208,15 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private StyleCountryStatusService styleCountryStatusService;
 
 
-	@Resource
-	private PackBomVersionService packBomVersionService;
+	@Autowired
+	private BasicsdatumMaterialService basicsdatumMaterialService;
+
+	@Autowired
+	private PackingDictionaryService packingDictionaryService;
+
+	@Value("${hang-tag.packingDefaultType:P1}")
+	private String packingDefaultType;
+
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
@@ -569,18 +579,37 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 			// 修正工艺单说明的包装袋标准
 			// 获取大货标准资料包
-			Opt.ofNullable(
-					packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
-			).ifPresent(packInfo-> {
-				packTechPackagingService.update(new LambdaUpdateWrapper<PackTechPackaging>()
-						.eq(PackTechPackaging::getForeignId,packInfo.getId())
-						.set(PackTechPackaging::getPackagingForm, hangTagDTO.getPackagingFormCode())
-						.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
-						.set(PackTechPackaging::getPackagingBagStandard, hangTagDTO.getPackagingBagStandardCode())
-						.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard())
-				);
-			});
+			String packagingFormCode = hangTagDTO.getPackagingFormCode();
+			String packagingBagStandardCode = hangTagDTO.getPackagingBagStandardCode();
 
+			if (StrUtil.isNotBlank(packagingFormCode) && StrUtil.isNotBlank(packagingBagStandardCode)) {
+				boolean isDefaultPackingType = packagingFormCode.equals(packingDefaultType);
+				Opt.ofNullable(
+						packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
+				).ifPresent(packInfo-> {
+					LambdaUpdateWrapper<PackTechPackaging> qw = new LambdaUpdateWrapper<PackTechPackaging>()
+							.eq(PackTechPackaging::getForeignId, packInfo.getId())
+							.set(PackTechPackaging::getPackagingForm, packagingFormCode)
+							.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
+							.set(PackTechPackaging::getPackagingBagStandard, packagingBagStandardCode)
+							.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard());
+					Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
+							.eq(PackingDictionary::getPackagingForm, packagingFormCode)
+							.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
+						boolean heightNotBlank = packingDictionary.getVolumeHeight() != null;
+						boolean widthNotBlank = packingDictionary.getVolumeWidth() != null;
+						boolean lengthNotBlank = packingDictionary.getVolumeLength() != null;
+						qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
+								.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
+								.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
+								.set(!isDefaultPackingType && heightNotBlank, PackTechPackaging::getVolumeHeight, packingDictionary.getVolumeHeight())
+								.set(!isDefaultPackingType && widthNotBlank, PackTechPackaging::getVolumeWidth, packingDictionary.getVolumeWidth())
+								.set(!isDefaultPackingType && lengthNotBlank, PackTechPackaging::getVolumeLength, packingDictionary.getVolumeLength())
+						;
+					});
+					packTechPackagingService.update(qw);
+				});
+			}
 		}catch (Exception ignored){
 		}
         return id;
