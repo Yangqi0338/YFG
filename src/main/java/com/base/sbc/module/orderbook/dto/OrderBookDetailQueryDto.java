@@ -18,6 +18,8 @@ public class OrderBookDetailQueryDto extends Page {
 
     private String id;
 
+    private String prodCategory1st;
+
     /**
      * 序号
      */
@@ -62,15 +64,22 @@ public class OrderBookDetailQueryDto extends Page {
     private String designerName;
 
     /**
+     * 波段名称
+     */
+    @ApiModelProperty(value = "波段名称")
+    private String band;
+    /**
      * 波段编码
      */
     @ApiModelProperty(value = "波段编码")
-    private String band;
+    private String bandCode;
     /**
      * 状态
      */
     private String status;
     private OrderBookDetailAuditStatusEnum auditStatus;
+
+    private String isOrder;
 
     /**
      * 生产紧急程度
@@ -122,6 +131,7 @@ public class OrderBookDetailQueryDto extends Page {
     private String fabricDrop;
     private String style;
     private String prodCategory2ndName;
+    private String prodCategory2ndCode;
     private String oldDesignNo;
     private String registeringNo;
     private String suitNo;

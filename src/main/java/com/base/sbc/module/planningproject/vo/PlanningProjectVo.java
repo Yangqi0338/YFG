@@ -15,4 +15,9 @@ public class PlanningProjectVo extends PlanningProject {
     private List<PlanningProjectMaxCategory> planningProjectMaxCategoryList;
 
     private List<PlanningProjectDimension> planningProjectDimensionList;
+
+    /**
+     * 季节企划Id
+     */
+    private String seasonalPlanningId;
 }

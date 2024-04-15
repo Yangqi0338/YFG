@@ -200,8 +200,14 @@ public interface StyleColorService extends BaseService<StyleColor> {
          */
         List<FieldManagementVo> getStyleColorDynamicDataById(String id);
 
-        /**
-         * 保存配色维度数据
+
+    /**
+     * 根据配色id集合查询维度数据
+     */
+    List<FieldVal> ListDynamicDataByIds(List<String> ids);
+
+    /**
+     * 保存配色维度数据
          * @param technologyInfo
          * @return
          */

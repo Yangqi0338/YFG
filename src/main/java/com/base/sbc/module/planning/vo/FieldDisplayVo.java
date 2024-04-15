@@ -27,4 +27,7 @@ public class FieldDisplayVo {
     @ApiModelProperty(value = "是否显示", example = "true")
     private boolean display;
 
+    @ApiModelProperty(value = "排序", example = "true")
+    private String sort;
+
 }
