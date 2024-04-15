@@ -83,5 +83,9 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
     @NotEmpty(message = "分配部门不能为空")
     private String department;
 
+
+    @ApiModelProperty(value = "OFFLINE-线下，ONLINE-线上"  )
+    private String modifyType;
+
     public interface AssignPersonnel{}
 }
