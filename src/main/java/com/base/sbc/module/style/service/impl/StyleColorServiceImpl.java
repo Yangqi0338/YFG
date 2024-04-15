@@ -176,6 +176,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private StylePicUtils stylePicUtils;
 
+    @Autowired
+    private StyleColorService styleColorService;
 
     private final FieldManagementService fieldManagementService;
 
