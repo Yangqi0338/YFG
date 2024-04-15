@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
@@ -452,6 +453,34 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     /** 下单类型 */
     @ApiModelProperty(value = "下单类型")
     private StylePutIntoType placeOrderType;
+
+    /** 投产类型 */
+    @ApiModelProperty(value = "投产类型")
+    private ProductionType devtType;
+
+
+    /**
+     * 部门
+     * {@link OrderBookDepartmentEnum}
+     */
+    @ApiModelProperty(value = "部门：design 设计部，offline 线下商企，online 线上商企"  )
+    private String department;
+
+    /**
+     * 线下投产尺码
+     */
+    @ApiModelProperty(value = "投产尺码")
+    private String offlineCommissioningSize;
+
+    /**
+     * 线上投产尺码
+     */
+    @ApiModelProperty(value = "投产尺码")
+    private String onlineCommissioningSize;
+
+    @ApiModelProperty(value = "版本号"  )
+    @Version
+    private Integer version;
 
 }
 

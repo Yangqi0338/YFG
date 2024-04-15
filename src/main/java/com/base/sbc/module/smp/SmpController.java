@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -137,9 +138,9 @@ public class SmpController extends BaseController {
     /**
      * escm预算号查询
      */
-    @GetMapping("/productionBudgetList")
+    @PostMapping("/productionBudgetList")
     @DuplicationCheck
-    public ApiResult productionBudgetList(ScmProductionBudgetQueryDto productionBudgetQueryDto) {
+    public ApiResult productionBudgetList(@RequestBody ScmProductionBudgetQueryDto productionBudgetQueryDto) {
         return smpService.productionBudgetList(productionBudgetQueryDto);
     }
 }
