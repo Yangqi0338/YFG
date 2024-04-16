@@ -43,6 +43,8 @@ public class SeasonalPlanningDetails extends BaseDataEntity<String> {
     private String skcCount;
     @ApiModelProperty(value = "样式类别")
     private String styleCategory;
+    @ApiModelProperty(value = "样式类别")
+    private String styleCategoryCode;
     @ApiModelProperty(value = "下单时间")
     private String orderTime;
     @ApiModelProperty(value = "上市时间")
