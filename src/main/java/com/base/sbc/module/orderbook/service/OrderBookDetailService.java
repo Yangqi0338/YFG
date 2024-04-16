@@ -3,6 +3,7 @@ package com.base.sbc.module.orderbook.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
@@ -89,4 +90,6 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     boolean updateMaterial(MaterialUpdateDto dto);
 
     UpdateResultVo businessConfirm(OrderBookDetailSaveDto dto);
+
+    boolean removeByIds(RemoveDto removeDto);
 }

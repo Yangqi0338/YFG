@@ -1,14 +1,11 @@
 package com.base.sbc.module.orderbook.vo;
 
-import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 public class OrderBookDetailVo extends OrderBookDetail {
@@ -113,7 +110,7 @@ public class OrderBookDetailVo extends OrderBookDetail {
      * 面料类型
      */
     @ApiModelProperty(value = "面料类型")
-    private String fabricComposition;
+    private String fabricCompositionType;
 
     /**
      * 厂家

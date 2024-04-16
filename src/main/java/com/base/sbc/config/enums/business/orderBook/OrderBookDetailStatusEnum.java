@@ -1,8 +1,6 @@
 package com.base.sbc.config.enums.business.orderBook;
 
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.base.sbc.config.enums.business.StandardColumnType;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,10 +19,11 @@ import java.util.Arrays;
 public enum OrderBookDetailStatusEnum {
     NOT_COMMIT("未提交"),
     DESIGNER("分配设计师"),
-    BUSINESS("分配商企"),
+    BUSINESS("分配线下商企"),
     NOT_AUDIT("待审核"),
     AUDIT("已审核"),
     AUDIT_SUSPEND("已驳回"),
+    ONLINE_BUSINESS("分配线上商企"),
     ;
     /** 编码 */
     @EnumValue

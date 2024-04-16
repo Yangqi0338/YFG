@@ -34,10 +34,13 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.common.dto.BasePageInfo;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
@@ -121,6 +124,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final RedisUtils redisUtils;
 
     private final StylePricingService stylePricingService;
+
+
+    private final OperaLogService operaLogService;
 
     private final String BUSINESS_KEY = "business_modify_%s_%s";
 
@@ -248,7 +254,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetailVo.setUnitDosage(getDosageName.apply(orderBookDetailVo.getUnitDosageIds()));
 
             fvList.stream().filter(it-> it.getForeignId().equals(orderBookDetailVo.getStyleId())).findFirst().ifPresent(fv-> {
-                orderBookDetailVo.setFabricComposition(fv.getValName());
+                orderBookDetailVo.setFabricCompositionType(fv.getValName());
             });
 
 
@@ -537,6 +543,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 }
 
                 o.setDesignerDistribute(YesOrNoEnum.YES);
+                o.setStatus(OrderBookDetailStatusEnum.DESIGNER);
             }
         });
         /*保存*/
@@ -698,6 +705,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.NOT_COMMIT);
             orderBookDetail.setIsLock(YesOrNoEnum.NO);
             orderBookDetail.setIsOrder(YesOrNoEnum.NO);
+            orderBookDetail.setCommissioningDate(null);
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         this.updateBatchById(orderBookDetails1);
@@ -788,6 +796,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
             orderBookDetail.setBusinessId("1");
             orderBookDetail.setDepartment(departmentEnum.getCode());
+            orderBookDetail.setStatus(departmentEnum == OrderBookDepartmentEnum.ONLINE ? OrderBookDetailStatusEnum.BUSINESS : OrderBookDetailStatusEnum.ONLINE_BUSINESS);
         });
         boolean b = this.saveOrUpdateBatch(orderBookDetailList);
         if (b) {
@@ -1040,6 +1049,29 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }finally{
             redisUtils.del(key);
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean removeByIds(RemoveDto removeDto) {
+        List<String> stringList = StrUtil.split(removeDto.getIds(), ',');
+        List<OrderBookDetail> orderBookDetails = baseMapper.selectBatchIds(stringList);
+        List<OrderBookDetail> details = orderBookDetails.stream().filter(item -> OrderBookDetailStatusEnum.AUDIT.equals(item.getStatus())).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(details)) {
+            throw new OtherException("已审核通过的的订单不能删除");
+        }
+
+        baseMapper.deleteBatchIds(stringList);
+        /*日志记录*/
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName(removeDto.getName());
+        operaLogEntity.setType("删除");
+        operaLogEntity.setContent(removeDto.getIds());
+        operaLogEntity.setDocumentName(removeDto.getNames());
+        operaLogEntity.setParentId(removeDto.getParentId());
+        operaLogEntity.setDocumentCode(removeDto.getCodes());
+        operaLogService.save(operaLogEntity);
+        return true;
     }
 
 
