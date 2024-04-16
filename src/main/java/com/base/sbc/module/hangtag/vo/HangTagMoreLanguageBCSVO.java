@@ -81,12 +81,6 @@ public class HangTagMoreLanguageBCSVO {
                                     .distinct().collect(Collectors.joining(MoreLanguageProperties.multiSeparator)));
                 });
 
-        // 仅判断审核状态
-        this.successList.stream().filter(it-> it.getAuditStatus() != StyleCountryStatusEnum.CHECK)
-                .map(HangTagMoreLanguageBCSChildrenBaseVO::getBulkStyleNo).distinct().forEach(bulkStyleNo-> {
-                    message.add(bulkStyleNo + MoreLanguageProperties.fieldValueSeparator + MoreLanguageProperties.getMsg(HAVEN_T_AUDIT, STATUS));
-                });
-
         // 有可能已经翻译完了，但是没有审核,需要做处理
         // 品控未确认
         this.successList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBCSChildrenBaseVO::getStatus)).forEach((status, sameStatusList)-> {
