@@ -204,9 +204,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	@Lazy
 	private StyleCountryStatusService styleCountryStatusService;
 
-
-	@Resource
-	private PackBomVersionService packBomVersionService;
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
