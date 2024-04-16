@@ -25,7 +25,7 @@
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
         tsc.his_style_no as hisStyleNo,
-        IFNULL(tobl.devt_type,ts.devt_type) as devtType,
+        IFNULL(tobl.devt_type,ts.devt_type) as styleDevtType,
         ts.size_codes,
         tsc.band_name,
         tsc.band_code,

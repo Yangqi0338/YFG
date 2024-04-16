@@ -1,5 +1,6 @@
 package com.base.sbc.config.resttemplate;
 
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.BooleanUtil;
 import com.alibaba.fastjson.JSON;
@@ -35,14 +36,9 @@ public class RestTemplateService {
     private final RestTemplate restTemplate;
     private final CcmFeignService ccmFeignService;
 
-    /**
-     * smp系统对接post请求
-     *
-     * @param url 请求地址
-     * @param jsonStr   请求对象
-     * @return 返回的结果
-     */
-    public HttpResp spmPost(String url, String jsonStr) {
+
+    @SafeVarargs
+    public final HttpResp spmPost(String url, String jsonStr, Pair<String, String>... headers) {
         HttpHeaders requestHeaders = new HttpHeaders();
         HttpResp httpResp = new HttpResp();
         try {
@@ -52,26 +48,18 @@ public class RestTemplateService {
                 return httpResp;
             }
             requestHeaders.add("Content-Type", "application/json");
+            for (Pair<String, String> header : headers) {
+                requestHeaders.add(header.getKey(), header.getValue());
+            }
 
             HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
             ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
-
-            httpResp.setUrl(url);
-            httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
-
             String body = stringResponseEntity.getBody();
 
-            JSONObject jsonObject = JSONObject.parseObject(body);
-
-            if (jsonObject != null) {
-                httpResp.setMessage(jsonObject.getString("message"));
-                httpResp.setCode(jsonObject.getString("code"));
-                httpResp.setSuccess(BooleanUtil.toBoolean(jsonObject.getOrDefault("success", "").toString()));
-                httpResp.setDataMap(JSON.parseObject(jsonObject.getString("data"), new TypeReference<List<Map<String,Object>>>() {}.getType()));
-                if ("0000000".equals(httpResp.getCode())) {
-                    httpResp.setSuccess(true);
-                }
-            }
+            httpResp = buildHttpResp(body);
+            httpResp.setUrl(url);
+            httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
+            return httpResp;
         } catch (Exception e) {
             e.printStackTrace();
             httpResp.setSuccess(false);
@@ -79,5 +67,19 @@ public class RestTemplateService {
         return httpResp;
     }
 
+    public static HttpResp buildHttpResp(String responseStrData) {
+        HttpResp httpResp = new HttpResp();
+        JSONObject jsonObject = JSONObject.parseObject(responseStrData);
+        if (jsonObject != null) {
+            httpResp.setMessage(jsonObject.getString("message"));
+            httpResp.setCode(jsonObject.getString("code"));
+            httpResp.setSuccess(BooleanUtil.toBoolean(jsonObject.getOrDefault("success", "").toString()));
+            httpResp.setDataMap(JSON.parseObject(jsonObject.getString("data"), new TypeReference<List<Map<String,Object>>>() {}.getType()));
+            if ("0000000".equals(httpResp.getCode())) {
+                httpResp.setSuccess(true);
+            }
+        }
+        return httpResp;
+    }
 
 }

@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.annotation.Version;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
+import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
@@ -422,7 +423,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 投产下发状态
      */
     @ApiModelProperty(value = "投产下发状态")
-    private String orderSendStatus;
+    private PushRespStatus orderSendStatus;
 
     /**
      * 投产下发错误信息
@@ -456,7 +457,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
 
     /** 投产类型 */
     @ApiModelProperty(value = "投产类型")
-    private ProductionType devtType;
+    private ProductionType styleDevtType;
 
 
     /**

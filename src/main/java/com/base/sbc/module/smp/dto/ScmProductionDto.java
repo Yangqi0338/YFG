@@ -1,7 +1,9 @@
 package com.base.sbc.module.smp.dto;
 
+import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
@@ -67,11 +69,10 @@ public class ScmProductionDto extends ScmProductionSupportDto {
     public String getPlaceOrderType(){
         return this.getPlaceOrderTypeCode().getText();
     };
-    
+
     /** 投产类型 */
     public String getProductType(){
-        ProductionType devtType = this.getDevtType();
-        return devtType == ProductionType.CMT ? devtType.getText() : ProductionType.FOB.getText();
+        return Opt.ofNullable(this.getDevtType()).orElse(PutInProductionType.CMT).getText();
     };
 
     /** 成衣备料单号 */
@@ -149,4 +150,7 @@ public class ScmProductionDto extends ScmProductionSupportDto {
 
     /** 工号 */
     private String loginName;
+
+    /** 生产编号 */
+    private String orderNo;
 }

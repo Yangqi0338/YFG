@@ -1,9 +1,8 @@
 package com.base.sbc.module.orderbook.vo;
 
 import cn.hutool.core.lang.Opt;
-import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.business.ProductionType;
-import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -109,7 +108,7 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "生产类型")
     public String getDevtTypeName(){
-        return Opt.ofNullable(this.devtType).map(ProductionType::getText).orElse("");
+        return this.getDevtType().getText();
     }
 
     /**
@@ -319,7 +318,9 @@ public class OrderBookDetailVo extends OrderBookDetail {
      * 生产类型
      */
     @ApiModelProperty(value = "生产类型")
-    private ProductionType devtType;
+    private PutInProductionType getDevtType(){
+        return this.getStyleDevtType() == ProductionType.CMT ? PutInProductionType.CMT : PutInProductionType.FOB;
+    };
 
 
     private String yearName;

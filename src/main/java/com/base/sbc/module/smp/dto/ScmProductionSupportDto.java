@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.config.enums.business.ProductionType;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,7 +28,7 @@ public class ScmProductionSupportDto {
     /** 投产类型 */
     @JsonIgnore
     @NotBlank(message = "投产类型不能为空")
-    private ProductionType devtType;
+    private PutInProductionType devtType;
     
     /** 渠道名称 */
     @JsonIgnore

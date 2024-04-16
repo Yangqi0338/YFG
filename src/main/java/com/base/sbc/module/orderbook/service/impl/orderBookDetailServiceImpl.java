@@ -24,7 +24,9 @@ import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
@@ -72,6 +74,9 @@ import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
+import com.base.sbc.module.pushrecords.dto.PushRecordsDto;
+import com.base.sbc.module.pushrecords.entity.PushRecords;
+import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
@@ -145,6 +150,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private final ColumnGroupDefineService columnGroupDefineService;
 
     private final String BUSINESS_KEY = "business_modify_%s_%s";
+
+    @Resource
+    @Lazy
+    private PushRecordsService pushRecordsService;
 
     @Override
     public BasePageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
@@ -698,13 +707,19 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
 
             // 如果已经开始投产，需要等待下游投产接口完成后,再调用取消投产接口
-            if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)) {
+            if (StrUtil.isNotBlank(orderBookDetail.getOrderNo())) {
                 cancelOrderBookDetailList.add(orderBookDetail);
+                orderBookDetail.setOrderSendStatus(PushRespStatus.PROCESS);
+            }else if (orderBookDetail.getOrderStatus() == OrderBookDetailOrderStatusEnum.PRODUCTION_IN){
+                // TODO 可以加一个延时任务
+                throw new OtherException(orderBookDetail.getBulkStyleNo() +"处于投产中,请完成投产后再取消");
+            }else {
+                orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT_SUSPEND);
+                orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.NOT_COMMIT);
+                orderBookDetail.setIsLock(YesOrNoEnum.NO);
+                orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
+                orderBookDetail.setCommissioningDate(null);
             }
-            orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT_SUSPEND);
-            orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.NOT_COMMIT);
-            orderBookDetail.setIsLock(YesOrNoEnum.NO);
-            orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         this.updateBatchById(orderBookDetails1);
@@ -720,6 +735,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     .set(OrderBook::getOrderStatus,rightStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.NOT_COMMIT)
                     .eq(OrderBook::getId,orderBookId));
         }
+        cancelOrderBookDetailList.forEach(it-> smpService.facPrdOrderUpCheck(it.getOrderNo(), dto.getUserId()));
     }
 
     @Override
@@ -1088,6 +1104,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
             orderBookDetail.setIsLock(YesOrNoEnum.YES);
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
+            orderBookDetail.setOrderSendStatus(PushRespStatus.PROCESS);
             orderBookDetail.setCommissioningDate(new Date());
 
             ScmProductionDto productionDto = ORDER_BOOK_CV.copy2ProductionDto(orderBookDetail);
@@ -1120,24 +1137,96 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         orderBook.setOrderStatus(warnStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.ORDER);
         orderBookService.updateById(orderBook);
 
+        List<TtlCallable<HttpResp>> callableList = new ArrayList<>();
         scmProductionDtoList.forEach(productionDto-> {
-            smpService.saveFacPrdOrder(productionDto);
+            callableList.add(smpService.saveFacPrdOrder(productionDto));
         });
-
-//        TtlRunnable.get(()-> {
-//            callableList.forEach(callable-> {
-//                HttpResp call = callable.call();
-//
-//            });
-//        });
-
         return b;
     }
 
     @Override
-    public boolean placeAnCancelProduction(OrderBookDetailProductionDto dto) {
-        return false;
+    @Transactional(rollbackFor = Exception.class)
+    public void handlePlaceAnProduction(List<OrderBookDetail> list) {
+        PushRecordsDto pushRecordsDto = new PushRecordsDto();
+        pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining()));
+        pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL);
+        pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
+        List<PushRecords> pushRecordsList = pushRecordsService.pushRecordsList(pushRecordsDto);
+
+        if (CollUtil.isNotEmpty(pushRecordsList)) {
+            pushRecordsList.forEach(pushRecords -> {
+                OrderBookDetail orderBookDetail = list.stream().filter(it -> it.getId().equals(pushRecords.getRelatedId())).findFirst().get();
+
+                orderBookDetail.setOrderSendStatus(pushRecords.getPushStatus());
+                orderBookDetail.setIsLock(YesOrNoEnum.YES);
+
+                if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
+                    orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
+                    orderBookDetail.setIsLock(YesOrNoEnum.NO);
+                    orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
+                }else {
+                    orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDER);
+                    orderBookDetail.setOrderNo("");
+                }
+            });
+            this.updateBatchById(list);
+        }
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void handlePlaceAnCancelProduction(List<OrderBookDetail> list) {
+        PushRecordsDto pushRecordsDto = new PushRecordsDto();
+        pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining()));
+        pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL);
+        pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
+        List<PushRecords> pushRecordsList = pushRecordsService.pushRecordsList(pushRecordsDto);
+
+        if (CollUtil.isNotEmpty(pushRecordsList)) {
+            pushRecordsList.forEach(pushRecords -> {
+                OrderBookDetail orderBookDetail = list.stream().filter(it -> it.getId().equals(pushRecords.getRelatedId())).findFirst().get();
+
+                orderBookDetail.setOrderSendStatus(pushRecords.getPushStatus());
+
+                if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
+                    orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
+                    orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
+                }else {
+                    orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
+                    orderBookDetail.setOrderNo("");
+                    orderBookDetail.setIsLock(YesOrNoEnum.NO);
+                    orderBookDetail.setStatus(OrderBookDetailStatusEnum.AUDIT_SUSPEND);
+                    orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.NOT_COMMIT);
+                    orderBookDetail.setCommissioningDate(null);
+                }
+            });
+            this.updateBatchById(list);
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public boolean removeByIds(RemoveDto removeDto) {
+        List<String> stringList = StrUtil.split(removeDto.getIds(), ',');
+        List<OrderBookDetail> orderBookDetails = baseMapper.selectBatchIds(stringList);
+        List<OrderBookDetail> details = orderBookDetails.stream().filter(item -> OrderBookDetailStatusEnum.AUDIT.equals(item.getStatus())).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(details)) {
+            throw new OtherException("已审核通过的的订单不能删除");
+        }
+
+        baseMapper.deleteBatchIds(stringList);
+        /*日志记录*/
+        OperaLogEntity operaLogEntity = new OperaLogEntity();
+        operaLogEntity.setName(removeDto.getName());
+        operaLogEntity.setType("删除");
+        operaLogEntity.setContent(removeDto.getIds());
+        operaLogEntity.setDocumentName(removeDto.getNames());
+        operaLogEntity.setParentId(removeDto.getParentId());
+        operaLogEntity.setDocumentCode(removeDto.getCodes());
+        operaLogService.save(operaLogEntity);
+        return true;
+    }
+
 
     /**
      * 查询款式定价数据

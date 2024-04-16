@@ -7,6 +7,7 @@
 package com.base.sbc.module.pushrecords.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.business.PushRespStatus;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -52,7 +53,7 @@ public class PushRecords extends BaseDataEntity<String> {
     private String pushContent;
     /** 推送状态，记录推送的状态，如待推送、已推送、推送失败等 */
     @ApiModelProperty(value = "推送状态，记录推送的状态，如待推送、已推送、推送失败等"  )
-    private String pushStatus;
+    private PushRespStatus pushStatus;
     /** 返回消息，推送结果的返回消息或错误信息 */
     @ApiModelProperty(value = "返回消息，推送结果的返回消息或错误信息"  )
     private String responseMessage;
@@ -61,7 +62,7 @@ public class PushRecords extends BaseDataEntity<String> {
     private String responseStatusCode;
     /** 推送次数，记录推送尝试的次数，用于追踪推送的重试情况 */
     @ApiModelProperty(value = "推送次数，记录推送尝试的次数，用于追踪推送的重试情况"  )
-    private String pushCount;
+    private Integer pushCount;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
