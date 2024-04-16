@@ -775,7 +775,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 													.stream()
 													.filter(item ->
 															item.getCategoryName().contains("特殊吊牌")
-																	|| item.getMaterialCodeName().contains("钦扣")
 																	|| item.getMaterialCodeName().contains("备扣袋")
 													)
 													.map(PackBom::getMaterialCodeName)
