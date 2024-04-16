@@ -6,9 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
-import com.base.sbc.module.moreLanguage.entity.StyleCountryPrintRecord;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

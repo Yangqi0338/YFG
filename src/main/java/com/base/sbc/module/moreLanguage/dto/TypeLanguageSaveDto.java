@@ -20,6 +20,9 @@ public class TypeLanguageSaveDto {
         return type != null ? type.getText() : "";
     };
 
+    @ApiModelProperty(value = "号型语言编码")
+    private String modelLanguageCode;
+
     @NotEmpty(message = "请至少选择一个标准列")
     @ApiModelProperty(value = "选择的标准列")
     private List<String> standardColumnCodeList;
