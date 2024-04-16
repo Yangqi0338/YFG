@@ -161,4 +161,17 @@
         </if>
         order by T.PROD_CODE
     </select>
+
+
+    <select id="queryYearProductionOrSalesStatistics" resultType="java.util.Map">
+        select
+        T.ORDER_TYPE, T.YEAR_DATE, SUM(T.NUM)
+        from DM_SALE_FAC T
+        where T.ORDER_TYPE is not null
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        group by T.ORDER_TYPE, T.YEAR_DATE
+        order by T.YEAR_DATE
+    </select>
 </mapper>

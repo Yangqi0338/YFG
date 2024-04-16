@@ -999,15 +999,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 //修改吊牌价
                 styleColorService.updateTagPrice(dto.getStyleColorId(),dto.getTagPrice());
 
-                orderBookDetail.setTargetTime(dto.getTargetTime());
-                orderBookDetail.setProductionUrgencyName(dto.getProductionUrgencyName());
-                orderBookDetail.setProductionUrgencyCode(dto.getProductionUrgencyCode());
-
-                orderBookDetail.setMaterial(dto.getMaterial());
-                orderBookDetail.setBraiding(dto.getBraiding());
-                orderBookDetail.setOfflineProduction(dto.getOfflineProduction());
-                orderBookDetail.setOfflineCommissioningSize(dto.getOfflineCommissioningSize());
-
                 //修改倍率和系数
                 StylePricingSaveDTO stylePricingSaveDTO =new StylePricingSaveDTO();
                 stylePricingSaveDTO.setId(dto.getStylePricingId());
@@ -1019,17 +1010,17 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 QueryWrapper<OrderBookDetail> uw = new QueryWrapper<>();
                 uw.lambda().eq(OrderBookDetail::getId, orderBookDetail.getId());
                 OrderBookDetail updateBookDetail =  new OrderBookDetail();
-                updateBookDetail.setTargetTime(orderBookDetail.getTargetTime());
-                updateBookDetail.setProductionUrgencyName(orderBookDetail.getProductionUrgencyName());
-                updateBookDetail.setProductionUrgencyCode(orderBookDetail.getProductionUrgencyCode());
+                updateBookDetail.setTargetTime(dto.getTargetTime());
+                updateBookDetail.setProductionUrgencyName(dto.getProductionUrgencyName());
+                updateBookDetail.setProductionUrgencyCode(dto.getProductionUrgencyCode());
 
-                updateBookDetail.setTotalProduction(orderBookDetail.getTotalProduction());
-                updateBookDetail.setTotalCommissioningSize(orderBookDetail.getTotalCommissioningSize());
+                updateBookDetail.setTotalProduction(dto.getTotalProduction());
+                updateBookDetail.setTotalCommissioningSize(dto.getTotalCommissioningSize());
 
-                updateBookDetail.setMaterial(orderBookDetail.getMaterial());
-                updateBookDetail.setBraiding(orderBookDetail.getBraiding());
-                updateBookDetail.setOfflineProduction(orderBookDetail.getOfflineProduction());
-                updateBookDetail.setOfflineCommissioningSize(orderBookDetail.getOfflineCommissioningSize());
+                updateBookDetail.setMaterial(dto.getMaterial());
+                updateBookDetail.setBraiding(dto.getBraiding());
+                updateBookDetail.setOfflineProduction(dto.getOfflineProduction());
+                updateBookDetail.setOfflineCommissioningSize(dto.getOfflineCommissioningSize());
                 updateBookDetail.setVersion(dto.getVersion());
                 updateResultVo.setResult(this.update(updateBookDetail,uw));
                 updateResultVo.setVersion(updateBookDetail.getVersion());
@@ -1037,11 +1028,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }else {
                 UpdateWrapper<OrderBookDetail> uw = new UpdateWrapper<>();
                 uw.lambda().eq(OrderBookDetail::getId, orderBookDetail.getId());
-                uw.lambda().eq(OrderBookDetail::getTotalProduction, orderBookDetail.getTotalProduction());
-                uw.lambda().eq(OrderBookDetail::getTotalCommissioningSize, orderBookDetail.getTotalCommissioningSize());
-                uw.lambda().eq(OrderBookDetail::getOnlineMaterial, orderBookDetail.getOnlineMaterial());
-                uw.lambda().eq(OrderBookDetail::getOnlineCommissioningSize, orderBookDetail.getOnlineCommissioningSize());
-                uw.lambda().eq(OrderBookDetail::getOnlineProduction, orderBookDetail.getOnlineProduction());
+                uw.lambda().set(OrderBookDetail::getTotalProduction, dto.getTotalProduction());
+                uw.lambda().set(OrderBookDetail::getTotalCommissioningSize, dto.getTotalCommissioningSize());
+                uw.lambda().set(OrderBookDetail::getOnlineMaterial, dto.getOnlineMaterial());
+                uw.lambda().set(OrderBookDetail::getOnlineCommissioningSize, dto.getOnlineCommissioningSize());
+                uw.lambda().set(OrderBookDetail::getOnlineProduction, dto.getOnlineProduction());
                 updateResultVo.setVersion(orderBookDetail.getVersion());
                 updateResultVo.setResult(this.update(uw));
                 return updateResultVo;
