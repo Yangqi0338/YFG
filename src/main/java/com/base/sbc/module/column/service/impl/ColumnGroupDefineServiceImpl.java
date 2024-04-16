@@ -162,4 +162,34 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
 
         columnGroupDefineItemService.saveOrUpdateBatch(itemList);
     }
+
+    @Override
+    public List<ColumnDefine> findDetail(String tableCode,String columnCode, String userGroupId) {
+        List<ColumnDefine> byTableCode = columnDefineService.getByTableCode(tableCode, columnCode, false);
+
+        List<ColumnGroupDefineItem> list = columnGroupDefineItemService.findListByHeadId(tableCode, userGroupId);
+        Map<String, ColumnGroupDefineItem> collect = list.stream().collect(Collectors.toMap(ColumnGroupDefineItem::getSysId, o -> o, (v1, v2) -> v1));
+
+        for (ColumnDefine columnDefine : byTableCode) {
+            columnDefine.setSysId(columnDefine.getId());
+            if (collect.containsKey(columnDefine.getId())) {
+                ColumnGroupDefineItem userDefineItem = collect.get(columnDefine.getId());
+                columnDefine.setId(userDefineItem.getId());
+                columnDefine.setColumnName(userDefineItem.getColumnName());
+                columnDefine.setColumnNameI18nKey(userDefineItem.getColumnNameI18nKey());
+                columnDefine.setHidden(userDefineItem.getHidden());
+                columnDefine.setAlignType(userDefineItem.getAlignType());
+                columnDefine.setFixType(userDefineItem.getFixType());
+                columnDefine.setIsEdit(userDefineItem.getIsEdit());
+                columnDefine.setColumnWidth(userDefineItem.getColumnWidth());
+                columnDefine.setSortOrder(userDefineItem.getSortOrder());
+                columnDefine.setColumnColor(userDefineItem.getColumnColor());
+            } else {
+                columnDefine.setId(null);
+            }
+        }
+        byTableCode.sort(Comparator.comparing(ColumnDefine::getSortOrder));
+        return byTableCode;
+    }
+
 }

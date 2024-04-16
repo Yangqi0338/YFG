@@ -2,7 +2,6 @@ package com.base.sbc.module.smp;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.stream.CollectorUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -14,7 +13,9 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -177,6 +178,7 @@ public class SmpService {
     private final HangTagServiceImpl hangTagService;
     private final FieldValService fieldValService;
     private final SaleProductIntoMapper saleProductIntoMapper;
+    private final DataPermissionsService dataPermissionsService;
 
     @Resource
     @Lazy
@@ -1817,6 +1819,7 @@ public class SmpService {
     public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
         Page<Object> page = saleProductIntoDto.startPage();
         BaseQueryWrapper<?> qw = new BaseQueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
         qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());

@@ -21,6 +21,7 @@ import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
@@ -33,6 +34,8 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.column.entity.ColumnDefine;
+import com.base.sbc.module.column.service.ColumnGroupDefineService;
 import com.base.sbc.module.common.dto.BasePageInfo;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -74,6 +77,7 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -127,6 +131,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
 
     private final OperaLogService operaLogService;
+
+    private final ColumnGroupDefineService columnGroupDefineService;
 
     private final String BUSINESS_KEY = "business_modify_%s_%s";
 
@@ -301,23 +307,25 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
             Map<String, String> sizeModelMap = sizeList.stream().filter(it -> StrUtil.contains(orderBookDetailVo.getSizeCodes(), it.getCode()))
                     .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
-            JSONObject jsonObject = getCommissioningSize(orderBookDetailVo, sizeModelMap);
-            sizeModelMap.forEach((key,value)-> {
-                for (OrderBookChannelType channel : OrderBookChannelType.values()) {
-                    jsonObject.put(key+ channel.getFill() + "Size",value);
-                }
-            });
-            channelPageConfig.forEach((channel, pageConfig)-> {
-                List<String> sizeRange = pageConfig.getSizeRange();
-                if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
-                    sizeRange.forEach(size-> {
-                        String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
-                        jsonObject.put(size+ channel.getFill() + "Status", status);
-                        jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
-                    });
-                };
-            });
-            orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
+            //数据填充
+            getCommissioningSize(orderBookDetailVo, sizeModelMap, channelPageConfig, orderBookChannel);
+
+//            sizeModelMap.forEach((key,value)-> {
+//                for (OrderBookChannelType channel : OrderBookChannelType.values()) {
+//                    jsonObject.put(key+ channel.getFill() + "Size",value);
+//                }
+//            });
+//            channelPageConfig.forEach((channel, pageConfig)-> {
+//                List<String> sizeRange = pageConfig.getSizeRange();
+//                if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
+//                    sizeRange.forEach(size-> {
+//                        String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
+//                        jsonObject.put(size+ channel.getFill() + "Status", status);
+//                        jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
+//                    });
+//                };
+//            });
+//            orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
 
         }
 
@@ -1174,27 +1182,34 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * @param sizeModelMap
      * @return
      */
-    private JSONObject getCommissioningSize(OrderBookDetailVo orderBookDetailVo, Map<String, String> sizeModelMap) {
+    /**
+     * 获取投产尺寸，如果线上或者线下尺寸为空则补偿
+     * @param orderBookDetailVo
+     * @param sizeModelMap
+     * @return
+     */
+    private void getCommissioningSize(OrderBookDetailVo orderBookDetailVo, Map<String, String> sizeModelMap,
+                                      Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig, String orderBookChannel) {
+
         JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
-        if (StringUtils.isEmpty(orderBookDetailVo.getOfflineCommissioningSize())
-                && StringUtils.isEmpty(orderBookDetailVo.getOnlineCommissioningSize())) {
-            return jsonObject;
-        }
         //线下
         JSONObject offlineJsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getOfflineCommissioningSize())).orElse(new JSONObject());
         //线上
         JSONObject onlineJsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getOnlineCommissioningSize())).orElse(new JSONObject());
-        offlineJsonObject.putAll(onlineJsonObject);
+
         if (offlineJsonObject.size() ==0 && jsonObject.size() > 0){
             offlineJsonObject.putAll(fullJSONObject(jsonObject, sizeModelMap, OrderBookChannelType.OFFLINE));
-
         }
 
         if (onlineJsonObject.size() ==0 && jsonObject.size() != 0){
-            offlineJsonObject.putAll(fullJSONObject(jsonObject, sizeModelMap, OrderBookChannelType.ONLINE));
+            onlineJsonObject.putAll(fullJSONObject(jsonObject, sizeModelMap, OrderBookChannelType.ONLINE));
         }
-        return offlineJsonObject;
+        fullCommissioningSize(offlineJsonObject, sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.OFFLINE);
+        fullCommissioningSize(onlineJsonObject, sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.ONLINE);
+        orderBookDetailVo.setOfflineCommissioningSize(JSON.toJSONString(offlineJsonObject));
+        orderBookDetailVo.setOnlineCommissioningSize(JSON.toJSONString(onlineJsonObject));
     }
+
 
     /**
      * 数据补充转换
@@ -1216,6 +1231,49 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
         });
         return result;
+    }
+
+    private void fullCommissioningSize(JSONObject jsonObject, Map<String, String> sizeModelMap,
+                                       Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig,
+                                       String orderBookChannel,OrderBookChannelType channel){
+        sizeModelMap.forEach((key,value)-> {
+            jsonObject.put(key+ channel.getFill() + "Size",value);
+
+        });
+        OrderBookDetailPageConfigVo pageConfig = channelPageConfig.get(channel);
+
+        List<String> sizeRange = pageConfig.getSizeRange();
+        if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
+            sizeRange.forEach(size-> {
+                String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
+                jsonObject.put(size+ channel.getFill() + "Status", status);
+                jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
+            });
+        };
+
+    }
+
+
+    /**
+     *
+     * 渠道判断
+     * @param saleProductIntoDto
+     */
+    private void fullSaleProductIntoDto(SaleProductIntoDto saleProductIntoDto) {
+        List<String>  channelList = Lists.newArrayList();
+        List<ColumnDefine> offline = columnGroupDefineService.findDetail("orderBook", "offlineProduction", "master");
+        if (CollUtil.isNotEmpty(offline) && BasicNumber.ONE.getNumber().equals(offline.get(0).getIsEdit())){
+            channelList.add(OrderBookChannelType.OFFLINE.getText());
+        }
+        List<ColumnDefine> online = columnGroupDefineService.findDetail("orderBook", "onlineProduction", "master");
+        if (CollUtil.isNotEmpty(online) && BasicNumber.ONE.getNumber().equals(online.get(0).getIsEdit())){
+            channelList.add(OrderBookChannelType.ONLINE.getText());
+        }
+        if (CollUtil.isNotEmpty(channelList)){
+            channelList.retainAll(saleProductIntoDto.getChannelList());
+        }
+        saleProductIntoDto.setChannelList(channelList);
+
     }
 
 
