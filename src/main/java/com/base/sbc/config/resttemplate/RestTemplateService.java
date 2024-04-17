@@ -63,6 +63,7 @@ public class RestTemplateService {
         } catch (Exception e) {
             e.printStackTrace();
             httpResp.setSuccess(false);
+            httpResp.setMessage(e.getMessage());
         }
         return httpResp;
     }
@@ -73,7 +74,7 @@ public class RestTemplateService {
         if (jsonObject != null) {
             httpResp.setMessage(jsonObject.getString("message"));
             httpResp.setCode(jsonObject.getString("code"));
-            httpResp.setSuccess(BooleanUtil.toBoolean(jsonObject.getOrDefault("success", "").toString()));
+            httpResp.setSuccess(BooleanUtil.toBoolean(jsonObject.getOrDefault("success", "true").toString()));
             httpResp.setDataMap(JSON.parseObject(jsonObject.getString("data"), new TypeReference<List<Map<String,Object>>>() {}.getType()));
             if ("0000000".equals(httpResp.getCode())) {
                 httpResp.setSuccess(true);

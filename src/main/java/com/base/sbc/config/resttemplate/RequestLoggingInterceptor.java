@@ -1,5 +1,6 @@
 package com.base.sbc.config.resttemplate;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
@@ -25,6 +26,7 @@ import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -61,8 +63,12 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
         pushRecordsService.prePushRecordSave(httpReq);
         // 可以在此处记录其他请求相关的信息，如请求方法、请求头等
         ClientHttpResponse execute = execution.execute(request, body);
+        InputStream inputStream = execute.getBody();
+        inputStream.mark(0);
         String responseData = extractor.extractData(execute);
+        inputStream.reset();
         HttpResp httpResp = RestTemplateService.buildHttpResp(responseData);
+        BeanUtil.copyProperties(httpReq, httpResp);
         pushRecordsService.pushRecordSave(httpResp, s, moduleName, functionName);
         // 继续执行请求
         return execute;

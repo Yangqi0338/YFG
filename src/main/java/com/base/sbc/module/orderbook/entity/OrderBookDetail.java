@@ -13,6 +13,7 @@ import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.PushRespStatus;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
@@ -457,8 +458,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
 
     /** 投产类型 */
     @ApiModelProperty(value = "投产类型")
-    private ProductionType styleDevtType;
-
+    private PutInProductionType devtType;
 
     /**
      * 部门

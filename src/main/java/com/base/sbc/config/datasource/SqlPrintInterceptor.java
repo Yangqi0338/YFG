@@ -6,9 +6,11 @@ import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.SqlProperties;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.httplog.entity.HttpLog;
+import com.base.sbc.module.pushrecords.entity.PushRecords;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -61,6 +63,9 @@ public class SqlPrintInterceptor implements Interceptor {
     @Resource
     private HttpServletRequest httpServletRequest;
 
+    @Resource
+    private SqlProperties sqlProperties;
+
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         long start = System.currentTimeMillis();
@@ -87,11 +92,19 @@ public class SqlPrintInterceptor implements Interceptor {
 
 
         Configuration configuration = mappedStatement.getConfiguration();
-        Object parameterObject;
 
-        parameterObject = boundSql.getParameterObject();
+        Object parameterObject = boundSql.getParameterObject();
         String sql1 = getSql(boundSql, parameterObject, configuration);
         Object proceed = invocation.proceed();
+        if (sqlProperties.getExcludePrintList().contains(sql1)) {
+            return proceed;
+        }
+        // 如果是一些记录类的,如请求日志,推送日志等就不记录了
+        if (parameterObject instanceof HttpLog ||
+                parameterObject instanceof PushRecords
+        ) {
+            return proceed;
+        }
 
         long end = System.currentTimeMillis();
         long timing = end - start;
