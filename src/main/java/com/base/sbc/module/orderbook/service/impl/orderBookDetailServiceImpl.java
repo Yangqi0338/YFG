@@ -231,7 +231,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
 
         // 获取维度系数的面料数据
-        List<String> styleIdList = orderBookDetailVos.stream().map(OrderBookDetailVo::getStyleColorId).collect(Collectors.toList());
+        List<String> styleIdList = orderBookDetailVos.stream().map(OrderBookDetailVo::getStyleId).collect(Collectors.toList());
         List<FieldVal> fvList = fieldValService.list(new LambdaQueryWrapper<FieldVal>()
                 .select(FieldVal::getForeignId, FieldVal::getValName)
                 .in(FieldVal::getForeignId, styleIdList)
@@ -856,7 +856,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(registeringNo)) {
             // 根据大类或设计款号获取款式
             Opt.ofEmptyAble(styleService.listOneField(new BaseLambdaQueryWrapper<Style>()
-                    .notEmptyEq(Style::getProdCategory1st, category1stCode)
+                    .notEmptyEq(Style::getProdCategory, category1stCode)
                     .notEmptyEq(Style::getRegisteringNo, registeringNo), Style::getId)
             ).ifPresent(styleIdList-> {
                 // 根据款式获取款号
@@ -875,7 +875,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         SaleProductIntoDto saleProductIntoDto = BeanUtil.copyProperties(queryDto, SaleProductIntoDto.class);
         saleProductIntoDto.setChannelList(channelList);
         saleProductIntoDto.setBulkStyleNoList(searchBulkStyleNoList);
-
+        fullSaleProductIntoDto(saleProductIntoDto);
         PageInfo<OrderBookSimilarStyleVo> result = smpService.querySaleIntoPageTotal(saleProductIntoDto);
         List<OrderBookSimilarStyleVo> dtoList = result.getList();
         if (CollUtil.isEmpty(dtoList)) {
