@@ -29,6 +29,6 @@ public class FlywayMigrationStrategyImpl implements FlywayMigrationStrategy {
 //        clean-disabled: true
         flyway.setTable("t_schema_history");
 //        flyway.setLocations();
-        //flyway.migrate();
+        flyway.migrate();
     }
 }
