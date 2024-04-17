@@ -67,6 +67,7 @@ public class MoreLanguageProperties {
             "3、请不要删除翻译语言内自带信息。\n";
 
     public static String hangTagMainDbAlias = "tsd.";
+    public static String noDecorateCategory1stCode = "A05";
 
     public static Integer excelDataRowNum = 2;
 
@@ -173,6 +174,10 @@ public class MoreLanguageProperties {
 
     public void setCheckMergedSeparator(String checkMergedSeparator) {
         MoreLanguageProperties.checkMergedSeparator = checkMergedSeparator;
+    }
+
+    public void setNoDecorateCategory1stCode(String noDecorateCategory1stCode) {
+        MoreLanguageProperties.noDecorateCategory1stCode = noDecorateCategory1stCode;
     }
 
     public void setStyleCountryStatusImportMaxSize(Integer styleCountryStatusImportMaxSize) {

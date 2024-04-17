@@ -56,9 +56,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -365,33 +367,34 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                                 .eq(typeFunc, type)
                                 .eq(singleLanguageFlagFunc, YesOrNoEnum.NO), codeFunc
                         );
+                        if (CollUtil.isNotEmpty(sameLanguageCodeList)) {
+                            List<StandardColumnCountryTranslate> countryTranslateList = updateNewTranslateList.stream()
+                                    .filter(it -> it.getCountryLanguageId().equals(countryLanguage.getId())).collect(Collectors.toList());
 
-                        List<StandardColumnCountryTranslate> countryTranslateList = updateNewTranslateList.stream()
-                                .filter(it -> it.getCountryLanguageId().equals(countryLanguage.getId())).collect(Collectors.toList());
-
-                        // 获取已审核的当前国家中,存在对应编码的数据
-                        List<StyleCountryStatus> statusList = styleCountryStatusService.list(new LambdaQueryWrapper<StyleCountryStatus>()
-                                .eq(statusFunc, StyleCountryStatusEnum.CHECK)
-                                .in(StyleCountryStatus::getCode, sameLanguageCodeList)
-                                .eq(StyleCountryStatus::getType, type)
-                                .like(StyleCountryStatus::getStandardColumnCode, standardColumnCode)
-                        );
-                        statusList.forEach(status-> {
-                            List<MoreLanguageStatusCheckDetailDTO> languageDetailList = JSONUtil.toList(status.getCheckDetailJson(), MoreLanguageStatusCheckDetailDTO.class);
-                            languageDetailList.stream().filter(it-> it.getLanguageCode().equals(languageCode)).forEach(languageDetail-> {
-                                countryTranslateList.forEach(translate -> {
-                                    languageDetail.getAuditList().stream()
-                                            .filter(audit -> audit.getStandardColumnCode().equals(standardColumnCode))
-                                            .filter(audit -> audit.getSource().equals(translate.getPropertiesCode()))
-                                            .forEach(audit-> audit.setStatus(YesOrNoEnum.NO.getValueStr()));
+                            // 获取已审核的当前国家中,存在对应编码的数据
+                            List<StyleCountryStatus> statusList = styleCountryStatusService.list(new LambdaQueryWrapper<StyleCountryStatus>()
+                                    .eq(statusFunc, StyleCountryStatusEnum.CHECK)
+                                    .in(StyleCountryStatus::getCode, sameLanguageCodeList)
+                                    .eq(StyleCountryStatus::getType, type)
+                                    .like(StyleCountryStatus::getStandardColumnCode, standardColumnCode)
+                            );
+                            statusList.forEach(status-> {
+                                List<MoreLanguageStatusCheckDetailDTO> languageDetailList = JSONUtil.toList(status.getCheckDetailJson(), MoreLanguageStatusCheckDetailDTO.class);
+                                languageDetailList.stream().filter(it-> it.getLanguageCode().equals(languageCode)).forEach(languageDetail-> {
+                                    countryTranslateList.forEach(translate -> {
+                                        languageDetail.getAuditList().stream()
+                                                .filter(audit -> audit.getStandardColumnCode().equals(standardColumnCode))
+                                                .filter(audit -> audit.getSource().equals(translate.getPropertiesCode()))
+                                                .forEach(audit-> audit.setStatus(YesOrNoEnum.NO.getValueStr()));
+                                    });
                                 });
+                                String checkDetailJson = JSONUtil.toJsonStr(languageDetailList.stream().filter(it -> CollUtil.isNotEmpty(it.getAuditList())).collect(Collectors.toList()));
+                                if (!status.getCheckDetailJson().equals(checkDetailJson)) {
+                                    status.setCheckDetailJson(checkDetailJson);
+                                    changeStatusList.add(status);
+                                }
                             });
-                            String checkDetailJson = JSONUtil.toJsonStr(languageDetailList.stream().filter(it -> CollUtil.isNotEmpty(it.getAuditList())).collect(Collectors.toList()));
-                            if (!status.getCheckDetailJson().equals(checkDetailJson)) {
-                                status.setCheckDetailJson(checkDetailJson);
-                                changeStatusList.add(status);
-                            }
-                        });
+                        }
                     });
                     if (CollUtil.isNotEmpty(changeStatusList)) {
                         styleCountryStatusService.saveOrUpdateBatch(changeStatusList);
@@ -414,9 +417,10 @@ public class MoreLanguageImportListener extends AnalysisEventListener<Map<Intege
                     );
 
                     if (needSync) {
-                        List<String> titleCodeList = new ArrayList<>();
+                        Set<String> titleCodeList = new HashSet<>();
                         if (isRoot) {
                             titleCodeList.addAll(standardColumnService.listOneField(new BaseLambdaQueryWrapper<StandardColumn>()
+                                    .in(StandardColumn::getType,StandardColumnType.findRootList())
                                     .ne(StandardColumn::getType, standardColumnType), StandardColumn::getCode
                             ));
                         }else titleCodeList.add(standardColumnCode);

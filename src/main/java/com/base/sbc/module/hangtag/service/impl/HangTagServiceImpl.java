@@ -1244,7 +1244,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 根据国家分组
 		// 获取需要实时翻译
-		hangTagMoreLanguageDTO.setDecorate(source != SystemSource.PRINT);
+		// 若款式中存在配饰大类,直接使用实时数据,不使用单据流数据
+		hangTagMoreLanguageDTO.setDecorate(source != SystemSource.PRINT || hangTagVOList.stream().anyMatch(it-> MoreLanguageProperties.noDecorateCategory1stCode.contains(it.getProdCategory1st())));
 //		hangTagMoreLanguageDTO.setDocumentStatusLimit(source.greatThan(SystemSource.INTERNAL_LINE) ? StyleCountryStatusEnum.CHECK: null);
 		List<HangTagMoreLanguageBaseVO> resultList = buildResultList(hangTagMoreLanguageDTO, countryLanguageList, bulkStyleNoList, hangTagVOList, styleCountryStatusList);
 
@@ -1380,7 +1381,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		List<StandardColumnCountryTranslate> translateList = new ArrayList<>();
 		// 查询具体翻译
 		if (hangTagMoreLanguageDTO.getDecorate()) {
-
 			String titleCode = StrUtil.isNotBlank(codeFunc.getSearchStandardColumnCode()) ? codeFunc.getSearchStandardColumnCode() : standardColumnCode;
 			List<StandardColumnCountryTranslate> list = standardColumnCountryTranslateService.list(
 					new LambdaQueryWrapper<StandardColumnCountryTranslate>()
