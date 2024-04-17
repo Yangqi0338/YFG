@@ -1,15 +1,12 @@
 package com.base.sbc.module.planningproject.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.ccm.entity.BasicStructureTree;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
-import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -20,7 +17,6 @@ import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
-import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.CategoryPlanningDetailsMapper;
 import com.base.sbc.module.planningproject.service.*;
@@ -28,13 +24,15 @@ import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +45,7 @@ import java.util.stream.Collectors;
 public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<CategoryPlanningDetailsMapper, CategoryPlanningDetails> implements CategoryPlanningDetailsService {
     private final PlanningDimensionalityService planningDimensionalityService;
     private final FieldOptionConfigService fieldOptionConfigService;
+    @Lazy
     private final PlanningProjectService planningProjectService;
 
     private final PlanningProjectDimensionService planningProjectDimensionService;
