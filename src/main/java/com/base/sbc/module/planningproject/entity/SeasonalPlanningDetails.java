@@ -49,4 +49,8 @@ public class SeasonalPlanningDetails extends BaseDataEntity<String> {
     private String orderTime;
     @ApiModelProperty(value = "上市时间")
     private String launchTime;
+    @ApiModelProperty(value = "行位置index")
+    private String rowIndex;
+    @ApiModelProperty(value = "列位置index")
+    private String columnIndex;
 }

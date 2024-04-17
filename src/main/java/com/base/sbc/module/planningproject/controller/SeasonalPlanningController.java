@@ -10,6 +10,7 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQuerySaveDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
+import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
@@ -44,13 +45,17 @@ public class SeasonalPlanningController extends BaseController {
     @DuplicationCheck(type = 1,time = 20)
     public ApiResult importExcel(MultipartFile file,  SeasonalPlanningSaveDto seasonalPlanningSaveDto) throws Exception {
         seasonalPlanningSaveDto.setCompanyCode(this.getUserCompany());
-        try {
-            seasonalPlanningService.importExcel(file,seasonalPlanningSaveDto);
-        }catch (Exception e){
-            throw new RuntimeException("导入模板错误"+e.getMessage());
-        }
+        return seasonalPlanningService.importSeasonalPlanningExcel(file,seasonalPlanningSaveDto);
+    }
 
-        return insertSuccess("导入成功");
+    /**
+     * 季节企划详情
+     */
+    @ApiOperation(value = "季节企划详情")
+    @PostMapping("/getSeasonalPlanningDetails")
+    @DuplicationCheck(type = 1,time = 20)
+    public ApiResult getSeasonalPlanningDetails(SeasonalPlanningDetails seasonalPlanningDetails) throws Exception {
+        return seasonalPlanningService.getSeasonalPlanningDetails(seasonalPlanningDetails);
     }
 
     /**

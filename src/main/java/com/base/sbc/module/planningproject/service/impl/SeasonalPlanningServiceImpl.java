@@ -13,6 +13,7 @@ import com.base.sbc.client.ccm.entity.BasicDictDepend;
 import com.base.sbc.client.ccm.entity.BasicDictDependsQueryDto;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
@@ -20,6 +21,9 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
+import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
@@ -52,6 +56,10 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlanningMapper, SeasonalPlanning> implements SeasonalPlanningService {
+
+    private final static String COLUMN = "column";
+    private final static String ROW = "row";
+
     private final CcmFeignService ccmFeignService;
     private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
     private final OrderBookDetailService orderBookDetailService;
@@ -59,7 +67,372 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     private final StyleColorService styleColorService;
     private final BasicsdatumDimensionalityService basicsdatumDimensionalityService;
     private final StyleService styleService;
+    private final PlanningDimensionalityService planningDimensionalityService;
 
+    @Override
+    public ApiResult importSeasonalPlanningExcel(MultipartFile file, SeasonalPlanningSaveDto seasonalPlanningSaveDto) {
+        ApiResult result = checkParam(seasonalPlanningSaveDto);
+        if (!result.getSuccess()) {
+            return result;
+        }
+
+        // Excel 转 List
+        List<HashMap<Integer, String>> hashMaps = null;
+        try {
+            hashMaps = EasyExcel.read(file.getInputStream()).headRowNumber(0).doReadAllSync();
+        } catch (IOException e) {
+            return ApiResult.error("文件解析异常：" + e.getMessage(), 500);
+        }
+
+        //获取字典依赖管理的配置
+        BasicDictDependsQueryDto basicDictDependsQueryDto  = new BasicDictDependsQueryDto();
+        basicDictDependsQueryDto.setPageNum(1);
+        basicDictDependsQueryDto.setPageSize(9999);
+        basicDictDependsQueryDto.setDictTypeName("月份");
+        List<BasicDictDepend> dictDependsList = ccmFeignService.getDictDependsList(basicDictDependsQueryDto);
+        Map<String, BasicDictDepend> dictDependsMap = dictDependsList.stream().collect(Collectors.toMap(map->map.getDictCode()+map.getDependCode(), Function.identity()));
+
+        Map<Integer, SeasonalPlanningDetails> detailsMap = new HashMap<>();
+        List<SeasonalPlanningDetails> detailsList = new ArrayList<>();
+        //大类名称
+        String prodCategory1stName = null;
+        //品类名称
+        String prodCategoryName = null;
+        //中类名称
+        String prodCategory2ndName = null;
+
+        List<BasicBaseDict> c8Band = ccmFeignService.getDictInfoToList("C8_Band");
+        List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode("品类", null, "0,1,2");
+        Map<String, String> prodCategoryMap = new HashMap<>();
+        for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVos) {
+            //大类
+            for (BasicStructureTreeVo child : basicStructureTreeVo.getChildren()) {
+                //品类
+                for (BasicStructureTreeVo childChild : child.getChildren()) {
+                    //中类
+                    prodCategoryMap.put(basicStructureTreeVo.getName() + "_" + child.getName() + "_" + childChild.getName(),
+                            basicStructureTreeVo.getValue() + "_" + child.getValue() + "_" + childChild.getValue());
+                }
+                prodCategoryMap.put(basicStructureTreeVo.getName() + "_" + child.getName(),
+                        basicStructureTreeVo.getValue() + "_" + child.getValue());
+            }
+            prodCategoryMap.put(basicStructureTreeVo.getName(), basicStructureTreeVo.getValue());
+        }
+        Map<String, String> bandMap = c8Band.stream().collect(Collectors.toMap(BasicBaseDict::getName, BasicBaseDict::getValue));
+
+        // 处理表格数据
+        for (int i = 0; i < hashMaps.size(); i++) {
+            HashMap<Integer, String> integerStringHashMap = hashMaps.get(i);
+            int index = 0;
+            for (int j = 0; j < integerStringHashMap.size(); j++) {
+                switch (i) {
+                    case 0:
+                        if (j == 0) {
+                            seasonalPlanningSaveDto.setName(integerStringHashMap.get(j));
+                        }
+                        break;
+                    case 1: //上市波段
+                        if (j > 2) {
+                            SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                String seasonCode = seasonalPlanningSaveDto.getSeasonCode();
+                                String s1 = integerStringHashMap.get(j).split("")[0];
+                                if (Integer.parseInt(s1) <10){
+                                    s1 ="0"+s1;
+                                }
+                                BasicDictDepend basicDictDepend = dictDependsMap.get(s1 + seasonCode);
+                                if (null == basicDictDepend) {
+                                    return ApiResult.error("波段:" + integerStringHashMap.get(j) + " 所属月份与季节:"+ seasonCode + " 不匹配", 500);
+                                }
+                                orDefault.setBandName(integerStringHashMap.get(j));
+                                index = j;
+                            } else {
+                                orDefault.setBandName(integerStringHashMap.get(index));
+                            }
+                            detailsMap.put(j, orDefault);
+                        }
+                        break;
+                    case 2: //下单时间
+                        if (i > 0 && j > 2) {
+                            SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                orDefault.setOrderTime(integerStringHashMap.get(j));
+                                index = j;
+                            } else {
+                                orDefault.setOrderTime(integerStringHashMap.get(index));
+                            }
+                            detailsMap.put(j, orDefault);
+                        }
+                        break;
+                    case 3: //上市时间
+                        if (i > 0 && j > 2) {
+                            SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                orDefault.setLaunchTime(integerStringHashMap.get(j));
+                                index = j;
+                            } else {
+                                orDefault.setLaunchTime(integerStringHashMap.get(index));
+                            }
+                            detailsMap.put(j, orDefault);
+                        }
+                        break;
+                    case 4: //款式类别
+                        if (j > 2) {
+                            SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                orDefault.setStyleCategory(integerStringHashMap.get(j));
+                                index = j;
+                            } else {
+                                orDefault.setStyleCategory(integerStringHashMap.get(index));
+                            }
+                            detailsMap.put(j, orDefault);
+                        }
+                        break;
+                    default:
+                        //数据列
+                        SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
+                        if (j == 0) {
+                            //大类名称
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                prodCategory1stName = integerStringHashMap.get(j);
+                                //大类有值之后重置，品类和中类
+                                prodCategoryName = null;
+                                prodCategory2ndName = null;
+                            }
+                        } else if (j == 1) {
+                            //品类名称
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                prodCategoryName = integerStringHashMap.get(j);
+                                // TODO 品类校验(是否以生成企划)
+                                getDimensionalityList(prodCategoryMap, seasonalPlanningSaveDto, prodCategory1stName, prodCategoryName);
+                            }
+                        } else if ( j == 2) {
+                            //中类名称
+                            if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
+                                prodCategory2ndName = integerStringHashMap.get(j);
+                            }
+                            ApiResult apiResult = checkCategory(prodCategoryMap, prodCategory1stName, prodCategoryName, prodCategory2ndName);
+                            if (!apiResult.getSuccess()) {
+                                return apiResult;
+                            }
+                        } else{
+                            SeasonalPlanningDetails details = new SeasonalPlanningDetails();
+                            details.setProdCategory1stName(prodCategory1stName);
+                            details.setProdCategoryName(prodCategoryName);
+                            details.setProdCategory2ndName(prodCategory2ndName);
+                            if (prodCategoryMap.containsKey(prodCategory1stName + "_" + prodCategoryName + "_" + prodCategory2ndName)) {
+                                String[] s = prodCategoryMap.get(prodCategory1stName + "_" + prodCategoryName + "_" + prodCategory2ndName).split("_");
+                                details.setProdCategory1stCode(s[0]);
+                                details.setProdCategoryCode(s[1]);
+                                details.setProdCategory2ndCode(s[2]);
+                            } else if (prodCategoryMap.containsKey(prodCategory1stName + "_" + prodCategoryName)) {
+                                String[] s = prodCategoryMap.get(prodCategory1stName + "_" + prodCategoryName).split("_");
+                                details.setProdCategory1stCode(s[0]);
+                                details.setProdCategoryCode(s[1]);
+                            }
+                            details.setBandName(orDefault.getBandName());
+                            details.setBandCode(bandMap.get(details.getBandName()));
+                            details.setOrderTime(orDefault.getOrderTime());
+                            details.setLaunchTime(orDefault.getLaunchTime());
+                            details.setStyleCategory(orDefault.getStyleCategory());
+                            details.setSeasonalPlanningName(seasonalPlanningSaveDto.getName());
+                            details.setSkcCount(integerStringHashMap.get(j));
+                            details.setRowIndex(String.valueOf(i));
+                            details.setColumnIndex(String.valueOf(j));
+                            detailsList.add(details);
+                        }
+                }
+            }
+        }
+        // 保存产品企划
+        saveSeasonalPlanning(seasonalPlanningSaveDto);
+        for (SeasonalPlanningDetails details : detailsList) {
+            details.setSeasonalPlanningId(seasonalPlanningSaveDto.getId());
+        }
+        seasonalPlanningDetailsService.saveBatch(detailsList);
+        return ApiResult.success("导入成功");
+    }
+
+    @Override
+    public ApiResult getSeasonalPlanningDetails(SeasonalPlanningDetails seasonalPlanningDetails) {
+        ApiResult apiResult = new ApiResult<>();
+        QueryWrapper<SeasonalPlanningDetails> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("seasonal_planning_id", seasonalPlanningDetails.getSeasonalPlanningId());
+        queryWrapper.orderBy(true, true, "band_name");
+
+        // 总需求
+        List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(queryWrapper);
+        Map<String, Map<String, String>> resultMap = buildExcelDate(seasonalPlanningDetailsList, seasonalPlanningDetails.getSeasonalPlanningName());
+        apiResult.setData(resultMap);
+        return apiResult;
+    }
+
+    private Map<String, Map<String, String>> buildExcelDate(List<SeasonalPlanningDetails> seasonalPlanningDetailsList, String lableName) {
+        int rowNum = 6;
+        Map<String, Map<String, String>> resultMap = new HashMap<>();
+
+        // 前五行特殊处理
+        Map<String, String> row01 = new HashMap<>();
+        Map<String, String> row02 = new HashMap<>();
+        Map<String, String> row03 = new HashMap<>();
+        Map<String, String> row04 = new HashMap<>();
+        Map<String, String> row05 = new HashMap<>();
+
+        // 多少数据行
+        Map<String, List<SeasonalPlanningDetails>> groupByProdCate = seasonalPlanningDetailsList.stream()
+                .collect(Collectors.groupingBy(
+                        SeasonalPlanningDetails::getProdCategoryName, // 品类分组
+                        Collectors.toList()
+                ));
+        for (String prodCategory : groupByProdCate.keySet()) {
+            // TODO 中类可能为空
+            List<SeasonalPlanningDetails> prodCategoryList = groupByProdCate.get(prodCategory);
+            Map<String, List<SeasonalPlanningDetails>> groupByProdCategory2nd = prodCategoryList.stream()
+                    .collect(Collectors.groupingBy(
+                            SeasonalPlanningDetails::getProdCategory2ndName, // 中类类分组
+                            Collectors.toList()
+                    ));
+
+            for (String prodCategory2nd : groupByProdCategory2nd.keySet()) {
+                Map<String, String> rowData = new HashMap<>();
+                List<SeasonalPlanningDetails> prodCategory2ndList = groupByProdCategory2nd.get(prodCategory2nd);
+                Map<String, List<SeasonalPlanningDetails>> groupByBand = prodCategory2ndList.stream()
+                        .collect(Collectors.groupingBy(
+                                SeasonalPlanningDetails::getBandName, // 波段
+                                Collectors.toList()
+                        ));
+                for (String band : groupByBand.keySet()) {
+                    List<SeasonalPlanningDetails> bandList = groupByBand.get(band);
+                    Map<String, List<SeasonalPlanningDetails>> groupByStyleCategory = bandList.stream()
+                            .collect(Collectors.groupingBy(
+                                    SeasonalPlanningDetails::getStyleCategory, // 款式类别
+                                    Collectors.toList()
+                            ));
+                    for (String styleCategory : groupByStyleCategory.keySet()) {
+                        List<SeasonalPlanningDetails> styleCategoryList = groupByStyleCategory.get(styleCategory);
+                        for (SeasonalPlanningDetails details : styleCategoryList) {
+                            rowData.put(COLUMN + "01", details.getProdCategory1stName());
+                            rowData.put(COLUMN + "02", details.getProdCategoryName());
+                            rowData.put(COLUMN + "03", details.getProdCategory2ndName());
+                            String columnNum = details.getColumnIndex();
+                            int index = Integer.valueOf(columnNum);
+                            index = index + 1;
+                            String n = "";
+                            if (index < 10) {
+                                n = "0";
+                            }
+                            rowData.put(COLUMN + n + index, details.getSkcCount());
+                            row01.put(COLUMN + n + index, "总需求");
+                            row02.put(COLUMN + n + index, band);
+                            row03.put(COLUMN + n + index, details.getOrderTime());
+                            row04.put(COLUMN + n + index, details.getLaunchTime());
+                            row05.put(COLUMN + n + index, styleCategory);
+                            rowNum = Integer.valueOf(details.getRowIndex());
+
+                        }
+                    }
+                }
+                rowNum = rowNum + 1;
+                if (rowNum < 10) {
+                    resultMap.put(ROW + "0" + rowNum, sort(rowData));
+                } else {
+                    resultMap.put(ROW + rowNum, sort(rowData));
+                }
+            }
+        }
+
+        for (int row = 1; row < 4; row++) {
+            row01.put(COLUMN + "0" + row, lableName);
+            row02.put(COLUMN + "0" + row, "上市波段");
+            row03.put(COLUMN + "0" + row, "下单时间");
+            row04.put(COLUMN + "0" + row, "上市时间");
+            row05.put(COLUMN + "0" + row, "款式类别");
+        }
+        resultMap.put(ROW + "01", sort(row01));
+        resultMap.put(ROW + "02", sort(row02));
+        resultMap.put(ROW + "03", sort(row03));
+        resultMap.put(ROW + "04", sort(row04));
+        resultMap.put(ROW + "05", sort(row05));
+
+        return sort1(resultMap);
+    }
+
+    private Map<String, String> sort(Map<String, String> unsortedMap) {
+        return unsortedMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, // 合并函数，这里我们保留旧值（实际上在这个例子中不会用到）
+                        LinkedHashMap::new // 使用LinkedHashMap来保持顺序
+                ));
+    }
+
+    private Map<String, Map<String, String>> sort1(Map<String, Map<String, String>> unsortedMap) {
+        return unsortedMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, // 合并函数，这里我们保留旧值（实际上在这个例子中不会用到）
+                        LinkedHashMap::new // 使用LinkedHashMap来保持顺序
+                ));
+    }
+
+    private ApiResult checkParam(SeasonalPlanningSaveDto seasonalPlanningSaveDto) {
+        if (null == seasonalPlanningSaveDto) {
+            return ApiResult.error("产品季节参数为空", 500);
+        }
+        if (StringUtils.isBlank(seasonalPlanningSaveDto.getSeasonName())) {
+            return ApiResult.error("产品季名称为空", 500);
+        }
+        if (StringUtils.isBlank(seasonalPlanningSaveDto.getSeasonCode())) {
+            return ApiResult.error("产品季渠道为空", 500);
+        }
+        return ApiResult.success("校验通过");
+    }
+
+    private ApiResult checkCategory(Map<String, String> prodCategoryMap, String prodCategory1stName, String prodCategoryName, String prodCategory2ndName) {
+        if (!prodCategoryMap.containsKey(prodCategory1stName)) {
+            return ApiResult.error("大类名称输入错误,请检查后再导入", 500);
+        }
+        if (StringUtils.isNotBlank(prodCategoryName)) {
+            if (!prodCategoryMap.containsKey(prodCategory1stName + "_" + prodCategoryName)) {
+                return ApiResult.error("品类名称输入错误,请检查后再导入", 500);
+            }
+        }
+        if (StringUtils.isNotBlank(prodCategory2ndName)) {
+            if (!prodCategoryMap.containsKey(prodCategory1stName + "_" + prodCategoryName + "_" + prodCategory2ndName)) {
+                return ApiResult.error("中类:" + prodCategory2ndName + " 输入错误，请检查后输入", 500);
+            }
+        }
+        return ApiResult.success("校验通过");
+    }
+
+    private ApiResult getDimensionalityList(Map<String, String> prodCategoryMap, SeasonalPlanningSaveDto seasonalPlanningSaveDto, String prodCategory1stName, String prodCategoryName) {
+        DimensionLabelsSearchDto dimensionLabelsSearchDto = new DimensionLabelsSearchDto();
+        if (prodCategoryMap.containsKey(prodCategory1stName + "_" + prodCategoryName)) {
+            String[] s = prodCategoryMap.get(prodCategory1stName + "_" + prodCategoryName).split("_");
+            dimensionLabelsSearchDto.setProdCategory(s[1]);
+        }
+        dimensionLabelsSearchDto.setChannel(seasonalPlanningSaveDto.getChannelCode());
+        dimensionLabelsSearchDto.setPlanningSeasonId(seasonalPlanningSaveDto.getSeasonId());
+        DimensionalityListVo dimensionalitys = planningDimensionalityService.getDimensionalityList(dimensionLabelsSearchDto);
+        if (null == dimensionalitys) {
+            return ApiResult.error("品类未配置维度信息", 500);
+        }
+        return ApiResult.success("success");
+    }
+
+    private SeasonalPlanning saveSeasonalPlanning(SeasonalPlanningSaveDto seasonalPlanningSaveDto) {
+        // 先去查有没有启用的，如果有就将状态设为停用
+        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("company_code", seasonalPlanningSaveDto.getCompanyCode());
+        queryWrapper.eq("status", "0");
+        queryWrapper.eq("season_id", seasonalPlanningSaveDto.getSeasonId());
+        queryWrapper.eq("channel_code", seasonalPlanningSaveDto.getChannelCode());
+        long l = this.count(queryWrapper);
+        seasonalPlanningSaveDto.setStatus(l > 0 ? "1" : "0");
+        this.save(seasonalPlanningSaveDto);
+
+        return getById(seasonalPlanningSaveDto.getId());
+    }
 
     @Override
     @Transactional
