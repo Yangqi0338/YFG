@@ -62,7 +62,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Boolean pushRecordSave(HttpResp httpResp, String data, String moduleName, String functionName) {
+    public Boolean pushRecordSave(HttpResp httpResp, String data) {
         JSONObject json = JSON.parseObject(data);
         String url = httpResp.getUrl();
 
@@ -80,8 +80,8 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         PushRecords pushRecords = pushRecordsList(pushRecordsDto)
                 .stream().findFirst().orElse(BeanUtil.copyProperties(pushRecordsDto, PushRecords.class));
 
-        pushRecords.setModuleName(moduleName);
-        pushRecords.setFunctionName(functionName);
+//        pushRecords.setModuleName(moduleName);
+//        pushRecords.setFunctionName(functionName);
         pushRecords.setRelatedName(json.getString("name"));
         pushRecords.setPushContent(data);
         pushRecords.setPushCount(Opt.ofBlankAble(pushRecords.getPushCount()).orElse(1));

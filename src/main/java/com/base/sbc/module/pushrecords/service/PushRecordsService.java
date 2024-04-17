@@ -36,7 +36,7 @@ public interface PushRecordsService extends BaseService<PushRecords> {
      * @param functionName 功能方法名称
      * @return 推送的结果
      */
-    Boolean pushRecordSave(HttpResp httpResp, String data, String moduleName, String functionName);
+    Boolean pushRecordSave(HttpResp httpResp, String data);
     PushRecords prePushRecordSave(HttpReq httpReq);
     List<PushRecords> pushRecordsList(PushRecordsDto pushRecords);
     List<PushRecords> existHandlePushRecord();

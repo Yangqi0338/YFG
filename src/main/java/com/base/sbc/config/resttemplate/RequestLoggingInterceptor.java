@@ -6,6 +6,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.dto.HttpReq;
 import com.base.sbc.module.smp.dto.HttpResp;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.impl.io.ChunkedInputStream;
+import org.apache.http.impl.io.EmptyInputStream;
 import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +28,12 @@ import org.springframework.web.client.HttpMessageConverterExtractor;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,13 +70,11 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
         pushRecordsService.prePushRecordSave(httpReq);
         // 可以在此处记录其他请求相关的信息，如请求方法、请求头等
         ClientHttpResponse execute = execution.execute(request, body);
-        InputStream inputStream = execute.getBody();
-        inputStream.mark(0);
-        String responseData = extractor.extractData(execute);
-        inputStream.reset();
-        HttpResp httpResp = RestTemplateService.buildHttpResp(responseData);
-        BeanUtil.copyProperties(httpReq, httpResp);
-        pushRecordsService.pushRecordSave(httpResp, s, moduleName, functionName);
+        // 不能读取,会导致InputStream读完,导致数据获取不到,除非使用ThreadLocal
+//        String responseData = extractor.extractData(execute);
+//        HttpResp httpResp = RestTemplateService.buildHttpResp(responseData);
+//        BeanUtil.copyProperties(httpReq, httpResp);
+//        pushRecordsService.pushRecordSave(httpResp, s, moduleName, functionName);
         // 继续执行请求
         return execute;
     }

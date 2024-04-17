@@ -1,5 +1,6 @@
 package com.base.sbc.config.resttemplate;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.BooleanUtil;
@@ -8,9 +9,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.dto.HttpResp;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +39,9 @@ public class RestTemplateService {
 
     private final RestTemplate restTemplate;
     private final CcmFeignService ccmFeignService;
+    @Autowired
+    @Lazy
+    private PushRecordsService pushRecordsService;
 
 
     @SafeVarargs
@@ -59,6 +66,7 @@ public class RestTemplateService {
             httpResp = buildHttpResp(body);
             httpResp.setUrl(url);
             httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
+            pushRecordsService.pushRecordSave(httpResp, jsonStr);
             return httpResp;
         } catch (Exception e) {
             e.printStackTrace();

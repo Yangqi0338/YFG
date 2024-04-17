@@ -1629,7 +1629,7 @@ public class SmpService {
         );
 
         for (TagConfirmDateDto tagConfirmDateDto1 : list) {
-            pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1), "scm", "下发吊牌和款式定价确认信息");
+            pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(tagConfirmDateDto1));
         }
     }
 
@@ -1668,7 +1668,7 @@ public class SmpService {
             throw new OtherException("同步失败");
         }
         for (SecondIngredientSyncDto secondIngredientSyncDto : secondIngredientSyncDtoList) {
-            pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(secondIngredientSyncDto), "scm", "下发吊牌和款式定价确认信息");
+            pushRecordsService.pushRecordSave(httpResp, JSONArray.toJSONString(secondIngredientSyncDto));
         }
     }
 
