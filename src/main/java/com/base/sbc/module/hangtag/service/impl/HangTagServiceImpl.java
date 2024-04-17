@@ -47,6 +47,7 @@ import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
@@ -82,6 +83,7 @@ import com.base.sbc.module.hangtag.vo.HangTagVoExcel;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.HangTagMoreLanguageGroup;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO.MoreLanguageCodeMapping;
+import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
@@ -915,11 +917,25 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 												.eq(PackBom::getBomVersionId, packBomVersion.getId())
 								);
 								if (ObjectUtil.isNotEmpty(packBomList)) {
-									materialCodeNames = CollUtil.join(
+									// 取出物料编码 根据物料编码查询物料类别包含特殊吊牌的数据
+									List<String> materialCodeList = packBomList
+											.stream().map(PackBom::getMaterialCode).distinct().collect(Collectors.toList());
+									List<BasicsdatumMaterial> basicsdatumMaterialList = basicsdatumMaterialService.list(
+											new LambdaQueryWrapper<BasicsdatumMaterial>()
+													.in(BasicsdatumMaterial::getMaterialCode, materialCodeList)
+													.like(BasicsdatumMaterial::getCategoryName, "特殊吊牌")
+									);
+									Map<String, BasicsdatumMaterial> basicsdatumMaterialMap;
+									if (ObjectUtil.isNotEmpty(basicsdatumMaterialList)) {
+                                        basicsdatumMaterialMap = basicsdatumMaterialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, item -> item));
+                                    } else {
+                                        basicsdatumMaterialMap = new HashMap<>();
+                                    }
+                                    materialCodeNames = CollUtil.join(
 											packBomList
 													.stream()
 													.filter(item ->
-															item.getCategoryName().contains("特殊吊牌")
+															ObjectUtil.isNotEmpty(basicsdatumMaterialMap.get(item.getMaterialCode()))
 																	|| item.getMaterialCodeName().contains("备扣袋")
 													)
 													.map(PackBom::getMaterialCodeName)
