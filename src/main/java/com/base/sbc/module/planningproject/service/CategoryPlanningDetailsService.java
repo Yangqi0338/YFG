@@ -1,8 +1,10 @@
 package com.base.sbc.module.planningproject.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailDTO;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
+import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailVO;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageInfo;
 
@@ -21,4 +23,12 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
     CategoryPlanningDetailsVo getDetailById(String id);
 
     boolean updateDetail(CategoryPlanningDetailsVo categoryPlanningDetailsVo);
+
+
+    /**
+     * 根据id查询明细详情
+     * @param categoryPlanningDetailDTO 查询条件
+     * @return 品类企划数据
+     */
+    CategoryPlanningDetailVO getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 }

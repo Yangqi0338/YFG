@@ -1,13 +1,18 @@
 package com.base.sbc.module.planningproject.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -16,10 +21,12 @@ import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailDTO;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
 import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.CategoryPlanningDetailsMapper;
 import com.base.sbc.module.planningproject.service.*;
+import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailVO;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -512,6 +519,68 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         }
 
         return b;
+    }
+
+    /**
+     * @param categoryPlanningDetailDTO 查询条件
+     * @return
+     */
+    @Override
+    public CategoryPlanningDetailVO getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
+        // 初始化返回的对象
+        CategoryPlanningDetailVO categoryPlanningDetailVO = new CategoryPlanningDetailVO();
+        String categoryPlanningId = categoryPlanningDetailDTO.getCategoryPlanningId();
+        String prodCategoryCodes = categoryPlanningDetailDTO.getProdCategoryCodes();
+        String fieldIds = categoryPlanningDetailDTO.getFieldIds();
+        if (ObjectUtil.isEmpty(categoryPlanningId)) {
+            throw new OtherException("请选择品类企划！");
+        }
+     if (ObjectUtil.isEmpty(prodCategoryCodes)) {
+            throw new OtherException("请选择品类！");
+        }
+        if (ObjectUtil.isEmpty(fieldIds)) {
+            throw new OtherException("请选择维度数据！");
+        }
+        // TODO：先根据品类查询 维度数据暂时先不管
+        CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningId);
+        if (ObjectUtil.isEmpty(categoryPlanning)) {
+            throw new OtherException("品类企划数据不存在，请刷新后重试！");
+        }
+
+        // 查询出筛选后的品类企划
+        List<CategoryPlanningDetails> categoryPlanningDetailsList = list(
+                new LambdaQueryWrapper<CategoryPlanningDetails>()
+                        .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
+                        .eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
+                        .in(CategoryPlanningDetails::getProdCategoryCode, CollUtil.newArrayList(prodCategoryCodes.split(",")))
+        );
+        categoryPlanningDetailVO.setCategoryPlanningDetailsList(categoryPlanningDetailsList);
+
+        // 查询品类企划根据 大/品/中/维度类型/维度值 分组后的数据
+        // 初始化 数据
+        List<CategoryPlanningDetails> groupByDimensionalityValueList = new ArrayList<>();
+        Map<String, List<CategoryPlanningDetails>> groupByDimensionalityValueMap = categoryPlanningDetailsList.stream().collect(Collectors.groupingBy(
+                item -> item.getProdCategory1stName()
+                        + item.getProdCategoryName()
+                        + item.getProdCategory2ndName()
+                        + item.getDimensionName()
+                        + item.getDimensionCode()
+        ));
+        for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : groupByDimensionalityValueMap.entrySet()) {
+            groupByDimensionalityValueList.add(stringListEntry.getValue().get(0));
+        }
+        categoryPlanningDetailVO.setGroupByDimensionalityValueList(groupByDimensionalityValueList);
+
+        // 查询品类企划数据根据波段分组后的数据
+        // 初始化 数据
+        List<CategoryPlanningDetails> groupByBandList = new ArrayList<>();
+        Map<String, List<CategoryPlanningDetails>> groupByBandListMap
+                = categoryPlanningDetailsList.stream().collect(Collectors.groupingBy(CategoryPlanningDetails::getBandName));
+        for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : groupByBandListMap.entrySet()) {
+            groupByBandList.add(stringListEntry.getValue().get(0));
+        }
+        categoryPlanningDetailVO.setGroupByBandList(groupByBandList);
+        return categoryPlanningDetailVO;
     }
 
     /**
