@@ -1205,30 +1205,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
     }
 
-    @Override
-    @Transactional(rollbackFor = {Exception.class})
-    public boolean removeByIds(RemoveDto removeDto) {
-        List<String> stringList = StrUtil.split(removeDto.getIds(), ',');
-        List<OrderBookDetail> orderBookDetails = baseMapper.selectBatchIds(stringList);
-        List<OrderBookDetail> details = orderBookDetails.stream().filter(item -> OrderBookDetailStatusEnum.AUDIT.equals(item.getStatus())).collect(Collectors.toList());
-        if (CollUtil.isNotEmpty(details)) {
-            throw new OtherException("已审核通过的的订单不能删除");
-        }
-
-        baseMapper.deleteBatchIds(stringList);
-        /*日志记录*/
-        OperaLogEntity operaLogEntity = new OperaLogEntity();
-        operaLogEntity.setName(removeDto.getName());
-        operaLogEntity.setType("删除");
-        operaLogEntity.setContent(removeDto.getIds());
-        operaLogEntity.setDocumentName(removeDto.getNames());
-        operaLogEntity.setParentId(removeDto.getParentId());
-        operaLogEntity.setDocumentCode(removeDto.getCodes());
-        operaLogService.save(operaLogEntity);
-        return true;
-    }
-
-
     /**
      * 查询款式定价数据
      */

@@ -460,28 +460,5 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "投产类型")
     private PutInProductionType devtType;
 
-    /**
-     * 部门
-     * {@link OrderBookDepartmentEnum}
-     */
-    @ApiModelProperty(value = "部门：design 设计部，offline 线下商企，online 线上商企"  )
-    private String department;
-
-    /**
-     * 线下投产尺码
-     */
-    @ApiModelProperty(value = "投产尺码")
-    private String offlineCommissioningSize;
-
-    /**
-     * 线上投产尺码
-     */
-    @ApiModelProperty(value = "投产尺码")
-    private String onlineCommissioningSize;
-
-    @ApiModelProperty(value = "版本号"  )
-    @Version
-    private Integer version;
-
 }
 
