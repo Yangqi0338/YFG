@@ -804,7 +804,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
             orderBookDetail.setBusinessId("1");
             orderBookDetail.setDepartment(departmentEnum.getCode());
-            orderBookDetail.setStatus(departmentEnum == OrderBookDepartmentEnum.ONLINE ? OrderBookDetailStatusEnum.BUSINESS : OrderBookDetailStatusEnum.ONLINE_BUSINESS);
+            orderBookDetail.setStatus(departmentEnum == OrderBookDepartmentEnum.OFFLINE ? OrderBookDetailStatusEnum.BUSINESS : OrderBookDetailStatusEnum.ONLINE_BUSINESS);
         });
         boolean b = this.saveOrUpdateBatch(orderBookDetailList);
         if (b) {
@@ -857,7 +857,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             // 根据大类或设计款号获取款式
             Opt.ofEmptyAble(styleService.listOneField(new BaseLambdaQueryWrapper<Style>()
                     .notEmptyEq(Style::getProdCategory1st, category1stCode)
-                    .notEmptyEq(Style::getRegisteringNo, registeringNo), Style::getRegisteringNo)
+                    .notEmptyEq(Style::getRegisteringNo, registeringNo), Style::getId)
             ).ifPresent(styleIdList-> {
                 // 根据款式获取款号
                 searchBulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>()
