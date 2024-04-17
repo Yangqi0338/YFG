@@ -263,7 +263,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         // 总需求
         List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(queryWrapper);
         Map<String, Map<String, String>> resultMap = buildExcelDate(seasonalPlanningDetailsList, seasonalPlanningDetails.getSeasonalPlanningName());
-        apiResult.setData(resultMap);
+
+        // 下单数
+
+
         return apiResult;
     }
 
@@ -295,12 +298,14 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
             for (String prodCategory2nd : groupByProdCategory2nd.keySet()) {
                 Map<String, String> rowData = new HashMap<>();
+                int row = 4;
                 List<SeasonalPlanningDetails> prodCategory2ndList = groupByProdCategory2nd.get(prodCategory2nd);
                 Map<String, List<SeasonalPlanningDetails>> groupByBand = prodCategory2ndList.stream()
                         .collect(Collectors.groupingBy(
                                 SeasonalPlanningDetails::getBandName, // 波段
                                 Collectors.toList()
                         ));
+                Map<String, Integer> columnSumMap = new HashMap<>();
                 for (String band : groupByBand.keySet()) {
                     List<SeasonalPlanningDetails> bandList = groupByBand.get(band);
                     Map<String, List<SeasonalPlanningDetails>> groupByStyleCategory = bandList.stream()
@@ -315,6 +320,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             rowData.put(COLUMN + "02", details.getProdCategoryName());
                             rowData.put(COLUMN + "03", details.getProdCategory2ndName());
                             String columnNum = details.getColumnIndex();
+                            if (StringUtils.isBlank(columnNum)) {
+                                break;
+                            }
                             int index = Integer.valueOf(columnNum);
                             index = index + 1;
                             String n = "";
@@ -329,8 +337,34 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             row05.put(COLUMN + n + index, styleCategory);
                             rowNum = Integer.valueOf(details.getRowIndex());
 
+                            Integer sum = Integer.valueOf(details.getSkcCount());
+                            Integer count = columnSumMap.get(details.getStyleCategory());
+                            if (null == count) {
+                                count = 0;
+                            }
+                            columnSumMap.put(details.getStyleCategory(), count + sum);
+                            row++;
                         }
                     }
+                }
+                int rowSum = row;
+                for (String styleCat : columnSumMap.keySet()) {
+                    if (row < 10) {
+                        row01.put(COLUMN + "0" + rowSum, "总需求");
+                        row02.put(COLUMN + "0" + rowSum, "合计");
+                        row03.put(COLUMN + "0" + rowSum, "-");
+                        row04.put(COLUMN + "0" + rowSum, "-");
+                        row05.put(COLUMN + "0" + rowSum, styleCat);
+                        rowData.put(COLUMN + "0" + rowSum, String.valueOf(columnSumMap.get(styleCat)));
+                    } else {
+                        row01.put(COLUMN +  rowSum, "总需求");
+                        row02.put(COLUMN + rowSum, "合计");
+                        row03.put(COLUMN + rowSum, "-");
+                        row04.put(COLUMN + rowSum, "-");
+                        row05.put(COLUMN + rowSum, styleCat);
+                        rowData.put(COLUMN + rowSum, String.valueOf(columnSumMap.get(styleCat)));
+                    }
+                    rowSum++;
                 }
                 rowNum = rowNum + 1;
                 if (rowNum < 10) {
