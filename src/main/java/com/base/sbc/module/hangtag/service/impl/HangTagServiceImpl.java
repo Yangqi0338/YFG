@@ -780,16 +780,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 													.in(BasicsdatumMaterial::getMaterialCode, materialCodeList)
 													.like(BasicsdatumMaterial::getCategoryName, "特殊吊牌")
 									);
-									Map<String, BasicsdatumMaterial> basicsdatumMaterialMap = new HashMap<>();
-									if (ObjectUtil.isEmpty(basicsdatumMaterialList)) {
+									Map<String, BasicsdatumMaterial> basicsdatumMaterialMap;
+									if (ObjectUtil.isNotEmpty(basicsdatumMaterialList)) {
                                         basicsdatumMaterialMap = basicsdatumMaterialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, item -> item));
+                                    } else {
+                                        basicsdatumMaterialMap = new HashMap<>();
                                     }
-									Map<String, BasicsdatumMaterial> finalBasicsdatumMaterialMap = basicsdatumMaterialMap;
-									materialCodeNames = CollUtil.join(
+                                    materialCodeNames = CollUtil.join(
 											packBomList
 													.stream()
 													.filter(item ->
-															ObjectUtil.isNotEmpty(finalBasicsdatumMaterialMap.get(item.getMaterialCode()))
+															ObjectUtil.isNotEmpty(basicsdatumMaterialMap.get(item.getMaterialCode()))
 																	|| item.getMaterialCodeName().contains("备扣袋")
 													)
 													.map(PackBom::getMaterialCodeName)
