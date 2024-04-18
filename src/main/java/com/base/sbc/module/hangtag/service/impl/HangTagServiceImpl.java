@@ -49,6 +49,7 @@ import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.basicsdatum.service.impl.BasicsdatumModelTypeServiceImpl;
@@ -1104,7 +1105,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 获取吊牌状态
 		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusMapper.selectList(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-				.notEmptyEq(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
+				.notEmptyIn(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
 				.notNullEq(StyleCountryStatus::getType, hangTagMoreLanguageDTO.getType())
 				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
 
