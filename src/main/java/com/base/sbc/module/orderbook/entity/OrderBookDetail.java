@@ -468,7 +468,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
         JSONObject onlineJsonObject = Opt.ofNullable(JSON.parseObject(this.onlineCommissioningSize)).orElse(new JSONObject());
 
         offlineJsonObject.putAll(onlineJsonObject);
-        return JSON.toJSONString(onlineJsonObject);
+        return JSON.toJSONString(offlineJsonObject);
     }
 
 }
