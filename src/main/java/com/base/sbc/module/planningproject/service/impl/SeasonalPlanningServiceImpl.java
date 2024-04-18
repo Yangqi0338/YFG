@@ -19,11 +19,16 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
+import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
+import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
+import com.base.sbc.module.orderbook.service.OrderBookService;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
+import com.base.sbc.module.planningproject.dto.SeasonalPlanningCoverOrderDetailDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
@@ -32,13 +37,16 @@ import com.base.sbc.module.planningproject.mapper.SeasonalPlanningMapper;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningDetailsService;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
+import com.base.sbc.module.planningproject.vo.SeasonalPlanningDetailVO;
 import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.open.dto.OrderBookDto;
 import com.github.pagehelper.PageHelper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +70,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
     private final CcmFeignService ccmFeignService;
     private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
+    private final OrderBookService orderBookService;
     private final OrderBookDetailService orderBookDetailService;
     private final PlanningProjectDimensionService planningProjectDimensionService;
     private final StyleColorService styleColorService;
@@ -256,48 +265,125 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     @Override
     public ApiResult getSeasonalPlanningDetails(SeasonalPlanningDetails seasonalPlanningDetails) {
         ApiResult apiResult = new ApiResult<>();
+        SeasonalPlanningDetailVO planningDetailVO = new SeasonalPlanningDetailVO();
         QueryWrapper<SeasonalPlanningDetails> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("seasonal_planning_id", seasonalPlanningDetails.getSeasonalPlanningId());
         queryWrapper.orderBy(true, true, "band_name");
 
         // 总需求
         List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(queryWrapper);
-        Map<String, Map<String, String>> resultMap = buildExcelDate(seasonalPlanningDetailsList, seasonalPlanningDetails.getSeasonalPlanningName());
+        Map<String, Map<String, String>> demandMap = buildExcelDate(seasonalPlanningDetailsList, seasonalPlanningDetails.getSeasonalPlanningName());
 
-        // 下单数
+        // 实际下单
+        // TODO 获取订货本
+        /*SeasonalPlanning seasonalPlanning = this.getById(seasonalPlanningDetails.getSeasonalPlanningId());
+        OrderBookDetailQueryDto dto = new OrderBookDetailQueryDto();
+        dto.setPlanningSeasonId(seasonalPlanning.getSeasonId());
+        dto.setYearName(seasonalPlanning.getSeasonName().substring(0,4));
+        BaseQueryWrapper<OrderBookDetail> bookDetailBaseQueryWrapper = orderBookDetailService.buildQueryWrapper(dto);
+        List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(orderBookDetailService.buildQueryWrapper(dto), null);*/
+        Map<String, Map<String, String>> orderMap = buildOrderData(demandMap, coverToSeasonalPlanningCoverOrderDetailDto(null));
 
+        // 缺口下单
+        //Map<String, Map<String, String>> gapMap = buildGapExcel(demandMap, orderMap);
+        planningDetailVO.setDemandExcel(demandMap);
+        planningDetailVO.setOrderExcel(orderMap);
+        //planningDetailVO.setGapExcel(gapMap);
+        apiResult.setData(planningDetailVO);
 
         return apiResult;
+        /*QueryWrapper<OrderBook> orderBookDtoQueryWrapper = new QueryWrapper<>();
+        orderBookDtoQueryWrapper.eq("seasonal_id", seasonalPlanning.getSeasonId());
+        List<OrderBook> orderBooks = orderBookService.list(orderBookDtoQueryWrapper);
+        List<String> ids = orderBooks.stream().map(OrderBook::getId).collect(Collectors.toList());
+        QueryWrapper<OrderBookDetail> detailQueryWrapper = new QueryWrapper<>();
+        detailQueryWrapper.eq("is_order", "1");
+        detailQueryWrapper.in("order_book_id", ids);
+        orderBookDetailService.list(detailQueryWrapper);*/
     }
 
-    private Map<String, Map<String, String>> buildExcelDate(List<SeasonalPlanningDetails> seasonalPlanningDetailsList, String lableName) {
-        int rowNum = 6;
-        Map<String, Map<String, String>> resultMap = new HashMap<>();
+    private List<SeasonalPlanningCoverOrderDetailDto> coverToSeasonalPlanningCoverOrderDetailDto(List<OrderBookDetailVo> orderBookDetailVos) {
+        if (CollectionUtils.isEmpty(orderBookDetailVos)) {
+            return null;
+        }
+        List<SeasonalPlanningCoverOrderDetailDto> list = new ArrayList<>();
+        for (OrderBookDetailVo detailVo : orderBookDetailVos) {
+            SeasonalPlanningCoverOrderDetailDto dto = new SeasonalPlanningCoverOrderDetailDto();
+            dto.setBandName(detailVo.getBandName());
+            dto.setProdCategory2ndName(detailVo.getProdCategory2ndName());
+            dto.setProdCategoryName(detailVo.getCategoryName());
+            String styleNo = detailVo.getBulkStyleNo();
+            if (styleNo.contains("-") && 'S' == styleNo.charAt(styleNo.length()-3)) {
+                dto.setStyleCategory("高奢");
+            } else {
+                dto.setStyleCategory("常规");
+            }
+            list.add(dto);
+        }
+        return list;
+    }
 
-        // 前五行特殊处理
-        Map<String, String> row01 = new HashMap<>();
-        Map<String, String> row02 = new HashMap<>();
-        Map<String, String> row03 = new HashMap<>();
-        Map<String, String> row04 = new HashMap<>();
-        Map<String, String> row05 = new HashMap<>();
-
-        // 多少数据行
+    // 合计
+    /*private List<SeasonalPlanningDetails> sumSeasonalPlanningDetail(List<SeasonalPlanningDetails> seasonalPlanningDetailsList) {
+        // 数据行
         Map<String, List<SeasonalPlanningDetails>> groupByProdCate = seasonalPlanningDetailsList.stream()
                 .collect(Collectors.groupingBy(
                         SeasonalPlanningDetails::getProdCategoryName, // 品类分组
                         Collectors.toList()
                 ));
         for (String prodCategory : groupByProdCate.keySet()) {
-            // TODO 中类可能为空
-            List<SeasonalPlanningDetails> prodCategoryList = groupByProdCate.get(prodCategory);
-            Map<String, List<SeasonalPlanningDetails>> groupByProdCategory2nd = prodCategoryList.stream()
+            List<SeasonalPlanningDetails> styleCategoryList = groupByProdCate.get(prodCategory);
+            Map<String, List<SeasonalPlanningDetails>> prodCategoryMap = styleCategoryList.stream()
                     .collect(Collectors.groupingBy(
-                            SeasonalPlanningDetails::getProdCategory2ndName, // 中类类分组
+                            SeasonalPlanningDetails::getProdCategoryName, // 类型分组
                             Collectors.toList()
                     ));
+            for
+            for (String styleCategory : prodCategoryMap.keySet()) {
+                List<SeasonalPlanningDetails> s = groupByProdCate.get(styleCategory);
+            }
+        }
 
+    }
+
+    private SeasonalPlanningDetails buildSeasonalPlanningDetail(List<SeasonalPlanningDetails> seasonalPlanningDetailsList) {
+        SeasonalPlanningDetails s = new SeasonalPlanningDetails();
+        s.setBandName();
+    }*/
+
+    private Map<String, Map<String, String>> buildExcelDate(List<SeasonalPlanningDetails> seasonalPlanningDetailsList, String lableName) {
+        int rowNum = 6;
+        Map<String, Map<String, String>> resultMap = new LinkedHashMap<>();
+
+        // 前五行非数据行单独处理
+        Map<String, String> row01 = new LinkedHashMap<>();
+        Map<String, String> row02 = new LinkedHashMap<>();
+        Map<String, String> row03 = new LinkedHashMap<>();
+        Map<String, String> row04 = new LinkedHashMap<>();
+        Map<String, String> row05 = new LinkedHashMap<>();
+
+        // 数据行
+        Map<String, List<SeasonalPlanningDetails>> groupByProdCate = seasonalPlanningDetailsList.stream()
+                .collect(Collectors.groupingBy(
+                        SeasonalPlanningDetails::getProdCategoryName, // 品类分组
+                        Collectors.toList()
+                ));
+        for (String prodCategory : groupByProdCate.keySet()) {
+            Map<String, String> sumRow = new LinkedHashMap<>();
+            List<SeasonalPlanningDetails> prodCategoryList = groupByProdCate.get(prodCategory);
+            Map<String, List<SeasonalPlanningDetails>> groupByProdCategory2nd = new LinkedHashMap<>();
+            // size == 1 说明只有一行数据
+            if (prodCategoryList.size()==1) {
+                groupByProdCategory2nd.put("-", prodCategoryList);
+            } else {
+                groupByProdCategory2nd = prodCategoryList.stream()
+                        .collect(Collectors.groupingBy(
+                                SeasonalPlanningDetails::getProdCategory2ndName, // 中类类分组
+                                Collectors.toList()
+                        ));
+            }
             for (String prodCategory2nd : groupByProdCategory2nd.keySet()) {
-                Map<String, String> rowData = new HashMap<>();
+                Map<String, String> rowData = new LinkedHashMap<>();
                 int row = 4;
                 List<SeasonalPlanningDetails> prodCategory2ndList = groupByProdCategory2nd.get(prodCategory2nd);
                 Map<String, List<SeasonalPlanningDetails>> groupByBand = prodCategory2ndList.stream()
@@ -305,7 +391,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                 SeasonalPlanningDetails::getBandName, // 波段
                                 Collectors.toList()
                         ));
-                Map<String, Integer> columnSumMap = new HashMap<>();
+                Map<String, Integer> columnSumMap = new LinkedHashMap<>();
                 for (String band : groupByBand.keySet()) {
                     List<SeasonalPlanningDetails> bandList = groupByBand.get(band);
                     Map<String, List<SeasonalPlanningDetails>> groupByStyleCategory = bandList.stream()
@@ -315,15 +401,17 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             ));
                     for (String styleCategory : groupByStyleCategory.keySet()) {
                         List<SeasonalPlanningDetails> styleCategoryList = groupByStyleCategory.get(styleCategory);
+                        Integer index = 0;
                         for (SeasonalPlanningDetails details : styleCategoryList) {
+                            // 前三列 大类-品类-中类
                             rowData.put(COLUMN + "01", details.getProdCategory1stName());
                             rowData.put(COLUMN + "02", details.getProdCategoryName());
-                            rowData.put(COLUMN + "03", details.getProdCategory2ndName());
+                            rowData.put(COLUMN + "03", StringUtils.isBlank(details.getProdCategory2ndName()) ? "-" : details.getProdCategory2ndName());
                             String columnNum = details.getColumnIndex();
                             if (StringUtils.isBlank(columnNum)) {
                                 break;
                             }
-                            int index = Integer.valueOf(columnNum);
+                            index = Integer.valueOf(columnNum);
                             index = index + 1;
                             String n = "";
                             if (index < 10) {
@@ -338,32 +426,27 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             rowNum = Integer.valueOf(details.getRowIndex());
 
                             Integer sum = Integer.valueOf(details.getSkcCount());
-                            Integer count = columnSumMap.get(details.getStyleCategory());
-                            if (null == count) {
-                                count = 0;
+                            Integer countRow = columnSumMap.get(details.getStyleCategory());
+                            if (null == countRow) {
+                                countRow = 0;
                             }
-                            columnSumMap.put(details.getStyleCategory(), count + sum);
+                            columnSumMap.put(details.getStyleCategory(), countRow + sum);
                             row++;
                         }
                     }
                 }
                 int rowSum = row;
                 for (String styleCat : columnSumMap.keySet()) {
+                    String s = "";
                     if (row < 10) {
-                        row01.put(COLUMN + "0" + rowSum, "总需求");
-                        row02.put(COLUMN + "0" + rowSum, "合计");
-                        row03.put(COLUMN + "0" + rowSum, "-");
-                        row04.put(COLUMN + "0" + rowSum, "-");
-                        row05.put(COLUMN + "0" + rowSum, styleCat);
-                        rowData.put(COLUMN + "0" + rowSum, String.valueOf(columnSumMap.get(styleCat)));
-                    } else {
-                        row01.put(COLUMN +  rowSum, "总需求");
-                        row02.put(COLUMN + rowSum, "合计");
-                        row03.put(COLUMN + rowSum, "-");
-                        row04.put(COLUMN + rowSum, "-");
-                        row05.put(COLUMN + rowSum, styleCat);
-                        rowData.put(COLUMN + rowSum, String.valueOf(columnSumMap.get(styleCat)));
+                        s = "0";
                     }
+                    row01.put(COLUMN + s + rowSum, "总需求");
+                    row02.put(COLUMN + s + rowSum, "合计");
+                    row03.put(COLUMN + s + rowSum, "-");
+                    row04.put(COLUMN + s + rowSum, "-");
+                    row05.put(COLUMN + s + rowSum, styleCat);
+                    rowData.put(COLUMN + s + rowSum, String.valueOf(columnSumMap.get(styleCat)));
                     rowSum++;
                 }
                 rowNum = rowNum + 1;
@@ -373,6 +456,43 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     resultMap.put(ROW + rowNum, sort(rowData));
                 }
             }
+
+            // 品类款式合计
+            Map<String, List<SeasonalPlanningDetails>> bandSumMap = prodCategoryList.stream()
+                    .collect(Collectors.groupingBy(
+                            SeasonalPlanningDetails::getBandName, // 波段
+                            Collectors.toList()
+                    ));
+            String prodCategory1stName = null;
+            String prodCategoryName = null;
+            int size = 0;
+            for (String s : bandSumMap.keySet()) {
+                List<SeasonalPlanningDetails> l  = bandSumMap.get(s);
+                Map<String, List<SeasonalPlanningDetails>> sumStyleCa = l.stream()
+                        .collect(Collectors.groupingBy(
+                                SeasonalPlanningDetails::getStyleCategory, // 款式类别
+                                Collectors.toList()
+                        ));
+
+                for (String ss : sumStyleCa.keySet()) {
+                    List<SeasonalPlanningDetails> sl = sumStyleCa.get(ss);
+                    size = sl.size();
+                    SeasonalPlanningDetails seasonalPlanningDetails = sl.get(0);
+                    prodCategory1stName = seasonalPlanningDetails.getProdCategory1stName();
+                    prodCategoryName = seasonalPlanningDetails.getProdCategoryName();
+                    int sum = sl.stream().mapToInt(sp -> StringUtils.isBlank(sp.getSkcCount()) ? 0 : Integer.valueOf(sp.getSkcCount())) // 将Person对象映射为它们的age属性（int类型）
+                            .sum();
+                    Integer index = Integer.valueOf(seasonalPlanningDetails.getColumnIndex());
+                    index = index + 1;
+                    sumRow.put(COLUMN + formatString(index) + index, String.valueOf(sum));
+                }
+                sumRow.put(COLUMN + "01", prodCategory1stName);
+                sumRow.put(COLUMN + "02", prodCategoryName);
+                sumRow.put(COLUMN + "03", "合计");
+            }
+            rowNum = rowNum + size;
+            resultMap.put(ROW + formatString(rowNum) + rowNum , sort(sumRow));
+
         }
 
         for (int row = 1; row < 4; row++) {
@@ -389,6 +509,99 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         resultMap.put(ROW + "05", sort(row05));
 
         return sort1(resultMap);
+    }
+
+    private String formatString(Integer index) {
+        String n = "";
+        if (index < 10) {
+            n = "0";
+        }
+        return n;
+    }
+
+    private Map<String, Map<String, String>> buildOrderData(Map<String, Map<String, String>> resultMap, List<SeasonalPlanningCoverOrderDetailDto> coverOrderDetailDtos) {
+        Map<String, Map<String, String>> orderMap = new LinkedHashMap<>();
+        int row = 1;
+        for (String key : resultMap.keySet()) {
+            int column = 1;
+            Map<String, String> columnMap = resultMap.get(key);
+            Map<String, String> orderColumnMap = new LinkedHashMap<>();
+            // int columnSize = columnMap.size() + 1;
+            for (String columnKey : columnMap.keySet()) {
+                if (row < 6) {
+                    if (row == 1 && column > 3) {
+                        orderColumnMap.put(columnKey, "实际下单");
+                    } else {
+                        orderColumnMap.put(columnKey, columnMap.get(columnKey));
+                    }
+                } else {
+                    if (column < 4) {
+                        orderColumnMap.put(columnKey, columnMap.get(columnKey));
+                    } else {
+                        // 获取品类,中类,波段，类型
+                        String prodCa = columnMap.get(COLUMN + "02");
+                        String prodCa2n = columnMap.get(COLUMN + "03");
+                        Map<String, String> bandMap = resultMap.get(ROW + "02");
+                        String band = bandMap.get(columnKey);
+                        Map<String, String> styleCaMap = resultMap.get(ROW + "04");
+                        String styleCa = styleCaMap.get(columnKey);
+                        // TODO 获取订单量
+                        Long count = 0L;
+                        /*if (StringUtils.isBlank(prodCa2n)) {
+                            count = coverOrderDetailDtos.stream().filter(dto ->
+                                    StringUtils.equals(prodCa, dto.getProdCategoryName()) &&
+                                            StringUtils.equals(styleCa, dto.getStyleCategory()) &&
+                                            StringUtils.equals(band, dto.getBandName())
+                            ).count();
+                        } else {
+                            count = coverOrderDetailDtos.stream().filter(dto ->
+                                    StringUtils.equals(prodCa, dto.getProdCategoryName()) &&
+                                            StringUtils.equals(prodCa2n, dto.getProdCategory2ndName()) &&
+                                            StringUtils.equals(band, dto.getBandName())
+                            ).count();
+                        }*/
+                        orderColumnMap.put(columnKey, String.valueOf(count));
+                    }
+                }
+                column++;
+                // columnSize++;
+            }
+            orderMap.put(key, orderColumnMap);
+            row++;
+        }
+        return orderMap;
+    }
+
+    private Map<String, Map<String, String>> buildGapExcel(Map<String, Map<String, String>> demandMap, Map<String, Map<String, String>> orderMap) {
+        Map<String, Map<String, String>> gapMap = new LinkedHashMap<>();
+        int row = 1;
+        for (String key : demandMap.keySet()) {
+            int column = 1;
+            Map<String, String> columnMap = demandMap.get(key);
+            Map<String, String> orderRowMap = orderMap.get(key);
+            Map<String, String> orderColumnMap = new LinkedHashMap<>();
+            for (String columnKey : columnMap.keySet()) {
+                if (row < 6) {
+                    if (row == 1 && column > 3) {
+                        orderColumnMap.put(columnKey, "缺口下单");
+                    } else {
+                        orderColumnMap.put(columnKey, columnMap.get(columnKey));
+                    }
+                } else {
+                    if (column < 4) {
+                        orderColumnMap.put(columnKey, columnMap.get(columnKey));
+                    } else {
+                        Integer gap = Integer.valueOf(columnMap.get(columnKey)) - Integer.valueOf(orderRowMap.get(columnKey));
+                        orderColumnMap.put(columnKey, String.valueOf(gap));
+                    }
+                }
+                column++;
+            }
+            gapMap.put(key, orderColumnMap);
+            row++;
+        }
+
+        return gapMap;
     }
 
     private Map<String, String> sort(Map<String, String> unsortedMap) {
