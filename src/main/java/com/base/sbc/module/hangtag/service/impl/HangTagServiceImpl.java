@@ -1238,7 +1238,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 获取吊牌状态
 		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusMapper.selectList(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-				.notEmptyEq(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
+				.notEmptyIn(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
 				.notNullEq(StyleCountryStatus::getType, hangTagMoreLanguageDTO.getType())
 				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
 
