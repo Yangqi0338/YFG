@@ -7,11 +7,13 @@
 package com.base.sbc.module.orderbook.entity;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
+import cn.hutool.core.lang.Opt;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
@@ -24,7 +26,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.hibernate.validator.constraints.NotBlank;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -459,6 +460,16 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     /** 投产类型 */
     @ApiModelProperty(value = "投产类型")
     private PutInProductionType devtType;
+
+    public String getCommissioningSizeTotal(){
+        //线下
+        JSONObject offlineJsonObject = Opt.ofNullable(JSON.parseObject(this.offlineCommissioningSize)).orElse(new JSONObject());
+        //线上
+        JSONObject onlineJsonObject = Opt.ofNullable(JSON.parseObject(this.onlineCommissioningSize)).orElse(new JSONObject());
+
+        offlineJsonObject.putAll(onlineJsonObject);
+        return JSON.toJSONString(onlineJsonObject);
+    }
 
 }
 

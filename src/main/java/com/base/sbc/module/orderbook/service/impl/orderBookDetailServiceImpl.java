@@ -8,11 +8,9 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ttl.TtlCallable;
-import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -24,18 +22,14 @@ import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
-import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.constant.SmpProperties;
+import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.config.utils.ExcelUtils;
-import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.utils.ValidationUtil;
+import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
@@ -51,7 +45,6 @@ import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
-import com.base.sbc.module.orderbook.dto.OrderBookDetailProductionDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
@@ -91,7 +84,6 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -327,8 +319,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
             Map<String, String> sizeModelMap = sizeList.stream().filter(it -> StrUtil.contains(orderBookDetailVo.getSizeCodes(), it.getCode()))
                     .collect(Collectors.toMap(BasicsdatumSize::getInternalSize, BasicsdatumSize::getModel));
-            //数据填充
-            getCommissioningSize(orderBookDetailVo, sizeModelMap, channelPageConfig, orderBookChannel);
+            //数据补偿
+            getCommissioningSize(orderBookDetailVo, sizeModelMap);
+
+            //填充补全 线上/线下充各种状态
+            orderBookDetailVo.setOfflineCommissioningSize(fullCommissioningSize(orderBookDetailVo.getOfflineCommissioningSize(), sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.OFFLINE));
+            orderBookDetailVo.setOnlineCommissioningSize(fullCommissioningSize(orderBookDetailVo.getOnlineCommissioningSize(), sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.ONLINE));
 
 //            sizeModelMap.forEach((key,value)-> {
 //                for (OrderBookChannelType channel : OrderBookChannelType.values()) {
@@ -595,7 +591,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         Map<OrderBookChannelType, Double> totalMap = new HashMap<>(channelTypes.length);
 
         for (OrderBookDetailVo orderBookDetailVo : querylistAll) {
-            String commissioningSize = orderBookDetailVo.getCommissioningSize();
+            String commissioningSize = orderBookDetailVo.getCommissioningSizeTotal();
             if (StrUtil.isNotEmpty(commissioningSize)){
                 JSONObject jsonObject = JSON.parseObject(commissioningSize);
                 if (jsonObject!= null){
@@ -663,7 +659,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 throw new OtherException("下单数量不能为空或者0");
             }
             // 检查投产数是否一致
-            JSONObject jsonObject = JSON.parseObject(orderBookDetail.getCommissioningSize());
+            JSONObject jsonObject = JSON.parseObject(orderBookDetail.getCommissioningSizeTotal());
             int sumProduction = jsonObject.keySet().stream()
                     .filter(it ->
                             it.endsWith(OrderBookChannelType.OFFLINE.getFill()) || it.endsWith(OrderBookChannelType.ONLINE.getFill())
@@ -853,7 +849,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         String category1stCode = queryDto.getCategory1stCode();
         String registeringNo = queryDto.getRegisteringNo();
-        List<String> searchBulkStyleNoList = new ArrayList<>();
+        Set<String> searchBulkStyleNoList = new HashSet<>();
         if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(registeringNo)) {
             // 根据大类或设计款号获取款式
             Opt.ofEmptyAble(styleService.listOneField(new BaseLambdaQueryWrapper<Style>()
@@ -875,7 +871,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         SaleProductIntoDto saleProductIntoDto = BeanUtil.copyProperties(queryDto, SaleProductIntoDto.class);
         saleProductIntoDto.setChannelList(channelList);
-        saleProductIntoDto.setBulkStyleNoList(searchBulkStyleNoList);
+        saleProductIntoDto.setBulkStyleNoList(Lists.newArrayList(searchBulkStyleNoList));
         fullSaleProductIntoDto(saleProductIntoDto);
         PageInfo<OrderBookSimilarStyleVo> result = smpService.querySaleIntoPageTotal(saleProductIntoDto);
         List<OrderBookSimilarStyleVo> dtoList = result.getList();
@@ -1109,7 +1105,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setCommissioningDate(new Date());
 
             ScmProductionDto productionDto = ORDER_BOOK_CV.copy2ProductionDto(orderBookDetail);
-            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getCommissioningSize())).orElse(new JSONObject());
+            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getCommissioningSizeTotal())).orElse(new JSONObject());
             for (OrderBookChannelType channelType : OrderBookChannelType.values()) {
                 String fill = channelType.getFill();
                 Map<String, String> map = productionDto.getAllSizeMap().getOrDefault(channelType, new HashMap<>(8));
@@ -1319,26 +1315,33 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * @param sizeModelMap
      * @return
      */
-    private void getCommissioningSize(OrderBookDetailVo orderBookDetailVo, Map<String, String> sizeModelMap,
-                                      Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig, String orderBookChannel) {
+    private void getCommissioningSize(OrderBookDetailVo orderBookDetailVo, Map<String, String> sizeModelMap) {
 
         JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getCommissioningSize())).orElse(new JSONObject());
         //线下
         JSONObject offlineJsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getOfflineCommissioningSize())).orElse(new JSONObject());
         //线上
         JSONObject onlineJsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getOnlineCommissioningSize())).orElse(new JSONObject());
-
+        boolean isUpdate = false;
         if (offlineJsonObject.size() ==0 && jsonObject.size() > 0){
             offlineJsonObject.putAll(fullJSONObject(jsonObject, sizeModelMap, OrderBookChannelType.OFFLINE));
+            isUpdate = true;
         }
 
         if (onlineJsonObject.size() ==0 && jsonObject.size() != 0){
             onlineJsonObject.putAll(fullJSONObject(jsonObject, sizeModelMap, OrderBookChannelType.ONLINE));
+            isUpdate = true;
         }
-        fullCommissioningSize(offlineJsonObject, sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.OFFLINE);
-        fullCommissioningSize(onlineJsonObject, sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.ONLINE);
         orderBookDetailVo.setOfflineCommissioningSize(JSON.toJSONString(offlineJsonObject));
         orderBookDetailVo.setOnlineCommissioningSize(JSON.toJSONString(onlineJsonObject));
+        //存量投产尺码 分开
+        if (isUpdate){
+            UpdateWrapper<OrderBookDetail> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.lambda().eq(OrderBookDetail::getId,orderBookDetailVo.getId());
+            updateWrapper.lambda().set(OrderBookDetail::getOfflineCommissioningSize, JSON.toJSONString(offlineJsonObject));
+            updateWrapper.lambda().set(OrderBookDetail::getOnlineCommissioningSize, JSON.toJSONString(onlineJsonObject));
+            this.update(updateWrapper);
+        }
     }
 
 
@@ -1364,9 +1367,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return result;
     }
 
-    private void fullCommissioningSize(JSONObject jsonObject, Map<String, String> sizeModelMap,
+    private String  fullCommissioningSize(String jsonObjectStr, Map<String, String> sizeModelMap,
                                        Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig,
                                        String orderBookChannel,OrderBookChannelType channel){
+
+        JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(jsonObjectStr)).orElse(new JSONObject());
+
         sizeModelMap.forEach((key,value)-> {
             jsonObject.put(key+ channel.getFill() + "Size",value);
 
@@ -1381,6 +1387,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
             });
         };
+        return JSON.toJSONString(jsonObject);
 
     }
 
