@@ -95,9 +95,15 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
     @Override
     @Transactional(rollbackFor = Exception.class)
     public PushRecords prePushRecordSave(HttpReq httpReq) {
-        PushRecords pushRecords = new PushRecords();
-
         String url = httpReq.getUrl();
+        PushRecordsDto pushRecordsDto = new PushRecordsDto();
+        pushRecordsDto.setRelatedId(httpReq.getCode());
+        pushRecordsDto.setPushAddress(url);
+        pushRecordsDto.reset2QueryFirst();
+        pushRecordsDto.startPage();
+        PushRecords pushRecords = pushRecordsList(pushRecordsDto)
+                .stream().findFirst().orElse(BeanUtil.copyProperties(pushRecordsDto, PushRecords.class));
+
         pushRecords.setRelatedId(httpReq.getCode());
         pushRecords.setRelatedName(httpReq.getName());
         pushRecords.setModuleName(httpReq.getModuleName());
