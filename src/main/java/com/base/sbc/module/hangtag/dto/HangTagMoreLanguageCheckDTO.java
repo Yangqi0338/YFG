@@ -6,8 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.dto;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.SystemSource;
+import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
+import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -58,6 +61,10 @@ public class HangTagMoreLanguageCheckDTO {
     @NotNull(message = "来源不能为空")
     private SystemSource source;
 
+    public boolean match(CountryLanguageDto countryLanguageDto) {
+        return countryLanguageDto.getType() == type && StrUtil.equals(countryLanguageDto.getCode(), code) &&
+                (StrUtil.isBlank(languageCode) || StrUtil.equals(countryLanguageDto.getLanguageCode(), languageCode));
+    }
 
 }
 

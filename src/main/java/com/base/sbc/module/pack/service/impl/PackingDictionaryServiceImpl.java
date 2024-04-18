@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pack.dto.PackingDictionaryDto;
 import com.base.sbc.module.pack.entity.PackingDictionary;
 import com.base.sbc.module.pack.mapper.PackingDictionaryMapper;
@@ -18,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Service
-public class PackingDictionaryServiceImpl implements PackingDictionaryService {
+public class PackingDictionaryServiceImpl extends BaseServiceImpl<PackingDictionaryMapper, PackingDictionary> implements PackingDictionaryService {
 
     @Autowired
     private PackingDictionaryMapper packingDictionaryMapper;

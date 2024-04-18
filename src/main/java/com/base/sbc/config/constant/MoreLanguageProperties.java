@@ -60,12 +60,14 @@ public class MoreLanguageProperties {
     public static String languageCodePrefix = "Y";
     public static Integer languageCodeZeroFill = 10;
     public static String excelTranslateContentField = "content";
+    public static String modelStandardColumnCode = "DP06";
     public static String excelTitle = "温馨提示：请您按照导入规测进行导入，否测可能影响到导入成功，请注意。\n" +
             "1、如若需要删除内容信息，请删除整行信息。\n" +
             "2、请不要删除表头信息。\n" +
             "3、请不要删除翻译语言内自带信息。\n";
 
     public static String hangTagMainDbAlias = "tsd.";
+    public static String noDecorateCategory1stCode = "A05";
 
     public static Integer excelDataRowNum = 2;
 
@@ -126,6 +128,10 @@ public class MoreLanguageProperties {
         return (StandardColumn) RedisStaticFunUtils.hget(RedisKeyConstant.STANDARD_COLUMN_LIST.build(), type.getCode() + RedisKeyBuilder.COMMA + standardColumnCode);
     }
 
+    public static Boolean checkInternal(String languageCode) {
+        return !MoreLanguageProperties.internalLanguageCode.equals(languageCode) || MoreLanguageProperties.internalCheck;
+    }
+
     public void setInternalLanguageCode(String internalLanguageCode) {
         MoreLanguageProperties.internalLanguageCode = internalLanguageCode;
     }
@@ -168,6 +174,10 @@ public class MoreLanguageProperties {
 
     public void setCheckMergedSeparator(String checkMergedSeparator) {
         MoreLanguageProperties.checkMergedSeparator = checkMergedSeparator;
+    }
+
+    public void setNoDecorateCategory1stCode(String noDecorateCategory1stCode) {
+        MoreLanguageProperties.noDecorateCategory1stCode = noDecorateCategory1stCode;
     }
 
     public void setStyleCountryStatusImportMaxSize(Integer styleCountryStatusImportMaxSize) {
@@ -226,26 +236,32 @@ public class MoreLanguageProperties {
         MoreLanguageProperties.notCheckStandardColumnCode = notCheckStandardColumnCode;
     }
 
+    public void setModelStandardColumnCode(String modelStandardColumnCode) {
+        MoreLanguageProperties.modelStandardColumnCode = modelStandardColumnCode;
+    }
+
     @Getter
     public enum MoreLanguageMsgEnum {
-        NOT_INSERT("PDM未创建%s国家语言数据"),
+        NOT_INSERT("PDM未创建对应的语言号型数据"),
         HAVEN_T_TAG("不存在%s的吊牌信息"),
         HAVEN_T_LANGUAGE("%s不存在该语种"),
         HAVEN_T_CONTENT("%s未翻译"),
+        HAVEN_T_AUDIT("%s未审核"),
         FIELD("字段"),
         CONTENT("内容"),
+        STATUS("状态"),
         TIME("时间"),
         TRANSLATE("翻译"),
         CONTENT_FORMAT("%s%s%s"),
-        HAVEN_T_COUNTRY_LANGUAGE("未查询到国家语言"),
+        HAVEN_T_COUNTRY_LANGUAGE("未查询到模板标准"),
         SUCCESS_IMPORT("您的吊牌信息已经导入成功. %s"),
         CHECK_REIMPORT("%s, 请问是否需要导入?"),
         FAILURE_IMPORT("导入失败, 请你根据导入规则进行导入\n%s"),
         EXCESS_STATUS_IMPORT("仅能导入%s条数据,后续款号不执行"),
-        INCORRECT_COUNTRY_LANGUAGE("国家对应不上,请清理缓存"),
-        EXIST_COUNTRY_LANGUAGE("已存在对应国家"),
+        INCORRECT_COUNTRY_LANGUAGE("模板标准对应不上,请清理缓存"),
+        EXIST_COUNTRY_LANGUAGE("已存在对应模板标准"),
         INCORRECT_STANDARD_CODE("非法标准列code"),
-        NOT_FOUND_COUNTRY_LANGUAGE("未找到对应的国家语言数据"),
+        NOT_FOUND_COUNTRY_LANGUAGE("未找到对应的模板标准数据"),
         NOT_EXIST_STANDARD_CODE("未设置表头,请找开发协助"),
         WARN_EXAMINE_STATUS("吊牌状态必须为待翻译确认之后"),
         NOT_EXIST_BULK_STATUS("失败,没有找到对应款号"),
