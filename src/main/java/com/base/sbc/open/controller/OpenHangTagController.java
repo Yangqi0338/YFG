@@ -140,8 +140,8 @@ public class OpenHangTagController extends BaseController {
             HangTagMoreLanguageDTO hangTagMoreLanguageDTO = new HangTagMoreLanguageDTO();
             hangTagMoreLanguageDTO.setUserCompany(super.getUserCompany());
             hangTagMoreLanguageDTO.setHangTagMoreLanguageCheckDTOList(hangTagMoreLanguageCheckDTOList);
-            hangTagMoreLanguageDTO.setBulkStyleNo(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).collect(Collectors.joining(COMMA)));
-            hangTagMoreLanguageDTO.setCode(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getCode).collect(Collectors.joining(COMMA)));
+            hangTagMoreLanguageDTO.setBulkStyleNo(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).distinct().collect(Collectors.joining(COMMA)));
+            hangTagMoreLanguageDTO.setCode(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getCode).distinct().collect(Collectors.joining(COMMA)));
             hangTagMoreLanguageDTO.setSource(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getSource).findFirst().orElse(SystemSource.BCS));
             hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getType).findFirst().ifPresent(hangTagMoreLanguageDTO::setType);
             hangTagMoreLanguageDTO.setMergeWarnMsg(true);
