@@ -50,7 +50,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
 
     @Override
     public List<ColumnDefine> findDetail(String tableCode, String userGroupId) {
-        List<ColumnDefine> byTableCode = columnDefineService.getByTableCode(tableCode, false);
+        List<ColumnDefine> byTableCode = columnDefineService.getByTableCode(tableCode,"fabricCompositionType", false);
 
         List<ColumnGroupDefineItem> list = columnGroupDefineItemService.findListByHeadId(tableCode, userGroupId);
         Map<String, ColumnGroupDefineItem> collect = list.stream().collect(Collectors.toMap(ColumnGroupDefineItem::getSysId, o -> o, (v1, v2) -> v1));

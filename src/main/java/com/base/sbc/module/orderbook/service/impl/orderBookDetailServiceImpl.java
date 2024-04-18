@@ -788,25 +788,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         OrderBookDepartmentEnum departmentEnum = OrderBookDepartmentEnum.getByCode(dto.getDepartment());
         orderBookDetailList.forEach(orderBookDetail -> {
-            OrderBook orderBook = orderBookService.getById(orderBookDetail.getOrderBookId());
-            if (Objects.isNull(orderBook)){
-                throw new OtherException("订货本不存在");
-            }
-            String channels = orderBook.getChannel();
-            if (!channels.contains(dto.getDepartment())){
-                throw new OtherException("订货本无"+ departmentEnum.getName()+"渠道，请检查订货本设置情况");
-            }
-            if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT)
-                throw new OtherException("已经发起审核,无法分配商企");
-
-            if (OrderBookDepartmentEnum.DESIGN.getCode().equals(orderBookDetail.getDepartment()) &&
-                    departmentEnum != OrderBookDepartmentEnum.OFFLINE){
-                throw new OtherException("请先分配线下商企！");
-            }
-
-            if (departmentEnum == OrderBookDepartmentEnum.ONLINE && channels.contains(OrderBookDepartmentEnum.OFFLINE.getCode()) &&  StringUtils.isBlank(orderBookDetail.getOfflineProduction())){
-                throw new OtherException("分配线上商企，线下投产不能为空！");
-            }
+            //检查
+            assignPersonnelCheck(dto, orderBookDetail, departmentEnum);
 
             orderBookDetail.setBusinessId("1");
             orderBookDetail.setDepartment(departmentEnum.getCode());
@@ -1434,5 +1417,47 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     }
 
+    /**
+     * 审核
+     * @param dto
+     * @param orderBookDetail
+     * @param departmentEnum
+     */
+    private void assignPersonnelCheck(OrderBookDetailSaveDto dto, OrderBookDetail orderBookDetail, OrderBookDepartmentEnum departmentEnum) {
+        OrderBook orderBook = orderBookService.getById(orderBookDetail.getOrderBookId());
+        if (Objects.isNull(orderBook)){
+            throw new OtherException("订货本不存在");
+        }
+        String channels = orderBook.getChannel();
+        if (!channels.contains(dto.getDepartment())){
+            throw new OtherException("订货本无"+ departmentEnum.getName()+"渠道，请检查订货本设置情况");
+        }
+        if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT)
+            throw new OtherException("已经发起审核,无法分配商企");
+
+        if (OrderBookDepartmentEnum.DESIGN.getCode().equals(orderBookDetail.getDepartment()) &&
+                departmentEnum != OrderBookDepartmentEnum.OFFLINE){
+            throw new OtherException("请先分配线下商企！");
+        }
+        //分配线上商企
+        if (departmentEnum == OrderBookDepartmentEnum.ONLINE && channels.contains(OrderBookDepartmentEnum.OFFLINE.getCode())){
+            if (StringUtils.isBlank(orderBookDetail.getOfflineProduction())){
+                throw new OtherException("分配线上商企，线下投产不能为空！");
+            }
+            // 检查投产数是否一致
+            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getOfflineCommissioningSize())).orElse(new JSONObject());
+
+            int sumOffProduction = jsonObject.keySet().stream()
+                    .filter(it ->
+                            it.endsWith(OrderBookChannelType.OFFLINE.getFill())).mapToInt(jsonObject::getInteger)
+                    .sum();
+            if (sumOffProduction != Integer.parseInt(orderBookDetail.getOfflineProduction())) {
+                throw new OtherException("线下尺码总数量与线下投产数量不一致，请检查");
+            }
+
+        }
+
+
+    }
 
 }

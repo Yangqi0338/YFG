@@ -24,6 +24,7 @@ public enum ProductionType {
     ;
 
     /** 编码 */
+    @EnumValue
     private final String code;
     /** 文本 */
     private final String text;
