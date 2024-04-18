@@ -87,5 +87,8 @@ public class OrderBookDetailSaveDto extends OrderBookDetail {
     @ApiModelProperty(value = "OFFLINE-线下，ONLINE-线上"  )
     private String modifyType;
 
+    //渠道
+    private String channel;
+
     public interface AssignPersonnel{}
 }

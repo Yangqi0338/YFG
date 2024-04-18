@@ -568,6 +568,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
                 o.setDesignerDistribute(YesOrNoEnum.YES);
                 o.setStatus(OrderBookDetailStatusEnum.DESIGNER);
+                o.setDepartment(OrderBookDepartmentEnum.DESIGN.getCode());
             }
         });
         /*保存*/
@@ -787,6 +788,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         OrderBookDepartmentEnum departmentEnum = OrderBookDepartmentEnum.getByCode(dto.getDepartment());
         orderBookDetailList.forEach(orderBookDetail -> {
+            OrderBook orderBook = orderBookService.getById(orderBookDetail.getOrderBookId());
+            if (Objects.isNull(orderBook)){
+                throw new OtherException("订货本不存在");
+            }
+            String channels = orderBook.getChannel();
+            if (!channels.contains(dto.getDepartment())){
+                throw new OtherException("订货本无"+ departmentEnum.getName()+"渠道，请检查订货本设置情况");
+            }
             if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT)
                 throw new OtherException("已经发起审核,无法分配商企");
 
@@ -795,7 +804,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 throw new OtherException("请先分配线下商企！");
             }
 
-            if (departmentEnum == OrderBookDepartmentEnum.ONLINE && StringUtils.isBlank(orderBookDetail.getOfflineProduction())){
+            if (departmentEnum == OrderBookDepartmentEnum.ONLINE && channels.contains(OrderBookDepartmentEnum.OFFLINE.getCode()) &&  StringUtils.isBlank(orderBookDetail.getOfflineProduction())){
                 throw new OtherException("分配线上商企，线下投产不能为空！");
             }
 
@@ -992,8 +1001,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
             UpdateResultVo updateResultVo = new UpdateResultVo();
             updateResultVo.setId(orderBookDetail.getId());
-            //线上修改
+
+            //线下/线上修改
             if (!isOnline){
+                if (!dto.getChannel().contains(OrderBookChannelType.OFFLINE.getName())
+                        && StringUtils.isNotBlank(dto.getOfflineProduction()) && !"0".equals(dto.getOfflineProduction()) ){
+                    throw new OtherException("无线下投产渠道，线下投产不允许编辑");
+                }
                 if (null == dto.getVersion()){
                     throw new OtherException("请传入正确的版本号！");
                 }
@@ -1031,6 +1045,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 updateResultVo.setVersion(updateBookDetail.getVersion());
                 return updateResultVo;
             }else {
+                if (!dto.getChannel().contains(OrderBookChannelType.ONLINE.getName())
+                        && StringUtils.isNotBlank(dto.getOnlineProduction()) && !"0".equals(dto.getOnlineProduction()) ){
+                    throw new OtherException("无线上投产渠道，线上投产不允许编辑");
+                }
                 UpdateWrapper<OrderBookDetail> uw = new UpdateWrapper<>();
                 uw.lambda().eq(OrderBookDetail::getId, orderBookDetail.getId());
                 uw.lambda().set(OrderBookDetail::getTotalProduction, dto.getTotalProduction());

@@ -15,8 +15,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum OrderBookChannelType {
-    OFFLINE("线下", "00", "0"),
-    ONLINE("线上","1", "2"),
+    OFFLINE("线下", "00", "0","offline"),
+    ONLINE("线上","1", "2","online"),
     ;
     /** 编码 */
     @EnumValue
@@ -25,19 +25,21 @@ public enum OrderBookChannelType {
     private final String text;
     private final String fill;
     private final String percentageFill;
+    private final String name;
 
     @JsonValue
     public String getCode() {
         return code;
     }
 
-    OrderBookChannelType(String text, String fill, String percentageFill) {
+    OrderBookChannelType(String text, String fill, String percentageFill, String name) {
         String code = this.name().toLowerCase();
         this.code = StrUtil.toCamelCase(code);
 //        this.code = this.ordinal()+"";
         this.text = text;
         this.fill = fill;
         this.percentageFill = percentageFill;
+        this.name = name;
     }
 
 }

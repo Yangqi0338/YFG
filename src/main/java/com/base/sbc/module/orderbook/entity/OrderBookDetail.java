@@ -10,6 +10,8 @@ import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.hutool.core.lang.Opt;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.Version;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -73,6 +75,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "投产日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Date commissioningDate;
 
 
