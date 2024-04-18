@@ -118,7 +118,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         }
 
         pushRecords.setPushStatus(PushRespStatus.PROCESS);
-        this.save(pushRecords);
+        this.saveOrUpdate(pushRecords);
         return pushRecords;
     }
 
