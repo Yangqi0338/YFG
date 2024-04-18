@@ -167,6 +167,7 @@
                 ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
             </if>
         </where>
+        limit 200
     </select>
 
 </mapper>

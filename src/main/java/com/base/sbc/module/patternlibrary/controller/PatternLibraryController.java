@@ -1,6 +1,8 @@
 package com.base.sbc.module.patternlibrary.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
@@ -28,7 +30,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 版型库-主表
@@ -149,9 +153,13 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "查询已开款的设计款号数据信息")
     @GetMapping("/listStyle")
-    public ApiResult<List<Style>> listStyle(String search) {
+    public ApiResult<List<String>> listStyle(String search) {
         List<Style> styleList = patternLibraryService.listStyle(search, null);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, styleList);
+        if (ObjectUtil.isNotEmpty(styleList)) {
+            List<String> styleNoList = styleList.stream().map(Style::getDesignNo).collect(Collectors.toList());
+            return ApiResult.success(ResultConstant.OPERATION_SUCCESS, styleNoList);
+        }
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, new ArrayList<>());
     }
 
     @ApiOperation(value = "根据设计款号查询相关数据")
