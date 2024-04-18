@@ -167,53 +167,75 @@ public class DataPermissionsService {
             if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())) {
                 List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
                 if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
+                    Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(FieldDataPermissionVO::getGroupIdx));
+
                     List<String> fieldArr = new ArrayList<>();
                     boolean isFieldFlag = false;
                     final String[] sqlType = {!authorityField.isEmpty() ? DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( " : " ( "};
                     fieldArr.add(sqlType[0]);
-                    for (FieldDataPermissionVO fieldDataPermissionVO : fieldDataPermissions) {
-                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
-                            fieldArr.add(!(fieldArr.get(fieldArr.size() - 1).equals(sqlType[0])) ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
-                            sqlType[0] = "fromtype2339";
-                        }
-                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
-                            String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
-                            if (isAssignFields && StringUtils.isBlank(fieldName)) {
-                                fieldArr.remove(fieldArr.size() - 1);
-                                sqlType[0] = fieldArr.get(fieldArr.size() - 1);
-                                continue;
-                            }
-                            isFieldFlag = true;
-                            fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
-                            if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
-                                //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
-                                //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
-                                fieldName = tablePre + "create_id";
-                                String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
-                                fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
-                            }else {
-                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
-                                    fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
-                                } else {
-                                    if (fieldDataPermissionVO.getFieldValues().size() > 1) {
-                                        fieldArr.add(fieldName + " in (");
-                                        final String[] fieldValues = {""};
-                                        fieldDataPermissionVO.getFieldValues().forEach(e -> {
-                                            fieldValues[0] += (StringUtils.isNotBlank(fieldValues[0]) ? "','" : " '") + e;
-                                        });
-                                        fieldArr.add(fieldValues[0] + "') ");
-                                    }
-                                    if (fieldDataPermissionVO.getFieldValues().size() == 1) {
-                                        fieldArr.add(" " + fieldName + "='" + fieldDataPermissionVO.getFieldValues().get(0) + "' ");
-                                    }
+                    boolean first = true;
+                    for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
+                        List<FieldDataPermissionVO> value = entry.getValue();
+
+                        if(value.size() > 1){
+                            if(first){
+                                fieldArr.add(" ( ");
+                            }else{
+                                String groupSelectType = value.get(0).getGroupSelectType();
+                                if ("and".equals(groupSelectType)) {
+                                    fieldArr.add(" and ( ");
+                                }else{
+                                    fieldArr.add(" or ( ");
                                 }
                             }
                         }
-                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
-                            fieldArr.add(fieldDataPermissionVO.getSqlField());
+                        first = false;
+                        for (FieldDataPermissionVO fieldDataPermissionVO : value) {
+                            if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
+                                fieldArr.add(!(fieldArr.get(fieldArr.size() - 1).equals(sqlType[0])) ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
+                                sqlType[0] = "fromtype2339";
+                            }
+                            if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
+                                String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
+                                if (isAssignFields && StringUtils.isBlank(fieldName)) {
+                                    fieldArr.remove(fieldArr.size() - 1);
+                                    sqlType[0] = fieldArr.get(fieldArr.size() - 1);
+                                    continue;
+                                }
+                                isFieldFlag = true;
+                                fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
+                                if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
+                                    //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
+                                    //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
+                                    fieldName = tablePre + "create_id";
+                                    String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
+                                    fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                }else {
+                                    if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
+                                        fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
+                                    } else {
+                                        if (fieldDataPermissionVO.getFieldValues().size() > 1) {
+                                            fieldArr.add(fieldName + " in (");
+                                            final String[] fieldValues = {""};
+                                            fieldDataPermissionVO.getFieldValues().forEach(e -> {
+                                                fieldValues[0] += (StringUtils.isNotBlank(fieldValues[0]) ? "','" : " '") + e;
+                                            });
+                                            fieldArr.add(fieldValues[0] + "') ");
+                                        }
+                                        if (fieldDataPermissionVO.getFieldValues().size() == 1) {
+                                            fieldArr.add(" " + fieldName + "='" + fieldDataPermissionVO.getFieldValues().get(0) + "' ");
+                                        }
+                                    }
+                                }
+                            }
+                            if (StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
+                                fieldArr.add(fieldDataPermissionVO.getSqlField());
+                            }
+                        }
+                        if(value.size() > 1){
+                            fieldArr.add(" ) ");
                         }
                     }
-                    ;
                     if (isFieldFlag) {
                         fieldArr.add(" ) ");
                         authorityField.addAll(fieldArr);
