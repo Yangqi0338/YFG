@@ -8,7 +8,6 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.BaseDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQueryDto;
-import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningVo;
@@ -166,4 +165,18 @@ public class CategoryPlanningController extends BaseController {
 
         return deleteSuccess("删除成功");
     }
+
+    // ==================== >企划看板 2.0
+
+    /**
+     * 根据季节企划生成品类企划,同时生成企划看板
+     */
+    @PostMapping("/generateCategoryPlanningNew")
+    @Transactional
+    public ApiResult generateCategoryPlanningNew(@RequestBody BaseDto baseDto) {
+        categoryPlanningService.generateCategoryPlanningNew(baseDto);
+        return success("生成品类企划成功");
+    }
+
+    // <==================== 企划看板 2.0
 }

@@ -8,14 +8,18 @@ package com.base.sbc.open.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
@@ -24,7 +28,7 @@ import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
-import com.base.sbc.module.moreLanguage.service.StyleCountryPrintRecordService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -39,12 +43,19 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 import static com.base.sbc.module.common.convert.ConvertContext.OPEN_CV;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.enableFlagFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.languageCodeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.modelLanguageCodeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.singleLanguageFlagFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.typeFunc;
 
 /**
  * 类描述：吊牌表 Controller类
@@ -64,7 +75,7 @@ public class OpenHangTagController extends BaseController {
 
     private final HangTagService hangTagService;
 
-    private final StyleCountryPrintRecordService printRecordService;
+    private final StyleCountryStatusService styleCountryStatusService;
 
     private final CountryLanguageService countryLanguageService;
 
@@ -74,11 +85,16 @@ public class OpenHangTagController extends BaseController {
         if (hangTagMoreLanguageDTO.getType() == null) throw new OtherException(MoreLanguageProperties.getMsg(NOT_EXIST_HANG_TAG_TYPE));
         HangTagMoreLanguageDTO languageDTO = OPEN_CV.copy2MoreLanguageDTO(hangTagMoreLanguageDTO);
         // 找PDM这边DB中的国家语言唯一编码
-        languageDTO.setCode(countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
-                .eq(CountryLanguage::getCountryCode, hangTagMoreLanguageDTO.getCountryCode()), CountryLanguage::getCode));
-        if (StrUtil.isBlank(languageDTO.getCode())) throw new OtherException(MoreLanguageProperties.getMsg(NOT_INSERT, Opt.ofNullable(hangTagMoreLanguageDTO.getCountryName()).orElse("")));
+        languageDTO.setCode(countryLanguageService.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
+                .notEmptyEq(modelLanguageCodeFunc, OPEN_CV.getModelLanguageCode(hangTagMoreLanguageDTO.getModelLanguageCode()))
+                .notEmptyEq(languageCodeFunc, hangTagMoreLanguageDTO.getLanguageCode())
+                .eq(singleLanguageFlagFunc, YesOrNoEnum.NO)
+                .eq(typeFunc, languageDTO.getType())
+                , CountryLanguage::getCode)
+        );
+        if (StrUtil.isBlank(languageDTO.getCode())) throw new OtherException(MoreLanguageProperties.getMsg(NOT_INSERT));
         languageDTO.setUserCompany(super.getUserCompany());
-        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO, false, false));
+        return selectSuccess(hangTagService.getMoreLanguageDetailsByBulkStyleNo(languageDTO));
     }
 
     @ApiOperation(value = "查询详情多语言")
@@ -89,12 +105,22 @@ public class OpenHangTagController extends BaseController {
         List<HangTagMoreLanguageBCSVO> resultList = new ArrayList<>();
         List<HangTagMoreLanguageCheckDTO> hangTagMoreLanguageCheckDTOList = new ArrayList<>();
         // 根据国家分组
-        hangTagMoreLanguageSystemDTOList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageSystemDTO::getCountryCode)).forEach((countryCode, sameCountryCodeList)-> {
+        hangTagMoreLanguageSystemDTOList.stream().collect(Collectors.groupingBy(it->
+                CommonUtils.saftyStrJoin("-",
+                                OPEN_CV.getTypeByCsvIndex(it.getType()).getCode(),
+                                it.getLanguageCode(),
+                                OPEN_CV.getModelLanguageCode(it.getModelLanguageCode())
+                        ).toString()
+        )).forEach((key, sameKeyList)-> {
             // 获取内部编码
-            String code = countryLanguageService.findOneField(new LambdaQueryWrapper<CountryLanguage>()
-                    .eq(CountryLanguage::getCountryCode, countryCode), CountryLanguage::getCode);
+            String code = countryLanguageService.findOneField(new BaseLambdaQueryWrapper<CountryLanguage>()
+                            .notEmptyEq(languageCodeFunc, key.split("-")[1])
+                            .notEmptyEq(modelLanguageCodeFunc, key.split("-")[2])
+                            .eq(singleLanguageFlagFunc, YesOrNoEnum.NO)
+                            .eq(typeFunc, key.split("-")[0])
+                            , CountryLanguage::getCode);
             List<HangTagMoreLanguageBaseVO> baseList = new ArrayList<>();
-            sameCountryCodeList.forEach(hangTagMoreLanguageSystemDTO->{
+            sameKeyList.forEach(hangTagMoreLanguageSystemDTO->{
                 // 如果没有编码,进行去重,并封装对应的结果
                 if (StrUtil.isBlank(code)) {
                     baseList.add(OPEN_CV.copy2MoreLanguageVO(hangTagMoreLanguageSystemDTO));
@@ -117,12 +143,9 @@ public class OpenHangTagController extends BaseController {
             hangTagMoreLanguageDTO.setBulkStyleNo(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getBulkStyleNo).collect(Collectors.joining(COMMA)));
             hangTagMoreLanguageDTO.setCode(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getCode).collect(Collectors.joining(COMMA)));
             hangTagMoreLanguageDTO.setSource(hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getSource).findFirst().orElse(SystemSource.BCS));
-            List<CountryLanguageType> typeList = hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getType).distinct().collect(Collectors.toList());
-            if (typeList.size() == 1) {
-                hangTagMoreLanguageDTO.setType(typeList.get(0));
-            }
-
-            resultList.addAll((List<HangTagMoreLanguageBCSVO>) hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO, false, true));
+            hangTagMoreLanguageCheckDTOList.stream().map(HangTagMoreLanguageCheckDTO::getType).findFirst().ifPresent(hangTagMoreLanguageDTO::setType);
+            hangTagMoreLanguageDTO.setMergeWarnMsg(true);
+            resultList.addAll((List<HangTagMoreLanguageBCSVO>) hangTagService.getMoreLanguageDetailsByBulkStyleNo(hangTagMoreLanguageDTO));
         }
         return selectSuccess(resultList);
     }
@@ -132,8 +155,8 @@ public class OpenHangTagController extends BaseController {
      */
     @ApiOperation(value = "保存打印记录", notes = "保存打印记录")
     @PostMapping("/savePrintRecord")
-    public ApiResult savePrintRecord(@Valid @RequestBody HangTagMoreLanguageSystemDTO languageDTO) {
-        printRecordService.savePrintRecord(languageDTO);
+    public ApiResult savePrintRecord(@RequestBody HangTagMoreLanguageSystemDTO languageDTO) {
+        styleCountryStatusService.savePrintRecord(languageDTO);
         return updateSuccess(true);
     }
 

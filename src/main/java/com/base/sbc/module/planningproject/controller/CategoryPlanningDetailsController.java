@@ -4,18 +4,17 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailDTO;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
 import com.base.sbc.module.planningproject.service.CategoryPlanningDetailsService;
+import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailVO;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,4 +93,19 @@ public class CategoryPlanningDetailsController extends BaseController{
         categoryPlanningDetailsService.updateById(categoryPlanningDetailsVo);
         return updateSuccess(categoryPlanningDetailsVo);
     }
+
+    // ==================== >企划看板 2.0
+
+    /**
+     * 根据id查询明细详情
+     * @param categoryPlanningDetailDTO 查询条件
+     * @return 品类企划数据
+     */
+    @PostMapping("/getDetail")
+    public ApiResult<CategoryPlanningDetailVO> getDetail(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
+        CategoryPlanningDetailVO categoryPlanningDetailVO = categoryPlanningDetailsService.getDetail(categoryPlanningDetailDTO);
+        return selectSuccess(categoryPlanningDetailVO);
+    }
+
+    // <==================== 企划看板 2.0
 }

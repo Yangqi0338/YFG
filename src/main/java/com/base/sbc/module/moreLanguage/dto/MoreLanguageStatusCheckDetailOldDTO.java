@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,12 +14,15 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MoreLanguageStatusExcelResultWarpDTO {
+public class MoreLanguageStatusCheckDetailOldDTO {
 
-    @ApiModelProperty(value = "款号")
-    private List<MoreLanguageStatusExcelResultDTO> result = new ArrayList<>();
+    @ApiModelProperty(value = "语言编码")
+    private String languageCode;
 
-    @ApiModelProperty(value = "Redis 查询唯一标识")
-    private String uniqueValue;
+    @ApiModelProperty(value = "国家类型")
+    private String type;
+
+    @ApiModelProperty(value = "标准列编码集合")
+    private List<String> standardColumnCodeList;
 
 }

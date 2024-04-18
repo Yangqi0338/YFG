@@ -10,6 +10,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.xpath.operations.Bool;
@@ -36,6 +37,7 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
+@JsonIgnoreProperties({"languageList","titleCode"})
 public class HangTagMoreLanguageWebBaseVO extends HangTagMoreLanguageBaseVO {
 
     public String getWarnMsg() {

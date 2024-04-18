@@ -1,0 +1,12 @@
+alter table t_country_language add column model_language_code varchar(10) default 'ZH' not null comment '号型语言编码';
+alter table t_country_language change column country_name name varchar(255) default null comment '名称';
+update t_country_language set model_language_code = language_code;
+update t_country_language set name = language_name where single_language_flag = '1';
+alter table t_style_country_status change column country_name name varchar(255) default null comment '名称';
+alter table t_style_country_status change column country_code code varchar(50) default null comment '编码';
+alter table t_style_country_status add column print_time datetime default null comment '打印时间';
+alter table t_country_language drop column country_code;
+alter table t_country_language drop column language_name;
+drop table t_country_model;
+drop table t_standard_column_translate;
+drop table t_style_country_print_record;
