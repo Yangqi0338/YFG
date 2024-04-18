@@ -1,3 +1,4 @@
+update t_order_book_detail set is_order = 0 where is_order is null;
 alter table t_order_book_detail change column is_order order_status varchar(2) not null default "0" comment '下单状态 0未下单 1投产失败 2下单中 3投产中 4已下单';
 update t_order_book_detail set order_status = '2' where order_status = '1';
 alter table t_order_book_detail drop column designer_confirm;
