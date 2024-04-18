@@ -1,6 +1,7 @@
 package com.base.sbc.config.enums.business;
 
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public enum PutInProductionType {
     ;
 
     /** 编码 */
+    @EnumValue
     private final String code;
     /** 文本 */
     private final String text;

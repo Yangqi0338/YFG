@@ -21,6 +21,7 @@ public enum StylePutIntoType {
     STORAGE("备量"),
     ;
 
+    @EnumValue
     private final String code;
     /** 文本 */
     private final String text;
