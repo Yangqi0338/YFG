@@ -84,6 +84,18 @@ public class PatternLibraryItem extends BaseDataEntity<String> implements Serial
     private String processName;
 
     /**
+     * 图片 ID
+     */
+    @ApiModelProperty("图片 ID")
+    private String picId;
+
+    /**
+     * 图片 URL
+     */
+    @ApiModelProperty("图片 URL")
+    private String picUrl;
+
+    /**
      * 类型（1-围度信息 2-长度信息 3-部位尺寸 4-涉及部件）
      */
     @ApiModelProperty("类型（1-围度信息 2-长度信息 3-部位尺寸 4-涉及部件）")
