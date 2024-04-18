@@ -155,9 +155,6 @@
         from (select *, BRAND_NAME as brand from DM_SALE_FAC) T
         where
         (T.ORDER_TYPE is null OR T.ORDER_TYPE != '追单')
-        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
-            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
-        </if>
         <include refid="ewSelect"/>
         <if test="total == 1">
             group by T.PROD_CODE, T.BRAND_NAME

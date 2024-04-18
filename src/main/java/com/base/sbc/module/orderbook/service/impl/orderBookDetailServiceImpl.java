@@ -715,8 +715,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 orderBookDetail.setAuditStatus(OrderBookDetailAuditStatusEnum.NOT_COMMIT);
                 orderBookDetail.setIsLock(YesOrNoEnum.NO);
                 orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
-                orderBookDetail.setCommissioningDate(null);
             }
+            orderBookDetail.setCommissioningDate(null);
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         this.updateBatchById(orderBookDetails1);
@@ -1369,24 +1369,26 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     private String  fullCommissioningSize(String jsonObjectStr, Map<String, String> sizeModelMap,
                                        Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig,
-                                       String orderBookChannel,OrderBookChannelType channel){
+                                       String orderBookChannel, OrderBookChannelType channelType){
 
         JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(jsonObjectStr)).orElse(new JSONObject());
 
         sizeModelMap.forEach((key,value)-> {
-            jsonObject.put(key+ channel.getFill() + "Size",value);
+            jsonObject.put(key+ channelType.getFill() + "Size",value);
 
         });
-        OrderBookDetailPageConfigVo pageConfig = channelPageConfig.get(channel);
 
-        List<String> sizeRange = pageConfig.getSizeRange();
-        if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
-            sizeRange.forEach(size-> {
-                String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
-                jsonObject.put(size+ channel.getFill() + "Status", status);
-                jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
-            });
-        };
+        channelPageConfig.forEach((channel, pageConfig)-> {
+            List<String> sizeRange = pageConfig.getSizeRange();
+            if (jsonObject.keySet().stream().anyMatch(it-> it.contains(channel.ordinal()+""))) {
+                sizeRange.forEach(size-> {
+                    String status = orderBookChannel.contains(channel.getCode()) && sizeModelMap.containsKey(size) ? "0" : "1";
+                    jsonObject.put(size+ channel.getFill() + "Status", status);
+                    jsonObject.put(size+ channel.getPercentageFill() + "Status", status);
+                });
+            };
+        });
+
         return JSON.toJSONString(jsonObject);
 
     }

@@ -1,17 +1,8 @@
 package com.base.sbc.module.smp;
-import cn.hutool.core.lang.Pair;
-import cn.hutool.core.lang.TypeReference;
-import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.BooleanUtil;
-import com.alibaba.ttl.TtlCallable;
-import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.enums.business.ProductionType;
-import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
-import com.base.sbc.config.enums.smp.StylePutIntoType;
-import com.google.common.collect.Maps;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -19,6 +10,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.naming.utils.CollectionUtils;
+import com.alibaba.ttl.TtlCallable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -28,6 +20,7 @@ import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.JsonStringUtils;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseEntity;
@@ -92,24 +85,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -1871,7 +1856,7 @@ public class SmpService {
      */
     public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
         Page<Object> page = saleProductIntoDto.startPage();
-        BaseQueryWrapper<?> qw = new BaseQueryWrapper<>();
+        BaseQueryWrapper qw = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
         qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
@@ -1890,7 +1875,7 @@ public class SmpService {
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
-
+        dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
         List<Map<String, Object>> detailMaps = saleProductIntoMapper.querySaleIntoPage(qw, 0);
         // 封装数据并转化Bean
         detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
