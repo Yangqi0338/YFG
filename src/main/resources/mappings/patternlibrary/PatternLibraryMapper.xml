@@ -158,7 +158,7 @@
     </select>
     <select id="listStyle" resultType="com.base.sbc.module.style.entity.Style">
         SELECT
-        s.*
+        s.design_no
         FROM t_style s
         <where>
             not EXISTS(select 1 from t_pattern_library tpl where tpl.style_id = s.id

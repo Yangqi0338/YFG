@@ -773,7 +773,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 .in("s.status", "1", "2")
                 .like(ObjectUtil.isNotEmpty(search), "s.design_no", search)
                 .in(ObjectUtil.isNotEmpty(styleNoList), "s.design_no", styleNoList)
-                .select("s.design_no")
                 .orderByDesc("s.create_date");
         // 获取还没有生成版型库的数据
         List<Style> styleList = baseMapper.listStyle(queryWrapper);
