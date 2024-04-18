@@ -73,9 +73,7 @@ public class EditPermissionAspect {
                 }
 
                 for (Object o : objectList) {
-                    EditPermissionReturnVo editPermissionReturnVo = (EditPermissionReturnVo) o;
                     boolean hasEditPermission = false;
-
                     //第一个循环是按照用户组分组，多个用户组之间用or
                     a:
                     for (DataPermissionVO dataPermissions : dataPermissionsList) {
@@ -129,7 +127,12 @@ public class EditPermissionAspect {
                             }
                         }
                     }
-                    editPermissionReturnVo.setIsEdit(hasEditPermission ? 0 : 1);
+                    if (o instanceof EditPermissionReturnVo) {
+                        EditPermissionReturnVo editPermissionReturnVo = (EditPermissionReturnVo) o;
+                        editPermissionReturnVo.setIsEdit(hasEditPermission ? 0 : 1);
+                    } else {
+                        ReflectUtil.setFieldValue(o, "isEdit", hasEditPermission ? 0 : 1);
+                    }
                 }
             }
         }
