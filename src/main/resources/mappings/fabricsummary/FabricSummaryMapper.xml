@@ -31,7 +31,7 @@
             tfs.*,
             tfss.*
         </if>
-        from t_fabric_summary tfs left join t_fabric_summary_style tfss on tfs. id = tfss.fabric_summary_id
+        from t_fabric_summary tfs left join t_fabric_summary_style tfss on tfs. id = tfss.fabric_summary_id and tfss.del_flag = '0'
         where tfs.del_flag = '0' and (tfss.del_flag is null or tfss.del_flag = '0')
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

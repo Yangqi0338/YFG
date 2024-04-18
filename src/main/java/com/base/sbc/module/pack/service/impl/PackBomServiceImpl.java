@@ -591,8 +591,8 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             orderBookDetailQueryDto.setBulkStyleNoFull(fabricSummaryStyle.getStyleNo());
             PageInfo<OrderBookDetailVo> orderBookDetailVoPageInfo = orderBookDetailService.queryPage(orderBookDetailQueryDto);
             if(CollectionUtils.isNotEmpty(orderBookDetailVoPageInfo.getList())){
-                String totalProduction = orderBookDetailVoPageInfo.getList().stream().max(Comparator.comparing(OrderBookDetailVo::getTotalProduction)).toString();
-                fabricSummaryStyle.setTotalProduction(totalProduction);
+                List<String> totalProductions = orderBookDetailVoPageInfo.getList().stream().map(OrderBookDetailVo::getTotalProduction).collect(Collectors.toList());
+                fabricSummaryStyle.setTotalProduction(String.valueOf(totalProductions.stream().filter(StringUtils::isNotBlank).mapToDouble(Double::parseDouble).sum()));
             }
             list.add(fabricSummaryStyle);
             saveOrUpdateOperaLog(dto, fabricSummaryStyle, genOperaLogEntity(fabricSummaryStyle, "新增"));
