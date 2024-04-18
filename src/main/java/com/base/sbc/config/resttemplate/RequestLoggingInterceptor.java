@@ -62,12 +62,14 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
         LOGGER.info("Request URL: {}", request.getURI());
         HttpHeaders headers = request.getHeaders();
         HttpReq httpReq = new HttpReq(request.getURI().toString());
-        String moduleName = headers.getFirst("moduleName");
-        httpReq.setModuleName(moduleName);
-        String functionName = headers.getFirst("functionName");
-        httpReq.setFunctionName(functionName);
-        httpReq.setData(s);
-        pushRecordsService.prePushRecordSave(httpReq);
+        try {
+            String moduleName = headers.getFirst("moduleName");
+            httpReq.setModuleName(moduleName);
+            String functionName = headers.getFirst("functionName");
+            httpReq.setFunctionName(functionName);
+            httpReq.setData(s);
+            pushRecordsService.prePushRecordSave(httpReq);
+        }catch (Exception ignored) {}
         // 可以在此处记录其他请求相关的信息，如请求方法、请求头等
         ClientHttpResponse execute = execution.execute(request, body);
         // 不能读取,会导致InputStream读完,导致数据获取不到,除非使用ThreadLocal

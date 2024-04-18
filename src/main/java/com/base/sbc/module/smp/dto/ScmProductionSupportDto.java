@@ -11,6 +11,7 @@ import lombok.Data;
 import org.codehaus.jackson.annotate.JsonAnyGetter;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +22,13 @@ import java.util.stream.Collectors;
 public class ScmProductionSupportDto {
 
     /** 下单类型 */
-    @NotBlank(message = "下单类型不能为空")
     @JsonIgnore
+    @NotNull(message = "下单类型不能为空")
     private StylePutIntoType placeOrderTypeCode;
 
     /** 投产类型 */
     @JsonIgnore
-    @NotBlank(message = "投产类型不能为空")
+    @NotNull(message = "投产类型不能为空")
     private PutInProductionType devtType;
     
     /** 渠道名称 */

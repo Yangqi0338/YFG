@@ -15,6 +15,8 @@ alter table t_order_book_detail add column budget_no varchar(50) default null co
 alter table t_order_book_detail add column budget_no_id varchar(50) default null comment '预算号id';
 alter table t_order_book_detail add column fac_merge varchar(2) default null comment '合并投产';
 alter table t_order_book_detail add column place_order_type varchar(2) default null comment '下单类型';
-alter table t_order_book_detail add column devt_type varchar(2) default null comment '投产类型';
+alter table t_order_book_detail add column devt_type varchar(10) default null comment '投产类型';
+alter table t_order_book_detail modify column unit_dosage_ids varchar(500) default null comment '单件用量/里';
+alter table t_order_book_detail modify column unit_fabric_dosage_ids varchar(500) default null comment '单件用量/里';
 
 

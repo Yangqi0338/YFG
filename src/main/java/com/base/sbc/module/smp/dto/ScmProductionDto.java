@@ -14,6 +14,7 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -50,7 +51,7 @@ public class ScmProductionDto extends ScmProductionSupportDto {
     
     /** 商品要求货期 */
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
-    @NotBlank(message = "商品要求货期不能为空")
+    @NotNull(message = "商品要求货期不能为空")
     private Date deliveryAt;
 
     @JsonAnyGetter
