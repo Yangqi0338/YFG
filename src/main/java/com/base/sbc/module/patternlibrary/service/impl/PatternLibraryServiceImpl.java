@@ -775,7 +775,19 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 .in(ObjectUtil.isNotEmpty(styleNoList), "s.design_no", styleNoList)
                 .orderByDesc("s.create_date");
         // 获取还没有生成版型库的数据
-        return baseMapper.listStyle(queryWrapper);
+        List<Style> styleList = baseMapper.listStyle(queryWrapper);
+        if (ObjectUtil.isEmpty(styleList)) {
+            long count = count(
+                    new LambdaQueryWrapper<PatternLibrary>()
+                            .eq(PatternLibrary::getCode, search)
+            );
+            if (count > 0) {
+               throw new OtherException(ResultConstant.LAYOUT_LIBRARY_ENCODING_ALREADY_EXISTS);
+            } else {
+                throw new OtherException(ResultConstant.THERE_IS_NO_CORRESPONDING_DESIGN_VERSION);
+            }
+        }
+        return styleList;
     }
 
     @Override
@@ -828,9 +840,9 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             patternLibrary.setPicIdList(picFileIdList);
         } else {
             // 如果没有大货信息 那就直接取款式的图片
-            patternLibrary.setPicId(style.getStylePic());
+            patternLibrary.setStylePicId(style.getStylePic());
             stylePicUtils.setStylePic(Collections.singletonList(style), "stylePic");
-            patternLibrary.setPicUrl(style.getStylePic());
+            patternLibrary.setStylePicUrl(style.getStylePic());
         }
         return patternLibrary;
     }

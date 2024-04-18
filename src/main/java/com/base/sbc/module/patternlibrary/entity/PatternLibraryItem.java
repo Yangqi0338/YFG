@@ -66,6 +66,24 @@ public class PatternLibraryItem extends BaseDataEntity<String> implements Serial
     private String description;
 
     /**
+     * 品类 code
+     */
+    @ApiModelProperty("品类 code")
+    private String prodCategory;
+
+    /**
+     * 品类名称
+     */
+    @ApiModelProperty("品类名称")
+    private String prodCategoryName;
+
+    /**
+     * 工艺项目
+     */
+    @ApiModelProperty("工艺项目")
+    private String processName;
+
+    /**
      * 类型（1-围度信息 2-长度信息 3-部位尺寸 4-涉及部件）
      */
     @ApiModelProperty("类型（1-围度信息 2-长度信息 3-部位尺寸 4-涉及部件）")

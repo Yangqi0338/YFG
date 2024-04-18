@@ -181,6 +181,20 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private AttachmentVo picAttachmentVo;
 
     /**
+     * 款式图片 ID
+     */
+    @ApiModelProperty("图片 ID")
+    @TableField(exist = false)
+    private String stylePicId;
+
+    /**
+     * 款式图片 URL
+     */
+    @ApiModelProperty("图片 URL")
+    @TableField(exist = false)
+    private String stylePicUrl;
+
+    /**
      * 大货图片文件 ID-URL 集合
      */
     @ApiModelProperty("大货图片文件 ID-URL 集合")
