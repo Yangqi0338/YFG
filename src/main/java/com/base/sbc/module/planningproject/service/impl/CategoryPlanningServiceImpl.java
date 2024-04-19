@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
@@ -89,6 +90,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
     public void generateCategoryPlanningNew(BaseDto baseDto) {
         // 生成品类企划
         SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(baseDto.getId());
@@ -159,7 +161,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             // 生成品类企划明细 空数据
             // 按照 品类-中类-波段分组 品类企划颗粒度到波段 不到款式类别
             Map<String, List<SeasonalPlanningDetails>> seasonalPlanningDetailsMap = detailsList.stream().collect(
-                    Collectors.groupingBy(item -> item.getProdCategoryName() + item.getProdCategory2ndName() + item.getBandName(), LinkedHashMap::new, Collectors.toList())
+                    Collectors.groupingBy(item -> item.getProdCategoryCode() + item.getProdCategory2ndCode() + item.getBandName(), LinkedHashMap::new, Collectors.toList())
             );
 
             // 初始化新增的品类企划
@@ -389,6 +391,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         categoryPlanningDetails.setDimensionName(planningDimensionality.getDimensionalityName());
         categoryPlanningDetails.setDimensionCode(dimensionCode);
         categoryPlanningDetails.setDimensionValue(dimensionValue);
+        categoryPlanningDetails.setDimensionalityGrade(planningDimensionality.getDimensionalityGrade());
+        categoryPlanningDetails.setDimensionalityGradeName(planningDimensionality.getDimensionalityGradeName());
         categoryPlanningDetails.setBandCode(details.getBandCode());
         categoryPlanningDetails.setBandName(details.getBandName());
         // 计算不同款式类别相加起来的需求数

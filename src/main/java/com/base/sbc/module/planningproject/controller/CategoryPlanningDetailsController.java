@@ -12,6 +12,7 @@ import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailVO;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ import java.util.Map;
 @Api(tags = "品类企划明细-相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/categoryPlanningDetails", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @RequiredArgsConstructor
-public class CategoryPlanningDetailsController extends BaseController{
+public class CategoryPlanningDetailsController extends BaseController {
     private final CategoryPlanningDetailsService categoryPlanningDetailsService;
 
     /**
@@ -53,11 +54,11 @@ public class CategoryPlanningDetailsController extends BaseController{
         baseQueryWrapper.select("prod_category_code", "prod_category_name");
         baseQueryWrapper.isNotNullStr("prod_category_name");
         List<CategoryPlanningDetails> list = categoryPlanningDetailsService.list(baseQueryWrapper);
-        List<Map<String,String>> maps=new ArrayList<>();
+        List<Map<String, String>> maps = new ArrayList<>();
         for (CategoryPlanningDetails categoryPlanningDetails : list) {
-            Map<String,String> map =new HashMap<>();
-            map.put("code",categoryPlanningDetails.getProdCategoryCode());
-            map.put("name",categoryPlanningDetails.getProdCategoryName());
+            Map<String, String> map = new HashMap<>();
+            map.put("code", categoryPlanningDetails.getProdCategoryCode());
+            map.put("name", categoryPlanningDetails.getProdCategoryName());
             maps.add(map);
         }
         return selectSuccess(maps);
@@ -87,7 +88,7 @@ public class CategoryPlanningDetailsController extends BaseController{
      */
     @RequestMapping("/saveDetail")
     public ApiResult saveDetail(@RequestBody CategoryPlanningDetailsVo categoryPlanningDetailsVo) {
-        if ("1".equals(categoryPlanningDetailsVo.getIsGenerate())){
+        if ("1".equals(categoryPlanningDetailsVo.getIsGenerate())) {
             throw new RuntimeException("已经生成数据,无法保存");
         }
         categoryPlanningDetailsService.updateById(categoryPlanningDetailsVo);
@@ -98,13 +99,51 @@ public class CategoryPlanningDetailsController extends BaseController{
 
     /**
      * 根据id查询明细详情
+     *
      * @param categoryPlanningDetailDTO 查询条件
      * @return 品类企划数据
      */
     @PostMapping("/getDetail")
+    @ApiOperation(value = "根据id查询明细详情")
     public ApiResult<CategoryPlanningDetailVO> getDetail(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         CategoryPlanningDetailVO categoryPlanningDetailVO = categoryPlanningDetailsService.getDetail(categoryPlanningDetailDTO);
         return selectSuccess(categoryPlanningDetailVO);
+    }
+
+    /**
+     * 品类企划暂存
+     *
+     * @param categoryPlanningDetailsList 要暂存的数据
+     */
+    @PostMapping("/staging")
+    @ApiOperation(value = "品类企划暂存")
+    public ApiResult<String> staging(@RequestBody List<CategoryPlanningDetails> categoryPlanningDetailsList) {
+        categoryPlanningDetailsService.staging(categoryPlanningDetailsList);
+        return ApiResult.success("暂存成功！");
+    }
+
+    /**
+     * 品类企划保存
+     *
+     * @param categoryPlanningDetailsList 要保存的数据
+     */
+    @PostMapping("/preservation")
+    @ApiOperation(value = "品类企划保存")
+    public ApiResult<String> preservation(@RequestBody List<CategoryPlanningDetails> categoryPlanningDetailsList) {
+        categoryPlanningDetailsService.preservation(categoryPlanningDetailsList);
+        return ApiResult.success("保存成功！");
+    }
+
+    /**
+     * 根据品类（多选逗号分隔）和品类企划 ID 获取维度系数
+     *
+     * @param categoryPlanningDetailDTO 要保存的数据
+     */
+    @PostMapping("/getDimensionality")
+    @ApiOperation(value = "根据品类（多选逗号分隔）和品类企划 ID 获取")
+    public ApiResult<List<CategoryPlanningDetails>> getDimensionality(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
+        List<CategoryPlanningDetails> list = categoryPlanningDetailsService.getDimensionality(categoryPlanningDetailDTO);
+        return selectSuccess(list);
     }
 
     // <==================== 企划看板 2.0

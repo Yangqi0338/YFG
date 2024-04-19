@@ -169,10 +169,10 @@ public class CategoryPlanningController extends BaseController {
     // ==================== >企划看板 2.0
 
     /**
-     * 根据季节企划生成品类企划,同时生成企划看板
+     * 根据季节企划生成品类企划
      */
     @PostMapping("/generateCategoryPlanningNew")
-    @Transactional
+    @ApiOperation(value = "根据季节企划生成品类企划")
     public ApiResult generateCategoryPlanningNew(@RequestBody BaseDto baseDto) {
         categoryPlanningService.generateCategoryPlanningNew(baseDto);
         return success("生成品类企划成功");
