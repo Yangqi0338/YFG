@@ -686,6 +686,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         queryWrapper.eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanningDetailDTO.getCategoryPlanningId());
         queryWrapper.in(CategoryPlanningDetails::getProdCategoryCode, CollUtil.newArrayList(prodCategoryCodes.split(",")));
         queryWrapper.select(
+                CategoryPlanningDetails::getProdCategoryCode,
                 CategoryPlanningDetails::getDimensionId,
                 CategoryPlanningDetails::getDimensionName,
                 CategoryPlanningDetails::getDimensionalityGradeName
