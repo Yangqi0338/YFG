@@ -305,15 +305,11 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @ApiModelProperty(value = "尺码codes")
     private String sizeCodes;
 
-    //是否轻奢款
-    public String getHigh(){
-        int i = this.getBulkStyleNo().indexOf("Q");
-        if (i==-1){
-            return "0";
-        }else {
-            return "1";
-        }
-    }
+    /**
+     * 是否轻奢款
+     */
+    @ApiModelProperty(value = "尺码codes")
+    private String high;
 
     /**
      * 生产类型
