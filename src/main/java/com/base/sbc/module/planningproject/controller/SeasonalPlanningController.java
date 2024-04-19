@@ -54,7 +54,7 @@ public class SeasonalPlanningController extends BaseController {
     @ApiOperation(value = "季节企划详情")
     @PostMapping("/getSeasonalPlanningDetails")
     @DuplicationCheck(type = 1,time = 20)
-    public ApiResult getSeasonalPlanningDetails(SeasonalPlanningDetails seasonalPlanningDetails) throws Exception {
+    public ApiResult getSeasonalPlanningDetails(@RequestBody SeasonalPlanningDetails seasonalPlanningDetails) throws Exception {
         return seasonalPlanningService.getSeasonalPlanningDetails(seasonalPlanningDetails);
     }
 
