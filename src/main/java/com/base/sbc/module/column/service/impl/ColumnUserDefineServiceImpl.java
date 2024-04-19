@@ -106,6 +106,11 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
             } else {
                 columnDefine.setId(null);
             }
+            // 代表是一个枚举
+            String dictType = columnDefine.getDictType();
+            if (StrUtil.startWith(dictType,"com.base.sbc")) {
+                columnDefine.setDictType(decorateDictType(dictType));
+            }
         }
         byTableCode.sort(Comparator.comparing(ColumnDefine::getSortOrder));
         return byTableCode;
@@ -224,11 +229,6 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
                         newList.add(columnDefine1);
                     }
                     lastGroupName = columnDefine.getGroupName();
-                    // 代表是一个枚举
-                    String dictType = columnDefine.getDictType();
-                    if (StrUtil.startWith(dictType,"com.base.sbc")) {
-                        columnDefine.setDictType(decorateDictType(dictType));
-                    }
                 } else {
                     lastGroupName = null;
                     newList.add(columnDefine);
