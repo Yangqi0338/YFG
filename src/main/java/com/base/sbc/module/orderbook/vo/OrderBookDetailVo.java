@@ -357,4 +357,6 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date deliveryAt;
 
+    /** 动态列 */
+    private Integer groupCount;
 }

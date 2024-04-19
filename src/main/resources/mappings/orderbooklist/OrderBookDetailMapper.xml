@@ -3,6 +3,10 @@
 <mapper namespace="com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper">
     <select id="queryPage" resultType="com.base.sbc.module.orderbook.vo.OrderBookDetailVo">
         SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
         tobl.*,
         tob.name as orderBookName,
         ts.id as styleId,
@@ -49,6 +53,7 @@
         <!-- 一键投产 -->
         ts.year_name,
         ts.season_name
+        </if>
         FROM
         t_order_book_detail tobl
         left join t_style_color tsc on tobl.style_color_id = tsc.id and tsc.del_flag='0'
