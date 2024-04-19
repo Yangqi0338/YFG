@@ -139,7 +139,6 @@ public class SmpController extends BaseController {
      * escm预算号查询
      */
     @PostMapping("/productionBudgetList")
-    @DuplicationCheck
     public ApiResult productionBudgetList(@RequestBody ScmProductionBudgetQueryDto productionBudgetQueryDto) {
         return smpService.productionBudgetList(productionBudgetQueryDto);
     }
