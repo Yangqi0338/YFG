@@ -70,10 +70,7 @@ public class OrderBookDetailController extends BaseController {
     public ApiResult queryPage(OrderBookDetailQueryDto dto) {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        PageInfo<OrderBookDetailVo> pageInfo = orderBookDetailService.queryPage(dto);
-        OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(pageInfo,OrderBookDetailPageVo.class);
-        pageVo.setTotalMap(orderBookDetailService.queryCount(dto));
-        return selectSuccess(pageVo);
+        return selectSuccess(orderBookDetailService.queryPage(dto));
     }
 
     /**

@@ -10,6 +10,7 @@ import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.UpdateResultVo;
@@ -26,7 +27,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      * @param dto  查询条件
      * @return  分页结果
      */
-    PageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto);
+    OrderBookDetailPageVo queryPage(OrderBookDetailQueryDto dto);
 
     /**
      *  * 订货本详情-分页条件查询

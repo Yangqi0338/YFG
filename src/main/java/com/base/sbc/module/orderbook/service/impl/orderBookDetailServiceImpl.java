@@ -148,12 +148,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private PushRecordsService pushRecordsService;
 
     @Override
-    public PageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
+    public OrderBookDetailPageVo queryPage(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
         Page<OrderBookDetailVo> page = dto.startPage();
         this.querylist(queryWrapper,1, isColumnHeard);
-        return page.toPageInfo();
+        OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(page.toPageInfo(),OrderBookDetailPageVo.class);
+        if (!isColumnHeard) {
+            pageVo.setTotalMap(this.queryCount(dto));
+        }
+        return pageVo;
     }
 
 
