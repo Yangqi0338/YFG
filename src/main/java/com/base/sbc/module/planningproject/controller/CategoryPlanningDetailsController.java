@@ -104,7 +104,7 @@ public class CategoryPlanningDetailsController extends BaseController {
      * @return 品类企划数据
      */
     @PostMapping("/getDetail")
-    @ApiOperation(value = "根据id查询明细详情")
+    @ApiOperation(value = "企划看板 2.0 根据 id 查询明细详情")
     public ApiResult<CategoryPlanningDetailVO> getDetail(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         CategoryPlanningDetailVO categoryPlanningDetailVO = categoryPlanningDetailsService.getDetail(categoryPlanningDetailDTO);
         return selectSuccess(categoryPlanningDetailVO);
@@ -116,7 +116,7 @@ public class CategoryPlanningDetailsController extends BaseController {
      * @param categoryPlanningDetailsList 要暂存的数据
      */
     @PostMapping("/staging")
-    @ApiOperation(value = "品类企划暂存")
+    @ApiOperation(value = "企划看板 2.0 品类企划暂存")
     public ApiResult<String> staging(@RequestBody List<CategoryPlanningDetails> categoryPlanningDetailsList) {
         categoryPlanningDetailsService.staging(categoryPlanningDetailsList);
         return ApiResult.success("暂存成功！");
@@ -128,7 +128,7 @@ public class CategoryPlanningDetailsController extends BaseController {
      * @param categoryPlanningDetailsList 要保存的数据
      */
     @PostMapping("/preservation")
-    @ApiOperation(value = "品类企划保存")
+    @ApiOperation(value = "企划看板 2.0 品类企划保存")
     public ApiResult<String> preservation(@RequestBody List<CategoryPlanningDetails> categoryPlanningDetailsList) {
         categoryPlanningDetailsService.preservation(categoryPlanningDetailsList);
         return ApiResult.success("保存成功！");
@@ -140,7 +140,7 @@ public class CategoryPlanningDetailsController extends BaseController {
      * @param categoryPlanningDetailDTO 要保存的数据
      */
     @PostMapping("/getDimensionality")
-    @ApiOperation(value = "根据品类（多选逗号分隔）和品类企划 ID 获取")
+    @ApiOperation(value = "企划看板 2.0 根据品类（多选逗号分隔）和品类企划 ID 获取")
     public ApiResult<List<CategoryPlanningDetails>> getDimensionality(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         List<CategoryPlanningDetails> list = categoryPlanningDetailsService.getDimensionality(categoryPlanningDetailDTO);
         return selectSuccess(list);
