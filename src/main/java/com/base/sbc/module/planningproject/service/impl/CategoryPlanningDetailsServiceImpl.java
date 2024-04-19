@@ -36,10 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -565,6 +562,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                         + item.getProdCategory2ndName()
                         + item.getDimensionName()
                         + item.getDimensionCode()
+                , LinkedHashMap::new, Collectors.toList()
         ));
         for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : groupByDimensionalityValueMap.entrySet()) {
             groupByDimensionalityValueList.add(stringListEntry.getValue().get(0));
@@ -575,7 +573,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         // 初始化 数据
         List<CategoryPlanningDetails> groupByBandList = new ArrayList<>();
         Map<String, List<CategoryPlanningDetails>> groupByBandListMap
-                = categoryPlanningDetailsList.stream().collect(Collectors.groupingBy(CategoryPlanningDetails::getBandName));
+                = categoryPlanningDetailsList.stream().collect(Collectors.groupingBy(CategoryPlanningDetails::getBandName, LinkedHashMap::new, Collectors.toList()));
         for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : groupByBandListMap.entrySet()) {
             groupByBandList.add(stringListEntry.getValue().get(0));
         }
