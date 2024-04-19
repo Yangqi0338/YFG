@@ -319,6 +319,8 @@ public class OrderBookDetailController extends BaseController {
             orderBookDetail.setOrderBookId(orderBookDetailSaveDto.getOrderBookId());
             String brand = styles.stream().filter(it-> it.getId().equals(styleColor.getStyleId())).findFirst().map(Style::getBrand).orElse("");
             orderBookDetail.setBrand(brand);
+            orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_COMMIT);
+            orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
             list.add(orderBookDetail);
         }
         boolean b = orderBookDetailService.saveBatch(list);
