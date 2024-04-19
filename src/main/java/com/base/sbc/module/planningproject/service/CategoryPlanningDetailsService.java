@@ -27,8 +27,30 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
 
     /**
      * 根据id查询明细详情
+     *
      * @param categoryPlanningDetailDTO 查询条件
      * @return 品类企划数据
      */
     CategoryPlanningDetailVO getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
+
+    /**
+     * 品类企划暂存
+     *
+     * @param categoryPlanningDetailsList 要暂存的数据
+     */
+    void staging(List<CategoryPlanningDetails> categoryPlanningDetailsList);
+
+    /**
+     * 品类企划保存
+     *
+     * @param categoryPlanningDetailsList 要保存的数据
+     */
+    void preservation(List<CategoryPlanningDetails> categoryPlanningDetailsList);
+
+    /**
+     * 根据品类（多选逗号分隔）和品类企划 ID 获取维度系数
+     *
+     * @param categoryPlanningDetailDTO 要保存的数据
+     */
+    List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 }

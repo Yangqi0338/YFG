@@ -15,20 +15,20 @@ import lombok.Data;
 public class CategoryPlanningDetailDTO {
 
     /**
-     * 品类企划主表的id
+     * 品类企划主表的 id
      */
-    @ApiModelProperty(value = "品类企划id")
+    @ApiModelProperty(value = "品类企划 id")
     private String categoryPlanningId;
 
     /**
-     * 品类，多选逗号分隔
+     * 品类 code，多选逗号分隔
      */
-    @ApiModelProperty(value = "品类，多选逗号分隔")
+    @ApiModelProperty(value = "品类 code，多选逗号分隔")
     private String prodCategoryCodes;
 
     /**
-     * 字段管理的id，多选逗号分隔
+     * 维度数据 id，多选逗号分隔
      */
-    @ApiModelProperty(value = "字段管理的id，多选逗号分隔")
-    private String fieldIds;
+    @ApiModelProperty(value = "维度数据 id，多选逗号分隔")
+    private String dimensionIds;
 }

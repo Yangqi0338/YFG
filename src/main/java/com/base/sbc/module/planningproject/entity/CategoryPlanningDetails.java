@@ -69,6 +69,17 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
     @ApiModelProperty(value = "维度 value")
     private String dimensionValue;
 
+    /**
+     * 维度等级
+     */
+    @ApiModelProperty(value = "维度等级")
+    private String dimensionalityGrade;
+    /**
+     * 维度等级名称
+     */
+    @ApiModelProperty(value = "维度等级名称")
+    private String dimensionalityGradeName;
+
     @ApiModelProperty(value = "波段名称")
     private String bandName;
     @ApiModelProperty(value = "波段编码")
@@ -77,7 +88,7 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
      * 具体品类企划的需求数
      */
     @ApiModelProperty(value = "具体品类企划的需求数")
-    private Integer number;
+    private String number;
     /**
      * SKC数量 取自季节企划各个款式类别的需求数（以一个维度为颗粒度）
      */
