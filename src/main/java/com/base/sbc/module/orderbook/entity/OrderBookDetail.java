@@ -400,6 +400,9 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @Version
     private Integer version;
 
+    @ApiModelProperty(value = "线上版本号")
+    private Integer onlineVersion;
+
     /**
      * 下单人
      */

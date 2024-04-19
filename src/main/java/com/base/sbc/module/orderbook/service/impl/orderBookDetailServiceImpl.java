@@ -1045,6 +1045,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 updateResultVo.setVersion(updateBookDetail.getVersion());
                 return updateResultVo;
             }else {
+
+                if (null == dto.getOnlineVersion()){
+                    throw new OtherException("请传入正确的版本号！");
+                }
+                if (!dto.getOnlineVersion().equals(orderBookDetail.getOnlineVersion())){
+                    updateResultVo.setResult(false);
+                    return updateResultVo;
+                }
+
                 if (!dto.getChannel().contains(OrderBookChannelType.ONLINE.getName())
                         && StringUtils.isNotBlank(dto.getOnlineProduction()) && !"0".equals(dto.getOnlineProduction()) ){
                     throw new OtherException("无线上投产渠道，线上投产不允许编辑");
@@ -1056,8 +1065,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 uw.lambda().set(OrderBookDetail::getOnlineMaterial, dto.getOnlineMaterial());
                 uw.lambda().set(OrderBookDetail::getOnlineCommissioningSize, dto.getOnlineCommissioningSize());
                 uw.lambda().set(OrderBookDetail::getOnlineProduction, dto.getOnlineProduction());
-                updateResultVo.setVersion(orderBookDetail.getVersion());
+                Integer onlineVersion = orderBookDetail.getOnlineVersion()+1;
+                uw.lambda().set(OrderBookDetail::getOnlineVersion, orderBookDetail.getOnlineVersion()+1);
                 updateResultVo.setResult(this.update(uw));
+                updateResultVo.setVersion(updateResultVo.getResult() ? onlineVersion : orderBookDetail.getOnlineVersion());
                 return updateResultVo;
             }
         }finally{
