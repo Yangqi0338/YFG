@@ -772,6 +772,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setOrderPerson(dto.getUserId());
             orderBookDetail.setOrderPersonName(dto.getUserName());
             orderBookDetail.setOrderDate(new Date());
+            orderBookDetail.setCommissioningDate(new Date());
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
@@ -1120,7 +1121,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setIsLock(YesOrNoEnum.YES);
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
             orderBookDetail.setOrderSendStatus(PushRespStatus.PROCESS);
-            orderBookDetail.setCommissioningDate(new Date());
 
             ScmProductionDto productionDto = ORDER_BOOK_CV.copy2ProductionDto(orderBookDetail);
             JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getCommissioningSizeTotal())).orElse(new JSONObject());
