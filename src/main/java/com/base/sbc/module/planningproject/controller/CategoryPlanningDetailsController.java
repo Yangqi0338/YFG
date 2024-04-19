@@ -1,5 +1,6 @@
 package com.base.sbc.module.planningproject.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -17,10 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -105,9 +104,38 @@ public class CategoryPlanningDetailsController extends BaseController {
      */
     @PostMapping("/getDetail")
     @ApiOperation(value = "企划看板 2.0 根据 id 查询明细详情")
-    public ApiResult<CategoryPlanningDetailVO> getDetail(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
+    public ApiResult<Map<String, CategoryPlanningDetailVO>> getDetail(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         CategoryPlanningDetailVO categoryPlanningDetailVO = categoryPlanningDetailsService.getDetail(categoryPlanningDetailDTO);
-        return selectSuccess(categoryPlanningDetailVO);
+        // 根据品类转成map
+        Map<String, CategoryPlanningDetailVO> categoryPlanningDetailVOMap = new HashMap<>();
+        // 品类企划数据
+        List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailVO.getCategoryPlanningDetailsList();
+        // 品类企划数据根据波段分组后的数据
+        List<CategoryPlanningDetails> groupByBandList = categoryPlanningDetailVO.getGroupByBandList();
+        // 品类企划根据 大/品/中/维度类型/维度值 分组后的数据
+        List<CategoryPlanningDetails> groupByDimensionalityValueList = categoryPlanningDetailVO.getGroupByDimensionalityValueList();
+        // 品类企划数据根据维度分组后的数据
+        List<CategoryPlanningDetails> groupByDimensionalityNameList = categoryPlanningDetailVO.getGroupByDimensionalityNameList();
+        if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+            // 只要主数据不为空 那么其他数据不会为空
+            // 然后全部按照品类分组
+            Map<String, List<CategoryPlanningDetails>> categoryPlanningDetailsMap
+                    = categoryPlanningDetailsList.stream().collect(Collectors.groupingBy(CategoryPlanningDetails::getProdCategoryName, LinkedHashMap::new, Collectors.toList()));
+            Map<String, List<CategoryPlanningDetails>> groupByDimensionalityValueMap
+                    = groupByDimensionalityValueList.stream().collect(Collectors.groupingBy(CategoryPlanningDetails::getProdCategoryName, LinkedHashMap::new, Collectors.toList()));
+            Map<String, List<CategoryPlanningDetails>> groupByDimensionalityNameMap
+                    = groupByDimensionalityNameList.stream().collect(Collectors.groupingBy(CategoryPlanningDetails::getProdCategoryName, LinkedHashMap::new, Collectors.toList()));
+            for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : categoryPlanningDetailsMap.entrySet()) {
+                // 因为数据都是同源的 所以 循环 categoryPlanningDetailsMap 即可
+                CategoryPlanningDetailVO newCategoryPlanningDetailVO = new CategoryPlanningDetailVO();
+                newCategoryPlanningDetailVO.setCategoryPlanningDetailsList(stringListEntry.getValue());
+                newCategoryPlanningDetailVO.setGroupByBandList(groupByBandList);
+                newCategoryPlanningDetailVO.setGroupByDimensionalityValueList(groupByDimensionalityValueMap.get(stringListEntry.getKey()));
+                newCategoryPlanningDetailVO.setGroupByDimensionalityNameList(groupByDimensionalityNameMap.get(stringListEntry.getKey()));
+                categoryPlanningDetailVOMap.put(stringListEntry.getKey(), newCategoryPlanningDetailVO);
+            }
+        }
+        return selectSuccess(categoryPlanningDetailVOMap);
     }
 
     /**
@@ -140,7 +168,7 @@ public class CategoryPlanningDetailsController extends BaseController {
      * @param categoryPlanningDetailDTO 要保存的数据
      */
     @PostMapping("/getDimensionality")
-    @ApiOperation(value = "企划看板 2.0 根据品类（多选逗号分隔）和品类企划 ID 获取")
+    @ApiOperation(value = "企划看板 2.0 根据品类（多选逗号分隔）和品类企划 ID 获取维度系数")
     public ApiResult<List<CategoryPlanningDetails>> getDimensionality(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         List<CategoryPlanningDetails> list = categoryPlanningDetailsService.getDimensionality(categoryPlanningDetailDTO);
         return selectSuccess(list);

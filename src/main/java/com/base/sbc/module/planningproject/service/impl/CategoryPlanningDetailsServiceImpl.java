@@ -37,7 +37,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -544,42 +547,73 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             throw new OtherException("品类企划数据不存在，请刷新后重试！");
         }
 
+        LambdaQueryWrapper<CategoryPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
+        assembleFilters(queryWrapper, categoryPlanning, prodCategoryCodes, dimensionIds);
+        queryWrapper.select(
+                CategoryPlanningDetails::getId,
+                CategoryPlanningDetails::getNumber,
+                CategoryPlanningDetails::getBandName,
+                CategoryPlanningDetails::getProdCategory1stName,
+                CategoryPlanningDetails::getProdCategoryName,
+                CategoryPlanningDetails::getProdCategory2ndName,
+                CategoryPlanningDetails::getDimensionName,
+                CategoryPlanningDetails::getDimensionCode
+        );
+
         // 查询出筛选后的品类企划
-        List<CategoryPlanningDetails> categoryPlanningDetailsList
-                = list(new LambdaQueryWrapper<CategoryPlanningDetails>()
-                .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
-                .eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL)
-                .in(CategoryPlanningDetails::getProdCategoryCode, CollUtil.newArrayList(prodCategoryCodes.split(",")))
-                .in(CategoryPlanningDetails::getDimensionId, CollUtil.newArrayList(dimensionIds.split(","))));
+        List<CategoryPlanningDetails> categoryPlanningDetailsList = list(queryWrapper);
         categoryPlanningDetailVO.setCategoryPlanningDetailsList(categoryPlanningDetailsList);
 
         // 查询品类企划根据 大/品/中/维度类型/维度值 分组后的数据
-        // 初始化 数据
-        List<CategoryPlanningDetails> groupByDimensionalityValueList = new ArrayList<>();
-        Map<String, List<CategoryPlanningDetails>> groupByDimensionalityValueMap
-                = categoryPlanningDetailsList.stream()
-                .collect(Collectors.groupingBy(
-                        item -> item.getProdCategory1stName()
-                                + item.getProdCategoryName()
-                                + item.getProdCategory2ndName()
-                                + item.getDimensionName()
-                                + item.getDimensionCode(), LinkedHashMap::new, Collectors.toList()));
-        for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : groupByDimensionalityValueMap.entrySet()) {
-            groupByDimensionalityValueList.add(stringListEntry.getValue().get(0));
-        }
+        assembleFilters(queryWrapper, categoryPlanning, prodCategoryCodes, dimensionIds);
+        queryWrapper.select(
+                CategoryPlanningDetails::getProdCategory1stName,
+                CategoryPlanningDetails::getProdCategoryName,
+                CategoryPlanningDetails::getProdCategory2ndName,
+                CategoryPlanningDetails::getDimensionName,
+                CategoryPlanningDetails::getDimensionCode);
+        queryWrapper.groupBy(
+                CategoryPlanningDetails::getProdCategory1stName,
+                CategoryPlanningDetails::getProdCategoryName,
+                CategoryPlanningDetails::getProdCategory2ndName,
+                CategoryPlanningDetails::getDimensionCode,
+                CategoryPlanningDetails::getDimensionValue);
+        List<CategoryPlanningDetails> groupByDimensionalityValueList = list(queryWrapper);
         categoryPlanningDetailVO.setGroupByDimensionalityValueList(groupByDimensionalityValueList);
 
         // 查询品类企划数据根据波段分组后的数据
         // 初始化 数据
-        List<CategoryPlanningDetails> groupByBandList = new ArrayList<>();
-        Map<String, List<CategoryPlanningDetails>> groupByBandListMap
-                = categoryPlanningDetailsList.stream()
-                .collect(Collectors.groupingBy(CategoryPlanningDetails::getBandName, LinkedHashMap::new, Collectors.toList()));
-        for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : groupByBandListMap.entrySet()) {
-            groupByBandList.add(stringListEntry.getValue().get(0));
-        }
+        assembleFilters(queryWrapper, categoryPlanning, prodCategoryCodes, dimensionIds);
+        queryWrapper.select(CategoryPlanningDetails::getBandName);
+        queryWrapper.groupBy(CategoryPlanningDetails::getBandName);
+        List<CategoryPlanningDetails> groupByBandList = list(queryWrapper);
         categoryPlanningDetailVO.setGroupByBandList(groupByBandList);
+
+        // 查询维度数据
+        queryWrapper.clear();
+        queryWrapper.select(
+                CategoryPlanningDetails::getProdCategoryCode,
+                CategoryPlanningDetails::getProdCategoryName,
+                CategoryPlanningDetails::getDimensionId,
+                CategoryPlanningDetails::getDimensionName,
+                CategoryPlanningDetails::getDimensionalityGradeName
+        );
+        queryWrapper.eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanningDetailDTO.getCategoryPlanningId());
+        queryWrapper.in(CategoryPlanningDetails::getProdCategoryCode, CollUtil.newArrayList(prodCategoryCodes.split(",")));
+        queryWrapper.isNotNull(CategoryPlanningDetails::getDimensionName);
+        queryWrapper.ne(CategoryPlanningDetails::getDimensionName, "");
+        queryWrapper.groupBy(CategoryPlanningDetails::getProdCategoryName, CategoryPlanningDetails::getDimensionId);
+        List<CategoryPlanningDetails> groupByDimensionalityNameList = list(queryWrapper);
+        categoryPlanningDetailVO.setGroupByDimensionalityNameList(groupByDimensionalityNameList);
         return categoryPlanningDetailVO;
+    }
+
+    private void assembleFilters(LambdaQueryWrapper<CategoryPlanningDetails> queryWrapper, CategoryPlanning categoryPlanning, String prodCategoryCodes, String dimensionIds) {
+        queryWrapper.clear();
+        queryWrapper.eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId());
+        queryWrapper.eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL);
+        queryWrapper.in(CategoryPlanningDetails::getProdCategoryCode, CollUtil.newArrayList(prodCategoryCodes.split(",")));
+        queryWrapper.in(CategoryPlanningDetails::getDimensionId, CollUtil.newArrayList(dimensionIds.split(",")));
     }
 
     @Override
@@ -675,7 +709,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     public List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         // 先根据品类企划 id 查询品类企划信息
         CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningDetailDTO.getCategoryPlanningId());
-        if (ObjectUtil.isNotEmpty(categoryPlanning)) {
+        if (ObjectUtil.isEmpty(categoryPlanning)) {
             throw new OtherException("品类企划信息不存在，请刷新后重试！");
         }
         String prodCategoryCodes = categoryPlanningDetailDTO.getProdCategoryCodes();
