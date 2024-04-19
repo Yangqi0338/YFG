@@ -3,11 +3,13 @@ package com.base.sbc.module.orderbook.vo;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 public class OrderBookDetailVo extends OrderBookDetail {
@@ -335,5 +337,24 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
 
     private OrderBookSimilarStyleVo similarStyle;
+
+    /**
+     * 投产日期
+     */
+    @ApiModelProperty(value = "投产日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date commissioningDate;
+
+    /**
+     * 下单时间
+     */
+    @ApiModelProperty(value = "下单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date orderDate;
+
+    /** 商品要求货期 */
+    @ApiModelProperty(value = "商品要求货期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date deliveryAt;
 
 }
