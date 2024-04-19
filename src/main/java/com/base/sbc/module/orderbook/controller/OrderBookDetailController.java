@@ -186,7 +186,7 @@ public class OrderBookDetailController extends BaseController {
             return updateSuccess("请选订货本");
         }
         BaseQueryWrapper<OrderBookDetail> queryWrapper = orderBookDetailService.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper, null);
+        List<OrderBookDetailVo> orderBookDetails = orderBookDetailService.querylist(queryWrapper);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             orderBookDetail.setIsLock(YesOrNoEnum.NO);
         }
@@ -401,7 +401,7 @@ public class OrderBookDetailController extends BaseController {
             OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
             orderBookDetailQueryDto.setBulkStyleNo(dto.getSuitNo());
             BaseQueryWrapper<OrderBookDetail> queryWrapper1 = orderBookDetailService.buildQueryWrapper(orderBookDetailQueryDto);
-            List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper1,null);
+            List<OrderBookDetailVo> orderBookDetailVos = orderBookDetailService.querylist(queryWrapper1);
             for (OrderBookDetailVo bookDetailVo : orderBookDetailVos) {
                 String suitNo = bookDetailVo.getSuitNo();
                 if (StringUtils.isNotBlank(suitNo)){
