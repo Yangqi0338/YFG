@@ -1,15 +1,18 @@
 package com.base.sbc.module.orderbook.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class OrderBookDetailQueryDto extends Page {
+public class OrderBookDetailQueryDto extends QueryFieldDto {
 
     /**
      * 当前用户登录id

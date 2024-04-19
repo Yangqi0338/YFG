@@ -80,6 +80,7 @@ import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
@@ -149,11 +150,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     private PushRecordsService pushRecordsService;
 
     @Override
-    public BasePageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
+    public PageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        PageHelper.startPage(dto);
-        List<OrderBookDetailVo> querylist = this.querylist(queryWrapper,null);
-        return new BasePageInfo<>(querylist);
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
+        Page<OrderBookDetailVo> page = dto.startPage();
+        if (isColumnHeard) {
+            return page.toPageInfo();
+        }
+        this.querylist(queryWrapper,null);
+        return page.toPageInfo();
     }
 
 
