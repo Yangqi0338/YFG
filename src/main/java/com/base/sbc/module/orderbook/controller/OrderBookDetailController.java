@@ -9,18 +9,13 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
-import com.base.sbc.module.orderbook.dto.OrderBookDetailProductionDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
@@ -434,6 +429,15 @@ public class OrderBookDetailController extends BaseController {
     @DuplicationCheck(time = 10)
     public boolean updateMaterial(@RequestBody @Valid MaterialUpdateDto dto) {
         return orderBookDetailService.updateMaterial(dto);
+    }
+
+    /**
+     * 暂存参考款
+     */
+    @ApiModelProperty(value = "暂存参考款")
+    @PostMapping("/similarStyleBinding")
+    public boolean similarStyleBinding(@RequestBody OrderBookDetailSaveDto dto) {
+        return orderBookDetailService.similarStyleBinding(dto);
     }
 
 }

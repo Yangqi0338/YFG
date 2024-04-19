@@ -343,6 +343,19 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            });
 //            orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
 
+            //查询参考款
+            if (StringUtils.isNotBlank(orderBookDetailVo.getSimilarBulkStyleNo())){
+                OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
+                orderBookDetailQueryDto.setSimilarBulkStyleNo(orderBookDetailVo.getSimilarBulkStyleNo());
+                orderBookDetailQueryDto.setChannel(OrderBookChannelType.getByNames(orderBookDetailVo.getChannel()));
+                orderBookDetailQueryDto.setPageNum(0);
+                orderBookDetailQueryDto.setPageSize(20);
+                PageInfo<OrderBookSimilarStyleVo> pageInfo = similarStyleList(orderBookDetailQueryDto);
+                if (pageInfo.getList().size() > 0){
+                    orderBookDetailVo.setSimilarStyle(pageInfo.getList().get(0));
+                }
+            }
+
         }
 
         return orderBookDetailVos;
@@ -890,7 +903,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         /* ----------------------------装饰详细的投产销售---------------------------- */
 
         SaleProductIntoDto saleProductIntoDetailDto = BeanUtil.copyProperties(queryDto, SaleProductIntoDto.class);
-        saleProductIntoDto.setChannelList(channelList);
+        saleProductIntoDto.setChannelList(saleProductIntoDto.getChannelList());
         saleProductIntoDetailDto.setBulkStyleNoList(bulkStyleNoList);
 
         List<StyleSaleIntoDto> detailList = smpService.querySaleIntoPage(saleProductIntoDetailDto);
@@ -1169,6 +1182,21 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             });
             this.updateBatchById(list);
         }
+    }
+
+    @Override
+    public boolean similarStyleBinding(OrderBookDetailSaveDto dto) {
+        OrderBookDetail orderBookDetail = getById(dto.getId());
+        if (Objects.isNull(orderBookDetail)){
+            throw new OtherException("不存在的订货本数据");
+        }
+        if (StringUtils.isEmpty(dto.getSimilarBulkStyleNo())){
+            return true;
+        }
+        UpdateWrapper<OrderBookDetail> uw = new UpdateWrapper<>();
+        uw.lambda().eq(OrderBookDetail::getId,orderBookDetail.getId());
+        uw.lambda().set(OrderBookDetail::getSimilarBulkStyleNo, dto.getSimilarBulkStyleNo());
+        return update(uw);
     }
 
     @Override

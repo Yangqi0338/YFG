@@ -6,7 +6,6 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
-import com.base.sbc.module.orderbook.dto.OrderBookDetailProductionDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
@@ -99,4 +98,6 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     void handlePlaceAnCancelProduction(List<OrderBookDetail> list);
 
     void handlePlaceAnProduction(List<OrderBookDetail> list);
+
+    boolean similarStyleBinding(OrderBookDetailSaveDto dto);
 }

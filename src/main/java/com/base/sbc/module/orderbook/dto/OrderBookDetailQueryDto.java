@@ -140,5 +140,11 @@ public class OrderBookDetailQueryDto extends Page {
     private String dimensionInfo;
     private String gramWeight;
 
+    /**
+     * 参考款款号 eq
+     */
+    @ApiModelProperty(value = "参考款款号")
+    private String similarBulkStyleNo;
+
     private List<OrderBookChannelType> channel;
 }

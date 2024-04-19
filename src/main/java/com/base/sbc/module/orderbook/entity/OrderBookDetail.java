@@ -464,6 +464,12 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "投产类型")
     private PutInProductionType devtType;
 
+    /**
+     * 参考款款号
+     */
+    @ApiModelProperty(value = "参考款款号")
+    private String similarBulkStyleNo;
+
     public String getCommissioningSizeTotal(){
         //线下
         JSONObject offlineJsonObject = Opt.ofNullable(JSON.parseObject(this.offlineCommissioningSize)).orElse(new JSONObject());

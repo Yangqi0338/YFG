@@ -1861,6 +1861,7 @@ public class SmpService {
         qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+        qw.notEmptyEq("T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNo());
 
         List<Map<String, Object>> totalMaps = saleProductIntoMapper.querySaleIntoPage(qw, 1);
         List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);

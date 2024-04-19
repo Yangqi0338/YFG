@@ -2,12 +2,11 @@ package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
-import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +22,12 @@ public class SaleProductIntoDto extends Page implements Serializable {
      * 大货款号 like
      */
     private String bulkStyleNo;
+
+    /**
+     * 参考款款号 eq
+     */
+    @ApiModelProperty(value = "参考款款号")
+    private String similarBulkStyleNo;
 
     /**
      * 大货款号 in

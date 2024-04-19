@@ -3,8 +3,12 @@ package com.base.sbc.config.enums.business.orderBook;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.Lists;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * {@code 描述：订货本渠道类型}
@@ -40,6 +44,20 @@ public enum OrderBookChannelType {
         this.fill = fill;
         this.percentageFill = percentageFill;
         this.name = name;
+    }
+
+    public static List<OrderBookChannelType> getByNames(String name) {
+        if (StrUtil.isBlank(name)){
+            return null;
+        }
+        List<OrderBookChannelType> values = Lists.newArrayList();
+        List<String> list = Arrays.asList(name.split(","));
+        for (OrderBookChannelType value : OrderBookChannelType.values()) {
+            if (list.contains(value.getName())){
+                values.add(value);
+            }
+        }
+        return values;
     }
 
 }

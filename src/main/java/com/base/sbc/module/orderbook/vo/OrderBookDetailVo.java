@@ -1,6 +1,5 @@
 package com.base.sbc.module.orderbook.vo;
 
-import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
@@ -333,5 +332,8 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
 
     private String seasonName;
+
+
+    private OrderBookSimilarStyleVo similarStyle;
 
 }
