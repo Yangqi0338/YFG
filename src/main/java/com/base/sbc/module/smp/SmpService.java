@@ -319,9 +319,9 @@ public class SmpService {
             smpGoodsDto.setShapeName(style.getPlateType());
             smpGoodsDto.setUniqueCode(styleColor.getWareCode());
 
-            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
-            Map<String, String> map = dictInfoToMap.get("C8_Band");
-            smpGoodsDto.setBandName(map.get(style.getBandCode()));
+//            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
+//            Map<String, String> map = dictInfoToMap.get("C8_Band");
+//            smpGoodsDto.setBandName(map.get(style.getBandCode()));
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
 

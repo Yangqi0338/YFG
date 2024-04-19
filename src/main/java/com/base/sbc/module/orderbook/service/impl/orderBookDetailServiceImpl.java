@@ -152,10 +152,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
         Page<OrderBookDetailVo> page = dto.startPage();
-        if (isColumnHeard) {
-            return page.toPageInfo();
-        }
-        this.querylist(queryWrapper,null);
+        this.querylist(queryWrapper,1, isColumnHeard);
         return page.toPageInfo();
     }
 
@@ -163,7 +160,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response, String tableCode) throws IOException {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper,null);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper);
         if (orderBookDetailVos.isEmpty()) {
             throw new RuntimeException("没有数据");
         }
@@ -175,14 +172,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
-    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth) {
-        if (null == openDataAuth) {
+    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth, boolean isColumnHeard) {
+        if (1 == openDataAuth) {
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         }
-        //数据过滤
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "tobl.");
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
-        if (CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
+        if (isColumnHeard || CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
 
         List<OrderBook> orderBookList = orderBookService.list(new LambdaQueryWrapper<OrderBook>()
                 .in(OrderBook::getId, orderBookDetailVos.stream().map(OrderBookDetailVo::getOrderBookId).collect(Collectors.toList())));
@@ -368,7 +363,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     public OrderBookDetailVo getDetailById(String id) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tobl.id", id);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper,null);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper);
         if (Objects.nonNull(orderBookDetailVos) && !orderBookDetailVos.isEmpty()) {
             return orderBookDetailVos.get(0);
         }
@@ -712,7 +707,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             throw new OtherException("请选订货本");
         }
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper);
 
         List<OrderBookDetailVo> cancelOrderBookDetailList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
@@ -756,7 +751,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Transactional(rollbackFor = Exception.class)
     public boolean placeAnOrder(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (orderBookDetail.getStatus() == OrderBookDetailStatusEnum.AUDIT){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已审核,请勿重复提交");
@@ -772,6 +767,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setOrderPerson(dto.getUserId());
             orderBookDetail.setOrderPersonName(dto.getUserName());
             orderBookDetail.setOrderDate(new Date());
+            orderBookDetail.setCommissioningDate(new Date());
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
@@ -1116,7 +1112,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Transactional(rollbackFor = Exception.class)
     public boolean placeAnProduction(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, null);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已投产,请勿重新提交");
@@ -1131,7 +1127,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setIsLock(YesOrNoEnum.YES);
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
             orderBookDetail.setOrderSendStatus(PushRespStatus.PROCESS);
-            orderBookDetail.setCommissioningDate(new Date());
 
             ScmProductionDto productionDto = ORDER_BOOK_CV.copy2ProductionDto(orderBookDetail);
             JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getCommissioningSizeTotal())).orElse(new JSONObject());

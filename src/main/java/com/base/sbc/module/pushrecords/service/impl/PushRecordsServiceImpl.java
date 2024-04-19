@@ -26,6 +26,7 @@ import com.base.sbc.module.smp.dto.HttpReq;
 import com.base.sbc.module.smp.dto.HttpResp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -61,7 +62,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
      * @return 推送的结果
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public Boolean pushRecordSave(HttpResp httpResp, String data) {
         JSONObject json = JSON.parseObject(data);
         String url = httpResp.getUrl();
@@ -93,7 +94,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public PushRecords prePushRecordSave(HttpReq httpReq) {
         String url = httpReq.getUrl();
         PushRecordsDto pushRecordsDto = new PushRecordsDto();

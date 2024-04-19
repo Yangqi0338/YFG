@@ -74,7 +74,6 @@ public class OrderBookDetail extends BaseDataEntity<String> {
      * 投产日期
      */
     @ApiModelProperty(value = "投产日期")
-    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Date commissioningDate;
 

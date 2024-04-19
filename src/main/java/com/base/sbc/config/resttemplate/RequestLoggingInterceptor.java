@@ -56,7 +56,6 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
         String s = new String(body);
         LOGGER.info("Request URL: {}", request.getURI());
