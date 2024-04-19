@@ -36,7 +36,6 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnGroupDefineService;
-import com.base.sbc.module.common.dto.BasePageInfo;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldVal;
@@ -81,7 +80,6 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
@@ -858,13 +856,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         List<String> channelList = queryDto.getChannel().stream().map(OrderBookChannelType::getText).collect(Collectors.toList());
 
         String category1stCode = queryDto.getCategory1stCode();
-        String registeringNo = queryDto.getRegisteringNo();
+        String designNo = queryDto.getDesignNo();
         Set<String> searchBulkStyleNoList = new HashSet<>();
-        if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(registeringNo)) {
+        if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(designNo)) {
             // 根据大类或设计款号获取款式
             Opt.ofEmptyAble(styleService.listOneField(new BaseLambdaQueryWrapper<Style>()
                     .notEmptyEq(Style::getProdCategory, category1stCode)
-                    .notEmptyEq(Style::getRegisteringNo, registeringNo), Style::getId)
+                    .notEmptyEq(Style::getDesignNo, designNo), Style::getId)
             ).ifPresent(styleIdList-> {
                 // 根据款式获取款号
                 searchBulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>()
@@ -899,6 +897,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             styleColorList.stream().filter(it-> it.getStyleNo().equals(dto.getBulkStyleNo())).findFirst().ifPresent(styleColor -> {
                 dto.setStyleColorPic(styleColor.getStyleColorPic());
                 dto.setStyleId(styleColor.getStyleId());
+                dto.setDesignNo(styleColor.getDesignNo());
             });
         });
         // 设置款图

@@ -1,9 +1,7 @@
 package com.base.sbc.module.orderbook.vo;
 
-import cn.hutool.core.lang.Opt;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.utils.BigDecimalUtil;
-import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -11,9 +9,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +30,9 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
      */
     @ApiModelProperty(value = "款式配色图")
     private String styleColorPic;
+
+    @ApiModelProperty(value = "设计款号"  )
+    private String designNo;
 
     /**
      * 渠道
