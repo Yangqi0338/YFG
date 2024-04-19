@@ -1064,7 +1064,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 Integer onlineVersion = orderBookDetail.getOnlineVersion()+1;
                 uw.lambda().set(OrderBookDetail::getOnlineVersion, orderBookDetail.getOnlineVersion()+1);
                 updateResultVo.setResult(this.update(uw));
-                updateResultVo.setVersion(updateResultVo.getResult() ? onlineVersion : orderBookDetail.getOnlineVersion());
+                updateResultVo.setOnlineVersion(updateResultVo.getResult() ? onlineVersion : orderBookDetail.getOnlineVersion());
                 return updateResultVo;
             }
         }finally{

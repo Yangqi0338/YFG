@@ -11,4 +11,6 @@ public class UpdateResultVo {
 
     private Integer version;
 
+    private Integer onlineVersion;
+
 }
