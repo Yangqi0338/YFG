@@ -1013,10 +1013,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                         && StringUtils.isNotBlank(dto.getOfflineProduction()) && !"0".equals(dto.getOfflineProduction()) ){
                     throw new OtherException("无线下投产渠道，线下投产不允许编辑");
                 }
-                if (null == dto.getVersion()){
-                    throw new OtherException("请传入正确的版本号！");
-                }
-                if (!dto.getVersion().equals(orderBookDetail.getVersion())){
+                if (null == dto.getVersion() || !orderBookDetail.getVersion().equals(dto.getVersion())){
                     updateResultVo.setResult(false);
                     return updateResultVo;
                 }
@@ -1050,11 +1047,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 updateResultVo.setVersion(updateBookDetail.getVersion());
                 return updateResultVo;
             }else {
-
-                if (null == dto.getOnlineVersion()){
-                    throw new OtherException("请传入正确的版本号！");
-                }
-                if (!dto.getOnlineVersion().equals(orderBookDetail.getOnlineVersion())){
+                if (null == dto.getOnlineVersion() || !orderBookDetail.getOnlineVersion().equals(dto.getOnlineVersion())){
                     updateResultVo.setResult(false);
                     return updateResultVo;
                 }
