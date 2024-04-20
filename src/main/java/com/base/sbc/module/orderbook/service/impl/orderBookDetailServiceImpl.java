@@ -164,7 +164,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response, String tableCode) throws IOException {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1, false);
         if (orderBookDetailVos.isEmpty()) {
             throw new RuntimeException("没有数据");
         }
@@ -176,7 +176,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
-    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth, boolean isColumnHeard) {
+    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,int openDataAuth, boolean isColumnHeard) {
         if (1 == openDataAuth) {
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         }
@@ -367,7 +367,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     public OrderBookDetailVo getDetailById(String id) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tobl.id", id);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1, false);
         if (Objects.nonNull(orderBookDetailVos) && !orderBookDetailVos.isEmpty()) {
             return orderBookDetailVos.get(0);
         }
@@ -716,7 +716,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             throw new OtherException("请选订货本");
         }
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, false);
 
         List<OrderBookDetailVo> cancelOrderBookDetailList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
@@ -760,7 +760,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Transactional(rollbackFor = Exception.class)
     public boolean placeAnOrder(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, false);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (orderBookDetail.getStatus() == OrderBookDetailStatusEnum.AUDIT){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已审核,请勿重复提交");
@@ -1115,7 +1115,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Transactional(rollbackFor = Exception.class)
     public boolean placeAnProduction(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, false);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已投产,请勿重新提交");

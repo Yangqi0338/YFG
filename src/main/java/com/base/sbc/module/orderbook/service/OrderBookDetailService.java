@@ -29,26 +29,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      */
     OrderBookDetailPageVo queryPage(OrderBookDetailQueryDto dto);
 
-    /**
-     *  * 订货本详情-分页条件查询
-     * @param queryWrapper  查询条件
-     * @return  分页结果
-     */
-    default List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper) {
-        return querylist(queryWrapper, 1);
-    }
-
-    /**
-     *  * 订货本详情-分页条件查询
-     * @param queryWrapper  查询条件
-     * @param openDataAuth 开启数据权限标识 1开启 其它都是关闭
-     * @return  分页结果
-     */
-    default List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper, Integer openDataAuth) {
-        return querylist(queryWrapper, openDataAuth, false);
-    };
-
-    List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper, Integer openDataAuth, boolean isColumnHeard);
+    List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper, int openDataAuth, boolean isColumnHeard);
 
     /**
      * * 订货本详情-导出
