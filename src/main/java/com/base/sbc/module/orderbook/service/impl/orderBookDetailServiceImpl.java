@@ -1042,9 +1042,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 updateBookDetail.setBraiding(dto.getBraiding());
                 updateBookDetail.setOfflineProduction(dto.getOfflineProduction());
                 updateBookDetail.setOfflineCommissioningSize(dto.getOfflineCommissioningSize());
-                updateBookDetail.setVersion(dto.getVersion());
+                Integer version = dto.getVersion()+1;
+                updateBookDetail.setVersion(version);
                 updateResultVo.setResult(this.update(updateBookDetail,uw));
-                updateResultVo.setVersion(updateBookDetail.getVersion());
+                updateResultVo.setVersion(version);
                 return updateResultVo;
             }else {
                 if (null == dto.getOnlineVersion() || !orderBookDetail.getOnlineVersion().equals(dto.getOnlineVersion())){
@@ -1064,7 +1065,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 uw.lambda().set(OrderBookDetail::getOnlineCommissioningSize, dto.getOnlineCommissioningSize());
                 uw.lambda().set(OrderBookDetail::getOnlineProduction, dto.getOnlineProduction());
                 Integer onlineVersion = orderBookDetail.getOnlineVersion()+1;
-                uw.lambda().set(OrderBookDetail::getOnlineVersion, orderBookDetail.getOnlineVersion()+1);
+                uw.lambda().set(OrderBookDetail::getOnlineVersion, onlineVersion);
                 updateResultVo.setResult(this.update(uw));
                 updateResultVo.setOnlineVersion(updateResultVo.getResult() ? onlineVersion : orderBookDetail.getOnlineVersion());
                 return updateResultVo;

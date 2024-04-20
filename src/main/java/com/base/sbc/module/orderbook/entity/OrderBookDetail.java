@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.Version;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.PushRespStatus;
@@ -23,7 +22,6 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEn
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -396,7 +394,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     private String onlineCommissioningSize;
 
     @ApiModelProperty(value = "版本号"  )
-    @Version
+//    @Version
     private Integer version;
 
     @ApiModelProperty(value = "线上版本号")
