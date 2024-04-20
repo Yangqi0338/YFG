@@ -29,7 +29,7 @@
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
         tsc.his_style_no as hisStyleNo,
-        IFNULL(tobl.devt_type,ts.devt_type) as devt_type,
+        IFNULL(tobl.devt_type,ts.devt_type) as styleDevtType,
         ts.size_codes,
         REGEXP_LIKE(tsc.style_no,"Q$") as high,
         tsc.band_name,

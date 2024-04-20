@@ -388,6 +388,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyIn("tobl.id",dto.getId());
         queryWrapper.notEmptyIn("tobl.id",dto.getIds());
         queryWrapper.notEmptyEq("tsc.devt_type_name",dto.getDevtTypeName());
+        queryWrapper.and(dto.getStyleDevtType() != null, it->
+                it.eq("tobl.devt_type",dto.getStyleDevtType())
+                        .or()
+                .eq("ts.devt_type", dto.getStyleDevtType())
+        );
         queryWrapper.likeList("ts.prod_category", dto.getCategoryCode());
         queryWrapper.likeList("tsc.band_name", dto.getBand());
         queryWrapper.likeList("tobl.designer_id", dto.getDesignerName());

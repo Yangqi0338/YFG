@@ -2,6 +2,7 @@ package com.base.sbc.module.orderbook.dto;
 
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
@@ -142,6 +143,7 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
     private String braiding;
     private String dimensionInfo;
     private String gramWeight;
+    private PutInProductionType styleDevtType;
 
     /**
      * 参考款款号 eq
