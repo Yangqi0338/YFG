@@ -613,7 +613,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 if (jsonObject!= null){
                     for (String sizeName : jsonObject.keySet()) {
                         Double sum = hashMap.getOrDefault(sizeName, 0.0);
-                        Double num = Opt.ofNullable(NumberUtil.parseDouble(jsonObject.getString(sizeName))).orElse(0.0);
+                        Double num = NumberUtil.parseDouble(jsonObject.getString(sizeName), 0.0);
                         for (OrderBookChannelType channelType : channelTypes) {
                             Double total = totalMap.getOrDefault(channelType, 0.0);
                             if (sizeName.endsWith(channelType.getFill())) {
