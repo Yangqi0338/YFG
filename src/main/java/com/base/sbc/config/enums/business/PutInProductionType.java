@@ -39,4 +39,9 @@ public enum PutInProductionType {
         this.code = StrUtil.toCamelCase(code);
         this.text = text;
     }
+
+    public static PutInProductionType findByProductionType(ProductionType productionType) {
+        if (productionType == null) return null;
+        return productionType == ProductionType.CMT ? CMT : FOB;
+    }
 }

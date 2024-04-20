@@ -26,6 +26,7 @@ import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.PushRespStatus;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
@@ -391,7 +392,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.and(dto.getStyleDevtType() != null, it->
                 it.eq("tobl.devt_type",dto.getStyleDevtType())
                         .or()
-                .eq("ts.devt_type", dto.getStyleDevtType())
+                .eq(dto.getStyleDevtType() == PutInProductionType.CMT,"ts.devt_type", PutInProductionType.CMT)
+                .ne(dto.getStyleDevtType() == PutInProductionType.FOB,"ts.devt_type", PutInProductionType.CMT)
         );
         queryWrapper.likeList("ts.prod_category", dto.getCategoryCode());
         queryWrapper.likeList("tsc.band_name", dto.getBand());

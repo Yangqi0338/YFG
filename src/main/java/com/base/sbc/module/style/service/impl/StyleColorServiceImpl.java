@@ -37,6 +37,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.config.utils.StringUtils.MatchStrType;
@@ -2458,8 +2459,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 styleColor.setTagPrice(new BigDecimal(dto.getTagPrice()));
 
 
-                styleColor.setDevtType("999");
-                styleColor.setDevtTypeName("代销");
+                styleColor.setDevtType(ProductionType.SALE);
+                styleColor.setDevtTypeName(ProductionType.SALE.getText());
                 style.setDevtType("999");
                 style.setDevtTypeName("代销");
 

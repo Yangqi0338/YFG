@@ -36,9 +36,7 @@ public enum ProductionType {
     }
 
     ProductionType(String text) {
-        String code = this.name().toLowerCase();
-        if (code.contains("_")) code = StrUtil.toCamelCase(code);
-        this.code = StrUtil.toCamelCase(code);
+        this.code = this.name();
         this.text = text;
     }
 }

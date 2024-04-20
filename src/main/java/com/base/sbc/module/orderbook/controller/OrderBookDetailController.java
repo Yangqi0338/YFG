@@ -9,6 +9,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
@@ -318,6 +319,7 @@ public class OrderBookDetailController extends BaseController {
             orderBookDetail.setBrand(brand);
             orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_COMMIT);
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
+            orderBookDetail.setDevtType(PutInProductionType.findByProductionType(styleColor.getDevtType()));
             list.add(orderBookDetail);
         }
         boolean b = orderBookDetailService.saveBatch(list);

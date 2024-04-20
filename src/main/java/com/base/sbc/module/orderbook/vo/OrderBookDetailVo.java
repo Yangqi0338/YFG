@@ -1,5 +1,6 @@
 package com.base.sbc.module.orderbook.vo;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
@@ -311,20 +312,6 @@ public class OrderBookDetailVo extends OrderBookDetail {
      */
     @ApiModelProperty(value = "尺码codes")
     private String high;
-
-    /**
-     * 生产类型
-     */
-    @Override
-    @ApiModelProperty(value = "生产类型")
-    public PutInProductionType getDevtType(){
-        if (styleDevtType == null) return null;
-        return styleDevtType == ProductionType.CMT ? PutInProductionType.CMT : PutInProductionType.FOB;
-    };
-
-    /** 投产类型 */
-    @ApiModelProperty(value = "投产类型")
-    private ProductionType styleDevtType;
 
     private String yearName;
 
