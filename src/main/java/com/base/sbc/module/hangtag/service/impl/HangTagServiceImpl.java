@@ -935,8 +935,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 											packBomList
 													.stream()
 													.filter(item ->
-															ObjectUtil.isNotEmpty(basicsdatumMaterialMap.get(item.getMaterialCode()))
-																	|| item.getMaterialCodeName().contains("备扣袋")
+															item.getUnusableFlag().equals("0") &&
+																	(ObjectUtil.isNotEmpty(basicsdatumMaterialMap.get(item.getMaterialCode()))
+																			|| item.getMaterialCodeName().contains("备扣袋"))
 													)
 													.map(PackBom::getMaterialCodeName)
 													.collect(Collectors.toList()),
