@@ -53,4 +53,11 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
      * @param categoryPlanningDetailDTO 要保存的数据
      */
     List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
+
+    /**
+     * 撤回品类企划 只能撤回未提交的数据 撤回的粒度是到品类级别
+     *
+     * @param categoryPlanningDetailDTO 要撤回的数据
+     */
+    void revocation(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 }
