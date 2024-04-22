@@ -75,7 +75,7 @@ import com.base.sbc.module.sample.entity.PreProductionSampleTask;
 import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.smp.dto.*;
 import com.base.sbc.module.smp.entity.*;
-import com.base.sbc.module.smp.mapper.SaleProductIntoMapper;
+import com.base.sbc.module.smp.impl.SaleProductIntoService;
 import com.base.sbc.module.style.entity.*;
 import com.base.sbc.module.style.service.*;
 import com.github.pagehelper.Page;
@@ -190,7 +190,7 @@ public class SmpService {
     private final BasicsdatumSupplierService basicsdatumSupplierService;
     private final HangTagServiceImpl hangTagService;
     private final FieldValService fieldValService;
-    private final SaleProductIntoMapper saleProductIntoMapper;
+    private final SaleProductIntoService saleProductIntoService;
     private final DataPermissionsService dataPermissionsService;
 
     @Resource
@@ -1856,7 +1856,7 @@ public class SmpService {
     /**
      * 查询相似款的款号
      */
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
         Page<Object> page = saleProductIntoDto.startPage();
         BaseQueryWrapper qw = new BaseQueryWrapper<>();
@@ -1872,15 +1872,15 @@ public class SmpService {
         return CopyUtil.copy(page.toPageInfo(), dtoList);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+//    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public List<Map<String, Object>> querySaleIntoPage(BaseQueryWrapper qw, Integer total) {
-        return saleProductIntoMapper.querySaleIntoPage(qw, total);
+        return saleProductIntoService.querySaleIntoPage(qw, total);
     }
 
     /**
      * 查询相似款
      */
-    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+//    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public List<StyleSaleIntoDto> querySaleIntoPage(SaleProductIntoDto saleProductIntoDto) {
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
