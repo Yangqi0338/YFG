@@ -1575,7 +1575,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						languageVo.setIsGroup(true);
 					});
 					groupVO.getLanguageList().forEach(languageVo-> {
-						list.stream().collect(Collectors.groupingBy((it)-> StrUtil.isNotBlank(it.getPropertiesName()) ? it.getPropertiesName() : ""))
+						list.stream()
+								.sorted(Comparator.comparing(HangTagMoreLanguageWebBaseVO::getPropertiesNameLength).reversed() )
+								.collect(CommonUtils.groupingBy(HangTagMoreLanguageWebBaseVO::getPropertiesName))
 								.forEach((key, sameNameLanguageList)-> {
 									// 获取源数据中对应原本的翻译
 									String value = sameNameLanguageList.get(0).getLanguageList().stream()
@@ -1584,6 +1586,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 											.filter(StrUtil::isNotBlank).findFirst().orElse(" ");
 									// 进行组合
 									String s = languageVo.getPropertiesContent();
+									// 得找出最佳匹配
+
 									String s1 = StrUtil.replace(s, key, value);
 									if (StrUtil.isBlank(value) || s.equals(s1)) {
 										languageVo.setCannotFindPropertiesContent(true);

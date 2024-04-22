@@ -138,4 +138,10 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
         }));
     }
 
+    @JsonIgnore
+    @ApiModelProperty(value = "具体数据")
+    public int getPropertiesNameLength(){
+        return StrUtil.length(this.getPropertiesName());
+    };
+
 }
