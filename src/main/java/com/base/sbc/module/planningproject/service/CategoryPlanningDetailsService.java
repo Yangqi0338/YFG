@@ -4,6 +4,7 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailDTO;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
+import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailVO;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageInfo;
@@ -60,4 +61,11 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
      * @param categoryPlanningDetailDTO 要撤回的数据
      */
     void revocation(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
+
+    /**
+     * 品类企划更新接口
+     *
+     * @param seasonalPlanningDetailsList 季节企划重新导入后 需要修改和需要新增的季节企划的数据
+     */
+    void updateBySeasonalPlanning(List<SeasonalPlanningDetails> seasonalPlanningDetailsList);
 }
