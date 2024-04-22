@@ -124,6 +124,26 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         // 查询季节企划的详情数据
         List<SeasonalPlanningDetails> detailsList = seasonalPlanningDetailsService
                 .listByField("seasonal_planning_id", seasonalPlanning.getId());
+        List<CategoryPlanningDetails> categoryPlanningDetailsList = generationCategoryPlanningDetails(detailsList, seasonalPlanning, categoryPlanning);
+        boolean saveFlag = categoryPlanningDetailsService.saveBatch(categoryPlanningDetailsList);
+        if (!saveFlag) {
+            throw new OtherException("生成品类企划失败，请刷新后重试！");
+        }
+    }
+
+    /**
+     * 根据季节企划详情数据进行品类企划详情的组装生成
+     * @param detailsList 季节企划详情集合数据
+     * @param seasonalPlanning 季节企划数据
+     * @param categoryPlanning 品类企划数据
+     * @return 品类企划详情集合数据
+     */
+    public List<CategoryPlanningDetails> generationCategoryPlanningDetails(
+            List<SeasonalPlanningDetails> detailsList
+            , SeasonalPlanning seasonalPlanning
+            , CategoryPlanning categoryPlanning) {
+        // 初始化返回的数据
+        List<CategoryPlanningDetails> categoryPlanningDetailsList = new ArrayList<>();
         // 初始化当前品类企划中所有品类的企划需求管理数据
         Map<String, List<PlanningDimensionality>> planningDimensionalityMap = new HashMap<>();
         // 初始化表单字段的数据 也就是企划需求管理的每个动态字段以及动态字段的内容的数据
@@ -253,10 +273,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                     }
                 }
             }
-
-            categoryPlanningDetailsService.saveBatch(categoryPlanningDetailList);
         }
-
+        return categoryPlanningDetailsList;
     }
 
     /**
