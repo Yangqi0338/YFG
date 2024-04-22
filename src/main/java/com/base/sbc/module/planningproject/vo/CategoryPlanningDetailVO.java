@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.vo;
 
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,6 +16,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("品类企划详情查询返回值")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CategoryPlanningDetailVO {
     /**
      * 品类企划数据
@@ -34,9 +36,4 @@ public class CategoryPlanningDetailVO {
     @ApiModelProperty(value = "品类企划波段数据")
     private List<CategoryPlanningDetails> groupByBandList;
 
-    /**
-     * 品类企划数据根据维度分组后的数据
-     */
-    @ApiModelProperty(value = "品类企划维度数据")
-    private List<CategoryPlanningDetails> groupByDimensionalityNameList;
 }

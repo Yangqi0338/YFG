@@ -161,7 +161,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             // 生成品类企划明细 空数据
             // 按照 品类-中类-波段分组 品类企划颗粒度到波段 不到款式类别
             Map<String, List<SeasonalPlanningDetails>> seasonalPlanningDetailsMap = detailsList.stream().collect(
-                    Collectors.groupingBy(item -> item.getProdCategoryCode() + item.getProdCategory2ndCode() + item.getBandName(), LinkedHashMap::new, Collectors.toList())
+                    Collectors.groupingBy(item -> item.getProdCategoryCode() + "-" + item.getProdCategory2ndCode() + "-" + item.getBandCode(), LinkedHashMap::new, Collectors.toList())
             );
 
             // 初始化新增的品类企划
@@ -189,8 +189,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                     for (Map.Entry<String, String> stringStringEntry : stringStringMap.entrySet()) {
                                         initEmptyData(
                                                 planningDimensionality,
-                                                stringStringEntry.getKey(),
                                                 stringStringEntry.getValue(),
+                                                stringStringEntry.getKey(),
                                                 details,
                                                 categoryPlanning,
                                                 fieldManagement, seasonalPlanningDetailsList,
@@ -199,7 +199,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                 }
                             } else if ("2".equals(isOption)) {
                                 // 从数据结构获取
-                                List<BasicStructureTreeVo> basicStructureTreeVoList = structureMap.get(fieldManagement.getOptionDictKey());
+                                List<BasicStructureTreeVo> basicStructureTreeVoList = structureMap.get(fieldManagement.getOptionDictKey() + "-" + fieldManagement.getStructureTier());
                                 if (ObjectUtil.isNotEmpty(basicStructureTreeVoList)) {
                                     if ("固定属性".equals(fieldManagement.getGroupName()) && "品类".equals(fieldManagement.getOptionDictKey())) {
                                         // 找到对应层级的品类数据
@@ -313,15 +313,15 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
 
         if (ObjectUtil.isNotEmpty(structureKeyList)) {
             for (FieldManagementVo fieldManagementVo : structureKeyList) {
-                String optionDictKey = fieldManagementVo.getOptionDictKey();
-                if (ObjectUtil.isNotEmpty(structureMap.get(optionDictKey))) {
+                String key = fieldManagementVo.getOptionDictKey() + "-" + fieldManagementVo.getStructureTier();
+                if (ObjectUtil.isNotEmpty(structureMap.get(key))) {
                     continue;
                 }
                 // 将需要层级的所有数据查询出来
-                List<BasicStructureTreeVo> structureTreeByCodes = ccmFeignService.basicStructureTreeByCode(optionDictKey, null, fieldManagementVo.getStructureTier());
+                List<BasicStructureTreeVo> structureTreeByCodes = ccmFeignService.basicStructureTreeByCode(fieldManagementVo.getOptionDictKey(), null, fieldManagementVo.getStructureTier());
 
                 if (ObjectUtil.isNotEmpty(structureTreeByCodes)) {
-                    structureMap.put(optionDictKey, structureTreeByCodes);
+                    structureMap.put(key, structureTreeByCodes);
                 }
             }
         }

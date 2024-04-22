@@ -21,10 +21,10 @@ public class CategoryPlanningDetailDTO {
     private String categoryPlanningId;
 
     /**
-     * 品类 code，多选逗号分隔
+     * 品类 code
      */
-    @ApiModelProperty(value = "品类 code，多选逗号分隔")
-    private String prodCategoryCodes;
+    @ApiModelProperty(value = "品类 code")
+    private String prodCategoryCode;
 
     /**
      * 维度数据 id，多选逗号分隔
