@@ -4,6 +4,8 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -84,9 +86,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
+import org.eclipse.jetty.util.ArrayUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
@@ -153,7 +159,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
         Page<OrderBookDetailVo> page = dto.startPage();
-        this.querylist(queryWrapper,1, isColumnHeard);
+        this.querylist(queryWrapper,1, isColumnHeard ? 1 : 0);
         OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(page.toPageInfo(),OrderBookDetailPageVo.class);
         if (!isColumnHeard) {
             pageVo.setTotalMap(this.queryCount(dto));
@@ -165,7 +171,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response, String tableCode) throws IOException {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1, false);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1);
         if (orderBookDetailVos.isEmpty()) {
             throw new RuntimeException("没有数据");
         }
@@ -177,12 +183,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
-    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,int openDataAuth, boolean isColumnHeard) {
-        if (1 == openDataAuth) {
+    public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer... judgeGroup) {
+        List<Integer> judgeList = ArrayUtil.asMutableList(judgeGroup);
+        boolean openDataAuth = CommonUtils.judge(judgeList, 0, 1);
+        if (openDataAuth) {
             dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
-        if (isColumnHeard || CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
+        if (CommonUtils.judge(judgeList, 1, 0) || CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
 
         List<OrderBook> orderBookList = orderBookService.list(new LambdaQueryWrapper<OrderBook>()
                 .in(OrderBook::getId, orderBookDetailVos.stream().map(OrderBookDetailVo::getOrderBookId).collect(Collectors.toList())));
@@ -305,10 +313,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                                 orderBookDetailVo.setFabricState(packBom.getStatus());
                                 // orderBookDetailVo.setFabricFactoryCode(packBom.getSupplierId());
                                 // orderBookDetailVo.setFabricFactoryName(packBom.getSupplierName());
-                                QueryWrapper<BasicsdatumMaterialColor> basicsdatumMaterialColorQueryWrapper = new QueryWrapper<>();
-                                basicsdatumMaterialColorQueryWrapper.eq("material_code", packBom.getMaterialCode());
-                                basicsdatumMaterialColorQueryWrapper.eq("color_code", packBom.getColorCode());
-                                BasicsdatumMaterialColor basicsdatumMaterialColor = basicsdatumMaterialColorService.getOne(basicsdatumMaterialColorQueryWrapper);
+//                                QueryWrapper<BasicsdatumMaterialColor> basicsdatumMaterialColorQueryWrapper = new QueryWrapper<>();
+//                                basicsdatumMaterialColorQueryWrapper.eq("material_code", packBom.getMaterialCode());
+//                                basicsdatumMaterialColorQueryWrapper.eq("color_code", packBom.getColorCode());
+//                                BasicsdatumMaterialColor basicsdatumMaterialColor = basicsdatumMaterialColorService.getOne(basicsdatumMaterialColorQueryWrapper);
 //                                orderBookDetailVo.setFabricFactoryColorNumber(basicsdatumMaterialColor.getSupplierColorCode());
                                 // orderBookDetailVo.setFabricCode(packBom.getMaterialCode());
                                 // orderBookDetailVo.setFabricComposition(packBom.getIngredient());
@@ -347,13 +355,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
 
             //查询参考款
-            if (StringUtils.isNotBlank(orderBookDetailVo.getSimilarBulkStyleNo())){
+            if (CommonUtils.judge(judgeList, 2, 0) && StringUtils.isNotBlank(orderBookDetailVo.getSimilarBulkStyleNo())){
                 OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
                 orderBookDetailQueryDto.setSimilarBulkStyleNo(orderBookDetailVo.getSimilarBulkStyleNo());
                 orderBookDetailQueryDto.setChannel(OrderBookChannelType.getByNames(orderBookDetailVo.getChannel()));
                 orderBookDetailQueryDto.setPageNum(0);
                 orderBookDetailQueryDto.setPageSize(20);
-                PageInfo<OrderBookSimilarStyleVo> pageInfo = similarStyleList(orderBookDetailQueryDto);
+                PageInfo<OrderBookSimilarStyleVo> pageInfo = this.similarStyleList(orderBookDetailQueryDto);
                 if (pageInfo.getList().size() > 0){
                     orderBookDetailVo.setSimilarStyle(pageInfo.getList().get(0));
                 }
@@ -368,11 +376,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     public OrderBookDetailVo getDetailById(String id) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("tobl.id", id);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1, false);
-        if (Objects.nonNull(orderBookDetailVos) && !orderBookDetailVos.isEmpty()) {
-            return orderBookDetailVos.get(0);
-        }
-        return null;
+        OrderBookDetailQueryDto dto = new OrderBookDetailQueryDto();
+        dto.reset2QueryFirst();
+        dto.startPage();
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1);
+        return orderBookDetailVos.stream().findFirst().orElse(null);
     }
 
     /**
@@ -718,7 +726,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             throw new OtherException("请选订货本");
         }
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, false);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, 1);
 
         List<OrderBookDetailVo> cancelOrderBookDetailList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
@@ -762,7 +770,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Transactional(rollbackFor = Exception.class)
     public boolean placeAnOrder(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, false);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, 1);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (orderBookDetail.getStatus() == OrderBookDetailStatusEnum.AUDIT){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已审核,请勿重复提交");
@@ -854,6 +862,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto queryDto) {
         long millis = System.currentTimeMillis();
         /* ----------------------------封装查询参数---------------------------- */
@@ -1117,7 +1126,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Transactional(rollbackFor = Exception.class)
     public boolean placeAnProduction(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, false);
+        List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已投产,请勿重新提交");
@@ -1249,12 +1258,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * 查询款式定价数据
      */
 
-    private void queryStylePrice(List<OrderBookDetailVo> orderBookDetailVos,Integer openDataAuth) {
+    private void queryStylePrice(List<OrderBookDetailVo> orderBookDetailVos,boolean openDataAuth) {
         if (orderBookDetailVos != null && !orderBookDetailVos.isEmpty()) {
             List<String> bulkStyleNos = orderBookDetailVos.stream().map(OrderBookDetailVo::getBulkStyleNo).collect(Collectors.toList());
             BaseQueryWrapper qw = new BaseQueryWrapper();
             qw.in("ssc.style_no", bulkStyleNos);
-            if (null == openDataAuth) {
+            if (openDataAuth) {
                 dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
             }
             /*获取款式定价的列表*/

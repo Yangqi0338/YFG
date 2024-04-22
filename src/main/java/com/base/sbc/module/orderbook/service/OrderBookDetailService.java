@@ -29,7 +29,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      */
     OrderBookDetailPageVo queryPage(OrderBookDetailQueryDto dto);
 
-    List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper, int openDataAuth, boolean isColumnHeard);
+    List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper, Integer... judgeGroup);
 
     /**
      * * 订货本详情-导出

@@ -90,6 +90,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -1852,8 +1854,9 @@ public class SmpService {
     }
 
     /**
-     * 修改商品尺码的时候验证
+     * 查询相似款的款号
      */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
         Page<Object> page = saleProductIntoDto.startPage();
         BaseQueryWrapper qw = new BaseQueryWrapper<>();
@@ -1863,21 +1866,27 @@ public class SmpService {
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
         qw.notEmptyEq("T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNo());
 
-        List<Map<String, Object>> totalMaps = saleProductIntoMapper.querySaleIntoPage(qw, 1);
+        List<Map<String, Object>> totalMaps = this.querySaleIntoPage(qw, 1);
         List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
 
         return CopyUtil.copy(page.toPageInfo(), dtoList);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
+    public List<Map<String, Object>> querySaleIntoPage(BaseQueryWrapper qw, Integer total) {
+        return saleProductIntoMapper.querySaleIntoPage(qw, total);
+    }
+
     /**
-     * 修改商品尺码的时候验证
+     * 查询相似款
      */
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public List<StyleSaleIntoDto> querySaleIntoPage(SaleProductIntoDto saleProductIntoDto) {
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
         dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
-        List<Map<String, Object>> detailMaps = saleProductIntoMapper.querySaleIntoPage(qw, 0);
+        List<Map<String, Object>> detailMaps = this.querySaleIntoPage(qw, 0);
         // 封装数据并转化Bean
         detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
         return ORDER_BOOK_CV.copyList2StyleSaleInto(detailMaps);
