@@ -41,6 +41,7 @@ import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -1126,6 +1127,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				);
 			});
 		});
+		RedisStaticFunUtils.set(RedisKeyConstant.HANG_TAG_COUNTRY.addEnd(true, "list"), resultList);
 		if (source == SystemSource.SYSTEM) return resultList;
 		return decorateResultList(source, resultList, hangTagVOList, styleCountryStatusList);
 	}
@@ -1367,6 +1369,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (propertiesCountryTranslateList.size() < propertiesCodeList.size()) {
 						languageVO.setCannotFindPropertiesContent(true);
 					}
+					languageVO.setIsGroup(true);
 					content = String.join(MoreLanguageProperties.multiSeparator, propertiesCountryTranslateList);
 				} else {
 					content = translate.getContent();
