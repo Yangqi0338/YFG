@@ -120,8 +120,8 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true);
         Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
         for (EsOrderBookItemVo esOrderBookItemVo : list) {
-            if (collect.containsKey(esOrderBookItemVo.getStylePricingId())) {
-                StylePricingVO stylePricingVO = collect.get(esOrderBookItemVo.getStylePricingId());
+            if (collect.containsKey(esOrderBookItemVo.getPackId())) {
+                StylePricingVO stylePricingVO = collect.get(esOrderBookItemVo.getPackId());
                 String calcItemVal = stylePricingVO.getCalcItemVal();
                 if(StrUtil.isNotBlank(calcItemVal)){
                     JSONObject jsonObject = JSONObject.parseObject(calcItemVal);
