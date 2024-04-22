@@ -18,6 +18,7 @@
             head.id headId,
             head.season_id seasonId,
             head.name headName,
+            tpi.id packId,
             tsp.id stylePricingId,
             item.group_id,
             item.group_img,

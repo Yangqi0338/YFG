@@ -12,7 +12,9 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -37,6 +39,7 @@ import com.base.sbc.module.esorderbook.vo.EsOrderBookItemVo;
 import com.base.sbc.module.esorderbook.vo.EsOrderBookVo;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.impl.StylePricingServiceImpl;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.github.pagehelper.Page;
@@ -106,25 +109,29 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
 
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
 
+
+
         //组装费用信息
-        List<StylePricingVO> stylePricingList = list.stream().map(o -> {
-            StylePricingVO vo = new StylePricingVO();
-            vo.setStylePricingId(o.getStylePricingId());
-            vo.setPackType(o.getPackType());
-            vo.setProductionType(o.getDevtTypeName());
-            return vo;
-        }).distinct().collect(Collectors.toList());
+        List<String> packId = list.stream().map(EsOrderBookItemVo::getPackId).distinct().collect(Collectors.toList());
+        StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
+        stylePricingSearchDTO.setCompanyCode(getCompanyCode());
+        QueryWrapper<Object> queryWrapper = new QueryWrapper<>().in("p.id", packId);
+        List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingList(stylePricingSearchDTO, queryWrapper);
         stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true);
         Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
         for (EsOrderBookItemVo esOrderBookItemVo : list) {
             if (collect.containsKey(esOrderBookItemVo.getStylePricingId())) {
                 StylePricingVO stylePricingVO = collect.get(esOrderBookItemVo.getStylePricingId());
-                esOrderBookItemVo.setWoolenYarnProcessingFee(stylePricingVO.getWoolenYarnProcessingFee());
-                esOrderBookItemVo.setSewingProcessingFee(stylePricingVO.getSewingProcessingFee());
-                esOrderBookItemVo.setCoordinationProcessingFee(stylePricingVO.getCoordinationProcessingFee());
-                esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
-                esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
-                esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(esOrderBookItemVo.getActualMagnification()));
+                String calcItemVal = stylePricingVO.getCalcItemVal();
+                if(StrUtil.isNotBlank(calcItemVal)){
+                    JSONObject jsonObject = JSONObject.parseObject(calcItemVal);
+                    esOrderBookItemVo.setWoolenYarnProcessingFee(jsonObject.getBigDecimal("毛纱加工费"));
+                    esOrderBookItemVo.setSewingProcessingFee(jsonObject.getBigDecimal("车缝加工费"));
+                    esOrderBookItemVo.setCoordinationProcessingFee(jsonObject.getBigDecimal("外协加工费"));
+                    esOrderBookItemVo.setActualMagnification(jsonObject.getBigDecimal("毛纱加工费"));
+                    esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
+                    esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(esOrderBookItemVo.getActualMagnification()));
+                }
             }
         }
         minioUtils.setObjectUrlToList(list, "groupImg");

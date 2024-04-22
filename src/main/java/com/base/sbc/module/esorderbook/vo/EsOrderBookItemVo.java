@@ -34,6 +34,7 @@ public class EsOrderBookItemVo {
     private String headName;
     private String seasonId;
     private String stylePricingId;
+    private String packId;
     private String groupId;
     private Integer sortIndex;
 
