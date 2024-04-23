@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlanningMapper, CategoryPlanning> implements CategoryPlanningService {
 
     @Autowired
+    @Lazy
     private SeasonalPlanningService seasonalPlanningService;
     @Autowired
     private SeasonalPlanningDetailsService seasonalPlanningDetailsService;

@@ -32,6 +32,7 @@ import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,21 +50,27 @@ import java.util.stream.Collectors;
  * @mail 247967116@qq.com
  */
 @Service
-@RequiredArgsConstructor
 public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<CategoryPlanningDetailsMapper, CategoryPlanningDetails> implements CategoryPlanningDetailsService {
-    private final PlanningDimensionalityService planningDimensionalityService;
-    private final FieldOptionConfigService fieldOptionConfigService;
-    @Lazy
-    private final PlanningProjectService planningProjectService;
-
-    private final PlanningProjectDimensionService planningProjectDimensionService;
-    private final PlanningProjectPlankService planningProjectPlankService;
-    @Resource
+    @Autowired
+    private PlanningDimensionalityService planningDimensionalityService;
+    @Autowired
+    private FieldOptionConfigService fieldOptionConfigService;
+    @Autowired
+    private PlanningProjectService planningProjectService;
+    @Autowired
+    private PlanningProjectDimensionService planningProjectDimensionService;
+    @Autowired
+    private PlanningProjectPlankService planningProjectPlankService;
+    @Autowired
     @Lazy
     private CategoryPlanningService categoryPlanningService;
-    private final FieldManagementService fieldManagementService;
-    private final CcmFeignService ccmFeignService;
-    private final SeasonalPlanningService seasonalPlanningService;
+    @Autowired
+    private FieldManagementService fieldManagementService;
+    @Autowired
+    private CcmFeignService ccmFeignService;
+    @Autowired
+    @Lazy
+    private SeasonalPlanningService seasonalPlanningService;
 
     @Override
     public PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto) {
