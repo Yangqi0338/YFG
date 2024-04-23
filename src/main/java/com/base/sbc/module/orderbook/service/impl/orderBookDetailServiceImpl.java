@@ -691,7 +691,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
             // 检查投产数是否一致
             JSONObject jsonObject = JSON.parseObject(orderBookDetail.getCommissioningSizeTotal());
-            int sumProduction = jsonObject.keySet().stream()
+            int sumProduction = Opt.ofNullable(jsonObject.keySet()).orElse(new HashSet<>()).stream()
                     .filter(it ->
                             it.endsWith(OrderBookChannelType.OFFLINE.getFill()) || it.endsWith(OrderBookChannelType.ONLINE.getFill())
                     ).mapToInt(jsonObject::getInteger)
