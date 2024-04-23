@@ -101,14 +101,16 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         }
 
         // 先去查有没有启用的
-        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("company_code", seasonalPlanningSaveDto.getCompanyCode());
-        queryWrapper.eq("status", "0");
-        queryWrapper.eq("season_id", seasonalPlanningSaveDto.getSeasonId());
-        queryWrapper.eq("channel_code", seasonalPlanningSaveDto.getChannelCode());
-        long l = this.count(queryWrapper);
-        if (0 < l) {
-            return ApiResult.error("存在已启用的产品企划", 500);
+        if (StringUtils.isBlank(seasonalPlanningSaveDto.getId())) {
+            QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("company_code", seasonalPlanningSaveDto.getCompanyCode());
+            queryWrapper.eq("status", "0");
+            queryWrapper.eq("season_id", seasonalPlanningSaveDto.getSeasonId());
+            queryWrapper.eq("channel_code", seasonalPlanningSaveDto.getChannelCode());
+            long l = this.count(queryWrapper);
+            if (0 < l) {
+                return ApiResult.error("存在已启用的产品企划", 500);
+            }
         }
 
         // Excel 转 List
@@ -224,7 +226,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             SeasonalPlanningDetails::getProdCategory2ndCode, // 中类
                             Collectors.toList()));
                     if (StringUtils.isNotBlank(oldSeasonalList.get(0).getProdCategory2ndName())) {
-                        Map<String, List<SeasonalPlanningDetails>> oldProdCategory2ndListMap = importSeasonalList.stream().collect(Collectors.groupingBy(
+                        Map<String, List<SeasonalPlanningDetails>> oldProdCategory2ndListMap = oldSeasonalList.stream().collect(Collectors.groupingBy(
                                 SeasonalPlanningDetails::getProdCategory2ndCode, // 中类
                                 Collectors.toList()
                         ));
@@ -380,7 +382,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             //品类名称
                             if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
                                 prodCategoryName = integerStringHashMap.get(j);
-                                // TODO 品类校验(是否以生成企划)
                                 apiResult = getDimensionalityList(prodCategoryMap, seasonalPlanningSaveDto, prodCategory1stName, prodCategoryName);
                                 if (!apiResult.getSuccess()) {
                                     return apiResult;
@@ -910,9 +911,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         planningDimensionalityQueryWrapper.eq("prod_category", prodCategory);
         planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
         List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
-        if (CollectionUtils.isEmpty(planningDimensionalities)) {
+        /*if (CollectionUtils.isEmpty(planningDimensionalities)) {
             return ApiResult.error("品类:" + prodCategoryName + "未配置第一维度数据", 500);
-        }
+        }*/
 
         if (StringUtils.isNotBlank(seasonalPlanningSaveDto.getId())) {
             // 是否生成品类企划
