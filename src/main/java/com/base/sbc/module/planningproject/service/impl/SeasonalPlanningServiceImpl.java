@@ -790,6 +790,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         }
         for (int row = 1; row < 4; row++) {
             row01.put(COLUMN + "0" + row, lableName);
+            orderRow01.put(COLUMN + "0" + row, lableName);
             row02.put(COLUMN + "0" + row, "上市波段");
             row03.put(COLUMN + "0" + row, "下单时间");
             row04.put(COLUMN + "0" + row, "上市时间");
