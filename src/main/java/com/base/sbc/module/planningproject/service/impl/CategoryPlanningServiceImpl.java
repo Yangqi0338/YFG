@@ -185,8 +185,12 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                     Collectors.groupingBy(item -> item.getProdCategoryCode() + "-" + item.getProdCategory2ndCode() + "-" + item.getBandCode(), LinkedHashMap::new, Collectors.toList())
             );
 
-            // 初始化新增的品类企划
-            List<CategoryPlanningDetails> categoryPlanningDetailList = new ArrayList<>();
+            // 将季节企划详情集合数据按照品类-中类分组 用作合并相同品类-中类下的sck数据
+
+            Map<String, List<SeasonalPlanningDetails>> totalSeasonalPlanningDetailsMap = detailsList.stream().collect(
+                    Collectors.groupingBy(item -> item.getProdCategoryCode() + "-" + item.getProdCategory2ndCode(), LinkedHashMap::new, Collectors.toList())
+            );
+
             for (Map.Entry<String, List<SeasonalPlanningDetails>> listEntry : seasonalPlanningDetailsMap.entrySet()) {
                 // 获取该分组下的季节企划详情集合
                 List<SeasonalPlanningDetails> seasonalPlanningDetailsList = listEntry.getValue();
@@ -215,7 +219,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                                 details,
                                                 categoryPlanning,
                                                 fieldManagement, seasonalPlanningDetailsList,
-                                                categoryPlanningDetailList);
+                                                categoryPlanningDetailsList,
+                                                totalSeasonalPlanningDetailsMap);
                                     }
                                 }
                             } else if ("2".equals(isOption)) {
@@ -234,7 +239,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                                         details,
                                                         categoryPlanning,
                                                         fieldManagement, seasonalPlanningDetailsList,
-                                                        categoryPlanningDetailList);
+                                                        categoryPlanningDetailsList,
+                                                        totalSeasonalPlanningDetailsMap);
                                             }
                                         }
                                     } else {
@@ -246,7 +252,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                                     details,
                                                     categoryPlanning,
                                                     fieldManagement, seasonalPlanningDetailsList,
-                                                    categoryPlanningDetailList);
+                                                    categoryPlanningDetailsList,
+                                                    totalSeasonalPlanningDetailsMap);
                                         }
                                     }
                                 }
@@ -263,13 +270,12 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                                 details,
                                                 categoryPlanning,
                                                 fieldManagement, seasonalPlanningDetailsList,
-                                                categoryPlanningDetailList);
+                                                categoryPlanningDetailsList,
+                                                totalSeasonalPlanningDetailsMap);
                                     }
                                 }
 
                             }
-
-
                         }
                     }
                 }
@@ -390,7 +396,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                CategoryPlanning categoryPlanning,
                                FieldManagementVo fieldManagement,
                                List<SeasonalPlanningDetails> inSeasonalPlanningDetailsList,
-                               List<CategoryPlanningDetails> categoryPlanningDetailList) {
+                               List<CategoryPlanningDetails> categoryPlanningDetailList,
+                               Map<String, List<SeasonalPlanningDetails>> totalSeasonalPlanningDetailsMap) {
         // 根据品类维度的维度信息来
         // 初始化空的品类企划数据
         Integer skcCount = 0;
@@ -416,7 +423,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         categoryPlanningDetails.setBandName(details.getBandName());
         // 计算不同款式类别相加起来的需求数
         for (SeasonalPlanningDetails seasonalPlanningDetails : inSeasonalPlanningDetailsList) {
-            skcCount += Integer.parseInt(seasonalPlanningDetails.getSkcCount());
+            skcCount += ObjectUtil.isEmpty(seasonalPlanningDetails.getSkcCount())
+                    ? 0 : Integer.parseInt(seasonalPlanningDetails.getSkcCount());
         }
         categoryPlanningDetails.setSkcCount(String.valueOf(skcCount));
         categoryPlanningDetails.setStyleCategory(
@@ -427,6 +435,16 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         ;
         categoryPlanningDetails.setOrderTime(details.getOrderTime());
         categoryPlanningDetails.setLaunchTime(details.getLaunchTime());
+
+        // 合并品类-中类下的 skc 数量
+        Integer total = 0;
+        List<SeasonalPlanningDetails> planningDetailsList
+                = totalSeasonalPlanningDetailsMap.get(details.getProdCategoryCode() + "-" + details.getProdCategory2ndCode());
+        for (SeasonalPlanningDetails seasonalPlanningDetails : planningDetailsList) {
+            String skc = seasonalPlanningDetails.getSkcCount();
+            total += (ObjectUtil.isEmpty(skc) ? 0 : Integer.parseInt(skc));
+        }
+        categoryPlanningDetails.setTotal(String.valueOf(total));
         categoryPlanningDetailList.add(categoryPlanningDetails);
     }
 

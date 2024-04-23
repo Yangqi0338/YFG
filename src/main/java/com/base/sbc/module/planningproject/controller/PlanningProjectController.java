@@ -2,8 +2,6 @@ package com.base.sbc.module.planningproject.controller;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
@@ -21,10 +19,7 @@ import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
-import com.base.sbc.module.planningproject.dto.HistoryMatchDto;
-import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
-import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
-import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
+import com.base.sbc.module.planningproject.dto.*;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
@@ -290,5 +285,27 @@ public class PlanningProjectController extends BaseController {
         return updateSuccess("匹配成功");
     }
 
+    // ====================> 企划看板 2.0
+
+    @ApiOperation(value = "企划看板 2.0 企划看板计划查询")
+    @GetMapping("/queryPageNew")
+    public ApiResult queryPageNew(@Valid PlanningProjectPageDTO dto) {
+        return selectSuccess(planningProjectService.queryPageNew(dto));
+    }
+
+    /**
+     * 根据品类（多选逗号分隔）和品类企划 ID 获取维度系数
+     *
+     * @param categoryPlanningDetailDTO 要保存的数据
+     */
+    @PostMapping("/getDimensionality")
+    @ApiOperation(value = "企划看板 2.0 根据品类和品类企划 ID 获取维度系数")
+    public ApiResult<List<PlanningProjectDimension>> getDimensionality(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
+        // List<PlanningProjectDimension> list = planningProjectService.getDimensionality(categoryPlanningDetailDTO);
+        return selectSuccess(null);
+    }
+
+
+    // <==================== 企划看板 2.0
 
 }
