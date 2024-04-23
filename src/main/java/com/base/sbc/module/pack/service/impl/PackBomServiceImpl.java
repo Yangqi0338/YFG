@@ -475,30 +475,19 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             if (!fabricSummary.getFabricSummaryVersion().equals(dto.getFabricSummaryVersion())){
                 throw new OtherException("当前版本异常，请刷新页面后再提交");
             }
-            if (StringUtils.isNotEmpty(dto.getEnquiryCode())){
-                fabricSummary.setEnquiryCode(dto.getEnquiryCode());
-            }
-            if (StringUtils.isNotEmpty(dto.getYearSuffix())){
-                fabricSummary.setYearSuffix(dto.getYearSuffix());
-            }
-            if (null != dto.getProductionDay()){
-                fabricSummary.setProductionDay(dto.getProductionDay());
-            }
-            if (StringUtils.isNotEmpty(dto.getFittingResult())){
-                fabricSummary.setFittingResult(dto.getFittingResult());
-            }
-            if (StringUtils.isNotEmpty(dto.getFittingResult())){
-                fabricSummary.setFittingResult(dto.getFittingResult());
-            }
-            if (StringUtils.isNotEmpty(dto.getWidthName())){
-                fabricSummary.setWidthName(dto.getWidthName());
-            }
-            if (StringUtils.isNotEmpty(dto.getPhysicochemistryDetectionResult())){
-                fabricSummary.setPhysicochemistryDetectionResult(dto.getPhysicochemistryDetectionResult());
-            }
+            UpdateWrapper<FabricSummary> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.lambda().eq(FabricSummary::getId,fabricSummary.getId());
+            updateWrapper.lambda().set(FabricSummary::getEnquiryCode,dto.getEnquiryCode());
+            updateWrapper.lambda().set(FabricSummary::getYearSuffix,dto.getYearSuffix());
+
+            updateWrapper.lambda().set(FabricSummary::getProductionDay,dto.getProductionDay());
+            updateWrapper.lambda().set(FabricSummary::getFittingResult,dto.getFittingResult());
+            updateWrapper.lambda().set(FabricSummary::getWidthName,dto.getWidthName());
+            updateWrapper.lambda().set(FabricSummary::getPhysicochemistryDetectionResult,dto.getPhysicochemistryDetectionResult());
+
             Integer fabricSummaryVersion = fabricSummary.getFabricSummaryVersion()+1;
-            fabricSummary.setFabricSummaryVersion(fabricSummaryVersion);
-            fabricSummary.updateInit();
+            updateWrapper.lambda().set(FabricSummary::getFabricSummaryVersion,fabricSummaryVersion);
+            fabricSummary.updateInitWrapper(updateWrapper);
             saveOrUpdateOperaLog(dto, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
             FabricStyleUpdateResultVo result = new FabricStyleUpdateResultVo();
             result.setId(fabricSummary.getId());
@@ -612,22 +601,19 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             if (!fabricSummaryStyle.getFabricSummaryStyleVersion().equals(fabricSummaryStyleDto.getFabricSummaryStyleVersion())){
                 throw new OtherException("当前版本异常，请刷新页面后再提交");
             }
+            UpdateWrapper<FabricSummaryStyle> updateWrapper = new UpdateWrapper<>();
+            updateWrapper.lambda().eq(FabricSummaryStyle::getId,fabricSummaryStyle.getId());
+
             Integer fabricSummaryStyleVersion = fabricSummaryStyleDto.getFabricSummaryStyleVersion()+1;
-            fabricSummaryStyle.setFabricSummaryStyleVersion(fabricSummaryStyleVersion);
-            if (null != fabricSummaryStyleDto.getSort()){
-                fabricSummaryStyle.setSort(fabricSummaryStyleDto.getSort());
-            }
-            if (null != fabricSummaryStyleDto.getTotalProduction()){
-                fabricSummaryStyle.setTotalProduction(fabricSummaryStyleDto.getTotalProduction());
-            }
-            if (null != fabricSummaryStyleDto.getColorCrash()){
-                fabricSummaryStyle.setColorCrash(fabricSummaryStyleDto.getColorCrash());
-            }
-            if (null != fabricSummaryStyleDto.getUnitUse()){
-                fabricSummaryStyle.setUnitUse(fabricSummaryStyleDto.getUnitUse());
-            }
+            updateWrapper.lambda().set(FabricSummaryStyle::getFabricSummaryStyleVersion, fabricSummaryStyleVersion);
+            updateWrapper.lambda().set(FabricSummaryStyle::getSort, fabricSummaryStyleDto.getSort());
+            updateWrapper.lambda().set(FabricSummaryStyle::getTotalProduction, fabricSummaryStyleDto.getTotalProduction());
+            updateWrapper.lambda().set(FabricSummaryStyle::getColorCrash, fabricSummaryStyleDto.getColorCrash());
+            updateWrapper.lambda().set(FabricSummaryStyle::getUnitUse, fabricSummaryStyleDto.getUnitUse());
+            updateWrapper.lambda().set(FabricSummaryStyle::getRemarks, fabricSummaryStyleDto.getRemarks());
+            fabricSummaryStyle.updateInitWrapper(updateWrapper);
             saveOrUpdateOperaLog(fabricSummaryStyleDto, fabricSummaryStyle, genOperaLogEntity(fabricSummaryStyle, "修改"));
-            boolean b = fabricSummaryStyleService.updateById(fabricSummaryStyle);
+            boolean b = fabricSummaryStyleService.update(updateWrapper);
             FabricStyleUpdateResultVo result =  new FabricStyleUpdateResultVo();
             result.setId(fabricSummaryStyle.getId());
             result.setResult(b);

@@ -9,6 +9,7 @@ package com.base.sbc.config.common.base;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -231,5 +232,11 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
         this.setCreateId(t.getCreateId());
         this.setCreateName(t.getCreateName());
         this.setDelFlag(t.getDelFlag());
+    }
+    public void updateInitWrapper(UpdateWrapper updateWrapper) {
+        UserCompany userCompany = companyUserInfo.get();
+        updateWrapper.lambda().set("update_date",new Date());
+        updateWrapper.lambda().set("update_id",userCompany.getUserId());
+        updateWrapper.lambda().set("update_name",userCompany.getAliasUserName());
     }
 }

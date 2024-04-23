@@ -29,5 +29,8 @@ public class FabricSummaryStyleDto {
     @ApiModelProperty(value = "单件用量"  )
     private BigDecimal unitUse;
 
+    @ApiModelProperty(value = "备注"  )
+    private String remarks;
+
 
 }
