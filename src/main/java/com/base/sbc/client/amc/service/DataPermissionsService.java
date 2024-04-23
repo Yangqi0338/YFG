@@ -171,13 +171,15 @@ public class DataPermissionsService {
 
                     List<String> fieldArr = new ArrayList<>();
                     boolean isFieldFlag = false;
-                    final String[] sqlType = {!authorityField.isEmpty() ? DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( " : " ( "};
-                    fieldArr.add(sqlType[0]);
+                    //判断是否第一次  如果是第一次 添加()  ，否者添加  and()/or()
+                    String sqlType = authorityField.isEmpty() ? " ( " : DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( ";
+                    fieldArr.add(sqlType);
                     boolean first = true;
+
                     for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
                         List<FieldDataPermissionVO> value = entry.getValue();
 
-                        if(value.size() > 1){
+                        if(permissionMap.size() > 1 && value.size() > 1){
                             if(first){
                                 fieldArr.add(" ( ");
                             }else{
@@ -192,14 +194,14 @@ public class DataPermissionsService {
                         first = false;
                         for (FieldDataPermissionVO fieldDataPermissionVO : value) {
                             if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
-                                fieldArr.add(!(fieldArr.get(fieldArr.size() - 1).equals(sqlType[0])) ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
-                                sqlType[0] = "fromtype2339";
+                                fieldArr.add(!(fieldArr.get(fieldArr.size() - 1).equals(sqlType)) ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
+                                sqlType = "fromtype2339";
                             }
                             if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
                                 String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
                                 if (isAssignFields && StringUtils.isBlank(fieldName)) {
                                     fieldArr.remove(fieldArr.size() - 1);
-                                    sqlType[0] = fieldArr.get(fieldArr.size() - 1);
+                                    sqlType = fieldArr.get(fieldArr.size() - 1);
                                     continue;
                                 }
                                 isFieldFlag = true;
@@ -232,7 +234,7 @@ public class DataPermissionsService {
                                 fieldArr.add(fieldDataPermissionVO.getSqlField());
                             }
                         }
-                        if(value.size() > 1){
+                        if(permissionMap.size() > 1 && value.size() > 1){
                             fieldArr.add(" ) ");
                         }
                     }
