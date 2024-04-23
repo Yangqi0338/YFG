@@ -286,20 +286,13 @@ public class PlanningProjectController extends BaseController {
     }
 
     // ====================> 企划看板 2.0
-
-    @ApiOperation(value = "企划看板 2.0 企划看板计划查询")
-    @GetMapping("/queryPageNew")
-    public ApiResult queryPageNew(@Valid PlanningProjectPageDTO dto) {
-        return selectSuccess(planningProjectService.queryPageNew(dto));
-    }
-
     /**
      * 根据品类和企划看板 ID 获取维度系数
      *
      * @param planningProjectDTO 要保存的数据
      */
     @PostMapping("/getDimensionality")
-    @ApiOperation(value = "根据品类和企划看板 ID 获取维度系数")
+    @ApiOperation(value = "企划看板 2.0 根据品类和企划看板 ID 获取维度系数")
     public ApiResult<List<PlanningProjectDimension>> getDimensionality(@RequestBody PlanningProjectDTO planningProjectDTO) {
         List<PlanningProjectDimension> list = planningProjectService.getDimensionality(planningProjectDTO);
         return selectSuccess(list);

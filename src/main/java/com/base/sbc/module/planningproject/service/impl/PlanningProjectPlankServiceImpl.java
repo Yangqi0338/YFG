@@ -1,11 +1,12 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -17,14 +18,11 @@ import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldManagementService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
-import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.FieldDisplayVo;
-import com.base.sbc.module.planningproject.controller.PlanningProjectPlankController;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
@@ -39,7 +37,6 @@ import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
-import com.base.sbc.module.smp.mapper.SaleProductIntoMapper;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorVo;
@@ -82,6 +79,11 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         List<FieldDisplayVo> dimensionFieldCard = this.getDimensionFieldCard(dto);
         Map<String, Object> hashMap = new HashMap<>();
 
+        String dimensionIds = dto.getDimensionIds();
+        if (ObjectUtil.isEmpty(dimensionIds)) {
+            throw new OtherException("请选择维度数据！");
+        }
+
         PlanningProject planningProject = planningProjectService.getById(dto.getPlanningProjectId());
 
         BaseQueryWrapper<PlanningProjectPlank> queryWrapper = new BaseQueryWrapper<>();
@@ -89,6 +91,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         queryWrapper.notEmptyEq("tppd.prod_category_code", dto.getProdCategoryCode());
         queryWrapper.notEmptyEq("tppd.prod_category2nd_code", dto.getProdCategory2ndCode());
         queryWrapper.notEmptyEq("tppd.prod_category1st_code", dto.getProdCategory1stCode());
+        queryWrapper.notEmptyIn("tppd.dimension_id", dimensionIds);
         if (StringUtils.isNotEmpty(dto.getPlanningBandCode())) {
             String[] split = dto.getPlanningBandCode().split(",");
             queryWrapper.in("tppp.band_code", Arrays.asList(split));
