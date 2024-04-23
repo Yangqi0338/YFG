@@ -1,24 +1,17 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.BasePageInfo;
-import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
-import com.base.sbc.module.formtype.entity.FieldVal;
-import com.base.sbc.module.formtype.service.FieldManagementService;
-import com.base.sbc.module.formtype.service.FieldValService;
-import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
@@ -28,23 +21,14 @@ import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectMapper;
 import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
-import com.base.sbc.module.pricing.mapper.StylePricingMapper;
-import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.beanutils.converters.FileConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.base.sbc.module.formtype.utils.FormTypeCodes.DIMENSION_LABELS;
 
 @Service
 @RequiredArgsConstructor
@@ -241,5 +225,49 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
 
         pageInfo.setMap(map);
         return  pageInfo;
+    }
+
+    /**
+     * 分页查询企划看板规划信息
+     * @param dto 查询条件
+     * @return 返回的结果
+     */
+    @Override
+    public PageInfo<PlanningProjectVo> queryPageNew(PlanningProjectPageDTO dto) {
+        /*分页*/
+        PageHelper.startPage(dto);
+        String dimensionIds = dto.getDimensionIds();
+        if (ObjectUtil.isEmpty(dimensionIds)) {
+            throw new OtherException("请选择维度数据！");
+        }
+        // 先查询维度数据主表信息
+        BaseQueryWrapper<PlanningProject> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("season_id",dto.getSeasonId());
+        queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
+        queryWrapper.notEmptyLike("season_name",dto.getYear());
+        queryWrapper.notEmptyLike("planning_project_name",dto.getPlanningProjectName());
+
+
+        List<PlanningProject> list = this.list(queryWrapper);
+        List<PlanningProjectVo> planningProjectVos = BeanUtil.copyToList(list, PlanningProjectVo.class);
+        for (PlanningProjectVo planningProjectVo : planningProjectVos) {
+            List<PlanningProjectDimension> planningProjectDimensions
+                    = planningProjectDimensionService.list(
+                            new QueryWrapper<PlanningProjectDimension>()
+                                    .in("dimension_id", CollUtil.newArrayList(dimensionIds.split(",")))
+                                    .eq("planning_project_id", planningProjectVo.getId()));
+            planningProjectVo.setPlanningProjectDimensionList(planningProjectDimensions);
+            List<PlanningProjectMaxCategory> planningProjectMaxCategories
+                    = planningProjectMaxCategoryService.list(
+                            new QueryWrapper<PlanningProjectMaxCategory>()
+                                    .eq("planning_project_id", planningProjectVo.getId()));
+            planningProjectVo.setPlanningProjectMaxCategoryList(planningProjectMaxCategories);
+
+            CategoryPlanning categoryPlanning = categoryPlanningService.getById(planningProjectVo.getCategoryPlanningId());
+            if (categoryPlanning!=null){
+                planningProjectVo.setSeasonalPlanningId(categoryPlanning.getSeasonalPlanningId());
+            }
+        }
+        return new PageInfo<>(planningProjectVos);
     }
 }
