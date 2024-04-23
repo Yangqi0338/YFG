@@ -368,7 +368,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
                                 prodCategoryName = integerStringHashMap.get(j);
                                 // TODO 品类校验(是否以生成企划)
-                                getDimensionalityList(prodCategoryMap, seasonalPlanningSaveDto, prodCategory1stName, prodCategoryName);
+                                apiResult = getDimensionalityList(prodCategoryMap, seasonalPlanningSaveDto, prodCategory1stName, prodCategoryName);
+                                if (!apiResult.getSuccess()) {
+                                    return apiResult;
+                                }
                             }
                         } else if ( j == 2) {
                             //中类名称
