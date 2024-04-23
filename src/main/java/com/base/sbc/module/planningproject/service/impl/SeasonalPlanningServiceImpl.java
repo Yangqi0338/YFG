@@ -100,6 +100,17 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             return result;
         }
 
+        // 先去查有没有启用的
+        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("company_code", seasonalPlanningSaveDto.getCompanyCode());
+        queryWrapper.eq("status", "0");
+        queryWrapper.eq("season_id", seasonalPlanningSaveDto.getSeasonId());
+        queryWrapper.eq("channel_code", seasonalPlanningSaveDto.getChannelCode());
+        long l = this.count(queryWrapper);
+        if (0 < l) {
+            return ApiResult.error("存在已启用的产品企划", 500);
+        }
+
         // Excel 转 List
         List<HashMap<Integer, String>> hashMaps = null;
         try {
@@ -135,19 +146,21 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
         // 新增
         if (StringUtils.isBlank(seasonalPlanningSaveDto.getId())) {
-            // 保存产品企划
-            saveSeasonalPlanning(seasonalPlanningSaveDto);
+            seasonalPlanningSaveDto.setStatus("0");
+            this.save(seasonalPlanningSaveDto);
+            SeasonalPlanning seasonalPlanning = getById(seasonalPlanningSaveDto.getId());
+
             for (SeasonalPlanningDetails details : importDetailsList) {
-                details.setSeasonalPlanningId(seasonalPlanningSaveDto.getId());
+                details.setSeasonalPlanningId(seasonalPlanning.getId());
             }
             seasonalPlanningDetailsService.saveBatch(importDetailsList);
             return ApiResult.success("导入成功");
         }
 
         // 比较更新
-        QueryWrapper<SeasonalPlanningDetails> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("seasonal_planning_id", seasonalPlanningSaveDto.getId());
-        List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(queryWrapper);
+        QueryWrapper<SeasonalPlanningDetails> detailsQueryWrapper = new QueryWrapper<>();
+        detailsQueryWrapper.eq("seasonal_planning_id", seasonalPlanningSaveDto.getId());
+        List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(detailsQueryWrapper);
         // 新增list
         List<SeasonalPlanningDetails> addList = new ArrayList<>();
         // 更新list
@@ -578,7 +591,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
     private void buildDemandAndOrderMap(Map<String, Map<String, String>> demandMap, Map<String, Map<String, String>> orderMap,
                                         List<SeasonalPlanningDetails> seasonalPlanningDetailsList, List<OrderBookDetailForSeasonPlanningVO> orderBookDetailVos,String lableName) {
-        int rowNum = 6;
+        int rowNum = 5;
         int orderCount = 0;
         // 顺序列表记录列顺序
         Map<Integer, String> sortSumMap = new LinkedHashMap<>();
@@ -599,8 +612,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 ));
 
         for (String prodCategory : groupByProdCate.keySet()) {
-            // 分组内最大行号
-            Integer maxRowNum = 0;
             Map<String, String> sumRow = new LinkedHashMap<>();
             Map<String, String> orderSumRow = new LinkedHashMap<>();
             List<SeasonalPlanningDetails> prodCategoryList = groupByProdCate.get(prodCategory);
@@ -686,9 +697,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             }
                             columnSumMap.put(styleCategory, countRow + sum);
                             orderColumnSumMap.put(styleCategory, countOrderRow + orderSize);
-
-                            // 品类-波段-类型 列的行数
-                            rowNum++;
                             row++;
                         }
                     }
@@ -710,6 +718,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     sortSumMap.put(rowSum, styleCat);
                     rowSum++;
                 }
+                // 行数 + 1
+                rowNum++;
                 if (rowNum < 10) {
                     demandMap.put(ROW + "0" + rowNum, sort(rowData));
                     orderMap.put(ROW + "0" + rowNum, sort(orderRowData));
@@ -769,13 +779,14 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 orderSumRow.put(COLUMN + "02", prodCategoryName);
                 orderSumRow.put(COLUMN + "03", "合计");
             }
-            Integer groupMapRow = rowNum + 1;
+            rowNum++;
             for (Integer size : sortSumMap.keySet()) {
                 sumRow.put(COLUMN + formatString(size) + size, String.valueOf(sumSumColumnMap.get(sortSumMap.get(size))));
                 orderSumRow.put(COLUMN + formatString(size) + size, String.valueOf(sumSumOrderColumnMap.get(sortSumMap.get(size))));
             }
-            demandMap.put(ROW + formatString(groupMapRow) + groupMapRow + "-c", sort(sumRow));
-            orderMap.put(ROW + formatString(groupMapRow) + groupMapRow + "-c", sort(orderSumRow));
+            demandMap.put(ROW + formatString(rowNum) + rowNum, sort(sumRow));
+            orderMap.put(ROW + formatString(rowNum) + rowNum, sort(orderSumRow));
+
         }
         for (int row = 1; row < 4; row++) {
             row01.put(COLUMN + "0" + row, lableName);
@@ -924,27 +935,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             }
         }
         return ApiResult.success("success");
-    }
-
-    private SeasonalPlanning saveSeasonalPlanning(SeasonalPlanningSaveDto seasonalPlanningSaveDto) {
-        // 先去查有没有启用的
-        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("company_code", seasonalPlanningSaveDto.getCompanyCode());
-        queryWrapper.eq("status", "0");
-        queryWrapper.eq("season_id", seasonalPlanningSaveDto.getSeasonId());
-        queryWrapper.eq("channel_code", seasonalPlanningSaveDto.getChannelCode());
-        List<SeasonalPlanning> l = this.list(queryWrapper);
-        // 如果存在有启用的企划，全部设置为停用
-        if (CollectionUtils.isNotEmpty(l)) {
-            List<SeasonalPlanning> stopSeasonalPlanning = l.stream().map(seasonalPlanning -> {
-                seasonalPlanning.setStatus("1");
-                return seasonalPlanning;
-                }).collect(Collectors.toList());
-            this.updateBatchById(stopSeasonalPlanning);
-        }
-        seasonalPlanningSaveDto.setStatus("0");
-        this.save(seasonalPlanningSaveDto);
-        return getById(seasonalPlanningSaveDto.getId());
     }
 
     @Override
