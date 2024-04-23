@@ -163,6 +163,7 @@ import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
  * 类描述：吊牌表 service类
@@ -1253,8 +1254,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		resultList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getStandardColumnId, Comparator.nullsFirst(String::compareTo)));
 //				 存入redis, 若审核确认了,减少
-		countryLanguageList.forEach(countryLanguage-> {
-			String code = countryLanguage.getCode();
+		countryLanguageList.stream().collect(Collectors.groupingBy(CountryLanguage::getCode)).forEach((code,sameCodeList)-> {
 			bulkStyleNoList.forEach(bulkStyleNo-> {
 				RedisStaticFunUtils.set(RedisKeyConstant.HANG_TAG_COUNTRY.addEnd(true, code, bulkStyleNo),
 						resultList.stream().filter(it-> it.getCode().equals(code) && it.getBulkStyleNo().equals(bulkStyleNo)).collect(Collectors.toList())
@@ -1391,15 +1391,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							.in(StandardColumnCountryTranslate::getPropertiesCode, allPropertiesCodeList)
 							.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageDtoList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
 			);
-			translateList.addAll(list.stream().peek(translate-> {
+			translateList.addAll(list.stream().map(translate-> {
+				StandardColumnCountryTranslate newTranslate = MORE_LANGUAGE_CV.copyMyself(translate);
 				singleLanguageDtoList.stream().filter(it -> translate.getCountryLanguageId().equals(it.getId())).findFirst().flatMap(countryLanguageDto ->
 						sameCodeList.stream().filter(it ->
 								countryLanguageDto.getLanguageCode().equals(it.getLanguageCodeByColumnCode(standardColumnCode))
 										&& countryLanguageDto.getType() == it.getType()
 						).findFirst()
 				).ifPresent(countryLanguage -> {
-                    translate.setCountryLanguageId(countryLanguage.getId());
+					newTranslate.setCountryLanguageId(countryLanguage.getId());
                 });
+				return newTranslate;
 			}).collect(Collectors.toList()));
 		}
 
