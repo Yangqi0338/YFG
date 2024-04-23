@@ -1,6 +1,7 @@
 package com.base.sbc.module.orderbook.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
@@ -24,7 +25,6 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.pricing.service.StylePricingService;
@@ -37,6 +37,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -52,6 +53,7 @@ import java.util.stream.Collectors;
 @Api(tags = "订货本")
 @RequestMapping(value = BaseController.SAAS_URL + "/orderBookDetail", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @RequiredArgsConstructor
+@Slf4j
 public class OrderBookDetailController extends BaseController {
 
     private final OrderBookDetailService orderBookDetailService;
@@ -323,6 +325,9 @@ public class OrderBookDetailController extends BaseController {
             list.add(orderBookDetail);
         }
         boolean b = orderBookDetailService.saveBatch(list);
+        if (!b){
+            log.error("addByStyleColorIds error orderBookDetailSaveDto = {}", JSON.toJSONString(orderBookDetailSaveDto));
+        }
         return insertSuccess(b);
     }
 
