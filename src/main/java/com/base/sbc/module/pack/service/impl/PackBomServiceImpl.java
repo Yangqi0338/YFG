@@ -487,7 +487,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
             Integer fabricSummaryVersion = fabricSummary.getFabricSummaryVersion()+1;
             updateWrapper.lambda().set(FabricSummary::getFabricSummaryVersion,fabricSummaryVersion);
-            fabricSummary.updateInitWrapper(updateWrapper);
+            fabricSummary.updateInit();
+            updateWrapper.lambda().set(FabricSummary::getUpdateDate,fabricSummary.getUpdateDate());
+            updateWrapper.lambda().set(FabricSummary::getUpdateId,fabricSummary.getUpdateId());
+            updateWrapper.lambda().set(FabricSummary::getUpdateName,fabricSummary.getUpdateName());
             saveOrUpdateOperaLog(dto, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
             FabricStyleUpdateResultVo result = new FabricStyleUpdateResultVo();
             result.setId(fabricSummary.getId());
@@ -611,7 +614,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             updateWrapper.lambda().set(FabricSummaryStyle::getColorCrash, fabricSummaryStyleDto.getColorCrash());
             updateWrapper.lambda().set(FabricSummaryStyle::getUnitUse, fabricSummaryStyleDto.getUnitUse());
             updateWrapper.lambda().set(FabricSummaryStyle::getRemarks, fabricSummaryStyleDto.getRemarks());
-            fabricSummaryStyle.updateInitWrapper(updateWrapper);
+            fabricSummaryStyle.updateInit();
+            updateWrapper.lambda().set(FabricSummaryStyle::getUpdateDate,fabricSummaryStyle.getUpdateDate());
+            updateWrapper.lambda().set(FabricSummaryStyle::getUpdateId,fabricSummaryStyle.getUpdateId());
+            updateWrapper.lambda().set(FabricSummaryStyle::getUpdateName,fabricSummaryStyle.getUpdateName());
             saveOrUpdateOperaLog(fabricSummaryStyleDto, fabricSummaryStyle, genOperaLogEntity(fabricSummaryStyle, "修改"));
             boolean b = fabricSummaryStyleService.update(updateWrapper);
             FabricStyleUpdateResultVo result =  new FabricStyleUpdateResultVo();

@@ -233,10 +233,4 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
         this.setCreateName(t.getCreateName());
         this.setDelFlag(t.getDelFlag());
     }
-    public void updateInitWrapper(UpdateWrapper updateWrapper) {
-        UserCompany userCompany = companyUserInfo.get();
-        updateWrapper.lambda().set("update_date",new Date());
-        updateWrapper.lambda().set("update_id",userCompany.getUserId());
-        updateWrapper.lambda().set("update_name",userCompany.getAliasUserName());
-    }
 }
