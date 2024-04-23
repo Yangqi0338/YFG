@@ -930,9 +930,9 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                 }
 
                 // 如果没有已撤回的数据那么删除这些数据 然后进行新增
-                boolean removeFlag = updateBatchById(categoryPlanningDetailsList);
+                boolean removeFlag = removeBatchByIds(categoryPlanningDetailsList);
                 if (!removeFlag) {
-                    throw new OtherException("品类企划更新失败，请刷新后重试！");
+                    throw new OtherException("更新品类企划失败，请刷新后重试！");
                 }
             }
 
