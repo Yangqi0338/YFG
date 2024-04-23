@@ -104,15 +104,11 @@ public class HangTagMoreLanguageVO {
     @ApiModelProperty(value = "标准列模型")
     protected StandardColumnModel model;
 
-    @JsonIgnore
     public Boolean forceFindContent(){
         return this.model != StandardColumnModel.TEXT;
     }
 
-    /**
-     * 是组合的
-     */
-    @JsonIgnore
+
     @ApiModelProperty(value = "是组合的")
     protected Boolean isGroup = false;
 
@@ -139,10 +135,8 @@ public class HangTagMoreLanguageVO {
      * 审核状态
      */
     @ApiModelProperty(value = "审核状态")
-    @JsonIgnore
     protected StyleCountryStatusEnum contentAuditStatus = StyleCountryStatusEnum.UNCHECK;
 
-    @JsonIgnore
     protected StyleCountryStatusEnum titleAuditStatus = StyleCountryStatusEnum.UNCHECK;
 
     public StyleCountryStatusEnum getAuditStatus(){
