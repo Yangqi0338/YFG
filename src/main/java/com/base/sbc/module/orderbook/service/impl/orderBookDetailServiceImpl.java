@@ -154,7 +154,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
         Page<OrderBookDetailVo> page = dto.startPage();
-        this.querylist(queryWrapper,1, isColumnHeard ? 1 : 0);
+        this.querylist(queryWrapper,1, isColumnHeard ? 1 : 0, 1);
         OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(page.toPageInfo(),OrderBookDetailPageVo.class);
         if (!isColumnHeard) {
             pageVo.setTotalMap(this.queryCount(dto));
