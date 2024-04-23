@@ -3,6 +3,7 @@ package com.base.sbc.module.planningproject.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -15,6 +16,7 @@ import com.base.sbc.module.common.vo.BasePageInfo;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
+import com.base.sbc.module.planningproject.dto.PlanningProjectDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
 import com.base.sbc.module.planningproject.entity.*;
@@ -269,5 +271,39 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             }
         }
         return new PageInfo<>(planningProjectVos);
+    }
+
+    /**
+     * @param planningProjectDTO 要保存的数据
+     * @return
+     */
+    @Override
+    public List<PlanningProjectDimension> getDimensionality(PlanningProjectDTO planningProjectDTO) {
+        String planningProjectId = planningProjectDTO.getPlanningProjectId();
+        String prodCategoryCode = planningProjectDTO.getProdCategoryCode();
+        if (ObjectUtil.isEmpty(planningProjectId)) {
+            throw new OtherException("请选择企划看板数据！");
+        }
+        if (ObjectUtil.isEmpty(prodCategoryCode)) {
+            throw new OtherException("请选择品类！");
+        }
+        PlanningProject planningProject = getById(planningProjectId);
+        if (ObjectUtil.isEmpty(planningProject)) {
+            throw new OtherException("企划看板数据不存在，请刷新后重试！");
+        }
+
+        LambdaQueryWrapper<PlanningProjectDimension> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PlanningProjectDimension::getPlanningProjectId, planningProject.getId());
+        queryWrapper.eq(PlanningProjectDimension::getProdCategoryCode, prodCategoryCode);
+        queryWrapper.select(
+                PlanningProjectDimension::getProdCategoryCode,
+                PlanningProjectDimension::getDimensionId,
+                PlanningProjectDimension::getDimensionName,
+                PlanningProjectDimension::getDimensionalityGradeName
+        );
+        queryWrapper.isNotNull(PlanningProjectDimension::getDimensionName);
+        queryWrapper.ne(PlanningProjectDimension::getDimensionName, "");
+        queryWrapper.groupBy(PlanningProjectDimension::getProdCategoryCode, PlanningProjectDimension::getDimensionId);
+        return planningProjectDimensionService.list(queryWrapper);
     }
 }

@@ -31,12 +31,11 @@ import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailVO;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,21 +45,26 @@ import java.util.stream.Collectors;
  * @mail 247967116@qq.com
  */
 @Service
-@RequiredArgsConstructor
 public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<CategoryPlanningDetailsMapper, CategoryPlanningDetails> implements CategoryPlanningDetailsService {
-    private final PlanningDimensionalityService planningDimensionalityService;
-    private final FieldOptionConfigService fieldOptionConfigService;
+    @Autowired
+    private PlanningDimensionalityService planningDimensionalityService;
+    @Autowired
+    private FieldOptionConfigService fieldOptionConfigService;
+    @Autowired
     @Lazy
-    private final PlanningProjectService planningProjectService;
-
-    private final PlanningProjectDimensionService planningProjectDimensionService;
-    private final PlanningProjectPlankService planningProjectPlankService;
-    @Resource
-    @Lazy
+    private PlanningProjectService planningProjectService;
+    @Autowired
+    private PlanningProjectDimensionService planningProjectDimensionService;
+    @Autowired
+    private PlanningProjectPlankService planningProjectPlankService;
+    @Autowired
     private CategoryPlanningService categoryPlanningService;
-    private final FieldManagementService fieldManagementService;
-    private final CcmFeignService ccmFeignService;
-    private final SeasonalPlanningService seasonalPlanningService;
+    @Autowired
+    private FieldManagementService fieldManagementService;
+    @Autowired
+    private CcmFeignService ccmFeignService;
+    @Autowired
+    private SeasonalPlanningService seasonalPlanningService;
 
     @Override
     public PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto) {
@@ -834,7 +838,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         );
         queryWrapper.isNotNull(CategoryPlanningDetails::getDimensionName);
         queryWrapper.ne(CategoryPlanningDetails::getDimensionName, "");
-        queryWrapper.groupBy(CategoryPlanningDetails::getProdCategoryName, CategoryPlanningDetails::getDimensionId);
+        queryWrapper.groupBy(CategoryPlanningDetails::getProdCategoryCode, CategoryPlanningDetails::getDimensionId);
         return list(queryWrapper);
     }
 

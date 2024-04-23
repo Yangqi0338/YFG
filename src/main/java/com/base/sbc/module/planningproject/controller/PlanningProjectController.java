@@ -294,15 +294,15 @@ public class PlanningProjectController extends BaseController {
     }
 
     /**
-     * 根据品类（多选逗号分隔）和品类企划 ID 获取维度系数
+     * 根据品类和企划看板 ID 获取维度系数
      *
-     * @param categoryPlanningDetailDTO 要保存的数据
+     * @param planningProjectDTO 要保存的数据
      */
     @PostMapping("/getDimensionality")
-    @ApiOperation(value = "企划看板 2.0 根据品类和品类企划 ID 获取维度系数")
-    public ApiResult<List<PlanningProjectDimension>> getDimensionality(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
-        // List<PlanningProjectDimension> list = planningProjectService.getDimensionality(categoryPlanningDetailDTO);
-        return selectSuccess(null);
+    @ApiOperation(value = "根据品类和企划看板 ID 获取维度系数")
+    public ApiResult<List<PlanningProjectDimension>> getDimensionality(@RequestBody PlanningProjectDTO planningProjectDTO) {
+        List<PlanningProjectDimension> list = planningProjectService.getDimensionality(planningProjectDTO);
+        return selectSuccess(list);
     }
 
 
