@@ -911,9 +911,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         planningDimensionalityQueryWrapper.eq("prod_category", prodCategory);
         planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
         List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
-        /*if (CollectionUtils.isEmpty(planningDimensionalities)) {
+        if (CollectionUtils.isEmpty(planningDimensionalities)) {
             return ApiResult.error("品类:" + prodCategoryName + "未配置第一维度数据", 500);
-        }*/
+        }
 
         if (StringUtils.isNotBlank(seasonalPlanningSaveDto.getId())) {
             // 是否生成品类企划
