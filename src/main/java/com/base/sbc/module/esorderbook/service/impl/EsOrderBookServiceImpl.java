@@ -128,7 +128,10 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
                     esOrderBookItemVo.setWoolenYarnProcessingFee(jsonObject.getBigDecimal("毛纱加工费"));
                     esOrderBookItemVo.setSewingProcessingFee(jsonObject.getBigDecimal("车缝加工费"));
                     esOrderBookItemVo.setCoordinationProcessingFee(jsonObject.getBigDecimal("外协加工费"));
-                    esOrderBookItemVo.setActualMagnification(jsonObject.getBigDecimal("毛纱加工费"));
+                    esOrderBookItemVo.setPackagingFee(jsonObject.getBigDecimal("包装费"));
+                    esOrderBookItemVo.setTestingFee(jsonObject.getBigDecimal("检测费"));
+                    esOrderBookItemVo.setMaterialPrice(jsonObject.getBigDecimal("物料费"));
+                    esOrderBookItemVo.setActualMagnification(stylePricingVO.getActualMagnification());
                     esOrderBookItemVo.setTotalCost(stylePricingVO.getTotalCost());
                     esOrderBookItemVo.setMultiplePrice(esOrderBookItemVo.getTotalCost().multiply(esOrderBookItemVo.getActualMagnification()));
                 }

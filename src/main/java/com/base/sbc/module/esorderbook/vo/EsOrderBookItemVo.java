@@ -97,4 +97,17 @@ public class EsOrderBookItemVo {
      * 列头筛选数量
      */
     private Integer groupCount;
+
+    /**
+     * 包装费
+     */
+    private BigDecimal packagingFee;
+    /**
+     * 检测费
+     */
+    private BigDecimal testingFee;
+    /**
+     * 物料费
+     */
+    private BigDecimal materialPrice;
 }
