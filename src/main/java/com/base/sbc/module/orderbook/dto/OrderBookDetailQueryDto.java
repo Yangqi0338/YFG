@@ -5,6 +5,8 @@ import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -81,6 +83,8 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
      */
     private String status;
     private OrderBookDetailAuditStatusEnum auditStatus;
+
+    private OrderBookDetailOrderStatusEnum orderStatus;
 
     /**
      * 生产紧急程度

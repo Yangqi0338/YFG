@@ -28,6 +28,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.*;
+import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.*;
@@ -362,6 +363,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 }
             }
 
+            if (orderBookDetailVo.getPlaceOrderType() == null) {
+                orderBookDetailVo.setPlaceOrderType(StylePutIntoType.FIRST);
+            }
         }
 
         return orderBookDetailVos;
@@ -412,6 +416,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.total_production", dto.getTotalProduction());
         queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCoefficientCode());
         queryWrapper.notEmptyLike("tobl.status", dto.getStatus());
+        queryWrapper.notEmptyEq("tobl.order_status", dto.getOrderStatus());
         queryWrapper.notNullEq("tobl.audit_status", dto.getAuditStatus());
         queryWrapper.likeRight(StrUtil.isNotBlank(dto.getYearName()), "tob.season_name", dto.getYearName());
 
