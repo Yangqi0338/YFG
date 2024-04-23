@@ -68,7 +68,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     private final static String COLUMN = "column";
     private final static String ROW = "row";
 
-    private final static String pattern = "[1-9]\\d*";
+    private final static String pattern = "[0-9]\\d*";
 
     @Autowired
     private CcmFeignService ccmFeignService;
@@ -688,10 +688,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             orderColumnSumMap.put(styleCategory, countOrderRow + orderSize);
 
                             // 品类-波段-类型 列的行数
-                            rowNum = Integer.valueOf(details.getRowIndex());
-                            if (rowNum > maxRowNum) {
-                                maxRowNum = rowNum;
-                            }
+                            rowNum++;
                             row++;
                         }
                     }
@@ -713,7 +710,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     sortSumMap.put(rowSum, styleCat);
                     rowSum++;
                 }
-                rowNum = rowNum + 1;
                 if (rowNum < 10) {
                     demandMap.put(ROW + "0" + rowNum, sort(rowData));
                     orderMap.put(ROW + "0" + rowNum, sort(orderRowData));
@@ -773,7 +769,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 orderSumRow.put(COLUMN + "02", prodCategoryName);
                 orderSumRow.put(COLUMN + "03", "合计");
             }
-            Integer groupMapRow = maxRowNum + 1;
+            Integer groupMapRow = rowNum + 1;
             for (Integer size : sortSumMap.keySet()) {
                 sumRow.put(COLUMN + formatString(size) + size, String.valueOf(sumSumColumnMap.get(sortSumMap.get(size))));
                 orderSumRow.put(COLUMN + formatString(size) + size, String.valueOf(sumSumOrderColumnMap.get(sortSumMap.get(size))));
