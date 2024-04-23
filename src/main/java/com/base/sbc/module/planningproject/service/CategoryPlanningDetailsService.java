@@ -66,6 +66,8 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
      * 品类企划更新接口
      *
      * @param seasonalPlanningDetailsList 季节企划重新导入后 需要修改和需要新增的季节企划的数据
+     * @param removeSeasonPlaningDetailList 季节企划重新导入后 需要删除季节企划的数据
      */
-    void updateBySeasonalPlanning(List<SeasonalPlanningDetails> seasonalPlanningDetailsList);
+    void updateBySeasonalPlanning(List<SeasonalPlanningDetails> seasonalPlanningDetailsList,
+                                  List<SeasonalPlanningDetails> removeSeasonPlaningDetailList);
 }

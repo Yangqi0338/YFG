@@ -883,9 +883,12 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     @Override
     @Transactional(rollbackFor = Exception.class)
     @DuplicationCheck
-    public void updateBySeasonalPlanning(List<SeasonalPlanningDetails> seasonalPlanningDetailsList) {
-        if (ObjectUtil.isEmpty(seasonalPlanningDetailsList)) {
-            throw new OtherException("品类企划更新数据不能为空！");
+    public void updateBySeasonalPlanning(
+            List<SeasonalPlanningDetails> seasonalPlanningDetailsList,
+            List<SeasonalPlanningDetails> removeSeasonPlaningDetailList
+    ) {
+        if (ObjectUtil.isEmpty(seasonalPlanningDetailsList) && ObjectUtil.isEmpty(removeSeasonPlaningDetailList)) {
+            throw new OtherException("更新数据不能为空！");
         }
         // 拿到季节企划的 id
         String seasonalPlanningId = seasonalPlanningDetailsList.get(0).getSeasonalPlanningId();
@@ -905,41 +908,64 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             throw new OtherException("暂无已启用的品类企划需要更新！");
         }
 
-        // 拿到需要更新或者新增的品类 因为数据不会为空 所以品类也不会为空
-        List<String> prodCategoryCodeList = seasonalPlanningDetailsList
-                .stream().map(SeasonalPlanningDetails::getProdCategoryCode).distinct().collect(Collectors.toList());
 
-        // 查询此品类下的品类企划 只能查已撤回的数据
-        List<CategoryPlanningDetails> categoryPlanningDetailsList = list(
-                new LambdaQueryWrapper<CategoryPlanningDetails>()
-                        .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
-                        .in(CategoryPlanningDetails::getProdCategoryCode, prodCategoryCodeList)
-                        .eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.NO)
-        );
+        // 更新和新增的数据
+        if (ObjectUtil.isNotEmpty(seasonalPlanningDetailsList)) {
+            // 拿到需要更新或者新增的品类 因为数据不会为空 所以品类也不会为空
+            List<String> prodCategoryCodeList = seasonalPlanningDetailsList
+                    .stream().map(SeasonalPlanningDetails::getProdCategoryCode).distinct().collect(Collectors.toList());
 
-        if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
-            // 只要有一个不是已撤回的数据 那么报错
-            if (categoryPlanningDetailsList.stream().anyMatch(item -> !"2".equals(item.getIsGenerate()))) {
-                throw new OtherException("未撤回数据无法更新，请刷新后重试！");
+            // 查询此品类下的品类企划 只能查已撤回的数据
+            List<CategoryPlanningDetails> categoryPlanningDetailsList = list(
+                    new LambdaQueryWrapper<CategoryPlanningDetails>()
+                            .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
+                            .in(CategoryPlanningDetails::getProdCategoryCode, prodCategoryCodeList)
+                            .eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.NO)
+            );
+
+            if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                // 只要有一个不是已撤回的数据 那么报错
+                if (categoryPlanningDetailsList.stream().anyMatch(item -> !"2".equals(item.getIsGenerate()))) {
+                    throw new OtherException("未撤回数据无法更新，请刷新后重试！");
+                }
+
+                // 如果没有已撤回的数据那么删除这些数据 然后进行新增
+                boolean removeFlag = updateBatchById(categoryPlanningDetailsList);
+                if (!removeFlag) {
+                    throw new OtherException("品类企划更新失败，请刷新后重试！");
+                }
             }
 
-            // 如果没有已撤回的数据那么删除这些数据 然后进行新增
-            boolean removeFlag = updateBatchById(categoryPlanningDetailsList);
-            if (!removeFlag) {
-                throw new OtherException("品类企划更新失败，请刷新后重试！");
+            // 组装生成要新增的品类企划详情数据
+            List<CategoryPlanningDetails> newCategoryPlanningDetailsList = categoryPlanningService.generationCategoryPlanningDetails(
+                    seasonalPlanningDetailsList,
+                    seasonalPlanning,
+                    categoryPlanning
+            );
+
+            boolean saveFlag = saveBatch(newCategoryPlanningDetailsList);
+            if (!saveFlag) {
+                throw new OtherException("更新品类企划失败，请刷新后重试！");
             }
         }
-
-        // 组装生成要新增的品类企划详情数据
-        List<CategoryPlanningDetails> newCategoryPlanningDetailsList = categoryPlanningService.generationCategoryPlanningDetails(
-                seasonalPlanningDetailsList,
-                seasonalPlanning,
-                categoryPlanning
-        );
-
-        boolean saveFlag = saveBatch(newCategoryPlanningDetailsList);
-        if (!saveFlag) {
-            throw new OtherException("生成品类企划失败，请刷新后重试！");
+        // 删除的数据
+        if (ObjectUtil.isNotEmpty(removeSeasonPlaningDetailList)) {
+            // 按照品类-中类删除数据
+            List<String> prodCategory2ndCodeList = removeSeasonPlaningDetailList
+                    .stream().map(SeasonalPlanningDetails::getProdCategory2ndCode).collect(Collectors.toList());
+            // 查询需要删除的数据
+            List<CategoryPlanningDetails> categoryPlanningDetailsList = list(
+                    new LambdaQueryWrapper<CategoryPlanningDetails>()
+                            .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
+                            .eq(CategoryPlanningDetails::getProdCategory2ndCode, prodCategory2ndCodeList)
+                            .eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.NO)
+            );
+            if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                boolean removeFlag = removeBatchByIds(categoryPlanningDetailsList);
+                if (!removeFlag) {
+                    throw new OtherException("更新品类企划失败，请刷新后重试！");
+                }
+            }
         }
     }
 
