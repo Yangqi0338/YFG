@@ -494,7 +494,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             saveOrUpdateOperaLog(dto, fabricSummary, genOperaLogEntity(fabricSummary, "更新"));
             FabricStyleUpdateResultVo result = new FabricStyleUpdateResultVo();
             result.setId(fabricSummary.getId());
-            boolean b = fabricSummaryService.updateById(fabricSummary);
+            boolean b = fabricSummaryService.update(updateWrapper);
             result.setResult(b);
             if (b){
                 result.setFabricSummaryVersion(fabricSummaryVersion);
