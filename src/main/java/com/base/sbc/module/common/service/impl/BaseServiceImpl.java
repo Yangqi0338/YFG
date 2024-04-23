@@ -754,6 +754,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     @Override
+    public <R> List<R> groupOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        return this.list(wrapper.groupBy(function).select(function)).stream().map(function).collect(Collectors.toList());
+    }
+
+    @Override
     public boolean saveOrUpdateBatch(Collection<T> entityList, int batchSize) {
         if (CollectionUtil.isEmpty(entityList)) return false;
         if (baseMapper instanceof BaseEnhanceMapper) {
