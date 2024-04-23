@@ -890,8 +890,16 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         if (ObjectUtil.isEmpty(seasonalPlanningDetailsList) && ObjectUtil.isEmpty(removeSeasonPlaningDetailList)) {
             throw new OtherException("更新数据不能为空！");
         }
-        // 拿到季节企划的 id
-        String seasonalPlanningId = seasonalPlanningDetailsList.get(0).getSeasonalPlanningId();
+        // 更新和新增的数据
+        String seasonalPlanningId;
+        if (ObjectUtil.isNotEmpty(seasonalPlanningDetailsList)) {
+            // 拿到季节企划的 id
+            seasonalPlanningId = seasonalPlanningDetailsList.get(0).getSeasonalPlanningId();
+        } else {
+            // 拿到季节企划的 id
+            seasonalPlanningId = removeSeasonPlaningDetailList.get(0).getSeasonalPlanningId();
+        }
+
         // 查询季节企划数据
         SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(seasonalPlanningId);
         if (ObjectUtil.isEmpty(seasonalPlanning)) {
@@ -952,12 +960,13 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         if (ObjectUtil.isNotEmpty(removeSeasonPlaningDetailList)) {
             // 按照品类-中类删除数据
             List<String> prodCategory2ndCodeList = removeSeasonPlaningDetailList
-                    .stream().map(SeasonalPlanningDetails::getProdCategory2ndCode).collect(Collectors.toList());
+                    .stream().map(SeasonalPlanningDetails::getProdCategory2ndCode)
+                    .distinct().collect(Collectors.toList());
             // 查询需要删除的数据
             List<CategoryPlanningDetails> categoryPlanningDetailsList = list(
                     new LambdaQueryWrapper<CategoryPlanningDetails>()
                             .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
-                            .eq(CategoryPlanningDetails::getProdCategory2ndCode, prodCategory2ndCodeList)
+                            .in(CategoryPlanningDetails::getProdCategory2ndCode, prodCategory2ndCodeList)
                             .eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.NO)
             );
             if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
