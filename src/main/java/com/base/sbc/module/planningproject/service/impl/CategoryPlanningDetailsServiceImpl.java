@@ -816,7 +816,6 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @DuplicationCheck
     public List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         // 先根据品类企划 id 查询品类企划信息
         CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningDetailDTO.getCategoryPlanningId());
