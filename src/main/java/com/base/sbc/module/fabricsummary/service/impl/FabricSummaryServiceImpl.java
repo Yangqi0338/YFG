@@ -65,7 +65,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         }
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.eq("tfs.company_code",dto.getCompanyCode());
-        qw.orderByAsc("tfs.id");
+        qw.orderByDesc("tfs.create_date");
         Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
         List<FabricSummaryInfoVo> list = getBaseMapper().fabricSummaryInfoVoList(qw);
         if (CollectionUtils.isNotEmpty(list)){

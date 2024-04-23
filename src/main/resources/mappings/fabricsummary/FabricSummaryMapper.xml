@@ -36,7 +36,6 @@
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
-        order by tfs.create_date desc
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
