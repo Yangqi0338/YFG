@@ -41,6 +41,7 @@ import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.redis.RedisKeyConstant;
 import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -162,6 +163,7 @@ import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
 import static com.base.sbc.module.common.convert.ConvertContext.HANG_TAG_CV;
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
  * 类描述：吊牌表 service类
@@ -935,8 +937,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 											packBomList
 													.stream()
 													.filter(item ->
-															ObjectUtil.isNotEmpty(basicsdatumMaterialMap.get(item.getMaterialCode()))
-																	|| item.getMaterialCodeName().contains("备扣袋")
+															item.getUnusableFlag().equals("0") &&
+																	(ObjectUtil.isNotEmpty(basicsdatumMaterialMap.get(item.getMaterialCode()))
+																			|| item.getMaterialCodeName().contains("备扣袋"))
 													)
 													.map(PackBom::getMaterialCodeName)
 													.collect(Collectors.toList()),
@@ -1238,7 +1241,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		// 获取吊牌状态
 		List<StyleCountryStatus> styleCountryStatusList = styleCountryStatusMapper.selectList(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-				.notEmptyEq(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
+				.notEmptyIn(StyleCountryStatus::getCode, hangTagMoreLanguageDTO.getCode())
 				.notNullEq(StyleCountryStatus::getType, hangTagMoreLanguageDTO.getType())
 				.notEmptyIn(StyleCountryStatus::getBulkStyleNo, bulkStyleNoList));
 
@@ -1251,14 +1254,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 		resultList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getStandardColumnId, Comparator.nullsFirst(String::compareTo)));
 //				 存入redis, 若审核确认了,减少
-		countryLanguageList.forEach(countryLanguage-> {
-			String code = countryLanguage.getCode();
+		countryLanguageList.stream().collect(Collectors.groupingBy(CountryLanguage::getCode)).forEach((code,sameCodeList)-> {
 			bulkStyleNoList.forEach(bulkStyleNo-> {
 				RedisStaticFunUtils.set(RedisKeyConstant.HANG_TAG_COUNTRY.addEnd(true, code, bulkStyleNo),
 						resultList.stream().filter(it-> it.getCode().equals(code) && it.getBulkStyleNo().equals(bulkStyleNo)).collect(Collectors.toList())
 				);
 			});
 		});
+		RedisStaticFunUtils.set(RedisKeyConstant.HANG_TAG_COUNTRY.addEnd(true, "list"), resultList);
 		if (source == SystemSource.SYSTEM) return resultList;
 		return decorateResultList(source, resultList, hangTagVOList, styleCountryStatusList);
 	}
@@ -1388,15 +1391,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							.in(StandardColumnCountryTranslate::getPropertiesCode, allPropertiesCodeList)
 							.in(StandardColumnCountryTranslate::getCountryLanguageId, singleLanguageDtoList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
 			);
-			translateList.addAll(list.stream().peek(translate-> {
+			translateList.addAll(list.stream().map(translate-> {
+				StandardColumnCountryTranslate newTranslate = MORE_LANGUAGE_CV.copyMyself(translate);
 				singleLanguageDtoList.stream().filter(it -> translate.getCountryLanguageId().equals(it.getId())).findFirst().flatMap(countryLanguageDto ->
 						sameCodeList.stream().filter(it ->
 								countryLanguageDto.getLanguageCode().equals(it.getLanguageCodeByColumnCode(standardColumnCode))
 										&& countryLanguageDto.getType() == it.getType()
 						).findFirst()
 				).ifPresent(countryLanguage -> {
-                    translate.setCountryLanguageId(countryLanguage.getId());
+					newTranslate.setCountryLanguageId(countryLanguage.getId());
                 });
+				return newTranslate;
 			}).collect(Collectors.toList()));
 		}
 
@@ -1500,6 +1505,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					if (propertiesCountryTranslateList.size() < propertiesCodeList.size()) {
 						languageVO.setCannotFindPropertiesContent(true);
 					}
+					languageVO.setIsGroup(true);
 					content = String.join(MoreLanguageProperties.multiSeparator, propertiesCountryTranslateList);
 				} else {
 					content = translate.getContent();
@@ -1541,6 +1547,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
 					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
+					sameCodeList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getPropertiesNameLength).reversed());
 					// 获取所有的语言
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
 						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
@@ -1705,7 +1712,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						languageVo.setIsGroup(true);
 					});
 					groupVO.getLanguageList().forEach(languageVo-> {
-						list.stream().collect(Collectors.groupingBy((it)-> StrUtil.isNotBlank(it.getPropertiesName()) ? it.getPropertiesName() : ""))
+						list.stream()
+								.sorted(Comparator.comparing(HangTagMoreLanguageWebBaseVO::getPropertiesNameLength).reversed() )
+								.collect(CommonUtils.groupingBy(HangTagMoreLanguageWebBaseVO::getPropertiesName))
 								.forEach((key, sameNameLanguageList)-> {
 									// 获取源数据中对应原本的翻译
 									String value = sameNameLanguageList.get(0).getLanguageList().stream()
@@ -1714,6 +1723,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 											.filter(StrUtil::isNotBlank).findFirst().orElse(" ");
 									// 进行组合
 									String s = languageVo.getPropertiesContent();
+									// 得找出最佳匹配
+
 									String s1 = StrUtil.replace(s, key, value);
 									if (StrUtil.isBlank(value) || s.equals(s1)) {
 										languageVo.setCannotFindPropertiesContent(true);

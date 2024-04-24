@@ -102,6 +102,10 @@
 
     <select id="styleColorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
         select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             concat(ts.year_name," ",ts.season_name," ",ts.brand_name) planningSeason,
             ts.task_level,
             ts.task_level_name,
@@ -152,6 +156,7 @@
 --             tppst.technologist_name,
             ts.style_origin_name,
             concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode
+        </if>
             FROM
             t_style ts
             LEFT JOIN  t_style_color tsc ON (ts.id = tsc.style_id  AND tsc.del_flag = '0')
@@ -206,8 +211,8 @@
             tsp.control_confirm,
             tsp.product_hangtag_confirm,
             tsp.control_hangtag_confirm,
-            ts.devt_type as devtType,
-            ts.devt_type_name as devtTypeName,
+            tsc.devt_type as devtType,
+            tsc.devt_type_name as devtTypeName,
             concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode
             FROM
             t_style_color tsc
