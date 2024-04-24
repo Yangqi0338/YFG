@@ -102,7 +102,12 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);
 
         if (ObjectUtil.isEmpty(list)) {
-            throw new OtherException("当前条件无数据！");
+            ArrayList<Object> resultEmptyList = new ArrayList<>();
+            hashMap.put("list", resultEmptyList);
+            hashMap.put("tableColumnVos", resultEmptyList);
+            hashMap.put("map", resultEmptyList);
+            hashMap.put("map2", resultEmptyList);
+            return hashMap;
         }
 
         List<String> ids = list.stream().map(PlanningProjectPlankVo::getId).collect(Collectors.toList());
