@@ -100,6 +100,11 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         queryWrapper.orderBy(true, true, "tppp.band_code");
 
         List<PlanningProjectPlankVo> list = this.baseMapper.queryPage(queryWrapper);
+
+        if (ObjectUtil.isEmpty(list)) {
+            throw new OtherException("当前条件无数据！");
+        }
+
         List<String> ids = list.stream().map(PlanningProjectPlankVo::getId).collect(Collectors.toList());
 
 
