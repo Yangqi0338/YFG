@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: uat
+    active: @env@
 
 # 暂不打印
 #logging:

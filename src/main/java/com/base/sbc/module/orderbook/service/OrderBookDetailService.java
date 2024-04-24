@@ -82,6 +82,12 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto dto);
 
+    String placeAnProduction(OrderBookDetailQueryDto dto);
+
+    void handlePlaceAnCancelProduction(List<OrderBookDetail> list);
+
+    String handlePlaceAnProduction(List<OrderBookDetail> list);
+
     boolean updateMaterial(MaterialUpdateDto dto);
 
     UpdateResultVo businessConfirm(OrderBookDetailSaveDto dto);

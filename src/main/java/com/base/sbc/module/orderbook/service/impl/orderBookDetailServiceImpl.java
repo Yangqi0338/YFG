@@ -1129,7 +1129,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public boolean placeAnProduction(OrderBookDetailQueryDto dto) {
+    public String placeAnProduction(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1);
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
@@ -1180,28 +1180,33 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         Supplier<String> handlePlaceAnProduction = ()-> {
             List<OrderBookDetail> finalOrderBookDetailList = orderBookDetails1;
+            StringJoiner joiner = new StringJoiner("；");
             callableList.forEach(callable-> {
                 try {
                     HttpResp httpResp = callable.call();
-                    handlePlaceAnProduction(finalOrderBookDetailList.stream().filter(it-> it.getId().equals(httpResp.getCode())).collect(Collectors.toList()));
+                    String warnMsg = handlePlaceAnProduction(finalOrderBookDetailList.stream()
+                            .filter(it -> it.getId().equals(httpResp.getCode())).collect(Collectors.toList())
+                    );
+                    joiner.add(warnMsg);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
             });
-            return null;
+            return joiner.toString();
         };
+        String result = b ? "" : "false";
         if (orderBookDetails1.size() > BusinessProperties.orderBookProductionInThreadLimit) {
             TtlRunnable.get(handlePlaceAnProduction::get).run();
         }else {
-            handlePlaceAnProduction.get();
+            result = handlePlaceAnProduction.get();
         }
-        return b;
+        return result;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void handlePlaceAnProduction(List<OrderBookDetail> list) {
-        if (CollUtil.isEmpty(list)) return;
+    public String handlePlaceAnProduction(List<OrderBookDetail> list) {
+        if (CollUtil.isEmpty(list)) return "";
         PushRecordsDto pushRecordsDto = new PushRecordsDto();
         pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining(",")));
         pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL);
@@ -1209,6 +1214,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         pushRecordsDto.reset2QueryList();
         List<PushRecords> pushRecordsList = pushRecordsService.pushRecordsList(pushRecordsDto);
 
+        StringJoiner joiner = new StringJoiner("；");
         if (CollUtil.isNotEmpty(pushRecordsList)) {
             pushRecordsList.forEach(pushRecords -> {
                 OrderBookDetail orderBookDetail = list.stream().filter(it -> it.getId().equals(pushRecords.getRelatedId())).findFirst().get();
@@ -1220,6 +1226,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
                     orderBookDetail.setIsLock(YesOrNoEnum.NO);
                     orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
+                    joiner.add(pushRecords.getResponseMessage());
                 }else {
                     orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDER);
                     orderBookDetail.setOrderNo("");
@@ -1227,6 +1234,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             });
             this.updateBatchById(list);
         }
+        return joiner.toString();
     }
 
     @Override

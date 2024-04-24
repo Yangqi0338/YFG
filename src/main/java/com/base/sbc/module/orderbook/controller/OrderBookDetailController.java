@@ -141,7 +141,7 @@ public class OrderBookDetailController extends BaseController {
     public ApiResult placeAnProduction(@RequestBody @Valid OrderBookDetailQueryDto dto) {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        return updateSuccess(orderBookDetailService.placeAnProduction(dto));
+        return update(orderBookDetailService.placeAnProduction(dto));
     }
 
     /**

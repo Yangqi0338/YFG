@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -71,17 +72,12 @@ public class RestTemplateService {
     }
 
     public static HttpResp buildHttpResp(String responseStrData) {
-        HttpResp httpResp = new HttpResp();
+        HttpResp httpResp = JSONUtil.toBean(responseStrData, HttpResp.class);
         JSONObject jsonObject = JSONObject.parseObject(responseStrData);
-        if (jsonObject != null) {
-            httpResp.setMessage(jsonObject.getString("message"));
-            httpResp.setCode(jsonObject.getString("code"));
-            httpResp.setSuccess(BooleanUtil.toBoolean(jsonObject.getOrDefault("success", "true").toString()));
-            httpResp.setDataMap(JSON.parseObject(jsonObject.getString("data"), new TypeReference<List<Map<String,Object>>>() {}.getType()));
-            if ("0000000".equals(httpResp.getCode())) {
-                httpResp.setSuccess(true);
-            }
+        if (!jsonObject.containsKey("success") || "0000000".equals(httpResp.getCode())) {
+            httpResp.setSuccess(true);
         }
+        httpResp.setDataMap(JSON.parseObject(jsonObject.getString("data"), new TypeReference<List<Map<String,Object>>>() {}.getType()));
         return httpResp;
     }
 
