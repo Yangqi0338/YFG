@@ -269,4 +269,7 @@ public class QueryStyleColorAgentDto extends Page {
      */
     @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
     private String orderMarkingStatus;
+
+    /**是否上传图片*/
+    private Integer uploadImageFlag;
 }
