@@ -779,7 +779,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             planningProject.setPlanningChannelCode(categoryPlanning.getChannelCode());
             planningProject.setPlanningChannelName(categoryPlanning.getChannelName());
             planningProject.setPlanningProjectName(categoryPlanning.getName());
-            planningProject.setStatus(count > 0 ? "0" : "1");
+            planningProject.setStatus(count > 0 ? "1" : "0");
             planningProjectService.save(planningProject);
         }
 
