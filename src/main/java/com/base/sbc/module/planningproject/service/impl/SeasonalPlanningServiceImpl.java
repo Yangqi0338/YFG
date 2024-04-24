@@ -498,6 +498,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             details.setStyleCategory(orDefault.getStyleCategory());
                             details.setSeasonalPlanningName(seasonalPlanningSaveDto.getName());
                             details.setSkcCount(integerStringHashMap.get(j));
+                            details.setRowIndex(String.valueOf(i));
                             details.setColumnIndex(String.valueOf(j));
                             detailsList.add(details);
                         }
@@ -514,6 +515,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         QueryWrapper<SeasonalPlanningDetails> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("seasonal_planning_id", seasonalPlanningDetails.getId());
         queryWrapper.eq("del_flag", "0");
+        queryWrapper.orderBy(true, true, "row_index");
         queryWrapper.orderBy(true, true, "band_name");
         SeasonalPlanning seasonalPlanning = this.getById(seasonalPlanningDetails.getId());
         String channel = StringUtils.isBlank(seasonalPlanning.getChannelName()) ? "" : seasonalPlanning.getChannelName();
