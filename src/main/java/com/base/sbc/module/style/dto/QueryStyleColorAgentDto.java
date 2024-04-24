@@ -271,5 +271,5 @@ public class QueryStyleColorAgentDto extends Page {
     private String orderMarkingStatus;
 
     /**是否上传图片*/
-    private Integer uploadImageFlag;
+    private String uploadImageFlag;
 }
