@@ -428,9 +428,6 @@
         </profile>
         <profile>
             <id>dev</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <env>dev</env>
             </properties>
@@ -453,6 +450,9 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <env>dev</env>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -509,12 +509,6 @@
         </profile>
     </profiles>
     <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
         <plugins>
 
             <!-- Dockerfile打包专用 start -->
@@ -659,6 +653,12 @@
                 </executions>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
 
