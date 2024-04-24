@@ -1,6 +1,7 @@
 package com.base.sbc.module.moreLanguage.dto;
 
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -8,7 +9,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -23,10 +26,13 @@ public class StyleCountryStatusDto extends CountryDTO {
     private List<TypeLanguageDto> typeLanguageDtoList;
 
     @JsonIgnore
-    private StyleCountryStatusEnum statusCode = StyleCountryStatusEnum.UNCHECK;
+    private Map<CountryLanguageType, StyleCountryStatusEnum> statusMap = new HashMap<>();
 
-    public String getStatus() {
-        return statusCode.getText();
+    public String getTagStatus() {
+        return statusMap.getOrDefault(CountryLanguageType.TAG, StyleCountryStatusEnum.UNCHECK).getText();
+    }
+    public String getWashingStatus() {
+        return statusMap.getOrDefault(CountryLanguageType.WASHING, StyleCountryStatusEnum.UNCHECK).getText();
     }
 
     public String getShowTypeInfo(){
