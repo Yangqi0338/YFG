@@ -109,7 +109,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             queryWrapper.eq("channel_code", seasonalPlanningSaveDto.getChannelCode());
             long l = this.count(queryWrapper);
             if (0 < l) {
-                return ApiResult.error("存在已启用的产品企划", 500);
+                return ApiResult.error("存在已启用的季节企划", 500);
             }
         }
 
@@ -170,6 +170,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         // 新增list
         List<SeasonalPlanningDetails> delList = new ArrayList<>();
         compareForUpdate(importDetailsList, seasonalPlanningDetailsList, addList, updateList, delList);
+        if (CollectionUtils.isEmpty(addList) && CollectionUtils.isEmpty(updateList) && CollectionUtils.isEmpty(delList)) {
+            return ApiResult.error("无数据变更,无需提交更新", 500);
+        }
         for (SeasonalPlanningDetails addDetails : addList) {
             addDetails.setSeasonalPlanningId(seasonalPlanningSaveDto.getId());
         }
@@ -664,7 +667,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         return 0;
     }
 
-
     private void buildDemandAndOrderMap(Map<String, Map<String, String>> demandMap, Map<String, Map<String, String>> orderMap,
                                         List<SeasonalPlanningDetails> seasonalPlanningDetailsList, List<OrderBookDetailForSeasonPlanningVO> orderBookDetailVos,String lableName) {
         int rowNum = 5;
@@ -681,11 +683,22 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         Map<String, String> row05 = new LinkedHashMap<>();
 
         // 数据行
-        Map<String, List<SeasonalPlanningDetails>> groupByProdCate = seasonalPlanningDetailsList.stream()
+        Map<String, List<SeasonalPlanningDetails>> groupByProdCategory1stNameMap = seasonalPlanningDetailsList.stream()
                 .collect(Collectors.groupingBy(
-                        SeasonalPlanningDetails::getProdCategoryName, // 品类分组
+                        SeasonalPlanningDetails::getProdCategory1stName, // 大类分组
                         Collectors.toList()
                 ));
+        Map<String, List<SeasonalPlanningDetails>> groupByProdCate = new LinkedHashMap<>();
+        for (String prodCategory1stName : groupByProdCategory1stNameMap.keySet()) {
+            List<SeasonalPlanningDetails> prodCategory1stNameList = groupByProdCategory1stNameMap.get(prodCategory1stName);
+            Map<String, List<SeasonalPlanningDetails>> groupByProdCategoryNameMap = prodCategory1stNameList.stream()
+                    .collect(Collectors.groupingBy(
+                            SeasonalPlanningDetails::getProdCategoryName, // 品类分组
+                            Collectors.toList()
+                    ));
+            groupByProdCate.putAll(groupByProdCategoryNameMap);
+        }
+
 
         for (String prodCategory : groupByProdCate.keySet()) {
             Map<String, String> sumRow = new LinkedHashMap<>();
