@@ -94,11 +94,5 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     boolean removeByIds(RemoveDto removeDto);
 
-    boolean placeAnProduction(OrderBookDetailQueryDto dto);
-
-    void handlePlaceAnCancelProduction(List<OrderBookDetail> list);
-
-    void handlePlaceAnProduction(List<OrderBookDetail> list);
-
     boolean similarStyleBinding(OrderBookDetailSaveDto dto);
 }
