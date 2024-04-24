@@ -1,5 +1,6 @@
 package com.base.sbc.config.datasource;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
@@ -8,6 +9,9 @@ import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SqlProperties;
+import com.base.sbc.config.redis.RedisKeyBuilder;
+import com.base.sbc.config.redis.RedisKeyConstant;
+import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.httplog.entity.HttpLog;
@@ -88,7 +92,11 @@ public class SqlPrintInterceptor implements Interceptor {
                 getAuthoritySql( boundSql, statementId, mappedStatement, sql,sqlCommandType);
             }
         }catch (Exception e){
-            logger.error("无法数据隔离");
+            List<Object> jobThreadIdList = RedisStaticFunUtils.lGet(RedisKeyConstant.JOB_THREAD_ID.build());
+            String id = Thread.currentThread().getId() + "";
+            if (CollUtil.isEmpty(jobThreadIdList) || jobThreadIdList.stream().noneMatch(it-> it.toString().equals(id))){
+                logger.error("无法数据隔离");
+            }
         }
 
 

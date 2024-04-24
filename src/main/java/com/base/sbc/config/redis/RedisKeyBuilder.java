@@ -43,6 +43,10 @@ public class RedisKeyBuilder {
         }
     }
 
+	public static RedisKeyBuilder builder(){
+		return new RedisKeyBuilder();
+	}
+
 	private static String build(RedisKeyBuilder builder){
 		List<String> keys = builder.getKeys();
 		StringJoiner keyJoiner = builder.getKeyJoiner();

@@ -26,5 +26,7 @@ public interface RedisKeyConstant {
 	RedisKeyBuilder STANDARD_COLUMN_LIST = init("standard_column_list");
 	RedisKeyBuilder COUNTRY_LANGUAGE = init("country_language");
 	RedisKeyBuilder STANDARD_COLUMN_COUNTRY_RELATION = init("standard_column_country_relation");
+	RedisKeyBuilder HANG_TAG_COUNTRY = init("hang_tag_country");
+	RedisKeyBuilder JOB_THREAD_ID = RedisKeyBuilder.builder().add("jobThreadId");
 
 }
