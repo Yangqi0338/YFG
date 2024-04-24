@@ -14,12 +14,15 @@ import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
@@ -38,6 +41,9 @@ import java.util.stream.Collectors;
 public class OrderBookController extends BaseController {
     private final OrderBookService orderBookService;
     private final OrderBookDetailService orderBookDetailService;
+
+    @Resource
+    private PlanningSeasonService planningSeasonService;
     /**
      * 分页条件查询
      */
@@ -125,5 +131,12 @@ public class OrderBookController extends BaseController {
         }
         boolean b = orderBookService.removeByIds(removeDto);
         return deleteSuccess(b);
+    }
+
+    @ApiOperation(value = "产品季-查询年份及订货本树(新)")
+    @GetMapping("/queryYearBrandTreeOrderBook")
+    public List<YearSeasonBandVo> queryYearBrandTreeOrderBook(YearSeasonBandVo vo) {
+        List<YearSeasonBandVo> yearSeasonBandVos = planningSeasonService.queryYearBrandTree(vo);
+        return orderBookService.queryYearBrandTreeOrderBook(yearSeasonBandVos);
     }
 }
