@@ -108,8 +108,9 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
 
 
         List<EsOrderBookItemVo> list = baseMapper.findPage(qw);
-
-
+        if(CollUtil.isEmpty(list)){
+            return new PageInfo<>(list);
+        }
 
         //组装费用信息
         List<String> packId = list.stream().map(EsOrderBookItemVo::getPackId).distinct().collect(Collectors.toList());
