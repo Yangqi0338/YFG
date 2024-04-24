@@ -1,42 +1,24 @@
 package com.base.sbc.config.resttemplate;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.dto.HttpReq;
 import com.base.sbc.module.smp.dto.HttpResp;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.impl.io.ChunkedInputStream;
-import org.apache.http.impl.io.EmptyInputStream;
-import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpRequest;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpMessageConverterExtractor;
-import org.springframework.web.client.ResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -50,9 +32,15 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
     private final List<HttpMessageConverter<?>> messageConverters;
     private final HttpMessageConverterExtractor<String> extractor;
 
+    private final static TransmittableThreadLocal<HttpResp> RESPONSE = new TransmittableThreadLocal<>();
+
     RequestLoggingInterceptor(List<HttpMessageConverter<?>> messageConverters) {
         this.messageConverters = messageConverters;
         this.extractor = new HttpMessageConverterExtractor<>(String.class, this.messageConverters);
+    }
+
+    public static HttpResp getResponse(){
+        return RESPONSE.get();
     }
 
     @Override
@@ -66,16 +54,21 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
             httpReq.setModuleName(moduleName);
             String functionName = headers.getFirst("functionName");
             httpReq.setFunctionName(functionName);
+            String code = headers.getFirst("code");
+            httpReq.setCode(code);
+            String name = headers.getFirst("name");
+            httpReq.setName(name);
             httpReq.setData(s);
             pushRecordsService.prePushRecordSave(httpReq);
         }catch (Exception ignored) {}
         // 可以在此处记录其他请求相关的信息，如请求方法、请求头等
         ClientHttpResponse execute = execution.execute(request, body);
         // 不能读取,会导致InputStream读完,导致数据获取不到,除非使用ThreadLocal
-//        String responseData = extractor.extractData(execute);
-//        HttpResp httpResp = RestTemplateService.buildHttpResp(responseData);
-//        BeanUtil.copyProperties(httpReq, httpResp);
-//        pushRecordsService.pushRecordSave(httpResp, s, moduleName, functionName);
+        String responseData = extractor.extractData(execute);
+        HttpResp httpResp = RestTemplateService.buildHttpResp(responseData);
+        BeanUtil.copyProperties(httpReq, httpResp);
+        pushRecordsService.pushRecordSave(httpResp, s);
+        RESPONSE.set(httpResp);
         // 继续执行请求
         return execute;
     }

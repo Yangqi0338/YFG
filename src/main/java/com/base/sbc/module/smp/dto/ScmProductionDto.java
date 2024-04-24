@@ -8,6 +8,7 @@ import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -26,6 +27,10 @@ public class ScmProductionDto extends ScmProductionSupportDto {
     /** 订货本Id不能为空 */
     @NotBlank(message = "订货本Id不能为空")
     private String orderBookDetailId;
+
+    /** 名称 */
+    @JsonIgnore
+    private String name;
 
     /** 紧急度 */
     @NotBlank(message = "紧急度不能为空")

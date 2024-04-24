@@ -1906,7 +1906,7 @@ public class SmpService {
 
     @Bean("smpThreadPoolExecutor")
     public ThreadPoolExecutor threadPoolExecutor(){
-        return new ThreadPoolExecutor(8, 8, 0L, TimeUnit.MILLISECONDS,
+        return new ThreadPoolExecutor(8, 8, 15L, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(16), r -> {
             Thread thread = new Thread(r,"调scm下游系统");
             thread.setUncaughtExceptionHandler((Thread t,Throwable e) -> {
@@ -1919,14 +1919,15 @@ public class SmpService {
     /**
      * 订货本一键投产
      */
-    @Async("smpThreadPoolExecutor")
     public TtlCallable<HttpResp> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
         JSONObject jsonObject = JSONObject.parseObject(JsonStringUtils.toJSONString(scmProductionDto));
         jsonObject.put("code",scmProductionDto.getOrderBookDetailId());
-        return TtlCallable.get(()-> {
+        return TtlCallable.get(() -> {
             HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL, jsonObject.toJSONString(),
-                    Pair.of("moduleName","scm"),
-                    Pair.of("functionName","订货本一键投产")
+                    Pair.of("moduleName", "scm"),
+                    Pair.of("functionName", "订货本一键投产"),
+                    Pair.of("code", scmProductionDto.getOrderBookDetailId()),
+                    Pair.of("name", scmProductionDto.getName())
             );
 //            Thread.sleep(500);
             return httpResp;
@@ -1936,7 +1937,6 @@ public class SmpService {
     /**
      * 反审核投产单
      */
-    @Async("smpThreadPoolExecutor")
     public TtlCallable<HttpResp> facPrdOrderUpCheck(String orderNo, String loginName) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderNo",orderNo);

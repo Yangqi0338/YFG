@@ -11,6 +11,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.ttl.TtlCallable;
+import com.alibaba.ttl.TtlRunnable;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -22,6 +23,7 @@ import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.BusinessProperties;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -99,9 +101,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1136,7 +1141,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
         }
 
-        List<ScmProductionDto> scmProductionDtoList = new ArrayList<>();
+        List<Callable<HttpResp>> callableList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
             orderBookDetail.setIsLock(YesOrNoEnum.YES);
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
@@ -1155,9 +1160,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 productionDto.getAllSizeMap().put(channelType, map);
             }
             productionDto.setLoginName(dto.getUserId());
+            productionDto.setName(orderBookDetail.getBulkStyleNo());
             // 检查必填参数是否校验完成
             ValidationUtil.validate(productionDto);
-            scmProductionDtoList.add(productionDto);
+            callableList.add(smpService.saveFacPrdOrder(productionDto));
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
@@ -1165,27 +1171,42 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         // 检查是否下属详情是否全部完成审核
         boolean warnStatusExists = this.exists(new LambdaQueryWrapper<OrderBookDetail>()
                 .eq(OrderBookDetail::getOrderBookId, dto.getOrderBookId())
-                .ne(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.ORDER)
+                .lt(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.ORDERING)
         );
 
         OrderBook orderBook = orderBookService.getById(dto.getOrderBookId());
         orderBook.setOrderStatus(warnStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.ORDER);
         orderBookService.updateById(orderBook);
 
-        List<TtlCallable<HttpResp>> callableList = new ArrayList<>();
-        scmProductionDtoList.forEach(productionDto-> {
-            callableList.add(smpService.saveFacPrdOrder(productionDto));
-        });
+        Supplier<String> handlePlaceAnProduction = ()-> {
+            List<OrderBookDetail> finalOrderBookDetailList = orderBookDetails1;
+            callableList.forEach(callable-> {
+                try {
+                    HttpResp httpResp = callable.call();
+                    handlePlaceAnProduction(finalOrderBookDetailList.stream().filter(it-> it.getId().equals(httpResp.getCode())).collect(Collectors.toList()));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            return null;
+        };
+        if (orderBookDetails1.size() > BusinessProperties.orderBookProductionInThreadLimit) {
+            TtlRunnable.get(handlePlaceAnProduction::get).run();
+        }else {
+            handlePlaceAnProduction.get();
+        }
         return b;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void handlePlaceAnProduction(List<OrderBookDetail> list) {
+        if (CollUtil.isEmpty(list)) return;
         PushRecordsDto pushRecordsDto = new PushRecordsDto();
-        pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining()));
+        pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining(",")));
         pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL);
         pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
+        pushRecordsDto.reset2QueryList();
         List<PushRecords> pushRecordsList = pushRecordsService.pushRecordsList(pushRecordsDto);
 
         if (CollUtil.isNotEmpty(pushRecordsList)) {
@@ -1230,6 +1251,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining()));
         pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL);
         pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
+        pushRecordsDto.reset2QueryList();
         List<PushRecords> pushRecordsList = pushRecordsService.pushRecordsList(pushRecordsDto);
 
         if (CollUtil.isNotEmpty(pushRecordsList)) {

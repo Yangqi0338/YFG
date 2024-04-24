@@ -52,7 +52,7 @@ public class SmpJob {
                 .select(OrderBookDetail::getId)
                 .eq(OrderBookDetail::getOrderSendStatus, PushRespStatus.PROCESS)
                 .eq(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
-        boolean exists = orderBookDetailService.exists(qw);
+        boolean exists = orderBookDetailService.exists(qw.last(" and 1 = 1"));
         if (exists) {
             List<OrderBookDetail> list = orderBookDetailService.list(qw);
             orderBookDetailService.handlePlaceAnProduction(list);
@@ -70,7 +70,7 @@ public class SmpJob {
                 .eq(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.ORDER)
                 .select(OrderBookDetail::getId)
                 ;
-        boolean exists = orderBookDetailService.exists(qw);
+        boolean exists = orderBookDetailService.exists(qw.last(" and 1 = 1"));
         if (exists) {
             List<OrderBookDetail> list = orderBookDetailService.list(qw);
             orderBookDetailService.handlePlaceAnCancelProduction(list);

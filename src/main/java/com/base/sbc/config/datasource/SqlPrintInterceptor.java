@@ -1,5 +1,6 @@
 package com.base.sbc.config.datasource;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -100,9 +101,10 @@ public class SqlPrintInterceptor implements Interceptor {
             return proceed;
         }
         // 如果是一些记录类的,如请求日志,推送日志等就不记录了
-        if (parameterObject instanceof HttpLog ||
-                parameterObject instanceof PushRecords
-        ) {
+        if (!StrUtil.containsIgnoreCase(sql1,"left join") && (
+                StrUtil.contains(sql1,"t_http_log") ||
+                StrUtil.contains(sql1,"t_push_record")
+        )) {
             return proceed;
         }
 

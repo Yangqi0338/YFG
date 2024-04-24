@@ -10,6 +10,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.ApiResult;
@@ -64,32 +65,40 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
     @Override
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public Boolean pushRecordSave(HttpResp httpResp, String data) {
-        JSONObject json = JSON.parseObject(data);
-        String url = httpResp.getUrl();
+        JSONArray jsonArray;
+        if (JSON.isValidArray(data)) {
+            jsonArray = JSON.parseArray(data);
+        }else {
+            jsonArray = new JSONArray();
+            jsonArray.add(JSON.parseObject(data));
+        }
+        for (int i = 0, jsonArraySize = jsonArray.size(); i < jsonArraySize; i++) {
+            JSONObject json = jsonArray.getJSONObject(i);
+            String url = httpResp.getUrl();
 
-        String relatedId = StrUtil.firstNonBlank(
-                json.getString("code"),
-                json.getString("styleNo"),
-                json.getString("bulkStyleNo"),
-                json.getString("designNo")
-        );
-        PushRecordsDto pushRecordsDto = new PushRecordsDto();
-        pushRecordsDto.setRelatedId(relatedId);
-        pushRecordsDto.setPushAddress(url);
-        pushRecordsDto.reset2QueryFirst();
-        pushRecordsDto.startPage();
-        PushRecords pushRecords = pushRecordsList(pushRecordsDto)
-                .stream().findFirst().orElse(BeanUtil.copyProperties(pushRecordsDto, PushRecords.class));
+            String relatedId = StrUtil.firstNonBlank(
+                    json.getString("code"),
+                    json.getString("styleNo"),
+                    json.getString("bulkStyleNo"),
+                    json.getString("designNo")
+            );
+            PushRecordsDto pushRecordsDto = new PushRecordsDto();
+            pushRecordsDto.setRelatedId(relatedId);
+            pushRecordsDto.setPushAddress(url);
+            pushRecordsDto.reset2QueryFirst();
+            PushRecords pushRecords = pushRecordsList(pushRecordsDto)
+                    .stream().findFirst().orElse(BeanUtil.copyProperties(pushRecordsDto, PushRecords.class));
 
 //        pushRecords.setModuleName(moduleName);
 //        pushRecords.setFunctionName(functionName);
-        pushRecords.setRelatedName(json.getString("name"));
-        pushRecords.setPushContent(data);
-        pushRecords.setPushCount(Opt.ofBlankAble(pushRecords.getPushCount()).orElse(1));
-        pushRecords.setPushStatus(httpResp.isSuccess() ? PushRespStatus.SUCCESS : PushRespStatus.FAILURE);
-        pushRecords.setResponseMessage(httpResp.getMessage());
-        pushRecords.setResponseStatusCode(httpResp.getCode());
-        this.saveOrUpdate(pushRecords);
+            pushRecords.setRelatedName(json.getString("name"));
+            pushRecords.setPushContent(data);
+            pushRecords.setPushCount(Opt.ofBlankAble(pushRecords.getPushCount()).orElse(1));
+            pushRecords.setPushStatus(httpResp.isSuccess() ? PushRespStatus.SUCCESS : PushRespStatus.FAILURE);
+            pushRecords.setResponseMessage(httpResp.getMessage());
+            pushRecords.setResponseStatusCode(httpResp.getCode());
+            this.saveOrUpdate(pushRecords);
+        }
         return httpResp.isSuccess();
     }
 
@@ -101,7 +110,6 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         pushRecordsDto.setRelatedId(httpReq.getCode());
         pushRecordsDto.setPushAddress(url);
         pushRecordsDto.reset2QueryFirst();
-        pushRecordsDto.startPage();
         PushRecords pushRecords = pushRecordsList(pushRecordsDto)
                 .stream().findFirst().orElse(BeanUtil.copyProperties(pushRecordsDto, PushRecords.class));
 
@@ -125,6 +133,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
 
     @Override
     public List<PushRecords> pushRecordsList(PushRecordsDto pushRecords) {
+        pushRecords.startPage();
         return this.list(new BaseLambdaQueryWrapper<PushRecords>()
                 .notNullEq(PushRecords::getPushStatus, pushRecords.getPushStatus())
                 .notNullNe(PushRecords::getPushStatus, pushRecords.getNePushStatus())
@@ -132,7 +141,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
                 .between(PushRecords::getUpdateDate, pushRecords.getUpdateDate())
                 .notEmptyIn(PushRecords::getRelatedId, pushRecords.getRelatedId())
                 .eq(PushRecords::getPushAddress, pushRecords.getPushAddress())
-                .isNull(StrUtil.isNotBlank(pushRecords.getRelatedId()), PushRecords::getRelatedId)
+                .isNull(StrUtil.isBlank(pushRecords.getRelatedId()), PushRecords::getRelatedId)
         );
     }
 

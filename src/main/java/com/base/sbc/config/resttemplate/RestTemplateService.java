@@ -60,14 +60,8 @@ public class RestTemplateService {
             }
 
             HttpEntity<String> fromEntity = new HttpEntity<>(jsonStr, requestHeaders);
-            ResponseEntity<String> stringResponseEntity = restTemplate.postForEntity(url, fromEntity, String.class);
-            String body = stringResponseEntity.getBody();
-
-            httpResp = buildHttpResp(body);
-            httpResp.setUrl(url);
-            httpResp.setStatusCode(String.valueOf(stringResponseEntity.getStatusCodeValue()));
-            pushRecordsService.pushRecordSave(httpResp, jsonStr);
-            return httpResp;
+            restTemplate.postForEntity(url, fromEntity, String.class);
+            return RequestLoggingInterceptor.getResponse();
         } catch (Exception e) {
             e.printStackTrace();
             httpResp.setSuccess(false);
