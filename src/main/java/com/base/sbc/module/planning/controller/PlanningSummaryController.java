@@ -35,12 +35,7 @@ import java.util.stream.Collectors;
 @RestController
 @Api(tags = "企划汇总-相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/planningSummary", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-@RequiredArgsConstructor
 public class PlanningSummaryController extends BaseController{
-    private final OrderBookDetailService orderBookDetailService;
-    private final PlanningProjectPlankService planningProjectPlankService;
-    private final PlanningProjectService planningProjectService;
-    private final PlanningProjectDimensionService planningProjectDimensionService;
 
     /**
      * 获取企划汇总列表
@@ -49,7 +44,16 @@ public class PlanningSummaryController extends BaseController{
      */
     @RequestMapping("/queryList")
     public ApiResult queryList(PlanningSummaryQueryDto dto) {
-        String createId = dto.getCreateId();
+
+
+
+
+
+
+
+        return null;
+
+        /*String createId = dto.getCreateId();
         List<String> ids=null;
         if (StringUtils.isNotBlank(createId)){
             ids= Arrays.asList(createId.split(","));
@@ -147,6 +151,6 @@ public class PlanningSummaryController extends BaseController{
             planningSummaryQueryVos.add(planningSummaryQueryVo);
         }
 
-        return selectSuccess(planningSummaryQueryVos);
+        return selectSuccess(planningSummaryQueryVos);*/
     }
 }
