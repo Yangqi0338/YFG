@@ -89,7 +89,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             }
             result.addAll(fabricSummaryInfoVoList);
         }
-        pageInfo.setList(result);
+        pageInfo.setList(result.stream().sorted(Comparator.comparing(FabricSummaryInfoVo::getCreateDate).reversed()).collect(Collectors.toList()));
         return pageInfo;
 
 
