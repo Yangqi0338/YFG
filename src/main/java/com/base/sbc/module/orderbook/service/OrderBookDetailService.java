@@ -72,7 +72,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     void submitForApproval(OrderBookDetailSaveDto dto);
 
-    void placeAnOrderReject(OrderBookDetailQueryDto dto);
+    String placeAnOrderReject(OrderBookDetailQueryDto dto);
 
     boolean placeAnOrder(OrderBookDetailQueryDto dto);
 
@@ -84,7 +84,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     String placeAnProduction(OrderBookDetailQueryDto dto);
 
-    void handlePlaceAnCancelProduction(List<OrderBookDetail> list);
+    String handlePlaceAnCancelProduction(List<OrderBookDetail> list);
 
     String handlePlaceAnProduction(List<OrderBookDetail> list);
 

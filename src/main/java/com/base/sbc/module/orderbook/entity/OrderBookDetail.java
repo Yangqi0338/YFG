@@ -440,6 +440,10 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "商品要求货期")
     private Date deliveryAt;
 
+    /** 销售分类名称 */
+    @ApiModelProperty(value = "销售分类名称")
+    private String saleType;
+
     /** 销售分类 */
     @ApiModelProperty(value = "销售分类")
     private String saleTypeId;

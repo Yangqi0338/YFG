@@ -68,6 +68,8 @@ public interface OrderBookConvert {
             @Mapping(target = "reviewerName", source = "updateId"),
             @Mapping(target = "reviewerAt", source = "updateDate"),
             @Mapping(target = "placeOrderTypeCode", source = "placeOrderType"),
+            @Mapping(target = "brand", source = "brandName"),
+            @Mapping(target = "saleTypeId", source = "saleType"),
     })
     ScmProductionDto copy2ProductionDto(OrderBookDetailVo source);
 
