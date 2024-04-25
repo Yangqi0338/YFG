@@ -2,6 +2,7 @@ package com.base.sbc.module.patternmaking.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -18,6 +19,7 @@ import javax.validation.constraints.NotNull;
  */
 
 @Data
+@AllArgsConstructor
 @ApiModel("设置样衣条码Dto  SetSampleBarCodeDto ")
 public class SetSampleBarCodeDto {
 

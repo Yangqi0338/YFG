@@ -484,4 +484,14 @@ public class StyleColorVo {
     @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
     private String orderMarkingStatus;
 
+    /**
+     * 列头筛选数量
+     */
+    private Integer groupCount;
+
+    /**
+     * 产品季
+     */
+    private String planningSeason;
+
 }

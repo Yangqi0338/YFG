@@ -243,8 +243,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
 
         /*分页*/
-        Page<Object> objects = PageHelper.startPage(queryDto);
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
+        Page<Object> objects = PageHelper.startPage(queryDto);
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
         if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
@@ -536,6 +537,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         for (StyleColor styleColor : styleColorList) {
             // 保存工艺信息
             fieldValService.save(styleColor.getId(), FieldValDataGroupConstant.STYLE_COLOR, fieldValList);
+            fieldValService.save(styleColor.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER, fieldValList);
             /*获取全部的主款或配饰*/
             if (CollUtil.isNotEmpty(saveDtoList)) {
                 saveDtoList.forEach(s -> s.setStyleColorId(styleColor.getId()));
@@ -1994,6 +1996,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         queryWrapper.eq("ts.brand_name","MANGO");
         queryWrapper.eq("tsca.del_flag","0");
+
+        if ("1".equals(queryDto.getUploadImageFlag())) {
+            queryWrapper.isNotNullStr("tsc.style_color_pic");
+        } else {
+            queryWrapper.isNullStr("tsc.style_color_pic");
+        }
+
         objects.setOrderBy("tsc.create_date desc,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);

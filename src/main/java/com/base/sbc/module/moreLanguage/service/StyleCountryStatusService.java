@@ -15,8 +15,7 @@ import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelResultDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusQueryDto;
-import com.base.sbc.module.moreLanguage.dto.StyleCountryPrintRecordDto;
-import com.base.sbc.module.moreLanguage.entity.StyleCountryPrintRecord;
+import com.base.sbc.module.moreLanguage.dto.StyleCountryStatusDto;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.github.pagehelper.PageInfo;
 
@@ -50,6 +49,10 @@ public interface StyleCountryStatusService extends BaseService<StyleCountryStatu
     PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto);
 
     boolean updateStatus(List<StyleCountryStatus> updateStatus, List<HangTag> hangTagList, boolean needUpdateHangTag);
+
+    void savePrintRecord(HangTagMoreLanguageSystemDTO languageDTO);
+
+    StyleCountryStatusDto findPrintRecordByStyleNo(HangTagMoreLanguageDTO languageDTO);
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -1,22 +1,19 @@
 package com.base.sbc.module.common.convert;
 
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.business.CountryLanguageType;
-import com.base.sbc.config.enums.business.StandardColumnType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageCheckDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageSystemDTO;
 import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
-import com.base.sbc.module.moreLanguage.dto.LanguageSaveDto;
-import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Mappings;
+import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 /**
  * {@code 描述：吊牌模块通用MapStruct转化}
@@ -42,6 +39,20 @@ public interface OpenConvert {
             return CountryLanguageType.WASHING;
         }else if (index == 2) {
             return CountryLanguageType.TAG;
+        }else {
+            throw new OtherException("非法类型");
+        }
+    }
+
+    @Named("getModelLanguageCode")
+    default String getModelLanguageCode(Integer index) {
+        if (index == null) return null;
+        if (index == 1) {
+            return MoreLanguageProperties.internalLanguageCode;
+        }else if (index == 2) {
+            return "EN";
+        }else if (index == 3) {
+            return "FR";
         }else {
             throw new OtherException("非法类型");
         }

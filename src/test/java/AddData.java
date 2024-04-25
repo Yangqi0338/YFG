@@ -1,16 +1,24 @@
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.PdmApplication;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.SystemSource;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.config.enums.business.StandardColumnType;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailOldDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +32,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
  * {@code 描述：添加数据}
@@ -44,6 +54,8 @@ public class AddData {
     private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
     @Autowired
     private CountryLanguageService countryLanguageService;
+    @Autowired
+    private StyleCountryStatusService styleCountryStatusService;
 
     @Test
     public void setPdmHangTagDbV2(){
@@ -201,6 +213,46 @@ public class AddData {
 
         standardColumnCountryTranslateService.saveOrUpdateBatch(tagList1);
         standardColumnCountryTranslateService.saveOrUpdateBatch(washingList1);
+    }
+
+    @Test
+    public void setPdmHangTagDbV4(){
+        List<StyleCountryStatus> countryStatusList = styleCountryStatusService.list();
+        List<StyleCountryStatus> countryStatusList1 = new ArrayList<>();
+        countryStatusList.forEach(it-> {
+            String checkDetailJson = it.getCheckDetailJson();
+            List<MoreLanguageStatusCheckDetailOldDTO> list = JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailOldDTO.class);
+            list.stream().collect(Collectors.groupingBy(MoreLanguageStatusCheckDetailOldDTO::getType)).forEach((type,oldDTOList)-> {
+                StyleCountryStatus newStatus = it;
+                if (type.equals(CountryLanguageType.WASHING.getCode())) {
+                    newStatus = MORE_LANGUAGE_CV.copyMyself(it);
+                    newStatus.setId(null);
+                    newStatus.updateClear();
+                }
+                newStatus.setType(CountryLanguageType.findByCode(type));
+                List<MoreLanguageStatusCheckDetailDTO> checkDetailDTOS = new ArrayList<>();
+                oldDTOList.stream().collect(Collectors.groupingBy(MoreLanguageStatusCheckDetailOldDTO::getLanguageCode)).forEach((languageCode,sameCodeList)-> {
+                    MoreLanguageStatusCheckDetailDTO checkDetailDTO = new MoreLanguageStatusCheckDetailDTO();
+                    checkDetailDTO.setLanguageCode(languageCode);
+
+                    List<MoreLanguageStatusCheckDetailAuditDTO> auditDTOList = new ArrayList<>();
+                    sameCodeList.get(0).getStandardColumnCodeList().forEach(standardColumnCode-> {
+                        MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
+                        auditDTO.setStandardColumnCode(standardColumnCode);
+                        auditDTO.setContent("");
+                        auditDTO.setSource("");
+                        auditDTO.setStatus(YesOrNoEnum.YES.getValueStr());
+                        auditDTOList.add(auditDTO);
+                    });
+                    checkDetailDTO.setAuditList(auditDTOList);
+                    checkDetailDTOS.add(checkDetailDTO);
+                });
+                newStatus.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailDTOS));
+                countryStatusList1.add(newStatus);
+            });
+        });
+
+        styleCountryStatusService.saveOrUpdateBatch(countryStatusList1);
     }
 
     @Test

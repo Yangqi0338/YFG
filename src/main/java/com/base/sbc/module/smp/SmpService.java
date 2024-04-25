@@ -759,7 +759,9 @@ public class SmpService {
         if(CollUtil.isEmpty(list)){
             throw new OtherException("已下发数据不在重复下发");
         }
-        List<String> materialCodeList = new ArrayList<>();
+        List<String> materialCodeList = list.stream().map(PackBom::getMaterialCode).distinct().collect(Collectors.toList());
+        List<BasicsdatumMaterial> materialList = basicsdatumMaterialService.listByField("material_code", materialCodeList);
+        Map<String, BasicsdatumMaterial> materialMap = materialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode,o->o,(v1,v2)->v1));
         for (PackBom packBom : list) {
             //验证如果是大货类型则判断大货用量是否为空或者0
             if (PackUtils.PACK_TYPE_BIG_GOODS.equals(packBom.getPackType())) {
@@ -829,7 +831,12 @@ public class SmpService {
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
             }
-            if (StrUtil.isEmpty(styleColor.getDefectiveNo()) && BaseGlobal.NO.equals(packBom.getUnusableFlag())) {
+            String category2Code = "";
+            if(materialMap.containsKey(packBom.getMaterialCode())){
+                BasicsdatumMaterial basicsdatumMaterial = materialMap.get(packBom.getMaterialCode());
+                category2Code = basicsdatumMaterial.getCategory2Code();
+            }
+            if (StrUtil.isEmpty(styleColor.getDefectiveNo()) && BaseGlobal.NO.equals(packBom.getUnusableFlag()) && !"FB".equals(category2Code)) {
                 QueryWrapper queryWrapper = new QueryWrapper();
                 queryWrapper.eq("is_supplier",BaseGlobal.YES);
                 queryWrapper.eq("supplier_code",packBom.getSupplierId());
@@ -840,7 +847,6 @@ public class SmpService {
                     throw new OtherException(packBom.getMaterialCode()+"_"+packBom.getMaterialName()+" "+collect+"供应商已停用");
                 }
             }
-            materialCodeList.add(packBom.getMaterialCode());
 
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }

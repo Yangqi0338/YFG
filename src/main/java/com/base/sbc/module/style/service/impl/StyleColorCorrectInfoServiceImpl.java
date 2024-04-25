@@ -230,61 +230,72 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         }
 
         //修改产前样看板的工艺确认时间 和款式配色的时间
-        if(styleColorCorrectInfo.getTechnicsDate() != null){
-            //1.款式配色大货款保持一致
-            //款式配色数据修改 工艺接收明细单时间 字段
-            String styleColorId = styleColorCorrectInfo.getStyleColorId();
+        //1.款式配色大货款保持一致
+        //款式配色数据修改 工艺接收明细单时间 字段
+        String styleColorId = styleColorCorrectInfo.getStyleColorId();
 
-            StyleColor old = styleColorService.getById(styleColorId);
+        StyleColor old = styleColorService.getById(styleColorId);
 
-            LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
-            updateWrapper.set(StyleColor::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate())
-                    .eq(StyleColor::getId, styleColorId);
-            styleColorService.update(updateWrapper);
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate())
+                .eq(StyleColor::getId, styleColorId);
+        styleColorService.update(updateWrapper);
 
-            StyleColor styleColor1 = styleColorService.getById(styleColorId);
+        StyleColor styleColor1 = styleColorService.getById(styleColorId);
 
-            styleColorService.saveOperaLog("修改", "款式配色", old.getColorName(), old.getStyleNo(), styleColor1, old);
+        styleColorService.saveOperaLog("修改", "款式配色", old.getColorName(), old.getStyleNo(), styleColor1, old);
 
-            //2.产前样看板中，相同大货款号的数据也保持一致
-            BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
-            qw.eq("p.style_no",old.getStyleNo());
-            List<PreProductionSampleTaskVo> preProductionSampleTaskVos = preProductionSampleTaskMapper.taskList(qw);
-            List<String> ids = preProductionSampleTaskVos.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList());
-            if(CollUtil.isNotEmpty(ids)){
-                List<PreProductionSampleTask> oldList = preProductionSampleTaskService.listByIds(ids);
-                LambdaUpdateWrapper<PreProductionSampleTask> uwf = new LambdaUpdateWrapper<>();
-                uwf.set(PreProductionSampleTask::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate());
-                uwf.in(PreProductionSampleTask::getId, ids);
-                preProductionSampleTaskService.update(uwf);
-                //记录修改日志
-                List<PreProductionSampleTask> newList = preProductionSampleTaskService.listByIds(ids);
-                Map<String, PreProductionSampleTask> voMap = newList.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
-                for (PreProductionSampleTask preProductionSampleTask : oldList) {
-                    PreProductionSampleTask preProductionSampleTask1 = voMap.get(preProductionSampleTask.getId());
-                    preProductionSampleTaskService.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
-                }
+        //2.产前样看板中，相同大货款号的数据也保持一致
+        BaseQueryWrapper<PreProductionSampleTask> qw = new BaseQueryWrapper<>();
+        qw.eq("p.style_no", old.getStyleNo());
+        List<PreProductionSampleTaskVo> preProductionSampleTaskVos = preProductionSampleTaskMapper.taskList(qw);
+        List<String> ids = preProductionSampleTaskVos.stream().map(BaseEntity::getId).distinct().collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(ids)) {
+            List<PreProductionSampleTask> oldList = preProductionSampleTaskService.listByIds(ids);
+            LambdaUpdateWrapper<PreProductionSampleTask> uwf = new LambdaUpdateWrapper<>();
+            uwf.set(PreProductionSampleTask::getTechReceiveTime, styleColorCorrectInfo.getTechnicsDate());
+            uwf.in(PreProductionSampleTask::getId, ids);
+            preProductionSampleTaskService.update(uwf);
+            //记录修改日志
+            List<PreProductionSampleTask> newList = preProductionSampleTaskService.listByIds(ids);
+            Map<String, PreProductionSampleTask> voMap = newList.stream().collect(Collectors.toMap(BaseEntity::getId, o -> o));
+            for (PreProductionSampleTask preProductionSampleTask : oldList) {
+                PreProductionSampleTask preProductionSampleTask1 = voMap.get(preProductionSampleTask.getId());
+                preProductionSampleTaskService.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
             }
-
-            TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
-            confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
-            confirmDateDto.setTechnicsDate(styleColorCorrectInfo.getTechnicsDate());
-            confirmDateDto.setType("technics_date");
-            smpService.styleColorCorrectInfoDate(confirmDateDto);
-
-            styleColorCorrectInfo.setTechnicsDate(null);
-            oldDto.setTechnicsDate(null);
-
-
         }
 
-        if (styleColorCorrectInfo.getPlanControlDate() == null || !DateUtil.isSameTime(styleColorCorrectInfo.getPlanControlDate(),oldDto.getPlanControlDate())) {
-            TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
-            confirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
-            confirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate());
-            confirmDateDto.setType("plan_control_date");
-            smpService.styleColorCorrectInfoDate(confirmDateDto);
+        TagConfirmDateDto technicsConfirmDateDto = new TagConfirmDateDto();
+        technicsConfirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
+        technicsConfirmDateDto.setTechnicsDate(styleColorCorrectInfo.getTechnicsDate());
+        technicsConfirmDateDto.setType("technics_date");
+        smpService.styleColorCorrectInfoDate(technicsConfirmDateDto);
+
+        styleColorCorrectInfo.setTechnicsDate(null);
+        oldDto.setTechnicsDate(null);
+
+
+
+        //region 下发scm
+        boolean sendFlag = false;
+        if (styleColorCorrectInfo.getPlanControlDate() == null && oldDto.getPlanControlDate() == null) {
+            sendFlag = false;
+        } else if (styleColorCorrectInfo.getPlanControlDate() == null && oldDto.getPlanControlDate() != null) {
+            sendFlag = true;
+        } else if (styleColorCorrectInfo.getPlanControlDate() != null && oldDto.getPlanControlDate() == null) {
+            sendFlag = true;
+        } else if (!DateUtil.isSameTime(styleColorCorrectInfo.getPlanControlDate(), oldDto.getPlanControlDate())) {
+            sendFlag = true;
         }
+
+        if (sendFlag) {
+            TagConfirmDateDto planConfirmDateDto = new TagConfirmDateDto();
+            planConfirmDateDto.setStyleNo(styleColorCorrectInfo.getStyleNo());
+            planConfirmDateDto.setPlanControlDate(styleColorCorrectInfo.getPlanControlDate());
+            planConfirmDateDto.setType("plan_control_date");
+            smpService.styleColorCorrectInfoDate(planConfirmDateDto);
+        }
+        //endregion
 
         //修改款式配色的设计 时间
         AddRevampStyleColorDto styleColor = new AddRevampStyleColorDto();

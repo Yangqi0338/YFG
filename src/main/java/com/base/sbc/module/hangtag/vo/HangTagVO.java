@@ -41,6 +41,7 @@ public class HangTagVO extends HangTag {
     private List<EscmMaterialCompnentInspectCompanyDto> compnentInspectCompanyDtoList;
 
     private String prodCategory1stName;
+    private String prodCategory1st;
 
     /**
      * 款式id

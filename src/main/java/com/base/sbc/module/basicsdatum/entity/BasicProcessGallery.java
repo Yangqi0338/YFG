@@ -55,4 +55,10 @@ public class BasicProcessGallery extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "文件Id")
     private String fileId;
+
+    /**
+     * 描述
+     */
+    @ApiModelProperty(value = "描述")
+    private  String remarks;
 }
