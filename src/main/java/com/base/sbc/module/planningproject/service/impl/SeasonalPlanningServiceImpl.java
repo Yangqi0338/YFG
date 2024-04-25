@@ -44,6 +44,7 @@ import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,6 +71,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     @Autowired
     private OrderBookService orderBookService;
     @Autowired
+    @Lazy
     private OrderBookDetailService orderBookDetailService;
     @Autowired
     private PlanningProjectDimensionService planningProjectDimensionService;
