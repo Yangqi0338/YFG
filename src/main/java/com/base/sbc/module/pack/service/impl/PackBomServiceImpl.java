@@ -529,6 +529,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
        if (StringUtils.isNotBlank(dto.getPlanningSeasonId())){
            qw.eq("sc.planning_season_id",dto.getPlanningSeasonId());
        }
+        if (StringUtils.isNotBlank(dto.getStyleNo())){
+            qw.eq("sc.style_no",dto.getStyleNo());
+        }
         if (null != dto.getStartTime() && null != dto.getEndTime()){
             qw.between("sc.create_time",dto.getStartTime(), dto.getEndTime());
         };
