@@ -4,8 +4,8 @@ import lombok.Data;
 
 @Data
 public class OrderBookDetailForSeasonPlanningVO {
-    // 订货本详情id
-    private String orderBookDetailId;
+    // 设计款号id
+    private String styleId;
     // 大类code
     private String prodCategory1st;
     // 大类Name
@@ -22,8 +22,12 @@ public class OrderBookDetailForSeasonPlanningVO {
     private String bandCode;
     // 波段名称
     private String bandName;
-    // 款式类型code
-    private String styleCategoryCode;
-    // 款式类型
-    private String styleCategoryName;
+    // 维度id
+    private String fieldId;
+    // 维度名称
+    private String fieldExplain;
+    // 类型code
+    private String styleCode;
+    // 类型名称
+    private String styleName;
 }

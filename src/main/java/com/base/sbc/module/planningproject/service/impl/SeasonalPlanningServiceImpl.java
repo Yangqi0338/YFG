@@ -42,17 +42,13 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import java.io.IOException;
-import java.security.Key;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -515,7 +511,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         QueryWrapper<SeasonalPlanningDetails> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("seasonal_planning_id", seasonalPlanningDetails.getId());
         queryWrapper.eq("del_flag", "0");
-        queryWrapper.orderBy(true, true, "row_index");
         queryWrapper.orderBy(true, true, "band_name");
         SeasonalPlanning seasonalPlanning = this.getById(seasonalPlanningDetails.getId());
         String channel = StringUtils.isBlank(seasonalPlanning.getChannelName()) ? "" : seasonalPlanning.getChannelName();
@@ -537,7 +532,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         // 排序
         Map<String, Map<String, String>> sortDemandMap = sort1(demandMap);
         Map<String, Map<String, String>> sortOrderMap = sort1(orderMap);
-
 
         // 计算总计行
         sumSumMap(sortDemandMap);
@@ -637,30 +631,30 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             if (StringUtils.isBlank(prodCategory2ndName)) {
                 Map<String, List<OrderBookDetailForSeasonPlanningVO>> bandNameMap = prodCatefroryList.stream()
                         .collect(Collectors.groupingBy(
-                                OrderBookDetailForSeasonPlanningVO::getBandName, // 品类分组
+                                OrderBookDetailForSeasonPlanningVO::getBandName, // 波段分组
                                 Collectors.toList()
                         ));
                 List<OrderBookDetailForSeasonPlanningVO> bandNameList = bandNameMap.get(bandName);
                 if (CollectionUtils.isNotEmpty(bandNameList)) {
-                    Long size = bandNameList.stream().filter(od -> StringUtils.equals(styleCategory, od.getStyleCategoryName())).count();
+                    Long size = bandNameList.stream().filter(od -> StringUtils.equals(styleCategory, od.getStyleName())).count();
                     return Math.toIntExact(size);
                 }
             } else {
                 Map<String, List<OrderBookDetailForSeasonPlanningVO>> prodCategory2ndMap = prodCatefroryList.stream()
                         .collect(Collectors.groupingBy(
-                                OrderBookDetailForSeasonPlanningVO::getProdCategory2ndName, // 品类分组
+                                OrderBookDetailForSeasonPlanningVO::getProdCategory2ndName, // 中类分组
                                 Collectors.toList()
                         ));
                 List<OrderBookDetailForSeasonPlanningVO> prodCategory2ndList = prodCategory2ndMap.get(bandName);
                 if (CollectionUtils.isNotEmpty(prodCategory2ndMap.get(prodCategory2ndName))) {
-                    Map<String, List<OrderBookDetailForSeasonPlanningVO>> bandNameMap = prodCatefroryList.stream()
+                    Map<String, List<OrderBookDetailForSeasonPlanningVO>> bandNameMap = prodCategory2ndList.stream()
                             .collect(Collectors.groupingBy(
                                     OrderBookDetailForSeasonPlanningVO::getBandName, // 品类分组
                                     Collectors.toList()
                             ));
                     List<OrderBookDetailForSeasonPlanningVO> bandNameList = bandNameMap.get(bandName);
                     if (CollectionUtils.isNotEmpty(bandNameList)) {
-                        Long size = bandNameList.stream().filter(od -> StringUtils.equals(styleCategory, od.getStyleCategoryName())).count();
+                        Long size = bandNameList.stream().filter(od -> StringUtils.equals(styleCategory, od.getStyleName())).count();
                         return Math.toIntExact(size);
                     }
                 }
@@ -691,6 +685,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         Collectors.toList()
                 ));
         Map<String, List<SeasonalPlanningDetails>> groupByProdCate = new LinkedHashMap<>();
+
         for (String prodCategory1stName : groupByProdCategory1stNameMap.keySet()) {
             List<SeasonalPlanningDetails> prodCategory1stNameList = groupByProdCategory1stNameMap.get(prodCategory1stName);
             Map<String, List<SeasonalPlanningDetails>> groupByProdCategoryNameMap = prodCategory1stNameList.stream()
@@ -698,6 +693,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             SeasonalPlanningDetails::getProdCategoryName, // 品类分组
                             Collectors.toList()
                     ));
+            // TODO 排序
             groupByProdCate.putAll(groupByProdCategoryNameMap);
         }
 

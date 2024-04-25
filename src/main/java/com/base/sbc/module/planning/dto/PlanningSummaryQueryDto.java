@@ -15,9 +15,17 @@ public class PlanningSummaryQueryDto extends BaseDto {
      */
     String planningSeasonId;
     /**
+     * 渠道
+     */
+    String channel;
+    /**
      * 品类编码
      */
     String categoryCode;
+    /**
+     * 查询类型(band, dimension)
+     */
+    String queryType;
     /**
      * 创建人
      */

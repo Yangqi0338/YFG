@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,7 @@ public class PlanningSummaryController extends BaseController{
      * 需求数量:坑位总数量,下单数:订货本下单数量,
      */
     @RequestMapping("/queryList")
-    public ApiResult queryList(PlanningSummaryQueryDto dto) {
+    public ApiResult queryList(Principal user, PlanningSummaryQueryDto dto) {
 
 
 
