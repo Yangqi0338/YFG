@@ -165,6 +165,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
                 OrderBookQueryDto dto = new OrderBookQueryDto();
                 dto.setSeasonId(item.getPlanningSeasonId());
                 PageInfo<OrderBookVo> orderBookVoPageInfo = this.queryPage(dto);
+                orderBookVoPageInfo.getList().forEach(orderBookVo ->orderBookVo.setYearName(yearSeasonBandVo.getYearName()));
                 item.setSupplementInfo(orderBookVoPageInfo.getList());
             });
         });
