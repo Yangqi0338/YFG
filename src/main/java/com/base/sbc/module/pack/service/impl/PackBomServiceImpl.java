@@ -40,9 +40,11 @@ import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
@@ -184,6 +186,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Autowired
     private FabricSummaryPrintLogService fabricSummaryPrintLogService;
+
+    @Autowired
+    @Lazy
+    private BasicsdatumSupplierService basicsdatumSupplierService;
 
     private final ReentrantLock saveLock = new ReentrantLock();
 
@@ -446,6 +452,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                     }
                 });
                 fabricSummary.setMaterialColor(materialColor.toString());
+            }
+            if (StringUtils.isNotBlank(bomFabricVo.getSupplierId())){
+                List<BasicsdatumSupplier> basicsdatumSuppliers = basicsdatumSupplierService.getBySupplierId(bomFabricVo.getSupplierId());
+                fabricSummary.setSupplierAbbreviation(CollectionUtils.isEmpty(basicsdatumSuppliers) ? "" : basicsdatumSuppliers.get(0).getSupplierAbbreviation());
             }
 
             fabricSummary.setWidthName(fabricInfoMap.get(bomFabricVo.getMaterialCode()));

@@ -71,6 +71,8 @@ public class FabricSummary extends BaseDataEntity<String> {
     /** 默认供应商名称 */
     @ApiModelProperty(value = "默认供应商名称"  )
     private String supplierName;
+    @ApiModelProperty(value = "默认供应商简称"  )
+    private String supplierAbbreviation;
     /** 默认供应商id */
     @ApiModelProperty(value = "默认供应商id"  )
     private String supplierId;
