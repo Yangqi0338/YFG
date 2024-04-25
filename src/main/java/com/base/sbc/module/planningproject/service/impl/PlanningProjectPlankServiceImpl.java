@@ -396,7 +396,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 styleColorQueryWrapper.notIn("tsc.style_no", bulkNos);
             }
 
-            List<StyleColorVo> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper);
+            List<StyleColorVo> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper, null);
             if (styleColorList == null || styleColorList.isEmpty()) {
                 continue;
             }
@@ -455,7 +455,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 styleColorQueryWrapper.notIn("tsc.style_no", bulkNos);
             }
 
-            List<StyleColorVo> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper);
+            List<StyleColorVo> styleColorList = stylePricingMapper.getByStyleList(styleColorQueryWrapper, null);
             if (styleColorList == null || styleColorList.isEmpty()) {
                 continue;
             }

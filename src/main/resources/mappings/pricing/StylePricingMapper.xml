@@ -111,8 +111,11 @@
         select tsc.*,ts.prod_category1st,ts.prod_category1st_name,ts.prod_category2nd,ts.prod_category2nd_name,
         ts.prod_category,ts.prod_category_name,ts.season,ts.season_name,ts.brand_name,ts.brand
         ,ts.year,ts.year_name from t_style_color as tsc
-            left join t_style as ts on   tsc.style_id = ts.id and ts.del_flag ='0'
-        where  tsc.del_flag ='0'
+        left join t_style as ts on tsc.style_id = ts.id and ts.del_flag ='0'
+        <if test="dto != null and dto != ''">
+            join t_order_book_detail as tobd on tsc.id = tobd.style_color_id and tobd.del_flag ='0'
+        </if>
+        where tsc.del_flag ='0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
