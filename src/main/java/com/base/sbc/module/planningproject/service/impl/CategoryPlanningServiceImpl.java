@@ -19,6 +19,7 @@ import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planningproject.constants.GeneralConstant;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQueryDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanning;
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
@@ -134,7 +135,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
 
     /**
      * 根据季节企划详情数据进行品类企划详情的组装生成
-     * @param detailsList 季节企划详情集合数据
+     *
+     * @param detailsList      季节企划详情集合数据
      * @param seasonalPlanning 季节企划数据
      * @param categoryPlanning 品类企划数据
      * @return 品类企划详情集合数据
@@ -203,47 +205,18 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                         // 拿到一个维度字段数据
                         FieldManagementVo fieldManagement = fieldManagementMap.get(planningDimensionality.getFieldId());
                         if (ObjectUtil.isNotEmpty(fieldManagement)) {
-
                             // 每个 品类-中类-波段 都要有自己的围度数据
-                            // 获取选项类型 0-自定义选项 1-字典 2-结构管理)
-                            String isOption = fieldManagement.getIsOption();
-                            if ("1".equals(isOption)) {
-                                // 从字典获取
-                                Map<String, String> stringStringMap = dictMap.get(fieldManagement.getOptionDictKey());
-                                if (ObjectUtil.isNotEmpty(stringStringMap)) {
-                                    for (Map.Entry<String, String> stringStringEntry : stringStringMap.entrySet()) {
-                                        initEmptyData(
-                                                planningDimensionality,
-                                                stringStringEntry.getValue(),
-                                                stringStringEntry.getKey(),
-                                                details,
-                                                categoryPlanning,
-                                                fieldManagement, seasonalPlanningDetailsList,
-                                                categoryPlanningDetailsList,
-                                                totalSeasonalPlanningDetailsMap);
-                                    }
-                                }
-                            } else if ("2".equals(isOption)) {
-                                // 从数据结构获取
-                                List<BasicStructureTreeVo> basicStructureTreeVoList = structureMap.get(fieldManagement.getOptionDictKey() + "-" + fieldManagement.getStructureTier());
-                                if (ObjectUtil.isNotEmpty(basicStructureTreeVoList)) {
-                                    if ("固定属性".equals(fieldManagement.getGroupName()) && "品类".equals(fieldManagement.getOptionDictKey())) {
-                                        // 找到对应层级的品类数据
-                                        basicStructureTreeVoList = findProdCategoryList(basicStructureTreeVoList, details, fieldManagement);
-                                        if (ObjectUtil.isNotEmpty(basicStructureTreeVoList)) {
-                                            for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVoList) {
-                                                initEmptyData(
-                                                        planningDimensionality,
-                                                        basicStructureTreeVo.getName(),
-                                                        basicStructureTreeVo.getValue(),
-                                                        details,
-                                                        categoryPlanning,
-                                                        fieldManagement, seasonalPlanningDetailsList,
-                                                        categoryPlanningDetailsList,
-                                                        totalSeasonalPlanningDetailsMap);
-                                            }
-                                        }
-                                    } else {
+                            if (GeneralConstant.FIXED_ATTRIBUTES.equals(fieldManagement.getGroupName())) {
+                                // 固定属性赋值
+                                if (GeneralConstant.PRODCATEGORY_2ND_CODE.equals(fieldManagement.getFieldExplain())) {
+                                    // 固定属性-中类
+                                    // 从数据结构获取
+                                    List<BasicStructureTreeVo> basicStructureTreeVoList = structureMap.get(GeneralConstant.PRODCATEGORY_CODE + "-" + "2");
+                                    if (ObjectUtil.isNotEmpty(basicStructureTreeVoList)) {
+                                        basicStructureTreeVoList = basicStructureTreeVoList
+                                                .stream()
+                                                .filter(item -> item.getValue().equals(details.getProdCategory2ndCode()))
+                                                .collect(Collectors.toList());
                                         for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVoList) {
                                             initEmptyData(
                                                     planningDimensionality,
@@ -258,23 +231,57 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                     }
                                 }
                             } else {
-                                // 自定义选项
-                                // 拿到所有自定义的值
-                                List<Option> optionList = fieldManagement.getOptionList();
-                                if (ObjectUtil.isNotEmpty(optionList)) {
-                                    for (Option option : optionList) {
+                                // 动态属性赋值
+                                // 获取选项类型 0-自定义选项 1-字典 2-结构管理)
+                                String isOption = fieldManagement.getIsOption();
+                                if ("1".equals(isOption)) {
+                                    // 从字典获取
+                                    Map<String, String> stringStringMap = dictMap.get(fieldManagement.getOptionDictKey());
+                                    if (ObjectUtil.isNotEmpty(stringStringMap)) {
+                                        for (Map.Entry<String, String> stringStringEntry : stringStringMap.entrySet()) {
+                                            initEmptyData(
+                                                    planningDimensionality,
+                                                    stringStringEntry.getValue(),
+                                                    stringStringEntry.getKey(),
+                                                    details,
+                                                    categoryPlanning,
+                                                    fieldManagement, seasonalPlanningDetailsList,
+                                                    categoryPlanningDetailsList,
+                                                    totalSeasonalPlanningDetailsMap);
+                                        }
+                                    }
+                                } else if ("2".equals(isOption)) {
+                                    // 从数据结构获取
+                                    List<BasicStructureTreeVo> basicStructureTreeVoList = structureMap.get(fieldManagement.getOptionDictKey() + "-" + fieldManagement.getStructureTier());
+                                    for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVoList) {
                                         initEmptyData(
                                                 planningDimensionality,
-                                                option.getOptionName(),
-                                                option.getOptionCode(),
+                                                basicStructureTreeVo.getName(),
+                                                basicStructureTreeVo.getValue(),
                                                 details,
                                                 categoryPlanning,
                                                 fieldManagement, seasonalPlanningDetailsList,
                                                 categoryPlanningDetailsList,
                                                 totalSeasonalPlanningDetailsMap);
                                     }
+                                } else {
+                                    // 自定义选项
+                                    // 拿到所有自定义的值
+                                    List<Option> optionList = fieldManagement.getOptionList();
+                                    if (ObjectUtil.isNotEmpty(optionList)) {
+                                        for (Option option : optionList) {
+                                            initEmptyData(
+                                                    planningDimensionality,
+                                                    option.getOptionName(),
+                                                    option.getOptionCode(),
+                                                    details,
+                                                    categoryPlanning,
+                                                    fieldManagement, seasonalPlanningDetailsList,
+                                                    categoryPlanningDetailsList,
+                                                    totalSeasonalPlanningDetailsMap);
+                                        }
+                                    }
                                 }
-
                             }
                         }
                     }
@@ -323,7 +330,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     private Map<String, Map<String, String>> getFeildData(List<FieldManagementVo> fieldManagementList, Map<String, Map<String, String>> dictMap, HashMap<String, List<BasicStructureTreeVo>> structureMap) {
         // 所有的字典 key
         List<String> dictKeyList = fieldManagementList.stream()
-                .filter(item -> "1".equals(item.getIsOption()))
+                .filter(item -> "1".equals(item.getIsOption()) && !GeneralConstant.FIXED_ATTRIBUTES.equals(item.getGroupName()))
                 .map(FieldManagementVo::getOptionDictKey)
                 .distinct()
                 .collect(Collectors.toList());
@@ -332,7 +339,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         }
         // 所有的结构管理的 key
         List<FieldManagementVo> structureKeyList = fieldManagementList.stream()
-                .filter(item -> "2".equals(item.getIsOption()))
+                .filter(item -> "2".equals(item.getIsOption()) && !GeneralConstant.FIXED_ATTRIBUTES.equals(item.getGroupName()))
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -347,6 +354,31 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
 
                 if (ObjectUtil.isNotEmpty(structureTreeByCodes)) {
                     structureMap.put(key, structureTreeByCodes);
+                }
+            }
+        }
+
+        // 所有的固定属性的 key
+        List<FieldManagementVo> fixedAttributesKeyList = fieldManagementList.stream()
+                .filter(item -> GeneralConstant.FIXED_ATTRIBUTES.equals(item.getGroupName()))
+                .distinct()
+                .collect(Collectors.toList());
+        if (ObjectUtil.isNotEmpty(fixedAttributesKeyList)) {
+            for (FieldManagementVo fieldManagementVo : fixedAttributesKeyList) {
+                if (GeneralConstant.PRODCATEGORY_2ND_CODE.equals(fieldManagementVo.getFieldExplain())) {
+                    // 固定属性是中类
+                    String key = GeneralConstant.PRODCATEGORY_CODE + "-" + "2";
+                    if (ObjectUtil.isNotEmpty(structureMap.get(key))) {
+                        continue;
+                    }
+                    // 将需要层级的所有数据查询出来
+                    List<BasicStructureTreeVo> structureTreeByCodes = ccmFeignService.basicStructureTreeByCode(GeneralConstant.PRODCATEGORY_CODE, null, "2");
+
+                    if (ObjectUtil.isNotEmpty(structureTreeByCodes)) {
+                        structureMap.put(key, structureTreeByCodes);
+                    }
+                } else {
+                    // 其他固定属性先不管
                 }
             }
         }

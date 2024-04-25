@@ -559,7 +559,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         Map<String, FieldManagement> finalFieldManagementMap = fieldManagementMap;
         List<FieldDisplayVo> fieldDisplayVoList = planningDimensionalities.stream().map(planningDimensionality -> {
             FieldManagement fieldManagement = finalFieldManagementMap.get(planningDimensionality.getFieldId());
-            if (ObjectUtil.isNotEmpty(fieldManagement) && fieldManagement.getGroupName().equals("固定属性")) {
+            if (ObjectUtil.isNotEmpty(fieldManagement) && GeneralConstant.FIXED_ATTRIBUTES.equals(fieldManagement.getGroupName())) {
                 return null;
             }
             FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();

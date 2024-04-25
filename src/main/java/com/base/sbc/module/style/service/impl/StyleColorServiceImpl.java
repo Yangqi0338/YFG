@@ -80,6 +80,7 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planningproject.constants.GeneralConstant;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.pricing.entity.StylePricing;
@@ -1816,7 +1817,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper1.last("and bulk_style_no != ''");
         List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
 
-        if ("固定属性".equals(fieldManagement.getGroupName()) && "品类".equals(fieldManagement.getOptionDictKey())) {
+        if (GeneralConstant.FIXED_ATTRIBUTES.equals(fieldManagement.getGroupName()) && GeneralConstant.PRODCATEGORY_2ND_CODE.equals(fieldManagement.getFieldExplain())) {
             // 如果是 固定属性-中类 那么不使用动态字段进行匹配
             BaseQueryWrapper<StyleColor> styleQueryWrapper = new BaseQueryWrapper<>();
             styleQueryWrapper.eq("ts.planning_season_id", dto.getSeasonId());

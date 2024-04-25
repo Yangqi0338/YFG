@@ -13,8 +13,9 @@ public class GeneralConstant {
      */
     public static final String FIXED_ATTRIBUTES = "固定属性";
     /**
-     * 成功
+     * 中类
      */
     public static final String PRODCATEGORY_2ND_CODE = "中类";
+    public static final String PRODCATEGORY_CODE = "品类";
 
 }
