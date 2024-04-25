@@ -91,7 +91,6 @@ public class BasicsdatumMaterialPriceServiceImpl
         QueryWrapper qw = new QueryWrapper<>();
         qw.in("p.supplier_material_code", materialSupplierInfo.getSupplierMaterialCode());
         qw.eq("bm.supplier_abbreviation", materialSupplierInfo.getSupplierAbbreviation());
-        qw.eq("p.supplier_abbreviation", materialSupplierInfo.getSupplierAbbreviation());
         qw.eq("p.company_code", getCompanyCode());
         return getBaseMapper().supplierAbbreviation(qw);
     }
