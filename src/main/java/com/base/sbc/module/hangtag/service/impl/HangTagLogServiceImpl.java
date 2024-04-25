@@ -34,30 +34,6 @@ import java.util.stream.Collectors;
 @Service
 public class HangTagLogServiceImpl extends BaseServiceImpl<HangTagLogMapper, HangTagLog> implements HangTagLogService {
     // 自定义方法区 不替换的区域【other_start】
-    @Override
-    public void save(String hangTagId, String operationDescription, String userCompany) {
-        HangTagLog hangTagLog = new HangTagLog();
-        hangTagLog.insertInit();
-        hangTagLog.setHangTagId(hangTagId);
-        hangTagLog.setOperationDescription(operationDescription);
-        hangTagLog.setCompanyCode(userCompany);
-        super.save(hangTagLog);
-    }
-
-    @Override
-    public void saveBatch(List<String> hangTagIds, String operationDescription, String userCompany) {
-        List<HangTagLog> hangTagLogs = hangTagIds.stream()
-                .map(hangTagId -> {
-                    HangTagLog hangTagLog = new HangTagLog();
-                    hangTagLog.insertInit();
-                    hangTagLog.setHangTagId(hangTagId);
-                    hangTagLog.setOperationDescription(operationDescription);
-                    hangTagLog.setCompanyCode(userCompany);
-                    return hangTagLog;
-                }).collect(Collectors.toList());
-        super.saveBatch(hangTagLogs);
-
-    }
 
     @Override
     public List<HangTagLogVO> getByHangTagId(String hangTagId, String userCompany) {
