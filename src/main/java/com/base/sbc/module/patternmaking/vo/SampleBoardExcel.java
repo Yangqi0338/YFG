@@ -2,7 +2,6 @@ package com.base.sbc.module.patternmaking.vo;
 
 import cn.afterturn.easypoi.excel.annotation.Excel;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,8 +9,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * 样衣看板导出实体类
@@ -329,7 +326,7 @@ public class SampleBoardExcel {
     private String  breakOffSample;
 
     public String getProductSeason() {
-        return getYearName() + " " + getSeason() + " " + getBrandName();
+        return getSeason();
     }
 
     public String  getPmStatus() {

@@ -1,12 +1,12 @@
 package com.base.sbc.module.style.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 @Data
 /*查询款式配色*/
-public class QueryStyleColorDto extends Page {
+public class QueryStyleColorDto extends QueryFieldDto {
 
     @ApiModelProperty(value = "id")
     private String id;

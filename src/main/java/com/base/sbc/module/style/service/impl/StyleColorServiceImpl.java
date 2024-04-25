@@ -80,13 +80,6 @@ import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
-import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
-import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
-import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
-import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
-import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
-import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.pricing.entity.StylePricing;
@@ -250,8 +243,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
 
         /*分页*/
-        Page<Object> objects = PageHelper.startPage(queryDto);
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
+        Page<Object> objects = PageHelper.startPage(queryDto);
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
         if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
@@ -1812,8 +1806,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public  PageInfo<StyleColorVo> getByStyleList(StyleColorsDto dto) {
         FieldManagement fieldManagement = fieldManagementService.getById(dto.getDimensionLabelId());
-        if (fieldManagement == null){
-            throw  new OtherException("维度信息为空");
+        if (fieldManagement == null) {
+            throw new OtherException("维度信息为空");
         }
         // 查询坑位所有已经匹配的大货款号
         QueryWrapper<PlanningProjectPlank> queryWrapper1 = new QueryWrapper<>();
@@ -1822,47 +1816,69 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper1.last("and bulk_style_no != ''");
         List<PlanningProjectPlank> list = planningProjectPlankService.list(queryWrapper1);
 
+        if ("固定属性".equals(fieldManagement.getGroupName()) && "品类".equals(fieldManagement.getOptionDictKey())) {
+            // 如果是 固定属性-中类 那么不使用动态字段进行匹配
+            BaseQueryWrapper<StyleColor> styleQueryWrapper = new BaseQueryWrapper<>();
+            styleQueryWrapper.eq("ts.planning_season_id", dto.getSeasonId());
+            styleQueryWrapper.eq("ts.prod_category1st", dto.getProdCategory1st());
+            styleQueryWrapper.notEmptyEq("ts.prod_category2nd", dto.getProdCategory2nd());
+            styleQueryWrapper.eq("ts.prod_category", dto.getProdCategory());
+            if (StringUtils.isNotBlank(dto.getSearch())) {
+                styleQueryWrapper.and(wrapper -> {
+                    wrapper.like("tsc.style_no", dto.getSearch());
+                    wrapper.or().like("ts.design_no", dto.getSearch());
+                });
+            }
+            if (!list.isEmpty()) {
+                List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
+                styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
+            }
+            PageHelper.startPage(dto);
+            List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper, dto);
+            return new PageInfo<>(styleList);
+        } else {
+            QueryWrapper<FieldVal> queryWrapper = new QueryWrapper<>();
 
-        QueryWrapper<FieldVal> queryWrapper =new QueryWrapper<>();
-        queryWrapper.eq("field_name",fieldManagement.getFieldName());
-        queryWrapper.eq("data_group",FieldValDataGroupConstant.STYLE_MARKING_ORDER);
-        queryWrapper.select("foreign_id");
+            queryWrapper.eq("field_name", fieldManagement.getFieldName());
+            queryWrapper.eq("data_group", FieldValDataGroupConstant.STYLE_MARKING_ORDER);
+            queryWrapper.select("foreign_id");
 
-        List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
-        List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+            List<FieldVal> fieldValList = fieldValService.list(queryWrapper);
+            List<String> styleColorIds = fieldValList.stream().map(FieldVal::getForeignId).filter(StrUtil::isNotBlank).collect(Collectors.toList());
 
-        //查询已下单的配色id
-        QueryWrapper<OrderBookDetail> queryWrapper2 =new QueryWrapper<>();
-        if (styleColorIds.isEmpty()){
-            return new PageInfo<>(new ArrayList<>());
+            // 查询已下单的配色id
+            QueryWrapper<OrderBookDetail> queryWrapper2 = new QueryWrapper<>();
+            if (styleColorIds.isEmpty()) {
+                return new PageInfo<>(new ArrayList<>());
+            }
+            queryWrapper2.in("style_color_id", styleColorIds);
+            queryWrapper2.select("style_color_id");
+            List<OrderBookDetail> list1 = orderBookDetailService.list(queryWrapper2);
+            List<String> list2 = list1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
+            if (CollUtil.isEmpty(list2)) return new PageInfo<>();
+
+            BaseQueryWrapper<StyleColor> styleQueryWrapper = new BaseQueryWrapper<>();
+            styleQueryWrapper.eq("ts.planning_season_id", dto.getSeasonId());
+            styleQueryWrapper.eq("ts.prod_category1st", dto.getProdCategory1st());
+            styleQueryWrapper.notEmptyEq("ts.prod_category2nd", dto.getProdCategory2nd());
+            styleQueryWrapper.eq("ts.prod_category", dto.getProdCategory());
+            styleQueryWrapper.in("tsc.id", list2);
+            if (StringUtils.isNotBlank(dto.getSearch())) {
+                styleQueryWrapper.and(wrapper -> {
+                    wrapper.like("tsc.style_no", dto.getSearch());
+                    wrapper.or().like("ts.design_no", dto.getSearch());
+                });
+            }
+            if (!list.isEmpty()) {
+                List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
+                styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
+            }
+            PageHelper.startPage(dto);
+            List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper, null);
+
+
+            return new PageInfo<>(styleList);
         }
-        queryWrapper2.in("style_color_id",styleColorIds);
-        queryWrapper2.select("style_color_id");
-        List<OrderBookDetail> list1 = orderBookDetailService.list(queryWrapper2);
-        List<String> list2 = list1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
-        if (CollUtil.isEmpty(list2)) return new PageInfo<>();
-
-        BaseQueryWrapper<StyleColor> styleQueryWrapper =new BaseQueryWrapper<>();
-        styleQueryWrapper.eq("ts.planning_season_id",dto.getSeasonId());
-        styleQueryWrapper.eq("ts.prod_category1st",dto.getProdCategory1st());
-        styleQueryWrapper.notEmptyEq("ts.prod_category2nd",dto.getProdCategory2nd());
-        styleQueryWrapper.eq("ts.prod_category",dto.getProdCategory());
-        styleQueryWrapper.in("tsc.id",list2);
-        if (StringUtils.isNotBlank(dto.getSearch())){
-            styleQueryWrapper.and(wrapper -> {
-                wrapper.like("tsc.style_no",dto.getSearch());
-                wrapper.or().like("ts.design_no",dto.getSearch());
-            });
-        }
-        if (!list.isEmpty()) {
-            List<String> bulkStyleNoList = list.stream().map(PlanningProjectPlank::getBulkStyleNo).collect(Collectors.toList());
-            styleQueryWrapper.notIn("tsc.style_no", bulkStyleNoList);
-        }
-        PageHelper.startPage(dto);
-        List<StyleColorVo> styleList = stylePricingMapper.getByStyleList(styleQueryWrapper);
-
-
-        return new PageInfo<>(styleList);
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/
