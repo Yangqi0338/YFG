@@ -101,10 +101,7 @@ public class SqlPrintInterceptor implements Interceptor {
             return proceed;
         }
         // 如果是一些记录类的,如请求日志,推送日志等就不记录了
-        if (!StrUtil.containsIgnoreCase(sql1,"left join") && (
-                StrUtil.contains(sql1,"t_http_log") ||
-                StrUtil.contains(sql1,"t_push_record")
-        )) {
+        if (StrUtil.contains(sql1,"t_http_log") || StrUtil.contains(sql1,"t_push_record")) {
             return proceed;
         }
 
