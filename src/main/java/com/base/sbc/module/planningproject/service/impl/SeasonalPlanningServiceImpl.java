@@ -61,9 +61,6 @@ import java.util.stream.Collectors;
 @Service
 public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlanningMapper, SeasonalPlanning> implements SeasonalPlanningService {
 
-    private final static String COLUMN = "column";
-    private final static String ROW = "row";
-
     private final static String pattern = "[0-9]\\d*";
 
     @Autowired
@@ -526,48 +523,48 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         dto.setStyleCategory("StyleCategory");
         List<OrderBookDetailForSeasonPlanningVO> orderBookDetailVos = orderBookDetailService.querySeasonalPlanningOrder(dto);
 
-        Map<String, Map<String, String>> demandMap = new HashMap<>();
-        Map<String, Map<String, String>> orderMap = new HashMap<>();
+        Map<Integer, Map<Integer, String>> demandMap = new HashMap<>();
+        Map<Integer, Map<Integer, String>> orderMap = new HashMap<>();
         buildDemandAndOrderMap(demandMap, orderMap,seasonalPlanningDetailsList, orderBookDetailVos, lableName);
         // 排序
-        Map<String, Map<String, String>> sortDemandMap = sort1(demandMap);
-        Map<String, Map<String, String>> sortOrderMap = sort1(orderMap);
+        Map<Integer, Map<Integer, String>> sortDemandMap = sort1(demandMap);
+        Map<Integer, Map<Integer, String>> sortOrderMap = sort1(orderMap);
 
         // 计算总计行
         sumSumMap(sortDemandMap);
         sumSumMap(sortOrderMap);
 
         // 缺口下单
-        Map<String, Map<String, String>> gapMap = buildGapExcel(sortDemandMap, sortOrderMap);
+        Map<Integer, Map<Integer, String>> gapMap = buildGapExcel(sortDemandMap, sortOrderMap);
 
         // resultMap
-        Map<String, Map<String, String>> resultMap = buildResultMap(sortDemandMap, sortOrderMap, gapMap);
+        Map<Integer, Map<Integer, String>> resultMap = buildResultMap(sortDemandMap, sortOrderMap, gapMap);
 
         apiResult.setData(resultMap);
         apiResult.setSuccess(true);
         return apiResult;
     }
 
-    private Map<String, Map<String, String>> buildResultMap(Map<String, Map<String, String>> demandMap, Map<String, Map<String, String>> orderMap, Map<String, Map<String, String>> gapMap) {
-        Map<String, Map<String, String>> resultMapMap = new LinkedHashMap<>();
-        for (String mapKey : demandMap.keySet()) {
-            Map<String, String> resultMap = new HashMap<>();
-            Map<String, String> mapMap = demandMap.get(mapKey);
-            Map<String, String> orderMapMap = orderMap.get(mapKey);
-            Map<String, String> gapMapMap = gapMap.get(mapKey);
+    private Map<Integer, Map<Integer, String>> buildResultMap(Map<Integer, Map<Integer, String>> demandMap, Map<Integer, Map<Integer, String>> orderMap, Map<Integer, Map<Integer, String>> gapMap) {
+        Map<Integer, Map<Integer, String>> resultMapMap = new LinkedHashMap<>();
+        for (Integer mapKey : demandMap.keySet()) {
+            Map<Integer, String> resultMap = new HashMap<>();
+            Map<Integer, String> mapMap = demandMap.get(mapKey);
+            Map<Integer, String> orderMapMap = orderMap.get(mapKey);
+            Map<Integer, String> gapMapMap = gapMap.get(mapKey);
             Integer n = mapMap.size() ;
             Integer n2 = mapMap.size() + orderMapMap.size() - 3;
             sort(mapMap);
             Integer i = 1;
             Integer j = 1;
-            for (String mapMapKey : mapMap.keySet()) {
+            for (Integer mapMapKey : mapMap.keySet()) {
 
                 resultMap.put(mapMapKey, mapMap.get(mapMapKey));
                 if (i > 3) {
                     Integer orderColumn = n + j;
                     Integer gapColumn = n2 + j;
-                    resultMap.put(COLUMN + formatString(orderColumn) + orderColumn, orderMapMap.get(mapMapKey));
-                    resultMap.put(COLUMN + formatString(gapColumn) + gapColumn, gapMapMap.get(mapMapKey));
+                    resultMap.put(orderColumn, orderMapMap.get(mapMapKey));
+                    resultMap.put(gapColumn, gapMapMap.get(mapMapKey));
                     j ++;
                 }
                 i ++;
@@ -578,28 +575,28 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     }
 
     // 总合计
-    private void sumSumMap(Map<String, Map<String, String>> mapMap) {
+    private void sumSumMap(Map<Integer, Map<Integer, String>> mapMap) {
         sort1(mapMap);
-        List<Map<String, String>> keyList = new ArrayList<>();
+        List<Map<Integer, String>> keyList = new ArrayList<>();
         // 取到所有的合计行
-        for (String mapKey : mapMap.keySet()) {
-            Map<String, String> map = mapMap.get(mapKey);
-            for (String mapMapKey : map.keySet()) {
-                if (StringUtils.equals(COLUMN + "03", mapMapKey)) {
+        for (Integer mapKey : mapMap.keySet()) {
+            Map<Integer, String> map = mapMap.get(mapKey);
+            for (Integer mapMapKey : map.keySet()) {
+                if (3 == mapMapKey) {
                     if (StringUtils.equals(map.get(mapMapKey), "合计")) {
                         keyList.add(map);
                     }
                 }
             }
         }
-        Map<String, String> sumRow = new LinkedHashMap<>();
-        sumRow.put(COLUMN + "01", "合计");
-        sumRow.put(COLUMN + "02", "合计");
-        sumRow.put(COLUMN + "03", "合计");
-        for (Map<String, String> sumMap : keyList) {
-            Map<String, String> sortMap = sort(sumMap);
+        Map<Integer, String> sumRow = new LinkedHashMap<>();
+        sumRow.put(1, "合计");
+        sumRow.put(2, "合计");
+        sumRow.put(3, "合计");
+        for (Map<Integer, String> sumMap : keyList) {
+            Map<Integer, String> sortMap = sort(sumMap);
             int i = 1;
-            for (String key : sortMap.keySet()) {
+            for (Integer key : sortMap.keySet()) {
                 if (i > 3) {
                     Integer sktCount = Integer.valueOf(sortMap.get(key));
                     Integer sum = StringUtils.isBlank(sumRow.get(key)) ? 0 : Integer.valueOf(sumRow.get(key));
@@ -610,7 +607,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         }
         int rowLine = mapMap.size();
         rowLine = rowLine + 1;
-        mapMap.put(ROW + formatString(rowLine) + rowLine, sumRow);
+        mapMap.put(rowLine, sumRow);
         sort1(mapMap);
     }
 
@@ -663,7 +660,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         return 0;
     }
 
-    private void buildDemandAndOrderMap(Map<String, Map<String, String>> demandMap, Map<String, Map<String, String>> orderMap,
+    private void buildDemandAndOrderMap(Map<Integer, Map<Integer, String>> demandMap, Map<Integer, Map<Integer, String>> orderMap,
                                         List<SeasonalPlanningDetails> seasonalPlanningDetailsList, List<OrderBookDetailForSeasonPlanningVO> orderBookDetailVos,String lableName) {
         int rowNum = 5;
         int orderCount = 0;
@@ -671,12 +668,12 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         Map<Integer, String> sortSumMap = new LinkedHashMap<>();
 
         // 前五行非数据行单独处理
-        Map<String, String> row01 = new LinkedHashMap<>();
-        Map<String, String> orderRow01 = new LinkedHashMap<>();
-        Map<String, String> row02 = new LinkedHashMap<>();
-        Map<String, String> row03 = new LinkedHashMap<>();
-        Map<String, String> row04 = new LinkedHashMap<>();
-        Map<String, String> row05 = new LinkedHashMap<>();
+        Map<Integer, String> row01 = new LinkedHashMap<>();
+        Map<Integer, String> orderRow01 = new LinkedHashMap<>();
+        Map<Integer, String> row02 = new LinkedHashMap<>();
+        Map<Integer, String> row03 = new LinkedHashMap<>();
+        Map<Integer, String> row04 = new LinkedHashMap<>();
+        Map<Integer, String> row05 = new LinkedHashMap<>();
 
         // 数据行
         Map<String, List<SeasonalPlanningDetails>> groupByProdCategory1stNameMap = seasonalPlanningDetailsList.stream()
@@ -699,8 +696,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
 
         for (String prodCategory : groupByProdCate.keySet()) {
-            Map<String, String> sumRow = new LinkedHashMap<>();
-            Map<String, String> orderSumRow = new LinkedHashMap<>();
+            Map<Integer, String> sumRow = new LinkedHashMap<>();
+            Map<Integer, String> orderSumRow = new LinkedHashMap<>();
             List<SeasonalPlanningDetails> prodCategoryList = groupByProdCate.get(prodCategory);
 
             Map<String, List<SeasonalPlanningDetails>> groupByProdCategory2nd = new LinkedHashMap<>();
@@ -716,8 +713,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         ));
             }
             for (String prodCategory2nd : groupByProdCategory2nd.keySet()) {
-                Map<String, String> rowData = new LinkedHashMap<>();
-                Map<String, String> orderRowData = new LinkedHashMap<>();
+                Map<Integer, String> rowData = new LinkedHashMap<>();
+                Map<Integer, String> orderRowData = new LinkedHashMap<>();
                 int row = 4;
                 List<SeasonalPlanningDetails> prodCategory2ndList = groupByProdCategory2nd.get(prodCategory2nd);
                 Map<String, List<SeasonalPlanningDetails>> groupByBand = prodCategory2ndList.stream()
@@ -739,39 +736,35 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         Integer index = 0;
                         for (SeasonalPlanningDetails details : styleCategoryList) {
                             // 前三列 大类-品类-中类
-                            rowData.put(COLUMN + "01", details.getProdCategory1stName());
-                            rowData.put(COLUMN + "02", prodCategory);
-                            rowData.put(COLUMN + "03", prodCategory2nd);
-                            orderRowData.put(COLUMN + "01", details.getProdCategory1stName());
-                            orderRowData.put(COLUMN + "02", prodCategory);
-                            orderRowData.put(COLUMN + "03", prodCategory2nd);
+                            rowData.put(1, details.getProdCategory1stName());
+                            rowData.put(2, prodCategory);
+                            rowData.put(3, prodCategory2nd);
+                            orderRowData.put(1, details.getProdCategory1stName());
+                            orderRowData.put(2, prodCategory);
+                            orderRowData.put(3, prodCategory2nd);
                             String columnNum = details.getColumnIndex();
                             if (StringUtils.isBlank(columnNum)) {
                                 break;
                             }
                             index = Integer.valueOf(columnNum);
                             index = index + 1;
-                            String n = "";
-                            if (index < 10) {
-                                n = "0";
-                            }
-                            rowData.put(COLUMN + n + index, details.getSkcCount());
+                            rowData.put(index, details.getSkcCount());
                             Integer orderSize = 0;
                             if (CollectionUtils.isNotEmpty(orderBookDetailVos)) {
                                 String prodCategory2ndStr = StringUtils.equals("-", prodCategory2nd) ? null : prodCategory2nd;
                                 Integer size = groupOrderBookDetail(prodCategory, prodCategory2ndStr, band, styleCategory, orderBookDetailVos);
                                 orderSize = size;
-                                orderRowData.put(COLUMN + n + index, String.valueOf(orderSize));
+                                orderRowData.put(index, String.valueOf(orderSize));
                             } else {
-                                orderRowData.put(COLUMN + n + index, "0");
+                                orderRowData.put(index, "0");
                             }
 
-                            row01.put(COLUMN + n + index, "总需求");
-                            orderRow01.put(COLUMN + n + index, "实际下单");
-                            row02.put(COLUMN + n + index, band);
-                            row03.put(COLUMN + n + index, details.getOrderTime());
-                            row04.put(COLUMN + n + index, details.getLaunchTime());
-                            row05.put(COLUMN + n + index, styleCategory);
+                            row01.put(index, "总需求");
+                            orderRow01.put(index, "实际下单");
+                            row02.put(index, band);
+                            row03.put(index, details.getOrderTime());
+                            row04.put(index, details.getLaunchTime());
+                            row05.put(index, styleCategory);
 
                             Integer sum = Integer.valueOf(details.getSkcCount());
                             Integer countRow = columnSumMap.get(styleCategory);
@@ -790,30 +783,21 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 }
                 int rowSum = row;
                 for (String styleCat : columnSumMap.keySet()) {
-                    String s = "";
-                    if (row < 10) {
-                        s = "0";
-                    }
-                    row01.put(COLUMN + s + rowSum, "总需求");
-                    orderRow01.put(COLUMN + s + rowSum, "实际下单");
-                    row02.put(COLUMN + s + rowSum, "合计");
-                    row03.put(COLUMN + s + rowSum, "-");
-                    row04.put(COLUMN + s + rowSum, "-");
-                    row05.put(COLUMN + s + rowSum, styleCat);
-                    rowData.put(COLUMN + s + rowSum, String.valueOf(columnSumMap.get(styleCat)));
-                    orderRowData.put(COLUMN + s + rowSum, String.valueOf(orderColumnSumMap.get(styleCat)));
+                    row01.put(rowSum, "总需求");
+                    orderRow01.put(rowSum, "实际下单");
+                    row02.put(rowSum, "合计");
+                    row03.put(rowSum, "-");
+                    row04.put(rowSum, "-");
+                    row05.put(rowSum, styleCat);
+                    rowData.put(rowSum, String.valueOf(columnSumMap.get(styleCat)));
+                    orderRowData.put(rowSum, String.valueOf(orderColumnSumMap.get(styleCat)));
                     sortSumMap.put(rowSum, styleCat);
                     rowSum++;
                 }
                 // 行数 + 1
                 rowNum++;
-                if (rowNum < 10) {
-                    demandMap.put(ROW + "0" + rowNum, sort(rowData));
-                    orderMap.put(ROW + "0" + rowNum, sort(orderRowData));
-                } else {
-                    demandMap.put(ROW + rowNum, sort(rowData));
-                    orderMap.put(ROW + rowNum, sort(orderRowData));
-                }
+                demandMap.put(rowNum, sort(rowData));
+                orderMap.put(rowNum, sort(orderRowData));
             }
 
             // 品类款式合计
@@ -846,8 +830,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         orderSum = orderSum + groupOrderBookDetail(prodCategory, spd.getProdCategory2ndName(), s, ss, orderBookDetailVos);
                     }
 
-                    sumRow.put(COLUMN + formatString(index) + index, String.valueOf(sum));
-                    orderSumRow.put(COLUMN + formatString(index) + index, String.valueOf(orderSum));
+                    sumRow.put(index, String.valueOf(sum));
+                    orderSumRow.put(index, String.valueOf(orderSum));
                     Integer countRow = sumSumColumnMap.get(seasonalPlanningDetails.getStyleCategory());
                     Integer orderCountRow = sumSumColumnMap.get(seasonalPlanningDetails.getStyleCategory());
                     if (null == countRow) {
@@ -859,59 +843,51 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     sumSumColumnMap.put(seasonalPlanningDetails.getStyleCategory(), countRow + sum);
                     sumSumOrderColumnMap.put(seasonalPlanningDetails.getStyleCategory(), orderCountRow + orderSum);
                 }
-                sumRow.put(COLUMN + "01", prodCategory1stName);
-                sumRow.put(COLUMN + "02", prodCategoryName);
-                sumRow.put(COLUMN + "03", "合计");
-                orderSumRow.put(COLUMN + "01", prodCategory1stName);
-                orderSumRow.put(COLUMN + "02", prodCategoryName);
-                orderSumRow.put(COLUMN + "03", "合计");
+                sumRow.put(1, prodCategory1stName);
+                sumRow.put(2, prodCategoryName);
+                sumRow.put(3, "合计");
+                orderSumRow.put(1, prodCategory1stName);
+                orderSumRow.put(2, prodCategoryName);
+                orderSumRow.put(3, "合计");
             }
             rowNum++;
             for (Integer size : sortSumMap.keySet()) {
-                sumRow.put(COLUMN + formatString(size) + size, String.valueOf(sumSumColumnMap.get(sortSumMap.get(size))));
-                orderSumRow.put(COLUMN + formatString(size) + size, String.valueOf(sumSumOrderColumnMap.get(sortSumMap.get(size))));
+                sumRow.put(size, String.valueOf(sumSumColumnMap.get(sortSumMap.get(size))));
+                orderSumRow.put(size, String.valueOf(sumSumOrderColumnMap.get(sortSumMap.get(size))));
             }
-            demandMap.put(ROW + formatString(rowNum) + rowNum, sort(sumRow));
-            orderMap.put(ROW + formatString(rowNum) + rowNum, sort(orderSumRow));
+            demandMap.put(rowNum, sort(sumRow));
+            orderMap.put(rowNum, sort(orderSumRow));
 
         }
         for (int row = 1; row < 4; row++) {
-            row01.put(COLUMN + "0" + row, lableName);
-            orderRow01.put(COLUMN + "0" + row, lableName);
-            row02.put(COLUMN + "0" + row, "上市波段");
-            row03.put(COLUMN + "0" + row, "下单时间");
-            row04.put(COLUMN + "0" + row, "上市时间");
-            row05.put(COLUMN + "0" + row, "款式类别");
+            row01.put(row, lableName);
+            orderRow01.put(row, lableName);
+            row02.put(row, "上市波段");
+            row03.put(row, "下单时间");
+            row04.put(row, "上市时间");
+            row05.put(row, "款式类别");
         }
-        demandMap.put(ROW + "01", sort(row01));
-        demandMap.put(ROW + "02", sort(row02));
-        demandMap.put(ROW + "03", sort(row03));
-        demandMap.put(ROW + "04", sort(row04));
-        demandMap.put(ROW + "05", sort(row05));
-        orderMap.put(ROW + "01", sort(orderRow01));
-        orderMap.put(ROW + "02", sort(row02));
-        orderMap.put(ROW + "03", sort(row03));
-        orderMap.put(ROW + "04", sort(row04));
-        orderMap.put(ROW + "05", sort(row05));
+        demandMap.put(1, sort(row01));
+        demandMap.put(2, sort(row02));
+        demandMap.put(3, sort(row03));
+        demandMap.put(4, sort(row04));
+        demandMap.put(5, sort(row05));
+        orderMap.put(1, sort(orderRow01));
+        orderMap.put(2, sort(row02));
+        orderMap.put(3, sort(row03));
+        orderMap.put(4, sort(row04));
+        orderMap.put(5, sort(row05));
     }
 
-    private String formatString(Integer index) {
-        String n = "";
-        if (index < 10) {
-            n = "0";
-        }
-        return n;
-    }
-
-    private Map<String, Map<String, String>> buildGapExcel(Map<String, Map<String, String>> demandMap, Map<String, Map<String, String>> orderMap) {
-        Map<String, Map<String, String>> gapMap = new LinkedHashMap<>();
+    private Map<Integer, Map<Integer, String>> buildGapExcel(Map<Integer, Map<Integer, String>> demandMap, Map<Integer, Map<Integer, String>> orderMap) {
+        Map<Integer, Map<Integer, String>> gapMap = new LinkedHashMap<>();
         int row = 1;
-        for (String key : demandMap.keySet()) {
+        for (Integer key : demandMap.keySet()) {
             int column = 1;
-            Map<String, String> columnMap = demandMap.get(key);
-            Map<String, String> orderRowMap = orderMap.get(key);
-            Map<String, String> orderColumnMap = new LinkedHashMap<>();
-            for (String columnKey : columnMap.keySet()) {
+            Map<Integer, String> columnMap = demandMap.get(key);
+            Map<Integer, String> orderRowMap = orderMap.get(key);
+            Map<Integer, String> orderColumnMap = new LinkedHashMap<>();
+            for (Integer columnKey : columnMap.keySet()) {
                 if (row < 6) {
                     if (row == 1 && column > 3) {
                         orderColumnMap.put(columnKey, "缺口下单");
@@ -931,11 +907,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             gapMap.put(key, orderColumnMap);
             row++;
         }
-
         return gapMap;
     }
 
-    private Map<String, String> sort(Map<String, String> unsortedMap) {
+    private Map<Integer, String> sort(Map<Integer, String> unsortedMap) {
         return unsortedMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
@@ -944,7 +919,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 ));
     }
 
-    private Map<String, Map<String, String>> sort1(Map<String, Map<String, String>> unsortedMap) {
+    private Map<Integer, Map<Integer, String>> sort1(Map<Integer, Map<Integer, String>> unsortedMap) {
         return unsortedMap.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,

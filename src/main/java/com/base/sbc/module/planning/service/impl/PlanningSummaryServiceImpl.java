@@ -128,14 +128,17 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
 
     private int countOrder(List<OrderBookDetailForSeasonPlanningVO> orderBookDetailVos) {
         List<OrderBookDetailForSeasonPlanningVO> orderBookDetails = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(orderBookDetailVos)) {
-            orderBookDetails = orderBookDetailVos.stream().filter(o -> o.getStyleId() != null).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(orderBookDetailVos)) {
+            return 0;
         }
+        orderBookDetails = orderBookDetailVos.stream().filter(o -> o.getStyleId() != null).collect(Collectors.toList());
+
         // 款式设计id去重
         List<OrderBookDetailForSeasonPlanningVO> distinctOrderList = orderBookDetailVos.stream()
-                .collect(Collectors.collectingAndThen(
-                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(OrderBookDetailForSeasonPlanningVO::getStyleId))),
-                        ArrayList::new
-                ));
+            .collect(Collectors.collectingAndThen(
+                    Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(OrderBookDetailForSeasonPlanningVO::getStyleId))),
+                    ArrayList::new
+            ));
+        return 0;
     }
 }
