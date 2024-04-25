@@ -111,8 +111,6 @@
             ts.task_level_name,
             ts.style_type,
             ts.style_type_name,
-            ts.devt_type as devtType,
-            ts.devt_type_name as devtTypeName,
             ts.size_range,
             ts.size_range_name,
             ts.merch_design_name,
@@ -144,6 +142,8 @@
             ts.design_audit_status,
             ts.design_marking_status,
             tsc.*,
+            ts.devt_type as devtType,
+            ts.devt_type_name as devtTypeName,
             CASE WHEN tsc.is_trim = '0' THEN tsma.style_no ELSE '' END as accessoryNo,
             CASE WHEN tsc.is_trim = '0' THEN tsma.color_name ELSE'' END as accessory1,
         	CASE WHEN tsc.is_trim  = '0' THEN ''ELSE tsma.style_no  END as principalStyleNo,
@@ -211,8 +211,8 @@
             tsp.control_confirm,
             tsp.product_hangtag_confirm,
             tsp.control_hangtag_confirm,
-            tsc.devt_type as devtType,
-            tsc.devt_type_name as devtTypeName,
+            ts.devt_type as devtType,
+            ts.devt_type_name as devtTypeName,
             concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode
             FROM
             t_style_color tsc
