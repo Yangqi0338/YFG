@@ -5,15 +5,17 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.planning.entity;
-import java.math.BigDecimal;
-import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
+
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.math.BigDecimal;
+import java.util.Date;
 /**
  * 类描述：企划-坑位信息 实体类
  * @address com.base.sbc.module.planning.entity.PlanningCategoryItem
@@ -202,6 +204,13 @@ public class PlanningCategoryItem extends BaseDataEntity<String> {
     /** 四级类目 */
     @ApiModelProperty(value = "四级类目"  )
     private String levelFourType;
+
+    /** 发送部门 */
+    @ApiModelProperty(value = "发送部门"  )
+    private String sendDeptId;
+    /** 接收部门 */
+    @ApiModelProperty(value = "接收部门"  )
+    private String receiveDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
