@@ -4,6 +4,8 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.ListUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -49,6 +51,7 @@ import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
+import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
@@ -86,10 +89,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.eclipse.jetty.util.ArrayUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
@@ -407,6 +413,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         );
         queryWrapper.likeList("ts.prod_category", dto.getCategoryCode());
         queryWrapper.likeList("tsc.band_name", dto.getBand());
+        queryWrapper.likeList("tsc.band_code", dto.getBandCode());
         queryWrapper.likeList("tobl.designer_id", dto.getDesignerName());
         queryWrapper.likeList("tsc.style_no", dto.getBulkStyleNo());
         queryWrapper.notEmptyEq("tobl.company_code", dto.getCompanyCode());
@@ -422,7 +429,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyEq("tobl.order_status", dto.getOrderStatus());
         queryWrapper.notNullEq("tobl.audit_status", dto.getAuditStatus());
         queryWrapper.likeRight(StrUtil.isNotBlank(dto.getYearName()), "tob.season_name", dto.getYearName());
-
         // queryWrapper.notEmptyLike("tobl.coefficient_code", dto.getCost());
         queryWrapper.notEmptyLike("tobl.target_time", dto.getTargetTime());
         queryWrapper.notEmptyLike("tobl.production_urgency_name", dto.getProductionUrgencyName());
@@ -443,12 +449,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.fabric_remarks", dto.getFabricRemarks());
         queryWrapper.notEmptyLike("tobl.fabric_drop", dto.getFabricDrop());
         queryWrapper.notEmptyLike("ts.design_no", dto.getStyle());
-        // queryWrapper.notEmptyLike("ts.prod_category2nd_name", dto.getProdCategory2ndName());
+        queryWrapper.notEmptyLike("ts.prod_category2nd", dto.getProdCategory2ndCode());
+        queryWrapper.notEmptyLike("ts.prod_category1st", dto.getProdCategory1st());
         queryWrapper.notEmptyLike("ts.old_design_no", dto.getOldDesignNo());
         queryWrapper.notEmptyLike("ts.registering_no", dto.getRegisteringNo());
         queryWrapper.notEmptyLike("tobl.suit_no", dto.getSuitNo());
         queryWrapper.notEmptyLike("ts.pattern_design_name", dto.getPatternDesignName());
         queryWrapper.notEmptyLike("ts.designer", dto.getStyleDesignerName());
+        queryWrapper.notEmptyLike("tob.season_id", dto.getPlanningSeasonId());
 
         queryWrapper.notEmptyLike("tobl.offline_production", dto.getOfflineProduction());
         queryWrapper.notEmptyLike("tobl.online_production", dto.getOnlineProduction());
@@ -465,7 +473,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         // }
 
         if(StrUtil.isNotBlank(dto.getPlanningSeasonId())){
-            BaseQueryWrapper<OrderBook> baseQueryWrapper = new BaseQueryWrapper();
+            BaseQueryWrapper<OrderBook> baseQueryWrapper = new BaseQueryWrapper<>();
             baseQueryWrapper.eq("season_id",dto.getPlanningSeasonId());
             List<OrderBook> list = orderBookService.list(baseQueryWrapper);
             List<String> stringList = list.stream().map(OrderBook::getId).collect(Collectors.toList());
@@ -724,14 +732,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void placeAnOrderReject(OrderBookDetailQueryDto dto) {
+    public String placeAnOrderReject(OrderBookDetailQueryDto dto) {
         if (StringUtils.isEmpty(dto.getIds())) {
             throw new OtherException("请选订货本");
         }
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, 1);
 
-        List<OrderBookDetailVo> cancelOrderBookDetailList = new ArrayList<>();
+        List<OrderBookDetail> cancelOrderBookDetailList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (OrderBookDetailAuditStatusEnum.NOT_COMMIT == orderBookDetail.getAuditStatus()){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+"未提交审核，不能驳回审核");
@@ -753,7 +761,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setCommissioningDate(null);
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
-        this.updateBatchById(orderBookDetails1);
+        boolean b = this.updateBatchById(orderBookDetails1);
 
         List<String> orderBookIdList = orderBookDetails1.stream().map(OrderBookDetail::getOrderBookId).distinct().collect(Collectors.toList());
         for (String orderBookId : orderBookIdList) {
@@ -766,7 +774,22 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     .set(OrderBook::getOrderStatus,rightStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.NOT_COMMIT)
                     .eq(OrderBook::getId,orderBookId));
         }
-        cancelOrderBookDetailList.forEach(it-> smpService.facPrdOrderUpCheck(it.getOrderNo(), dto.getUserId()));
+        Supplier<String> handlePlaceAnProduction = ()-> {
+            List<OrderBookDetail> finalCancelOrderBookDetailList = cancelOrderBookDetailList;
+            finalCancelOrderBookDetailList.forEach(it-> {
+                try {
+                    smpService.facPrdOrderUpCheck(it.getOrderNo(), dto.getUserId()).call();
+                } catch (Exception e) { throw new RuntimeException(e); }
+            });
+            return handlePlaceAnCancelProduction(finalCancelOrderBookDetailList);
+        };
+        String result = b ? "" : "false";
+        if (orderBookDetails1.size() > BusinessProperties.orderBookProductionInThreadLimit * 1.5) {
+            TtlRunnable.get(handlePlaceAnProduction::get).run();
+        }else {
+            result = handlePlaceAnProduction.get();
+        }
+        return result;
     }
 
     @Override
@@ -1002,6 +1025,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return  packBomService.updateMaterial(dto);
     }
 
+    /**
+     * 设计师补充数据
+     *
+     * @param dto
+     * @return
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public UpdateResultVo businessConfirm(OrderBookDetailSaveDto dto) {
@@ -1135,12 +1164,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             if (orderBookDetail.getOrderStatus().greatThan(OrderBookDetailOrderStatusEnum.ORDERING)){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已投产,请勿重新提交");
             }
-            if (orderBookDetail.getStatus() != (OrderBookDetailStatusEnum.AUDIT)){
-                throw new OtherException(orderBookDetail.getBulkStyleNo()+ "未下单,无法发起投产");
+            if (orderBookDetail.getOrderStatus().lessThan(OrderBookDetailOrderStatusEnum.ORDERING)){
+                throw new OtherException(orderBookDetail.getBulkStyleNo()+ "未下单或投产失败,请检查后重新发起投产");
             }
         }
 
-        List<Callable<HttpResp>> callableList = new ArrayList<>();
+        List<ScmProductionDto> productionList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail : orderBookDetails) {
             orderBookDetail.setIsLock(YesOrNoEnum.YES);
             orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
@@ -1162,7 +1191,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             productionDto.setName(orderBookDetail.getBulkStyleNo());
             // 检查必填参数是否校验完成
             ValidationUtil.validate(productionDto);
-            callableList.add(smpService.saveFacPrdOrder(productionDto));
+            if (orderBookDetail.getFacMerge() == YesOrNoEnum.YES) {
+                long count = productionDto.getAllSizeMap().values().stream().filter(it -> !it.isEmpty()).count();
+                if (count < 2){
+                    throw new OtherException("投产单为合并投产，请填写预分货分配数量");
+                }
+            }
+            productionList.add(productionDto);
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
@@ -1177,21 +1212,22 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         orderBook.setOrderStatus(warnStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.ORDER);
         orderBookService.updateById(orderBook);
 
+//        List<UserCompany> userCompanyList = amcFeignService.getUserByUserIds(
+//                productionList.stream().map(ScmProductionDto::findUserIdList).flatMap(Collection::stream).distinct().collect(Collectors.joining(COMMA))
+//        );
+//        productionList.forEach(production-> {
+//            production.decorateUserId(userCompanyList);
+//        });
+
         Supplier<String> handlePlaceAnProduction = ()-> {
             List<OrderBookDetail> finalOrderBookDetailList = orderBookDetails1;
-            StringJoiner joiner = new StringJoiner("；");
-            callableList.forEach(callable-> {
+            List<ScmProductionDto> finalProductionList = productionList;
+            finalProductionList.forEach(production-> {
                 try {
-                    HttpResp httpResp = callable.call();
-                    String warnMsg = handlePlaceAnProduction(finalOrderBookDetailList.stream()
-                            .filter(it -> it.getId().equals(httpResp.getCode())).collect(Collectors.toList())
-                    );
-                    joiner.add(warnMsg);
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
+                   smpService.saveFacPrdOrder(production).call();
+                } catch (Exception e) { throw new RuntimeException(e); }
             });
-            return joiner.toString();
+            return handlePlaceAnProduction(finalOrderBookDetailList);
         };
         String result = b ? "" : "false";
         if (orderBookDetails1.size() > BusinessProperties.orderBookProductionInThreadLimit) {
@@ -1215,23 +1251,32 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         StringJoiner joiner = new StringJoiner("；");
         if (CollUtil.isNotEmpty(pushRecordsList)) {
-            pushRecordsList.forEach(pushRecords -> {
-                OrderBookDetail orderBookDetail = list.stream().filter(it -> it.getId().equals(pushRecords.getRelatedId())).findFirst().get();
+            List<OrderBookDetail> updateList = new ArrayList<>();
+            list.forEach(orderBookDetail-> {
+                pushRecordsList.stream()
+                        .filter(it -> orderBookDetail.getId().equals(it.getRelatedId()))
+                        .max(Comparator.comparing(PushRecords::getCreateDate))
+                        .ifPresent(pushRecords-> {
+                            updateList.add(orderBookDetail);
+                            orderBookDetail.setOrderSendStatus(pushRecords.getPushStatus());
+                            orderBookDetail.setIsLock(YesOrNoEnum.YES);
+                            orderBookDetail.setOrderSendWarnMsg("");
 
-                orderBookDetail.setOrderSendStatus(pushRecords.getPushStatus());
-                orderBookDetail.setIsLock(YesOrNoEnum.YES);
-
-                if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
-                    orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
-                    orderBookDetail.setIsLock(YesOrNoEnum.NO);
-                    orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
-                    joiner.add(pushRecords.getResponseMessage());
-                }else {
-                    orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDER);
-                    orderBookDetail.setOrderNo("");
-                }
+                            if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
+                                orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
+                                orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_AUDIT);
+                                orderBookDetail.setIsLock(YesOrNoEnum.NO);
+                                orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
+                                joiner.add(pushRecords.getResponseMessage());
+                            }else {
+                                orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDER);
+                                orderBookDetail.setOrderNo(pushRecords.getResponseMessage());
+                            }
+                        });
             });
-            this.updateBatchById(list);
+            if (CollUtil.isNotEmpty(updateList)) {
+                this.updateBatchById(updateList);
+            }
         }
         return joiner.toString();
     }
@@ -1253,7 +1298,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void handlePlaceAnCancelProduction(List<OrderBookDetail> list) {
+    public String handlePlaceAnCancelProduction(List<OrderBookDetail> list) {
         PushRecordsDto pushRecordsDto = new PushRecordsDto();
         pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining()));
         pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL);
@@ -1261,6 +1306,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         pushRecordsDto.reset2QueryList();
         List<PushRecords> pushRecordsList = pushRecordsService.pushRecordsList(pushRecordsDto);
 
+        StringJoiner joiner = new StringJoiner("；");
         if (CollUtil.isNotEmpty(pushRecordsList)) {
             pushRecordsList.forEach(pushRecords -> {
                 OrderBookDetail orderBookDetail = list.stream().filter(it -> it.getId().equals(pushRecords.getRelatedId())).findFirst().get();
@@ -1270,6 +1316,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
                     orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
                     orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
+                    joiner.add(pushRecords.getResponseMessage());
                 }else {
                     orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
                     orderBookDetail.setOrderNo("");
@@ -1281,6 +1328,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             });
             this.updateBatchById(list);
         }
+        return joiner.toString();
+    }
+
+    @Override
+    public List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto) {
+        List<OrderBookDetailForSeasonPlanningVO> l = this.getBaseMapper().querySeasonalPlanningOrder(dto);
+        return l;
     }
 
     /**
