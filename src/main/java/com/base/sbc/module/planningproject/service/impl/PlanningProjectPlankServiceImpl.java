@@ -23,6 +23,7 @@ import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.vo.FieldDisplayVo;
+import com.base.sbc.module.planningproject.constants.GeneralConstant;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
@@ -227,7 +228,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 fieldManagements = fieldManagementService.listByIds(fieldManagementIds);
             }
 
-            Map<String, FieldManagement> fieldManagementMap = fieldManagements.stream().collect(Collectors.toMap(FieldManagement::getId, f -> f));
+            Map<String, FieldManagement> fieldManagementMap = fieldManagements.stream().filter(item -> !GeneralConstant.FIXED_ATTRIBUTES.equals(item.getGroupName())).collect(Collectors.toMap(FieldManagement::getId, f -> f));
 
             // 获取维度列表
             List<PlanningProjectPlankDimension> list1 = dimensionMap.get(planningProjectPlankVo.getId());
@@ -270,9 +271,9 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                         }
                     }
                 }
-                if ("1".equals(planningProjectPlankDimension.getDimensionalityGrade())) {
-                    planningProjectPlankDimension.setDimensionValueName(planningProjectPlankVo.getDimensionCode());
-                }
+                // if ("1".equals(planningProjectPlankDimension.getDimensionalityGrade())) {
+                //     planningProjectPlankDimension.setDimensionValueName(planningProjectPlankVo.getDimensionCode());
+                // }
                 FieldManagement fieldManagement = fieldManagementMap.get(planningDimensionality.getFieldId());
                 if (fieldManagement != null) {
                     planningProjectPlankDimension.setGroupName(fieldManagement.getGroupName());
@@ -544,12 +545,28 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     @Override
     public List<FieldDisplayVo> getDimensionFieldCard(DimensionLabelsSearchDto dto) {
         List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.getDimensionalityList(dto).getPlanningDimensionalities();
+        // 过滤固定属性的字段
+        Map<String, FieldManagement> fieldManagementMap = new HashMap<>();
+        if (ObjectUtil.isNotEmpty(planningDimensionalities)) {
+            List<String> fieldIdList = planningDimensionalities
+                    .stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
+            List<FieldManagement> fieldManagements = fieldManagementService.listByIds(fieldIdList);
+            if (ObjectUtil.isNotEmpty(fieldManagements)) {
+                fieldManagementMap = fieldManagements
+                        .stream().collect(Collectors.toMap(FieldManagement::getId, item -> item));
+            }
+        }
+        Map<String, FieldManagement> finalFieldManagementMap = fieldManagementMap;
         List<FieldDisplayVo> fieldDisplayVoList = planningDimensionalities.stream().map(planningDimensionality -> {
+            FieldManagement fieldManagement = finalFieldManagementMap.get(planningDimensionality.getFieldId());
+            if (ObjectUtil.isNotEmpty(fieldManagement) && fieldManagement.getGroupName().equals("固定属性")) {
+                return null;
+            }
             FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
             fieldDisplayVo.setName(planningDimensionality.getDimensionalityName());
             fieldDisplayVo.setField(planningDimensionality.getId());
             return fieldDisplayVo;
-        }).collect(Collectors.toList());
+        }).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
         List<FieldDisplayVo> list = new ArrayList<>();
         // 额外的字段
         if (StringUtils.isNotBlank(dto.getNames())) {
