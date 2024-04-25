@@ -379,9 +379,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         queryWrapper.eq("del_flag", "0");
         queryWrapper.eq("foreign_id",dto.getForeignId());
         List<PackBom> packBoms = list(queryWrapper);
-        if (CollectionUtil.isEmpty(packBoms)){
-            throw new OtherException("bom物料不存在");
-        }
+//        if (CollectionUtil.isEmpty(packBoms)){
+//            throw new OtherException("bom物料不存在");
+//        }
         Map<String, List<PackBom>> map = packBoms.stream().collect(Collectors.groupingBy(PackBom::getMaterialCode, Collectors.toList()));
         // 检查是否可以更新
         checkUpdateMaterial(dto,map);

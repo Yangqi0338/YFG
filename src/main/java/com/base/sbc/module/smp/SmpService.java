@@ -86,12 +86,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -126,7 +123,9 @@ public class SmpService {
 
     private final PushRecordsService pushRecordsService;
 
-    private final BasicsdatumMaterialService basicsdatumMaterialService;
+    @Resource
+    @Lazy
+    private  BasicsdatumMaterialService basicsdatumMaterialService;
 
     private final BasicsdatumMaterialWidthService basicsdatumMaterialWidthService;
 
