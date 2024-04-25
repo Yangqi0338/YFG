@@ -72,7 +72,8 @@
     </select>
 
     <select id="querySeasonalPlanningOrder" resultType="com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO">
-        SELECT tobd.id as orderBookDetailId,
+        SELECT DISTINCT
+               ts.id as styleId,
                ts.prod_category1st as prodCategory1st,
                ts.prod_category1st_name as prodCategory1stName,
                ts.prod_category as prodCategory,
@@ -81,8 +82,10 @@
                ts.prod_category2nd_name as prodCategory2ndName,
                ts.band_code as bandCode,
                ts.band_name as bandName,
-               tfv.val as styleCategoryCode,
-               tfv.val_name as styleCategoryName
+               tfv.field_id as fieldId,
+               tfv.field_explain as fieldExplain,
+               tfv.val as var,
+               tfv.val_name as varName
         FROM t_order_book_detail tobd
         LEFT JOIN t_order_book tob ON tob.id = tobd.order_book_id AND tob.del_flag='0'
         LEFT JOIN t_style_color tsc ON tobd.style_color_id = tsc.id AND tsc.del_flag='0'

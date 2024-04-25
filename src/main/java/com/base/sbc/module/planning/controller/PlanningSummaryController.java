@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,12 +36,7 @@ import java.util.stream.Collectors;
 @RestController
 @Api(tags = "企划汇总-相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/planningSummary", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-@RequiredArgsConstructor
 public class PlanningSummaryController extends BaseController{
-    private final OrderBookDetailService orderBookDetailService;
-    private final PlanningProjectPlankService planningProjectPlankService;
-    private final PlanningProjectService planningProjectService;
-    private final PlanningProjectDimensionService planningProjectDimensionService;
 
     /**
      * 获取企划汇总列表
@@ -48,8 +44,17 @@ public class PlanningSummaryController extends BaseController{
      * 需求数量:坑位总数量,下单数:订货本下单数量,
      */
     @RequestMapping("/queryList")
-    public ApiResult queryList(PlanningSummaryQueryDto dto) {
-        String createId = dto.getCreateId();
+    public ApiResult queryList(Principal user, PlanningSummaryQueryDto dto) {
+
+
+
+
+
+
+
+        return null;
+
+        /*String createId = dto.getCreateId();
         List<String> ids=null;
         if (StringUtils.isNotBlank(createId)){
             ids= Arrays.asList(createId.split(","));
@@ -147,6 +152,6 @@ public class PlanningSummaryController extends BaseController{
             planningSummaryQueryVos.add(planningSummaryQueryVo);
         }
 
-        return selectSuccess(planningSummaryQueryVos);
+        return selectSuccess(planningSummaryQueryVos);*/
     }
 }
