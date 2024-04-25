@@ -9,6 +9,7 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.planning.dto.PlanningSummaryQueryDto;
+import com.base.sbc.module.planning.service.PlanningSummaryService;
 import com.base.sbc.module.planning.vo.PlanningSummaryQueryVo;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
@@ -18,6 +19,7 @@ import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +39,8 @@ import java.util.stream.Collectors;
 @Api(tags = "企划汇总-相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/planningSummary", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class PlanningSummaryController extends BaseController{
+    @Autowired
+    private PlanningSummaryService planningSummaryService;
 
     /**
      * 获取企划汇总列表
@@ -44,15 +48,9 @@ public class PlanningSummaryController extends BaseController{
      * 需求数量:坑位总数量,下单数:订货本下单数量,
      */
     @RequestMapping("/queryList")
-    public ApiResult queryList(Principal user, PlanningSummaryQueryDto dto) {
+    public ApiResult queryList(PlanningSummaryQueryDto dto) {
 
-
-
-
-
-
-
-        return null;
+        return planningSummaryService.queryList(dto);
 
         /*String createId = dto.getCreateId();
         List<String> ids=null;
