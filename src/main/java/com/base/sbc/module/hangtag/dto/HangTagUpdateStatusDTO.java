@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.dto;
 
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
@@ -41,6 +42,7 @@ public class HangTagUpdateStatusDTO {
     private HangTagStatusEnum status;
 
     private StyleCountryStatusEnum countryStatus;
+    private CountryLanguageType type;
 
     private HangTagStatusCheckEnum checkType;
 

@@ -634,6 +634,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						StyleCountryStatus status = new StyleCountryStatus();
 						status.setBulkStyleNo(hangTag.getBulkStyleNo());
 						status.setCode(hangTagUpdateStatusDTO.getCountryCode());
+						status.setType(hangTagUpdateStatusDTO.getType());
 						status.setStatus(Opt.ofNullable(hangTagUpdateStatusDTO.getCountryStatus()).orElse(StyleCountryStatusEnum.CHECK));
 						return status;
 					}).collect(Collectors.toList()), multiCheckList, multiCheck);

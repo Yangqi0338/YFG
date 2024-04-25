@@ -467,7 +467,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         boolean updateBatch = this.saveOrUpdateBatch(statusList);
 
         if (needUpdateHangTag) {
-            statusList.stream().collect(Collectors.groupingBy(StyleCountryStatus::getStatus)).forEach((countryStatus,sameCountryStatusList)-> {
+            statusList.stream().collect(Collectors.groupingBy((it)-> Pair.of(it.getStatus(), it.getType()))).forEach((keyPair,sameKeyList)-> {
                 // 可能存在未处理的状态,需要筛选
                 List<String> rightBulkStyleNoList = statusList.stream().map(bulkStyleNoFunc).collect(Collectors.toList());
                 hangTagList.stream()
@@ -492,7 +492,8 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                             statusDTO.setIds(sameStatusHangTagList.stream().map(HangTag::getId).distinct().collect(Collectors.toList()));
                             statusDTO.setStatus(status);
                             statusDTO.setCountryCode(codeList);
-                            statusDTO.setCountryStatus(countryStatus);
+                            statusDTO.setCountryStatus(keyPair.getKey());
+                            statusDTO.setType(keyPair.getValue());
                             // 设置为translate_check 打破循环
                             if (status == HangTagStatusEnum.PART_TRANSLATE_CHECK) {
                                 sameStatusHangTagList.forEach(it-> it.setStatus(HangTagStatusEnum.TRANSLATE_CHECK));
