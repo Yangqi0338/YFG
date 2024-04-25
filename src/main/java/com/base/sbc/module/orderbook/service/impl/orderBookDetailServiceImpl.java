@@ -48,7 +48,6 @@ import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
-import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
@@ -408,7 +407,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         );
         queryWrapper.likeList("ts.prod_category", dto.getCategoryCode());
         queryWrapper.likeList("tsc.band_name", dto.getBand());
-        queryWrapper.likeList("tsc.band_code", dto.getBandCode());
         queryWrapper.likeList("tobl.designer_id", dto.getDesignerName());
         queryWrapper.likeList("tsc.style_no", dto.getBulkStyleNo());
         queryWrapper.notEmptyEq("tobl.company_code", dto.getCompanyCode());
@@ -444,8 +442,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.fabric_remarks", dto.getFabricRemarks());
         queryWrapper.notEmptyLike("tobl.fabric_drop", dto.getFabricDrop());
         queryWrapper.notEmptyLike("ts.design_no", dto.getStyle());
-        queryWrapper.notEmptyLike("ts.prod_category2nd", dto.getProdCategory2ndCode());
-        queryWrapper.notEmptyLike("ts.prod_category1st", dto.getProdCategory1st());
         queryWrapper.notEmptyLike("ts.old_design_no", dto.getOldDesignNo());
         queryWrapper.notEmptyLike("ts.registering_no", dto.getRegisteringNo());
         queryWrapper.notEmptyLike("tobl.suit_no", dto.getSuitNo());
@@ -1330,12 +1326,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             this.updateBatchById(list);
         }
         return joiner.toString();
-    }
-
-    @Override
-    public List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto) {
-        List<OrderBookDetailForSeasonPlanningVO> l = this.getBaseMapper().querySeasonalPlanningOrder(dto);
-        return l;
     }
 
     /**

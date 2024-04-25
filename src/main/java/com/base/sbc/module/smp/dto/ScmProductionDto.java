@@ -1,6 +1,9 @@
 package com.base.sbc.module.smp.dto;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.PutInProductionType;
@@ -16,10 +19,14 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Data
 public class ScmProductionDto extends ScmProductionSupportDto {
@@ -159,4 +166,27 @@ public class ScmProductionDto extends ScmProductionSupportDto {
 
     /** 生产编号 */
     private String orderNo;
+
+    public static Map<Function<ScmProductionDto, String>, BiConsumer<ScmProductionDto, String>> findUserIdFuncList() {
+        return MapUtil.ofEntries(
+                MapUtil.entry(ScmProductionDto::getLoginName, ScmProductionDto::setLoginName),
+                MapUtil.entry(ScmProductionDto::getChargerName, ScmProductionDto::setChargerName),
+                MapUtil.entry(ScmProductionDto::getReviewerName, ScmProductionDto::setReviewerName),
+                MapUtil.entry(ScmProductionDto::getPreparedByName, ScmProductionDto::setPreparedByName)
+        );
+    }
+
+    public List<String> findUserIdList() {
+        return ScmProductionDto.findUserIdFuncList().keySet().stream().map(it-> it.apply(this)).collect(Collectors.toList());
+    }
+
+    public void decorateUserId(List<UserCompany> userCompanyList) {
+        if (CollUtil.isEmpty(userCompanyList)) return;
+        ScmProductionDto.findUserIdFuncList().forEach((getFunc,setFunc)-> {
+            String id = getFunc.apply(this);
+            userCompanyList.stream().filter(it-> it.getId().equals(id)).findFirst().ifPresent(userCompany -> {
+                setFunc.accept(this, userCompany.getUserId());
+            });
+        });
+    }
 }

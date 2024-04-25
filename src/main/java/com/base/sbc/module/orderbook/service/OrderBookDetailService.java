@@ -8,7 +8,6 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
-import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.*;
 import com.base.sbc.module.smp.dto.HttpResp;
@@ -93,6 +92,4 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     boolean removeByIds(RemoveDto removeDto);
 
     boolean similarStyleBinding(OrderBookDetailSaveDto dto);
-
-    List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto);
 }

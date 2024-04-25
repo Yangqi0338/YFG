@@ -168,10 +168,10 @@ public class BaseController {
 	/****************************************修改 ************************************************/
 	/**修改成功:单个String，实体，分页对象*/
 	protected <T> ApiResult<T> update(T object) {
-		return update(object, (it)-> ObjectUtil.isNotEmpty(object));
+		return update(object, (it)-> ObjectUtil.isEmpty(object));
 	}
 	protected <T> ApiResult<T> update(T object, Function<T,Boolean> judgeFunc) {
-		return judgeFunc.apply(object) ? updateSuccess(object) : updateNotFound(object);
+		return judgeFunc.apply(object) ? updateSuccess(object) : ApiResult.error(object.toString(),0);
 	}
 	/**修改成功:单个String，实体，分页对象*/
 	protected <T> ApiResult<T> updateSuccess(T object) {

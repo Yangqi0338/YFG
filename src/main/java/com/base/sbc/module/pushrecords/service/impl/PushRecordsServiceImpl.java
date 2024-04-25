@@ -109,12 +109,13 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public PushRecords prePushRecordSave(HttpReq httpReq) {
         String url = httpReq.getUrl();
-        PushRecordsDto pushRecordsDto = new PushRecordsDto();
-        pushRecordsDto.setRelatedId(httpReq.getCode());
-        pushRecordsDto.setPushAddress(url);
-        pushRecordsDto.reset2QueryFirst();
-        PushRecords pushRecords = pushRecordsList(pushRecordsDto)
-                .stream().findFirst().orElse(BeanUtil.copyProperties(pushRecordsDto, PushRecords.class));
+//        PushRecordsDto pushRecordsDto = new PushRecordsDto();
+//        pushRecordsDto.setRelatedId(httpReq.getCode());
+//        pushRecordsDto.setPushAddress(url);
+//        pushRecordsDto.reset2QueryFirst();
+//        PushRecords pushRecords = pushRecordsList(pushRecordsDto)
+//                .stream().findFirst().orElse(BeanUtil.copyProperties(pushRecordsDto, PushRecords.class));
+        PushRecords pushRecords = new PushRecords();
 
         pushRecords.setRelatedId(httpReq.getCode());
         pushRecords.setRelatedName(httpReq.getName());
@@ -130,7 +131,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         }
 
         pushRecords.setPushStatus(PushRespStatus.PROCESS);
-        this.saveOrUpdate(pushRecords);
+        this.save(pushRecords);
         return pushRecords;
     }
 
@@ -145,6 +146,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
                 .notEmptyIn(PushRecords::getRelatedId, pushRecords.getRelatedId())
                 .eq(PushRecords::getPushAddress, pushRecords.getPushAddress())
                 .isNull(StrUtil.isBlank(pushRecords.getRelatedId()), PushRecords::getRelatedId)
+                .orderByDesc(PushRecords::getCreateDate)
         );
     }
 

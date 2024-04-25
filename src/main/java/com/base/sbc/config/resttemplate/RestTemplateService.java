@@ -4,6 +4,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.http.HttpStatus;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -74,7 +76,10 @@ public class RestTemplateService {
     public static HttpResp buildHttpResp(String responseStrData) {
         HttpResp httpResp = JSONUtil.toBean(responseStrData, HttpResp.class);
         JSONObject jsonObject = JSONObject.parseObject(responseStrData);
-        if (!jsonObject.containsKey("success") || "0000000".equals(httpResp.getCode())) {
+        if (!jsonObject.containsKey("success") && (!StrUtil.startWithAny(httpResp.getCode(),"4","5"))) {
+            httpResp.setSuccess(true);
+        }
+        if ("0000000".equals(httpResp.getCode())) {
             httpResp.setSuccess(true);
         }
         return httpResp;

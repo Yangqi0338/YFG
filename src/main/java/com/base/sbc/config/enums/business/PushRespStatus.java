@@ -18,8 +18,8 @@ import lombok.Getter;
 public enum PushRespStatus {
     /** 推送请求状态 */
     PROCESS("处理中"),
-    FAILURE("成功"),
-    SUCCESS("失败"),
+    FAILURE("失败"),
+    SUCCESS("成功"),
     ;
 
     /** 编码 */
