@@ -95,7 +95,7 @@
             AND tfv.field_name = #{dto.styleCategory}
         </if>
         WHERE tobd.del_flag='0'
-              AND tobd.is_order = '1'
+              AND tobd.order_status = '4'
               AND tob.season_id = #{dto.seasonId}
         <if test="dto.channel != null and dto.channel != ''">
               AND tob.channel = #{dto.channel}
