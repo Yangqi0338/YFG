@@ -21,19 +21,30 @@ import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyBuilder;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.EasyPoiMapExportParam;
@@ -57,6 +68,7 @@ import com.base.sbc.module.standard.service.StandardColumnService;
 import com.github.pagehelper.PageInfo;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.formula.functions.Count;
 import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -97,6 +109,8 @@ import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMs
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.NOT_FOUND_COUNTRY_LANGUAGE;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.idFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.languageCodeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.singleLanguageFlagFunc;
 import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.typeFunc;
 import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.contentFunc;
 import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.countryLanguageIdFunc;
@@ -129,6 +143,12 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
     @Autowired
     private StandardColumnCountryTranslateMapper standardColumnCountryTranslateMapper;
+
+    @Autowired
+    private HangTagService hangTagService;
+
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
     public static final SFunction<MoreLanguageTableTitle, Integer> keyFunc = MoreLanguageTableTitle::getKey;
     public static final SFunction<MoreLanguageTableTitle, Integer> keyNameFunc = MoreLanguageTableTitle::getKeyName;
@@ -609,6 +629,117 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     }
                 });
         return result;
+    }
+
+    @Override
+    public void exportMergeExcel(String bulkStyleNoList) {
+        List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList(MoreLanguageProperties.languageDictCode);
+
+        // 获取每个对应语言和号型的国家
+        List<CountryLanguage> list = countryLanguageService.list(new BaseLambdaQueryWrapper<CountryLanguage>()
+                .in(languageCodeFunc, dictList.stream().map(BasicBaseDict::getValue).collect(Collectors.toList()))
+                .eq(singleLanguageFlagFunc, YesOrNoEnum.YES)
+        );
+
+        dictList.forEach(dict -> {
+            CountryLanguage countryLanguage = list.stream().filter(it -> it.getLanguageCode().equals(dict.getValue()))
+                    .findFirst().orElseThrow(() -> new OtherException("请维护" + dict.getName() + "的单语言翻译"));
+
+            HangTagMoreLanguageDTO moreLanguageDTO = new HangTagMoreLanguageDTO();
+            moreLanguageDTO.setSource(SystemSource.PDM);
+            moreLanguageDTO.setBulkStyleNo(bulkStyleNoList);
+            moreLanguageDTO.setCode(countryLanguage.getCode());
+            moreLanguageDTO.setSingleLanguageFlag(YesOrNoEnum.YES);
+            List<HangTagMoreLanguageWebBaseVO> resultList = (List<HangTagMoreLanguageWebBaseVO>) hangTagService.getMoreLanguageDetailsByBulkStyleNo(moreLanguageDTO);
+            System.out.println(resultList);
+        });
+
+//        /* ----------------------------处理导出以及样式调整---------------------------- */
+//
+//        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+//        response.setCharacterEncoding("utf-8");
+//
+//        // 这里URLEncoder.encode可以防止中文乱码
+//        String fileName = URLEncoder.encode(
+//                String.format("(%s)吊牌&洗唛多语言-%s.xlsx",
+//                        (baseCountryLanguage.getName()),
+//                        System.currentTimeMillis()),"UTF-8").replaceAll("\\+", "%20");
+//
+//        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
+//
+//        Workbook workbook = null;
+//        try (OutputStream out = response.getOutputStream();
+//             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        ) {
+//            if (CollectionUtil.isNotEmpty(exportParams)) {
+//                // 遍历每个sheet的导出实体
+//                for (EasyPoiMapExportParam exportParam : exportParams) {
+//                    ExportParams title = exportParam.getTitle();
+//                    if (workbook == null) {
+//                        // 初始化并创建第一个自定义表头的sheet
+//                        workbook = ExcelExportUtil.exportExcel(title, exportParam.getEntity(), exportParam.getData());
+//                    } else {
+//                        // 创建自定义表头的sheet
+//                        excelExportService.createSheetForMap(workbook, title, exportParam.getEntity(), exportParam.getData());
+//                    }
+//
+//                    Sheet sheet = workbook.getSheet(title.getSheetName());
+//
+//                    // 修正表头高度
+//                    Row titleRow = sheet.getRow(0);
+//                    titleRow.setHeightInPoints(80);
+//                    // 修正表头样式
+//                    CellStyle titleStyle = workbook.createCellStyle();
+//                    titleStyle.setAlignment(HorizontalAlignment.LEFT);
+//                    titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+//                    titleStyle.setWrapText(false);
+//                    titleRow.setRowStyle(titleStyle);
+//
+//                    // 若需要处理空白缺失
+//                    if (lackHandler) {
+//                        // 获取需要处理的列
+//                        List<Integer> lackCheckCellNumList = sheetBlankCellNumMap.get(sheet.getSheetName());
+//                        if (CollectionUtil.isNotEmpty(lackCheckCellNumList)) {
+//                            int rowCount = sheet.getLastRowNum();
+//                            // 从第三行开始遍历，跳过表头
+//                            for (int i = MoreLanguageProperties.excelDataRowNum; i <= rowCount; i++) {
+//                                Row row = sheet.getRow(i);
+//                                if (row != null) {
+//                                    int cellCount = row.getLastCellNum();
+//                                    // 判断翻译是否为空
+//                                    boolean needHandlerLack = lackCheckCellNumList.stream()
+//                                            .anyMatch(cellNum -> StrUtil.isBlank(row.getCell(cellNum).getStringCellValue()));
+//                                    for (int j = 0; j < cellCount; j++) {
+//                                        if (needHandlerLack) {
+//                                            // 为空,将整段样式改为红色字体
+//                                            Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+//                                            CellStyle cellStyle = workbook.createCellStyle();
+//                                            cellStyle.cloneStyleFrom(cell.getCellStyle());
+//                                            Font font = workbook.createFont();
+//                                            font.setColor(IndexedColors.RED.getIndex());
+//                                            cellStyle.setFont(font);
+//                                            cell.setCellStyle(cellStyle);
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+////                    CellStyle cellStyle = workbook.createCellStyle();
+////                    cellStyle.setAlignment(HorizontalAlignment.LEFT);
+////                    sheet.setDefaultColumnStyle(0, cellStyle);
+//                }
+//
+//                workbook.write(baos);
+//                response.setHeader("Content-Length", String.valueOf(baos.size()));
+//                out.write( baos.toByteArray() );
+//            }
+//        }finally {
+//            if (workbook != null) {
+//                workbook.close();
+//            }
+//        }
     }
 
     private <T extends Comparable<? super T>> String findUniqueCode(List<MoreLanguageTableTitle> tableTitleList, SFunction<MoreLanguageTableTitle, T> keyFunc, Integer defaultIndex){
