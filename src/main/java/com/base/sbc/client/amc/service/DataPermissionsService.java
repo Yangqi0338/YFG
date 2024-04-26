@@ -167,7 +167,7 @@ public class DataPermissionsService {
             if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())) {
                 List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
                 if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
-                    Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(FieldDataPermissionVO::getGroupIdx));
+                    Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
 
                     List<String> fieldArr = new ArrayList<>();
                     boolean isFieldFlag = false;
@@ -211,22 +211,16 @@ public class DataPermissionsService {
                                     //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
                                     fieldName = tablePre + "create_id";
                                     String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
-                                    fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                    if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
+                                        fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                    } else {
+                                        fieldArr.add(fieldName + " not in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                    }
                                 }else {
-                                    if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType())) {
+                                    if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
                                         fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
                                     } else {
-                                        if (fieldDataPermissionVO.getFieldValues().size() > 1) {
-                                            fieldArr.add(fieldName + " in (");
-                                            final String[] fieldValues = {""};
-                                            fieldDataPermissionVO.getFieldValues().forEach(e -> {
-                                                fieldValues[0] += (StringUtils.isNotBlank(fieldValues[0]) ? "','" : " '") + e;
-                                            });
-                                            fieldArr.add(fieldValues[0] + "') ");
-                                        }
-                                        if (fieldDataPermissionVO.getFieldValues().size() == 1) {
-                                            fieldArr.add(" " + fieldName + "='" + fieldDataPermissionVO.getFieldValues().get(0) + "' ");
-                                        }
+                                        fieldArr.add(fieldName + " not in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
                                     }
                                 }
                             }
