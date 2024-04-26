@@ -126,9 +126,14 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         // 查询季节企划的详情数据
         List<SeasonalPlanningDetails> detailsList = seasonalPlanningDetailsService
                 .listByField("seasonal_planning_id", seasonalPlanning.getId());
-        List<CategoryPlanningDetails> categoryPlanningDetailsList = generationCategoryPlanningDetails(detailsList, seasonalPlanning, categoryPlanning);
-        boolean saveFlag = categoryPlanningDetailsService.saveBatch(categoryPlanningDetailsList);
-        if (!saveFlag) {
+        List<CategoryPlanningDetails> categoryPlanningDetailsList
+                = generationCategoryPlanningDetails(detailsList, seasonalPlanning, categoryPlanning, null);
+        if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+            boolean saveFlag = categoryPlanningDetailsService.saveBatch(categoryPlanningDetailsList);
+            if (!saveFlag) {
+                throw new OtherException("生成品类企划失败，请刷新后重试！");
+            }
+        } else {
             throw new OtherException("生成品类企划失败，请刷新后重试！");
         }
     }
@@ -144,7 +149,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     public List<CategoryPlanningDetails> generationCategoryPlanningDetails(
             List<SeasonalPlanningDetails> detailsList
             , SeasonalPlanning seasonalPlanning
-            , CategoryPlanning categoryPlanning) {
+            , CategoryPlanning categoryPlanning
+            , List<String> dimensionIdList) {
         // 初始化返回的数据
         List<CategoryPlanningDetails> categoryPlanningDetailsList = new ArrayList<>();
         // 初始化当前品类企划中所有品类的企划需求管理数据
@@ -158,6 +164,13 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         {
             // 获取所有维度等级的数据
             List<PlanningDimensionality> planningDimensionalityList = getPlanningDimensionalitieList(detailsList, seasonalPlanning);
+            if (ObjectUtil.isNotEmpty(dimensionIdList)) {
+                planningDimensionalityList = planningDimensionalityList.stream()
+                        .filter(item -> dimensionIdList.contains(item.getFieldId())).collect(Collectors.toList());
+            }
+            if (ObjectUtil.isEmpty(planningDimensionalityList)) {
+                return new ArrayList<>();
+            }
             // 判断维度数据中是否有中类 有的话查询
             // 按照品类给维度等级分类
             planningDimensionalityMap = planningDimensionalityList.stream().collect(Collectors.groupingBy(PlanningDimensionality::getProdCategory));

@@ -65,6 +65,9 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     private CcmFeignService ccmFeignService;
     @Autowired
     private SeasonalPlanningService seasonalPlanningService;
+    @Autowired
+    @Lazy
+    private SeasonalPlanningDetailsService seasonalPlanningDetailsService;
 
     @Override
     public PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto) {
@@ -529,6 +532,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
      * @return
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public CategoryPlanningDetailVO getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         // 初始化返回的对象
         CategoryPlanningDetailVO categoryPlanningDetailVO = new CategoryPlanningDetailVO();
@@ -554,6 +558,42 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                         .eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.NO)
         ) < 1) {
             return categoryPlanningDetailVO;
+        }
+
+        // 根据传入的维度 id 判断是否有不能存在的维度 如果有 则新增品类企划数据
+        List<CategoryPlanningDetails> dimensionality = getDimensionalitySelf(categoryPlanningDetailDTO, categoryPlanning);
+        if (ObjectUtil.isNotEmpty(dimensionality)) {
+            Map<String, CategoryPlanningDetails> categoryPlanningDetailsMap = dimensionality.stream()
+                    .collect(Collectors.toMap(CategoryPlanningDetails::getDimensionId, item -> item));
+            List<String> dimensionIdList = CollUtil.newArrayList(dimensionIds.split(","));
+            dimensionIdList = dimensionIdList.stream()
+                    .filter(item -> ObjectUtil.isEmpty(categoryPlanningDetailsMap.get(item))).collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(dimensionIdList)) {
+                // 新增此维度的数据
+                // 查询季节企划信息
+                SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(categoryPlanning.getSeasonalPlanningId());
+                if (ObjectUtil.isNotEmpty(seasonalPlanning)) {
+                    List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(
+                            new LambdaQueryWrapper<SeasonalPlanningDetails>()
+                                    .eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId())
+                                    .eq(SeasonalPlanningDetails::getProdCategoryCode, categoryPlanningDetailDTO.getProdCategoryCode())
+                    );
+                    if (ObjectUtil.isNotEmpty(seasonalPlanningDetailsList)) {
+                        List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningService.generationCategoryPlanningDetails(
+                                seasonalPlanningDetailsList,
+                                seasonalPlanning,
+                                categoryPlanning,
+                                dimensionIdList
+                        );
+                        if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                            boolean saveFlag = saveBatch(categoryPlanningDetailsList);
+                            if (!saveFlag) {
+                                log.error("生成品类企划失败！");
+                            }
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -815,10 +855,48 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
      * @param categoryPlanningDetailDTO 要保存的数据
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         // 先根据品类企划 id 查询品类企划信息
         CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningDetailDTO.getCategoryPlanningId());
+        List<CategoryPlanningDetails> categoryPlanningDetailsList = getDimensionalitySelf(categoryPlanningDetailDTO, categoryPlanning);
+        // 查询已经配置的维度字段
+        SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(categoryPlanning.getSeasonalPlanningId());
+
+        QueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new QueryWrapper<>();
+        // 当品类都有第一维度数据后 查询维度表维度数据维度等级不为空的数据
+        planningDimensionalityQueryWrapper.clear();
+        planningDimensionalityQueryWrapper.eq("channel", seasonalPlanning.getChannelCode());
+        planningDimensionalityQueryWrapper.eq("planning_season_id", seasonalPlanning.getSeasonId());
+        planningDimensionalityQueryWrapper.eq("prod_category", categoryPlanningDetailDTO.getProdCategoryCode());
+        planningDimensionalityQueryWrapper.isNotNull("dimensionality_grade");
+        planningDimensionalityQueryWrapper.ne("dimensionality_grade", "");
+        // 拿到所有等级的维度数据
+        List<PlanningDimensionality> planningDimensionalityList = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
+
+        if (ObjectUtil.isNotEmpty(planningDimensionalityList)) {
+            List<CategoryPlanningDetails> dynamicCategoryPlanningDetailsList = planningDimensionalityList.stream().map(
+                    item -> {
+                        CategoryPlanningDetails categoryPlanningDetails = new CategoryPlanningDetails();
+                        categoryPlanningDetails.setProdCategoryCode(categoryPlanningDetailDTO.getProdCategoryCode());
+                        categoryPlanningDetails.setDimensionId(item.getFieldId());
+                        categoryPlanningDetails.setDimensionName(item.getDimensionalityName());
+                        categoryPlanningDetails.setDimensionalityGradeName(item.getDimensionalityGradeName());
+                        return categoryPlanningDetails;
+                    }
+            ).collect(Collectors.toList());
+            Map<String, CategoryPlanningDetails> categoryPlanningDetailsMap = categoryPlanningDetailsList
+                    .stream().collect(Collectors.toMap(CategoryPlanningDetails::getDimensionId, item -> item));
+            for (CategoryPlanningDetails categoryPlanningDetails : dynamicCategoryPlanningDetailsList) {
+                CategoryPlanningDetails details = categoryPlanningDetailsMap.get(categoryPlanningDetails.getDimensionId());
+                if (ObjectUtil.isEmpty(details)) {
+                    categoryPlanningDetailsList.add(categoryPlanningDetails);
+                }
+            }
+        }
+        return categoryPlanningDetailsList;
+    }
+
+    public List<CategoryPlanningDetails> getDimensionalitySelf(CategoryPlanningDetailDTO categoryPlanningDetailDTO, CategoryPlanning categoryPlanning) {
         if (ObjectUtil.isEmpty(categoryPlanning)) {
             throw new OtherException("品类企划信息不存在，请刷新后重试！");
         }
@@ -838,7 +916,11 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         queryWrapper.isNotNull(CategoryPlanningDetails::getDimensionName);
         queryWrapper.ne(CategoryPlanningDetails::getDimensionName, "");
         queryWrapper.groupBy(CategoryPlanningDetails::getProdCategoryCode, CategoryPlanningDetails::getDimensionId);
-        return list(queryWrapper);
+        List<CategoryPlanningDetails> categoryPlanningDetailsList = list(queryWrapper);
+        if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
+            throw new OtherException("当前品类类型数据不存在，请刷新后重试！");
+        }
+        return categoryPlanningDetailsList;
     }
 
     /**
@@ -873,7 +955,10 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             // 设置成已撤回的状态
             categoryPlanningDetails.setIsGenerate("2");
         }
-        updateBatchById(categoryPlanningDetailsList);
+        boolean updateBatchFlag = updateBatchById(categoryPlanningDetailsList);
+        if (!updateBatchFlag) {
+            throw new OtherException("撤回失败，请重试！");
+        }
     }
 
     /**
@@ -947,12 +1032,15 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             List<CategoryPlanningDetails> newCategoryPlanningDetailsList = categoryPlanningService.generationCategoryPlanningDetails(
                     seasonalPlanningDetailsList,
                     seasonalPlanning,
-                    categoryPlanning
+                    categoryPlanning,
+                    null
             );
 
-            boolean saveFlag = saveBatch(newCategoryPlanningDetailsList);
-            if (!saveFlag) {
-                throw new OtherException("更新品类企划失败，请刷新后重试！");
+            if (ObjectUtil.isNotEmpty(newCategoryPlanningDetailsList)) {
+                boolean saveFlag = saveBatch(newCategoryPlanningDetailsList);
+                if (!saveFlag) {
+                    throw new OtherException("更新品类企划失败，请刷新后重试！");
+                }
             }
         }
         // 删除的数据
