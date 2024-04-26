@@ -77,6 +77,7 @@ public class RestTemplateService {
         if (!jsonObject.containsKey("success") || "0000000".equals(httpResp.getCode())) {
             httpResp.setSuccess(true);
         }
+        httpResp.setDataMap(JSON.parseObject(jsonObject.getString("data"), new TypeReference<List<Map<String,Object>>>() {}.getType()));
         return httpResp;
     }
 

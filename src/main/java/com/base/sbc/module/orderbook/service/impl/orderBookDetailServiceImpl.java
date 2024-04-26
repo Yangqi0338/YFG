@@ -724,14 +724,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String placeAnOrderReject(OrderBookDetailQueryDto dto) {
+    public void placeAnOrderReject(OrderBookDetailQueryDto dto) {
         if (StringUtils.isEmpty(dto.getIds())) {
             throw new OtherException("请选订货本");
         }
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         List<OrderBookDetailVo> orderBookDetails = this.querylist(queryWrapper, 1, 1);
 
-        List<OrderBookDetail> cancelOrderBookDetailList = new ArrayList<>();
+        List<OrderBookDetailVo> cancelOrderBookDetailList = new ArrayList<>();
         for (OrderBookDetailVo orderBookDetail :orderBookDetails) {
             if (OrderBookDetailAuditStatusEnum.NOT_COMMIT == orderBookDetail.getAuditStatus()){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+"未提交审核，不能驳回审核");
@@ -753,7 +753,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBookDetail.setCommissioningDate(null);
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
-        boolean b = this.updateBatchById(orderBookDetails1);
+        this.updateBatchById(orderBookDetails1);
 
         List<String> orderBookIdList = orderBookDetails1.stream().map(OrderBookDetail::getOrderBookId).distinct().collect(Collectors.toList());
         for (String orderBookId : orderBookIdList) {
@@ -766,22 +766,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     .set(OrderBook::getOrderStatus,rightStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.NOT_COMMIT)
                     .eq(OrderBook::getId,orderBookId));
         }
-        Supplier<String> handlePlaceAnProduction = ()-> {
-            List<OrderBookDetail> finalCancelOrderBookDetailList = cancelOrderBookDetailList;
-            finalCancelOrderBookDetailList.forEach(it-> {
-                try {
-                    smpService.facPrdOrderUpCheck(it.getOrderNo(), dto.getUserId()).call();
-                } catch (Exception e) { throw new RuntimeException(e); }
-            });
-            return handlePlaceAnCancelProduction(finalCancelOrderBookDetailList);
-        };
-        String result = b ? "" : "false";
-        if (orderBookDetails1.size() > BusinessProperties.orderBookProductionInThreadLimit * 1.5) {
-            TtlRunnable.get(handlePlaceAnProduction::get).run();
-        }else {
-            result = handlePlaceAnProduction.get();
-        }
-        return result;
+        cancelOrderBookDetailList.forEach(it-> smpService.facPrdOrderUpCheck(it.getOrderNo(), dto.getUserId()));
     }
 
     @Override
@@ -1177,13 +1162,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             productionDto.setName(orderBookDetail.getBulkStyleNo());
             // 检查必填参数是否校验完成
             ValidationUtil.validate(productionDto);
-            if (orderBookDetail.getFacMerge() == YesOrNoEnum.YES) {
-                long count = productionDto.getAllSizeMap().values().stream().filter(it -> !it.isEmpty()).count();
-                if (count < 2){
-                    throw new OtherException("投产单为合并投产，请填写预分货分配数量");
-                }
-            }
-            productionList.add(productionDto);
+            callableList.add(smpService.saveFacPrdOrder(productionDto));
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
@@ -1200,13 +1179,19 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         Supplier<String> handlePlaceAnProduction = ()-> {
             List<OrderBookDetail> finalOrderBookDetailList = orderBookDetails1;
-            List<ScmProductionDto> finalProductionList = productionList;
-            finalProductionList.forEach(production-> {
+            StringJoiner joiner = new StringJoiner("；");
+            callableList.forEach(callable-> {
                 try {
-                   smpService.saveFacPrdOrder(production).call();
-                } catch (Exception e) { throw new RuntimeException(e); }
+                    HttpResp httpResp = callable.call();
+                    String warnMsg = handlePlaceAnProduction(finalOrderBookDetailList.stream()
+                            .filter(it -> it.getId().equals(httpResp.getCode())).collect(Collectors.toList())
+                    );
+                    joiner.add(warnMsg);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
             });
-            return handlePlaceAnProduction(finalOrderBookDetailList);
+            return joiner.toString();
         };
         String result = b ? "" : "false";
         if (orderBookDetails1.size() > BusinessProperties.orderBookProductionInThreadLimit) {
@@ -1230,28 +1215,21 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         StringJoiner joiner = new StringJoiner("；");
         if (CollUtil.isNotEmpty(pushRecordsList)) {
-            List<OrderBookDetail> updateList = new ArrayList<>();
-            list.forEach(orderBookDetail-> {
-                pushRecordsList.stream()
-                        .filter(it -> orderBookDetail.getId().equals(it.getRelatedId()))
-                        .max(Comparator.comparing(PushRecords::getCreateDate))
-                        .ifPresent(pushRecords-> {
-                            updateList.add(orderBookDetail);
-                            orderBookDetail.setOrderSendStatus(pushRecords.getPushStatus());
-                            orderBookDetail.setIsLock(YesOrNoEnum.YES);
-                            orderBookDetail.setOrderSendWarnMsg("");
+            pushRecordsList.forEach(pushRecords -> {
+                OrderBookDetail orderBookDetail = list.stream().filter(it -> it.getId().equals(pushRecords.getRelatedId())).findFirst().get();
 
-                            if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
-                                orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
-                                orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_AUDIT);
-                                orderBookDetail.setIsLock(YesOrNoEnum.NO);
-                                orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
-                                joiner.add(pushRecords.getResponseMessage());
-                            }else {
-                                orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDER);
-                                orderBookDetail.setOrderNo(pushRecords.getResponseMessage());
-                            }
-                        });
+                orderBookDetail.setOrderSendStatus(pushRecords.getPushStatus());
+                orderBookDetail.setIsLock(YesOrNoEnum.YES);
+
+                if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
+                    orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
+                    orderBookDetail.setIsLock(YesOrNoEnum.NO);
+                    orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
+                    joiner.add(pushRecords.getResponseMessage());
+                }else {
+                    orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.ORDER);
+                    orderBookDetail.setOrderNo("");
+                }
             });
             this.updateBatchById(list);
         }
@@ -1275,7 +1253,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String handlePlaceAnCancelProduction(List<OrderBookDetail> list) {
+    public void handlePlaceAnCancelProduction(List<OrderBookDetail> list) {
         PushRecordsDto pushRecordsDto = new PushRecordsDto();
         pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining()));
         pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL);
@@ -1283,7 +1261,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         pushRecordsDto.reset2QueryList();
         List<PushRecords> pushRecordsList = pushRecordsService.pushRecordsList(pushRecordsDto);
 
-        StringJoiner joiner = new StringJoiner("；");
         if (CollUtil.isNotEmpty(pushRecordsList)) {
             pushRecordsList.forEach(pushRecords -> {
                 OrderBookDetail orderBookDetail = list.stream().filter(it -> it.getId().equals(pushRecords.getRelatedId())).findFirst().get();
@@ -1293,7 +1270,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
                     orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
                     orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
-                    joiner.add(pushRecords.getResponseMessage());
                 }else {
                     orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.NOT_COMMIT);
                     orderBookDetail.setOrderNo("");
@@ -1305,7 +1281,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             });
             this.updateBatchById(list);
         }
-        return joiner.toString();
     }
 
     /**

@@ -172,9 +172,8 @@ public class OrderBookDetailController extends BaseController {
     @ApiModelProperty(value = "订货本详情-驳回")
     @PostMapping("/placeAnOrderReject")
     public ApiResult placeAnOrderReject(@RequestBody OrderBookDetailQueryDto dto) {
-        dto.setCompanyCode(super.getUserCompany());
-        dto.setUserId(super.getUserId());
-        return update(orderBookDetailService.placeAnOrderReject(dto));
+        orderBookDetailService.placeAnOrderReject(dto);
+        return updateSuccess("驳回成功");
     }
 
     /**

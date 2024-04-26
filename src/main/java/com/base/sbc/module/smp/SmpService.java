@@ -1919,7 +1919,7 @@ public class SmpService {
      * 订货本一键投产
      */
     public TtlCallable<HttpResp> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
-        JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(scmProductionDto));
+        JSONObject jsonObject = JSONObject.parseObject(JsonStringUtils.toJSONString(scmProductionDto));
         jsonObject.put("code",scmProductionDto.getOrderBookDetailId());
         return TtlCallable.get(() -> {
             HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL, jsonObject.toJSONString(),
