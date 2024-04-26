@@ -570,11 +570,15 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         if (!updateFlag) {
             throw new OtherException("品类企划启用/停用失败，请刷新后重试！");
         } else {
+            LambdaQueryWrapper<PlanningProject> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(PlanningProject::getCategoryPlanningId, idList);
+            queryWrapper.orderByDesc(PlanningProject::getCreateDate);
             // 查询是否存在企划看板的数据 如果存在则 修改
-            List<PlanningProject> list = planningProjectService.list(
-                    new LambdaQueryWrapper<PlanningProject>()
-                            .eq(PlanningProject::getCategoryPlanningId, idList)
-            );
+            if ("0".equals(baseDto.getStatus())) {
+                // 如果是启用 只启用最新创建时间的品类企划数据
+                queryWrapper.last("limit 1");
+            }
+            List<PlanningProject> list = planningProjectService.list(queryWrapper);
             if (ObjectUtil.isNotEmpty(list)) {
                 List<String> planningProjectList
                         = list.stream().map(PlanningProject::getId).collect(Collectors.toList());
