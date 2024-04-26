@@ -3,6 +3,7 @@ package com.base.sbc.config.aspect;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.enums.DataPermissionsConditionTypeEnum;
 import com.base.sbc.client.amc.enums.DataPermissionsRangeEnum;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -79,7 +80,7 @@ public class EditPermissionAspect {
                     for (DataPermissionVO dataPermissions : dataPermissionsList) {
                         if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())) {
                             List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
-                            Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(FieldDataPermissionVO::getGroupIdx));
+                            Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
                             //组间 结果集
                             Boolean lastGroupEdit = null;
                             for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
@@ -155,7 +156,7 @@ public class EditPermissionAspect {
         String conditionType = fieldDataPermissionVO.getConditionType();
 
         boolean isEdit = fieldValues.contains(fieldValue);
-        if ("not in".equals(conditionType) || "!=".equals(conditionType)) {
+        if(DataPermissionsConditionTypeEnum.NOT_IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.NE.getK().equals(fieldDataPermissionVO.getConditionType())){
             return !isEdit;
         }
         return isEdit;
