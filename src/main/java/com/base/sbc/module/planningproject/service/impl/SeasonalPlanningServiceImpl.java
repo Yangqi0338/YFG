@@ -377,11 +377,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             int index = 0;
             for (int j = 0; j < integerStringHashMap.size(); j++) {
                 switch (i) {
-                    case 0:
-                        if (j == 0) {
-                            seasonalPlanningSaveDto.setName(integerStringHashMap.get(j));
-                        }
-                        break;
                     case 1: //上市波段
                         if (j > 2) {
                             SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
