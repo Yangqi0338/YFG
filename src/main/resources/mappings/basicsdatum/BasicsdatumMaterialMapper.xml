@@ -238,6 +238,30 @@
 			${ew.customSqlSegment}
 	</select>
 
+
+	<select id="getBasicsdatumMaterialColorCodeList"
+			resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo">
+		SELECT
+		t.*,
+		t.color_name as colorName,
+		t1.color16 colorHex,
+		tb.color AS quote
+		FROM
+		t_basicsdatum_material_color t
+		LEFT JOIN t_basicsdatum_colour_library t1 ON (t.company_code = t1.company_code
+		AND t.color_code = t1.colour_code and t1.del_flag = '0')
+		LEFT JOIN t_basicsdatum_material_price tb ON t.color_code LIKE CONCAT('%', tb.color, '%')
+		WHERE
+		t.company_code = #{companyCode}
+		and t.del_flag = '0'
+		and t.material_code = #{materialCode}
+		and t.colorCode = #{colorCode}
+		<if test="status!=null and status !=''">
+			and t.status=#{status}
+		</if>
+		GROUP BY t.id
+	</select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
 

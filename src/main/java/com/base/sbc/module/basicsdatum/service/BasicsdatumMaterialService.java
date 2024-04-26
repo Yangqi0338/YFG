@@ -174,5 +174,15 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 */
 	List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode);
 
+	/**
+	 *获取供应商颜色信息
+	 * @param materialCode
+	 * @param companyCode
+	 * @param colorCode
+	 * @param status
+	 * @return
+	 */
+	List<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorCodeList(String companyCode, String materialCode,String colorCode, String status);
+
 }
 

@@ -86,6 +86,8 @@ public class FabricSummaryStyle extends BaseDataEntity<String> {
     /** 供应商颜色 */
     @ApiModelProperty(value = "供应商颜色"  )
     private String supplierColor;
+    @ApiModelProperty(value = "供应商颜色号"  )
+    private String supplierColorCode;
     /** 坑位信息id */
     @ApiModelProperty(value = "坑位信息id"  )
     private String planningCategoryItemId;

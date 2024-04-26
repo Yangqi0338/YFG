@@ -45,6 +45,7 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapp
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
@@ -580,29 +581,16 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         List<FabricSummaryStyle> list = Lists.newArrayList();
         for (FabricStyleVo fabricStyleVo : fabricStyleVos) {
+
             FabricSummaryStyle fabricSummaryStyle = new FabricSummaryStyle();
             BeanUtil.copyProperties(fabricStyleVo,fabricSummaryStyle);
             fabricSummaryStyle.setFabricSummaryId(dto.getFabricSummaryId());
             fabricSummaryStyle.setId(new IdGen().nextIdStr());
             fabricSummaryStyle.insertInit();
-            QueryWrapper qc = new QueryWrapper();
-            qc.eq("pb.foreign_id",fabricSummaryStyle.getForeignId());
-            qc.eq("pb.material_code",fabricSummary.getMaterialCode());
-            List<PackBom> packBomList = baseMapper.selectByForeignId(qc);
-            PackBom packBom ;
-            if (CollectionUtils.isNotEmpty(packBomList) && packBomList.size() > 1){
-                List<PackBom> packBoms = packBomList.stream().filter(item -> Constants.ONE_STR.equals(item.getMainFlag())).collect(Collectors.toList());
-                packBom = CollectionUtils.isEmpty(packBoms) ? new PackBom() : packBoms.get(0);
-            }else {
-                packBom = CollectionUtils.isEmpty(packBomList) ? new PackBom() : packBomList.get(0);
-            }
-            fabricSummaryStyle.setUnitUse(packBom.getUnitUse());
-            fabricSummaryStyle.setPartCode(packBom.getPartCode());
-            fabricSummaryStyle.setPartName(packBom.getPartName());
-            fabricSummaryStyle.setMaterialColor(packBom.getColor());
-            fabricSummaryStyle.setMaterialColorCode(packBom.getColorCode());
-            fabricSummaryStyle.setMaterialColorHex(packBom.getColorHex());
-            fabricSummaryStyle.setMaterialColorPic(packBom.getColorPic());
+            //补充供应商色号信息
+            fullSupplierColorCode(fabricSummary,fabricSummaryStyle);
+            //补充物料的一些信息
+            fullMaterialBomInfo(fabricSummary,fabricSummaryStyle);
             // 总投产
             OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
             orderBookDetailQueryDto.setBulkStyleNoFull(fabricSummaryStyle.getStyleNo());
@@ -1491,6 +1479,48 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         return count(new QueryWrapper<PackBom>().lambda().eq(PackBom::getBomVersionId, enableVersion.getId()));
 
+    }
+
+    /**
+     * 补充供应商色号信息
+     * @param fabricSummary
+     * @param fabricStyleVo
+     */
+    private void fullSupplierColorCode(FabricSummary fabricSummary, FabricSummaryStyle fabricStyleVo) {
+        if (StringUtils.isBlank(fabricStyleVo.getColorCode())){
+            return;
+        }
+        List<BasicsdatumMaterialColorPageVo> list  = basicsdatumMaterialService.getBasicsdatumMaterialColorCodeList(fabricSummary.getCompanyCode(), fabricSummary.getMaterialCode(), fabricStyleVo.getColorCode(), null);
+        if (CollectionUtils.isNotEmpty(list)){
+            fabricStyleVo.setSupplierColorCode(list.get(0).getSupplierColorCode());
+        }
+
+    }
+
+    /**
+     * 补充物料相关的信息
+     * @param fabricSummary
+     * @param fabricSummaryStyle
+     */
+    private void fullMaterialBomInfo(FabricSummary fabricSummary, FabricSummaryStyle fabricSummaryStyle) {
+        QueryWrapper qc = new QueryWrapper();
+        qc.eq("pb.foreign_id",fabricSummaryStyle.getForeignId());
+        qc.eq("pb.material_code",fabricSummary.getMaterialCode());
+        List<PackBom> packBomList = baseMapper.selectByForeignId(qc);
+        PackBom packBom ;
+        if (CollectionUtils.isNotEmpty(packBomList) && packBomList.size() > 1){
+            List<PackBom> packBoms = packBomList.stream().filter(item -> Constants.ONE_STR.equals(item.getMainFlag())).collect(Collectors.toList());
+            packBom = CollectionUtils.isEmpty(packBoms) ? new PackBom() : packBoms.get(0);
+        }else {
+            packBom = CollectionUtils.isEmpty(packBomList) ? new PackBom() : packBomList.get(0);
+        }
+        fabricSummaryStyle.setUnitUse(packBom.getUnitUse());
+        fabricSummaryStyle.setPartCode(packBom.getPartCode());
+        fabricSummaryStyle.setPartName(packBom.getPartName());
+        fabricSummaryStyle.setMaterialColor(packBom.getColor());
+        fabricSummaryStyle.setMaterialColorCode(packBom.getColorCode());
+        fabricSummaryStyle.setMaterialColorHex(packBom.getColorHex());
+        fabricSummaryStyle.setMaterialColorPic(packBom.getColorPic());
     }
 
 
