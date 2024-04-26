@@ -49,12 +49,11 @@ public class SmpJob {
     @Transactional(rollbackFor = Exception.class)
     public void putInProduction(){
         LambdaQueryWrapper<OrderBookDetail> qw = new LambdaQueryWrapper<OrderBookDetail>()
-                .select(OrderBookDetail::getId)
                 .eq(OrderBookDetail::getOrderSendStatus, PushRespStatus.PROCESS)
                 .eq(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.PRODUCTION_IN);
         boolean exists = orderBookDetailService.exists(qw.last(" and 1 = 1"));
         if (exists) {
-            List<OrderBookDetail> list = orderBookDetailService.list(qw);
+            List<OrderBookDetail> list = orderBookDetailService.list(qw.select(OrderBookDetail::getId));
             orderBookDetailService.handlePlaceAnProduction(list, new ArrayList<>());
         }
     }
@@ -68,11 +67,10 @@ public class SmpJob {
         LambdaQueryWrapper<OrderBookDetail> qw = new BaseLambdaQueryWrapper<OrderBookDetail>()
                 .notNull(OrderBookDetail::getOrderNo)
                 .eq(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.ORDER)
-                .select(OrderBookDetail::getOrderNo, OrderBookDetail::getId)
                 ;
         boolean exists = orderBookDetailService.exists(qw.last(" and 1 = 1"));
         if (exists) {
-            List<OrderBookDetail> list = orderBookDetailService.list(qw);
+            List<OrderBookDetail> list = orderBookDetailService.list(qw.select(OrderBookDetail::getOrderNo, OrderBookDetail::getId));
             orderBookDetailService.handlePlaceAnCancelProduction(list, new ArrayList<>());
         }
     }
