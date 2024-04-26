@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -120,7 +121,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         categoryPlanning.setSeasonId(seasonalPlanning.getSeasonId());
         categoryPlanning.setSeasonName(seasonalPlanning.getSeasonName());
         categoryPlanning.setSeasonalPlanningId(seasonalPlanning.getId());
-        categoryPlanning.setStatus(l > 0 ? "1" : "0");
+        categoryPlanning.setStatus(l > 0 || "1".equals(seasonalPlanning.getStatus()) ? "1" : "0");
         save(categoryPlanning);
 
         // 查询季节企划的详情数据
@@ -550,6 +551,11 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         List<String> idList = Arrays.asList(ids.split(","));
         if ("0".equals(baseDto.getStatus())) {
             List<CategoryPlanning> categoryPlannings = listByIds(idList);
+            // 判断季节企划是否启用 没启用不允许启用
+            if (ObjectUtil.isEmpty(categoryPlannings)) {
+                throw new OtherException("品类企划不存在，请刷新后重试！");
+            }
+
             List<String> seasonIds = categoryPlannings.stream().map(CategoryPlanning::getSeasonId).collect(Collectors.toList());
             List<String> channelCodes = categoryPlannings.stream().map(CategoryPlanning::getChannelCode).collect(Collectors.toList());
 
@@ -562,6 +568,16 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             if (l > 0) {
                 throw new RuntimeException("已存在启用的品类企划");
             }
+
+            List<String> seasonalPlanningIdList = categoryPlannings
+                    .stream().map(CategoryPlanning::getSeasonalPlanningId).distinct().collect(Collectors.toList());
+            List<SeasonalPlanning> seasonalPlanningList = seasonalPlanningService.listByIds(seasonalPlanningIdList);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            seasonalPlanningList.forEach(item -> {
+                if ("1".equals(item.getStatus())) {
+                    throw new OtherException("请先启用季节企划【" + item.getSeasonName() + item.getChannelName() + simpleDateFormat.format(item.getCreateDate()) + "】！");
+                }
+            });
         }
         UpdateWrapper<CategoryPlanning> updateWrapper = new UpdateWrapper<>();
         updateWrapper.set("status", baseDto.getStatus());
@@ -571,7 +587,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             throw new OtherException("品类企划启用/停用失败，请刷新后重试！");
         } else {
             LambdaQueryWrapper<PlanningProject> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(PlanningProject::getCategoryPlanningId, idList);
+            queryWrapper.in(PlanningProject::getCategoryPlanningId, idList);
             queryWrapper.orderByDesc(PlanningProject::getCreateDate);
             // 查询是否存在企划看板的数据 如果存在则 修改
             if ("0".equals(baseDto.getStatus())) {
@@ -610,7 +626,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                     new LambdaQueryWrapper<PlanningProject>()
                             .eq(PlanningProject::getCategoryPlanningId, list)
             );
-            if (ObjectUtil.isNotEmpty(list)) {
+            if (ObjectUtil.isNotEmpty(planningProjectList)) {
                 List<String> planningProjectIdList
                         = planningProjectList.stream().map(PlanningProject::getId).collect(Collectors.toList());
                 planningProjectService.delByIds(CollUtil.join(planningProjectIdList, ","));

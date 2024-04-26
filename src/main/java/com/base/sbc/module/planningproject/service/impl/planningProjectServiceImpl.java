@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -333,6 +334,36 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             wrapper.set("his_design_no","");
             wrapper.set("matching_style_status","0");
             planningProjectPlankService.update(wrapper);
+        } else {
+            // 如果是启用 需要先判断品类企划是否启用
+            List<PlanningProject> planningProjects = listByIds(idList);
+            // 判断季节企划是否启用 没启用不允许启用
+            if (ObjectUtil.isEmpty(planningProjects)) {
+                throw new OtherException("企划看板不存在，请刷新后重试！");
+            }
+
+            List<String> seasonIds = planningProjects.stream().map(PlanningProject::getSeasonId).collect(Collectors.toList());
+            List<String> channelCodes = planningProjects.stream().map(PlanningProject::getPlanningChannelCode).collect(Collectors.toList());
+
+            QueryWrapper<PlanningProject> queryWrapper = new QueryWrapper<>();
+            queryWrapper.in("season_id", seasonIds);
+            queryWrapper.in("planning_channel_code", channelCodes);
+            queryWrapper.notIn("id", idList);
+            queryWrapper.eq("status", "0");
+            long l = count(queryWrapper);
+            if (l > 0) {
+                throw new RuntimeException("已存在启用的企划看板！");
+            }
+
+            List<String> categoryPlanningIdList = planningProjects
+                    .stream().map(PlanningProject::getCategoryPlanningId).distinct().collect(Collectors.toList());
+            List<CategoryPlanning> categoryPlanningList = categoryPlanningService.listByIds(categoryPlanningIdList);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            categoryPlanningList.forEach(item -> {
+                if ("1".equals(item.getStatus())) {
+                    throw new OtherException("请先启用品类企划【" + item.getSeasonName() + item.getChannelName() + simpleDateFormat.format(item.getCreateDate()) + "】！");
+                }
+            });
         }
         boolean updateFlag = update(updateWrapper);
         if (!updateFlag) {
