@@ -10,6 +10,9 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -41,9 +44,12 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 /**
  * 类描述：基础资料-洗涤图标与温馨提示 service类
@@ -112,19 +118,23 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
            list =  list.stream().filter(p -> StringUtils.isNotBlank(p.getCode())).collect(Collectors.toList());
            /*获取字典值*/
            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("wxts");
-           Map<String, String> map =   dictInfoToMap.get("wxts");
+           Map<String, String> map = MapUtil.reverse(MapUtil.sort(dictInfoToMap.get("wxts")));
            for (BasicsdatumLavationReminderExcelDto basicsdatumLavationReminderExcelDto : list) {
+               StrJoiner reminderNameJoiner = StrJoiner.of("\n");
+               StrJoiner reminderCodeJoiner = StrJoiner.of(COMMA);
                if(StringUtils.isNotBlank(basicsdatumLavationReminderExcelDto.getReminderName())){
-                   for(Map.Entry<String, String> entry : map.entrySet()){
-                       String key = entry.getKey();
-                       String value = entry.getValue();
-                       if (value.equals(basicsdatumLavationReminderExcelDto.getReminderName())){
-                           basicsdatumLavationReminderExcelDto.setReminderCode(key);
-                           basicsdatumLavationReminderExcelDto.setReminderName(value);
-                           break;
+                   List<String> reminderList = StrUtil.split(basicsdatumLavationReminderExcelDto.getReminderName(), "\n");
+                   reminderList.forEach(reminderName-> {
+                       if (map.containsKey(reminderName)) {
+                           reminderNameJoiner.append(reminderName);
+                           reminderCodeJoiner.append(map.get(reminderName));
+                       }else {
+                           throw new OtherException("wxts字典中缺少"+ reminderName + "的字典项");
                        }
-                   }
+                   });
                }
+               basicsdatumLavationReminderExcelDto.setReminderCode(reminderCodeJoiner.toString());
+               basicsdatumLavationReminderExcelDto.setReminderName(reminderNameJoiner.toString());
            }
 
             List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = BeanUtil.copyToList(list, BasicsdatumLavationReminder.class);
@@ -144,9 +154,10 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
         */
         @Override
         public void basicsdatumLavationReminderDeriveExcel(HttpServletResponse response) throws Exception {
-        QueryWrapper<BasicsdatumLavationReminder> queryWrapper=new QueryWrapper<>();
-        List<BasicsdatumLavationReminderExcelDto> list = BeanUtil.copyToList( baseMapper.getLavationReminderList(queryWrapper), BasicsdatumLavationReminderExcelDto.class);
-        ExcelUtils.exportExcel(list,  BasicsdatumLavationReminderExcelDto.class, "基础资料-洗涤图标与温馨提示.xlsx",new ExportParams() ,response);
+            QueryWrapper<BasicsdatumLavationReminder> queryWrapper=new QueryWrapper<>();
+            List<BasicsdatumLavationReminderExcelDto> list = BeanUtil.copyToList( baseMapper.getLavationReminderList(queryWrapper), BasicsdatumLavationReminderExcelDto.class);
+            list.forEach(it-> StrUtil.replace(it.getReminderName(), ",","\n"));
+            ExcelUtils.exportExcel(list,  BasicsdatumLavationReminderExcelDto.class, "基础资料-洗涤图标与温馨提示.xlsx",new ExportParams() ,response);
         }
 
 
