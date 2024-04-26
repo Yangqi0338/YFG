@@ -577,7 +577,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// hangTagIngredientService.remove(new
 		// QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
 		// hangTagIngredientService.save(hangTagIngredients, id, userCompany);
-		hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getV(), userCompany);
+		hangTagLogService.save(new HangTagLog(OperationDescriptionEnum.SAVE.getV(), id));
 
 		/**
 		 * 当存在品名时同步到配色
@@ -716,9 +716,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate, List<HangTag> hangTags) {
-		String userCompany = hangTagUpdateStatusDTO.getUserCompany();
+//		String userCompany = hangTagUpdateStatusDTO.getUserCompany();
 		logger.info("HangTagService#updateStatus 更新状态 hangTagUpdateStatusDTO:{}, userCompany:{}",
-				JSON.toJSONString(hangTagUpdateStatusDTO), userCompany);
+				JSON.toJSONString(hangTagUpdateStatusDTO), "");
 		if (CollectionUtils.isEmpty(hangTags)) {
 			LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda().in(HangTag::getId,
 					hangTagUpdateStatusDTO.getIds());
@@ -745,7 +745,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						StyleCountryStatus status = new StyleCountryStatus();
 						status.setBulkStyleNo(hangTag.getBulkStyleNo());
 						status.setCode(hangTagUpdateStatusDTO.getCountryCode());
-						status.setStatus(StyleCountryStatusEnum.CHECK);
+						status.setType(hangTagUpdateStatusDTO.getType());
+						status.setStatus(Opt.ofNullable(hangTagUpdateStatusDTO.getCountryStatus()).orElse(StyleCountryStatusEnum.CHECK));
 						return status;
 					}).collect(Collectors.toList()), multiCheckList, multiCheck);
 					if (multiCheck) {
@@ -816,7 +817,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			updateHangTags.add(hangTag);
 		});
 		super.updateBatchById(updateHangTags);
-		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(), updateStatus.getText(), userCompany);
+		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds().stream().map(it-> new HangTagLog(updateStatus.getText(), it)).collect(Collectors.toList()));
 
 		HangTagDeliverySCMStatusEnum type;
 		switch (updateStatus) {
@@ -1180,10 +1181,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				i.setHangTagId(hangTag.getId());
 			});
 			hangTagIngredientService.saveBatch(hangTagIngredientList);
-			HangTagLog hangTagLog = new HangTagLog();
-			hangTagLog.setHangTagId(hangTag.getId());
-			hangTagLog.setOperationDescription("报错款复制");
-			hangTagLogService.save(hangTagLog);
+			hangTagLogService.save(new HangTagLog("报错款复制",hangTag.getId()));
 		}
 		return true;
 	}
