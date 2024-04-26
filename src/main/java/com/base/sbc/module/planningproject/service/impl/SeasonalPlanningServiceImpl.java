@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicDictDepend;
 import com.base.sbc.client.ccm.entity.BasicDictDependsQueryDto;
@@ -15,9 +16,12 @@ import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
+import com.base.sbc.module.common.dto.BaseDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
@@ -42,6 +46,7 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
+import javassist.tools.rmi.ObjectNotFoundException;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -1662,6 +1667,52 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         return seasonalPlanningVo;
     }
 
+    @Override
+    @Transactional
+    public void updateStatus(BaseDto baseDto) {
+        String ids = baseDto.getIds();
+        if ("0".equals(baseDto.getStatus())){
+            List<String> idList = Arrays.asList(ids.split(","));
+            List<SeasonalPlanning> seasonalPlannings = this.listByIds(idList);
+            List<String> seasonIds = seasonalPlannings.stream().map(SeasonalPlanning::getSeasonId).collect(Collectors.toList());
+            List<String> channelCodes = seasonalPlannings.stream().map(SeasonalPlanning::getChannelCode).collect(Collectors.toList());
+
+            QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+            queryWrapper.in("season_id", seasonIds);
+            queryWrapper.in("channel_code", channelCodes);
+            queryWrapper.notIn("id",idList);
+            queryWrapper.eq("status","0");
+            long l = this.count(queryWrapper);
+            if (l > 0){
+                throw new RuntimeException("已存在启用的季节企划");
+            }
+        }
+        UpdateWrapper<SeasonalPlanning> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("status", baseDto.getStatus());
+        updateWrapper.in("id", Arrays.asList(ids.split(",")));
+        Boolean updateFlag = this.update(updateWrapper);
+        if (!updateFlag) {
+            throw new OtherException("季节企划更新失败，请刷新后重试！");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void delFlag(RemoveDto removeDto) {
+        String ids = removeDto.getIds();
+        List<String> list = Arrays.asList(ids.split(","));
+        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", list);
+        queryWrapper.eq("status","0");
+        long l = count(queryWrapper);
+        if (l > 0){
+            throw new RuntimeException("存在启用的季节企划,不能删除");
+        }
+        Boolean removeFlag = removeByIds(removeDto);
+        if (!removeFlag) {
+            throw new OtherException("季节企划删除失败，请刷新后重试！");
+        }
+    }
 
     private BaseQueryWrapper<SeasonalPlanning> buildQueryWrapper(SeasonalPlanningQueryDto seasonalPlanningQueryDto) {
         BaseQueryWrapper<SeasonalPlanning> baseQueryWrapper = new BaseQueryWrapper<>();

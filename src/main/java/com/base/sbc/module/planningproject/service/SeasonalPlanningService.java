@@ -1,6 +1,8 @@
 package com.base.sbc.module.planningproject.service;
 
 import com.base.sbc.config.common.ApiResult;
+import com.base.sbc.module.common.dto.BaseDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
@@ -31,4 +33,14 @@ public interface SeasonalPlanningService extends BaseService<SeasonalPlanning> {
     List<SeasonalPlanningVo> queryPage(SeasonalPlanningQueryDto seasonalPlanningQueryDto);
 
     SeasonalPlanningVo getDetailById(String id);
+
+    /**
+     * 启用停用
+     */
+    void updateStatus(BaseDto baseDto);
+
+    /**
+     * 删除季节企划
+     */
+    void delFlag(RemoveDto removeDto);
 }

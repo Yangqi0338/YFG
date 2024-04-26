@@ -25,7 +25,7 @@
 /nbdist/
 /.nb-gradle/
 
-bootstrap-dev.yml
+bootstrap-local.yml
 rebel.xml
 pom-*.xml
 /hs_err_pid18076.log

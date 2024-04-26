@@ -325,9 +325,12 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         // 获取需要更新的国家编码列表, 查询DB已存在的数据
         String codeList = updateStatusList.stream().map(codeFunc)
                 .filter(Objects::nonNull).distinct().collect(Collectors.joining(COMMA));
+        List<CountryLanguageType> typeList = updateStatusList.stream().map(typeFunc)
+                .filter(Objects::nonNull).distinct().collect(Collectors.toList());
         // 有可能比传入的更新款号少,因为可以不导入直接在吊牌列表进行审核更改状态,这时是新增一条状态数据
         // 只查吊牌
         List<StyleCountryStatus> styleCountryStatusList = this.list(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+                .notEmptyIn(typeFunc,typeList)
                 .in(bulkStyleNoFunc, bulkStyleNoList)
                 .and(StrUtil.isNotBlank(codeList), andOperation->
                         andOperation.eq(typeFunc, CountryLanguageType.WASHING).or(it-> it.in(codeFunc, codeList))
@@ -359,7 +362,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         countryDTOList.forEach(countryDTO -> {
             String code = countryDTO.getCode();
             Map<CountryLanguageType, List<String>> typeMap = map.getOrDefault(code, new HashMap<>());
-            Arrays.stream(CountryLanguageType.values()).forEach(type-> {
+            Arrays.stream(CountryLanguageType.values()).filter(it-> CollUtil.isEmpty(typeList) || typeList.contains(it)).forEach(type-> {
                 List<String> standardColumnCodeList = typeMap.getOrDefault(type, new ArrayList<>());
                 standardColumnCodeList.addAll(countryLanguageService.findStandardColumnCodeList(code, type, false));
                 typeMap.put(type,standardColumnCodeList);
@@ -410,48 +413,50 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                         List<StyleCountryStatus> sameCodeStatusList = new ArrayList<>();
 
                         countryDTO.getLanguageCodeTypeMap().forEach((type,languageCodeList)-> {
-                            // 获取对应的标准列编码列表,并封装检查专用的详情json (用作审核之后,翻译新增了一个标准列关联,可以做对应的标记以及反审)
-                            List<String> standardColumnCodeList = map.getOrDefault(code, new HashMap<>(1)).getOrDefault(type, new ArrayList<>());
-                            // 获取组装的审核列信息
-                            Map<String, List<Map<String, List<MoreLanguageStatusCheckDetailAuditDTO>>>> standardColumnCodeMap =
-                                    listMap.getOrDefault(type, new ArrayList<>()).stream().filter(it ->
-                                            code.equals(it.getCode()) && type.equals(it.getCountryLanguageType()) && bulkStyleNo.equals(it.getBulkStyleNo())
-                                    ).collect(CommonUtils.groupingBy(HangTagMoreLanguageBaseVO::getStandardColumnCode, HangTagMoreLanguageBaseVO::buildAuditMap));
+                            if (CollUtil.isEmpty(typeList) || typeList.contains(type)) {
+                                // 获取对应的标准列编码列表,并封装检查专用的详情json (用作审核之后,翻译新增了一个标准列关联,可以做对应的标记以及反审)
+                                List<String> standardColumnCodeList = map.getOrDefault(code, new HashMap<>(1)).getOrDefault(type, new ArrayList<>());
+                                // 获取组装的审核列信息
+                                Map<String, List<Map<String, List<MoreLanguageStatusCheckDetailAuditDTO>>>> standardColumnCodeMap =
+                                        listMap.getOrDefault(type, new ArrayList<>()).stream().filter(it ->
+                                                code.equals(it.getCode()) && type.equals(it.getCountryLanguageType()) && bulkStyleNo.equals(it.getBulkStyleNo())
+                                        ).collect(CommonUtils.groupingBy(HangTagMoreLanguageBaseVO::getStandardColumnCode, HangTagMoreLanguageBaseVO::buildAuditMap));
 
-                            StyleCountryStatus status = bulkCountryStatusList.stream().filter(it ->
-                                    it.getType().equals(type) && it.getCode().equals(code)
-                            ).findFirst().orElseGet(()-> {
-                                // 深拷贝
-                                if (type == CountryLanguageType.WASHING) {
-                                    StyleCountryStatus styleCountryStatus = bulkCountryStatusList.stream().filter(it -> it.getType().equals(type)).findFirst().orElse(baseStatus);
-                                    styleCountryStatus = MORE_LANGUAGE_CV.copyMyself(styleCountryStatus);
-                                    styleCountryStatus.setId(null);
-                                    return styleCountryStatus;
-                                }else if (StrUtil.equals(code, countryCode)){
-                                    return MORE_LANGUAGE_CV.copyMyself(baseStatus);
+                                StyleCountryStatus status = bulkCountryStatusList.stream().filter(it ->
+                                        it.getType().equals(type) && it.getCode().equals(code)
+                                ).findFirst().orElseGet(()-> {
+                                    // 深拷贝
+                                    if (type == CountryLanguageType.WASHING) {
+                                        StyleCountryStatus styleCountryStatus = bulkCountryStatusList.stream().filter(it -> it.getType().equals(type)).findFirst().orElse(baseStatus);
+                                        styleCountryStatus = MORE_LANGUAGE_CV.copyMyself(styleCountryStatus);
+                                        styleCountryStatus.setId(null);
+                                        return styleCountryStatus;
+                                    }else if (StrUtil.equals(code, countryCode)){
+                                        return MORE_LANGUAGE_CV.copyMyself(baseStatus);
+                                    }
+                                    return null;
+                                });
+                                if (status != null) {
+                                    status.setCode(code);
+                                    status.setName(countryDTO.getName());
+                                    status.setType(type);
+                                    status.setStatus(updateStatus.getStatus());
+                                    List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageCodeList.stream().map(languageCode-> {
+                                        List<MoreLanguageStatusCheckDetailAuditDTO> languageAuditList = standardColumnCodeList.stream().flatMap(standardColumnCode ->
+                                                // 获取当前标准列当前语言的审核列表
+                                                standardColumnCodeMap.getOrDefault(standardColumnCode, new ArrayList<>()).stream().flatMap(mapList -> mapList.get(languageCode).stream())
+                                        ).filter(it -> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList());
+                                        return new MoreLanguageStatusCheckDetailDTO(languageCode, CollUtil.distinct(languageAuditList, (it)-> it.getStandardColumnCode() + it.getSource(), true));
+                                    }).collect(Collectors.toList());
+
+                                    status.setStandardColumnCode(checkDetailList.stream().flatMap(checkDetailDTO-> checkDetailDTO.getAuditList()
+                                            .stream().map(MoreLanguageStatusCheckDetailAuditDTO::getStandardColumnCode)
+                                    ).distinct().collect(Collectors.joining(COMMA)));
+                                    status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
+                                    // 清除更新标志
+                                    status.updateClear();
+                                    sameCodeStatusList.add(status);
                                 }
-                                return null;
-                            });
-                            if (status != null) {
-                                status.setCode(code);
-                                status.setName(countryDTO.getName());
-                                status.setType(type);
-                                status.setStatus(updateStatus.getStatus());
-                                List<MoreLanguageStatusCheckDetailDTO> checkDetailList = languageCodeList.stream().map(languageCode-> {
-                                    List<MoreLanguageStatusCheckDetailAuditDTO> languageAuditList = standardColumnCodeList.stream().flatMap(standardColumnCode ->
-                                            // 获取当前标准列当前语言的审核列表
-                                            standardColumnCodeMap.getOrDefault(standardColumnCode, new ArrayList<>()).stream().flatMap(mapList -> mapList.get(languageCode).stream())
-                                    ).filter(it -> StrUtil.isNotBlank(it.getSource())).collect(Collectors.toList());
-                                    return new MoreLanguageStatusCheckDetailDTO(languageCode, CollUtil.distinct(languageAuditList, (it)-> it.getStandardColumnCode() + it.getSource(), true));
-                                }).collect(Collectors.toList());
-
-                                status.setStandardColumnCode(checkDetailList.stream().flatMap(checkDetailDTO-> checkDetailDTO.getAuditList()
-                                        .stream().map(MoreLanguageStatusCheckDetailAuditDTO::getStandardColumnCode)
-                                ).distinct().collect(Collectors.joining(COMMA)));
-                                status.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailList));
-                                // 清除更新标志
-                                status.updateClear();
-                                sameCodeStatusList.add(status);
                             }
                         });
 
@@ -478,7 +483,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                         if (hangTag.getStatus() == status) return null;
                         return Pair.of(status, hangTag);
                     }).filter(Objects::nonNull)
-                    .collect(Collectors.groupingBy(Pair::getKey, Collectors.mapping(Pair::getValue, Collectors.toList())))
+                    .collect(CommonUtils.groupingBy(Pair::getKey, Pair::getValue))
                     .forEach((status,sameStatusHangTagList)-> {
                         // 直接调用吊牌更新接口, 将吊牌状态修改为完成
                         HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
@@ -558,7 +563,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                             .eq(codeFunc, recordDto.getCode())
                     )).ifPresent(styleCountryStatus-> {
                         typeLanguageDto.getLanguageList().forEach(it-> it.setPrintTime(styleCountryStatus.getPrintTime()));
-                        recordDto.setStatusCode(styleCountryStatus.getStatus());
+                        recordDto.getStatusMap().put(type, styleCountryStatus.getStatus());
                     });
                 });
         recordDto.setTypeLanguageDtoList(typeLanguageDtoList);

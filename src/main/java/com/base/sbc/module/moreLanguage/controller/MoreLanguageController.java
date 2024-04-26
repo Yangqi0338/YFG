@@ -105,6 +105,19 @@ public class MoreLanguageController extends BaseController {
     }
 
     /**
+     * 导出合并翻译
+     */
+    @GetMapping("/exportMergeExcel")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "导出合并翻译", notes = "导出合并翻译")
+    @DuplicationCheck(type = 1,time = 999)
+    public ApiResult exportMergeExcel(String bulkStyleNoList) {
+        moreLanguageService.exportMergeExcel(bulkStyleNoList);
+
+        return selectSuccess("");
+    }
+
+    /**
      * 查询列表
      */
     @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
