@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
@@ -1697,9 +1698,17 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         // 同步更新品类企划及企划看板
         QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
         categoryQueryWrapper.in("seasonal_planning_id",ids);
+        categoryQueryWrapper.orderBy(true, false, "create_date");
         List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
-        List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
-        baseDto.setIds(cpIds.toString());
+        if (CollectionUtils.isEmpty(categoryPlannings)) {
+            return;
+        }
+        if ("0".equals(baseDto.getStatus())) {
+            baseDto.setIds(categoryPlannings.get(0).getId());
+        } else {
+            List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
+            baseDto.setIds(CollUtil.join(cpIds, ","));
+        }
         categoryPlanningService.updateStatus(baseDto);
     }
 
@@ -1724,8 +1733,11 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
         categoryQueryWrapper.in("seasonal_planning_id",ids);
         List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
+        if (CollectionUtils.isEmpty(categoryPlannings)) {
+            return;
+        }
         List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
-        removeDto.setIds(cpIds.toString());
+        removeDto.setIds(CollUtil.join(cpIds, ","));
         categoryPlanningService.delByIds(removeDto);
     }
 
