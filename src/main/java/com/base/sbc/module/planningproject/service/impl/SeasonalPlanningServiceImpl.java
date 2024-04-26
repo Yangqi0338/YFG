@@ -107,8 +107,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 return ApiResult.error("存在已启用的季节企划", 500);
             }
         }
-
-
+        String name = seasonalPlanningSaveDto.getSeasonName() + "(" + seasonalPlanningSaveDto.getChannelName() + ")";
+        seasonalPlanningSaveDto.setName(name);
         // Excel 转 List
         List<HashMap<Integer, String>> hashMaps = null;
         try {
@@ -373,7 +373,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         Map<String, String> bandMap = c8Band.stream().collect(Collectors.toMap(BasicBaseDict::getName, BasicBaseDict::getValue));
 
         // 处理表格数据
-        for (int i = 0; i < hashMaps.size(); i++) {
+        for (int i = 1; i < hashMaps.size(); i++) {
             HashMap<Integer, String> integerStringHashMap = hashMaps.get(i);
             int index = 0;
             for (int j = 0; j < integerStringHashMap.size(); j++) {
@@ -509,7 +509,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         queryWrapper.orderBy(true, true, "band_name");
         SeasonalPlanning seasonalPlanning = this.getById(seasonalPlanningDetails.getId());
         String channel = StringUtils.isBlank(seasonalPlanning.getChannelName()) ? "" : seasonalPlanning.getChannelName();
-        String lableName = seasonalPlanning.getSeasonName() + channel + "-季节企划";
+        String lableName = seasonalPlanning.getName();
 
         // 查询总需求列表
         List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(queryWrapper);
