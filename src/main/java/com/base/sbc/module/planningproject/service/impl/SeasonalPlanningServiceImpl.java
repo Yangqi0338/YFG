@@ -1698,6 +1698,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
         categoryQueryWrapper.in("seasonal_planning_id",ids);
         List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
+        if (CollectionUtils.isEmpty(categoryPlannings)) {
+            return;
+        }
         List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
         baseDto.setIds(cpIds.toString());
         categoryPlanningService.updateStatus(baseDto);
@@ -1724,6 +1727,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
         categoryQueryWrapper.in("seasonal_planning_id",ids);
         List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
+        if (CollectionUtils.isEmpty(categoryPlannings)) {
+            return;
+        }
         List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
         removeDto.setIds(cpIds.toString());
         categoryPlanningService.delByIds(removeDto);
