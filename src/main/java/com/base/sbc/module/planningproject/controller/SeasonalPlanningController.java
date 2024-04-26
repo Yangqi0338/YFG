@@ -94,7 +94,7 @@ public class SeasonalPlanningController extends BaseController {
     @ApiOperation(value = "删除季节企划")
     @DeleteMapping("/delByIds")
     public ApiResult delByIds(RemoveDto removeDto){
-
+        seasonalPlanningService.delFlag(removeDto);
         return deleteSuccess("删除成功");
     }
 }

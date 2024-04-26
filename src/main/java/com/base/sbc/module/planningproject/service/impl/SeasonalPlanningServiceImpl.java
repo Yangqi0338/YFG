@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.fastjson.JSON;
@@ -1702,7 +1703,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             return;
         }
         List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
-        baseDto.setIds(cpIds.toString());
+        baseDto.setIds(CollUtil.join(cpIds, ","));
         categoryPlanningService.updateStatus(baseDto);
     }
 
@@ -1731,7 +1732,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             return;
         }
         List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
-        removeDto.setIds(cpIds.toString());
+        removeDto.setIds(CollUtil.join(cpIds, ","));
         categoryPlanningService.delByIds(removeDto);
     }
 
