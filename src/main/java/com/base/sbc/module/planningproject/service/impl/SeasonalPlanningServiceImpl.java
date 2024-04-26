@@ -1698,12 +1698,17 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         // 同步更新品类企划及企划看板
         QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
         categoryQueryWrapper.in("seasonal_planning_id",ids);
+        categoryQueryWrapper.orderBy(true, false, "create_date");
         List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
         if (CollectionUtils.isEmpty(categoryPlannings)) {
             return;
         }
-        List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
-        baseDto.setIds(CollUtil.join(cpIds, ","));
+        if ("0".equals(baseDto.getStatus())) {
+            baseDto.setIds(categoryPlannings.get(0).getId());
+        } else {
+            List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
+            baseDto.setIds(CollUtil.join(cpIds, ","));
+        }
         categoryPlanningService.updateStatus(baseDto);
     }
 
