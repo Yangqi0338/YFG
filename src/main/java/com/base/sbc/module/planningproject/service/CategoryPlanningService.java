@@ -1,6 +1,7 @@
 package com.base.sbc.module.planningproject.service;
 
 import com.base.sbc.module.common.dto.BaseDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQueryDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanning;
@@ -8,6 +9,7 @@ import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningVo;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -38,4 +40,15 @@ public interface CategoryPlanningService extends BaseService<CategoryPlanning> {
             , SeasonalPlanning seasonalPlanning
             , CategoryPlanning categoryPlanning
             , List<String> dimensionIdList) ;
+
+
+    /**
+     * 启用停用
+     */
+    void updateStatus(@RequestBody BaseDto baseDto);
+
+    /**
+     * 删除品类企划
+     */
+    void delByIds(RemoveDto removeDto);
 }

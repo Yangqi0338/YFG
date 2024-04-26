@@ -3,6 +3,7 @@ package com.base.sbc.module.planningproject.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -10,6 +11,7 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.BaseDto;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.Option;
@@ -36,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -539,5 +542,57 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         queryWrapper.notEmptyLike("name", categoryPlanningQueryDto.getYearName());
         queryWrapper.orderByDesc("id");
         return queryWrapper;
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void updateStatus(@RequestBody BaseDto baseDto) {
+        String ids = baseDto.getIds();
+        if ("0".equals(baseDto.getStatus())) {
+            List<String> idList = Arrays.asList(ids.split(","));
+            List<CategoryPlanning> categoryPlannings = listByIds(idList);
+            List<String> seasonIds = categoryPlannings.stream().map(CategoryPlanning::getSeasonId).collect(Collectors.toList());
+            List<String> channelCodes = categoryPlannings.stream().map(CategoryPlanning::getChannelCode).collect(Collectors.toList());
+
+            QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
+            queryWrapper.in("season_id", seasonIds);
+            queryWrapper.in("channel_code", channelCodes);
+            queryWrapper.notIn("id", idList);
+            queryWrapper.eq("status", "0");
+            long l = count(queryWrapper);
+            if (l > 0) {
+                throw new RuntimeException("已存在启用的品类企划");
+            }
+        }
+        UpdateWrapper<CategoryPlanning> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.set("status", baseDto.getStatus());
+        updateWrapper.in("id", Arrays.asList(ids.split(",")));
+        boolean updateFlag = update(updateWrapper);
+        if (!updateFlag) {
+            throw new OtherException("品类企划启用/停用失败，请刷新后重试！");
+        }
+    }
+
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void delByIds(RemoveDto removeDto) {
+        String ids = removeDto.getIds();
+        List<String> list = Arrays.asList(ids.split(","));
+        QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("id", list);
+        queryWrapper.eq("status", "0");
+        long l = count(queryWrapper);
+        if (l > 0) {
+            throw new RuntimeException("存在启用的季节企划,不能删除");
+        }
+        boolean removeFlag = removeByIds(list);
+        if (!removeFlag) {
+            throw new OtherException("品类企划删除失败，请刷新后重试！");
+        }
     }
 }

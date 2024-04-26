@@ -5,8 +5,10 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -306,4 +308,63 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         queryWrapper.groupBy(PlanningProjectDimension::getProdCategoryCode, PlanningProjectDimension::getDimensionId);
         return planningProjectDimensionService.list(queryWrapper);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void startStop(String ids, String status) {
+        UpdateWrapper<PlanningProject> updateWrapper = new UpdateWrapper<>();
+        List<String> idList = Arrays.asList(ids.split(","));
+        updateWrapper.in("id", idList);
+        updateWrapper.set("status", status);
+
+        //如果是停用,清空关联的坑位数据,不清除关联历史款的坑位数据
+        if ("1".equals(status)) {
+            updateWrapper.set("is_match", "0");
+
+            UpdateWrapper<PlanningProjectPlank> wrapper =new UpdateWrapper<>();
+            wrapper.in("planning_project_id",idList);
+            // wrapper.ne("matching_style_status","3");
+            wrapper.set("bulk_style_no","");
+            wrapper.set("pic","");
+            wrapper.set("color_system","");
+            wrapper.set("style_color_id","");
+            wrapper.set("his_design_no","");
+            wrapper.set("matching_style_status","0");
+            planningProjectPlankService.update(wrapper);
+        }
+        boolean updateFlag = update(updateWrapper);
+        if (!updateFlag) {
+            throw new OtherException("企划看板启用/停用失败，请刷新后重试！");
+        }
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void delByIds(String ids) {
+        if (StringUtils.isEmpty(ids)) {
+            throw new OtherException("请选择删除数据！");
+        }
+        List<String> idList = Arrays.asList(ids.split(","));
+        if (ObjectUtil.isEmpty(idList)) {
+            throw new OtherException("企划看板数据不存在，请刷新后重试！");
+        }
+        boolean b = removeByIds(idList);
+        if (b){
+            QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.in("planning_project_id",idList);
+            planningProjectDimensionService.remove(queryWrapper);
+            QueryWrapper<PlanningProjectMaxCategory> queryWrapper1 =new BaseQueryWrapper<>();
+            queryWrapper1.in("planning_project_id",idList);
+            planningProjectMaxCategoryService.remove(queryWrapper1);
+            QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
+            queryWrapper2.in("planning_project_id",idList);
+            planningProjectPlankService.remove(queryWrapper2);
+        } else {
+           throw new OtherException("企划看板删除失败，请刷新后重试！");
+        }
+    }
+
 }

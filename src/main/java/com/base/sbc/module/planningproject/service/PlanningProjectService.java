@@ -41,4 +41,17 @@ public interface PlanningProjectService extends BaseService<PlanningProject> {
      * @param planningProjectDTO 要保存的数据
      */
     List<PlanningProjectDimension> getDimensionality(PlanningProjectDTO planningProjectDTO);
+
+    /**
+     * 启用/停用
+     *
+     * @param ids
+     * @param status
+     */
+    void startStop(String ids, String status);
+
+    /**
+     * 根据ids删除
+     */
+    void delByIds(String ids);
 }

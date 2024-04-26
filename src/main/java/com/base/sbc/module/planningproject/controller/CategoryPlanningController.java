@@ -2,7 +2,6 @@ package com.base.sbc.module.planningproject.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.common.dto.BaseDto;
@@ -18,9 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -121,28 +118,7 @@ public class CategoryPlanningController extends BaseController {
     @ApiOperation(value = "启用停用")
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(@RequestBody BaseDto baseDto){
-        String ids = baseDto.getIds();
-        if ("0".equals(baseDto.getStatus())){
-            List<String> idList = Arrays.asList(ids.split(","));
-            List<CategoryPlanning> categoryPlannings = categoryPlanningService.listByIds(idList);
-            List<String> seasonIds = categoryPlannings.stream().map(CategoryPlanning::getSeasonId).collect(Collectors.toList());
-            List<String> channelCodes = categoryPlannings.stream().map(CategoryPlanning::getChannelCode).collect(Collectors.toList());
-
-            QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
-            queryWrapper.in("season_id", seasonIds);
-            queryWrapper.in("channel_code", channelCodes);
-            queryWrapper.notIn("id",idList);
-            queryWrapper.eq("status","0");
-            long l = categoryPlanningService.count(queryWrapper);
-            if (l > 0){
-                throw new RuntimeException("已存在启用的品类企划");
-            }
-        }
-        UpdateWrapper<CategoryPlanning> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.set("status", baseDto.getStatus());
-        updateWrapper.in("id", Arrays.asList(ids.split(",")));
-        categoryPlanningService.update(updateWrapper);
-
+        categoryPlanningService.updateStatus(baseDto);
         return updateSuccess("更新成功");
     }
 
@@ -152,17 +128,7 @@ public class CategoryPlanningController extends BaseController {
     @ApiOperation(value = "删除品类企划")
     @DeleteMapping("/delByIds")
     public ApiResult delByIds(RemoveDto removeDto){
-        String ids = removeDto.getIds();
-        List<String> list = Arrays.asList(ids.split(","));
-        QueryWrapper<CategoryPlanning> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("id",list);
-        queryWrapper.eq("status","0");
-        long l = categoryPlanningService.count(queryWrapper);
-        if (l > 0){
-            throw new RuntimeException("存在启用的季节企划,不能删除");
-        }
-        categoryPlanningService.removeByIds(list);
-
+        categoryPlanningService.delByIds(removeDto);
         return deleteSuccess("删除成功");
     }
 
