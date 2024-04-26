@@ -13,8 +13,10 @@ import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.service.*;
+import com.base.sbc.module.style.dto.QueryStyleDimensionDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleDimensionVO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,16 +28,10 @@ import java.util.stream.Collectors;
 public class PlanningSummaryServiceImpl implements PlanningSummaryService {
     private static final String BAND = "band";
     private static final String DIMENSION = "dimension";
-    private static final String ALL = "ALL";
+    private static final String ALL = "all";
 
     @Autowired
     private OrderBookDetailService orderBookDetailService;
-    @Autowired
-    private PlanningProjectPlankService planningProjectPlankService;
-    @Autowired
-    private PlanningProjectService planningProjectService;
-    @Autowired
-    private PlanningProjectDimensionService planningProjectDimensionService;
     @Autowired
     private SeasonalPlanningService seasonalPlanningService;
     @Autowired
@@ -64,8 +60,13 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
         SeasonalPlanning seasonalPlanning = seasonalPlanningDetailsList.get(0);
         QueryWrapper<SeasonalPlanningDetails> detailQueryWrapper = new QueryWrapper<>();
         detailQueryWrapper.eq("seasonal_planning_id", seasonalPlanning.getId());
+        detailQueryWrapper.eq("prod_category_code", planningSummaryQueryDto.getCategoryCode());
         detailQueryWrapper.orderBy(true, true, "band_name");
         List<SeasonalPlanningDetails> seasonalList = seasonalPlanningDetailsService.list(detailQueryWrapper);
+        if (CollectionUtils.isEmpty(seasonalList)) {
+            return ApiResult.success("无数据");
+        }
+        String prodCategoryName = seasonalList.get(0).getProdCategoryName();
 
         // 订单数据
         QueryOrderDetailDTO dto = new QueryOrderDetailDTO();
@@ -75,56 +76,52 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
         // 开款数据
         QueryWrapper<Style> styleQueryWrapper = new QueryWrapper<>();
         styleQueryWrapper.eq("planning_season_id", planningSummaryQueryDto.getPlanningSeasonId());
-        styleQueryWrapper.eq("status", "1");
+        styleQueryWrapper.eq("prod_category", planningSummaryQueryDto.getCategoryCode());
+        styleQueryWrapper.in("status", "1", "2");
         List<Style> styleList = styleService.list(styleQueryWrapper);
-
-        Map<String, List<PlanningSummaryQueryVo>> seasonalMap = new HashMap<>();
-        Map<String, List<SeasonalPlanningDetails>> groupByProdCategoryNameMap = seasonalList.stream()
-                .collect(Collectors.groupingBy(
-                        SeasonalPlanningDetails::getProdCategoryName, // 品类分组
-                        Collectors.toList()));
 
         // 波段数据
         if (StringUtils.equals(BAND, planningSummaryQueryDto.getQueryType())) {
-            for (String prodCategoryName : groupByProdCategoryNameMap.keySet()) {
-                List<SeasonalPlanningDetails> prodCategoryList = groupByProdCategoryNameMap.get(prodCategoryName);
-                Map<String, List<SeasonalPlanningDetails>> groupByBandMap = prodCategoryList.stream()
-                        .collect(Collectors.groupingBy(
-                                SeasonalPlanningDetails::getBandName, // 波段分组
-                                Collectors.toList()
-                        ));
-                List<PlanningSummaryQueryVo> planningSummaryQueryVoList = new ArrayList<>();
-                int sumProdCategory = prodCategoryList.stream().mapToInt(s -> Integer.valueOf(s.getSkcCount())).sum();
-                for (String bandName : groupByBandMap.keySet()) {
-                    PlanningSummaryQueryVo planningSummary = new PlanningSummaryQueryVo();
-                    List<SeasonalPlanningDetails> bandList = groupByBandMap.get(bandName);
-                    int sumBand = bandList.stream().mapToInt(s -> Integer.valueOf(s.getSkcCount())).sum();
-                    planningSummary.setBandName(bandName);
-                    planningSummary.setDemandNumber(String.valueOf(sumBand));
-                    double demandProportion = (double)sumBand/sumProdCategory;
-                    planningSummary.setDemandProportion(String.format("%.2f", demandProportion));
-                    Integer orderNumber = countOrder(orderBookDetailVos, prodCategoryName, bandName, ALL);
-                    Integer orderBandNumber = countOrder(orderBookDetailVos, prodCategoryName, bandName, BAND);
-                    planningSummary.setOrderNumber(String.valueOf(orderBandNumber));
-                    if (orderNumber == 0) {
-                        planningSummary.setOrderProportion("0");
-                    } else {
-                        planningSummary.setOrderProportion(String.valueOf(orderNumber/orderBandNumber));
-                    }
-                    // TODO SUNBand - 开款数
-                    planningSummary.setDemandGap(String.valueOf(sumBand));
-                    planningSummary.setSeatGap(String.valueOf(sumBand - orderBandNumber));
-                    planningSummaryQueryVoList.add(planningSummary);
+            Map<String, List<SeasonalPlanningDetails>> groupByBandMap = seasonalList.stream()
+                    .collect(Collectors.groupingBy(
+                            SeasonalPlanningDetails::getBandName, // 波段分组
+                            Collectors.toList()
+                    ));
+            List<PlanningSummaryQueryVo> planningSummaryQueryVoList = new ArrayList<>();
+            int sumProdCategory = seasonalList.stream().mapToInt(s -> Integer.valueOf(s.getSkcCount())).sum();
+            for (String bandName : groupByBandMap.keySet()) {
+                PlanningSummaryQueryVo planningSummary = new PlanningSummaryQueryVo();
+                List<SeasonalPlanningDetails> bandList = groupByBandMap.get(bandName);
+                int sumBand = bandList.stream().mapToInt(s -> Integer.valueOf(s.getSkcCount())).sum();
+                planningSummary.setBandName(bandName);
+                planningSummary.setDemandNumber(String.valueOf(sumBand));
+                double demandProportion = (double)sumBand/sumProdCategory;
+                planningSummary.setDemandProportion(String.format("%.2f", demandProportion));
+                Integer orderNumber = countOrder(orderBookDetailVos, prodCategoryName, bandName, null, null, ALL);
+                Integer orderBandNumber = countOrder(orderBookDetailVos, prodCategoryName, bandName, null, null, BAND);
+                planningSummary.setOrderNumber(String.valueOf(orderBandNumber));
+                if (orderNumber == 0) {
+                    planningSummary.setOrderProportion("0");
+                } else {
+                    planningSummary.setOrderProportion(String.valueOf(orderNumber/orderBandNumber));
                 }
-                seasonalMap.put(prodCategoryName, planningSummaryQueryVoList);
+
+                List<Style> filterList = styleList.stream().filter(style -> StringUtils.equals(bandName, style.getBandName())).collect(Collectors.toList());
+                Integer styleSize = filterList.size();
+                Integer gap = sumBand - styleSize;
+                planningSummary.setDemandGap(String.valueOf(gap));
+                Integer seatGap = sumBand - orderBandNumber;
+                planningSummary.setSeatGap(String.valueOf(seatGap));
+                planningSummaryQueryVoList.add(planningSummary);
             }
             result.setSuccess(true);
-            result.setData(seasonalMap);
+            result.setData(planningSummaryQueryVoList);
             return result;
         }
 
         // 维度查询
         if (StringUtils.equals(DIMENSION, planningSummaryQueryDto.getQueryType())) {
+            Map<String, List<PlanningSummaryQueryVo>> planningSummaryQueryVoMap = new HashMap<>();
             QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
             categoryQueryWrapper.eq("status", "0");
             categoryQueryWrapper.eq("season_id", planningSummaryQueryDto.getPlanningSeasonId());
@@ -135,17 +132,72 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
             }
             CategoryPlanning categoryPlanning = categoryPlanningList.get(0);
             QueryWrapper<CategoryPlanningDetails> categoryDetailQueryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("category_planning_id", categoryPlanning.getId());
+            categoryDetailQueryWrapper.eq("category_planning_id", categoryPlanning.getId());
+            categoryDetailQueryWrapper.eq("prod_category_code", planningSummaryQueryDto.getCategoryCode());
+            categoryDetailQueryWrapper.ne("is_generate", "2");
             List<CategoryPlanningDetails> categoryList = categoryPlanningDetailsService.list(categoryDetailQueryWrapper);
+            Map<String, List<CategoryPlanningDetails>> dimensionNameMap = categoryList.stream()
+                    .collect(Collectors.groupingBy(
+                            CategoryPlanningDetails::getDimensionName, // 维度名称分组
+                            Collectors.toList()
+                    ));
+            QueryStyleDimensionDto queryStyleDimensionDto = new QueryStyleDimensionDto();
+            queryStyleDimensionDto.setPlanningSeasonId(planningSummaryQueryDto.getPlanningSeasonId());
+            queryStyleDimensionDto.setProdCategory(planningSummaryQueryDto.getCategoryCode());
+            queryStyleDimensionDto.setStatus("0");
+            List<StyleDimensionVO> styleDimensionVOS = styleService.queryStyleField(queryStyleDimensionDto);
+
+            for (String dimensionName : dimensionNameMap.keySet()) {
+                List<CategoryPlanningDetails> dimensionNameList = dimensionNameMap.get(dimensionName);
+                Map<String, List<CategoryPlanningDetails>> dimensionCodeMap = dimensionNameList.stream()
+                        .collect(Collectors.groupingBy(
+                                CategoryPlanningDetails::getDimensionCode, // code分组
+                                Collectors.toList()
+                        ));
+                int sumDimensionName = dimensionNameList.stream().mapToInt(s -> Integer.valueOf(s.getNumber())).sum();
+                List<PlanningSummaryQueryVo> planningSummaryDimensionList = new ArrayList<>();
+                for (String dimensionCode : dimensionCodeMap.keySet()) {
+                    PlanningSummaryQueryVo planningSummary = new PlanningSummaryQueryVo();
+                    List<CategoryPlanningDetails> dimensionCodeList = dimensionCodeMap.get(dimensionCode);
+                    int sumDimensionCode = dimensionCodeList.stream().mapToInt(s -> Integer.valueOf(s.getNumber())).sum();
+                    planningSummary.setDimensionName(dimensionCode);
+                    planningSummary.setDemandNumber(String.valueOf(sumDimensionCode));
+                    if (sumDimensionName == 0) {
+                        planningSummary.setDemandProportion("0");
+                    } else {
+                        double demandProportion = (double)sumDimensionCode/sumDimensionName;
+                        planningSummary.setDemandProportion(String.format("%.2f", demandProportion));
+                    }
+
+                    Integer orderNumber = countOrder(orderBookDetailVos, prodCategoryName, null, dimensionName, null, DIMENSION);
+                    Integer orderDimensionNumber = countOrder(orderBookDetailVos, prodCategoryName, null, dimensionName, dimensionCode, DIMENSION);
+                    planningSummary.setOrderNumber(String.valueOf(orderDimensionNumber));
+                    if (orderNumber == 0) {
+                        planningSummary.setOrderProportion("0");
+                    } else {
+                        double orderProportion = (double)orderDimensionNumber/orderNumber;
+                        planningSummary.setOrderProportion(String.format("%.2f", orderProportion));
+                    }
+                    List<StyleDimensionVO> styleDimensionVOList = styleDimensionVOS.stream().filter(s -> StringUtils.equals(dimensionName, s.getFieldExplain()) &&
+                            StringUtils.equals(dimensionCode, s.getStyleName())).collect(Collectors.toList());
+                    Integer dSize = styleDimensionVOList.size();
+                    Integer gapNumber = sumDimensionCode - dSize;
+                    planningSummary.setDemandGap(String.valueOf(gapNumber));
+                    Integer orderGap = sumDimensionCode - orderNumber;
+                    planningSummary.setSeatGap(String.valueOf(orderGap));
+                    planningSummaryDimensionList.add(planningSummary);
+                }
+                planningSummaryQueryVoMap.put(dimensionName, planningSummaryDimensionList);
+            }
+            result.setSuccess(true);
+            result.setData(planningSummaryQueryVoMap);
+            return result;
         }
-
-
-
-
         return null;
     }
 
-    private int countOrder(List<OrderBookDetailForSeasonPlanningVO> orderBookDetailVos, String prodCategory, String bandName, String type) {
+    private int countOrder(List<OrderBookDetailForSeasonPlanningVO> orderBookDetailVos, String prodCategory,
+                           String bandName, String dimension, String dimensionCode, String type) {
         if (CollectionUtils.isEmpty(orderBookDetailVos)) {
             return 0;
         }
@@ -170,7 +222,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                 return prodCategoryOrderList.size();
             }
             Map<String, List<OrderBookDetailForSeasonPlanningVO>> bandOrderMap = distinctOrderList.stream().collect(
-                    Collectors.groupingBy(OrderBookDetailForSeasonPlanningVO::getBandName, // 品类分组
+                    Collectors.groupingBy(OrderBookDetailForSeasonPlanningVO::getBandName, // 波段分组
                             Collectors.toList()
                     ));
             List<OrderBookDetailForSeasonPlanningVO> bandOrderList = bandOrderMap.get(bandName);
@@ -178,8 +230,32 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                 return 0;
             }
             return bandOrderList.size();
-        }
+        } else {
+            Map<String, List<OrderBookDetailForSeasonPlanningVO>> prodCategoryOrderMap = orderBookDetails.stream().collect(
+                    Collectors.groupingBy(OrderBookDetailForSeasonPlanningVO::getProdCategoryName, // 品类分组
+                            Collectors.toList()
+                    ));
+            List<OrderBookDetailForSeasonPlanningVO> getProdCategoryList = prodCategoryOrderMap.get(prodCategory);
+            if (CollectionUtils.isEmpty(getProdCategoryList)) {
+                return 0;
+            }
+            if (StringUtils.isEmpty(dimensionCode)) {
+                List<OrderBookDetailForSeasonPlanningVO> filterByFieldExplain = getProdCategoryList.stream().filter(order ->
+                        StringUtils.equals(dimension, order.getFieldExplain())
+                ).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(filterByFieldExplain)) {
+                    return 0;
+                }
+                return filterByFieldExplain.size();
+            }
 
-        return 0;
+            List<OrderBookDetailForSeasonPlanningVO> filterStyleNameList = getProdCategoryList.stream().filter(order ->
+                        StringUtils.equals(dimension, order.getFieldExplain()) && StringUtils.equals(dimensionCode, order.getStyleName())
+                    ).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(filterStyleNameList)) {
+                return 0;
+            }
+            return filterStyleNameList.size();
+        }
     }
 }

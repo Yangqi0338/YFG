@@ -2214,5 +2214,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         return true;
     }
 
+    @Override
+    public List<StyleDimensionVO> queryStyleField(QueryStyleDimensionDto dto) {
+        QueryWrapper<Style> qw = new QueryWrapper<>();
+        qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "ts.planning_season_id", dto.getPlanningSeasonId());
+        qw.eq(StrUtil.isNotEmpty(dto.getProdCategory()), "ts.prod_category", dto.getProdCategory());
+        qw.ne(StrUtil.isNotEmpty(dto.getProdCategory()), "ts.status", dto.getStatus());
+        return getBaseMapper().queryStyleField(qw);
+    }
+
 }
 
