@@ -99,7 +99,7 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
             pushRecords.setPushCount(Opt.ofBlankAble(pushRecords.getPushCount()).orElse(1));
             pushRecords.setPushStatus(httpResp.isSuccess() ? PushRespStatus.SUCCESS : PushRespStatus.FAILURE);
             pushRecords.setResponseMessage(httpResp.isSuccess() ? httpResp.getData() : httpResp.getMessage());
-            pushRecords.setResponseStatusCode(httpResp.getCode());
+            pushRecords.setResponseStatusCode(httpResp.getStatusCode());
             this.saveOrUpdate(pushRecords);
         }
         return httpResp.isSuccess();
