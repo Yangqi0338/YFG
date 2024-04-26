@@ -131,5 +131,11 @@ public interface PackBomMapper extends BaseMapper<PackBom> {
 
     int materialBomCount(@Param(Constants.WRAPPER)QueryWrapper qw);
 
+    List<String> bomFabricMaterialCode(@Param("dto") BomFabricDto dto,
+                                    @Param(Constants.WRAPPER)QueryWrapper qw);
+
+
+    List<BomFabricVo> bomFabricDetailsList(@Param(Constants.WRAPPER)QueryWrapper qw);
+
 // 自定义方法区 不替换的区域【other_end】
 }

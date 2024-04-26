@@ -637,5 +637,59 @@
         </if>
     </select>
 
+    <select id="bomFabricMaterialCode" parameterType="com.base.sbc.module.sample.dto.BomFabricDto" resultType="java.lang.String">
+        select distinct pb.material_code  from t_pack_bom pb  left join t_pack_bom_version pbv on pbv.id = pb.bom_version_id and pbv.del_flag = '0' and pb.del_flag = '0'  and pbv.pack_type = 'packBigGoods'
+        where  pb.material_id is not null and pb.material_id != '' and pb.company_code = #{dto.companyCode}
+        <if test="dto.materialCodes != null and dto.materialCodes.size() > 0 ">
+            and pb.material_code in
+            <foreach collection="dto.materialCodes" item="materialCode" separator="," open="(" close=")">
+                #{materialCode}
+            </foreach>
+        </if>
+        <if test="dto.materialCode != null and dto.materialCode != ''">
+            and pb.material_code like  concat(#{dto.materialCode},'%')
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+
+    </select>
+
+    <select id="bomFabricDetailsList"  resultType="com.base.sbc.module.sample.vo.BomFabricVo">
+        select
+        tb.material_code as material_code,
+        tb.material_name as material_name,
+        tb.material_code_name as material_code_name,
+        tb.brand as brand,
+        tb.brand_name as brand_name,
+        tb.image_url as image_url,
+        tb.material_category as material_category,
+        tb.material_category_name as material_category_name,
+        tb.ingredient as ingredient,
+        bmpc.supplier_name as supplier_name,
+        bmpc.supplier_id as supplier_id,
+        bmpc.supplier_material_code as supplier_fabric_code,
+        bmpc.quotation_price as supplier_quotation_price,
+        bmpc.production_day as production_day,
+        bmpc.color_name as supplier_color_no,
+        tb.supplier_color_say as supplier_color_say,
+        tb.supplier_ingredient as supplier_ingredient,
+        tb.supplier_factory_ingredient as supplier_factory_ingredient,
+        tb.ingredient_say as ingredient_say,
+        bmpc.minimum_order_quantity as minimum_order_quantity,
+        tb.density as density,
+        tb.gram_weight as gram_weight,
+        tb.material_type as material_type,
+        tb.specification as specification
+        from
+        t_basicsdatum_material tb
+        left join t_basicsdatum_material_price bmpc on  (tb.material_code = bmpc.material_code and bmpc.del_flag = '0' and bmpc.select_flag = 1)
+        WHERE  tb.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

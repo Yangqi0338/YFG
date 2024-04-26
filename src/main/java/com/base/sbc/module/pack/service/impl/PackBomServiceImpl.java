@@ -403,19 +403,31 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Override
     public PageInfo<BomFabricVo> bomFabricList(BomFabricDto bomFabricDto, boolean isPictureShow ) {
-        Page<BomFabricVo> page = PageHelper.startPage(bomFabricDto);
-        QueryWrapper qw = new QueryWrapper();
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabric_summary.getK(), "tb.");
-        qw.like(StringUtils.isNotBlank(bomFabricDto.getMaterialCode()), "tb.material_code", bomFabricDto.getMaterialCode());
-        qw.like(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "tb.material_code_name", bomFabricDto.getMaterialCodeName());
-        qw.eq(StringUtils.isNotBlank(bomFabricDto.getCategoryId()), "tb.category_id", bomFabricDto.getCategoryId());
-        qw.like(StringUtils.isNotBlank(bomFabricDto.getSupplierMaterialCode()), "tb.supplier_material_code", bomFabricDto.getSupplierMaterialCode());
-        baseMapper.bomFabricList(bomFabricDto, qw);
-        PageInfo<BomFabricVo> pageInfo = page.toPageInfo();
-        if (isPictureShow){
-            stylePicUtils.setStylePic(pageInfo.getList(), "imageUrl");
+        long l1 = System.currentTimeMillis();
+        Page<String> page = PageHelper.startPage(bomFabricDto);
+        QueryWrapper<Object> qw = new QueryWrapper();
+        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", bomFabricDto.getMaterialCodeName());
+        baseMapper.bomFabricMaterialCode(bomFabricDto, qw);
+        long l2 = System.currentTimeMillis();
+        System.out.println("==========l2-l1=================="+(l2-l1));
+        if (CollectionUtils.isEmpty(page.getResult())){
+            return new PageInfo();
         }
-        return pageInfo;
+
+        QueryWrapper tb = new QueryWrapper();
+        tb.in("tb.material_code",page.getResult());
+        List<BomFabricVo> bomFabricVos = baseMapper.bomFabricDetailsList(tb);
+        long l3 = System.currentTimeMillis();
+        System.out.println("==========l3-l2=================="+(l3-l2));
+        PageInfo<BomFabricVo> pageList = new PageInfo<>();
+        BeanUtil.copyProperties(page.toPageInfo(),pageList);
+        pageList.setList(bomFabricVos);
+        if (isPictureShow){
+            stylePicUtils.setStylePic(pageList.getList(), "imageUrl");
+        }
+        long l4 = System.currentTimeMillis();
+        System.out.println("==========l4-l1=================="+(l4-l1));
+        return pageList;
     }
 
     @Override
