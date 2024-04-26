@@ -55,7 +55,7 @@ public class SmpJob {
         boolean exists = orderBookDetailService.exists(qw.last(" and 1 = 1"));
         if (exists) {
             List<OrderBookDetail> list = orderBookDetailService.list(qw);
-            orderBookDetailService.handlePlaceAnProduction(list);
+            orderBookDetailService.handlePlaceAnProduction(list, new ArrayList<>());
         }
     }
 
@@ -73,7 +73,7 @@ public class SmpJob {
         boolean exists = orderBookDetailService.exists(qw.last(" and 1 = 1"));
         if (exists) {
             List<OrderBookDetail> list = orderBookDetailService.list(qw);
-            orderBookDetailService.handlePlaceAnCancelProduction(list);
+            orderBookDetailService.handlePlaceAnCancelProduction(list, new ArrayList<>());
         }
     }
 

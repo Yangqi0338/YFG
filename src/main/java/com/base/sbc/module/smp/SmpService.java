@@ -86,6 +86,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -94,6 +96,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -1903,47 +1906,33 @@ public class SmpService {
         return result;
     }
 
-    @Bean("smpThreadPoolExecutor")
-    public ThreadPoolExecutor threadPoolExecutor(){
-        return new ThreadPoolExecutor(8, 8, 15L, TimeUnit.SECONDS,
-                new ArrayBlockingQueue<>(16), r -> {
-            Thread thread = new Thread(r,"调scm下游系统");
-            thread.setUncaughtExceptionHandler((Thread t,Throwable e) -> {
-                if(e != null){ throw new OtherException(e.getMessage()); }
-            });
-            return thread;
-        });
-    }
-
     /**
      * 订货本一键投产
      */
-    public TtlCallable<HttpResp> saveFacPrdOrder(ScmProductionDto scmProductionDto) {
+    public HttpResp saveFacPrdOrder(ScmProductionDto scmProductionDto) {
         JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(scmProductionDto));
         jsonObject.put("code",scmProductionDto.getOrderBookDetailId());
-        return TtlCallable.get(() -> {
-            HttpResp httpResp = restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL, jsonObject.toJSONString(),
-                    Pair.of("moduleName", "scm"),
-                    Pair.of("functionName", "订货本一键投产"),
-                    Pair.of("code", scmProductionDto.getOrderBookDetailId()),
-                    Pair.of("name", scmProductionDto.getName())
-            );
-//            Thread.sleep(500);
-            return httpResp;
-        });
+        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL, jsonObject.toJSONString(),
+                Pair.of("moduleName", "scm"),
+                Pair.of("functionName", "订货本一键投产"),
+                Pair.of("code", scmProductionDto.getOrderBookDetailId()),
+                Pair.of("name", scmProductionDto.getName())
+        );
     }
 
     /**
      * 反审核投产单
      */
-    public TtlCallable<HttpResp> facPrdOrderUpCheck(String orderNo, String loginName) {
+    public HttpResp facPrdOrderUpCheck(String orderNo, String loginName) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("orderNo",orderNo);
         jsonObject.put("loginName",loginName);
-        return TtlCallable.get(()-> restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL, jsonObject.toJSONString(),
+        return restTemplateService.spmPost(SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL, jsonObject.toJSONString(),
                 Pair.of("moduleName","scm"),
-                Pair.of("functionName","反审核投产单")
-        ));
+                Pair.of("functionName","反审核投产单"),
+                Pair.of("code", orderNo),
+                Pair.of("name", loginName)
+        );
     }
 }
 

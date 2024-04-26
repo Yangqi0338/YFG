@@ -66,6 +66,7 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
         // 不能读取,会导致InputStream读完,导致数据获取不到,除非使用ThreadLocal
         String responseData = extractor.extractData(execute);
         HttpResp httpResp = RestTemplateService.buildHttpResp(responseData);
+        httpResp.setStatusCode(httpResp.getCode());
         BeanUtil.copyProperties(httpReq, httpResp, "data");
         pushRecordsService.pushRecordSave(httpResp, s);
         RESPONSE.set(httpResp);

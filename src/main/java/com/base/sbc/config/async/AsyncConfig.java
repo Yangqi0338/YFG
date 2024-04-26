@@ -54,7 +54,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
 
 
     @Override
-    @Bean
+    @Bean("asyncExecutor")
     public Executor getAsyncExecutor() {
         return new ContextAwarePoolExecutor();
     }

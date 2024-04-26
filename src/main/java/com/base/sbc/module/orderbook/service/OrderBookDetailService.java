@@ -8,12 +8,10 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
+import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
-import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
-import com.base.sbc.module.orderbook.vo.UpdateResultVo;
+import com.base.sbc.module.orderbook.vo.*;
+import com.base.sbc.module.smp.dto.HttpResp;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -84,9 +82,9 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     String placeAnProduction(OrderBookDetailQueryDto dto);
 
-    String handlePlaceAnCancelProduction(List<OrderBookDetail> list);
+    String handlePlaceAnCancelProduction(List<OrderBookDetail> list, List<HttpResp> httpRespList);
 
-    String handlePlaceAnProduction(List<OrderBookDetail> list);
+    String handlePlaceAnProduction(List<OrderBookDetail> list, List<HttpResp> httpRespList);
 
     boolean updateMaterial(MaterialUpdateDto dto);
 
@@ -95,4 +93,6 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     boolean removeByIds(RemoveDto removeDto);
 
     boolean similarStyleBinding(OrderBookDetailSaveDto dto);
+
+    List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto);
 }

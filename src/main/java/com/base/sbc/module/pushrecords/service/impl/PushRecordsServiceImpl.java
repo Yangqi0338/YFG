@@ -76,14 +76,17 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
             JSONObject json = jsonArray.getJSONObject(i);
             String url = httpResp.getUrl();
 
-            String relatedId = StrUtil.firstNonBlank(
-                    json.getString("code"),
-                    json.getString("styleNo"),
-                    json.getString("bulkStyleNo"),
-                    json.getString("designNo")
-            );
+            String code = httpResp.getCode();
+            if (StrUtil.isBlank(code)) {
+                code = StrUtil.firstNonBlank(
+                        json.getString("code"),
+                        json.getString("styleNo"),
+                        json.getString("bulkStyleNo"),
+                        json.getString("designNo")
+                );
+            }
             PushRecordsDto pushRecordsDto = new PushRecordsDto();
-            pushRecordsDto.setRelatedId(relatedId);
+            pushRecordsDto.setRelatedId(code);
             pushRecordsDto.setPushAddress(url);
             pushRecordsDto.reset2QueryFirst();
             PushRecords pushRecords = pushRecordsList(pushRecordsDto)
