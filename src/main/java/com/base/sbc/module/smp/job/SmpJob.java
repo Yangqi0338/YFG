@@ -68,7 +68,7 @@ public class SmpJob {
         LambdaQueryWrapper<OrderBookDetail> qw = new BaseLambdaQueryWrapper<OrderBookDetail>()
                 .notNull(OrderBookDetail::getOrderNo)
                 .eq(OrderBookDetail::getOrderStatus, OrderBookDetailOrderStatusEnum.ORDER)
-                .select(OrderBookDetail::getId)
+                .select(OrderBookDetail::getOrderNo, OrderBookDetail::getId)
                 ;
         boolean exists = orderBookDetailService.exists(qw.last(" and 1 = 1"));
         if (exists) {

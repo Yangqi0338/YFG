@@ -1289,7 +1289,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             });
         }else {
             PushRecordsDto pushRecordsDto = new PushRecordsDto();
-            pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getId).collect(Collectors.joining(",")));
+            pushRecordsDto.setRelatedId(list.stream().map(OrderBookDetail::getOrderNo).collect(Collectors.joining(",")));
             pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL);
             pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
             pushRecordsDto.reset2QueryList();
