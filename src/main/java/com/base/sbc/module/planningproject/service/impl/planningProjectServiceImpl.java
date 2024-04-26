@@ -361,7 +361,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             categoryPlanningList.forEach(item -> {
                 if ("1".equals(item.getStatus())) {
-                    throw new OtherException("请先启用品类企划【" + item.getSeasonName() + item.getChannelName() + simpleDateFormat.format(item.getCreateDate()) + "】！");
+                    throw new OtherException("请先启用品类企划「" + item.getSeasonName() + item.getChannelName() + simpleDateFormat.format(item.getCreateDate()) + "」！");
                 }
             });
         }

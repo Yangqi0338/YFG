@@ -1000,7 +1000,6 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             throw new OtherException("暂无已启用的品类企划需要更新！");
         }
 
-
         // 更新和新增的数据
         if (ObjectUtil.isNotEmpty(seasonalPlanningDetailsList)) {
             // 拿到需要更新或者新增的品类 因为数据不会为空 所以品类也不会为空

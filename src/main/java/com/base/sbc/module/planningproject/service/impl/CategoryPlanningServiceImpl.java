@@ -306,7 +306,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     }
 
     /**
-     * 获取所有等级的唯独数据
+     * 获取所有等级的维度数据
      *
      * @param detailsList      季节企划数据详情
      * @param seasonalPlanning 季节企划数据
@@ -323,10 +323,19 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         planningDimensionalityQueryWrapper.in("prod_category", prodCategoryCodeList);
         planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
 
-        long count = planningDimensionalityService.count(planningDimensionalityQueryWrapper);
-        if (count != prodCategoryCodeList.size()) {
-            // 如果查询出来第一维度数据为空 或者 有品类存在没有第一维度的数据的情况就报错
-            throw new OtherException("品类级别的第一维度数据不能为空！");
+        List<PlanningDimensionality> list = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
+        if (ObjectUtil.isNotEmpty(list)) {
+            if (prodCategoryCodeList.size() != list.size()) {
+                List<String> prodCategoryNameList = list.stream()
+                        .filter(item -> !prodCategoryCodeList.contains(item.getProdCategory()))
+                        .map(PlanningDimensionality::getProdCategoryName)
+                        .collect(Collectors.toList());
+                throw new OtherException("品类「" + Arrays.toString(prodCategoryNameList.toArray()) + "」第一维度数据不能为空！");
+            }
+        } else {
+            List<String> prodCategoryNameList = detailsList
+                    .stream().map(SeasonalPlanningDetails::getProdCategoryName).distinct().collect(Collectors.toList());
+            throw new OtherException("品类「" + Arrays.toString(prodCategoryNameList.toArray()) + "」第一维度数据不能为空！");
         }
 
         // 当品类都有第一维度数据后 查询维度表维度数据维度等级不为空的数据
@@ -575,7 +584,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             seasonalPlanningList.forEach(item -> {
                 if ("1".equals(item.getStatus())) {
-                    throw new OtherException("请先启用季节企划【" + item.getSeasonName() + item.getChannelName() + simpleDateFormat.format(item.getCreateDate()) + "】！");
+                    throw new OtherException("请先启用季节企划「" + item.getSeasonName() + item.getChannelName() + simpleDateFormat.format(item.getCreateDate()) + "」！");
                 }
             });
         }
