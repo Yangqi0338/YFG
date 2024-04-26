@@ -1694,6 +1694,13 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         if (!updateFlag) {
             throw new OtherException("季节企划更新失败，请刷新后重试！");
         }
+        // 同步更新品类企划及企划看板
+        QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
+        categoryQueryWrapper.in("seasonal_planning_id",ids);
+        List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
+        List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
+        baseDto.setIds(cpIds.toString());
+        categoryPlanningService.updateStatus(baseDto);
     }
 
     @Override
@@ -1712,6 +1719,14 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         if (!removeFlag) {
             throw new OtherException("季节企划删除失败，请刷新后重试！");
         }
+
+        // 同步更新品类企划及企划看板
+        QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
+        categoryQueryWrapper.in("seasonal_planning_id",ids);
+        List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
+        List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
+        removeDto.setIds(cpIds.toString());
+        categoryPlanningService.delByIds(removeDto);
     }
 
     private BaseQueryWrapper<SeasonalPlanning> buildQueryWrapper(SeasonalPlanningQueryDto seasonalPlanningQueryDto) {
