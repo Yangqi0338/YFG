@@ -2,6 +2,7 @@ package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
@@ -23,15 +24,9 @@ import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planningproject.constants.GeneralConstant;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQueryDto;
-import com.base.sbc.module.planningproject.entity.CategoryPlanning;
-import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
-import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
-import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
+import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.CategoryPlanningMapper;
-import com.base.sbc.module.planningproject.service.CategoryPlanningDetailsService;
-import com.base.sbc.module.planningproject.service.CategoryPlanningService;
-import com.base.sbc.module.planningproject.service.SeasonalPlanningDetailsService;
-import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
+import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningVo;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +66,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     private FieldManagementMapper fieldManagementMapper;
     @Autowired
     private CcmFeignService ccmFeignService;
+    @Autowired
+    private PlanningProjectService planningProjectService;
 
 
     /**
@@ -550,8 +547,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     @DuplicationCheck
     public void updateStatus(@RequestBody BaseDto baseDto) {
         String ids = baseDto.getIds();
+        List<String> idList = Arrays.asList(ids.split(","));
         if ("0".equals(baseDto.getStatus())) {
-            List<String> idList = Arrays.asList(ids.split(","));
             List<CategoryPlanning> categoryPlannings = listByIds(idList);
             List<String> seasonIds = categoryPlannings.stream().map(CategoryPlanning::getSeasonId).collect(Collectors.toList());
             List<String> channelCodes = categoryPlannings.stream().map(CategoryPlanning::getChannelCode).collect(Collectors.toList());
@@ -572,9 +569,19 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         boolean updateFlag = update(updateWrapper);
         if (!updateFlag) {
             throw new OtherException("品类企划启用/停用失败，请刷新后重试！");
+        } else {
+            // 查询是否存在企划看板的数据 如果存在则 修改
+            List<PlanningProject> list = planningProjectService.list(
+                    new LambdaQueryWrapper<PlanningProject>()
+                            .eq(PlanningProject::getCategoryPlanningId, idList)
+            );
+            if (ObjectUtil.isNotEmpty(list)) {
+                List<String> planningProjectList
+                        = list.stream().map(PlanningProject::getId).collect(Collectors.toList());
+                planningProjectService.startStop(CollUtil.join(planningProjectList, ","), baseDto.getStatus());
+            }
         }
     }
-
 
 
     @Override
@@ -593,6 +600,17 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         boolean removeFlag = removeByIds(list);
         if (!removeFlag) {
             throw new OtherException("品类企划删除失败，请刷新后重试！");
+        } else {
+            // 查询是否存在企划看板的数据 如果存在则 修改
+            List<PlanningProject> planningProjectList = planningProjectService.list(
+                    new LambdaQueryWrapper<PlanningProject>()
+                            .eq(PlanningProject::getCategoryPlanningId, list)
+            );
+            if (ObjectUtil.isNotEmpty(list)) {
+                List<String> planningProjectIdList
+                        = planningProjectList.stream().map(PlanningProject::getId).collect(Collectors.toList());
+                planningProjectService.delByIds(CollUtil.join(planningProjectIdList, ","));
+            }
         }
     }
 }

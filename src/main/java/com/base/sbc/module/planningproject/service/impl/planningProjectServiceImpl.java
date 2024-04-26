@@ -44,6 +44,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final MinioUtils minioUtils;
     private final PlanningChannelService planningChannelService;
     private final CategoryPlanningService categoryPlanningService;
+    private final CategoryPlanningDetailsService categoryPlanningDetailsService;
 
 
     /**
@@ -348,7 +349,8 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             throw new OtherException("请选择删除数据！");
         }
         List<String> idList = Arrays.asList(ids.split(","));
-        if (ObjectUtil.isEmpty(idList)) {
+        List<PlanningProject> planningProjectList = listByIds(idList);
+        if (ObjectUtil.isEmpty(planningProjectList)) {
             throw new OtherException("企划看板数据不存在，请刷新后重试！");
         }
         boolean b = removeByIds(idList);
@@ -362,6 +364,25 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
             queryWrapper2.in("planning_project_id",idList);
             planningProjectPlankService.remove(queryWrapper2);
+            // 企划看板删除后 把品类企划的已提交类型改成未暂存
+            // 如果是品类企划调用的此删除接口或者品类企划不存在
+            // 那么就查询不到品类企划 就不需要修改
+            List<String> categoryIdList = planningProjectList.stream()
+                    .map(PlanningProject::getCategoryPlanningId).distinct().collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(categoryIdList)) {
+                // 说明是本身调用删除 不是企划看板调用删除接口
+                // 查询此品类企划下的已经提交了的品类企划详情数据 将数据改成暂存状态
+                List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailsService.list(
+                        new LambdaQueryWrapper<CategoryPlanningDetails>()
+                                .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryIdList)
+                                .eq(CategoryPlanningDetails::getIsGenerate, "1")
+                );
+                if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                    if (!categoryPlanningDetailsService.updateBatchById(categoryPlanningDetailsList)) {
+                        throw new OtherException("企划看板删除失败，请刷新后重试！");
+                    }
+                }
+            }
         } else {
            throw new OtherException("企划看板删除失败，请刷新后重试！");
         }
