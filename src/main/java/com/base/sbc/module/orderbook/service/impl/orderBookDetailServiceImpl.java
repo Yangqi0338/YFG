@@ -1215,7 +1215,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 PushRecords pushRecords = new PushRecords();
                 pushRecords.setRelatedId(httpResp.getCode());
                 pushRecords.setPushStatus(httpResp.isSuccess() ? PushRespStatus.SUCCESS : PushRespStatus.FAILURE);
-                pushRecords.setResponseMessage(httpResp.getData());
+                pushRecords.setResponseMessage(httpResp.isSuccess() ? httpResp.getData() : httpResp.getMessage());
                 pushRecordsList.add(pushRecords);
             });
         }else {
@@ -1242,7 +1242,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
                             if (pushRecords.getPushStatus() == PushRespStatus.FAILURE) {
                                 orderBookDetail.setOrderStatus(OrderBookDetailOrderStatusEnum.PRODUCTION_FAILED);
-                                orderBookDetail.setStatus(OrderBookDetailStatusEnum.NOT_AUDIT);
                                 orderBookDetail.setIsLock(YesOrNoEnum.NO);
                                 orderBookDetail.setOrderSendWarnMsg(pushRecords.getResponseMessage());
                                 joiner.add(pushRecords.getResponseMessage());
