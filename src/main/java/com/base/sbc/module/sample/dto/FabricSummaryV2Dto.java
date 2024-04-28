@@ -54,4 +54,7 @@ public class FabricSummaryV2Dto extends QueryFieldDto {
     @ApiModelProperty(value = "版本号"  )
     private Integer fabricSummaryVersion;
 
+    @ApiModelProperty(value = "组Id"  )
+    private String groupId;
+
 }

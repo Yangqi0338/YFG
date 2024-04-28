@@ -49,8 +49,10 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
+import com.base.sbc.module.fabricsummary.entity.FabricSummaryGroup;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryStyle;
+import com.base.sbc.module.fabricsummary.service.FabricSummaryGroupService;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryPrintLogService;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryService;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryStyleService;
@@ -191,6 +193,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Autowired
     @Lazy
     private BasicsdatumSupplierService basicsdatumSupplierService;
+
+    @Autowired
+    private FabricSummaryGroupService fabricSummaryGroupService;
 
     private final ReentrantLock saveLock = new ReentrantLock();
 
@@ -408,6 +413,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         Page<String> page = PageHelper.startPage(bomFabricDto);
         QueryWrapper<Object> qw = new QueryWrapper();
         qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getMaterialCodeName()), "pb.material_code_name", bomFabricDto.getMaterialCodeName());
+        qw.likeLeft(StringUtils.isNotBlank(bomFabricDto.getSupplierMaterialCode()), "pb.supplier_material_code", bomFabricDto.getMaterialCodeName());
         baseMapper.bomFabricMaterialCode(bomFabricDto, qw);
         long l2 = System.currentTimeMillis();
         System.out.println("==========l2-l1=================="+(l2-l1));
@@ -434,6 +440,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public boolean saveFabricSummary(FabricSummarySaveDTO feedSummarySaveDTO) {
+
         List<FabricSummarySaveDTO.FabricInfo> fabricInfos = feedSummarySaveDTO.getFabricInfos();
         if (CollectionUtils.isEmpty(fabricInfos)){
             return true;
@@ -470,7 +477,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 List<BasicsdatumSupplier> basicsdatumSuppliers = basicsdatumSupplierService.getBySupplierId(bomFabricVo.getSupplierId());
                 fabricSummary.setSupplierAbbreviation(CollectionUtils.isEmpty(basicsdatumSuppliers) ? "" : basicsdatumSuppliers.get(0).getSupplierAbbreviation());
             }
-
+            fabricSummary.setGroupId(feedSummarySaveDTO.getGroupId());
             fabricSummary.setWidthName(fabricInfoMap.get(bomFabricVo.getMaterialCode()));
             fabricSummary.setId( new IdGen().nextIdStr());
             fabricSummary.setFabricSummaryCode("ML"+System.currentTimeMillis());
@@ -584,6 +591,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
             FabricSummaryStyle fabricSummaryStyle = new FabricSummaryStyle();
             BeanUtil.copyProperties(fabricStyleVo,fabricSummaryStyle);
+            fabricSummaryStyle.setGroupId(fabricSummary.getGroupId());
             fabricSummaryStyle.setFabricSummaryId(dto.getFabricSummaryId());
             fabricSummaryStyle.setId(new IdGen().nextIdStr());
             fabricSummaryStyle.insertInit();
@@ -787,6 +795,60 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         checkSupplier(fabricSummary,true);
         checkStyleBomExist(fabricSummary,true);
         return true;
+    }
+
+    @Override
+    public PageInfo<FabricStyleGroupVo> fabricSummaryGroup(FabricSummaryGroupDto dto) {
+        Page<FabricStyleGroupVo> page = PageHelper.startPage(dto);
+        QueryWrapper<FabricSummaryGroup> qw = new QueryWrapper<>();
+        qw.lambda().eq(FabricSummaryGroup::getCompanyCode,companyUserInfo.get().getCompanyCode());
+        qw.lambda().likeLeft(StringUtils.isNotBlank(dto.getName()), FabricSummaryGroup::getName, dto.getName());
+        qw.lambda().likeLeft(StringUtils.isNotBlank(dto.getCreateName()), FabricSummaryGroup::getCreateName, dto.getCreateName());
+        if (null != dto.getStartDate() && null != dto.getEndDate()){
+            qw.lambda().between(FabricSummaryGroup::getCreateDate,dto.getStartDate(),dto.getEndDate());
+        }
+        fabricSummaryGroupService.list(qw);
+        return page.toPageInfo();
+    }
+
+    @Override
+    public boolean fabricSummaryGroupSaveOrUpdate(FabricStyleGroupVo fabricStyleGroupVo) {
+        if (StringUtils.isBlank(fabricStyleGroupVo.getName())){
+            throw new OtherException("名称不能为空");
+        }
+        QueryWrapper<FabricSummaryGroup> qw = new QueryWrapper<>();
+        qw.lambda().eq(FabricSummaryGroup::getName,fabricStyleGroupVo.getName());
+        qw.lambda().eq(FabricSummaryGroup::getDelFlag,"0");
+        List<FabricSummaryGroup> list = fabricSummaryGroupService.list(qw);
+        if (CollectionUtils.isNotEmpty(list)){
+            throw new OtherException("名称不能重复，请检查名称");
+        }
+        if (StringUtils.isNotBlank(fabricStyleGroupVo.getId())){
+            fabricStyleGroupVo.updateInit();
+        }else {
+            fabricStyleGroupVo.setId(new IdGen().nextIdStr());
+            fabricStyleGroupVo.insertInit();
+        }
+        return fabricSummaryGroupService.saveOrUpdate(fabricStyleGroupVo);
+    }
+
+    @Override
+    public boolean deleteFabricSummaryGroup(FabricStyleGroupVo fabricStyleGroupVo) {
+        if (StringUtils.isBlank(fabricStyleGroupVo.getId())){
+            return true;
+        }
+        UpdateWrapper<FabricSummaryGroup> uw = new UpdateWrapper<>();
+        uw.lambda().eq(FabricSummaryGroup::getId,fabricStyleGroupVo.getId());
+        uw.lambda().set(FabricSummaryGroup::getDelFlag,"1");
+        return fabricSummaryGroupService.update(uw);
+    }
+
+    @Override
+    public PageInfo<StyleMaterialInfoVo> fabricSummaryStyleMaterialList(FabricSummaryStyleMaterialDto dto) {
+//        FabricSummary;
+//        FabricSummaryStyle;
+//        bomFabricList();
+        return null;
     }
 
     /**

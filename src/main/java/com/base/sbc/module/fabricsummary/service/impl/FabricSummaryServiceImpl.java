@@ -7,6 +7,7 @@
 package com.base.sbc.module.fabricsummary.service.impl;
 
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StringUtils;
@@ -58,13 +59,16 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
 
     @Override
     public PageInfo<FabricSummaryInfoVo> fabricSummaryInfoVoList(FabricSummaryV2Dto dto) {
-
+        if (StringUtils.isEmpty(dto.getGroupId())){
+            throw new OtherException("分组id不可为空");
+        }
         BaseQueryWrapper<FabricSummaryInfoVo> qw = new BaseQueryWrapper<>();
         if (StringUtils.isNotBlank(dto.getId())){
             qw.eq("tfs.id",dto.getId());
         }
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         qw.eq("tfs.company_code",dto.getCompanyCode());
+        qw.eq("tfs.group_id",dto.getGroupId());
         qw.orderByDesc("tfs.create_date");
         Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
         List<FabricSummaryInfoVo> list = getBaseMapper().fabricSummaryInfoVoList(qw);

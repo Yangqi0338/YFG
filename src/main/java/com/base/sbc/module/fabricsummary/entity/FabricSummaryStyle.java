@@ -153,5 +153,8 @@ public class FabricSummaryStyle extends BaseDataEntity<String> {
     @ApiModelProperty(value = "款式版本号"  )
     private Integer fabricSummaryStyleVersion;
 
+    @ApiModelProperty(value = "组id"  )
+    private String groupId;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

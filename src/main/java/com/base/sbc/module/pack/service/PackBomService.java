@@ -246,4 +246,12 @@ public interface PackBomService extends PackBaseService<PackBom> {
     NeedUpdateVo ifNeedUpdate(String id);
 
     boolean fabricSummarySync(String id);
+
+    PageInfo<FabricStyleGroupVo> fabricSummaryGroup(FabricSummaryGroupDto dto);
+
+    boolean fabricSummaryGroupSaveOrUpdate(FabricStyleGroupVo fabricStyleGroupVo);
+
+    boolean deleteFabricSummaryGroup(FabricStyleGroupVo fabricStyleGroupVo);
+
+    PageInfo<StyleMaterialInfoVo> fabricSummaryStyleMaterialList(FabricSummaryStyleMaterialDto dto);
 }

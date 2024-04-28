@@ -609,7 +609,7 @@
             ts.pattern_design_id,
             ts.pattern_design_name
         from
-            (select pb.foreign_id  from t_pack_bom pb  join t_pack_bom_version pbv on pb.bom_version_id = pbv.id  and pbv.del_flag = '0' and pbv.pack_type = 'packBigGoods'
+            (select pb.foreign_id  from t_pack_bom pb  join t_pack_bom_version pbv on pb.bom_version_id = pbv.id  and pbv.del_flag = '0' and pbv.pack_type = 'packDesign'
              where pb.material_code = #{dto.materialCode}  and pb.del_flag = '0'   group by  pb.foreign_id )
                 t  join  t_pack_info tpi on tpi.id = t.foreign_id and tpi.del_flag = '0'
                    left join t_style_color sc on tpi.style_color_id = sc.id and sc.del_flag = '0' and sc.bom_status = '1'
@@ -638,7 +638,7 @@
     </select>
 
     <select id="bomFabricMaterialCode" parameterType="com.base.sbc.module.sample.dto.BomFabricDto" resultType="java.lang.String">
-        select distinct pb.material_code  from t_pack_bom pb  left join t_pack_bom_version pbv on pbv.id = pb.bom_version_id and pbv.del_flag = '0' and pb.del_flag = '0'  and pbv.pack_type = 'packBigGoods'
+        select distinct pb.material_code  from t_pack_bom pb  left join t_pack_bom_version pbv on pbv.id = pb.bom_version_id and pbv.del_flag = '0' and pb.del_flag = '0'  and pbv.pack_type = 'packDesign'
         where  pb.material_id is not null and pb.material_id != '' and pb.company_code = #{dto.companyCode}
         <if test="dto.materialCodes != null and dto.materialCodes.size() > 0 ">
             and pb.material_code in

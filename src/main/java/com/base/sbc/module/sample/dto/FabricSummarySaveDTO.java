@@ -16,6 +16,10 @@ import java.util.List;
 @NoArgsConstructor
 public class FabricSummarySaveDTO {
 
+    @ApiModelProperty(value = "组Id"  )
+    @NotBlank(message = "组Id不能为空")
+    private String groupId;
+
     @ApiModelProperty(value = "企业编码")
     private String companyCode;
 

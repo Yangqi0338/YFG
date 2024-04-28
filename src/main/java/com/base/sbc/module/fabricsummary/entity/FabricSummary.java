@@ -136,5 +136,8 @@ public class FabricSummary extends BaseDataEntity<String> {
     @ApiModelProperty(value = "物料颜色"  )
     private String materialColor;
 
+    @ApiModelProperty(value = "组id"  )
+    private String groupId;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

@@ -299,7 +299,29 @@ public class PackBomController extends BaseController{
     public boolean fabricSummarySync(String id) {
         return packBomService.fabricSummarySync(id);
     }
+    @ApiOperation(value = "/面料汇总组查询")
+    @GetMapping("/fabricSummaryGroup")
+    public PageInfo<FabricStyleGroupVo>  fabricSummaryGroup(FabricSummaryGroupDto dto) {
+        return packBomService.fabricSummaryGroup(dto);
+    }
 
+    @ApiOperation(value = "/面料汇总组创建/修改")
+    @PostMapping("/fabricSummaryGroupSaveOrUpdate")
+    public boolean  fabricSummaryGroupSaveOrUpdate(@RequestBody FabricStyleGroupVo fabricStyleGroupVo) {
+        return packBomService.fabricSummaryGroupSaveOrUpdate(fabricStyleGroupVo);
+    }
+
+    @ApiOperation(value = "/面料汇总组删除")
+    @DeleteMapping("/fabricSummaryGroup")
+    public boolean  deleteFabricSummaryGroup(@RequestBody FabricStyleGroupVo fabricStyleGroupVo) {
+        return packBomService.deleteFabricSummaryGroup(fabricStyleGroupVo);
+    }
+
+    @ApiOperation(value = "/面料汇总-款式物料列表")
+    @GetMapping("/fabricSummaryStyleMaterialList")
+    public PageInfo<StyleMaterialInfoVo> fabricSummaryStyleMaterialList( FabricSummaryStyleMaterialDto dto) {
+        return packBomService.fabricSummaryStyleMaterialList(dto);
+    }
 
 }
 
