@@ -773,7 +773,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
-        if (b) throw new OtherException("取消下单失败");
+        if (!b) throw new OtherException("取消下单失败");
 
         List<String> orderBookIdList = orderBookDetails1.stream().map(OrderBookDetail::getOrderBookId).distinct().collect(Collectors.toList());
         for (String orderBookId : orderBookIdList) {
@@ -1189,7 +1189,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         List<OrderBookDetail> orderBookDetails1 = BeanUtil.copyToList(orderBookDetails, OrderBookDetail.class);
         boolean b = this.updateBatchById(orderBookDetails1);
-        if (b) throw new OtherException("投产失败");
+        if (!b) throw new OtherException("投产失败");
 
         // 检查是否下属详情是否全部完成审核
         boolean warnStatusExists = this.exists(new LambdaQueryWrapper<OrderBookDetail>()
