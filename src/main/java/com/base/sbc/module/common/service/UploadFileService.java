@@ -136,6 +136,18 @@ public interface UploadFileService extends BaseService<UploadFile> {
      */
     MultipartFile downloadImage(String key,String fileName) throws IOException;
 
+    /**
+     *  通过fileId 给 list 设置访问地址
+     *
+     * @param list
+     * @param property 属性
+     */
+    void setObjectUrlToList(List list, String... property);
+
+    void setObjectUrlToObject(Object o, String... property);
+
+
+
 /** 自定义方法区 不替换的区域【other_end】 **/
 
 

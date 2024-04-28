@@ -410,6 +410,14 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "挂起时间记录"  )
     private String suspendDateRecord;
 
+    /** 停留原因 */
+    @ApiModelProperty(value = "打版图片文件id"  )
+    private String samplePicFileId;
+
+    /** 停留原因 */
+    @ApiModelProperty(value = "打版视频文件id"  )
+    private String sampleVideoFileId;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

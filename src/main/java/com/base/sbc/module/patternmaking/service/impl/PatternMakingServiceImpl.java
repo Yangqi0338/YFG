@@ -51,6 +51,7 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumResearchProcessNode;
 import com.base.sbc.module.basicsdatum.enums.BasicsdatumProcessNodeEnum;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumResearchProcessNodeService;
 import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -139,6 +140,9 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Autowired
     private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
 
+    @Autowired
+    private UploadFileService uploadFileService;
+
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -149,6 +153,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.eq("m.del_flag", BaseGlobal.NO);
         qw.orderBy(true, true, "create_date");
         List<PatternMakingListVo> patternMakingListVos = getBaseMapper().findBySampleDesignId(qw);
+        uploadFileService.setObjectUrlToList(patternMakingListVos,"samplePicUrl", "sampleVideoUrl");
         return patternMakingListVos;
     }
 
@@ -876,6 +881,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         vo.setAttachmentList(attachmentVoList);
         // 设置状态
         nodeStatusService.setNodeStatusToBean(vo, "nodeStatusList", "nodeStatus");
+        //填充url
+        uploadFileService.setObjectUrlToObject(vo,"samplePicUrl", "sampleVideoUrl");
         return result;
     }
 

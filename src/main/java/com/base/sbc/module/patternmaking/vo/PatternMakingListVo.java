@@ -1,5 +1,6 @@
 package com.base.sbc.module.patternmaking.vo;
 
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,6 +38,28 @@ public class PatternMakingListVo extends PatternMaking {
     private String sdPatDiff;
     @ApiModelProperty(value = "样衣打版难度")
     private String sdPatDiffName;
+
+    /** 打版图片文件url */
+    @ApiModelProperty(value = "打版图片文件url"  )
+    private String samplePicUrl;
+
+    /** 打版视频文件url */
+    @ApiModelProperty(value = "打版视频文件url"  )
+    private String sampleVideoUrl;
+
+    public String getSamplePicUrl() {
+        if (StringUtils.isEmpty(samplePicUrl)){
+            this.samplePicUrl = getSamplePic();
+        }
+        return samplePicUrl;
+    }
+
+    public String getSampleVideoUrl() {
+        if (StringUtils.isEmpty(sampleVideoUrl)){
+            this.sampleVideoUrl =  getSampleVideoFileId();
+        }
+        return sampleVideoUrl;
+    }
 
     @Override
     public String getPatDiff() {

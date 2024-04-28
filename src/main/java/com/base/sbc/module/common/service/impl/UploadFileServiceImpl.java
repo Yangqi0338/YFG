@@ -10,6 +10,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import cn.hutool.http.HttpUtil;
@@ -644,6 +646,18 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         return multipartFile;
     }
 
+    @Override
+    public void setObjectUrlToList(List list, String... property) {
+        if (CollUtil.isEmpty(list) || ArrayUtil.isEmpty(property)) {
+            return;
+        }
+        for (Object o : list) {
+            for (String s : property) {
+                setObjectUrlToObject(o, s);
+            }
+        }
+    }
+
     public String getTemporaryFilePath(MultipartFile multipartFile) throws IOException {
         // 创建临时文件
         File tempFile = File.createTempFile("temp", null);
@@ -658,6 +672,27 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
         // 删除临时文件
         tempFile.delete();
         return temporaryFilePath;
+    }
+
+    /**
+     * 给obj 设置 访问地址
+     *
+     * @param o        bean or map
+     * @param property 属性
+     */
+    public void setObjectUrlToObject(Object o, String... property) {
+        if (ObjectUtil.isEmpty(o) || ArrayUtil.isEmpty(property)) {
+            return;
+        }
+        for (String s : property) {
+            JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(o));
+            Object val = jsonObject.get(s);
+            if (ObjectUtil.isEmpty(val)) {
+                continue;
+            }
+            String url = this.getUrlById(String.valueOf(val));
+            BeanUtil.setProperty(o, s, minioUtils.getObjectUrl(url));
+        }
     }
 
 /** 自定义方法区 不替换的区域【other_end】 **/
