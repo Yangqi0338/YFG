@@ -1618,7 +1618,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         Double offlineProductionSum = StringUtils.isBlank(orderBookDetailVo.getOfflineProduction()) ? null : Double.valueOf(orderBookDetailVo.getOfflineProduction());
         Double onlineProductionSum =   StringUtils.isBlank(orderBookDetailVo.getOnlineProduction()) ? null : Double.valueOf(orderBookDetailVo.getOnlineProduction());
-        orderBookDetailVo.setOffLinkSizeProportion(null != offlineProductionSum &&  0 != offlineProductionSum ? Math.round(offLinkSizeTotal / offlineProductionSum * 10000.0) : 0.0);
+        orderBookDetailVo.setOffLinkSizeProportion(null != offlineProductionSum &&  0 != offlineProductionSum ? Math.round(offLinkSizeTotal / offlineProductionSum * 10000.0) / 100.0 : 0.0);
         orderBookDetailVo.setOnLinkSizeProportion(null != onlineProductionSum &&  0 != onlineProductionSum ? Math.round(onLinkSizeTotal / onlineProductionSum * 10000.0) / 100.0  : 0.0);
 
     }
