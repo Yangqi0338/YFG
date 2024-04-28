@@ -163,23 +163,28 @@ public class DataPermissionsService {
             return ret;
         }
         List<String> authorityField=new ArrayList<>();
+        //用户存在多个用户组，用户组之间用or
+        boolean userGroupSize = dataPermissionsList.size() != 1;
         for (DataPermissionVO dataPermissions : dataPermissionsList) {
             if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())) {
                 List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
                 if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
+                    //判断配置是否分组
                     Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
+                    boolean permissionGroup = permissionMap.size() != 1;
 
                     List<String> fieldArr = new ArrayList<>();
-                    boolean isFieldFlag = false;
-                    //判断是否第一次  如果是第一次 添加()  ，否者添加  and()/or()
-                    String sqlType = authorityField.isEmpty() ? " ( " : DataPermissionsSelectTypeEnum.OR.getK().equals(dataPermissions.getSelectType()) ? " or ( " : " and ( ";
-                    fieldArr.add(sqlType);
+                    //判断是否第一次  如果是第一次 添加()  ，否者添加  or() ，如果只有一个用户组  不添加括号
+                    if(userGroupSize){
+                        String sqlType = authorityField.isEmpty() ? " ( " : " or ( ";
+                        fieldArr.add(sqlType);
+                    }
                     boolean first = true;
-
+                    boolean isFieldFlag = false;
                     for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
                         List<FieldDataPermissionVO> value = entry.getValue();
-
-                        if(permissionMap.size() > 1 && value.size() > 1){
+                        //如果配置只有一组，不添加括号
+                        if(permissionGroup){
                             if(first){
                                 fieldArr.add(" ( ");
                             }else{
@@ -193,17 +198,8 @@ public class DataPermissionsService {
                         }
                         first = false;
                         for (FieldDataPermissionVO fieldDataPermissionVO : value) {
-                            if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName()) || StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
-                                fieldArr.add(!(fieldArr.get(fieldArr.size() - 1).equals(sqlType)) ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
-                                sqlType = "fromtype2339";
-                            }
                             if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
                                 String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
-                                if (isAssignFields && StringUtils.isBlank(fieldName)) {
-                                    fieldArr.remove(fieldArr.size() - 1);
-                                    sqlType = fieldArr.get(fieldArr.size() - 1);
-                                    continue;
-                                }
                                 isFieldFlag = true;
                                 fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
                                 if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
@@ -228,18 +224,19 @@ public class DataPermissionsService {
                                 fieldArr.add(fieldDataPermissionVO.getSqlField());
                             }
                         }
-                        if(permissionMap.size() > 1 && value.size() > 1){
+                        if(permissionGroup){
                             fieldArr.add(" ) ");
                         }
                     }
-                    if (isFieldFlag) {
+                    if(userGroupSize){
                         fieldArr.add(" ) ");
+                    }
+                    if(isFieldFlag){
                         authorityField.addAll(fieldArr);
                     }
                 }
             }
         }
-        ;
 
         if(CollectionUtils.isNotEmpty(authorityField)) {
             String authorityFieldStr = "(" + StringUtils.join(authorityField, " ") + ")";
