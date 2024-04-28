@@ -1,6 +1,6 @@
 package com.base.sbc.module.planningproject.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,7 +10,7 @@ import lombok.Data;
  * @mail 247967116@qq.com
  */
 @Data
-public class PlanningProjectPlankPageDto {
+public class PlanningProjectPlankPageDto extends DimensionLabelsSearchDto {
     private String planningProjectId;
     private String planningBandCode;
     private String planningBulkStyleNo;
@@ -34,5 +34,11 @@ public class PlanningProjectPlankPageDto {
     @ApiModelProperty(value = "中类code"  )
     private String prodCategory2ndCode;
     private String prodCategory2ndName;
+
+    /**
+     * 维度数据 id，多选逗号分隔
+     */
+    @ApiModelProperty(value = "维度数据 id，多选逗号分隔")
+    private String dimensionIds;
 
 }

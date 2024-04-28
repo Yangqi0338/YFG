@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -59,15 +60,27 @@ public class PlanningProjectPlankVo extends PlanningProjectPlank {
     @ApiModelProperty(value = "是否是虚拟坑位(1:是,0:否"  )
     private String isVirtual;
 
+    /**
+     * 产销
+     */
+    @ApiModelProperty(value = "产销"  )
+    private String saleInto;
+    /**
+     * 销量
+     */
+    @ApiModelProperty(value = "销量"  )
+    private String sale;
+
     private List<FieldManagementVo> fieldManagementVos;
 
     private List<FieldManagementVo> oldFieldManagementVos;
 
     private StyleColorVo oldStyleColor;
+    private StyleColorVo styleColor;
     /**
      * 表头列
      */
     private List<TableColumnVo> columnVos;
 
-    private List<PlanningProjectPlankDimension> dimensionList;
+    private  List<PlanningProjectPlankDimension> dimensionList;
 }

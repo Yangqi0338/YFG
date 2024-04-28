@@ -63,7 +63,7 @@ public interface ReportService {
     void designOrderScheduleDetailsExport(HttpServletResponse response, DesignOrderScheduleDetailsQueryDto dto) throws IOException;
 
 
+    PageInfo<SeasonPlanPercentageVo> seasonPlanPercentage(SeasonPlanPercentageQueryDto dto);
 
-
-
+    void seasonPlanPercentageExport(HttpServletResponse response, SeasonPlanPercentageQueryDto dto) throws IOException;
 }

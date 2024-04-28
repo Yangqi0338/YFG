@@ -14,13 +14,14 @@
         ts.prod_category_name as categoryName,
         ts.prod_category as categoryCode,
         ts.prod_category2nd_name,
-        if(ts.brand_name ='PM',ts.positioning,null) as positioning,
-        if(ts.brand_name ='PM',ts.positioning_name,null) as positioningName,
+        ts.positioning as positioning,
+        ts.positioning_name as positioningName,
         ts.designer as styleDesignerName,
         ts.designer_id as styleDesignerId,
         ts.pattern_design_name,
         ts.registering_no,
-        ts.plate_type_name as patternPositioningName,
+        ts.plate_positioning as patternPositioningCode,
+        ts.plate_positioning_name as patternPositioningName,
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
         tsc.his_style_no as hisStyleNo,
@@ -70,4 +71,34 @@
         group by tobl.order_book_id
     </select>
 
+    <select id="querySeasonalPlanningOrder" resultType="com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO">
+        SELECT DISTINCT
+               ts.id as styleId,
+               ts.prod_category1st as prodCategory1st,
+               ts.prod_category1st_name as prodCategory1stName,
+               ts.prod_category as prodCategory,
+               ts.prod_category_name as prodCategoryName,
+               ts.prod_category2nd as prodCategory2nd,
+               ts.prod_category2nd_name as prodCategory2ndName,
+               ts.band_code as bandCode,
+               ts.band_name as bandName,
+               tfv.field_id as fieldId,
+               tfv.field_explain as fieldExplain,
+               tfv.val as var,
+               tfv.val_name as varName
+        FROM t_order_book_detail tobd
+        LEFT JOIN t_order_book tob ON tob.id = tobd.order_book_id AND tob.del_flag='0'
+        LEFT JOIN t_style_color tsc ON tobd.style_color_id = tsc.id AND tsc.del_flag='0'
+        LEFT JOIN t_style ts ON ts.id = tsc.style_id AND ts.del_flag='0'
+        LEFT JOIN t_field_val tfv ON ts.id = tfv.foreign_id AND ts.del_flag='0'
+        <if test="dto.styleCategory != null and dto.styleCategory != ''">
+            AND tfv.field_name = #{dto.styleCategory}
+        </if>
+        WHERE tobd.del_flag='0'
+              AND tobd.order_status = '4'
+              AND tob.season_id = #{dto.seasonId}
+        <if test="dto.channel != null and dto.channel != ''">
+              AND tob.channel = #{dto.channel}
+        </if>
+    </select>
 </mapper>

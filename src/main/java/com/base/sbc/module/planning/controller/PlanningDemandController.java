@@ -184,8 +184,7 @@ public class PlanningDemandController {
 	/**
 	 * 设置重点维度
 	 *
-	 * @param id
-	 * @param importantFlag
+	 * @param planningDemand
 	 * @return
 	 */
 	@PostMapping("/setImportantFlag")

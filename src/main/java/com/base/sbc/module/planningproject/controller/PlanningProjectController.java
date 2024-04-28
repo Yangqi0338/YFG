@@ -2,10 +2,7 @@ package com.base.sbc.module.planningproject.controller;
 
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -21,13 +18,9 @@ import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
-import com.base.sbc.module.planningproject.dto.HistoryMatchDto;
-import com.base.sbc.module.planningproject.dto.PlanningProjectImportDto;
-import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
-import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
+import com.base.sbc.module.planningproject.dto.*;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
-import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -78,30 +71,9 @@ public class PlanningProjectController extends BaseController {
 
     @ApiOperation(value = "启用停用")
     @PostMapping("/startStop")
-    @Transactional(rollbackFor = Exception.class)
     public ApiResult startStop(@Valid @NotNull(message = "传入id不能为空") String ids, @Valid @NotNull(message = "传入状态不能为空") String status) {
-        UpdateWrapper<PlanningProject> updateWrapper = new UpdateWrapper<>();
-        List<String> idList = Arrays.asList(ids.split(","));
-        updateWrapper.in("id", idList);
-        updateWrapper.set("status", status);
-
-        //如果是停用,清空关联的坑位数据,不清除关联历史款的坑位数据
-        if ("1".equals(status)) {
-            updateWrapper.set("is_match", "0");
-
-            UpdateWrapper<PlanningProjectPlank> wrapper =new UpdateWrapper<>();
-            wrapper.in("planning_project_id",idList);
-            // wrapper.ne("matching_style_status","3");
-            wrapper.set("bulk_style_no","");
-            wrapper.set("pic","");
-            wrapper.set("color_system","");
-            wrapper.set("style_color_id","");
-            wrapper.set("his_design_no","");
-            wrapper.set("matching_style_status","0");
-            planningProjectPlankService.update(wrapper);
-        }
-
-        return updateSuccess(planningProjectService.update(updateWrapper));
+        planningProjectService.startStop(ids, status);
+        return updateSuccess("操作成功！");
     }
 
     /**
@@ -111,23 +83,8 @@ public class PlanningProjectController extends BaseController {
     @DeleteMapping("/delByIds")
     @Transactional(rollbackFor = Exception.class)
     public ApiResult delByIds(String ids) {
-        if (StringUtils.isEmpty(ids)) {
-            return deleteSuccess(false);
-        }
-        List<String> idList = Arrays.asList(ids.split(","));
-        boolean b = planningProjectService.removeByIds(idList);
-        if (b){
-            QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
-            queryWrapper.in("planning_project_id",idList);
-            planningProjectDimensionService.remove(queryWrapper);
-            QueryWrapper<PlanningProjectMaxCategory> queryWrapper1 =new BaseQueryWrapper<>();
-            queryWrapper1.in("planning_project_id",idList);
-            planningProjectMaxCategoryService.remove(queryWrapper1);
-            QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
-            queryWrapper2.in("planning_project_id",idList);
-            planningProjectPlankService.remove(queryWrapper2);
-        }
-        return deleteSuccess(b);
+        planningProjectService.delByIds(ids);
+        return deleteSuccess("操作成功！");
 
     }
 
@@ -290,5 +247,20 @@ public class PlanningProjectController extends BaseController {
         return updateSuccess("匹配成功");
     }
 
+    // ====================> 企划看板 2.0
+    /**
+     * 根据品类和企划看板 ID 获取维度系数
+     *
+     * @param planningProjectDTO 要保存的数据
+     */
+    @PostMapping("/getDimensionality")
+    @ApiOperation(value = "企划看板 2.0 根据品类和企划看板 ID 获取维度系数")
+    public ApiResult<List<PlanningProjectDimension>> getDimensionality(@RequestBody PlanningProjectDTO planningProjectDTO) {
+        List<PlanningProjectDimension> list = planningProjectService.getDimensionality(planningProjectDTO);
+        return selectSuccess(list);
+    }
+
+
+    // <==================== 企划看板 2.0
 
 }

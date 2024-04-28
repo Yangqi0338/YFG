@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.dto.ColumnUserDefineDto;
@@ -73,10 +74,9 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
     @Override
     public List<ColumnDefine> findDetail(String tableCode, String id) {
         //查询用户组级配置，如果没有用户组配置则返回的系统级配置
-        /*ApiResult jobList = amcService.getUserGroupByUserId(getUserId());
+        ApiResult jobList = amcService.getUserGroupByUserId(getUserId());
         List<LinkedHashMap> list1 = (List<LinkedHashMap>) (((LinkedHashMap) jobList.getData()).get("list"));
-        List<String> jobs = list1.stream().map(o->o.get("id").toString()).collect(Collectors.toList());*/
-        List<String> jobs = new ArrayList<>();
+        List<String> jobs = list1.stream().map(o->o.get("id").toString()).collect(Collectors.toList());
         List<ColumnDefine> byTableCode = columnGroupDefineService.findDetailByJoblist(tableCode, jobs);
 
         //查询用户配置

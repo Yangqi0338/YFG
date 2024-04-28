@@ -260,7 +260,7 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
             queryWrapper.eq("type", addRevampProcessDatabaseDto.getType());
             List<ProcessDatabase> processDatabaseList = baseMapper.selectList(queryWrapper);
             if (!CollectionUtils.isEmpty(processDatabaseList)) {
-                throw new OtherException(BaseErrorEnum.ERR_INSERT_DATA_REPEAT);
+                throw new OtherException("同一个工艺类型下，不允许编码重复！");
             }
         }
         ProcessDatabase processDatabase = new ProcessDatabase();

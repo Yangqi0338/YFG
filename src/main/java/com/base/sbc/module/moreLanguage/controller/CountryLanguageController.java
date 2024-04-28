@@ -1,6 +1,5 @@
 package com.base.sbc.module.moreLanguage.controller;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
@@ -11,22 +10,20 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.RightException;
+import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageGroupDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.CountryTypeLanguageSaveDto;
 import com.base.sbc.module.moreLanguage.dto.LanguageQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
-import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.github.pagehelper.SqlUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,8 +35,9 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
  * @author 孔祥基
@@ -63,17 +61,16 @@ public class CountryLanguageController extends BaseController {
     public ApiResult<?> listQuery(CountryQueryDto countryQueryDto) {
         // 肯定不查缓存
         countryQueryDto.setCache(YesOrNoEnum.NO.getValueStr());
+        countryQueryDto.setDecorateLanguageName(true);
         // 是否进行国家码分组
         if (YesOrNoEnum.YES.getValueStr().equals(countryQueryDto.getCodeGroup())) {
             List<CountryLanguageGroupDto> list = new ArrayList<>();
             // 查询国家并根据编码分组
-            countryLanguageService.listQuery(countryQueryDto).stream().map(it-> BeanUtil.copyProperties(it, CountryLanguageGroupDto.class))
-                    .collect(Collectors.groupingBy(CountryLanguageGroupDto::getCode)).forEach((code, sameCodeList)-> {
-                        CountryLanguageGroupDto countryLanguageDto = BeanUtil.copyProperties(sameCodeList.get(0), CountryLanguageGroupDto.class);
-                        countryLanguageDto.setLanguageCode(null);
-                        countryLanguageDto.setLanguageName(null);
-                        countryLanguageDto.setLanguageList(sameCodeList);
-                        list.add(countryLanguageDto);
+           countryLanguageService.listQuery(countryQueryDto)
+                    .stream().collect(Collectors.groupingBy(CountryLanguageDto::getCode)).forEach((code, sameCodeList)-> {
+                       CountryLanguageGroupDto countryLanguageDto = MORE_LANGUAGE_CV.copy2Group(sameCodeList.get(0));
+                       countryLanguageDto.setLanguageList(MORE_LANGUAGE_CV.copyList2Group(sameCodeList));
+                       list.add(countryLanguageDto);
                     });
             return selectSuccess(list);
         }else {

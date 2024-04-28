@@ -47,8 +47,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -134,8 +136,38 @@ public class PlanningProjectPlankController extends BaseController {
         PlanningProjectPlank planningProjectPlank = planningProjectPlankService.getById(id);
         PlanningProjectPlankVo planningProjectPlankVo =new PlanningProjectPlankVo();
         BeanUtil.copyProperties(planningProjectPlank,planningProjectPlankVo);
+
         if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())) {
-            List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(planningProjectPlankVo.getStyleColorId());
+
+            StyleColor styleColor = styleColorService.getById(planningProjectPlankVo.getStyleColorId());
+
+
+            Style style = styleService.getById(styleColor.getStyleId());
+
+
+            StyleColorVo styleColorVo =new StyleColorVo();
+
+            BeanUtil.copyProperties(style,styleColorVo);
+            BeanUtil.copyProperties(styleColor,styleColorVo);
+            String styleUrl = stylePicUtils.getStyleUrl(styleColorVo.getStyleColorPic());
+            styleColorVo.setStyleColorPic(styleUrl);
+            planningProjectPlankVo.setStyleColor(styleColorVo);
+
+            DimensionLabelsSearchDto dto =new DimensionLabelsSearchDto();
+            dto.setId(styleColor.getStyleId());
+            dto.setForeignId(styleColor.getStyleId());
+            if ("1".equals(styleColor.getBomStatus())){
+                dto.setStyleColorId(styleColor.getId());
+                dto.setShowConfig("styleMarkingOrder");
+            }
+            Map<String, List<FieldManagementVo>> stringListMap = styleService.queryCoefficientByStyle(dto);
+
+            List<FieldManagementVo> fieldManagementVos = new ArrayList<>();
+            if (stringListMap!=null){
+                for (String s : stringListMap.keySet()) {
+                    fieldManagementVos.addAll(stringListMap.get(s));
+                }
+            }
             planningProjectPlankVo.setFieldManagementVos(fieldManagementVos);
         }
 
@@ -150,7 +182,24 @@ public class PlanningProjectPlankController extends BaseController {
             styleColorVo.setStyleColorPic(styleUrl);
             planningProjectPlankVo.setOldStyleColor(styleColorVo);
 
-            List<FieldManagementVo> fieldManagementVos = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
+
+
+
+            DimensionLabelsSearchDto dto =new DimensionLabelsSearchDto();
+            dto.setId(styleColor.getStyleId());
+            dto.setForeignId(styleColor.getStyleId());
+            if ("1".equals(styleColor.getBomStatus())){
+                dto.setStyleColorId(styleColor.getId());
+                dto.setShowConfig("styleMarkingOrder");
+            }
+
+            Map<String, List<FieldManagementVo>> stringListMap = styleService.queryCoefficientByStyle(dto);
+            List<FieldManagementVo> fieldManagementVos = new ArrayList<>();
+            if (stringListMap!=null){
+                for (String s : stringListMap.keySet()) {
+                    fieldManagementVos.addAll(stringListMap.get(s));
+                }
+            }
             planningProjectPlankVo.setOldFieldManagementVos(fieldManagementVos);
         }
         if (StringUtils.isNotEmpty(planningProjectPlankVo.getStyleColorId())){
@@ -327,23 +376,8 @@ public class PlanningProjectPlankController extends BaseController {
     @ApiOperation(value = "获取维度字段卡片")
     @GetMapping("/getDimensionFieldCard")
     public ApiResult getDimensionFieldCard(DimensionLabelsSearchDto dto){
-        List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.getDimensionalityList(dto).getPlanningDimensionalities();
-        List<FieldDisplayVo> fieldDisplayVoList = planningDimensionalities.stream().map(planningDimensionality -> {
-            FieldDisplayVo fieldDisplayVo = new FieldDisplayVo();
-            fieldDisplayVo.setField(planningDimensionality.getDimensionalityName());
-            fieldDisplayVo.setName(planningDimensionality.getDimensionalityName());
-            fieldDisplayVo.setField(planningDimensionality.getId());
-            //设置是否显示
-            String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ planningDimensionality.getDimensionalityName();
-            if (redisUtils.hasKey(key)) {
-                fieldDisplayVo.setDisplay("1".equals(redisUtils.get(key)));
-            }else {
-                fieldDisplayVo.setDisplay(true);
-            }
-            return fieldDisplayVo;
-        }).collect(Collectors.toList());
-
-        return selectSuccess(fieldDisplayVoList);
+        List<FieldDisplayVo> list= planningProjectPlankService.getDimensionFieldCard(dto);
+        return selectSuccess(list);
     }
 
     /**
@@ -355,6 +389,9 @@ public class PlanningProjectPlankController extends BaseController {
         fieldDisplayVoList.forEach(fieldDisplayVo -> {
             String key = "planningProjectPlank:dimensionFieldCard:" +this.getUserId()+":"+ fieldDisplayVo.getField();
             redisUtils.set(key,fieldDisplayVo.isDisplay()?"1":"0");
+            String sort = "planningProjectPlank:dimensionFieldCard:sort:" +this.getUserId()+":"+ fieldDisplayVo.getField();
+            redisUtils.set(sort,fieldDisplayVo.getSort());
+
         });
         return updateSuccess("设置成功");
     }

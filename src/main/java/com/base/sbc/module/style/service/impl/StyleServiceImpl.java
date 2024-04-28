@@ -93,6 +93,7 @@ import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
+import com.base.sbc.module.planning.vo.*;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
@@ -948,6 +949,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 获取围度系数
         DimensionalityListVo listVo = planningDimensionalityService.getDimensionalityList(pdqw);
         List<PlanningDimensionality> pdList = listVo.getPlanningDimensionalities();
+
         List<FieldVal> fvList = fieldValService.list(dto.getForeignId(), dto.getDataGroup());
         // 款式打标-下单阶段逻辑，如果第一次查看下单阶段数据，则查询为空，复制一份设计阶段数据作为下单阶段数据
         if (StrUtil.isNotBlank(dto.getShowConfig()) && "styleMarkingOrder".equals(dto.getShowConfig()) && StrUtil.isNotBlank(dto.getStyleColorId())) {
@@ -969,17 +971,25 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (CollUtil.isEmpty(pdList)) {
                 return result;
             }
+
+
+
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds, dto.getPlanningSeasonId(), dto.getProdCategory(), dto.getChannel());
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
+                //region 为满足业务需求重新排序
+                logicSort(fieldManagementListByIds);
+                //endregion
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
-                Map<String, Integer> sortMap = pdList.stream().collect(Collectors.toMap(PlanningDimensionality::getFieldId, PlanningDimensionality::getSort, (a, b) -> b));
+                /*Map<String, Integer> sortMap = pdList.stream().collect(Collectors.toMap(PlanningDimensionality::getFieldId, PlanningDimensionality::getSort, (a, b) -> b));
                 CollUtil.sort(fieldManagementListByIds, (a, b) -> {
                     int n1 = MapUtil.getInt(sortMap, a.getId(), 0);
                     int n2 = MapUtil.getInt(sortMap, b.getId(), 0);
                     return NumberUtil.compare(n1, n2);
-                });
+                });*/
+
+
                 QueryFieldOptionConfigDto queryFieldOptionConfigDto = new QueryFieldOptionConfigDto();
                 if (BaseGlobal.YES.equals(listVo.getCategoryFlag())) {
                     queryFieldOptionConfigDto.setProdCategory2nd(dto.getProdCategory2nd());
@@ -1041,6 +1051,53 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     }
 
+    /**
+     * 对维度洗漱重新排序
+     * groupsort为空时，按创建时间倒序排序
+     * groupsort 有值时，排在groupsort为空后面
+     * @param dimensionalityList
+     */
+    private static void logicSort(List<FieldManagementVo> dimensionalityList) {
+        Map<String,Integer> sortMap = new HashMap<>();
+        for (FieldManagementVo planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() != null) {
+                sortMap.put(planningDimensionalityVo.getGroupName(),planningDimensionalityVo.getGroupSort());
+            }
+        }
+        for (FieldManagementVo planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() == null) {
+                Integer sort = sortMap.get(planningDimensionalityVo.getGroupName());
+                if (sort != null) {
+                    planningDimensionalityVo.setGroupSort(sortMap.get(planningDimensionalityVo.getGroupName()));
+                }
+            }
+        }
+
+        //重新排序
+        dimensionalityList.sort((o1, o2) -> {
+            if (o1.getGroupSort() == null) {
+                return 1;
+            }
+            if (o2.getGroupSort() == null) {
+                return 1;
+            }
+            if (o2.getGroupSort() == null && o1.getGroupSort() == null) {
+                if(o1.getCreateDate().getTime() < o2.getCreateDate().getTime()){
+                    return 1;
+                }
+                if(o1.getCreateDate().getTime() > o2.getCreateDate().getTime()){
+                    return -1;
+                }
+            }
+            if(o1.getGroupSort()>o2.getGroupSort()){
+                return 1;
+            }
+            if(o1.getGroupSort()<o2.getGroupSort()){
+                return -1;
+            }
+            return 0;
+        });
+    }
     /**
      * 查询围度系数
      *
@@ -2925,6 +2982,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
         return l;
+    }
+
+    @Override
+    public List<StyleDimensionVO> queryStyleField(QueryStyleDimensionDto dto) {
+        QueryWrapper<Style> qw = new QueryWrapper<>();
+        qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "ts.planning_season_id", dto.getPlanningSeasonId());
+        qw.eq(StrUtil.isNotEmpty(dto.getProdCategory()), "ts.prod_category", dto.getProdCategory());
+        qw.ne(StrUtil.isNotEmpty(dto.getProdCategory()), "ts.status", dto.getStatus());
+        return getBaseMapper().queryStyleField(qw);
     }
 
 }

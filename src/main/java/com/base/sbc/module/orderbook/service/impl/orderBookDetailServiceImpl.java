@@ -48,19 +48,14 @@ import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
+import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
-import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleChannelVo;
-import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleSizeMapVo;
-import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
-import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
+import com.base.sbc.module.orderbook.vo.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -754,12 +749,11 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             orderBook.setOrderStatus(OrderBookOrderStatusEnum.PART_ORDER);
         }
         orderBookService.updateById(orderBook);
-        orderBookDetails1.forEach(orderBookDetail -> {
-            PublicStyleColorDto colorDto = new PublicStyleColorDto();
-            colorDto.setOrderFlag(YesOrNoEnum.YES.getValueStr());
-            colorDto.setId(orderBookDetail.getStyleColorId());
-            styleColorService.updateOrderFlag(colorDto);
-        });
+        PublicStyleColorDto colorDto = new PublicStyleColorDto();
+        colorDto.setOrderFlag(YesOrNoEnum.YES.getValueStr());
+        colorDto.setCheckScmSendFlag(true);
+        colorDto.setId(orderBookDetails1.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.joining(COMMA)));
+        styleColorService.updateOrderFlag(colorDto);
         return b;
     }
 
@@ -934,6 +928,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         });
         System.out.println("装饰详细的投产销售 time:" + (System.currentTimeMillis() - millis));
         return result;
+    }
+
+    @Override
+    public List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto) {
+        List<OrderBookDetailForSeasonPlanningVO> l = this.getBaseMapper().querySeasonalPlanningOrder(dto);
+        return l;
     }
 
     /**

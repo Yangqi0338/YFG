@@ -9,6 +9,7 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.planning.dto.PlanningSummaryQueryDto;
+import com.base.sbc.module.planning.service.PlanningSummaryService;
 import com.base.sbc.module.planning.vo.PlanningSummaryQueryVo;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
@@ -18,12 +19,14 @@ import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.Principal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,12 +38,9 @@ import java.util.stream.Collectors;
 @RestController
 @Api(tags = "企划汇总-相关接口")
 @RequestMapping(value = BaseController.SAAS_URL + "/planningSummary", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-@RequiredArgsConstructor
 public class PlanningSummaryController extends BaseController{
-    private final OrderBookDetailService orderBookDetailService;
-    private final PlanningProjectPlankService planningProjectPlankService;
-    private final PlanningProjectService planningProjectService;
-    private final PlanningProjectDimensionService planningProjectDimensionService;
+    @Autowired
+    private PlanningSummaryService planningSummaryService;
 
     /**
      * 获取企划汇总列表
@@ -49,7 +49,10 @@ public class PlanningSummaryController extends BaseController{
      */
     @RequestMapping("/queryList")
     public ApiResult queryList(PlanningSummaryQueryDto dto) {
-        String createId = dto.getCreateId();
+
+        return planningSummaryService.queryList(dto);
+
+        /*String createId = dto.getCreateId();
         List<String> ids=null;
         if (StringUtils.isNotBlank(createId)){
             ids= Arrays.asList(createId.split(","));
@@ -147,6 +150,6 @@ public class PlanningSummaryController extends BaseController{
             planningSummaryQueryVos.add(planningSummaryQueryVo);
         }
 
-        return selectSuccess(planningSummaryQueryVos);
+        return selectSuccess(planningSummaryQueryVos);*/
     }
 }

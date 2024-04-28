@@ -21,7 +21,6 @@ import com.base.sbc.module.basicsdatum.entity.BasicsdatumCoefficientTemplate;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumDimensionality;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumCoefficientTemplateService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumDimensionalityVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -200,24 +199,32 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         if (dimensionalityDtoList.isEmpty()) {
             return new ArrayList<>();
         }
-        CheckMutexDto checkMutexDto = new CheckMutexDto();
-        checkMutexDto.setChannel(dimensionalityDtoList.get(0).getChannel());
-        checkMutexDto.setPlanningSeasonId(dimensionalityDtoList.get(0).getPlanningSeasonId());
-        checkMutexDto.setPlanningChannelId(dimensionalityDtoList.get(0).getPlanningChannelId());
-        checkMutexDto.setProdCategory(dimensionalityDtoList.get(0).getProdCategory());
-        checkMutexDto.setProdCategory2nd(dimensionalityDtoList.get(0).getProdCategory2nd());
-        planningDemandService.checkMutex(checkMutexDto);
-        List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
-        list.forEach(p -> {
-            if (CommonUtils.isInitId(p.getId())) {
-                p.setId(null);
-            }
-        });
-        /*校验维度等级*/
-        saveOrUpdateBatch(list);
-        checkDimensionality(dimensionalityDtoList.get(0));
 
-        return list;
+        UpdateDimensionalityDto updateDimensionalityDto = dimensionalityDtoList.get(0);
+        String planningSeasonIds = updateDimensionalityDto.getPlanningSeasonId();
+        for (String planningSeasonId : planningSeasonIds.split(",")) {
+            CheckMutexDto checkMutexDto = new CheckMutexDto();
+            checkMutexDto.setChannel(dimensionalityDtoList.get(0).getChannel());
+            checkMutexDto.setPlanningSeasonId(planningSeasonId);
+            checkMutexDto.setProdCategory(dimensionalityDtoList.get(0).getProdCategory());
+            checkMutexDto.setProdCategory2nd(dimensionalityDtoList.get(0).getProdCategory2nd());
+            planningDemandService.checkMutex(checkMutexDto);
+            for (UpdateDimensionalityDto dimensionalityDto : dimensionalityDtoList) {
+                dimensionalityDto.setPlanningSeasonId(planningSeasonId);
+            }
+            List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
+            list.forEach(p -> {
+                if (CommonUtils.isInitId(p.getId())) {
+                    p.setId(null);
+                }
+            });
+            /*校验维度等级*/
+            saveOrUpdateBatch(list);
+            checkDimensionality(dimensionalityDtoList.get(0));
+
+        }
+
+        return new ArrayList<>();
     }
 
     /**
@@ -303,6 +310,9 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         if(CollUtil.isEmpty(dimensionalityList)){
             return list;
         }
+
+        logicSort(dimensionalityList);
+
         LinkedHashMap<String, List<PlanningDimensionalityVo>> map = dimensionalityList.stream().collect(Collectors.groupingBy(p -> p.getGroupName(), LinkedHashMap::new, Collectors.toList()));
         for (String s :map.keySet()){
             PlanningDimensionalityVo planningDimensionalityVo = new PlanningDimensionalityVo();
@@ -311,6 +321,54 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             list.add(planningDimensionalityVo);
         }
         return list;
+    }
+
+    /**
+     * 对维度洗漱重新排序
+     * groupsort为空时，按创建时间倒序排序
+     * groupsort 有值时，排在groupsort为空后面
+     * @param dimensionalityList
+     */
+    private static void logicSort(List<PlanningDimensionalityVo> dimensionalityList) {
+        Map<String,Integer> sortMap = new HashMap<>();
+        for (PlanningDimensionalityVo planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() != null) {
+                sortMap.put(planningDimensionalityVo.getGroupName(),planningDimensionalityVo.getGroupSort());
+            }
+        }
+        for (PlanningDimensionalityVo planningDimensionalityVo : dimensionalityList) {
+            if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() == null) {
+                Integer sort = sortMap.get(planningDimensionalityVo.getGroupName());
+                if (sort != null) {
+                    planningDimensionalityVo.setGroupSort(sortMap.get(planningDimensionalityVo.getGroupName()));
+                }
+            }
+        }
+
+        //重新排序
+        dimensionalityList.sort((o1, o2) -> {
+            if (o1.getGroupSort() == null) {
+                return 1;
+            }
+            if (o2.getGroupSort() == null) {
+                return 1;
+            }
+            if (o2.getGroupSort() == null && o1.getGroupSort() == null) {
+                if(o1.getCreateDate().getTime() < o2.getCreateDate().getTime()){
+                    return 1;
+                }
+                if(o1.getCreateDate().getTime() > o2.getCreateDate().getTime()){
+                    return -1;
+                }
+            }
+            if(o1.getGroupSort()>o2.getGroupSort()){
+                return 1;
+            }
+            if(o1.getGroupSort()<o2.getGroupSort()){
+                return -1;
+            }
+            return 0;
+        });
     }
 
     /**

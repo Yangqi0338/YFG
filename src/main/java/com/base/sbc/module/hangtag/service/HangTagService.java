@@ -59,6 +59,12 @@ public interface HangTagService extends BaseService<HangTag> {
 
 
     /**
+     * 刷新
+     */
+    HangTagVO getRefresh(String bulkStyleNo, String userCompany, String selectType);
+
+
+    /**
      * 保存
      *
      * @param hangTagDTO
@@ -104,7 +110,7 @@ public interface HangTagService extends BaseService<HangTag> {
      */
     Boolean copyPack(String styleNo, String newStyleNo);
 
-    Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO, boolean needHandle, boolean mergeWarnMsg);
+    Object getMoreLanguageDetailsByBulkStyleNo(HangTagMoreLanguageDTO hangTagMoreLanguageDTO);
 
     boolean counterReview(HangTag reviewHangTag);
 

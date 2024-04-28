@@ -17,6 +17,7 @@ import com.base.sbc.module.sample.vo.StyleUploadVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.ChartBarVo;
 import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
+import com.base.sbc.module.style.vo.StyleDimensionVO;
 import com.base.sbc.module.style.vo.StylePageVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -86,5 +87,7 @@ public interface StyleMapper extends BaseMapper<Style> {
             @Param("category") String category,
             @Param("pxLength") int pxLength,
             @Param("length") int length);
+
+    List<StyleDimensionVO> queryStyleField(@Param(Constants.WRAPPER) QueryWrapper qw);
 }
 

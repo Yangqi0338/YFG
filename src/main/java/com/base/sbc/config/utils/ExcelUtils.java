@@ -11,6 +11,8 @@ import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
+import cn.afterturn.easypoi.excel.export.ExcelExportService;
+import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.afterturn.easypoi.exception.excel.ExcelExportException;
 import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
 import cn.afterturn.easypoi.util.PoiPublicUtil;
@@ -47,6 +49,18 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.*;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -528,12 +542,16 @@ public class ExcelUtils {
         List<ExcelExportEntity> excelParams = new ArrayList<>();
 
         List<String> imgColumns = new ArrayList<>();
+        Set<String> mapColumns = new HashSet<>();
         for (ColumnDefine columnDefine : detail) {
             if (BaseGlobal.NO.equals(columnDefine.getHidden())) {
                 continue;
             }
             ExcelExportEntity excelEntity = new ExcelExportEntity();
             excelEntity.setKey(columnDefine.getColumnCode());
+            if(columnDefine.getColumnCode().contains(".")){
+                mapColumns.add(columnDefine.getColumnCode().split("\\.")[0]);
+            }
             excelEntity.setName(columnDefine.getColumnName());
             excelEntity.setWidth((double) columnDefine.getColumnWidth() / 5);
             //excelEntity.setHeight(excel.height());
@@ -581,7 +599,22 @@ public class ExcelUtils {
             excelParams.add(excelEntity);
         }
 
+        //这里就是要转成JSONObject类型，不要保留原对象类型
         JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
+        //将sizeMap.templateM  这种类型数据 从map中取出，平铺到对象中
+        if (!mapColumns.isEmpty()) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                for (String mapColumn : mapColumns) {
+                    if (jsonObject.containsKey(mapColumn) && jsonObject.get(mapColumn) instanceof Map) {
+                        JSONObject jsonObject1 = jsonObject.getJSONObject(mapColumn);
+                        for (Map.Entry<String, Object> entry : jsonObject1.entrySet()) {
+                            jsonObject.put(mapColumn + "." + entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+            }
+        }
 
         if (CollUtil.isNotEmpty(imgColumns) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
             StylePicUtils stylePicUtils = SpringUtil.getBean(StylePicUtils.class);

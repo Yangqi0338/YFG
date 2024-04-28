@@ -1,7 +1,7 @@
 package com.base.sbc.module.planningproject.dto;
 
-import io.swagger.annotations.ApiModel;
 import com.base.sbc.config.common.base.Page;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -67,4 +67,10 @@ public class PlanningProjectPageDTO extends Page{
 
     @ApiModelProperty(value = "修改时间")
     private Date updateDate;
+
+    /**
+     * 维度数据 id，多选逗号分隔
+     */
+    @ApiModelProperty(value = "维度数据 id，多选逗号分隔")
+    private String dimensionIds;
 }

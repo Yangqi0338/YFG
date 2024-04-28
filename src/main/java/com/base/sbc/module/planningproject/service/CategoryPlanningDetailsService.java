@@ -1,8 +1,11 @@
 package com.base.sbc.module.planningproject.service;
 
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailDTO;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningDetailsQueryDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
+import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
+import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailVO;
 import com.base.sbc.module.planningproject.vo.CategoryPlanningDetailsVo;
 import com.github.pagehelper.PageInfo;
 
@@ -21,4 +24,50 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
     CategoryPlanningDetailsVo getDetailById(String id);
 
     boolean updateDetail(CategoryPlanningDetailsVo categoryPlanningDetailsVo);
+
+
+    /**
+     * 根据id查询明细详情
+     *
+     * @param categoryPlanningDetailDTO 查询条件
+     * @return 品类企划数据
+     */
+    CategoryPlanningDetailVO getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
+
+    /**
+     * 品类企划暂存
+     *
+     * @param categoryPlanningDetailsList 要暂存的数据
+     */
+    void staging(List<CategoryPlanningDetails> categoryPlanningDetailsList);
+
+    /**
+     * 品类企划保存
+     *
+     * @param categoryPlanningDetailsList 要保存的数据
+     */
+    void preservation(List<CategoryPlanningDetails> categoryPlanningDetailsList);
+
+    /**
+     * 根据品类（多选逗号分隔）和品类企划 ID 获取维度系数
+     *
+     * @param categoryPlanningDetailDTO 要保存的数据
+     */
+    List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
+
+    /**
+     * 撤回品类企划 只能撤回未提交的数据 撤回的粒度是到品类级别
+     *
+     * @param categoryPlanningDetailDTO 要撤回的数据
+     */
+    void revocation(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
+
+    /**
+     * 品类企划更新接口
+     *
+     * @param seasonalPlanningDetailsList 季节企划重新导入后 需要修改和需要新增的季节企划的数据
+     * @param removeSeasonPlaningDetailList 季节企划重新导入后 需要删除季节企划的数据
+     */
+    void updateBySeasonalPlanning(List<SeasonalPlanningDetails> seasonalPlanningDetailsList,
+                                  List<SeasonalPlanningDetails> removeSeasonPlaningDetailList);
 }

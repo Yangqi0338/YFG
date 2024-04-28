@@ -18,6 +18,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Data
 @ApiModel("款式设计维度信息查询条件dto   DimensionLabelsSearchDto")
 public class DimensionLabelsSearchDto {
+    private String names;
 
     public DimensionLabelsSearchDto() {
     }

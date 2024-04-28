@@ -1,56 +1,39 @@
 package com.base.sbc.module.planningproject.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StringUtils;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumColourLibrary;
-import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.BasePageInfo;
-import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
-import com.base.sbc.module.formtype.entity.FieldVal;
-import com.base.sbc.module.formtype.service.FieldManagementService;
-import com.base.sbc.module.formtype.service.FieldValService;
-import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
-import com.base.sbc.module.formtype.vo.FieldManagementVo;
-import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.planning.dto.ProductCategoryItemSearchDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
+import com.base.sbc.module.planningproject.dto.PlanningProjectDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPageDTO;
 import com.base.sbc.module.planningproject.dto.PlanningProjectSaveDTO;
-import com.base.sbc.module.planningproject.entity.PlanningProject;
-import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
-import com.base.sbc.module.planningproject.entity.PlanningProjectMaxCategory;
-import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectMapper;
-import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
-import com.base.sbc.module.planningproject.service.PlanningProjectMaxCategoryService;
-import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
-import com.base.sbc.module.planningproject.service.PlanningProjectService;
+import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
-import com.base.sbc.module.pricing.mapper.StylePricingMapper;
-import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.service.StyleColorService;
-import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleColorVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.beanutils.converters.FileConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static com.base.sbc.module.formtype.utils.FormTypeCodes.DIMENSION_LABELS;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +44,8 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     private final DataPermissionsService dataPermissionsService;
     private final MinioUtils minioUtils;
     private final PlanningChannelService planningChannelService;
+    private final CategoryPlanningService categoryPlanningService;
+    private final CategoryPlanningDetailsService categoryPlanningDetailsService;
 
 
     /**
@@ -86,6 +71,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             planningProjectVo.setPlanningProjectDimensionList(planningProjectDimensions);
             List<PlanningProjectMaxCategory> planningProjectMaxCategories = planningProjectMaxCategoryService.list(new QueryWrapper<PlanningProjectMaxCategory>().eq("planning_project_id", planningProjectVo.getId()));
             planningProjectVo.setPlanningProjectMaxCategoryList(planningProjectMaxCategories);
+
+            CategoryPlanning categoryPlanning = categoryPlanningService.getById(planningProjectVo.getCategoryPlanningId());
+            if (categoryPlanning!=null){
+                planningProjectVo.setSeasonalPlanningId(categoryPlanning.getSeasonalPlanningId());
+            }
         }
         return new PageInfo<>(planningProjectVos);
     }
@@ -242,4 +232,190 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         pageInfo.setMap(map);
         return  pageInfo;
     }
+
+    /**
+     * 分页查询企划看板规划信息
+     * @param dto 查询条件
+     * @return 返回的结果
+     */
+    @Override
+    public PageInfo<PlanningProjectVo> queryPageNew(PlanningProjectPageDTO dto) {
+        /*分页*/
+        PageHelper.startPage(dto);
+        String dimensionIds = dto.getDimensionIds();
+        if (ObjectUtil.isEmpty(dimensionIds)) {
+            throw new OtherException("请选择维度数据！");
+        }
+        // 先查询维度数据主表信息
+        BaseQueryWrapper<PlanningProject> queryWrapper =new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("season_id",dto.getSeasonId());
+        queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
+        queryWrapper.notEmptyLike("season_name",dto.getYear());
+        queryWrapper.notEmptyLike("planning_project_name",dto.getPlanningProjectName());
+
+
+        List<PlanningProject> list = this.list(queryWrapper);
+        List<PlanningProjectVo> planningProjectVos = BeanUtil.copyToList(list, PlanningProjectVo.class);
+        for (PlanningProjectVo planningProjectVo : planningProjectVos) {
+            List<PlanningProjectDimension> planningProjectDimensions
+                    = planningProjectDimensionService.list(
+                            new QueryWrapper<PlanningProjectDimension>()
+                                    .in("dimension_id", CollUtil.newArrayList(dimensionIds.split(",")))
+                                    .eq("planning_project_id", planningProjectVo.getId()));
+            planningProjectVo.setPlanningProjectDimensionList(planningProjectDimensions);
+            List<PlanningProjectMaxCategory> planningProjectMaxCategories
+                    = planningProjectMaxCategoryService.list(
+                            new QueryWrapper<PlanningProjectMaxCategory>()
+                                    .eq("planning_project_id", planningProjectVo.getId()));
+            planningProjectVo.setPlanningProjectMaxCategoryList(planningProjectMaxCategories);
+
+            CategoryPlanning categoryPlanning = categoryPlanningService.getById(planningProjectVo.getCategoryPlanningId());
+            if (categoryPlanning!=null){
+                planningProjectVo.setSeasonalPlanningId(categoryPlanning.getSeasonalPlanningId());
+            }
+        }
+        return new PageInfo<>(planningProjectVos);
+    }
+
+    /**
+     * @param planningProjectDTO 要保存的数据
+     * @return
+     */
+    @Override
+    public List<PlanningProjectDimension> getDimensionality(PlanningProjectDTO planningProjectDTO) {
+        String planningProjectId = planningProjectDTO.getPlanningProjectId();
+        String prodCategoryCode = planningProjectDTO.getProdCategoryCode();
+        if (ObjectUtil.isEmpty(planningProjectId)) {
+            throw new OtherException("请选择企划看板数据！");
+        }
+        if (ObjectUtil.isEmpty(prodCategoryCode)) {
+            throw new OtherException("请选择品类！");
+        }
+        PlanningProject planningProject = getById(planningProjectId);
+        if (ObjectUtil.isEmpty(planningProject)) {
+            throw new OtherException("企划看板数据不存在，请刷新后重试！");
+        }
+
+        LambdaQueryWrapper<PlanningProjectDimension> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PlanningProjectDimension::getPlanningProjectId, planningProject.getId());
+        queryWrapper.eq(PlanningProjectDimension::getProdCategoryCode, prodCategoryCode);
+        queryWrapper.select(
+                PlanningProjectDimension::getProdCategoryCode,
+                PlanningProjectDimension::getDimensionId,
+                PlanningProjectDimension::getDimensionName,
+                PlanningProjectDimension::getDimensionalityGradeName
+        );
+        queryWrapper.isNotNull(PlanningProjectDimension::getDimensionName);
+        queryWrapper.ne(PlanningProjectDimension::getDimensionName, "");
+        queryWrapper.groupBy(PlanningProjectDimension::getProdCategoryCode, PlanningProjectDimension::getDimensionId);
+        return planningProjectDimensionService.list(queryWrapper);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void startStop(String ids, String status) {
+        UpdateWrapper<PlanningProject> updateWrapper = new UpdateWrapper<>();
+        List<String> idList = Arrays.asList(ids.split(","));
+        updateWrapper.in("id", idList);
+        updateWrapper.set("status", status);
+
+        //如果是停用,清空关联的坑位数据,不清除关联历史款的坑位数据
+        if ("1".equals(status)) {
+            updateWrapper.set("is_match", "0");
+
+            UpdateWrapper<PlanningProjectPlank> wrapper =new UpdateWrapper<>();
+            wrapper.in("planning_project_id",idList);
+            // wrapper.ne("matching_style_status","3");
+            wrapper.set("bulk_style_no","");
+            wrapper.set("pic","");
+            wrapper.set("color_system","");
+            wrapper.set("style_color_id","");
+            wrapper.set("his_design_no","");
+            wrapper.set("matching_style_status","0");
+            planningProjectPlankService.update(wrapper);
+        } else {
+            // 如果是启用 需要先判断品类企划是否启用
+            List<PlanningProject> planningProjects = listByIds(idList);
+            // 判断季节企划是否启用 没启用不允许启用
+            if (ObjectUtil.isEmpty(planningProjects)) {
+                throw new OtherException("企划看板不存在，请刷新后重试！");
+            }
+
+            List<String> seasonIds = planningProjects.stream().map(PlanningProject::getSeasonId).collect(Collectors.toList());
+            List<String> channelCodes = planningProjects.stream().map(PlanningProject::getPlanningChannelCode).collect(Collectors.toList());
+
+            QueryWrapper<PlanningProject> queryWrapper = new QueryWrapper<>();
+            queryWrapper.in("season_id", seasonIds);
+            queryWrapper.in("planning_channel_code", channelCodes);
+            queryWrapper.notIn("id", idList);
+            queryWrapper.eq("status", "0");
+            long l = count(queryWrapper);
+            if (l > 0) {
+                throw new RuntimeException("已存在启用的企划看板！");
+            }
+
+            List<String> categoryPlanningIdList = planningProjects
+                    .stream().map(PlanningProject::getCategoryPlanningId).distinct().collect(Collectors.toList());
+            List<CategoryPlanning> categoryPlanningList = categoryPlanningService.listByIds(categoryPlanningIdList);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            categoryPlanningList.forEach(item -> {
+                if ("1".equals(item.getStatus())) {
+                    throw new OtherException("请先启用品类企划「" + item.getSeasonName() + "●品类企划（" + item.getChannelName() + "）"+ simpleDateFormat.format(item.getCreateDate()) + "」！");
+                }
+            });
+        }
+        boolean updateFlag = update(updateWrapper);
+        if (!updateFlag) {
+            throw new OtherException("企划看板启用/停用失败，请刷新后重试！");
+        }
+    }
+
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void delByIds(String ids) {
+        if (StringUtils.isEmpty(ids)) {
+            throw new OtherException("请选择删除数据！");
+        }
+        List<String> idList = Arrays.asList(ids.split(","));
+        List<PlanningProject> planningProjectList = listByIds(idList);
+        if (ObjectUtil.isEmpty(planningProjectList)) {
+            throw new OtherException("企划看板数据不存在，请刷新后重试！");
+        }
+        boolean b = removeByIds(idList);
+        if (b){
+            QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
+            queryWrapper.in("planning_project_id",idList);
+            planningProjectDimensionService.remove(queryWrapper);
+            QueryWrapper<PlanningProjectMaxCategory> queryWrapper1 =new BaseQueryWrapper<>();
+            queryWrapper1.in("planning_project_id",idList);
+            planningProjectMaxCategoryService.remove(queryWrapper1);
+            QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
+            queryWrapper2.in("planning_project_id",idList);
+            planningProjectPlankService.remove(queryWrapper2);
+            // 企划看板删除后 把品类企划的已提交类型改成未暂存
+            // 如果是品类企划调用的此删除接口或者品类企划不存在
+            // 那么就查询不到品类企划 就不需要修改
+            List<String> categoryIdList = planningProjectList.stream()
+                    .map(PlanningProject::getCategoryPlanningId).distinct().collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(categoryIdList)) {
+                // 查询此品类企划下的已经提交了的品类企划详情数据 将数据改成暂存状态
+                List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailsService.list(
+                        new LambdaQueryWrapper<CategoryPlanningDetails>()
+                                .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryIdList)
+                                .eq(CategoryPlanningDetails::getIsGenerate, "1")
+                );
+                if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                    if (!categoryPlanningDetailsService.updateBatchById(categoryPlanningDetailsList)) {
+                        throw new OtherException("企划看板删除失败，请刷新后重试！");
+                    }
+                }
+            }
+        } else {
+           throw new OtherException("企划看板删除失败，请刷新后重试！");
+        }
+    }
+
 }

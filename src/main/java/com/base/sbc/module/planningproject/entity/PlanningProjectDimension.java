@@ -65,6 +65,16 @@ public class PlanningProjectDimension {
     @ApiModelProperty(value = "数量"  )
     private String number;
     private String dimensionTypeCode;
+    /**
+     * 维度等级
+     */
+    @ApiModelProperty(value = "维度等级")
+    private String dimensionalityGrade;
+    /**
+     * 维度等级名称
+     */
+    @ApiModelProperty(value = "维度等级名称")
+    private String dimensionalityGradeName;
     /** 是否开启中类(0:未开启,1:开启) */
     @ApiModelProperty(value = "是否开启中类(0:未开启,1:开启)"  )
     private String isProdCategory2nd;

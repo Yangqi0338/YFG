@@ -10,6 +10,7 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQuerySaveDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
+import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.vo.SeasonalPlanningVo;
@@ -44,8 +45,17 @@ public class SeasonalPlanningController extends BaseController {
     @DuplicationCheck(type = 1,time = 20)
     public ApiResult importExcel(MultipartFile file,  SeasonalPlanningSaveDto seasonalPlanningSaveDto) throws Exception {
         seasonalPlanningSaveDto.setCompanyCode(this.getUserCompany());
-        seasonalPlanningService.importExcel(file,seasonalPlanningSaveDto);
-        return insertSuccess("导入成功");
+        return seasonalPlanningService.importSeasonalPlanningExcel(file,seasonalPlanningSaveDto);
+    }
+
+    /**
+     * 季节企划详情
+     */
+    @ApiOperation(value = "季节企划详情")
+    @PostMapping("/getSeasonalPlanningDetails")
+    @DuplicationCheck(type = 1,time = 20)
+    public ApiResult getSeasonalPlanningDetails(@RequestBody SeasonalPlanningDetails seasonalPlanningDetails) throws Exception {
+        return seasonalPlanningService.getSeasonalPlanningDetails(seasonalPlanningDetails);
     }
 
     /**
@@ -74,27 +84,7 @@ public class SeasonalPlanningController extends BaseController {
     @ApiOperation(value = "启用停用")
     @PostMapping("/updateStatus")
     public ApiResult updateStatus(@RequestBody BaseDto baseDto){
-        String ids = baseDto.getIds();
-        if ("0".equals(baseDto.getStatus())){
-            List<String> idList = Arrays.asList(ids.split(","));
-            List<SeasonalPlanning> seasonalPlannings = seasonalPlanningService.listByIds(idList);
-            List<String> seasonIds = seasonalPlannings.stream().map(SeasonalPlanning::getSeasonId).collect(Collectors.toList());
-            List<String> channelCodes = seasonalPlannings.stream().map(SeasonalPlanning::getChannelCode).collect(Collectors.toList());
-
-            QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
-            queryWrapper.in("season_id", seasonIds);
-            queryWrapper.in("channel_code", channelCodes);
-            queryWrapper.notIn("id",idList);
-            queryWrapper.eq("status","0");
-            long l = seasonalPlanningService.count(queryWrapper);
-            if (l > 0){
-                throw new RuntimeException("已存在启用的季节企划");
-            }
-        }
-        UpdateWrapper<SeasonalPlanning> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.set("status", baseDto.getStatus());
-        updateWrapper.in("id", Arrays.asList(ids.split(",")));
-        seasonalPlanningService.update(updateWrapper);
+        seasonalPlanningService.updateStatus(baseDto);
         return updateSuccess("更新成功");
     }
 
@@ -104,16 +94,7 @@ public class SeasonalPlanningController extends BaseController {
     @ApiOperation(value = "删除季节企划")
     @DeleteMapping("/delByIds")
     public ApiResult delByIds(RemoveDto removeDto){
-        String ids = removeDto.getIds();
-        List<String> list = Arrays.asList(ids.split(","));
-        QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
-        queryWrapper.in("id", list);
-        queryWrapper.eq("status","0");
-        long l = seasonalPlanningService.count(queryWrapper);
-        if (l > 0){
-            throw new RuntimeException("存在启用的季节企划,不能删除");
-        }
-        seasonalPlanningService.removeByIds(list);
+        seasonalPlanningService.delFlag(removeDto);
         return deleteSuccess("删除成功");
     }
 }
