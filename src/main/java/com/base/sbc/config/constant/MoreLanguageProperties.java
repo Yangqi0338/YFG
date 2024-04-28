@@ -46,6 +46,8 @@ public class MoreLanguageProperties {
     public static String languageDictCode = "language";
     public static String saftyStandardCode = "DP02";
     public static String multiSeparator = "\n";
+    public static String specialMultiSeparator = ";";
+    public static String specialStandardColumnCode = "DP16,XM01";
     public static String fieldValueSeparator = ":";
     public static String showInfoLanguageSeparator = "；";
     public static String checkItemSeparator = "/";
@@ -150,6 +152,20 @@ public class MoreLanguageProperties {
 
     public void setMultiSeparator(String multiSeparator) {
         MoreLanguageProperties.multiSeparator = multiSeparator;
+    }
+
+    public static String getMultiSeparator(String standardColumnCode) {
+        return MoreLanguageProperties.specialStandardColumnCode.contains(standardColumnCode)
+                ? MoreLanguageProperties.specialMultiSeparator :
+                MoreLanguageProperties.multiSeparator;
+    }
+
+    public void setSpecialMultiSeparator(String specialMultiSeparator) {
+        MoreLanguageProperties.specialMultiSeparator = specialMultiSeparator;
+    }
+
+    public void setSpecialStandardColumnCode(String specialStandardColumnCode) {
+        MoreLanguageProperties.specialStandardColumnCode = specialStandardColumnCode;
     }
 
     public void setFieldValueSeparator(String fieldValueSeparator) {
