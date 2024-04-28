@@ -1,6 +1,7 @@
 package com.base.sbc.module.orderbook.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
@@ -174,7 +175,11 @@ public class OrderBookDetailController extends BaseController {
     public ApiResult placeAnOrderReject(@RequestBody OrderBookDetailQueryDto dto) {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        return update(orderBookDetailService.placeAnOrderReject(dto));
+        String bulkStyleNoMsg = orderBookDetailService.placeAnOrderReject(dto);
+        if (StrUtil.isNotBlank(bulkStyleNoMsg)) {
+            bulkStyleNoMsg = String.format(", %s的大货款已投产, 现进行取消投产, 结果会以消息方式通知, 请留意站内消息", bulkStyleNoMsg);
+        }
+        return ApiResult.success("驳回成功" + bulkStyleNoMsg);
     }
 
     /**
