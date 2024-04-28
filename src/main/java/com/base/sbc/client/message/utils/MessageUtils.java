@@ -482,19 +482,14 @@ public class MessageUtils {
      * @param pushRecord
      */
     @Async
-    public void orderBookSendMessage(PushRecords pushRecord) {
+    public void orderBookSendMessage(PushRecords pushRecord, boolean isProductionIn) {
         log.info("————————————————————————订货本发送信息" + pushRecord.getCreateId());
         Map<String, String> map = new HashMap<>();
-        BeanUtil.beanToMap(pushRecord).forEach((key,value)-> {
+        BeanUtil.beanToMap(pushRecord, false, true).forEach((key,value)-> {
             map.put(key,value.toString());
         });
-        String action = "未知";
-        if (SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL.equals(pushRecord.getPushAddress())) {
-            action = "投产";
-        }else if (SmpProperties.SCM_NEW_MF_FAC_CANCEL_PRODUCTION_URL.equals(pushRecord.getPushAddress())) {
-            action = "取消投产";
-        }
-        map.put("action",action);
+        map.put("action",isProductionIn ? "投产" : "取消投产");
+        map.put("pushStatus",pushRecord.getPushStatus().getText());
         ModelMessage modelMessage = new ModelMessage();
         modelMessage.setUserIds(pushRecord.getCreateId());
         modelMessage.setModelCode("YFG011");

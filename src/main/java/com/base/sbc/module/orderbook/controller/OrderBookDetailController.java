@@ -142,7 +142,7 @@ public class OrderBookDetailController extends BaseController {
     public ApiResult placeAnProduction(@RequestBody @Valid OrderBookDetailQueryDto dto) {
         dto.setCompanyCode(super.getUserCompany());
         dto.setUserId(super.getUserId());
-        return update(orderBookDetailService.placeAnProduction(dto));
+        return ApiResult.success(String.format("%s的大货款正发起投产, 结果会以消息方式通知, 请留意站内消息",orderBookDetailService.placeAnProduction(dto)));
     }
 
     /**

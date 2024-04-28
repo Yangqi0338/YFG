@@ -786,10 +786,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     .set(OrderBook::getOrderStatus,rightStatusExists ? OrderBookOrderStatusEnum.PART_ORDER : OrderBookOrderStatusEnum.NOT_COMMIT)
                     .eq(OrderBook::getId,orderBookId));
         }
-        asyncExecutor.execute(()-> handlePlaceAnCancelProduction(
+        asyncExecutor.execute(TtlRunnable.get(()-> handlePlaceAnCancelProduction(
                 BeanUtil.copyToList(cancelOrderBookDetailList, OrderBookDetail.class),
                 cancelOrderBookDetailList.stream().map(it -> smpService.facPrdOrderUpCheck(it.getOrderNo(), dto.getUserId())).collect(Collectors.toList())
-        ));
+        )));
         return cancelOrderBookDetailList.stream().map(OrderBookDetailVo::getBulkStyleNo).collect(Collectors.joining(","));
     }
 
@@ -1237,22 +1237,18 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return update(uw);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public String handlePlaceAnProduction(List<OrderBookDetail> list, Function<OrderBookDetail, String> relatedIdFunc, List<HttpResp> httpRespList) {
         if (CollUtil.isEmpty(list)) return "";
         List<PushRecords> pushRecordsList = new ArrayList<>();
         if (CollUtil.isNotEmpty(httpRespList)) {
-            httpRespList.forEach(httpResp -> {
-                PushRecords pushRecords = new PushRecords();
-                pushRecords.setRelatedId(httpResp.getCode());
-                pushRecords.setPushStatus(httpResp.isSuccess() ? PushRespStatus.SUCCESS : PushRespStatus.FAILURE);
-                pushRecords.setResponseMessage(httpResp.getMessage());
-                pushRecordsList.add(pushRecords);
-            });
+            pushRecordsList.addAll(httpRespList.stream().map(PushRecords::new).collect(Collectors.toList()));
         }else {
             PushRecordsDto pushRecordsDto = new PushRecordsDto();
             pushRecordsDto.setRelatedId(list.stream().map(relatedIdFunc).collect(Collectors.joining(",")));
             pushRecordsDto.setPushAddress(SmpProperties.SCM_NEW_MF_FAC_PRODUCTION_IN_URL);
             pushRecordsDto.setNePushStatus(PushRespStatus.PROCESS);
+            pushRecordsDto.setUpdateDate(new String[]{ LocalDateTime.now().minusMinutes(15).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) });
             pushRecordsDto.reset2QueryList();
             pushRecordsList.addAll(pushRecordsService.pushRecordsList(pushRecordsDto));
         }
@@ -1282,7 +1278,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                                 orderBookDetail.setCommissioningDate(isProductionIn ? orderBookDetail.getCommissioningDate(): null);
                             }
                             // 发送信息
-                            messageUtils.orderBookSendMessage(pushRecords);
+                            pushRecords.setRelatedId(orderBookDetail.getOrderBookId());
+                            messageUtils.orderBookSendMessage(pushRecords, isProductionIn);
                         });
             });
             if (CollUtil.isNotEmpty(updateList)) {

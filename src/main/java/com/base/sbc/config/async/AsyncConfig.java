@@ -18,9 +18,9 @@ import java.util.concurrent.Future;
 @Configuration
 public class AsyncConfig extends AsyncConfigurerSupport {
 
-    public class ContextAwareCallable<T> implements Callable<T> {
-        private Callable<T> task;
-        private RequestAttributes context;
+    public static class ContextAwareCallable<T> implements Callable<T> {
+        private final Callable<T> task;
+        private final RequestAttributes context;
 
         public ContextAwareCallable(Callable<T> task, RequestAttributes context) {
             this.task = task;
@@ -30,7 +30,7 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         @Override
         public T call() throws Exception {
             if (context != null) {
-                RequestContextHolder.setRequestAttributes(context);
+                RequestContextHolder.setRequestAttributes(context, true);
             }
             try {
                 return task.call();
@@ -40,15 +40,42 @@ public class AsyncConfig extends AsyncConfigurerSupport {
         }
     }
 
-    public class ContextAwarePoolExecutor extends ThreadPoolTaskExecutor {
+    public static class ContextAwareRunnable implements Runnable {
+        private final Runnable thread;
+        private final RequestAttributes context;
+
+        public ContextAwareRunnable(Runnable thread, RequestAttributes context) {
+            this.thread = thread;
+            this.context = context;
+        }
+
+        @Override
+        public void run()  {
+            if (context != null) {
+                RequestContextHolder.setRequestAttributes(context, true);
+            }
+            try {
+                thread.run();
+            } finally {
+                RequestContextHolder.resetRequestAttributes();
+            }
+        }
+    }
+
+    public static class ContextAwarePoolExecutor extends ThreadPoolTaskExecutor {
         @Override
         public <T> Future<T> submit(Callable<T> task) {
-            return super.submit(new ContextAwareCallable(task, RequestContextHolder.currentRequestAttributes()));
+            return super.submit(new ContextAwareCallable<>(task, RequestContextHolder.currentRequestAttributes()));
         }
 
         @Override
         public <T> ListenableFuture<T> submitListenable(Callable<T> task) {
-            return super.submitListenable(new ContextAwareCallable(task, RequestContextHolder.currentRequestAttributes()));
+            return super.submitListenable(new ContextAwareCallable<>(task, RequestContextHolder.currentRequestAttributes()));
+        }
+
+        @Override
+        public void execute(Runnable thread) {
+            super.execute(new ContextAwareRunnable(thread, RequestContextHolder.currentRequestAttributes()));
         }
     }
 

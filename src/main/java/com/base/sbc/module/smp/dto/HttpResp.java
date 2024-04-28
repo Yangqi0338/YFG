@@ -32,6 +32,8 @@ public class HttpResp {
 
     private String message;
     private String msg;
+    private String userId;
+    private String name;
 
     public String getMessage(){
         return Opt.ofBlankAble(message).orElse(msg);

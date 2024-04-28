@@ -21,6 +21,8 @@ import org.springframework.web.client.HttpMessageConverterExtractor;
 import java.io.IOException;
 import java.util.List;
 
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+
 @Component
 public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestLoggingInterceptor.class);
@@ -59,6 +61,7 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
             String name = headers.getFirst("name");
             httpReq.setName(name);
             httpReq.setData(s);
+            httpReq.setUserId(companyUserInfo.get().getUserId());
             pushRecordsService.prePushRecordSave(httpReq);
         }catch (Exception ignored) {}
         // 可以在此处记录其他请求相关的信息，如请求方法、请求头等

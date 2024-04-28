@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @Accessors(chain = true)
 @Data
 public class HttpReq {
+    private String userId;
     private String url;
     private String code;
     private String name;
