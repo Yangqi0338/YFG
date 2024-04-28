@@ -584,7 +584,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             seasonalPlanningList.forEach(item -> {
                 if ("1".equals(item.getStatus())) {
-                    throw new OtherException("请先启用季节企划「" + item.getSeasonName() + item.getChannelName() + simpleDateFormat.format(item.getCreateDate()) + "」！");
+                    throw new OtherException("请先启用季节企划「" + item.getSeasonName() + "●企划看板（" + item.getChannelName() + "）"+ simpleDateFormat.format(item.getCreateDate()) + "」！");
                 }
             });
         }
@@ -626,20 +626,21 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         if (l > 0) {
             throw new RuntimeException("存在启用的季节企划,不能删除");
         }
+        // 查询是否存在企划看板的数据 如果存在则不允许删除
+        List<PlanningProject> planningProjectList = planningProjectService.list(
+                new LambdaQueryWrapper<PlanningProject>()
+                        .in(PlanningProject::getCategoryPlanningId, list)
+        );
+        if (ObjectUtil.isNotEmpty(planningProjectList)) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Map<String, List<PlanningProject>> map = planningProjectList.stream()
+                    .collect(Collectors.groupingBy(item ->
+                            item.getSeasonName() + "●企划看板（" + item.getPlanningChannelName() + "）" + simpleDateFormat.format(item.getCreateDate())));
+            throw new OtherException("请先删除已生成的企划看板「" + CollUtil.join(map.keySet(), ",") + "」");
+        }
         boolean removeFlag = removeByIds(list);
         if (!removeFlag) {
             throw new OtherException("品类企划删除失败，请刷新后重试！");
-        } else {
-            // 查询是否存在企划看板的数据 如果存在则 修改
-            List<PlanningProject> planningProjectList = planningProjectService.list(
-                    new LambdaQueryWrapper<PlanningProject>()
-                            .eq(PlanningProject::getCategoryPlanningId, list)
-            );
-            if (ObjectUtil.isNotEmpty(planningProjectList)) {
-                List<String> planningProjectIdList
-                        = planningProjectList.stream().map(PlanningProject::getId).collect(Collectors.toList());
-                planningProjectService.delByIds(CollUtil.join(planningProjectIdList, ","));
-            }
         }
     }
 }

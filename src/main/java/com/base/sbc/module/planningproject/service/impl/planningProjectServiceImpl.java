@@ -361,7 +361,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             categoryPlanningList.forEach(item -> {
                 if ("1".equals(item.getStatus())) {
-                    throw new OtherException("请先启用品类企划「" + item.getSeasonName() + item.getChannelName() + simpleDateFormat.format(item.getCreateDate()) + "」！");
+                    throw new OtherException("请先启用品类企划「" + item.getSeasonName() + "●品类企划（" + item.getChannelName() + "）"+ simpleDateFormat.format(item.getCreateDate()) + "」！");
                 }
             });
         }
@@ -401,7 +401,6 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             List<String> categoryIdList = planningProjectList.stream()
                     .map(PlanningProject::getCategoryPlanningId).distinct().collect(Collectors.toList());
             if (ObjectUtil.isNotEmpty(categoryIdList)) {
-                // 说明是本身调用删除 不是企划看板调用删除接口
                 // 查询此品类企划下的已经提交了的品类企划详情数据 将数据改成暂存状态
                 List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailsService.list(
                         new LambdaQueryWrapper<CategoryPlanningDetails>()
