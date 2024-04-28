@@ -335,7 +335,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             //填充补全 线上/线下充各种状态
             orderBookDetailVo.setOfflineCommissioningSize(fullCommissioningSize(orderBookDetailVo.getOfflineCommissioningSize(), sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.OFFLINE));
             orderBookDetailVo.setOnlineCommissioningSize(fullCommissioningSize(orderBookDetailVo.getOnlineCommissioningSize(), sizeModelMap, channelPageConfig,orderBookChannel, OrderBookChannelType.ONLINE));
-
+            //投产占比
+            setLinkSizeProportion(orderBookDetailVo);
 //            sizeModelMap.forEach((key,value)-> {
 //                for (OrderBookChannelType channel : OrderBookChannelType.values()) {
 //                    jsonObject.put(key+ channel.getFill() + "Size",value);
@@ -622,7 +623,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         OrderBookChannelType[] channelTypes = OrderBookChannelType.values();
         Map<OrderBookChannelType, Double> totalMap = new HashMap<>(channelTypes.length);
-
+        double offLinkSizeTotal = 0;
+        double onLinkSizeTotal = 0;
         for (OrderBookDetailVo orderBookDetailVo : querylistAll) {
             String commissioningSize = orderBookDetailVo.getCommissioningSizeTotal();
             if (StrUtil.isNotEmpty(commissioningSize)){
@@ -635,8 +637,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                             Double total = totalMap.getOrDefault(channelType, 0.0);
                             if (sizeName.endsWith(channelType.getFill())) {
                                 total += sum;
+                                if (OrderBookChannelType.ONLINE.equals(channelType)){
+                                    onLinkSizeTotal += num;
+                                }else {
+                                    offLinkSizeTotal += num;
+                                }
                             }
                             totalMap.put(channelType, total);
+
                         }
                         hashMap.put(sizeName, sum + num);
                     }
@@ -655,9 +663,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         hashMap.put("totalProductionSum", querylistAll.stream().map(OrderBookDetailVo::getTotalProduction).mapToDouble(NumberUtil::parseDouble).sum());
         hashMap.put("onlineProductionSum", querylistAll.stream().map(OrderBookDetailVo::getOnlineProduction).mapToDouble(NumberUtil::parseDouble).sum());
         hashMap.put("offlineProductionSum", querylistAll.stream().map(OrderBookDetailVo::getOfflineProduction).mapToDouble(NumberUtil::parseDouble).sum());
+
         hashMap.put("onlineSum", totalMap.get(OrderBookChannelType.ONLINE));
+
         hashMap.put("offlineSum", totalMap.get(OrderBookChannelType.OFFLINE));
         hashMap.put("total", (double) querylistAll.size());
+        Double onlineProductionSum = hashMap.get("onlineProductionSum");
+        Double offlineProductionSum = hashMap.get("offlineProductionSum");
+        hashMap.put("offLinkSizeProportion", (null != offlineProductionSum &&  0 != offlineProductionSum ? Math.round(offLinkSizeTotal / offlineProductionSum  * 10000.0) / 100.0     : 0.0));
+        hashMap.put("onLinkSizeProportion", (null != onlineProductionSum &&  0 != onlineProductionSum ? Math.round(onLinkSizeTotal / onlineProductionSum * 10000.0) / 100.0 : 0.0));
         return hashMap;
     }
 
@@ -1582,6 +1596,30 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         }
 
+
+    }
+    private void setLinkSizeProportion(OrderBookDetailVo orderBookDetailVo) {
+
+        JSONObject onlineJsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getOnlineCommissioningSize())).orElse(new JSONObject());
+        JSONObject offeJsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetailVo.getOfflineCommissioningSize())).orElse(new JSONObject());
+        double onLinkSizeTotal = 0;
+        double offLinkSizeTotal = 0;
+        for (String sizeName : onlineJsonObject.keySet()){
+            if (sizeName.endsWith(OrderBookChannelType.ONLINE.getFill())){
+                Double num = NumberUtil.parseDouble(onlineJsonObject.getString(sizeName), 0.0);
+                onLinkSizeTotal += num;
+            }
+        }
+        for (String sizeName : offeJsonObject.keySet()){
+            if (sizeName.endsWith(OrderBookChannelType.OFFLINE.getFill())){
+                Double num = NumberUtil.parseDouble(offeJsonObject.getString(sizeName), 0.0);
+                offLinkSizeTotal += num;
+            }
+        }
+        Double offlineProductionSum = StringUtils.isBlank(orderBookDetailVo.getOfflineProduction()) ? null : Double.valueOf(orderBookDetailVo.getOfflineProduction());
+        Double onlineProductionSum =   StringUtils.isBlank(orderBookDetailVo.getOnlineProduction()) ? null : Double.valueOf(orderBookDetailVo.getOnlineProduction());
+        orderBookDetailVo.setOffLinkSizeProportion(null != offlineProductionSum &&  0 != offlineProductionSum ? Math.round(offLinkSizeTotal / offlineProductionSum * 10000.0) : 0.0);
+        orderBookDetailVo.setOnLinkSizeProportion(null != onlineProductionSum &&  0 != onlineProductionSum ? Math.round(onLinkSizeTotal / onlineProductionSum * 10000.0) / 100.0  : 0.0);
 
     }
 

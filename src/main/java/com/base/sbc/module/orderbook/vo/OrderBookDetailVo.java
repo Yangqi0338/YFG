@@ -1,8 +1,5 @@
 package com.base.sbc.module.orderbook.vo;
 
-import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.business.ProductionType;
-import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -342,4 +339,10 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     /** 动态列 */
     private Integer groupCount;
+
+    @ApiModelProperty(value = "线下投产占比")
+    private Double offLinkSizeProportion;
+
+    @ApiModelProperty(value = "线上投产占比")
+    private Double onLinkSizeProportion;
 }
