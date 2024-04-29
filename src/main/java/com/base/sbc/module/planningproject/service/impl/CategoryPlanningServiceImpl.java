@@ -314,27 +314,24 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
      */
     private List<PlanningDimensionality> getPlanningDimensionalitieList(List<SeasonalPlanningDetails> detailsList, SeasonalPlanning seasonalPlanning) {
         // 查询第一维度数据 如果任意一个品类下没有第一维度直接报错
-        List<String> prodCategoryCodeList = detailsList
-                .stream().map(SeasonalPlanningDetails::getProdCategoryCode).distinct().collect(Collectors.toList());
+        List<String> prodCategoryNameList = detailsList
+                .stream().map(SeasonalPlanningDetails::getProdCategoryName).distinct().collect(Collectors.toList());
 
         QueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new QueryWrapper<>();
         planningDimensionalityQueryWrapper.eq("channel", seasonalPlanning.getChannelCode());
         planningDimensionalityQueryWrapper.eq("planning_season_id", seasonalPlanning.getSeasonId());
-        planningDimensionalityQueryWrapper.in("prod_category", prodCategoryCodeList);
+        planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
         planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
 
         List<PlanningDimensionality> list = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
         if (ObjectUtil.isNotEmpty(list)) {
-            if (prodCategoryCodeList.size() != list.size()) {
-                List<String> prodCategoryNameList = list.stream()
-                        .filter(item -> !prodCategoryCodeList.contains(item.getProdCategory()))
-                        .map(PlanningDimensionality::getProdCategoryName)
-                        .collect(Collectors.toList());
-                throw new OtherException("品类「" + Arrays.toString(prodCategoryNameList.toArray()) + "」第一维度数据不能为空！");
+            if (prodCategoryNameList.size() != list.size()) {
+                List<String> stringList = list.stream().map(PlanningDimensionality::getProdCategoryName).collect(Collectors.toList());
+                List<String> newProdCategoryNameList = prodCategoryNameList.stream()
+                        .filter(item -> !stringList.contains(item)).collect(Collectors.toList());
+                throw new OtherException("品类「" + Arrays.toString(newProdCategoryNameList.toArray()) + "」第一维度数据不能为空！");
             }
         } else {
-            List<String> prodCategoryNameList = detailsList
-                    .stream().map(SeasonalPlanningDetails::getProdCategoryName).distinct().collect(Collectors.toList());
             throw new OtherException("品类「" + Arrays.toString(prodCategoryNameList.toArray()) + "」第一维度数据不能为空！");
         }
 
@@ -342,7 +339,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         planningDimensionalityQueryWrapper.clear();
         planningDimensionalityQueryWrapper.eq("channel", seasonalPlanning.getChannelCode());
         planningDimensionalityQueryWrapper.eq("planning_season_id", seasonalPlanning.getSeasonId());
-        planningDimensionalityQueryWrapper.in("prod_category", prodCategoryCodeList);
+        planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
         planningDimensionalityQueryWrapper.isNotNull("dimensionality_grade");
         planningDimensionalityQueryWrapper.ne("dimensionality_grade", "");
         // 拿到所有等级的维度数据
