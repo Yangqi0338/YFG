@@ -915,6 +915,58 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return new PageInfo<>(list);
     }
 
+    @Override
+    public void updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto) {
+        //物料id
+        String id = basicsdatumMaterialUpdateDto.getId();
+        if (StrUtil.isNotEmpty(id)) {
+            throw new OtherException("当前id为空，所以找不到对应的物料信息！");
+        }
+        BasicsdatumMaterial basicsdatumMaterial = this.getById(id);
+        if (basicsdatumMaterial != null) {
+            //三级分类编码
+            String materialCode = basicsdatumMaterial.getMaterialCode();
+            String materialName = basicsdatumMaterial.getMaterialName();
+            String category3Code = basicsdatumMaterial.getCategory3Code();
+            String category3Name = basicsdatumMaterial.getCategory3Name();
+
+            String materialCodeParam = basicsdatumMaterialUpdateDto.getMaterialCode();
+            String materialNameParam = basicsdatumMaterialUpdateDto.getMaterialName();
+            String category3CodeParam = basicsdatumMaterialUpdateDto.getCategory3Code();
+
+            if (StrUtil.isNotEmpty(materialCode)) {
+                if (!materialCode.equals(materialCodeParam) && !materialCode.startsWith(category3Code)) {
+                    throw new OtherException("材料编号:" + materialCode + "须以" + materialCode + "[" + category3Name + "]开头,请重新定义!");
+                }
+                //修改物料名称
+                basicsdatumMaterial.setMaterialCodeName(materialCodeParam + "_" + materialName);
+            } else if (StrUtil.isNotEmpty(materialNameParam)) {
+                if (StrUtil.isNotEmpty(materialCode)) {
+                    //修改物料名称
+                    basicsdatumMaterial.setMaterialCodeName(materialCode + "_" + materialNameParam);
+                }
+            } else if (StrUtil.isNotEmpty(category3CodeParam)) {
+                String value = materialCode.replace(category3Code, category3CodeParam);
+                //修改材料三级分类
+                basicsdatumMaterial.setMaterialCode(value);
+                basicsdatumMaterial.setMaterialCodeName(value + "_" + materialName);
+
+                basicsdatumMaterial.setCategory1Code(basicsdatumMaterialUpdateDto.getCategory1Code());
+                basicsdatumMaterial.setCategory1Name(basicsdatumMaterialUpdateDto.getCategory1Name());
+                basicsdatumMaterial.setCategory2Code(basicsdatumMaterialUpdateDto.getCategory2Code());
+                basicsdatumMaterial.setCategory2Name(basicsdatumMaterialUpdateDto.getCategory2Name());
+                basicsdatumMaterial.setCategory3Code(basicsdatumMaterialUpdateDto.getCategory3Code());
+                basicsdatumMaterial.setCategory3Name(basicsdatumMaterialUpdateDto.getCategory3Name());
+                basicsdatumMaterial.setCategoryId(basicsdatumMaterialUpdateDto.getCategory3Code());
+                basicsdatumMaterial.setCategoryName(basicsdatumMaterialUpdateDto.getCategory1Name()+"-"+basicsdatumMaterialUpdateDto.getCategory2Name()+"-"+basicsdatumMaterialUpdateDto.getCategory3Name());
+            }
+            this.updateById(basicsdatumMaterial);
+        }else{
+            throw new OtherException("找不到对应的物料信息！");
+        }
+
+    }
+
     /**
      * 得到商品款图片
      * @param vo
