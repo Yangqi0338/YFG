@@ -38,8 +38,7 @@ public class BasicsdatumMaterialSaveDto {
 	 */
 	private String attachmentName;
 
-	@NotBlank(message = "ID必填,新增-1")
-	@ApiModelProperty(value = "id", required = true)
+	@ApiModelProperty(value = "id")
 	private String id;
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")

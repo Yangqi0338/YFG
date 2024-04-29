@@ -241,21 +241,27 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return new PageInfo<>(list);
     }
 
+    @Transactional
     @Override
     public BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto) {
         CommonUtils.removeQuery(dto, "imageUrl");
         CommonUtils.removeQuerySplit(dto, ",", "attachment");
         BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
-        if ("-1".equals(entity.getId())) {
-            entity.setId(null);
+        if (StrUtil.isEmptyIfStr(entity.getId())) {
             entity.setStatus("0");
-            String categoryCode = entity.getMaterialCode();
+            String categoryCode = entity.getCategoryId();
             // 获取并放入最大code(且需要满足自动生成物料编码的开关为空或者未启动)
-            if (BasicsdatumMaterialBizTypeEnum.MATERIAL.getK().equals(dto.getBizType()) && !ccmFeignService.getSwitchByCode("AUTO_GEN_MATERIAL_CODE")) {
+            // && !ccmFeignService.getSwitchByCode("AUTO_GEN_MATERIAL_CODE")
+            if (BasicsdatumMaterialBizTypeEnum.MATERIAL.getK().equals(dto.getBizType())) {
                 entity.setMaterialCode(getMaxCode(categoryCode));
             }
         }
-        entity.setMaterialCodeName(entity.getMaterialCode() + "_" + entity.getMaterialName());
+
+        if (StrUtil.isNotEmpty(entity.getMaterialName())) {
+            entity.setMaterialCodeName(entity.getMaterialCode() + "_" + entity.getMaterialName());
+        }else{
+            entity.setMaterialCodeName(entity.getMaterialCode());
+        }
 
         // 特殊逻辑： 如果是面料的时候，需要增加门幅幅宽的数据 给到物料规格
         // if ("fabric".equals(entity.getMaterialType())) {
@@ -265,9 +271,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         // 如果成分不为空,则清理替换成分信息
         this.saveIngredient(dto);
 
-        if (entity.getId() != null && "1".equals(entity.getDistribute())) {
+        /*if (entity.getId() != null && "1".equals(entity.getDistribute())) {
             smpService.materials(entity.getId().split(","));
-        }
+        }*/
         // 保存主信息
         this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
         return getBasicsdatumMaterial(entity.getId());
@@ -414,28 +420,48 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Override
     @Transactional
     public Boolean delBasicsdatumMaterial(RemoveDto removeDto) {
-        List<String> list = StringUtils.convertList(removeDto.getIds());
+        List<String> materialIds = StringUtils.convertList(removeDto.getIds());
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+        qc.in("id", materialIds);
+        qc.eq("del_flag","0");
+        qc.select("material_code");
+        List<BasicsdatumMaterial> materialList = this.list(qc);
+        if (CollUtil.isEmpty(materialList)) {
+            throw new OtherException("数据库找不到该物料信息，无法做删除操作！");
+        }
+
         /*控制是否下发外部SMP系统开关*/
         Boolean systemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
-        qc.select("material_code");
-        qc.eq("company_code", this.getCompanyCode());
-        qc.in("id", list);
-        qc.in(systemSwitch, "distribute", StringUtils.convertList("1,3"));
-        List<String> list2 = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
-                .collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(list2) && systemSwitch) {
-            throw new OtherException("存在已下发数据无法删除");
+        if (systemSwitch) {
+            qc.in(systemSwitch, "distribute", StringUtils.convertList("1,3"));
+            List<BasicsdatumMaterial> checkMaterials = this.list(qc);
+            if (CollUtil.isNotEmpty(checkMaterials) && systemSwitch) {
+                throw new OtherException("存在已下发数据无法删除!");
+            }
         }
+
+        List<String> materialsCodes = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
+                .collect(Collectors.toList());
+
+        if (CollUtil.isNotEmpty(materialsCodes)) {
+            BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> checkBomQc = new BaseQueryWrapper<>();
+            checkBomQc.notEmptyIn("t.materialsCode", materialsCodes);
+            List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(qc);
+            if (CollUtil.isNotEmpty(list)) {
+                throw new OtherException("该物料规格已被BOM使用，无法修改。详情查看物料报表!");
+            }
+        }
+
         // 删除主表
         this.removeByIds(removeDto);
+
         // 删除子表颜色和规格及报价
         this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>()
-                .eq("company_code", this.getCompanyCode()).in("material_code", list2));
+                .eq("company_code", this.getCompanyCode()).in("material_code", materialsCodes));
         this.materialColorService.remove(new QueryWrapper<BasicsdatumMaterialColor>()
-                .eq("company_code", this.getCompanyCode()).in("material_code", list2));
+                .eq("company_code", this.getCompanyCode()).in("material_code", materialsCodes));
         this.materialPriceService.remove(new QueryWrapper<BasicsdatumMaterialPrice>()
-                .eq("company_code", this.getCompanyCode()).in("material_code", list2));
+                .eq("company_code", this.getCompanyCode()).in("material_code", materialsCodes));
         return true;
     }
 
@@ -677,7 +703,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             for (BasicsdatumMaterialWidth basicsdatumMaterialWidth : list) {
                 Boolean b = smpService.checkSizeAndColor(basicsdatumMaterialWidth.getMaterialCode(), "1", basicsdatumMaterialWidth.getWidthCode());
                 if (!b) {
-                    throw new OtherException("\"" + basicsdatumMaterialWidth.getName() + "\"下游系统以引用,不允许停用");
+                    throw new OtherException("\"" + basicsdatumMaterialWidth.getName() + "\"下游系统已引用,不允许停用");
                 }
             }
         }
