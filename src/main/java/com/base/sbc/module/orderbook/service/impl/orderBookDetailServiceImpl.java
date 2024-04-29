@@ -682,7 +682,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         Double offlineProductionSum = hashMap.get("offlineProductionSum");
         hashMap.put("offLinkSizeProportion", (null != offlineProductionSum &&  0 != offlineProductionSum ? Math.round(offLinkSizeTotal / offlineProductionSum  * 10000.0) / 100.0     : 0.0));
         hashMap.put("onLinkSizeProportion", (null != onlineProductionSum &&  0 != onlineProductionSum ? Math.round(onLinkSizeTotal / onlineProductionSum * 10000.0) / 100.0 : 0.0));
-        return MapUtil.map(hashMap, (key,value)-> Opt.ofNullable(BigDecimal.valueOf(value)).map(it-> it.setScale(2,RoundingMode.HALF_UP)).orElse(null));
+        return MapUtil.map(hashMap, (key,value)-> {
+            if (value == null) return null;
+            return BigDecimal.valueOf(value).setScale(2,RoundingMode.HALF_UP);
+        });
     }
 
     @Override
