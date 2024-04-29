@@ -29,6 +29,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
@@ -163,7 +164,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         QueryWrapper<PackBom> qw = new QueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getBomVersionId()), "bom_version_id", dto.getBomVersionId());
-        qw.orderByAsc("sort");
+        qw.orderByAsc("sort").orderByAsc("id");
         if (StringUtils.isNotEmpty(dto.getStyleColorCode()) && !StringUtils.equals("all", dto.getStyleColorCode())) {
             List<String> bomIds = packBomColorService.getBomIdByColorCode(dto.getStyleColorCode(), dto.getBomVersionId());
             if (CollectionUtils.isEmpty(bomIds)) {
@@ -393,10 +394,19 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             PackUtils.setBomVersionInfo(version, packBom);
             packBom.setStageFlag(Opt.ofBlankAble(packBom.getStageFlag()).orElse(packBom.getPackType()));
             if (!CommonUtils.isInitId(packBom.getId())) {
-                pageBomIds.add(packBom.getId());
+                if (YesOrNoEnum.YES == packBom.getCopy()) {
+                    String sourceId = packBom.getId();
+                    String id = null;
+                    if (NumberUtil.isLong(sourceId)) {
+                        id = (NumberUtil.parseLong(sourceId) + 1) + "";
+                    }
+                    packBom.setId(id);
+                }else {
+                    pageBomIds.add(packBom.getId());
+                }
             } else {
                 packBom.setCode(null);
-                packBom.setSort(Math.toIntExact(versionBomCount+1));
+                packBom.setSort(Math.toIntExact(versionBomCount++));
             }
             packBom.calculateCost();
         }
