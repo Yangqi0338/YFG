@@ -129,10 +129,7 @@ public class SeasonalPlanningController extends BaseController {
 
                     }
                 }
-                if (5 == rowKey) {
-                    mergedRegions.add(new CellRangeAddress(4, 4, 0, 2));
-                }
-
+                // 大类中类品类行合计
                 if (rowKey > 5) {
                     if (cellKey == 1) {
                         String name = cellData.get(cellKey);
@@ -140,6 +137,7 @@ public class SeasonalPlanningController extends BaseController {
                             row1Name = name;
                         } else {
                             if (!row1Name.equals(name)) {
+                                // 不等于本身
                                 if ((row1 -1) != (rowKey - 2)) {
                                     mergedRegions.add(new CellRangeAddress(row1 - 1, rowKey - 2, 0, 0));
                                 }
@@ -181,17 +179,8 @@ public class SeasonalPlanningController extends BaseController {
             }
         }
 
-        // 处理单元格合并
-            // 记录需要合并的单元格范围
-           /* mergedRegions.add(new CellRangeAddress(0, 0, 0, 2));
-            mergedRegions.add(new CellRangeAddress(0, 0, 3, 12));
-            mergedRegions.add(new CellRangeAddress(0, 0, 13, 22));
-            mergedRegions.add(new CellRangeAddress(0, 0, 23, 32));
-        mergedRegions.add(new CellRangeAddress(1, 1, 0, 2));
-        mergedRegions.add(new CellRangeAddress(2, 2, 0, 2));
-        mergedRegions.add(new CellRangeAddress(3, 3, 0, 2));
+        // 第五行，合并前三列
         mergedRegions.add(new CellRangeAddress(4, 4, 0, 2));
-*/
         // 应用合并单元格
         for (CellRangeAddress mergedRegion : mergedRegions) {
             sheet.addMergedRegion(mergedRegion);
