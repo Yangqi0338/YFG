@@ -12,10 +12,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Snowflake;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.*;
-import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -56,7 +53,6 @@ import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
 import com.base.sbc.module.formtype.dto.QueryFieldOptionConfigDto;
-import com.base.sbc.module.formtype.entity.FieldManagement;
 import com.base.sbc.module.formtype.entity.FieldOptionConfig;
 import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.entity.FormType;
@@ -71,7 +67,6 @@ import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
-import com.base.sbc.module.orderbook.service.impl.orderBookDetailServiceImpl;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.dto.*;
@@ -92,8 +87,9 @@ import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.planning.vo.PlanningSummaryDetailVo;
 import com.base.sbc.module.planning.vo.ProductCategoryTreeVo;
 import com.base.sbc.module.planningproject.entity.SeasonalPlanning;
+import com.base.sbc.module.planningproject.entity.SeasonalPlanningDetails;
+import com.base.sbc.module.planningproject.service.SeasonalPlanningDetailsService;
 import com.base.sbc.module.planningproject.service.SeasonalPlanningService;
-import com.base.sbc.module.planning.vo.*;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockService;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
@@ -111,11 +107,9 @@ import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.sun.jndi.ldap.Ber;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -155,6 +149,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private PlanningSeasonService planningSeasonService;
     @Autowired
     private SeasonalPlanningService seasonalPlanningService;
+    @Autowired
+    private SeasonalPlanningDetailsService seasonalPlanningDetailsService;
     @Autowired
     private MinioUtils minioUtils;
     @Autowired
@@ -973,14 +969,13 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
 
 
-
             List<String> fmIds = pdList.stream().map(PlanningDimensionality::getFieldId).collect(Collectors.toList());
             List<FieldManagementVo> fieldManagementListByIds = fieldManagementService.getFieldManagementListByIds(fmIds, dto.getPlanningSeasonId(), dto.getProdCategory(), dto.getChannel());
             if (!CollectionUtils.isEmpty(fieldManagementListByIds)) {
                 /*用于查询字段配置数据*/
-                //region 为满足业务需求重新排序
+                // region 为满足业务需求重新排序
                 logicSort(fieldManagementListByIds);
-                //endregion
+                // endregion
                 stringList2 = fieldManagementListByIds.stream().map(FieldManagementVo::getId).collect(Collectors.toList());
                 /*Map<String, Integer> sortMap = pdList.stream().collect(Collectors.toMap(PlanningDimensionality::getFieldId, PlanningDimensionality::getSort, (a, b) -> b));
                 CollUtil.sort(fieldManagementListByIds, (a, b) -> {
@@ -1055,13 +1050,14 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      * 对维度洗漱重新排序
      * groupsort为空时，按创建时间倒序排序
      * groupsort 有值时，排在groupsort为空后面
+     *
      * @param dimensionalityList
      */
     private static void logicSort(List<FieldManagementVo> dimensionalityList) {
-        Map<String,Integer> sortMap = new HashMap<>();
+        Map<String, Integer> sortMap = new HashMap<>();
         for (FieldManagementVo planningDimensionalityVo : dimensionalityList) {
             if (StrUtil.isNotEmpty(planningDimensionalityVo.getGroupName()) && planningDimensionalityVo.getGroupSort() != null) {
-                sortMap.put(planningDimensionalityVo.getGroupName(),planningDimensionalityVo.getGroupSort());
+                sortMap.put(planningDimensionalityVo.getGroupName(), planningDimensionalityVo.getGroupSort());
             }
         }
         for (FieldManagementVo planningDimensionalityVo : dimensionalityList) {
@@ -1073,7 +1069,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
 
-        //重新排序
+        // 重新排序
         dimensionalityList.sort((o1, o2) -> {
             if (o1.getGroupSort() == null) {
                 return 1;
@@ -1082,22 +1078,23 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 return 1;
             }
             if (o2.getGroupSort() == null && o1.getGroupSort() == null) {
-                if(o1.getCreateDate().getTime() < o2.getCreateDate().getTime()){
+                if (o1.getCreateDate().getTime() < o2.getCreateDate().getTime()) {
                     return 1;
                 }
-                if(o1.getCreateDate().getTime() > o2.getCreateDate().getTime()){
+                if (o1.getCreateDate().getTime() > o2.getCreateDate().getTime()) {
                     return -1;
                 }
             }
-            if(o1.getGroupSort()>o2.getGroupSort()){
+            if (o1.getGroupSort() > o2.getGroupSort()) {
                 return 1;
             }
-            if(o1.getGroupSort()<o2.getGroupSort()){
+            if (o1.getGroupSort() < o2.getGroupSort()) {
                 return -1;
             }
             return 0;
         });
     }
+
     /**
      * 查询围度系数
      *
@@ -1231,7 +1228,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 初始化返回的数据
         List<StyleBoardCategorySummaryVo> list = new ArrayList<>();
         BaseQueryWrapper<Style> qw = new BaseQueryWrapper<>();
-        qw.notEmptyIn("sd.designer_id",dto.getDesignerIds());
+        qw.notEmptyIn("sd.designer_id", dto.getDesignerIds());
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
@@ -1239,7 +1236,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qw.in(StrUtil.isNotEmpty(dto.getProdCategory()), "sd.prod_category", StrUtil.split(dto.getProdCategory(), CharUtil.COMMA));
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVos = getBaseMapper().categorySummary(qw,
-                ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+                ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         // 统计大类数量
         if (CollUtil.isNotEmpty(styleBoardCategorySummaryVos)) {
             // 反写品类名称
@@ -1257,7 +1254,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
 
-        Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCodes(dto.getProdCategory() , "品类");
+        Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCodes(dto.getProdCategory(), "品类");
         dto.setProdCategoryName(categoryNames.get(dto.getProdCategory()));
         for (StyleBoardCategorySummaryVo vo : styleBoardCategorySummaryVos) {
             vo.setProdCategory1st(categoryNames.getOrDefault(vo.getProdCategory1st(), vo.getProdCategory1st()));
@@ -1297,8 +1294,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     /**
      * 按照 大类&品类&中类 分组进行合并 计算 skc、需求数、开款数、合计数
+     *
      * @param styleBoardCategorySummaryVos 需要合并的数据
-     * @param list 用作合并后的集合
+     * @param list                         用作合并后的集合
      */
     private void calculationResults(List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVos, List<StyleBoardCategorySummaryVo> list) {
         if (ObjectUtil.isNotEmpty(styleBoardCategorySummaryVos)) {
@@ -1316,7 +1314,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             // 按照 大类&品类 分组，只有中类为空的数据 （企划数据）
             Map<String, List<StyleBoardCategorySummaryVo>> nullListMap = styleBoardCategorySummaryVos
                     .stream()
-                    .filter(item -> "\\".equals(item.getProdCategory2nd()) || "/".equals((item.getProdCategory2nd())))
+                    .filter(item -> ObjectUtil.isEmpty(item.getProdCategory2nd()) || "\\".equals(item.getProdCategory2nd()) || "/".equals((item.getProdCategory2nd())))
                     .collect(Collectors.groupingBy(
                             item -> item.getProdCategory1st()
                                     + "&"
@@ -1372,9 +1370,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     // 如果有为空的数据 那么进行赋值 并设置需要合并 不然前端分不出来是不是要合并
                     for (StyleBoardCategorySummaryVo nullStyleBoardCategorySummaryVo : nullStyleBoardCategorySummaryVos) {
                         onlinePlanningNum += ObjectUtil.isEmpty(nullStyleBoardCategorySummaryVo.getOnlinePlanningNum())
-                                ? 0L:nullStyleBoardCategorySummaryVo.getOnlinePlanningNum();
+                                ? 0L : nullStyleBoardCategorySummaryVo.getOnlinePlanningNum();
                         offlinePlanningNum += ObjectUtil.isEmpty(nullStyleBoardCategorySummaryVo.getOfflinePlanningNum())
-                                ? 0L:nullStyleBoardCategorySummaryVo.getOfflinePlanningNum();
+                                ? 0L : nullStyleBoardCategorySummaryVo.getOfflinePlanningNum();
                     }
 
                     if (styleBoardCategorySummaryVo.getOnlinePlanningNum().equals(0L)) {
@@ -1394,8 +1392,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             // 拿到已经存在的 大类&品类
             Map<String, List<StyleBoardCategorySummaryVo>> existenceListMap = list
                     .stream().collect(Collectors.groupingBy(item -> item.getProdCategory1st()
-                    + "&"
-                    + item.getProdCategory()));
+                            + "&"
+                            + item.getProdCategory()));
 
             // 单独的 需要加入的品类维度的企划数据
             for (Map.Entry<String, List<StyleBoardCategorySummaryVo>> stringListEntry : nullListMap.entrySet()) {
@@ -1423,10 +1421,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 long onlinePlanningNum = 0L;
                 long offlinePlanningNum = 0L;
                 for (StyleBoardCategorySummaryVo boardCategorySummaryVo : summaryVos) {
-                            onlinePlanningNum += ObjectUtil.isEmpty(boardCategorySummaryVo.getOnlinePlanningNum())
-                                    ? 0L:boardCategorySummaryVo.getOnlinePlanningNum();
-                            offlinePlanningNum += ObjectUtil.isEmpty(boardCategorySummaryVo.getOfflinePlanningNum())
-                                    ? 0L:boardCategorySummaryVo.getOfflinePlanningNum();
+                    onlinePlanningNum += ObjectUtil.isEmpty(boardCategorySummaryVo.getOnlinePlanningNum())
+                            ? 0L : boardCategorySummaryVo.getOnlinePlanningNum();
+                    offlinePlanningNum += ObjectUtil.isEmpty(boardCategorySummaryVo.getOfflinePlanningNum())
+                            ? 0L : boardCategorySummaryVo.getOfflinePlanningNum();
                 }
 
                 styleBoardCategorySummaryVo.setOnlinePlanningNum(onlinePlanningNum);
@@ -1491,10 +1489,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     /**
      * 将季节企划的数据组装成品类数据汇总的对象集合数据
+     *
      * @param seasonalPlanning 季节企划的数据
      * @return 品类数据汇总的对象集合数据
      */
-    private List<StyleBoardCategorySummaryVo> assemblyData (SeasonalPlanning seasonalPlanning, Integer type, String bandName, String prodCategoryName) {
+    private List<StyleBoardCategorySummaryVo> assemblyData(SeasonalPlanning seasonalPlanning, Integer type, String bandName, String prodCategoryName) {
         // 初始化品类数据汇总的集合
         List<StyleBoardCategorySummaryVo> styleBoardCategorySummaryVoList = new ArrayList<>();
         if (ObjectUtil.isEmpty(seasonalPlanning)) {
@@ -1502,74 +1501,37 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         // 开始组装线上季节企划的数据
         if (ObjectUtil.isNotEmpty(seasonalPlanning)) {
-            // 获取季节企划的 Json 数据
-            String dataJson = seasonalPlanning.getDataJson();
-            // 解析 Json 数据为 JSONArray 集合，是所有信息的一个集合
-            JSONArray collectivityArray = JSONUtil.parseArray(dataJson);
-            // 初始化筛选后需要的波段 key 集合
-            List<String> bandCodeKeyList = new ArrayList<>();
-            List<String> bandCodeList = new ArrayList<>();
+            LambdaQueryWrapper<SeasonalPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId());
             if (ObjectUtil.isNotEmpty(bandName)) {
-                bandCodeList = Arrays.asList(bandName.split(","));
+                queryWrapper.in(SeasonalPlanningDetails::getBandName, CollUtil.newArrayList(bandName.split(",")));
             }
-            // 获取第二行 上市波段行 小类合计的标题就在第二行里面
-            Map<String, Object> listingBandsMap = new HashMap<>(JSONUtil.parseObj(collectivityArray.get(1)));
-            // 遍历寻找符合条件的 key
-            for (Map.Entry<String, Object> item : listingBandsMap.entrySet()) {
-                if ("上市波段".equals(item.getValue()) || "合计".equals(item.getValue())) {
-                    continue;
-                }
-                if (ObjectUtil.isNotEmpty(item.getValue()) && (ObjectUtil.isEmpty(bandCodeList) || bandCodeList.contains(item.getValue()))) {
-                    bandCodeKeyList.add(item.getKey());
-                    bandCodeKeyList.add(String.valueOf(Long.parseLong(item.getKey()) + 1));
-                }
+            if (ObjectUtil.isNotEmpty(prodCategoryName)) {
+                queryWrapper.in(SeasonalPlanningDetails::getProdCategoryName, CollUtil.newArrayList(prodCategoryName.split(",")));
             }
+            List<SeasonalPlanningDetails> seasonalPlanningDetails = seasonalPlanningDetailsService.list(queryWrapper);
 
-            // 大类的标识 季节企划的数据集合中，同一个大类只在那个大类的第一行有 到下一个大类前的行都是空的 所以把记下使用
-            String prodCategory1stFlag = "";
-            // 品类的标识 季节企划的数据集合中，同一个品类只在那个品类的第一行有 到下一个品类前的行都是空的 所以把记下使用
-            String prodCategoryFlag = "";
-            // 根据合计行获取小类的合计数量
-            for (int i = 5; i < collectivityArray.size() - 1; i++) {
-                // 前五行不是数据行 直接跳过  最后一行是合计 直接跳过
-                Object inObject = collectivityArray.get(i);
-                // 得到一行中类维度的数据
-                Map<String, Object> inMap = new HashMap<>(JSONUtil.parseObj(inObject));
+            // 按照 大/品/中 类分组
+            Map<String, List<SeasonalPlanningDetails>> seasonalPlanningDetailsMap = seasonalPlanningDetails.stream()
+                    .collect(Collectors.groupingBy(item ->
+                            item.getProdCategory1stCode()
+                                    + "-" + item.getProdCategoryCode()
+                                    + "-" + item.getProdCategory2ndCode()));
+            for (Map.Entry<String, List<SeasonalPlanningDetails>> item : seasonalPlanningDetailsMap.entrySet()) {
+                List<SeasonalPlanningDetails> seasonalPlanningDetailsList = item.getValue();
+                SeasonalPlanningDetails planningDetails = seasonalPlanningDetailsList.get(0);
                 // 初始化品类数据汇总对象
                 StyleBoardCategorySummaryVo styleBoardCategorySummaryVo = new StyleBoardCategorySummaryVo();
-
                 // 大类
-                String prodCategory1st = String.valueOf(inMap.get("0"));
-                if (ObjectUtil.isNotEmpty(prodCategory1st)) {
-                    prodCategory1stFlag = prodCategory1st;
-                }
+                styleBoardCategorySummaryVo.setProdCategory1st(planningDetails.getProdCategory1stName());
                 // 品类
-                String prodCategory = String.valueOf(inMap.get("1"));
-                if (ObjectUtil.isNotEmpty(prodCategory)) {
-                    prodCategoryFlag = prodCategory;
-                }
+                styleBoardCategorySummaryVo.setProdCategory(planningDetails.getProdCategoryName());
                 // 中类
-                String prodCategory2nd = String.valueOf(inMap.get("2"));
-
+                styleBoardCategorySummaryVo.setProdCategory2nd(planningDetails.getProdCategory2ndName());
                 long resultNum = 0L;
-                if (ObjectUtil.isEmpty(prodCategoryName) || prodCategoryName.equals(prodCategoryFlag)) {
-                    for (Map.Entry<String, Object> item : inMap.entrySet()) {
-                        if (!"合计".equals(prodCategory2nd)
-                                && bandCodeKeyList.contains(item.getKey())) {
-                            resultNum += Long.parseLong(String.valueOf(item.getValue()));
-                        }
-                    }
-                } else {
-                    continue;
+                for (SeasonalPlanningDetails details : seasonalPlanningDetailsList) {
+                    resultNum += Long.parseLong(details.getSkcCount());
                 }
-
-                // 大类
-                styleBoardCategorySummaryVo.setProdCategory1st(prodCategory1stFlag);
-                // 品类
-                styleBoardCategorySummaryVo.setProdCategory(prodCategoryFlag);
-                // 中类
-                styleBoardCategorySummaryVo.setProdCategory2nd(prodCategory2nd);
-
                 // 合计数量 有两列
                 if (type.equals(1)) {
                     styleBoardCategorySummaryVo.setOnlinePlanningNum(resultNum);
@@ -1583,54 +1545,22 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     }
 
 
-    private Long getSeasonalPlanningCount(SeasonalPlanning onlineSeasonalPlanning, String bandName, String prodCategoryName) {
+    private Long getSeasonalPlanningCount(SeasonalPlanning seasonalPlanning, String bandName, String prodCategoryName) {
         // 初始化返回需求数
         Long resultNum = 0L;
-        if (ObjectUtil.isNotEmpty(onlineSeasonalPlanning)) {
-            // 获取季节企划的 Json 数据
-            String dataJson = onlineSeasonalPlanning.getDataJson();
-            // 解析 Json 数据为 JSONArray 集合，是所有信息的一个集合
-            JSONArray collectivityArray = JSONUtil.parseArray(dataJson);
-            // 初始化筛选后需要的波段 key 集合
-            List<String> bandCodeKeyList = new ArrayList<>();
-            List<String> bandCodeList = new ArrayList<>();
+        if (ObjectUtil.isNotEmpty(seasonalPlanning)) {
+            LambdaQueryWrapper<SeasonalPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId());
             if (ObjectUtil.isNotEmpty(bandName)) {
-                bandCodeList = Arrays.asList(bandName.split(","));
+                queryWrapper.in(SeasonalPlanningDetails::getBandName, CollUtil.newArrayList(bandName.split(",")));
             }
-            // 获取第二行 上市波段行所有的波段都在第二行里面
-            Map<String, Object> bandCodeMap = new HashMap<>(JSONUtil.parseObj(collectivityArray.get(1)));
-            for (Map.Entry<String, Object> item : bandCodeMap.entrySet()) {
-                if ("上市波段".equals(item.getValue()) || "合计".equals(item.getValue())) {
-                    continue;
-                }
-                if (ObjectUtil.isNotEmpty(item.getValue()) && (ObjectUtil.isEmpty(bandCodeList) || bandCodeList.contains(item.getValue()))) {
-                    bandCodeKeyList.add(item.getKey());
-                    bandCodeKeyList.add(String.valueOf(Long.parseLong(item.getKey()) + 1));
-                }
+            if (ObjectUtil.isNotEmpty(prodCategoryName)) {
+                queryWrapper.in(SeasonalPlanningDetails::getProdCategoryName, CollUtil.newArrayList(prodCategoryName.split(",")));
             }
+            List<SeasonalPlanningDetails> seasonalPlanningDetails = seasonalPlanningDetailsService.list(queryWrapper);
 
-            String allPlanningProdCategory = "";
-            // 跳过的
-            for (int i = 5; i < collectivityArray.size() - 1; i++) {
-                // 前五行不是数据行 直接跳过  最后一行是合计 直接跳过
-                Object inObject = collectivityArray.get(i);
-                // 得到一行中类维度的数据
-                Map<String, Object> inMap = new HashMap<>(JSONUtil.parseObj(inObject));
-
-                // 如果中类行是 合计，直接跳过
-                String planningProdCategory = String.valueOf(inMap.get("1"));
-                String planningProdCategory2nd = String.valueOf(inMap.get("2"));
-                if (ObjectUtil.isNotEmpty(planningProdCategory)) {
-                    allPlanningProdCategory = planningProdCategory;
-                }
-                if (ObjectUtil.isEmpty(prodCategoryName) || prodCategoryName.equals(allPlanningProdCategory)) {
-                    for (Map.Entry<String, Object> item : inMap.entrySet()) {
-                        if (!"合计".equals(planningProdCategory2nd)
-                                && bandCodeKeyList.contains(item.getKey())) {
-                            resultNum += Long.parseLong(String.valueOf(item.getValue()));
-                        }
-                    }
-                }
+            for (SeasonalPlanningDetails seasonalPlanningDetail : seasonalPlanningDetails) {
+                resultNum += Long.parseLong(seasonalPlanningDetail.getSkcCount());
             }
         }
         return resultNum;
@@ -1640,7 +1570,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     public CategoryStylePlanningVo categoryStylePlanning(PlanningBoardSearchDto dto) {
         CategoryStylePlanningVo vo = new CategoryStylePlanningVo();
 
-        Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCodes(dto.getProdCategory() , "品类");
+        Map<String, String> categoryNames = ccmFeignService.findStructureTreeNameByCodes(dto.getProdCategory(), "品类");
         dto.setProdCategoryName(categoryNames.get(dto.getProdCategory()));
 
         vo.setBandCode(dto.getBandCode());
@@ -1670,35 +1600,35 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         BaseQueryWrapper<CategoryStylePlanningVo> drsQw = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(drsQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(drsQw, dto);
-        Long designRequirementSkc = getBaseMapper().colorCountStyle(drsQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        Long designRequirementSkc = getBaseMapper().colorCountStyle(drsQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setDesignRequirementSkc(designRequirementSkc);
         // 已下稿 款式设计中已下发打版的款式数量
         BaseQueryWrapper<Style> snQueryWrapper = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(snQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(snQueryWrapper, dto);
         snQueryWrapper.eq("sd.status", 2);
-        Long scriptedNum = getBaseMapper().colorCountStyle(snQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        Long scriptedNum = getBaseMapper().colorCountStyle(snQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setScriptedNum(scriptedNum);
         // 打版完成 样衣看板初版样 纸样需求日期不为空的款式数量
         BaseQueryWrapper<Style> pmicnQueryWrapper = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(pmicnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         pmicnQueryWrapper.isNotNull("p.pattern_req_date");
         stylePlanningCommonQw(pmicnQueryWrapper, dto);
-        Long patternMakingIsCompleteNum = getBaseMapper().colorCount(pmicnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        Long patternMakingIsCompleteNum = getBaseMapper().colorCount(pmicnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setPatternMakingIsCompleteNum(patternMakingIsCompleteNum);
         // 样衣制作 样衣看板初版样 样衣需求日期不为空的款式数量
         BaseQueryWrapper<Style> smnQueryWrapper = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(smnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         smnQueryWrapper.isNotNull("p.demand_finish_date");
         stylePlanningCommonQw(smnQueryWrapper, dto);
-        Long sampleMakingNum = getBaseMapper().colorCount(smnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        Long sampleMakingNum = getBaseMapper().colorCount(smnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setSampleMakingNum(sampleMakingNum);
         // 订货本制作
         // 根据已有订货本查询对应的款式ID集合 TODO：订货本没上生产 ——XHTE
         QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("tob.season_id", dto.getPlanningSeasonId());
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "tobl.");
-        List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(queryWrapper,1);
+        List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(queryWrapper, 1);
         if (ObjectUtil.isNotEmpty(querylist)) {
             long count = querylist.stream().map(OrderBookDetailVo::getStyle).filter(ObjectUtil::isNotEmpty).distinct().count();
             vo.setOrderBookProductionNum(count);
@@ -2307,7 +2237,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
     private void stylePlanningCommonQw(BaseQueryWrapper<?> qw, PlanningBoardSearchDto dto) {
         qw.eq("sd." + COMPANY_CODE, getCompanyCode());
-        qw.notEmptyIn("sd.designer_id",dto.getDesignerIds());
+        qw.notEmptyIn("sd.designer_id", dto.getDesignerIds());
         qw.and(StrUtil.isNotEmpty(dto.getSearch()), i -> i.like("sd.design_no", dto.getSearch()).or().like("sd.style_no", dto.getSearch()));
         qw.eq(StrUtil.isNotEmpty(dto.getPlanningSeasonId()), "sd.planning_season_id", dto.getPlanningSeasonId());
         qw.in(StrUtil.isNotEmpty(dto.getBandCode()), "sd.band_code", StrUtil.split(dto.getBandCode(), CharUtil.COMMA));
@@ -2721,13 +2651,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Override
     public StyleSummaryVo categoryBandSummaryAddDimension(Principal user, PlanningBoardSearchDto dto) {
 
-        //查询季节企划
-        BaseQueryWrapper<SeasonalPlanning> queryWrapper=new BaseQueryWrapper<>();
+        // 查询季节企划
+        BaseQueryWrapper<SeasonalPlanning> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("season_id", dto.getPlanningSeasonId());
-        queryWrapper.notEmptyEq("channel_code",dto.getChannel());
-        queryWrapper.select("id","data_json");
-        List<SeasonalPlanning> seasonalPlanningList = seasonalPlanningService.list(queryWrapper);
-
+        queryWrapper.notEmptyEq("channel_code", dto.getChannel());
+        queryWrapper.notEmptyEq("status", "0");
+        SeasonalPlanning seasonalPlanning = seasonalPlanningService.getOne(queryWrapper);
 
         StyleSummaryVo vo = new StyleSummaryVo();
         // 查询波段统计
@@ -2736,16 +2665,15 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         brandTotalQw.groupBy("sd.band_name");
         dataPermissionsService.getDataPermissionsForQw(brandTotalQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(brandTotalQw, dto);
-        List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw,ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         List<DimensionTotalVo> dimensionTotalVos = PlanningUtils.removeEmptyAndSort(bandTotal);
+        Map<String, Long> bandCount = getBandCount(dimensionTotalVos, seasonalPlanning, dto.getProdCategory());
         for (DimensionTotalVo dimensionTotalVo : dimensionTotalVos) {
-            long l = 0L;
-            for (SeasonalPlanning seasonalPlanning : seasonalPlanningList) {
-                l = l + this.getBandCount(dimensionTotalVo.getName(), seasonalPlanning.getDataJson(),dto.getProdCategory());
-            }
-            dimensionTotalVo.setTotal2(l);
+            Long l = bandCount.get(dimensionTotalVo.getName());
+            dimensionTotalVo.setTotal2(ObjectUtil.isEmpty(l) ? 0L : l);
         }
         vo.setXList(dimensionTotalVos);
+
 
         // 查询品类统计
         BaseQueryWrapper categoryQw = new BaseQueryWrapper();
@@ -2753,26 +2681,24 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         categoryQw.groupBy("prod_category_name");
         dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(categoryQw, dto);
-        List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw,ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
+        Map<String, Long> categoryCount = getCategoryCount(categoryTotal, seasonalPlanning, dto.getProdCategory());
         for (DimensionTotalVo dimensionTotalVo : categoryTotal) {
-            long l = 0L;
-            for (SeasonalPlanning seasonalPlanning : seasonalPlanningList) {
-                l = l + this.getCategoryCount(dimensionTotalVo.getName(), seasonalPlanning.getDataJson());
-            }
-            dimensionTotalVo.setTotal2(l);
+            Long l = categoryCount.get(dimensionTotalVo.getName());
+            dimensionTotalVo.setTotal2(ObjectUtil.isEmpty(l) ? 0L : l);
         }
         vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         // 查询明细
         BaseQueryWrapper detailQw = new BaseQueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(detailQw, dto);
-        List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw ,ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")):new ArrayList<>());
+        List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         List<String> ids = detailVoList.stream().map(PlanningSummaryDetailVo::getId).collect(Collectors.toList());
         List<FieldVal> fieldValList = styleColorService.ListDynamicDataByIds(ids);
         for (PlanningSummaryDetailVo planningSummaryDetailVo : detailVoList) {
             List<FieldVal> fieldVals = new ArrayList<>();
             for (FieldVal fieldVal : fieldValList) {
-                if (fieldVal.getForeignId().equals(planningSummaryDetailVo.getId())){
+                if (fieldVal.getForeignId().equals(planningSummaryDetailVo.getId())) {
                     fieldVals.add(fieldVal);
                 }
             }
@@ -2876,7 +2802,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     }
                 }
                 planningSummaryDetailVo.setSalesVolume(finalSales);
-                planningSummaryDetailVo.setProductionMarketing(finalStartUpRate.equals(BigDecimal.ZERO) ? BigDecimal.ZERO : finalSales.divide( finalStartUpRate, 2, RoundingMode.HALF_UP));
+                planningSummaryDetailVo.setProductionMarketing(finalStartUpRate.equals(BigDecimal.ZERO) ? BigDecimal.ZERO : finalSales.divide(finalStartUpRate, 2, RoundingMode.HALF_UP));
                 planningSummaryDetailVo
                         .setPlanningSeasonName(planningSeasonMap.get(planningSummaryDetailVo.getPlanningSeasonId()));
             }
@@ -2891,98 +2817,68 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     /**
      * 根据品类名称获取数量
      */
-    private long getCategoryCount(String prodCategoryName, String dataJson) {
-        long l = 0;
-        if(StrUtil.isEmpty(dataJson)){
-            return l;
-        }
-        com.alibaba.fastjson.JSONArray jsonArray = JSON.parseArray(dataJson);
-        if (jsonArray.isEmpty()){
-            return l;
-        }
-        //获取合计的列索引
-        String index="0";
-        JSONObject jsonObject1 = jsonArray.getJSONObject(1);
-        for (String s : jsonObject1.keySet()) {
-            if ("合计".equals(jsonObject1.get(s))){
-                index=s;
+    private Map<String, Long> getCategoryCount(List<DimensionTotalVo> dimensionTotalVos, SeasonalPlanning seasonalPlanning, String bandCode) {
+        if (ObjectUtil.isNotEmpty(seasonalPlanning) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
+            List<String> categoryList = dimensionTotalVos.stream()
+                    .map(DimensionTotalVo::getName).distinct().collect(Collectors.toList());
+            LambdaQueryWrapper<SeasonalPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId());
+            queryWrapper.in(SeasonalPlanningDetails::getProdCategoryName, categoryList);
+            if (ObjectUtil.isNotEmpty(bandCode)) {
+                queryWrapper.in(SeasonalPlanningDetails::getBandCode, CollUtil.newArrayList(bandCode.split(",")));
             }
-        }
-
-
-        //上一级不为空的品类名称
-        String parentCategoryName = null;
-        for (int i = 5; i < jsonArray.size(); i++) {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            String string = jsonObject.getString("1");
-            if (StrUtil.isNotEmpty(string) && !"/".equals(string) && !"\\".equals(string)) {
-                parentCategoryName = string;
-            } else {
-                string = parentCategoryName;
+            List<SeasonalPlanningDetails> seasonalPlanningDetails = seasonalPlanningDetailsService.list(queryWrapper);
+            if (ObjectUtil.isNotEmpty(seasonalPlanningDetails)) {
+                Map<String, List<SeasonalPlanningDetails>> map = seasonalPlanningDetails.stream()
+                        .collect(Collectors.groupingBy(SeasonalPlanningDetails::getProdCategoryName));
+                HashMap<String, Long> hashMap = new HashMap<>();
+                for (Map.Entry<String, List<SeasonalPlanningDetails>> stringListEntry : map.entrySet()) {
+                    long count = 0L;
+                    for (SeasonalPlanningDetails details : stringListEntry.getValue()) {
+                        count += Long.parseLong(details.getSkcCount());
+                    }
+                    hashMap.put(stringListEntry.getKey(), count);
+                }
+                return hashMap;
             }
-            if (prodCategoryName.equals(string)) {
-                l = l + jsonObject.getLong(index);
-            }
+
         }
-
-
-        return l;
+        return new HashMap<>();
     }
 
 
     /**
      * 根据波段获取数量
      */
-    private long getBandCount(String bandCode, String dataJson,String prodCategory) {
-        long l = 0;
-        if(StrUtil.isEmpty(dataJson)){
-            return l;
-        }
-        com.alibaba.fastjson.JSONArray jsonArray = JSON.parseArray(dataJson);
-        if (jsonArray.isEmpty()){
-            return l;
-        }
-        JSONObject jsonObject1 = jsonArray.getJSONObject(1);
-        if (jsonObject1.isEmpty()){
-            return l;
-        }
-        //获取波段索引
-        int bandIndex=0;
-        for (String s : jsonObject1.keySet()) {
-            if (bandCode.equals(jsonObject1.getString(s))){
-                bandIndex=Integer.parseInt(s);
+    private Map<String, Long> getBandCount(List<DimensionTotalVo> dimensionTotalVos, SeasonalPlanning seasonalPlanning, String prodCategory) {
+        if (ObjectUtil.isNotEmpty(seasonalPlanning) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
+            List<String> bandNameList = dimensionTotalVos.stream()
+                    .map(DimensionTotalVo::getName).distinct().collect(Collectors.toList());
+            LambdaQueryWrapper<SeasonalPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId());
+            queryWrapper.in(SeasonalPlanningDetails::getBandName, bandNameList);
+            if (ObjectUtil.isNotEmpty(prodCategory)) {
+                queryWrapper.in(SeasonalPlanningDetails::getProdCategoryCode, CollUtil.newArrayList(prodCategory.split(",")));
             }
-        }
-        if (bandIndex==0){
-            return l;
-        }
-
-        //上一级不为空的品类名称
-        String parentCategoryName = null;
-        for (int i = 5; i < jsonArray.size(); i++) {
-            JSONObject jsonObject = jsonArray.getJSONObject(i);
-            String string = jsonObject.getString("1");
-            // 合计行不计算
-            if ("合计".equals(jsonObject.getString("2"))){
-                continue;
-            }
-            if (StrUtil.isNotEmpty(string) && !"/".equals(string) && !"\\".equals(string)) {
-                parentCategoryName = string;
-            } else {
-                string = parentCategoryName;
-            }
-            if (StrUtil.isNotBlank(prodCategory)) {
-                if (prodCategory.equals(string)) {
-                    l = l + jsonObject.getLong(String.valueOf(bandIndex));
-                    l = l + jsonObject.getLong(String.valueOf(bandIndex + 1));
+            List<SeasonalPlanningDetails> seasonalPlanningDetails = seasonalPlanningDetailsService.list(queryWrapper);
+            if (ObjectUtil.isNotEmpty(seasonalPlanningDetails)) {
+                Map<String, List<SeasonalPlanningDetails>> map = seasonalPlanningDetails.stream()
+                        .collect(Collectors.groupingBy(SeasonalPlanningDetails::getBandName));
+                HashMap<String, Long> hashMap = new HashMap<>();
+                for (Map.Entry<String, List<SeasonalPlanningDetails>> stringListEntry : map.entrySet()) {
+                    long count = 0L;
+                    for (SeasonalPlanningDetails details : stringListEntry.getValue()) {
+                        count += Long.parseLong(details.getSkcCount());
+                    }
+                    hashMap.put(stringListEntry.getKey(), count);
                 }
-            } else {
-                l = l + jsonObject.getLong(String.valueOf(bandIndex));
-                l = l + jsonObject.getLong(String.valueOf(bandIndex + 1));
+                return hashMap;
             }
+
         }
-        return l;
+        return new HashMap<>();
     }
+
 
     @Override
     public List<StyleDimensionVO> queryStyleField(QueryStyleDimensionDto dto) {
