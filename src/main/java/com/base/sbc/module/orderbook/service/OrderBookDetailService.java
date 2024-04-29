@@ -10,6 +10,7 @@ import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.*;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.smp.dto.HttpResp;
 import com.github.pagehelper.PageInfo;
 
@@ -86,7 +87,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
 
     String handlePlaceAnProduction(List<OrderBookDetail> list, List<HttpResp> httpRespList);
 
-    boolean updateMaterial(MaterialUpdateDto dto);
+    List<MaterialSupplierInfo> updateMaterial(MaterialUpdateDto dto);
 
     UpdateResultVo businessConfirm(OrderBookDetailSaveDto dto);
 

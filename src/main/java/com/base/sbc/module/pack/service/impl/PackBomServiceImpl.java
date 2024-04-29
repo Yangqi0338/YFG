@@ -373,7 +373,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public boolean updateMaterial(MaterialUpdateDto dto) {
+    public List<MaterialSupplierInfo> updateMaterial(MaterialUpdateDto dto) {
         QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("bom_version_id", dto.getBomVersionId());
         queryWrapper.eq("del_flag", "0");
@@ -396,7 +396,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         List<String> productSizes = StringUtils.isBlank(styleVo.getProductSizes())? new ArrayList<>() : Arrays.asList(styleVo.getProductSizes().split(","));
         //尺码型号类型
         List<String> sizeIds = StringUtils.isBlank(styleVo.getSizeIds())?  new ArrayList<>() : Arrays.asList(styleVo.getSizeIds().substring(1).split(","));
-
         for (MaterialSupplierInfo materialSupplierInfo : dto.getMaterialSupplierInfos()) {
             List<String> materialCodes = basicsdatumMaterialService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
             if (CollectionUtils.isEmpty(materialCodes)){
@@ -431,9 +430,10 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 uw.set("del_flag", "1");
                 update(uw);
             }
+            materialSupplierInfo.setMaterialCode(materialCode);
             saveBatchByDto(dto.getBomVersionId(),"0",Lists.newArrayList(packBomDto));
         }
-        return true;
+        return dto.getMaterialSupplierInfos();
     }
 
     /**

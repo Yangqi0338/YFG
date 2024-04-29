@@ -180,5 +180,5 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param dto
      * @return
      */
-    boolean updateMaterial(MaterialUpdateDto dto);
+    List<MaterialSupplierInfo> updateMaterial(MaterialUpdateDto dto);
 }

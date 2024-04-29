@@ -28,6 +28,7 @@ import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -439,7 +440,7 @@ public class OrderBookDetailController extends BaseController {
     @ApiOperation(value = "订货本详情-更新物料信息")
     @PostMapping("/updateMaterial")
     @DuplicationCheck(time = 10)
-    public boolean updateMaterial(@RequestBody @Valid MaterialUpdateDto dto) {
+    public List<MaterialSupplierInfo> updateMaterial(@RequestBody @Valid MaterialUpdateDto dto) {
         return orderBookDetailService.updateMaterial(dto);
     }
 
