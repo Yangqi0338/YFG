@@ -127,7 +127,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
             categoryQueryWrapper.eq("season_id", planningSummaryQueryDto.getPlanningSeasonId());
             categoryQueryWrapper.eq("channel_code", planningSummaryQueryDto.getChannel());
             List<CategoryPlanning> categoryPlanningList = categoryPlanningService.list(categoryQueryWrapper);
-            if (CollectionUtils.isEmpty(seasonalPlanningDetailsList)) {
+            if (CollectionUtils.isEmpty(categoryPlanningList)) {
                 return ApiResult.success("未生成品类企划");
             }
             CategoryPlanning categoryPlanning = categoryPlanningList.get(0);
