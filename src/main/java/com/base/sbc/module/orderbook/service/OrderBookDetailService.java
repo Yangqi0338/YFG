@@ -15,6 +15,7 @@ import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      */
     boolean assignmentDesigner(List<OrderBookDetailSaveDto> dto);
 
-    Map<String, Double> queryCount(OrderBookDetailQueryDto dto);
+    Map<String, BigDecimal> queryCount(OrderBookDetailQueryDto dto);
 
     void submitForApproval(OrderBookDetailSaveDto dto);
 

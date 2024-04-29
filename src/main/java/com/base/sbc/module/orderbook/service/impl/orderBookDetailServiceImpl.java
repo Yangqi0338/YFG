@@ -5,6 +5,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -619,7 +620,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     }
 
     @Override
-    public Map<String, Double> queryCount(OrderBookDetailQueryDto dto) {
+    public Map<String, BigDecimal> queryCount(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
         List<OrderBookDetailVo> querylistAll = this.getBaseMapper().queryPage(queryWrapper);
@@ -639,6 +640,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     for (String sizeName : jsonObject.keySet()) {
                         Double sum = hashMap.getOrDefault(sizeName, 0.0);
                         Double num = NumberUtil.parseDouble(jsonObject.getString(sizeName), 0.0);
+                        if (Double.isNaN(num)) {
+                            num = 0.0;
+                        }
                         for (OrderBookChannelType channelType : channelTypes) {
                             Double total = totalMap.getOrDefault(channelType, 0.0);
                             if (sizeName.endsWith(channelType.getFill())) {
@@ -678,7 +682,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         Double offlineProductionSum = hashMap.get("offlineProductionSum");
         hashMap.put("offLinkSizeProportion", (null != offlineProductionSum &&  0 != offlineProductionSum ? Math.round(offLinkSizeTotal / offlineProductionSum  * 10000.0) / 100.0     : 0.0));
         hashMap.put("onLinkSizeProportion", (null != onlineProductionSum &&  0 != onlineProductionSum ? Math.round(onLinkSizeTotal / onlineProductionSum * 10000.0) / 100.0 : 0.0));
-        return hashMap;
+        return MapUtil.map(hashMap, (key,value)-> BigDecimal.valueOf(value).setScale(2,RoundingMode.HALF_UP));
     }
 
     @Override
@@ -1154,6 +1158,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             }
             if (orderBookDetail.getOrderStatus().lessThan(OrderBookDetailOrderStatusEnum.ORDERING)){
                 throw new OtherException(orderBookDetail.getBulkStyleNo()+ "未下单或投产失败,请检查后重新发起投产");
+            }
+            if (StrUtil.isNotBlank(orderBookDetail.getOrderNo())){
+                throw new OtherException(orderBookDetail.getBulkStyleNo()+ "已有投产编码,请取消下单后再重试");
             }
         }
 
