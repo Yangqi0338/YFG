@@ -209,7 +209,13 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qc.orderByDesc("tbm.create_date");
         qc.eq("tbm.del_flag", "0");
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
-        List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
+        List<BasicsdatumMaterialPageVo> list;
+        if ("1".equals(dto.getMergeMaterialColor())){
+            list = baseMapper.listMaterialPage(qc);
+        }else{
+            list = baseMapper.listSku(qc);
+        }
+
         // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
         List<String> stringList = IdGen.getIds(list.size());
         int index = 0;
@@ -234,6 +240,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.get(0).getSendInspectContent());
                 basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.get(0).getMakerByName());
                 basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.get(0).getFileUrl());
+            }
+            if ("1".equals(dto.getMergeMaterialColor())){
+                // 补充合并颜色信息
+                fullMaterialColor(basicsdatumMaterialPageVo);
             }
 
         }
@@ -1332,6 +1342,39 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         return list.stream()
                 .collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, v -> v, (k1, k2) -> k2));
+    }
+
+
+    private void fullMaterialColor(BasicsdatumMaterialPageVo basicsdatumMaterialPageVo) {
+
+        QueryWrapper<BasicsdatumMaterialColor> qw = new QueryWrapper<>();
+        qw.lambda().eq(BasicsdatumMaterialColor::getMaterialCode,basicsdatumMaterialPageVo.getMaterialCode());
+        qw.lambda().eq(BasicsdatumMaterialColor::getDelFlag,"0");
+        List<BasicsdatumMaterialColor> list = materialColorService.list(qw);
+        if (CollectionUtils.isEmpty(list)){
+            return;
+        }
+        StringBuilder colorCode = new StringBuilder();
+        StringBuilder colorName = new StringBuilder();
+        StringBuilder supplierColorCode = new StringBuilder();
+
+        for (BasicsdatumMaterialColor materialColor : list) {
+            colorCode.append(Opt.ofBlankAble(materialColor.getColorCode()).orElse("")).append(",");
+            colorName.append(Opt.ofBlankAble(materialColor.getColorName()).orElse("")).append(",");
+            supplierColorCode.append(Opt.ofBlankAble(materialColor.getSupplierColorCode()).orElse("")).append(",");
+        }
+        if(colorCode.length() > 0) {
+            colorCode.deleteCharAt(colorCode.length() - 1);
+        }
+        if(colorName.length() > 0) {
+            colorName.deleteCharAt(colorName.length() - 1);
+        }
+        if(supplierColorCode.length() > 0) {
+            supplierColorCode.deleteCharAt(supplierColorCode.length() - 1);
+        }
+        basicsdatumMaterialPageVo.setColorCode(colorCode.toString());
+        basicsdatumMaterialPageVo.setColorName(colorName.toString());
+        basicsdatumMaterialPageVo.setSupplierColorCode(supplierColorCode.toString());
     }
 
 }
