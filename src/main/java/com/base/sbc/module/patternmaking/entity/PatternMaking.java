@@ -418,6 +418,9 @@ public class PatternMaking extends BaseDataEntity<String> {
     @ApiModelProperty(value = "打版视频文件id"  )
     private String sampleVideoFileId;
 
+    @ApiModelProperty(value = "打版视频名称"  )
+    private String sampleVideoName;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
