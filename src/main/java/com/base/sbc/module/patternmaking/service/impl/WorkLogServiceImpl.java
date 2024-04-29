@@ -13,13 +13,11 @@ import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
-import com.base.sbc.module.common.dto.VirtualDept;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.patternmaking.dto.WorkLogSaveDto;
 import com.base.sbc.module.patternmaking.dto.WorkLogSearchDto;
@@ -38,7 +36,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 类描述：工作小账 service类
@@ -93,10 +90,7 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
         bean.setCode(code);
 
         //保存创建人的虚拟部门
-        ApiResult<List<VirtualDept>> virtualDeptByUserId = amcService.getVirtualDeptByUserId(getUserId());
-        List<VirtualDept> data = virtualDeptByUserId.getData();
-        String ids = data.stream().map(VirtualDept::getId).collect(Collectors.joining());
-        bean.setCreateDeptId(ids);
+        bean.setCreateDeptId(getVirtualDetpIds());
 
         this.save(bean, "工作小账");
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
