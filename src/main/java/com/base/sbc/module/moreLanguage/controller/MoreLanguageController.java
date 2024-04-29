@@ -8,8 +8,11 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageOperaLogDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageOperaLogEntity;
@@ -111,8 +114,11 @@ public class MoreLanguageController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "导出合并翻译", notes = "导出合并翻译")
     @DuplicationCheck(type = 1,time = 999)
-    public ApiResult exportMergeExcel(String bulkStyleNoList) {
-        moreLanguageService.exportMergeExcel(bulkStyleNoList);
+    public ApiResult exportMergeExcel(@RequestParam("bulkStyleNo") String bulkStyleNoList) {
+        HangTagMoreLanguageDTO moreLanguageDTO = new HangTagMoreLanguageDTO();
+        moreLanguageDTO.setBulkStyleNo(bulkStyleNoList);
+        moreLanguageDTO.setUserCompany(this.getUserCompany());
+        moreLanguageService.exportMergeExcel(moreLanguageDTO);
 
         return selectSuccess("");
     }

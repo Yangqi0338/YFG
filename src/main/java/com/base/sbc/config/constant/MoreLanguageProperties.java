@@ -77,10 +77,6 @@ public class MoreLanguageProperties {
     public static Map<String,String> msgEnumMap = CollUtil.list(false,MoreLanguageMsgEnum.values())
             .stream().collect(Collectors.toMap(MoreLanguageMsgEnum::name,MoreLanguageMsgEnum::getText));
 
-    public static Boolean isInternalLanguageCode(String languageCode) {
-        return MoreLanguageProperties.internalLanguageCode.equals(languageCode);
-    }
-
     public static String getMsg(MoreLanguageMsgEnum msgEnum, Object... param) {
         return String.format(msgEnumMap.getOrDefault(msgEnum.name(), ""), param);
     }
@@ -131,7 +127,7 @@ public class MoreLanguageProperties {
     }
 
     public static Boolean checkInternal(String languageCode) {
-        return !MoreLanguageProperties.internalLanguageCode.equals(languageCode) || MoreLanguageProperties.internalCheck;
+        return MoreLanguageProperties.internalLanguageCode.equals(languageCode) && !MoreLanguageProperties.internalCheck;
     }
 
     public void setInternalLanguageCode(String internalLanguageCode) {
