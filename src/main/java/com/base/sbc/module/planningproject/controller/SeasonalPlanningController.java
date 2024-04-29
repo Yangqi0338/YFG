@@ -72,6 +72,11 @@ public class SeasonalPlanningController extends BaseController {
         Sheet sheet = workbook.createSheet();
         List<CellRangeAddress> mergedRegions = new ArrayList<>();
 
+        // 创建居中对齐的样式
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+
         // 填充数据
         int row1 = 6;
         String row1Name = "";
@@ -90,6 +95,7 @@ public class SeasonalPlanningController extends BaseController {
                 String value = cellData.get(cellKey);
                 Cell cell = rowData.createCell(cellLine);
                 cell.setCellValue(value);
+                cell.setCellStyle(style);
                 // 第一行
                 if (1 == rowKey) {
                     if ("".equals(cellVal)) {
@@ -104,8 +110,8 @@ public class SeasonalPlanningController extends BaseController {
                         }
                     }
                 }
-                // 2，3，4，5 行
-                if (rowKey == 2) {
+                // 2，3，4 行
+                if (2 == rowKey) {
                     if ("".equals(cellVal)) {
                         cellVal = value;
                     } else {
@@ -113,17 +119,18 @@ public class SeasonalPlanningController extends BaseController {
                             mergedRegions.add(new CellRangeAddress(1, 1, startIndex, cellKey - 2));
                             mergedRegions.add(new CellRangeAddress(2, 2, startIndex, cellKey - 2));
                             mergedRegions.add(new CellRangeAddress(3, 3, startIndex, cellKey - 2));
-                            mergedRegions.add(new CellRangeAddress(4, 4, startIndex, cellKey - 2));
                             startIndex = cellKey - 1;
                             cellVal = value;
                         } else if (maxSize.equals(cellKey)) {
                             mergedRegions.add(new CellRangeAddress(1, 1, startIndex, cellKey - 1));
                             mergedRegions.add(new CellRangeAddress(2, 2, startIndex, cellKey - 1));
                             mergedRegions.add(new CellRangeAddress(3, 3, startIndex, cellKey - 1));
-                            mergedRegions.add(new CellRangeAddress(4, 4, startIndex, cellKey - 1));
                         }
 
                     }
+                }
+                if (5 == rowKey) {
+                    mergedRegions.add(new CellRangeAddress(4, 4, 0, 2));
                 }
 
                 if (rowKey > 5) {
