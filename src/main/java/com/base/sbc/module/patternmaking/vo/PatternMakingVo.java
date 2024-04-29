@@ -54,7 +54,7 @@ public class PatternMakingVo extends PatternMaking {
 
     public String getSamplePicUrl() {
         if (StringUtils.isEmpty(samplePicUrl)){
-            this.samplePicUrl = getSamplePic();
+            this.samplePicUrl = getSamplePicFileId();
         }
         return samplePicUrl;
     }
