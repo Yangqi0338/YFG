@@ -134,7 +134,7 @@ public class HangTagMoreLanguageBCSVO {
                 this.getLanguageList().forEach(language-> {
                     StringJoiner languageMsg = new StringJoiner(MoreLanguageProperties.checkMsgItemSeparator);
                     // 是否强制判断语言为中文,不进行校验
-                    if (MoreLanguageProperties.checkInternal(language.getLanguageCode())) {
+                    if (!MoreLanguageProperties.checkInternal(language.getLanguageCode())) {
                         if (language.getCannotFindStandardColumnContent()) languageMsg.add(MoreLanguageProperties.getMsg(HAVEN_T_CONTENT, FIELD));
                         if (language.getCannotFindPropertiesContent())  languageMsg.add(MoreLanguageProperties.getMsg(HAVEN_T_CONTENT, CONTENT));
                         if (languageMsg.length() > 0) {
