@@ -20,6 +20,8 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumBrandSeason;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumBrandSeasonService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumDimensionalityService;
 import com.base.sbc.module.common.dto.BaseDto;
 import com.base.sbc.module.common.dto.RemoveDto;
@@ -31,7 +33,9 @@ import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
+import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanning;
@@ -47,8 +51,11 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
-import javassist.tools.rmi.ObjectNotFoundException;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -56,6 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -75,16 +83,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     @Autowired
     private SeasonalPlanningDetailsService seasonalPlanningDetailsService;
     @Autowired
-    private OrderBookService orderBookService;
-    @Autowired
     @Lazy
     private OrderBookDetailService orderBookDetailService;
     @Autowired
-    private PlanningProjectDimensionService planningProjectDimensionService;
-    @Autowired
     private StyleColorService styleColorService;
-    @Autowired
-    private BasicsdatumDimensionalityService basicsdatumDimensionalityService;
     @Autowired
     private StyleService styleService;
     @Autowired
@@ -93,6 +95,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     private CategoryPlanningService categoryPlanningService;
     @Autowired
     private CategoryPlanningDetailsService categoryPlanningDetailsService;
+    @Autowired
+    private PlanningSeasonService planningSeasonService;
+    @Autowired
+    private BasicsdatumBrandSeasonService basicsdatumBrandSeasonService;
 
     @Override
     public ApiResult importSeasonalPlanningExcel(MultipartFile file, SeasonalPlanningSaveDto seasonalPlanningSaveDto) {
@@ -378,6 +384,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         List<BasicBaseDict> c8Band = ccmFeignService.getDictInfoToList("C8_Band");
         Map<String, String> bandMap = c8Band.stream().collect(Collectors.toMap(BasicBaseDict::getName, BasicBaseDict::getValue));
 
+        List<String> months = getSeasonMonths(seasonalPlanningSaveDto.getSeasonId());
+
         // 处理表格数据
         for (int i = 1; i < hashMaps.size(); i++) {
             HashMap<Integer, String> integerStringHashMap = hashMaps.get(i);
@@ -393,8 +401,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                 if (Integer.parseInt(s1) <10){
                                     s1 ="0"+s1;
                                 }
-                                BasicDictDepend basicDictDepend = dictDependsMap.get(s1 + seasonCode);
-                                if (null == basicDictDepend) {
+                                if (!months.contains(s1)) {
                                     return ApiResult.error("波段:" + integerStringHashMap.get(j) + " 所属月份与季节:"+ seasonCode + " 不匹配", 500);
                                 }
                                 orDefault.setBandName(integerStringHashMap.get(j));
@@ -505,8 +512,30 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         return ApiResult.success();
     }
 
+    private List<String> getSeasonMonths(String planningSeasonId) {
+        PlanningSeason planningSeason = planningSeasonService.getById(planningSeasonId);
+        QueryWrapper<BasicsdatumBrandSeason> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("brand", planningSeason.getBrand());
+        queryWrapper.eq("season", planningSeason.getSeason());
+        List<BasicsdatumBrandSeason> brandSeasons = basicsdatumBrandSeasonService.list(queryWrapper);
+        if (CollectionUtils.isEmpty(brandSeasons)) {
+            return null;
+        }
+        return brandSeasons.stream().map(BasicsdatumBrandSeason::getMonth).collect(Collectors.toList());
+                                /*String seasonCode = seasonalPlanningSaveDto.getSeasonCode();
+                                String s1 = integerStringHashMap.get(j).split("")[0];
+                                if (Integer.parseInt(s1) <10){
+                                    s1 ="0"+s1;
+                                }
+                                BasicDictDepend basicDictDepend = dictDependsMap.get(s1 + seasonCode);*/
+        /*if (null == basicDictDepend) {
+            return ApiResult.error("波段:" + integerStringHashMap.get(j) + " 所属月份与季节:"+ seasonCode + " 不匹配", 500);
+        }
+        return true;*/
+    }
+
     @Override
-    public ApiResult getSeasonalPlanningDetails(SeasonalPlanningDetails seasonalPlanningDetails) {
+    public Map<Integer, Map<Integer, String>> getSeasonalPlanningDetails(SeasonalPlanningDetails seasonalPlanningDetails) {
         ApiResult apiResult = new ApiResult<>();
         SeasonalPlanningDetailVO planningDetailVO = new SeasonalPlanningDetailVO();
         QueryWrapper<SeasonalPlanningDetails> queryWrapper = new QueryWrapper<>();
@@ -544,9 +573,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         // resultMap
         Map<Integer, Map<Integer, String>> resultMap = buildResultMap(sortDemandMap, sortOrderMap, gapMap);
 
-        apiResult.setData(resultMap);
-        apiResult.setSuccess(true);
-        return apiResult;
+        return resultMap;
     }
 
     private Map<Integer, Map<Integer, String>> buildResultMap(Map<Integer, Map<Integer, String>> demandMap, Map<Integer, Map<Integer, String>> orderMap, Map<Integer, Map<Integer, String>> gapMap) {
@@ -1720,21 +1747,16 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         if (l > 0){
             throw new RuntimeException("存在启用的季节企划,不能删除");
         }
+        QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
+        categoryQueryWrapper.in("seasonal_planning_id",ids);
+        List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
+        if (CollectionUtils.isNotEmpty(categoryPlannings)) {
+            throw new OtherException("已生成品类企划，请先删除对应的品类企划");
+        }
         Boolean removeFlag = removeByIds(removeDto);
         if (!removeFlag) {
             throw new OtherException("季节企划删除失败，请刷新后重试！");
         }
-
-        // 同步更新品类企划及企划看板
-        QueryWrapper<CategoryPlanning> categoryQueryWrapper = new QueryWrapper<>();
-        categoryQueryWrapper.in("seasonal_planning_id",ids);
-        List<CategoryPlanning> categoryPlannings = categoryPlanningService.list(categoryQueryWrapper);
-        if (CollectionUtils.isEmpty(categoryPlannings)) {
-            return;
-        }
-        List<String> cpIds = categoryPlannings.stream().map(CategoryPlanning::getId).collect(Collectors.toList());
-        removeDto.setIds(CollUtil.join(cpIds, ","));
-        categoryPlanningService.delByIds(removeDto);
     }
 
     private BaseQueryWrapper<SeasonalPlanning> buildQueryWrapper(SeasonalPlanningQueryDto seasonalPlanningQueryDto) {
