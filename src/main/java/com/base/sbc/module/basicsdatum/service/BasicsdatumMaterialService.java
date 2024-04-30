@@ -167,6 +167,6 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * 材料三级分类 修改物料编码前缀和材料
 	 * @param basicsdatumMaterialUpdateDto
 	 */
-	void updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto);
+	BasicsdatumMaterialUpdateVo updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto);
 }
 

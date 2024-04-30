@@ -253,7 +253,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             // 获取并放入最大code(且需要满足自动生成物料编码的开关为空或者未启动)
             // && !ccmFeignService.getSwitchByCode("AUTO_GEN_MATERIAL_CODE")
             if (BasicsdatumMaterialBizTypeEnum.MATERIAL.getK().equals(dto.getBizType())) {
-                entity.setMaterialCode(getMaxCode(categoryCode));
+                //新的生成逻辑
+                //region 新的物料编号生成逻辑
+                entity.setMaterialCode(generateMaterialCode(categoryCode));
+                //endregion
+
+                //entity.setMaterialCode(getMaxCode(categoryCode));
             }
         }
 
@@ -277,6 +282,19 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         // 保存主信息
         this.saveOrUpdate(entity, "物料档案", entity.getMaterialCodeName(), entity.getMaterialCode());
         return getBasicsdatumMaterial(entity.getId());
+    }
+
+
+    /**
+     * 生成物料编码
+     * @param categoryCode
+     */
+    private String generateMaterialCode(String categoryCode) {
+        String categoryMaxCode = this.getBaseMapper().getCategoryMaxCode(categoryCode);
+        if (StrUtil.isEmpty(categoryMaxCode)) {
+            categoryMaxCode = "00001";
+        }
+        return categoryCode + categoryMaxCode;
     }
 
     /**
@@ -347,6 +365,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             this.materialWidthService.save(one);
         }
     }
+
+
+
 
     /**
      * 生成物料编码
@@ -446,7 +467,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         if (CollUtil.isNotEmpty(materialsCodes)) {
             BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> checkBomQc = new BaseQueryWrapper<>();
             checkBomQc.notEmptyIn("t.materialsCode", materialsCodes);
-            List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(qc);
+            List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(checkBomQc);
             if (CollUtil.isNotEmpty(list)) {
                 throw new OtherException("该物料规格已被BOM使用，无法修改。详情查看物料报表!");
             }
@@ -915,15 +936,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return new PageInfo<>(list);
     }
 
+    @Transactional
     @Override
-    public void updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto) {
+    public BasicsdatumMaterialUpdateVo updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto) {
         //物料id
         String id = basicsdatumMaterialUpdateDto.getId();
-        if (StrUtil.isNotEmpty(id)) {
+        if (StrUtil.isEmpty(id)) {
             throw new OtherException("当前id为空，所以找不到对应的物料信息！");
         }
         BasicsdatumMaterial basicsdatumMaterial = this.getById(id);
+
+        BasicsdatumMaterialUpdateVo basicsdatumMaterialUpdateVo = null;
         if (basicsdatumMaterial != null) {
+            String distribute = basicsdatumMaterial.getDistribute();
+
+            basicsdatumMaterialUpdateVo = new BasicsdatumMaterialUpdateVo();
             //三级分类编码
             String materialCode = basicsdatumMaterial.getMaterialCode();
             String materialName = basicsdatumMaterial.getMaterialName();
@@ -934,37 +961,69 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             String materialNameParam = basicsdatumMaterialUpdateDto.getMaterialName();
             String category3CodeParam = basicsdatumMaterialUpdateDto.getCategory3Code();
 
+            if ("1".equals(distribute) || "3".equals(distribute)) {
+                throw new OtherException("材料编号:" + materialCodeParam + ",已下发到下游系统，不能修改！");
+            }
             if (StrUtil.isNotEmpty(materialCode)) {
-                if (!materialCode.equals(materialCodeParam) && !materialCode.startsWith(category3Code)) {
-                    throw new OtherException("材料编号:" + materialCode + "须以" + materialCode + "[" + category3Name + "]开头,请重新定义!");
+                BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> checkBomQc = new BaseQueryWrapper<>();
+                checkBomQc.notEmptyEq("t.materialsCode", materialCode);
+                List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(checkBomQc);
+                if (CollUtil.isNotEmpty(list)) {
+                    throw new OtherException("该物料规格已被BOM使用，无法修改。详情查看物料报表!");
+                }
+            } else {
+                throw new OtherException("找不到对应物料库编号!");
+            }
+
+
+            if (StrUtil.isNotEmpty(materialCodeParam)) {
+                if (!materialCode.equals(materialCodeParam) && !materialCodeParam.startsWith(category3Code)) {
+                    throw new OtherException("材料编号:" + materialCodeParam + "须以" + materialCode + "[" + category3Name + "]开头,请重新定义!");
                 }
                 //修改物料名称
                 basicsdatumMaterial.setMaterialCodeName(materialCodeParam + "_" + materialName);
+                basicsdatumMaterial.setMaterialCode(materialCodeParam);
+                basicsdatumMaterialUpdateVo.setMaterialCodeName(materialCodeParam + "_" + materialName);
             } else if (StrUtil.isNotEmpty(materialNameParam)) {
                 if (StrUtil.isNotEmpty(materialCode)) {
                     //修改物料名称
                     basicsdatumMaterial.setMaterialCodeName(materialCode + "_" + materialNameParam);
+                    basicsdatumMaterial.setMaterialName(materialNameParam);
+                    basicsdatumMaterialUpdateVo.setMaterialCodeName(materialCode + "_" + materialNameParam);
                 }
             } else if (StrUtil.isNotEmpty(category3CodeParam)) {
                 String value = materialCode.replace(category3Code, category3CodeParam);
                 //修改材料三级分类
                 basicsdatumMaterial.setMaterialCode(value);
                 basicsdatumMaterial.setMaterialCodeName(value + "_" + materialName);
-
-                basicsdatumMaterial.setCategory1Code(basicsdatumMaterialUpdateDto.getCategory1Code());
-                basicsdatumMaterial.setCategory1Name(basicsdatumMaterialUpdateDto.getCategory1Name());
                 basicsdatumMaterial.setCategory2Code(basicsdatumMaterialUpdateDto.getCategory2Code());
                 basicsdatumMaterial.setCategory2Name(basicsdatumMaterialUpdateDto.getCategory2Name());
                 basicsdatumMaterial.setCategory3Code(basicsdatumMaterialUpdateDto.getCategory3Code());
                 basicsdatumMaterial.setCategory3Name(basicsdatumMaterialUpdateDto.getCategory3Name());
                 basicsdatumMaterial.setCategoryId(basicsdatumMaterialUpdateDto.getCategory3Code());
-                basicsdatumMaterial.setCategoryName(basicsdatumMaterialUpdateDto.getCategory1Name()+"-"+basicsdatumMaterialUpdateDto.getCategory2Name()+"-"+basicsdatumMaterialUpdateDto.getCategory3Name());
+                basicsdatumMaterial.setCategoryName(basicsdatumMaterial.getCategory1Name() + "-" + basicsdatumMaterialUpdateDto.getCategory2Name() + "-" + basicsdatumMaterialUpdateDto.getCategory3Name());
+
+                basicsdatumMaterialUpdateVo.setMaterialCodeName(value + "_" + materialName);
+                basicsdatumMaterialUpdateVo.setMaterialCode(value);
+
             }
             this.updateById(basicsdatumMaterial);
-        }else{
+        } else {
             throw new OtherException("找不到对应的物料信息！");
         }
-
+        //新生成的物料编号，物料库验证是否重复
+        String newMaterialCode = basicsdatumMaterialUpdateVo.getMaterialCode();
+        if (StrUtil.isNotEmpty(newMaterialCode)) {
+            QueryWrapper<BasicsdatumMaterial> basicsdatumMaterialQueryWrapper = new QueryWrapper<>();
+            basicsdatumMaterialQueryWrapper.ne("id", id);
+            basicsdatumMaterialQueryWrapper.eq("material_code", newMaterialCode);
+            basicsdatumMaterialQueryWrapper.eq("del_flag", "0");
+            List<BasicsdatumMaterial> list = this.list(basicsdatumMaterialQueryWrapper);
+            if (CollUtil.isNotEmpty(list)) {
+                throw new OtherException("该物料编码【" + newMaterialCode + "】数据已存在，不允许修改！");
+            }
+        }
+        return basicsdatumMaterialUpdateVo;
     }
 
     /**

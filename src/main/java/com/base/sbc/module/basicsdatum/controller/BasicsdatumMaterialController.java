@@ -532,6 +532,13 @@ public class BasicsdatumMaterialController extends BaseController {
         return basicsdatumMaterialService.materialsBomStylePage(dto);
     }
 
+    @ApiOperation(value = "物料未下发，并且未被bom引用修改物料编码和物料名称")
+    @PostMapping("/updateMaterialNameAndCode")
+    public BasicsdatumMaterialUpdateVo updateMaterialNameAndCode(@Valid @RequestBody BasicsdatumMaterialUpdateDto dto) {
+        return basicsdatumMaterialService.updateMaterialProperties(dto);
+    }
+
+
 
     /**
      * 初始化物料检测报告图片

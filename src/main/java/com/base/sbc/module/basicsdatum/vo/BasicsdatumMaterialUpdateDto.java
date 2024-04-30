@@ -15,17 +15,12 @@ public class BasicsdatumMaterialUpdateDto {
     /** 物料编号 */
     @Size(min = 6, max = 12, message = "编号长度不能小于6位，最长不能超过12位!")
     @ApiModelProperty(value = "物料编号")
-    @Pattern(regexp ="[a-zA-Z0-9_-]", message= "不能输入特殊字符，只能输入数字，字母，下划线和横杠！")
+    @Pattern(regexp ="^[a-zA-Z0-9_-]+$", message= "不能输入特殊字符，只能输入数字，字母，下划线和横杠！")
     private String materialCode;
     /** 物料名称 */
     @ApiModelProperty(value = "物料名称")
     private String materialName;
 
-    @ApiModelProperty(value = "大类编码")
-    private String category1Code;
-    /** 大类名称 */
-    @ApiModelProperty(value = "大类名称")
-    private String category1Name;
     /** 中类编码 */
     @ApiModelProperty(value = "中类编码")
     private String category2Code;
@@ -38,12 +33,6 @@ public class BasicsdatumMaterialUpdateDto {
     /** 小类名称 */
     @ApiModelProperty(value = "小类名称")
     private String category3Name;
-    /** 物料类别第4级编码 */
-    @ApiModelProperty(value = "物料类别第4级编码")
-    private String categoryId;
-    /** 类别名称第4级名称 */
-    @ApiModelProperty(value = "类别名称第4级名称")
-    private String categoryName;
 
 
 }

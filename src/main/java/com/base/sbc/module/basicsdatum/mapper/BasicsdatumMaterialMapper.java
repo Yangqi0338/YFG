@@ -66,6 +66,13 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	 * @return
 	 */
 	List<BasicsdatumMaterialPageAndStyleVo> getBasicsdatumMaterialAndStyleList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+
+	/**
+	 * 生成物料编码，如果流水码跳号了，自动不上，没有跳号取最大流水码
+	 * @param category3Code
+	 * @return
+	 */
+	String getCategoryMaxCode(@Param("category3Code") String category3Code);
 // 自定义方法区 不替换的区域【other_end】
 }
 
