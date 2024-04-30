@@ -111,27 +111,27 @@ public class CategoryPlanningDetailsController extends BaseController {
     }
 
     /**
-     * 品类企划暂存
-     *
-     * @param categoryPlanningDetailsList 要暂存的数据
-     */
-    @PostMapping("/staging")
-    @ApiOperation(value = "企划看板 2.0 品类企划暂存")
-    public ApiResult<String> staging(@RequestBody List<CategoryPlanningDetails> categoryPlanningDetailsList) {
-        categoryPlanningDetailsService.staging(categoryPlanningDetailsList);
-        return ApiResult.success("暂存成功！");
-    }
-
-    /**
      * 品类企划保存
      *
      * @param categoryPlanningDetailsList 要保存的数据
      */
-    @PostMapping("/preservation")
+    @PostMapping("/staging")
     @ApiOperation(value = "企划看板 2.0 品类企划保存")
+    public ApiResult<String> staging(@RequestBody List<CategoryPlanningDetails> categoryPlanningDetailsList) {
+        categoryPlanningDetailsService.staging(categoryPlanningDetailsList);
+        return ApiResult.success("保存成功！");
+    }
+
+    /**
+     * 品类企划审核
+     *
+     * @param categoryPlanningDetailsList 要审核的数据
+     */
+    @PostMapping("/preservation")
+    @ApiOperation(value = "企划看板 2.0 品类企划审核")
     public ApiResult<String> preservation(@RequestBody List<CategoryPlanningDetails> categoryPlanningDetailsList) {
         categoryPlanningDetailsService.preservation(categoryPlanningDetailsList);
-        return ApiResult.success("保存成功！");
+        return ApiResult.success("审核成功！");
     }
 
     /**
@@ -147,12 +147,12 @@ public class CategoryPlanningDetailsController extends BaseController {
     }
 
     /**
-     * 撤回品类企划 只能撤回未提交的数据 撤回的粒度是到品类级别
+     * 作废品类企划 只能作废未提交的数据 作废的粒度是到品类级别
      *
-     * @param categoryPlanningDetailDTO 要撤回的数据
+     * @param categoryPlanningDetailDTO 要作废的数据
      */
     @PostMapping("/revocation")
-    @ApiOperation(value = "企划看板 2.0 撤回品类企划 只能撤回未提交的数据 撤回的粒度是到品类级别")
+    @ApiOperation(value = "企划看板 2.0 作废品类企划 只能作废未提交的数据 作废的粒度是到品类级别")
     public ApiResult<String> revocation(@RequestBody CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         categoryPlanningDetailsService.revocation(categoryPlanningDetailDTO);
         return ApiResult.success();

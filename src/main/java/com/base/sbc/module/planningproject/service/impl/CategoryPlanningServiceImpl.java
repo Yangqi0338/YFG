@@ -164,7 +164,9 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         HashMap<String, List<BasicStructureTreeVo>> structureMap = new HashMap<>();
         {
             // 获取所有维度等级的数据
-            List<PlanningDimensionality> planningDimensionalityList = getPlanningDimensionalitieList(detailsList, seasonalPlanning);
+            List<String> prodCategoryNameList = detailsList.stream()
+                    .map(SeasonalPlanningDetails::getProdCategoryName).distinct().collect(Collectors.toList());
+            List<PlanningDimensionality> planningDimensionalityList = getPlanningDimensionalitieList(prodCategoryNameList, seasonalPlanning.getChannelCode(), seasonalPlanning.getSeasonId());
             if (ObjectUtil.isNotEmpty(dimensionIdList)) {
                 planningDimensionalityList = planningDimensionalityList.stream()
                         .filter(item -> dimensionIdList.contains(item.getFieldId())).collect(Collectors.toList());
@@ -225,18 +227,43 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                 if (GeneralConstant.PRODCATEGORY_2ND_CODE.equals(fieldManagement.getFieldExplain())) {
                                     // 固定属性-中类
                                     // 从数据结构获取
-                                    List<BasicStructureTreeVo> basicStructureTreeVoList = structureMap.get(GeneralConstant.PRODCATEGORY_CODE + "-" + "2");
-                                    if (ObjectUtil.isNotEmpty(basicStructureTreeVoList)) {
-                                        basicStructureTreeVoList = basicStructureTreeVoList
-                                                .stream()
-                                                .filter(item -> item.getValue().equals(details.getProdCategory2ndCode()))
-                                                .collect(Collectors.toList());
-                                        for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTreeVoList) {
+                                    List<BasicStructureTreeVo> basicStructureTree1VoList = structureMap.get(GeneralConstant.PRODCATEGORY_CODE + "-" + "1");
+                                    List<BasicStructureTreeVo> basicStructureTree2VoList = structureMap.get(GeneralConstant.PRODCATEGORY_CODE + "-" + "2");
+                                    boolean isMediumClass = false;
+                                    if (!ObjectUtil.isEmpty(details.getProdCategory2ndCode())) {
+                                        if (ObjectUtil.isNotEmpty(basicStructureTree2VoList)) {
+                                            // 中类不为空的情况就是取当前中类
+                                            basicStructureTree2VoList = basicStructureTree2VoList
+                                                    .stream()
+                                                    .filter(item -> item.getValue().equals(details.getProdCategory2ndCode()))
+                                                    .collect(Collectors.toList());
+                                            isMediumClass = true;
+                                        }
+                                    } else {
+                                        if (ObjectUtil.isNotEmpty(basicStructureTree1VoList) || ObjectUtil.isNotEmpty(basicStructureTree2VoList)) {
+                                            // 中类为空 取当前品类下的所有中类
+                                            basicStructureTree1VoList = basicStructureTree1VoList
+                                                    .stream()
+                                                    .filter(item -> item.getValue().equals(details.getProdCategoryCode()))
+                                                    .collect(Collectors.toList());
+                                            if (ObjectUtil.isNotEmpty(basicStructureTree1VoList)) {
+                                                List<BasicStructureTreeVo> finalBasicStructureTree1VoList = basicStructureTree1VoList;
+                                                basicStructureTree2VoList = basicStructureTree2VoList
+                                                        .stream()
+                                                        .filter(item -> item.getParentId().equals(finalBasicStructureTree1VoList.get(0).getId()))
+                                                        .collect(Collectors.toList());
+                                            }
+                                        }
+
+                                    }
+                                    if (ObjectUtil.isNotEmpty(basicStructureTree2VoList)) {
+                                        for (BasicStructureTreeVo basicStructureTreeVo : basicStructureTree2VoList) {
                                             initEmptyData(
                                                     planningDimensionality,
                                                     basicStructureTreeVo.getName(),
                                                     basicStructureTreeVo.getValue(),
                                                     details,
+                                                    isMediumClass,
                                                     categoryPlanning,
                                                     fieldManagement, seasonalPlanningDetailsList,
                                                     categoryPlanningDetailsList,
@@ -258,6 +285,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                                     stringStringEntry.getValue(),
                                                     stringStringEntry.getKey(),
                                                     details,
+                                                    false,
                                                     categoryPlanning,
                                                     fieldManagement, seasonalPlanningDetailsList,
                                                     categoryPlanningDetailsList,
@@ -273,6 +301,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                                 basicStructureTreeVo.getName(),
                                                 basicStructureTreeVo.getValue(),
                                                 details,
+                                                false,
                                                 categoryPlanning,
                                                 fieldManagement, seasonalPlanningDetailsList,
                                                 categoryPlanningDetailsList,
@@ -289,6 +318,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                                     option.getOptionName(),
                                                     option.getOptionCode(),
                                                     details,
+                                                    false,
                                                     categoryPlanning,
                                                     fieldManagement, seasonalPlanningDetailsList,
                                                     categoryPlanningDetailsList,
@@ -308,18 +338,17 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     /**
      * 获取所有等级的维度数据
      *
-     * @param detailsList      季节企划数据详情
-     * @param seasonalPlanning 季节企划数据
-     * @return 维度数据
+     * @param prodCategoryNameList 品类名称集合
+     * @param channelCode          渠道 code
+     * @param seasonId             产品季 id
+     * @return
      */
-    private List<PlanningDimensionality> getPlanningDimensionalitieList(List<SeasonalPlanningDetails> detailsList, SeasonalPlanning seasonalPlanning) {
+    @Override
+    public List<PlanningDimensionality> getPlanningDimensionalitieList(List<String> prodCategoryNameList, String channelCode, String seasonId) {
         // 查询第一维度数据 如果任意一个品类下没有第一维度直接报错
-        List<String> prodCategoryNameList = detailsList
-                .stream().map(SeasonalPlanningDetails::getProdCategoryName).distinct().collect(Collectors.toList());
-
         QueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new QueryWrapper<>();
-        planningDimensionalityQueryWrapper.eq("channel", seasonalPlanning.getChannelCode());
-        planningDimensionalityQueryWrapper.eq("planning_season_id", seasonalPlanning.getSeasonId());
+        planningDimensionalityQueryWrapper.eq("channel", channelCode);
+        planningDimensionalityQueryWrapper.eq("planning_season_id", seasonId);
         planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
         planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
 
@@ -337,8 +366,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
 
         // 当品类都有第一维度数据后 查询维度表维度数据维度等级不为空的数据
         planningDimensionalityQueryWrapper.clear();
-        planningDimensionalityQueryWrapper.eq("channel", seasonalPlanning.getChannelCode());
-        planningDimensionalityQueryWrapper.eq("planning_season_id", seasonalPlanning.getSeasonId());
+        planningDimensionalityQueryWrapper.eq("channel", channelCode);
+        planningDimensionalityQueryWrapper.eq("planning_season_id", seasonId);
         planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
         planningDimensionalityQueryWrapper.isNotNull("dimensionality_grade");
         planningDimensionalityQueryWrapper.ne("dimensionality_grade", "");
@@ -384,6 +413,13 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                 .distinct()
                 .collect(Collectors.toList());
         if (ObjectUtil.isNotEmpty(fixedAttributesKeyList)) {
+            {
+                // 查询品类数据 用作没有中类时 查询品类下的数据
+                List<BasicStructureTreeVo> structureTreeByCodes = ccmFeignService.basicStructureTreeByCode(GeneralConstant.PRODCATEGORY_CODE, null, "1");
+                if (ObjectUtil.isNotEmpty(structureTreeByCodes)) {
+                    structureMap.put(GeneralConstant.PRODCATEGORY_CODE + "-" + "1", structureTreeByCodes);
+                }
+            }
             for (FieldManagementVo fieldManagementVo : fixedAttributesKeyList) {
                 if (GeneralConstant.PRODCATEGORY_2ND_CODE.equals(fieldManagementVo.getFieldExplain())) {
                     // 固定属性是中类
@@ -445,6 +481,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                                String dimensionCode,
                                String dimensionValue,
                                SeasonalPlanningDetails details,
+                               Boolean isMediumClass,
                                CategoryPlanning categoryPlanning,
                                FieldManagementVo fieldManagement,
                                List<SeasonalPlanningDetails> inSeasonalPlanningDetailsList,
@@ -497,6 +534,9 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             total += (ObjectUtil.isEmpty(skc) ? 0 : Integer.parseInt(skc));
         }
         categoryPlanningDetails.setTotal(String.valueOf(total));
+        if (isMediumClass) {
+            categoryPlanningDetails.setNumber(String.valueOf(skcCount));
+        }
         categoryPlanningDetailList.add(categoryPlanningDetails);
     }
 
@@ -581,7 +621,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             seasonalPlanningList.forEach(item -> {
                 if ("1".equals(item.getStatus())) {
-                    throw new OtherException("请先启用季节企划「" + item.getSeasonName() + "●企划看板（" + item.getChannelName() + "）"+ simpleDateFormat.format(item.getCreateDate()) + "」！");
+                    throw new OtherException("请先启用季节企划「" + item.getSeasonName() + "●企划看板（" + item.getChannelName() + "）" + simpleDateFormat.format(item.getCreateDate()) + "」！");
                 }
             });
         }
