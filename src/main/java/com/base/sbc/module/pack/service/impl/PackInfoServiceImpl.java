@@ -18,6 +18,8 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -100,7 +102,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
@@ -553,7 +554,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             if (designPricingCount + bigGoodsPricingCount < 2) {
                 throw new OtherException("转大货失败，请检查核价信息");
             }
-
+            //核价信息更新--防止未更新核价信息
+            UpdateCheckPackPricing(dto);
             //手动提交事务,防止下发配色的时候获取的数据不是修改后的数据
             platformTransactionManager.commit(transactionStatus);
             /*配色下发*/
@@ -1527,6 +1529,29 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
         return styleDtoList;
     }
+
+
+    private void UpdateCheckPackPricing(PackCommonSearchDto dto) {
+        PackPricing packPricing = packPricingService.getByForeignIdOne(dto.getForeignId(), dto.getPackType());
+        if (Objects.isNull(packPricing)){
+            return;
+        }
+        Map<String, BigDecimal> stringBigDecimalMap = packPricingService.calculateCosts(dto);
+
+        String calcItemVal = packPricing.getCalcItemVal();
+        if (StringUtils.isEmpty(calcItemVal)){
+            return;
+        }
+        JSONObject jsonObject = JSON.parseObject(calcItemVal);
+        for (String key : stringBigDecimalMap.keySet()) {
+            if (null != jsonObject.get(key)){
+                jsonObject.put(key, stringBigDecimalMap.get(key));
+            }
+        }
+        packPricing.setCalcItemVal(JSON.toJSONString(jsonObject));
+        packPricingService.updateById(packPricing);
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }
