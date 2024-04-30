@@ -61,7 +61,7 @@
         left join t_style ts on ts.id = tsc.style_id and ts.del_flag='0'
         left join t_order_book tob on tob.id = tobl.order_book_id and tob.del_flag='0'
         left join t_basicsdatum_colour_library tbcl on tbcl.colour_code = tsc.color_code and tbcl.del_flag='0'
-        LEFT JOIN t_pack_info tpi ON tsc.style_no = tpi.style_no and tpi.del_flag = '0'
+        LEFT JOIN t_pack_info tpi ON tsc.style_id = tpi.style_id and tpi.del_flag = '0'
         where tobl.del_flag='0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
