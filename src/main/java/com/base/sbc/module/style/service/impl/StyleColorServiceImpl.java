@@ -52,7 +52,6 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumColourLibraryService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumModelTypeService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
 import com.base.sbc.module.column.entity.ColumnDefine;
-import com.base.sbc.module.column.entity.ColumnUserDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.IdDto;
@@ -249,6 +248,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
+        queryWrapper.eq("tsc.status", "0");
         if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
             queryWrapper.eq("tsc.del_flag", "0");
             // bug 3325
