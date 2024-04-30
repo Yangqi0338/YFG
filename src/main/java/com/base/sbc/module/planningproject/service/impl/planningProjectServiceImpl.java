@@ -405,10 +405,14 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 // 查询此品类企划下的已经提交了的品类企划详情数据 将数据改成暂存状态
                 List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailsService.list(
                         new LambdaQueryWrapper<CategoryPlanningDetails>()
+                                .eq(CategoryPlanningDetails::getCategoryPlanningId, planningProjectList.get(0).getCategoryPlanningId())
                                 .in(CategoryPlanningDetails::getCategoryPlanningId, categoryIdList)
                                 .eq(CategoryPlanningDetails::getIsGenerate, "1")
                 );
                 if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                    for (CategoryPlanningDetails details : categoryPlanningDetailsList) {
+                        details.setIsGenerate("0");
+                    }
                     if (!categoryPlanningDetailsService.updateBatchById(categoryPlanningDetailsList)) {
                         throw new OtherException("企划看板删除失败，请刷新后重试！");
                     }
