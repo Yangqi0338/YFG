@@ -153,7 +153,7 @@
             concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode
             FROM
             t_style ts
-            LEFT JOIN  t_style_color tsc ON (ts.id = tsc.style_id  AND tsc.del_flag = '0')
+            LEFT JOIN  t_style_color tsc ON (ts.id = tsc.style_id  AND tsc.del_flag = '0' and tsc.status = '0')
             LEFT JOIN t_pack_info tpi on tpi.style_no = tsc.style_no
             LEFT JOIN t_style_pricing tsp on tsp.pack_id = tpi.id
 --             left join t_pre_production_sample_task tppst on tppst.pack_info_id = tpi.id
