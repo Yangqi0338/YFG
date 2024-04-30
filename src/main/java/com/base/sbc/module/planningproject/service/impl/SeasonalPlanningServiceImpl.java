@@ -209,21 +209,46 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
 
     private void compareForUpdate(List<SeasonalPlanningDetails> importDetailsList, List<SeasonalPlanningDetails> oldDetailsList,
                                   List<SeasonalPlanningDetails> addList, List<SeasonalPlanningDetails> updateList, List<SeasonalPlanningDetails> delList) {
+        // 更新数据
         Map<String, List<SeasonalPlanningDetails>> importDetailsMap = importDetailsList.stream().collect(Collectors.groupingBy(
-                        SeasonalPlanningDetails::getProdCategoryName, // 品类分组
+                        SeasonalPlanningDetails::getProdCategoryName,
                         Collectors.toList()
                 ));
-
+        // 旧数据
         Map<String, List<SeasonalPlanningDetails>> oldDetailsMap = oldDetailsList.stream().collect(Collectors.groupingBy(
-                SeasonalPlanningDetails::getProdCategoryName, // 品类分组
+                SeasonalPlanningDetails::getProdCategoryName,
                 Collectors.toList()
         ));
+        // 获取旧数据中的波段信息
+        List<String> bandNameList = new ArrayList<>();
+        for (String oldDetails : oldDetailsMap.keySet()) {
+            List<SeasonalPlanningDetails> seasonalPlanningDetails = oldDetailsMap.get(oldDetails);
+            Map<String, List<SeasonalPlanningDetails>> bandMap = seasonalPlanningDetails.stream().collect(Collectors.groupingBy(
+                    SeasonalPlanningDetails::getBandName,
+                    Collectors.toList()
+            ));
+            for (String bandName : bandMap.keySet()) {
+                bandNameList.add(bandName);
+            }
+            break;
+        }
 
+        /*// 新增新品类，不允许新增波段
+                Map<String, List<SeasonalPlanningDetails>> bandMap = importSeasonalList.stream().collect(Collectors.groupingBy(
+                        SeasonalPlanningDetails::getBandName,
+                        Collectors.toList()
+                ));
+                for (String bandName : bandMap.keySet()) {
+                    if (!bandNameList.contains(bandName)) {
+                        throw new RuntimeException("更新新的品类时，不允许新增波段");
+                    }
+                }*/
         for (String prodCategoryName : importDetailsMap.keySet()) {
             List<SeasonalPlanningDetails> oldSeasonalList = oldDetailsMap.get(prodCategoryName);
             List<SeasonalPlanningDetails> importSeasonalList = importDetailsMap.get(prodCategoryName);
             if (CollectionUtils.isEmpty(oldSeasonalList)) {
                 // old数据中不存在的品类 ----新增
+
                 // 导入数据是否为 "0"
                 if (StringUtils.isBlank(importSeasonalList.get(0).getProdCategory2ndName())) {
                     int sumOfValues = importSeasonalList.stream()
@@ -445,7 +470,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         }
                         break;
                     default:
-                        //数据列
+                        //数据行 5~i
                         SeasonalPlanningDetails orDefault = detailsMap.getOrDefault(j, new SeasonalPlanningDetails());
                         if (j == 0) {
                             //大类名称
@@ -468,10 +493,10 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             //中类名称
                             if (StrUtil.isNotEmpty(integerStringHashMap.get(j))) {
                                 prodCategory2ndName = integerStringHashMap.get(j);
-                            }
-                            apiResult = checkCategory(prodCategoryMap, prodCategory1stName, prodCategoryName, prodCategory2ndName);
-                            if (!apiResult.getSuccess()) {
-                                return apiResult;
+                                apiResult = checkCategory(prodCategoryMap, prodCategory1stName, prodCategoryName, prodCategory2ndName);
+                                if (!apiResult.getSuccess()) {
+                                    return apiResult;
+                                }
                             }
                         } else{
                             if (!integerStringHashMap.get(j).matches(pattern)) {
@@ -521,16 +546,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             return null;
         }
         return brandSeasons.stream().map(BasicsdatumBrandSeason::getMonth).collect(Collectors.toList());
-                                /*String seasonCode = seasonalPlanningSaveDto.getSeasonCode();
-                                String s1 = integerStringHashMap.get(j).split("")[0];
-                                if (Integer.parseInt(s1) <10){
-                                    s1 ="0"+s1;
-                                }
-                                BasicDictDepend basicDictDepend = dictDependsMap.get(s1 + seasonCode);*/
-        /*if (null == basicDictDepend) {
-            return ApiResult.error("波段:" + integerStringHashMap.get(j) + " 所属月份与季节:"+ seasonCode + " 不匹配", 500);
-        }
-        return true;*/
     }
 
     @Override
@@ -1039,7 +1054,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 return ApiResult.error("中类:" + prodCategory2ndName + " 输入错误，请检查后输入", 500);
             }
         }
-
         return ApiResult.success("校验通过");
     }
 
