@@ -62,6 +62,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
         queryWrapper.notEmptyLike("season_name",dto.getYear());
         queryWrapper.notEmptyLike("planning_project_name",dto.getPlanningProjectName());
+        queryWrapper.orderByDesc("create_date");
 
 
         List<PlanningProject> list = this.list(queryWrapper);
@@ -404,7 +405,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 // 查询此品类企划下的已经提交了的品类企划详情数据 将数据改成暂存状态
                 List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailsService.list(
                         new LambdaQueryWrapper<CategoryPlanningDetails>()
-                                .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryIdList)
+                                .in(CategoryPlanningDetails::getCategoryPlanningId, categoryIdList)
                                 .eq(CategoryPlanningDetails::getIsGenerate, "1")
                 );
                 if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {

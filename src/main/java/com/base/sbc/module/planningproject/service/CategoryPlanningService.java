@@ -3,6 +3,7 @@ package com.base.sbc.module.planningproject.service;
 import com.base.sbc.module.common.dto.BaseDto;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planningproject.dto.CategoryPlanningQueryDto;
 import com.base.sbc.module.planningproject.entity.CategoryPlanning;
 import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
@@ -41,6 +42,8 @@ public interface CategoryPlanningService extends BaseService<CategoryPlanning> {
             , CategoryPlanning categoryPlanning
             , List<String> dimensionIdList) ;
 
+
+    List<PlanningDimensionality> getPlanningDimensionalitieList(List<String> prodCategoryNameList, String channelCode, String seasonId);
 
     /**
      * 启用停用

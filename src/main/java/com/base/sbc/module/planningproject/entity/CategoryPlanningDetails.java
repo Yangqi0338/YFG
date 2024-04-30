@@ -109,8 +109,8 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
     private String dataJson;
 
     /**
-     * 是否已生成数据（到品类维度）
+     * 是否已生成数据（到品类维度）（0-已保存 1-已审核 2-已作废）
      */
-    @ApiModelProperty(value = "是否已生成数据（到品类维度）")
+    @ApiModelProperty(value = "是否已生成数据（到品类维度）（0-已保存 1-已审核 2-已作废）")
     private String isGenerate;
 }

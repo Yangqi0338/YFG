@@ -35,16 +35,16 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
     CategoryPlanningDetailVO getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 
     /**
-     * 品类企划暂存
+     * 品类企划保存
      *
-     * @param categoryPlanningDetailsList 要暂存的数据
+     * @param categoryPlanningDetailsList 要保存的数据
      */
     void staging(List<CategoryPlanningDetails> categoryPlanningDetailsList);
 
     /**
-     * 品类企划保存
+     * 品类企划审核
      *
-     * @param categoryPlanningDetailsList 要保存的数据
+     * @param categoryPlanningDetailsList 要审核的数据
      */
     void preservation(List<CategoryPlanningDetails> categoryPlanningDetailsList);
 
@@ -56,9 +56,9 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
     List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 
     /**
-     * 撤回品类企划 只能撤回未提交的数据 撤回的粒度是到品类级别
+     * 作废品类企划 只能作废未提交的数据 作废的粒度是到品类级别
      *
-     * @param categoryPlanningDetailDTO 要撤回的数据
+     * @param categoryPlanningDetailDTO 要作废的数据
      */
     void revocation(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 
