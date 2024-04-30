@@ -728,38 +728,81 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         SeasonalPlanningDetails::getProdCategory1stName, // 大类分组
                         Collectors.toList()
                 ));
-        Map<String, List<SeasonalPlanningDetails>> groupByProdCate = new LinkedHashMap<>();
-        Map<Integer, Object> groupByProdCategory1stNameSort = new HashMap<>();
+        Map<String, List<SeasonalPlanningDetails>> orderByProdCategory1stNameMap = new LinkedHashMap<>();
+        // 大类排序
+        Map<Integer, String> groupByProdCategory1stNameSort = new HashMap<>();
         for (String prodCategory1stName : groupByProdCategory1stNameMap.keySet()) {
             Integer sort = null == sortMap.get(prodCategory1stName) ? 0 : sortMap.get(prodCategory1stName);
             groupByProdCategory1stNameSort.put(sort, prodCategory1stName);
+        }
+        Map<Integer, String> orderByProdCategory1stName = sort(groupByProdCategory1stNameSort);
+        if (orderByProdCategory1stName.size() == groupByProdCategory1stNameMap.size()) {
+            for (Integer sort : orderByProdCategory1stName.keySet()) {
+                String prodCategory1stName = orderByProdCategory1stName.get(sort);
+                orderByProdCategory1stNameMap.put(prodCategory1stName, groupByProdCategory1stNameMap.get(prodCategory1stName));
+            }
+        } else {
+            orderByProdCategory1stNameMap.putAll(groupByProdCategory1stNameMap);
+        }
+
+        Map<String, List<SeasonalPlanningDetails>> orderByProdCategoryNameMap = new LinkedHashMap<>();
+        for (String prodCategory1stName : orderByProdCategory1stNameMap.keySet()) {
             List<SeasonalPlanningDetails> prodCategory1stNameList = groupByProdCategory1stNameMap.get(prodCategory1stName);
             Map<String, List<SeasonalPlanningDetails>> groupByProdCategoryNameMap = prodCategory1stNameList.stream()
                     .collect(Collectors.groupingBy(
                             SeasonalPlanningDetails::getProdCategoryName, // 品类分组
                             Collectors.toList()
                     ));
-            // TODO 排序
-            groupByProdCate.putAll(groupByProdCategoryNameMap);
+
+            // 品类排序
+            Map<Integer, String> groupByProdCategoryNameSort = new HashMap<>();
+            for (String prodCategoryName : groupByProdCategoryNameMap.keySet()) {
+                Integer sort = null == sortMap.get(prodCategory1stName + "_" + prodCategoryName) ? 0 : sortMap.get(prodCategory1stName);
+                groupByProdCategoryNameSort.put(sort, prodCategoryName);
+            }
+            if (groupByProdCategoryNameMap.size() == groupByProdCategoryNameSort.size()) {
+                Map<Integer, String> orderByProdCategoryName = sort(groupByProdCategoryNameSort);
+                for (Integer sort : orderByProdCategoryName.keySet()) {
+                    String prodCategoryName = orderByProdCategoryName.get(sort);
+                    orderByProdCategoryNameMap.put(prodCategoryName, groupByProdCategoryNameMap.get(prodCategoryName));
+                }
+            } else {
+                orderByProdCategoryNameMap.putAll(groupByProdCategoryNameMap);
+            }
         }
 
-
-        for (String prodCategory : groupByProdCate.keySet()) {
+        for (String prodCategory : orderByProdCategoryNameMap.keySet()) {
             Map<Integer, String> sumRow = new LinkedHashMap<>();
             Map<Integer, String> orderSumRow = new LinkedHashMap<>();
-            List<SeasonalPlanningDetails> prodCategoryList = groupByProdCate.get(prodCategory);
+            List<SeasonalPlanningDetails> prodCategoryList = orderByProdCategoryNameMap.get(prodCategory);
 
             Map<String, List<SeasonalPlanningDetails>> groupByProdCategory2nd = new LinkedHashMap<>();
-
             // 中类为空
             if (StringUtils.isBlank(prodCategoryList.get(0).getProdCategory2ndName())) {
                 groupByProdCategory2nd.put("-", prodCategoryList);
             } else {
-                groupByProdCategory2nd = prodCategoryList.stream()
+                Map<String, List<SeasonalPlanningDetails>> groupByProdCategory2ndMap = prodCategoryList.stream()
                         .collect(Collectors.groupingBy(
                                 SeasonalPlanningDetails::getProdCategory2ndName, // 中类类分组
                                 Collectors.toList()
                         ));
+                // 中类排序
+                Map<Integer, String> groupByProdCategory2ndNameSort = new HashMap<>();
+                for (String prodCategory2ndName : groupByProdCategory2ndMap.keySet()) {
+                    String prodCategory1stName = groupByProdCategory2ndMap.get(prodCategory2ndName).get(0).getProdCategory1stName();
+                    Integer sort = null == sortMap.get(prodCategory1stName + "_" + prodCategory + "_" + prodCategory2ndName) ?
+                            0 : sortMap.get(prodCategory1stName + "_" + prodCategory + "_" + prodCategory2ndName);
+                    groupByProdCategory2ndNameSort.put(sort, prodCategory2ndName);
+                }
+                if (groupByProdCategory2ndNameSort.size() == groupByProdCategory2ndMap.size()) {
+                    Map<Integer, String> orderByProdCategory2ndName = sort(groupByProdCategory2ndNameSort);
+                    for (Integer sort : orderByProdCategory2ndName.keySet()) {
+                        String prodCategory2ndName = orderByProdCategory2ndName.get(sort);
+                        groupByProdCategory2nd.put(prodCategory2ndName, groupByProdCategory2ndMap.get(prodCategory2ndName));
+                    }
+                } else {
+                    groupByProdCategory2nd.putAll(groupByProdCategory2ndMap);
+                }
             }
             for (String prodCategory2nd : groupByProdCategory2nd.keySet()) {
                 Map<Integer, String> rowData = new LinkedHashMap<>();
