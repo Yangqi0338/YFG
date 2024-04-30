@@ -248,7 +248,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
-        queryWrapper.eq("tsc.status", "0");
         if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
             queryWrapper.eq("tsc.del_flag", "0");
             // bug 3325
