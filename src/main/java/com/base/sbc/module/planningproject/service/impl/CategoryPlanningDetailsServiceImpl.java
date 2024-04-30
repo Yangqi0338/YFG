@@ -625,6 +625,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                     + "-" + item.getBandName()
                             , LinkedHashMap::new, Collectors.toList()
                     ));
+
             for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : brandCategoryPlanningDetailsMap.entrySet()) {
                 List<CategoryPlanningDetails> list = stringListEntry.getValue();
                 CategoryPlanningDetails categoryPlanningDetails = list.get(0);
@@ -682,6 +683,21 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     CategoryPlanningDetails::getDimensionCode);
             List<CategoryPlanningDetails> groupByDimensionalityValueList = list(queryWrapper);
 
+            // 重新排序
+            {
+
+                Map<String, List<CategoryPlanningDetails>> categoryPlanningDetailsMap = groupByDimensionalityValueList.stream()
+                        .collect(Collectors.groupingBy(
+                                item -> item.getProdCategoryName()
+                                        + "-" + item.getProdCategory2ndName()
+                                , LinkedHashMap::new, Collectors.toList()
+                        ));
+                groupByDimensionalityValueList = new ArrayList<>();
+                for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : categoryPlanningDetailsMap.entrySet()) {
+                    groupByDimensionalityValueList.addAll(stringListEntry.getValue());
+                }
+            }
+
             // 在每个维度名称后面增加合计的数据
             Map<String, List<CategoryPlanningDetails>> categoryPlanningDetailsMap = groupByDimensionalityValueList.stream()
                     .collect(Collectors.groupingBy(
@@ -690,6 +706,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                     + "-" + item.getDimensionName()
                             , LinkedHashMap::new, Collectors.toList()
                     ));
+
+
 
             // 设置初始化的索引位置
             int index = 0;
