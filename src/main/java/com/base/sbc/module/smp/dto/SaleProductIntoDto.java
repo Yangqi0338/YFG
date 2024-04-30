@@ -29,6 +29,9 @@ public class SaleProductIntoDto extends Page implements Serializable {
     @ApiModelProperty(value = "参考款款号")
     private String similarBulkStyleNo;
 
+    @ApiModelProperty(value = "参考款款号")
+    private List<String> similarBulkStyleNos;
+
     /**
      * 大货款号 in
      */

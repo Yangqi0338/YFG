@@ -1,12 +1,10 @@
 package com.base.sbc.module.orderbook.dto;
 
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -154,6 +152,9 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
      */
     @ApiModelProperty(value = "参考款款号")
     private String similarBulkStyleNo;
+
+    @ApiModelProperty(value = "参考款款号")
+    private List<String>  similarBulkStyleNos;
 
     private List<OrderBookChannelType> channel;
 }

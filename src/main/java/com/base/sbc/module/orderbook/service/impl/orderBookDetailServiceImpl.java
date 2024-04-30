@@ -93,6 +93,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
@@ -356,24 +357,24 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            });
 //            orderBookDetailVo.setCommissioningSize(JSON.toJSONString(jsonObject));
 
-            //查询参考款
-            if (CommonUtils.judge(judgeList, 2, 0) && StringUtils.isNotBlank(orderBookDetailVo.getSimilarBulkStyleNo())){
-                OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
-                orderBookDetailQueryDto.setSimilarBulkStyleNo(orderBookDetailVo.getSimilarBulkStyleNo());
-                orderBookDetailQueryDto.setChannel(OrderBookChannelType.getByNames(orderBookDetailVo.getChannel()));
-                orderBookDetailQueryDto.setPageNum(0);
-                orderBookDetailQueryDto.setPageSize(20);
-                PageInfo<OrderBookSimilarStyleVo> pageInfo = this.similarStyleList(orderBookDetailQueryDto);
-                if (pageInfo.getList().size() > 0){
-                    orderBookDetailVo.setSimilarStyle(pageInfo.getList().get(0));
-                }
-            }
-
             if (orderBookDetailVo.getPlaceOrderType() == null) {
                 orderBookDetailVo.setPlaceOrderType(StylePutIntoType.FIRST);
             }
         }
-
+        //参考款
+        List<String> similarBulkStyleNos = orderBookDetailVos.stream().map(OrderBookDetailVo::getSimilarBulkStyleNo).collect(Collectors.toList());
+        if (CommonUtils.judge(judgeList, 2, 0) && !CollectionUtils.isEmpty(similarBulkStyleNos)){
+            OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
+            orderBookDetailQueryDto.setSimilarBulkStyleNos(similarBulkStyleNos);
+            orderBookDetailQueryDto.setChannel(Arrays.asList(OrderBookChannelType.values()));
+            List<OrderBookSimilarStyleVo> similarStyleVos = this.similarStyleList(orderBookDetailQueryDto).getList();
+            Map<String, List<OrderBookSimilarStyleVo>> map = similarStyleVos.stream().collect(Collectors.groupingBy(OrderBookSimilarStyleVo::getBulkStyleNo));
+            orderBookDetailVos.forEach(item ->{
+                if (StringUtils.isNotBlank(item.getSimilarBulkStyleNo()) && !CollectionUtils.isEmpty(map.get(item.getSimilarBulkStyleNo()))){
+                    item.setSimilarStyle(map.get(item.getSimilarBulkStyleNo()).get(0));
+                }
+            });
+        }
         return orderBookDetailVos;
     }
 
@@ -1508,7 +1509,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (CollUtil.isNotEmpty(online) && BasicNumber.ONE.getNumber().equals(online.get(0).getIsEdit())){
             channelList.add(OrderBookChannelType.ONLINE.getText());
         }
-        if (CollUtil.isNotEmpty(channelList)){
+        if (CollUtil.isNotEmpty(channelList) && CollUtil.isNotEmpty(saleProductIntoDto.getChannelList())){
             channelList.retainAll(saleProductIntoDto.getChannelList());
         }
         saleProductIntoDto.setChannelList(channelList);
