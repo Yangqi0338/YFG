@@ -114,6 +114,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                 planningSummary.setSeatGap(String.valueOf(seatGap));
                 planningSummaryQueryVoList.add(planningSummary);
             }
+            Collections.sort(planningSummaryQueryVoList, Comparator.comparing(PlanningSummaryQueryVo::getBandName));
             result.setSuccess(true);
             result.setData(planningSummaryQueryVoList);
             return result;
