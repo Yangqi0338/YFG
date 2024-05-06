@@ -1999,7 +1999,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         if ("1".equals(queryDto.getUploadImageFlag())) {
             queryWrapper.isNotNullStr("tsc.style_color_pic");
-        } else {
+        } else if ("0".equals(queryDto.getUploadImageFlag())) {
             queryWrapper.isNullStr("tsc.style_color_pic");
         }
 
