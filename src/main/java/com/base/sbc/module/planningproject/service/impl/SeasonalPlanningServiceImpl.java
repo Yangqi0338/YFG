@@ -300,8 +300,14 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         if (0 == sumOfValues) {
                             delList.addAll(oldSeasonalList);
                         } else {
-                            copySeasonalPlanningDetails(importSeasonalList, oldSeasonalList);
-                            updateList.addAll(oldSeasonalList);
+                            /*copySeasonalPlanningDetails(importSeasonalList, oldSeasonalList);
+                            updateList.addAll(oldSeasonalList);*/
+                            List<SeasonalPlanningDetails> delDetalsList = oldSeasonalList.stream().map(s -> {
+                                s.setDelFlag("1");
+                                return s;
+                            }).collect(Collectors.toList());
+                            delList.addAll(delDetalsList);
+                            addList.addAll(importSeasonalList);
                         }
                     }
                 } else {
@@ -342,8 +348,14 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                     }).collect(Collectors.toList());
                                     delList.addAll(deloldProdCategory2ndsList);
                                 } else {
-                                    copySeasonalPlanningDetails(importProdCategory2nds, oldProdCategory2nds);
-                                    updateList.addAll(oldProdCategory2nds);
+                                    /*copySeasonalPlanningDetails(importProdCategory2nds, oldProdCategory2nds);
+                                    updateList.addAll(oldProdCategory2nds);*/
+                                    List<SeasonalPlanningDetails> deloldProdCategory2ndsList = oldProdCategory2nds.stream().map(s -> {
+                                        s.setDelFlag("1");
+                                        return s;
+                                    }).collect(Collectors.toList());
+                                    delList.addAll(deloldProdCategory2ndsList);
+                                    addList.addAll(importProdCategory2nds);
                                 }
                             }
                         }
