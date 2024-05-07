@@ -12,17 +12,22 @@ import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumLavationReminderDto;
@@ -47,9 +52,14 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -73,6 +83,9 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
 
         @Autowired
         private CcmFeignService ccmFeignService;
+
+        @Autowired
+        private CcmService ccmService;
 
         @Autowired
         private BasicsdatumWashIconService basicsdatumWashIconService;
@@ -125,18 +138,34 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
                    .in(BasicsdatumWashIcon::getName, washIconCodeList).or()
                    .in(BasicsdatumWashIcon::getCode, washIconCodeList)));
            /*获取字典值*/
-           Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("wxts");
-           Map<String, String> map = MapUtil.reverse(MapUtil.sort(dictInfoToMap.get("wxts")));
+           List<BasicBaseDict> dictInfoList = ccmFeignService.getDictInfoToList("wxts");
+           String maxValue = StrUtil.replace(
+                   dictInfoList.stream().max(Comparator.comparing(BasicBaseDict::getValue)).map(BasicBaseDict::getValue).orElse(""),
+                   "WX", "");
+           // 最长匹配原则
+           dictInfoList.sort(Comparator.comparing(BasicBaseDict::getNameLength).reversed());
+           List<BasicBaseDict> newDictInfoList = new ArrayList<>();
            for (BasicsdatumLavationReminderExcelDto basicsdatumLavationReminderExcelDto : list) {
                StrJoiner reminderNameJoiner = StrJoiner.of("\n");
                StrJoiner reminderCodeJoiner = StrJoiner.of(COMMA);
                if(StringUtils.isNotBlank(basicsdatumLavationReminderExcelDto.getReminderName())){
                    List<String> reminderList = StrUtil.split(basicsdatumLavationReminderExcelDto.getReminderName(), "\n");
                    reminderList.forEach(reminderName-> {
-                       if (map.containsKey(reminderName)) {
+                       Optional<BasicBaseDict> dictOpt = dictInfoList.stream().filter(it -> reminderName.equals(it.getName())).findFirst();
+                       if (dictOpt.isPresent()) {
                            reminderNameJoiner.append(reminderName);
-                           reminderCodeJoiner.append(map.get(reminderName));
-                       }else {
+                           reminderCodeJoiner.append(dictOpt.get().getValue());
+                       }else if (NumberUtil.isNumber(maxValue)) {
+                           reminderNameJoiner.append(reminderName);
+                           int newCode = Integer.parseInt(maxValue) + 1;
+                           String newCodeStr = "WX" + MoreLanguageProperties.calculateZeroFill(newCode, 10);
+                           reminderCodeJoiner.append(newCodeStr);
+                           BasicBaseDict baseDict = BeanUtil.copyProperties(dictInfoList.stream().findFirst().get(),BasicBaseDict.class);
+                           baseDict.setValue(newCodeStr);
+                           baseDict.setName(reminderName);
+                           baseDict.setSort(BigDecimal.valueOf(newCode));
+                           newDictInfoList.add(baseDict);
+                       } else {
                            throw new OtherException("wxts字典中缺少"+ reminderName + "的字典项");
                        }
                    });
@@ -149,7 +178,9 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
                        washIconList.stream().filter(it -> washIconCode.equals(it.getCode())).findFirst().orElseThrow(() -> new OtherException("不存在" + washIconCode + "洗标"))
                );
                basicsdatumLavationReminderExcelDto.setWashIconCode(basicsdatumWashIcon.getCode());
+               basicsdatumLavationReminderExcelDto.setUrl(basicsdatumWashIcon.getUrl());
            }
+           ccmService.batchInsert(newDictInfoList);
 
            List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = BeanUtil.copyToList(list, BasicsdatumLavationReminder.class);
            for (BasicsdatumLavationReminder basicsdatumLavationReminder : basicsdatumLavationReminderList) {

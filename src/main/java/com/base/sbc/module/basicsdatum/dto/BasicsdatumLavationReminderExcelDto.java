@@ -27,7 +27,6 @@ public class BasicsdatumLavationReminderExcelDto  {
 
     /** 图片 */
     @ApiModelProperty(value = "图片"  )
-    @Excel(name = "图片",type = 2)
     private String url;
     /** 编码 */
     @ApiModelProperty(value = "洗标编码"  )
