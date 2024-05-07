@@ -181,12 +181,17 @@
     </select>
     <select id="listSku" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
 		SELECT
+		<if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+			${ew.sqlSelect}
+		</if>
+		<if test="ew.sqlSelect == null or ew.sqlSelect == ''">
 			tbm.*,
 			tbmc.color_code,
 			tbmc.color_name,
 			tbmp.quotation_price,
 			tbmp.supplier_material_code,
 			tbmc.supplier_color_code
+		</if>
 		FROM
 			t_basicsdatum_material tbm
 			LEFT JOIN t_basicsdatum_material_color tbmc on  tbmc.material_code = tbm.material_code and tbmc.del_flag='0'

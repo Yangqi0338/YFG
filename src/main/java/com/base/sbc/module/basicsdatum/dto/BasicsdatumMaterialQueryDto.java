@@ -2,6 +2,7 @@ package com.base.sbc.module.basicsdatum.dto;
 
 import com.base.sbc.config.common.base.Page;
 
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("物料列表查询")
-public class BasicsdatumMaterialQueryDto extends Page {
+public class BasicsdatumMaterialQueryDto  extends QueryFieldDto {
 	private static final long serialVersionUID = 1L;
 	/** 物料编号 */
 	@ApiModelProperty(value = "物料编号")

@@ -13,6 +13,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+
 /**
  * 
  * 物料档案主表保存实体
@@ -41,6 +44,8 @@ public class BasicsdatumMaterialSaveDto {
 	@ApiModelProperty(value = "id")
 	private String id;
 	/** 物料编号 */
+	@Size(min = 6, max = 12, message = "编号长度不能小于6位，最长不能超过12位!")
+	@Pattern(regexp ="^[a-zA-Z0-9_-]+$", message= "不能输入特殊字符，只能输入数字，字母，下划线和横杠！")
 	@ApiModelProperty(value = "物料编号")
 	private String materialCode;
 	/** 物料名称 */

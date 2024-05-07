@@ -209,7 +209,19 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qc.orderByDesc("tbm.create_date");
         qc.eq("tbm.del_flag", "0");
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
+
+        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
+
         List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
+
+        if (CollUtil.isEmpty(list)) {
+            return new PageInfo<>(list);
+        }
+        if (isColumnHeard) {
+            return new PageInfo<>(list);
+        }
+
+
         // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
         List<String> stringList = IdGen.getIds(list.size());
         int index = 0;
@@ -224,18 +236,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             basicsdatumMaterialPageVo.setWidthName(String.join(",", collect));
 
             if ( CollUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto)) {
-
-
                 basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.get(0).getRemark());
                 basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.get(0).getCompanyFullName());
                 basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.get(0).getArriveDate());
-                basicsdatumMaterialPageVo
-                        .setCheckValidDate(Integer.valueOf(escmMaterialCompnentInspectCompanyDto.get(0).getValidityTime()));
+                basicsdatumMaterialPageVo.setCheckValidDate(Integer.valueOf(escmMaterialCompnentInspectCompanyDto.get(0).getValidityTime()));
                 basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.get(0).getSendInspectContent());
                 basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.get(0).getMakerByName());
                 basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.get(0).getFileUrl());
             }
-
         }
         minioUtils.setObjectUrlToList(list, "imageUrl");
         return new PageInfo<>(list);
@@ -1361,7 +1369,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         dto.setConfirmStatus("1");
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveBasicsdatumMaterial(dto);
         flowableService.start(FlowableService.BASICSDATUM_MATERIAL,
-                FlowableService.BASICSDATUM_MATERIAL, basicsdatumMaterialVo.getId(),
+                FlowableService.BASICSDATUM_MATERIAL,        StrUtil.isNotEmpty(dto.getId()) ? dto.getId() : basicsdatumMaterialVo.getId(),
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "/pdm/api/saas/basicsdatumMaterial/approval",
