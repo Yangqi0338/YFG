@@ -103,7 +103,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                 if (orderNumber == 0 || orderBandNumber == 0) {
                     planningSummary.setOrderProportion("0");
                 } else {
-                    planningSummary.setOrderProportion(String.valueOf(orderNumber/orderBandNumber));
+                    planningSummary.setOrderProportion(String.valueOf(orderBandNumber/orderNumber));
                 }
 
                 List<Style> filterList = styleList.stream().filter(style -> StringUtils.equals(bandName, style.getBandName())).collect(Collectors.toList());
