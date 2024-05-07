@@ -560,6 +560,17 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             return categoryPlanningDetailVO;
         }
 
+        // 查询当前品类企划详情数据
+        List<CategoryPlanningDetails> oldCategoryPlanningDetailsList = list(
+                new LambdaQueryWrapper<CategoryPlanningDetails>()
+                        .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
+                        .eq(CategoryPlanningDetails::getProdCategoryCode, categoryPlanningDetailDTO.getProdCategoryCode())
+        );
+
+        if (ObjectUtil.isEmpty(oldCategoryPlanningDetailsList)) {
+            throw new OtherException("品类企划详情数据不存在，请刷新后重试！");
+        }
+
         // 根据传入的维度 id 判断是否有不能存在的维度 如果有 则新增品类企划数据
         List<CategoryPlanningDetails> dimensionality = getDimensionalitySelf(categoryPlanningDetailDTO, categoryPlanning);
         if (ObjectUtil.isNotEmpty(dimensionality)) {
@@ -586,6 +597,10 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                 dimensionIdList
                         );
                         if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                            // 还要判断当前的品类数据是否撤回 如果撤回 那么新增的数据也是撤回的 因为撤回是到品类级别的
+                            if (oldCategoryPlanningDetailsList.get(0).getIsGenerate().equals("2")) {
+                                categoryPlanningDetailsList.forEach(item -> item.setIsGenerate("2"));
+                            }
                             boolean saveFlag = saveBatch(categoryPlanningDetailsList);
                             if (!saveFlag) {
                                 throw new OtherException("同步最新维度数据出现错误，请刷新后重试！");
@@ -597,19 +612,14 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         }
 
         {
-            // 查询所有的品类企划详情数据 修改维度等等级
-            List<CategoryPlanningDetails> categoryPlanningDetailsList = list(
-                    new LambdaQueryWrapper<CategoryPlanningDetails>()
-                            .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
-                            .eq(CategoryPlanningDetails::getProdCategoryCode, categoryPlanningDetailDTO.getProdCategoryCode())
-            );
+
             // 最新的维度配置
             List<CategoryPlanningDetails> dynamicCategoryPlanningDetailsList = getDimensionality(categoryPlanningDetailDTO);
             Map<String, CategoryPlanningDetails> categoryPlanningDetailsMap = dynamicCategoryPlanningDetailsList.stream()
                     .collect(Collectors.toMap(CategoryPlanningDetails::getDimensionId, item -> item));
 
             List<CategoryPlanningDetails> finalList = new ArrayList<>();
-            for (CategoryPlanningDetails categoryPlanningDetails : categoryPlanningDetailsList) {
+            for (CategoryPlanningDetails categoryPlanningDetails : oldCategoryPlanningDetailsList) {
                 CategoryPlanningDetails details = categoryPlanningDetailsMap.get(categoryPlanningDetails.getDimensionId());
                 if (ObjectUtil.isNotEmpty(details)) {
                     if (!details.getDimensionalityGrade().equals(categoryPlanningDetails.getDimensionalityGrade())) {
@@ -621,7 +631,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             }
 
             if (ObjectUtil.isNotEmpty(finalList)) {
-                updateBatchById(categoryPlanningDetailsList);
+                updateBatchById(oldCategoryPlanningDetailsList);
             }
         }
 
