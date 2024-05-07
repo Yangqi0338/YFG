@@ -39,10 +39,12 @@ public enum DataPermissionsBusinessTypeEnum {
     CategorySummaryCount("CategorySummaryCount", "品类汇总统计"),
 
     //报表中心
+    styleAnalyseDesign("styleAnalyseDesign", "设计分析报表"),
     hangTagReport("hangTagReport", "电商充绒量报表"),
     designOrderScheduleDetailsReport("designOrderScheduleDetailsReport", "设计下单进度明细报表"),
     styleSizeReport("styleSizeReport", "尺寸查询报表"),
     stylePackBomMaterialReport("stylePackBomMaterialReport", "BOM清单查询报表"),
+    styleAnalyseStyle("styleAnalyseStyle", "大货分析报表"),
 
     work_log("work_log","工作小账"),
     ;
