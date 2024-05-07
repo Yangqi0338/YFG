@@ -601,20 +601,28 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             List<CategoryPlanningDetails> categoryPlanningDetailsList = list(
                     new LambdaQueryWrapper<CategoryPlanningDetails>()
                             .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
+                            .eq(CategoryPlanningDetails::getProdCategoryCode, categoryPlanningDetailDTO.getProdCategoryCode())
             );
             // 最新的维度配置
             List<CategoryPlanningDetails> dynamicCategoryPlanningDetailsList = getDimensionality(categoryPlanningDetailDTO);
             Map<String, CategoryPlanningDetails> categoryPlanningDetailsMap = dynamicCategoryPlanningDetailsList.stream()
                     .collect(Collectors.toMap(CategoryPlanningDetails::getDimensionId, item -> item));
+
+            List<CategoryPlanningDetails> finalList = new ArrayList<>();
             for (CategoryPlanningDetails categoryPlanningDetails : categoryPlanningDetailsList) {
                 CategoryPlanningDetails details = categoryPlanningDetailsMap.get(categoryPlanningDetails.getDimensionId());
                 if (ObjectUtil.isNotEmpty(details)) {
-                    categoryPlanningDetails.setDimensionalityGrade(details.getDimensionalityGrade());
-                    categoryPlanningDetails.setDimensionalityGradeName(details.getDimensionalityGradeName());
+                    if (!details.getDimensionalityGrade().equals(categoryPlanningDetails.getDimensionalityGrade())) {
+                        categoryPlanningDetails.setDimensionalityGrade(details.getDimensionalityGrade());
+                        categoryPlanningDetails.setDimensionalityGradeName(details.getDimensionalityGradeName());
+                        finalList.add(categoryPlanningDetails);
+                    }
                 }
             }
 
-            updateBatchById(categoryPlanningDetailsList);
+            if (ObjectUtil.isNotEmpty(finalList)) {
+                updateBatchById(categoryPlanningDetailsList);
+            }
         }
 
 
