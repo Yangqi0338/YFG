@@ -210,16 +210,16 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qc.eq("tbm.del_flag", "0");
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
 
-        boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
+        //boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
 
         List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
 
-        if (CollUtil.isEmpty(list)) {
+        /*if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
         }
         if (isColumnHeard) {
             return new PageInfo<>(list);
-        }
+        }*/
 
 
         // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
@@ -459,6 +459,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             throw new OtherException("数据库找不到该物料信息，无法做删除操作！");
         }
 
+        List<String> materialsCodes = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
+                .collect(Collectors.toList());
+
         /*控制是否下发外部SMP系统开关*/
         Boolean systemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
         if (systemSwitch) {
@@ -469,8 +472,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             }
         }
 
-        List<String> materialsCodes = this.list(qc).stream().map(BasicsdatumMaterial::getMaterialCode)
-                .collect(Collectors.toList());
+
 
         if (CollUtil.isNotEmpty(materialsCodes)) {
             BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> checkBomQc = new BaseQueryWrapper<>();
