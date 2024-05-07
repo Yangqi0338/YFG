@@ -78,54 +78,57 @@ public class EditPermissionAspect {
                     //第一个循环是按照用户组分组，多个用户组之间用or
                     a:
                     for (DataPermissionVO dataPermissions : dataPermissionsList) {
-                        if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())) {
-                            List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
-                            Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
-                            //组间 结果集
-                            Boolean lastGroupEdit = null;
-                            for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
+                        if (DataPermissionsRangeEnum.ALL.getK().equals(dataPermissions.getRange())) {
+                            //如果有一个角色是全部，则直接可编辑
+                            hasEditPermission = true;
+                            break;
+                        }
+                        List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
+                        Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
+                        //组间 结果集
+                        Boolean lastGroupEdit = null;
+                        for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
 
-                                List<FieldDataPermissionVO> value = entry.getValue();
-                                String groupSelectType = value.get(0).getGroupSelectType();
-                                //组内 结果集
-                                Boolean lastEdit = null;
-                                for (FieldDataPermissionVO fieldDataPermissionVO : value) {
-                                    boolean hasEdit = hasEditPermission(o, fieldDataPermissionVO);
-                                    if (lastEdit == null) {
-                                        lastEdit = hasEdit;
-                                    } else {
-                                        String conditionType = fieldDataPermissionVO.getConditionType();
-                                        if ("and".equals(conditionType)) {
-                                            lastEdit = lastEdit && hasEdit;
-                                        } else {
-                                            if (lastEdit) {
-                                                lastGroupEdit = true;
-                                                break;
-                                            } else {
-                                                lastEdit = hasEdit;
-                                            }
-                                        }
-                                    }
-                                }
-                                if (lastGroupEdit == null) {
-                                    lastGroupEdit = lastEdit;
+                            List<FieldDataPermissionVO> value = entry.getValue();
+                            String groupSelectType = value.get(0).getGroupSelectType();
+                            //组内 结果集
+                            Boolean lastEdit = null;
+                            for (FieldDataPermissionVO fieldDataPermissionVO : value) {
+                                boolean hasEdit = hasEditPermission(o, fieldDataPermissionVO);
+                                if (lastEdit == null) {
+                                    lastEdit = hasEdit;
                                 } else {
-                                    if ("and".equals(groupSelectType)) {
-                                        lastGroupEdit = lastGroupEdit && lastEdit;
+                                    String conditionType = fieldDataPermissionVO.getConditionType();
+                                    if ("and".equals(conditionType)) {
+                                        lastEdit = lastEdit && hasEdit;
                                     } else {
-                                        if (lastGroupEdit) {
-                                            hasEditPermission = true;
-                                            break a;
+                                        if (lastEdit) {
+                                            lastGroupEdit = true;
+                                            break;
                                         } else {
-                                            lastGroupEdit = lastEdit;
+                                            lastEdit = hasEdit;
                                         }
                                     }
                                 }
                             }
-                            if(Boolean.TRUE.equals(lastGroupEdit)){
-                                hasEditPermission = true;
-                                break;
+                            if (lastGroupEdit == null) {
+                                lastGroupEdit = lastEdit;
+                            } else {
+                                if ("and".equals(groupSelectType)) {
+                                    lastGroupEdit = lastGroupEdit && lastEdit;
+                                } else {
+                                    if (lastGroupEdit) {
+                                        hasEditPermission = true;
+                                        break a;
+                                    } else {
+                                        lastGroupEdit = lastEdit;
+                                    }
+                                }
                             }
+                        }
+                        if(Boolean.TRUE.equals(lastGroupEdit)){
+                            hasEditPermission = true;
+                            break;
                         }
                     }
                     if (o instanceof EditPermissionReturnVo) {
