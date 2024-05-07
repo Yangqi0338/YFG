@@ -46,6 +46,9 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
     @Override
     public ApiResult queryList(PlanningSummaryQueryDto planningSummaryQueryDto) {
         ApiResult result = new ApiResult();
+        if (StringUtils.isBlank(planningSummaryQueryDto.getCategoryCode())) {
+            return ApiResult.error("请选择品类", 500);
+        }
         // 波段维度查询
         // 查询总需求列表
         QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
@@ -54,7 +57,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
         queryWrapper.eq("channel_code", planningSummaryQueryDto.getChannel());
         List<SeasonalPlanning> seasonalPlanningDetailsList = seasonalPlanningService.list(queryWrapper);
         if (CollectionUtils.isEmpty(seasonalPlanningDetailsList)) {
-            return ApiResult.success("无数据");
+            return ApiResult.success("当前产品季未查询到季节企划数据");
         }
 
         SeasonalPlanning seasonalPlanning = seasonalPlanningDetailsList.get(0);
@@ -64,7 +67,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
         detailQueryWrapper.orderBy(true, true, "band_name");
         List<SeasonalPlanningDetails> seasonalList = seasonalPlanningDetailsService.list(detailQueryWrapper);
         if (CollectionUtils.isEmpty(seasonalList)) {
-            return ApiResult.success("无数据");
+            return ApiResult.success("当前产品季未查询到季节企划数据");
         }
         String prodCategoryName = seasonalList.get(0).getProdCategoryName();
 
@@ -100,10 +103,10 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                 Integer orderNumber = countOrder(orderBookDetailVos, prodCategoryName, bandName, null, null, ALL);
                 Integer orderBandNumber = countOrder(orderBookDetailVos, prodCategoryName, bandName, null, null, BAND);
                 planningSummary.setOrderNumber(String.valueOf(orderBandNumber));
-                if (orderNumber == 0) {
+                if (orderNumber == 0 || orderBandNumber == 0) {
                     planningSummary.setOrderProportion("0");
                 } else {
-                    planningSummary.setOrderProportion(String.valueOf(orderNumber/orderBandNumber));
+                    planningSummary.setOrderProportion(String.valueOf(orderBandNumber/orderNumber));
                 }
 
                 List<Style> filterList = styleList.stream().filter(style -> StringUtils.equals(bandName, style.getBandName())).collect(Collectors.toList());
@@ -114,6 +117,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                 planningSummary.setSeatGap(String.valueOf(seatGap));
                 planningSummaryQueryVoList.add(planningSummary);
             }
+            Collections.sort(planningSummaryQueryVoList, Comparator.comparing(PlanningSummaryQueryVo::getBandName));
             result.setSuccess(true);
             result.setData(planningSummaryQueryVoList);
             return result;
@@ -127,7 +131,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
             categoryQueryWrapper.eq("season_id", planningSummaryQueryDto.getPlanningSeasonId());
             categoryQueryWrapper.eq("channel_code", planningSummaryQueryDto.getChannel());
             List<CategoryPlanning> categoryPlanningList = categoryPlanningService.list(categoryQueryWrapper);
-            if (CollectionUtils.isEmpty(seasonalPlanningDetailsList)) {
+            if (CollectionUtils.isEmpty(categoryPlanningList)) {
                 return ApiResult.success("未生成品类企划");
             }
             CategoryPlanning categoryPlanning = categoryPlanningList.get(0);
@@ -183,7 +187,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                     Integer dSize = styleDimensionVOList.size();
                     Integer gapNumber = sumDimensionCode - dSize;
                     planningSummary.setDemandGap(String.valueOf(gapNumber));
-                    Integer orderGap = sumDimensionCode - orderNumber;
+                    Integer orderGap = sumDimensionCode - orderDimensionNumber;
                     planningSummary.setSeatGap(String.valueOf(orderGap));
                     planningSummaryDimensionList.add(planningSummary);
                 }

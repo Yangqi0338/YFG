@@ -84,21 +84,23 @@
                ts.band_name as bandName,
                tfv.field_id as fieldId,
                tfv.field_explain as fieldExplain,
-               tfv.val as var,
-               tfv.val_name as varName
+               tfv.val as styleCode,
+               tfv.val_name as styleName
         FROM t_order_book_detail tobd
         LEFT JOIN t_order_book tob ON tob.id = tobd.order_book_id AND tob.del_flag='0'
         LEFT JOIN t_style_color tsc ON tobd.style_color_id = tsc.id AND tsc.del_flag='0'
         LEFT JOIN t_style ts ON ts.id = tsc.style_id AND ts.del_flag='0'
         LEFT JOIN t_field_val tfv ON ts.id = tfv.foreign_id AND ts.del_flag='0'
-        <if test="dto.styleCategory != null and dto.styleCategory != ''">
-            AND tfv.field_name = #{dto.styleCategory}
-        </if>
         WHERE tobd.del_flag='0'
-              AND tobd.order_status = '4'
-              AND tob.season_id = #{dto.seasonId}
+              AND tobd.order_status in (2,3,4)
+        <if test="dto.seasonId != null and dto.seasonId != ''">
+            AND tob.season_id = #{dto.seasonId}
+        </if>
         <if test="dto.channel != null and dto.channel != ''">
               AND tob.channel = #{dto.channel}
+        </if>
+        <if test="dto.styleCategory != null and dto.styleCategory != ''">
+            AND tfv.field_name = #{dto.styleCategory}
         </if>
     </select>
 </mapper>
