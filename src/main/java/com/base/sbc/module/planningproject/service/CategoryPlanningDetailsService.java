@@ -63,9 +63,16 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
     void revocation(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 
     /**
+     * 反审核品类企划 只能反审核已审核的数据 反审核粒度是到维度级别
+     *
+     * @param categoryPlanningDetailsList 要反审核的数据
+     */
+    void reverseAudit(List<CategoryPlanningDetails> categoryPlanningDetailsList);
+
+    /**
      * 品类企划更新接口
      *
-     * @param seasonalPlanningDetailsList 季节企划重新导入后 需要修改和需要新增的季节企划的数据
+     * @param seasonalPlanningDetailsList   季节企划重新导入后 需要修改和需要新增的季节企划的数据
      * @param removeSeasonPlaningDetailList 季节企划重新导入后 需要删除季节企划的数据
      */
     void updateBySeasonalPlanning(List<SeasonalPlanningDetails> seasonalPlanningDetailsList,

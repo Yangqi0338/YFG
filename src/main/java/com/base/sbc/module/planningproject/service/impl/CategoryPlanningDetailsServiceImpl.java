@@ -1052,6 +1052,91 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     }
 
     /**
+     * @param categoryPlanningDetailsList 要反审核的数据
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void reverseAudit(List<CategoryPlanningDetails> categoryPlanningDetailsList) {
+        if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
+            throw new OtherException("反审核数据不能为空！");
+        }
+        // 根据 id 集合查询品类企划详情数据
+        List<String> categoryPlanningDetailsIdList = categoryPlanningDetailsList.stream().map(CategoryPlanningDetails::getId).collect(Collectors.toList());
+        List<CategoryPlanningDetails> detailsList = listByIds(categoryPlanningDetailsIdList);
+
+        if (ObjectUtil.isEmpty(detailsList)) {
+            throw new OtherException("品类企划数据不存在，请刷新后重试！");
+        }
+
+        List<String> dimensionNameList = detailsList.stream()
+                .filter(item -> "2".equals(item.getIsGenerate()))
+                .map(CategoryPlanningDetails::getDimensionName)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!dimensionNameList.isEmpty()) {
+            // 说明此品类已经作废 无法反审核
+            throw new OtherException("「" + CollUtil.join(dimensionNameList, ",") + "」维度数据已作废，无法反审核！");
+        }
+
+        // 判断保存的数据是否未审核
+        List<String> stringList = categoryPlanningDetailsList.stream()
+                .filter(item -> "0".equals(item.getIsGenerate()))
+                .map(CategoryPlanningDetails::getDimensionName)
+                .collect(Collectors.toList());
+        if (!stringList.isEmpty()) {
+            // 说明部分维度未审核 无法反审核
+            throw new OtherException("「" + CollUtil.join(stringList, ",") + "」维度数据未审核，无法反审核！");
+        }
+
+        for (CategoryPlanningDetails details : detailsList) {
+            // 将已审核的数据改成未审核状态
+            details.setIsGenerate("0");
+        }
+
+        // 更新状态
+        boolean updateFlag = updateBatchById(detailsList);
+        if (!updateFlag) {
+            throw new OtherException("反审核失败，请刷新后重试！");
+        }
+
+        // 根据 品类-中类-维度名 删除对应企划看板
+        Map<String, List<CategoryPlanningDetails>> map = detailsList.stream()
+                .collect(Collectors.groupingBy(item ->
+                        item.getProdCategoryCode() + "-"
+                                + item.getProdCategory2ndCode() + "-"
+                                + item.getDimensionName() + "-"
+                ));
+
+        PlanningProject planningProject = planningProjectService.getOne(
+                new LambdaQueryWrapper<PlanningProject>()
+                        .eq(PlanningProject::getCategoryPlanningId, detailsList.get(0).getCategoryPlanningId())
+        );
+        if (ObjectUtil.isNotEmpty(planningProject)) {
+            // 查询该企划看板该品类下的数据 缩小范围
+            List<PlanningProjectDimension> projectDimensionList = planningProjectDimensionService.list(
+                    new LambdaQueryWrapper<PlanningProjectDimension>()
+                            .eq(PlanningProjectDimension::getPlanningProjectId, planningProject.getId())
+                            .eq(PlanningProjectDimension::getProdCategoryCode, detailsList.get(0).getProdCategoryCode())
+            );
+            if (ObjectUtil.isNotEmpty(projectDimensionList)) {
+                // 筛选出需要删除的企划看板数据
+                List<PlanningProjectDimension> planningProjectDimensions = projectDimensionList.stream().filter(
+                        item ->
+                                ObjectUtil.isNotEmpty(map.get(item.getProdCategoryCode() + "-"
+                                        + item.getProdCategory2ndCode() + "-"
+                                        + item.getDimensionName() + "-"))
+
+                ).collect(Collectors.toList());
+                boolean removeFlag = planningProjectDimensionService.removeBatchByIds(planningProjectDimensions);
+                if (!removeFlag) {
+                    throw new OtherException("反审核失败，请刷新后重试！");
+                }
+            }
+        }
+    }
+
+    /**
      * @param seasonalPlanningDetailsList 季节企划重新导入后 需要修改和需要新增的季节企划的数据
      */
     @Override

@@ -158,5 +158,17 @@ public class CategoryPlanningDetailsController extends BaseController {
         return ApiResult.success();
     }
 
+    /**
+     * 反审核品类企划 只能反审核已审核的数据 反审核粒度是到维度级别
+     *
+     * @param categoryPlanningDetailsList 要反审核的数据
+     */
+    @PostMapping("/reverseAudit")
+    @ApiOperation(value = "企划看板 2.0 反审核品类企划 只能反审核已审核的数据 反审核粒度是到维度级别")
+    public ApiResult<String> reverseAudit(@RequestBody List<CategoryPlanningDetails> categoryPlanningDetailsList) {
+        categoryPlanningDetailsService.reverseAudit(categoryPlanningDetailsList);
+        return ApiResult.success();
+    }
+
     // <==================== 企划看板 2.0
 }

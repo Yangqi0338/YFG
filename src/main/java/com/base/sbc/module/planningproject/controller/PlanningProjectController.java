@@ -261,6 +261,16 @@ public class PlanningProjectController extends BaseController {
     }
 
 
+    /**
+     * 企划看板 2.0 查询已生成的品类信息
+     */
+    @PostMapping("/getProdCategory")
+    @ApiOperation(value = "企划看板 2.0 查询已生成的品类信息")
+    public ApiResult<List<Map<String, Object>>> getProdCategory(@RequestBody PlanningProjectDTO planningProjectDTO) {
+        List<Map<String, Object>> resultList = planningProjectService.getProdCategory(planningProjectDTO);
+        return selectSuccess(resultList);
+    }
+
     // <==================== 企划看板 2.0
 
 }
