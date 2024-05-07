@@ -244,7 +244,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     @Transactional
     @Override
     public BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto) {
-        CommonUtils.removeQuery(dto, "imageUrl");
+         CommonUtils.removeQuery(dto, "imageUrl");
         CommonUtils.removeQuerySplit(dto, ",", "attachment");
         BasicsdatumMaterial entity = CopyUtil.copy(dto, BasicsdatumMaterial.class);
         if (StrUtil.isEmptyIfStr(entity.getId())) {
@@ -1361,7 +1361,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         dto.setConfirmStatus("1");
         BasicsdatumMaterialVo basicsdatumMaterialVo = this.saveBasicsdatumMaterial(dto);
         flowableService.start(FlowableService.BASICSDATUM_MATERIAL,
-                FlowableService.BASICSDATUM_MATERIAL, dto.getId(),
+                FlowableService.BASICSDATUM_MATERIAL, basicsdatumMaterialVo.getId(),
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "/pdm/api/saas/basicsdatumMaterial/approval",
                 "/pdm/api/saas/basicsdatumMaterial/approval",
