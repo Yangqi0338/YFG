@@ -392,6 +392,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         }
         //获取款式信息
         StyleVo styleVo = styleService.getDetail(packInfo.getForeignId());
+        if (Objects.isNull(styleVo)){
+            styleVo = new StyleVo();
+        }
         //尺码id
         List<String> productSizes = StringUtils.isBlank(styleVo.getProductSizes())? new ArrayList<>() : Arrays.asList(styleVo.getProductSizes().split(","));
         //尺码型号类型
