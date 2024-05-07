@@ -19,8 +19,6 @@ import com.base.sbc.module.formtype.service.FieldOptionConfigService;
 import com.base.sbc.module.formtype.service.FormTypeService;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
-import com.base.sbc.module.planning.entity.PlanningDimensionality;
-import com.base.sbc.module.planning.service.PlanningCategoryItemService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.FieldDisplayVo;
@@ -28,9 +26,11 @@ import com.base.sbc.module.planningproject.dto.MatchSaveDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.dto.UnMatchDto;
+import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
 import com.base.sbc.module.planningproject.entity.PlanningProject;
 import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
 import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
+import com.base.sbc.module.planningproject.service.CategoryPlanningDetailsService;
 import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
 import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
 import com.base.sbc.module.planningproject.service.PlanningProjectService;
@@ -71,6 +71,7 @@ public class PlanningProjectPlankController extends BaseController {
     private final FieldOptionConfigService fieldOptionConfigService;
     private final FieldManagementService fieldManagementService;
     private final PlanningDimensionalityService planningDimensionalityService;
+    private final CategoryPlanningDetailsService categoryPlanningDetailsService;
     private final StylePicUtils stylePicUtils;
     private final StyleService styleService;
     private final PlanningProjectService planningProjectService;
@@ -264,6 +265,11 @@ public class PlanningProjectPlankController extends BaseController {
 
                 planningProjectDimension.setNumber(String.valueOf(l));
                 planningProjectDimensionService.updateById(planningProjectDimension);
+
+                // 同步修改品类企划的需求数量
+                CategoryPlanningDetails categoryPlanningDetails = categoryPlanningDetailsService.getById(planningProjectDimension.getCategoryPlanningDetailsId());
+                categoryPlanningDetails.setNumber(String.valueOf(l));
+                categoryPlanningDetailsService.updateById(categoryPlanningDetails);
             }
             return insertSuccess("新增成功");
         }else {
@@ -355,13 +361,16 @@ public class PlanningProjectPlankController extends BaseController {
         boolean b = planningProjectPlankService.removeByIds(Arrays.asList(split));
         if (b){
             //变更坑位数量
-
             List<String> dimensionIds = planningProjectPlanks.stream().map(PlanningProjectPlank::getPlanningProjectDimensionId).collect(Collectors.toList());
             if (!dimensionIds.isEmpty()){
                 List<PlanningProjectDimension> planningProjectDimensions = planningProjectDimensionService.listByIds(dimensionIds);
                 for (PlanningProjectDimension planningProjectDimension : planningProjectDimensions) {
                     long l = planningProjectPlankService.count(new QueryWrapper<PlanningProjectPlank>().eq("planning_project_dimension_id", planningProjectDimension.getId()));
                     planningProjectDimension.setNumber(String.valueOf(l));
+                    // 同步修改品类企划的需求数量(目前没有批量删除 所以直接再循环里面修改)
+                    CategoryPlanningDetails categoryPlanningDetails = categoryPlanningDetailsService.getById(planningProjectDimension.getCategoryPlanningDetailsId());
+                    categoryPlanningDetails.setNumber(String.valueOf(l));
+                    categoryPlanningDetailsService.updateById(categoryPlanningDetails);
                 }
                 planningProjectDimensionService.saveOrUpdateBatch(planningProjectDimensions);
             }

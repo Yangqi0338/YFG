@@ -1128,9 +1128,19 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                         + item.getDimensionName() + "-"))
 
                 ).collect(Collectors.toList());
-                boolean removeFlag = planningProjectDimensionService.removeBatchByIds(planningProjectDimensions);
-                if (!removeFlag) {
-                    throw new OtherException("反审核失败，请刷新后重试！");
+                if (ObjectUtil.isNotEmpty(planningProjectDimensions)) {
+                    boolean removeFlag = planningProjectDimensionService.removeBatchByIds(planningProjectDimensions);
+                    List<String> idList = planningProjectDimensions
+                            .stream().map(PlanningProjectDimension::getId).collect(Collectors.toList());
+                    boolean remove = planningProjectPlankService.remove(
+                            new LambdaQueryWrapper<PlanningProjectPlank>()
+                                    .in(PlanningProjectPlank::getPlanningProjectDimensionId, idList)
+                    );
+                    if (!removeFlag || !remove) {
+                        throw new OtherException("反审核失败，请刷新后重试！");
+                    }
+
+
                 }
             }
         }
