@@ -166,74 +166,80 @@ public class DataPermissionsService {
         //用户存在多个用户组，用户组之间用or
         boolean userGroupSize = dataPermissionsList.size() != 1;
         for (DataPermissionVO dataPermissions : dataPermissionsList) {
-            if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(dataPermissions.getRange())) {
-                List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
-                if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
-                    //判断配置是否分组
-                    Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
-                    boolean permissionGroup = permissionMap.size() != 1;
+            if (DataPermissionsRangeEnum.ALL.getK().equals(dataPermissions.getRange())) {
+                //如果该用户有一个角色是全部 权限时
+                authorityField.clear();
+                break;
+            }
+            List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
+            if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
+                //判断配置是否分组
+                Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
+                boolean permissionGroup = permissionMap.size() != 1;
 
-                    List<String> fieldArr = new ArrayList<>();
-                    //判断是否第一次  如果是第一次 添加()  ，否者添加  or() ，如果只有一个用户组  不添加括号
-                    if(userGroupSize){
-                        String sqlType = authorityField.isEmpty() ? " ( " : " or ( ";
-                        fieldArr.add(sqlType);
-                    }
-                    boolean first = true;
-                    boolean isFieldFlag = false;
-                    for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
-                        List<FieldDataPermissionVO> value = entry.getValue();
-                        //如果配置只有一组，不添加括号
-                        if(permissionGroup){
-                            if(first){
-                                fieldArr.add(" ( ");
+                List<String> fieldArr = new ArrayList<>();
+                //判断是否第一次  如果是第一次 添加()  ，否者添加  or() ，如果只有一个用户组  不添加括号
+                if(userGroupSize){
+                    String sqlType = authorityField.isEmpty() ? " ( " : " or ( ";
+                    fieldArr.add(sqlType);
+                }
+                boolean first = true;
+                boolean isFieldFlag = false;
+                for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
+                    List<FieldDataPermissionVO> value = entry.getValue();
+                    //如果配置只有一组，不添加括号
+                    if(permissionGroup){
+                        if(first){
+                            fieldArr.add(" ( ");
+                        }else{
+                            String groupSelectType = value.get(0).getGroupSelectType();
+                            if ("and".equals(groupSelectType)) {
+                                fieldArr.add(" and ( ");
                             }else{
-                                String groupSelectType = value.get(0).getGroupSelectType();
-                                if ("and".equals(groupSelectType)) {
-                                    fieldArr.add(" and ( ");
-                                }else{
-                                    fieldArr.add(" or ( ");
-                                }
+                                fieldArr.add(" or ( ");
                             }
-                        }
-                        first = false;
-                        for (FieldDataPermissionVO fieldDataPermissionVO : value) {
-                            if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
-                                String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
-                                isFieldFlag = true;
-                                fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
-                                if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
-                                    //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
-                                    //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
-                                    fieldName = tablePre + "create_id";
-                                    String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
-                                    if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
-                                        fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
-                                    } else {
-                                        fieldArr.add(fieldName + " not in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
-                                    }
-                                }else {
-                                    if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
-                                        fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
-                                    } else {
-                                        fieldArr.add(fieldName + " not in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
-                                    }
-                                }
-                            }
-                            if (StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
-                                fieldArr.add(fieldDataPermissionVO.getSqlField());
-                            }
-                        }
-                        if(permissionGroup){
-                            fieldArr.add(" ) ");
                         }
                     }
-                    if(userGroupSize){
+                    first = false;
+                    boolean sqlType = false;
+                    for (FieldDataPermissionVO fieldDataPermissionVO : value) {
+                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
+                            fieldArr.add(sqlType ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
+                            sqlType = true;
+                            String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
+                            isFieldFlag = true;
+                            fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
+                            if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
+                                //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
+                                //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
+                                fieldName = tablePre + "create_id";
+                                String deptList = CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")));
+                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
+                                    fieldArr.add(fieldName + " in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                } else {
+                                    fieldArr.add(fieldName + " not in " + "( select user_id from c_amc_data.sys_user_dept where dept_id in " + deptList + ")");
+                                }
+                            }else {
+                                if (DataPermissionsConditionTypeEnum.IN.getK().equals(fieldDataPermissionVO.getConditionType()) || DataPermissionsConditionTypeEnum.EQ.getK().equals(fieldDataPermissionVO.getConditionType())) {
+                                    fieldArr.add(fieldName + " in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
+                                } else {
+                                    fieldArr.add(fieldName + " not in " + (CollectionUtils.isEmpty(fieldDataPermissionVO.getFieldValues()) ? "()" : (fieldDataPermissionVO.getFieldValues().stream().collect(Collectors.joining("','", "('", "')")))));
+                                }
+                            }
+                        }
+                        if (StringUtils.isNotBlank(fieldDataPermissionVO.getSqlField())) {
+                            fieldArr.add(fieldDataPermissionVO.getSqlField());
+                        }
+                    }
+                    if(permissionGroup){
                         fieldArr.add(" ) ");
                     }
-                    if(isFieldFlag){
-                        authorityField.addAll(fieldArr);
-                    }
+                }
+                if(userGroupSize){
+                    fieldArr.add(" ) ");
+                }
+                if(isFieldFlag){
+                    authorityField.addAll(fieldArr);
                 }
             }
         }
