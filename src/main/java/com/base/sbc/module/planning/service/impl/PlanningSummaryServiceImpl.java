@@ -184,7 +184,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                     Integer dSize = styleDimensionVOList.size();
                     Integer gapNumber = sumDimensionCode - dSize;
                     planningSummary.setDemandGap(String.valueOf(gapNumber));
-                    Integer orderGap = sumDimensionCode - orderNumber;
+                    Integer orderGap = sumDimensionCode - orderDimensionNumber;
                     planningSummary.setSeatGap(String.valueOf(orderGap));
                     planningSummaryDimensionList.add(planningSummary);
                 }
