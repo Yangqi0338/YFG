@@ -100,7 +100,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
                 Integer orderNumber = countOrder(orderBookDetailVos, prodCategoryName, bandName, null, null, ALL);
                 Integer orderBandNumber = countOrder(orderBookDetailVos, prodCategoryName, bandName, null, null, BAND);
                 planningSummary.setOrderNumber(String.valueOf(orderBandNumber));
-                if (orderNumber == 0) {
+                if (orderNumber == 0 || orderBandNumber == 0) {
                     planningSummary.setOrderProportion("0");
                 } else {
                     planningSummary.setOrderProportion(String.valueOf(orderNumber/orderBandNumber));
