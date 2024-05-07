@@ -13,6 +13,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
@@ -29,8 +30,10 @@ import com.base.sbc.module.basicsdatum.dto.BasicsdatumLavationReminderExcelDto;
 import com.base.sbc.module.basicsdatum.dto.QueryDto;
 import com.base.sbc.module.basicsdatum.dto.StartStopDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumLavationReminder;
+import com.base.sbc.module.basicsdatum.entity.BasicsdatumWashIcon;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumLavationReminderMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumWashIconService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -66,13 +69,13 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
         private BaseController baseController;
 
         @Autowired
-        private UploadFileService uploadFileService;
-
-        @Autowired
         private MinioUtils minioUtils;
 
         @Autowired
         private CcmFeignService ccmFeignService;
+
+        @Autowired
+        private BasicsdatumWashIconService basicsdatumWashIconService;
 
 /** 自定义方法区 不替换的区域【other_start】 **/
 
@@ -115,7 +118,12 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             ImportParams params = new ImportParams();
             params.setNeedSave(false);
             List<BasicsdatumLavationReminderExcelDto> list = ExcelImportUtil.importExcel(file.getInputStream(), BasicsdatumLavationReminderExcelDto.class, params);
-           list =  list.stream().filter(p -> StringUtils.isNotBlank(p.getCode())).collect(Collectors.toList());
+           list =  list.stream().filter(p -> StringUtils.isNotBlank(p.getCode()) || StrUtil.isNotBlank(p.getWashIconCode())).collect(Collectors.toList());
+           List<String> washIconCodeList = list.stream().map(BasicsdatumLavationReminderExcelDto::getWashIconCode).collect(Collectors.toList());
+           // 获取洗标名称
+           List<BasicsdatumWashIcon> washIconList = basicsdatumWashIconService.list(new LambdaQueryWrapper<BasicsdatumWashIcon>().and(it -> it
+                   .in(BasicsdatumWashIcon::getName, washIconCodeList).or()
+                   .in(BasicsdatumWashIcon::getCode, washIconCodeList)));
            /*获取字典值*/
            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("wxts");
            Map<String, String> map = MapUtil.reverse(MapUtil.sort(dictInfoToMap.get("wxts")));
@@ -135,10 +143,17 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
                }
                basicsdatumLavationReminderExcelDto.setReminderCode(reminderCodeJoiner.toString());
                basicsdatumLavationReminderExcelDto.setReminderName(reminderNameJoiner.toString());
+
+               String washIconCode = basicsdatumLavationReminderExcelDto.getWashIconCode();
+               BasicsdatumWashIcon basicsdatumWashIcon = washIconList.stream().filter(it -> washIconCode.equals(it.getName())).findFirst().orElse(
+                       washIconList.stream().filter(it -> washIconCode.equals(it.getCode())).findFirst().orElseThrow(() -> new OtherException("不存在" + washIconCode + "洗标"))
+               );
+               basicsdatumLavationReminderExcelDto.setWashIconCode(basicsdatumWashIcon.getCode());
            }
 
-            List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = BeanUtil.copyToList(list, BasicsdatumLavationReminder.class);
+           List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = BeanUtil.copyToList(list, BasicsdatumLavationReminder.class);
            for (BasicsdatumLavationReminder basicsdatumLavationReminder : basicsdatumLavationReminderList) {
+               basicsdatumLavationReminder.setStatus("0");
                QueryWrapper<BasicsdatumLavationReminder> queryWrapper =new BaseQueryWrapper<>();
                queryWrapper.eq("code",basicsdatumLavationReminder.getCode());
                this.saveOrUpdate(basicsdatumLavationReminder,queryWrapper);
