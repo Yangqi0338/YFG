@@ -54,6 +54,7 @@ public enum DataPermissionsBusinessTypeEnum {
     designOrderScheduleDetailsReport("designOrderScheduleDetailsReport", "设计下单进度明细报表"),
     styleSizeReport("styleSizeReport", "尺寸查询报表"),
     stylePackBomMaterialReport("stylePackBomMaterialReport", "BOM清单查询报表"),
+    seasonPlanPercentage("seasonPlanPercentage", "季节企划完成率"),
     styleAnalyseStyle("styleAnalyseStyle", "大货分析报表"),
 
     work_log("work_log","工作小账"),
