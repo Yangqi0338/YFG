@@ -91,9 +91,6 @@
         LEFT JOIN t_style_color tsc ON tobd.style_color_id = tsc.id AND tsc.del_flag='0'
         LEFT JOIN t_style ts ON ts.id = tsc.style_id AND ts.del_flag='0'
         LEFT JOIN t_field_val tfv ON ts.id = tfv.foreign_id AND ts.del_flag='0'
-        <if test="dto.styleCategory != null and dto.styleCategory != ''">
-            AND tfv.field_name = #{dto.styleCategory}
-        </if>
         WHERE tobd.del_flag='0'
               AND tobd.order_status in (2,3,4)
         <if test="dto.seasonId != null and dto.seasonId != ''">
@@ -101,6 +98,9 @@
         </if>
         <if test="dto.channel != null and dto.channel != ''">
               AND tob.channel = #{dto.channel}
+        </if>
+        <if test="dto.styleCategory != null and dto.styleCategory != ''">
+            AND tfv.field_name = #{dto.styleCategory}
         </if>
     </select>
 </mapper>

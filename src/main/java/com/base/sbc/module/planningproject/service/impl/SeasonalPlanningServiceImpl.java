@@ -703,7 +703,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 if (CollectionUtils.isNotEmpty(prodCategory2ndMap.get(prodCategory2ndName))) {
                     Map<String, List<OrderBookDetailForSeasonPlanningVO>> bandNameMap = prodCategory2ndList.stream()
                             .collect(Collectors.groupingBy(
-                                    OrderBookDetailForSeasonPlanningVO::getBandName, // 品类分组
+                                    OrderBookDetailForSeasonPlanningVO::getBandName, // 波段分组
                                     Collectors.toList()
                             ));
                     List<OrderBookDetailForSeasonPlanningVO> bandNameList = bandNameMap.get(bandName);
