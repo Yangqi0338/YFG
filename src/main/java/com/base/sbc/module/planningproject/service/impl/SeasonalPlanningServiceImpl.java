@@ -671,7 +671,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     //
     private Integer groupOrderBookDetail(String prodCategoryName, String prodCategory2ndName, String bandName, String styleCategory,
                                          List<OrderBookDetailForSeasonPlanningVO> orderBookDetailVos) {
-        String routineStyleCategory = "常规";
         List<OrderBookDetailForSeasonPlanningVO> filterOrderList = orderBookDetailVos.stream().filter(o -> StringUtils.isNotBlank(o.getProdCategory())).collect(Collectors.toList());
         Map<String, List<OrderBookDetailForSeasonPlanningVO>> groupByProdCate = filterOrderList.stream()
                 .collect(Collectors.groupingBy(
@@ -680,7 +679,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 ));
         List<OrderBookDetailForSeasonPlanningVO> prodCatefroryList = groupByProdCate.get(prodCategoryName);
         if (CollectionUtils.isNotEmpty(prodCatefroryList)) {
-            List<OrderBookDetailForSeasonPlanningVO> orderDetailList = new ArrayList<>();
             // 如果中类为空只统计维度的
             if (StringUtils.isBlank(prodCategory2ndName)) {
                 Map<String, List<OrderBookDetailForSeasonPlanningVO>> bandNameMap = prodCatefroryList.stream()
@@ -699,8 +697,8 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                 OrderBookDetailForSeasonPlanningVO::getProdCategory2ndName, // 中类分组
                                 Collectors.toList()
                         ));
-                List<OrderBookDetailForSeasonPlanningVO> prodCategory2ndList = prodCategory2ndMap.get(bandName);
-                if (CollectionUtils.isNotEmpty(prodCategory2ndMap.get(prodCategory2ndName))) {
+                List<OrderBookDetailForSeasonPlanningVO> prodCategory2ndList = prodCategory2ndMap.get(prodCategory2ndName);
+                if (CollectionUtils.isNotEmpty(prodCategory2ndList)) {
                     Map<String, List<OrderBookDetailForSeasonPlanningVO>> bandNameMap = prodCategory2ndList.stream()
                             .collect(Collectors.groupingBy(
                                     OrderBookDetailForSeasonPlanningVO::getBandName, // 波段分组
