@@ -46,6 +46,9 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
     @Override
     public ApiResult queryList(PlanningSummaryQueryDto planningSummaryQueryDto) {
         ApiResult result = new ApiResult();
+        if (StringUtils.isBlank(planningSummaryQueryDto.getCategoryCode())) {
+            return ApiResult.error("请选择品类", 500);
+        }
         // 波段维度查询
         // 查询总需求列表
         QueryWrapper<SeasonalPlanning> queryWrapper = new QueryWrapper<>();
@@ -54,7 +57,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
         queryWrapper.eq("channel_code", planningSummaryQueryDto.getChannel());
         List<SeasonalPlanning> seasonalPlanningDetailsList = seasonalPlanningService.list(queryWrapper);
         if (CollectionUtils.isEmpty(seasonalPlanningDetailsList)) {
-            return ApiResult.success("无数据");
+            return ApiResult.success("当前产品季未查询到季节企划数据");
         }
 
         SeasonalPlanning seasonalPlanning = seasonalPlanningDetailsList.get(0);
@@ -64,7 +67,7 @@ public class PlanningSummaryServiceImpl implements PlanningSummaryService {
         detailQueryWrapper.orderBy(true, true, "band_name");
         List<SeasonalPlanningDetails> seasonalList = seasonalPlanningDetailsService.list(detailQueryWrapper);
         if (CollectionUtils.isEmpty(seasonalList)) {
-            return ApiResult.success("无数据");
+            return ApiResult.success("当前产品季未查询到季节企划数据");
         }
         String prodCategoryName = seasonalList.get(0).getProdCategoryName();
 

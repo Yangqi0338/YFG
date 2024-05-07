@@ -188,8 +188,8 @@
         ts.band_name as bandName,
         tfv.field_id as fieldId,
         tfv.field_explain as fieldExplain,
-        tfv.val as var,
-        tfv.val_name as varName
+        tfv.val as styleCode,
+        tfv.val_name as styleName
         FROM t_style ts
         LEFT JOIN t_field_val tfv ON ts.id = tfv.foreign_id AND ts.del_flag='0'
         WHERE ts.del_flag='0'
