@@ -60,6 +60,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -144,7 +145,8 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
                    "WX", "");
            // 最长匹配原则
            dictInfoList.sort(Comparator.comparing(BasicBaseDict::getNameLength).reversed());
-           List<BasicBaseDict> newDictInfoList = new ArrayList<>();
+           Map<String,BasicBaseDict> newDictInfoMap = new HashMap<>();
+           AtomicInteger up = new AtomicInteger(0);
            for (BasicsdatumLavationReminderExcelDto basicsdatumLavationReminderExcelDto : list) {
                StrJoiner reminderNameJoiner = StrJoiner.of("\n");
                StrJoiner reminderCodeJoiner = StrJoiner.of(COMMA);
@@ -157,14 +159,19 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
                            reminderCodeJoiner.append(dictOpt.get().getValue());
                        }else if (NumberUtil.isNumber(maxValue)) {
                            reminderNameJoiner.append(reminderName);
-                           int newCode = Integer.parseInt(maxValue) + 1;
-                           String newCodeStr = "WX" + MoreLanguageProperties.calculateZeroFill(newCode, 10);
+                           String newCodeStr;
+                           if (newDictInfoMap.containsKey(reminderName)) {
+                               newCodeStr = newDictInfoMap.get(reminderName).getValue();
+                           }else {
+                               int newCode = Integer.parseInt(maxValue) + up.incrementAndGet();
+                               newCodeStr = "WX" + MoreLanguageProperties.calculateZeroFill(newCode, 10) + newCode;
+                               BasicBaseDict baseDict = BeanUtil.copyProperties(dictInfoList.stream().findFirst().get(),BasicBaseDict.class);
+                               baseDict.setValue(newCodeStr);
+                               baseDict.setSort(BigDecimal.valueOf(newCode));
+                               baseDict.setName(reminderName);
+                               newDictInfoMap.put(reminderName,baseDict);
+                           }
                            reminderCodeJoiner.append(newCodeStr);
-                           BasicBaseDict baseDict = BeanUtil.copyProperties(dictInfoList.stream().findFirst().get(),BasicBaseDict.class);
-                           baseDict.setValue(newCodeStr);
-                           baseDict.setName(reminderName);
-                           baseDict.setSort(BigDecimal.valueOf(newCode));
-                           newDictInfoList.add(baseDict);
                        } else {
                            throw new OtherException("wxts字典中缺少"+ reminderName + "的字典项");
                        }
@@ -180,7 +187,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
                basicsdatumLavationReminderExcelDto.setWashIconCode(basicsdatumWashIcon.getCode());
                basicsdatumLavationReminderExcelDto.setUrl(basicsdatumWashIcon.getUrl());
            }
-           ccmService.batchInsert(newDictInfoList);
+           ccmService.batchInsert(new ArrayList<>(newDictInfoMap.values()));
 
            List<BasicsdatumLavationReminder> basicsdatumLavationReminderList = BeanUtil.copyToList(list, BasicsdatumLavationReminder.class);
            for (BasicsdatumLavationReminder basicsdatumLavationReminder : basicsdatumLavationReminderList) {
