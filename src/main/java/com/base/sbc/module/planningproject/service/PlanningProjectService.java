@@ -12,6 +12,7 @@ import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PlanningProjectService extends BaseService<PlanningProject> {
     PageInfo<PlanningProjectVo> queryPage(PlanningProjectPageDTO dto);
@@ -38,9 +39,16 @@ public interface PlanningProjectService extends BaseService<PlanningProject> {
     /**
      * 根据品类和企划看板 ID 获取维度系数
      *
-     * @param planningProjectDTO 要保存的数据
+     * @param planningProjectDTO 筛选条件
      */
     List<PlanningProjectDimension> getDimensionality(PlanningProjectDTO planningProjectDTO);
+
+    /**
+     * 查询已生成的品类信息
+     *
+     * @param planningProjectDTO 筛选条件
+     */
+    List<Map<String, Object>> getProdCategory(PlanningProjectDTO planningProjectDTO);
 
     /**
      * 启用/停用

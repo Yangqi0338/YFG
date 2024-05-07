@@ -50,6 +50,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
 
     /**
      * 分页查询企划看板规划信息
+     *
      * @param dto 查询条件
      * @return 返回的结果
      */
@@ -57,11 +58,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     public PageInfo<PlanningProjectVo> queryPage(PlanningProjectPageDTO dto) {
         /*分页*/
         PageHelper.startPage(dto);
-        BaseQueryWrapper<PlanningProject> queryWrapper =new BaseQueryWrapper<>();
-        queryWrapper.notEmptyEq("season_id",dto.getSeasonId());
-        queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
-        queryWrapper.notEmptyLike("season_name",dto.getYear());
-        queryWrapper.notEmptyLike("planning_project_name",dto.getPlanningProjectName());
+        BaseQueryWrapper<PlanningProject> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("season_id", dto.getSeasonId());
+        queryWrapper.notEmptyEq("planning_channel_code", dto.getPlanningChannelCode());
+        queryWrapper.notEmptyLike("season_name", dto.getYear());
+        queryWrapper.notEmptyLike("planning_project_name", dto.getPlanningProjectName());
         queryWrapper.orderByDesc("create_date");
 
 
@@ -74,7 +75,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             planningProjectVo.setPlanningProjectMaxCategoryList(planningProjectMaxCategories);
 
             CategoryPlanning categoryPlanning = categoryPlanningService.getById(planningProjectVo.getCategoryPlanningId());
-            if (categoryPlanning!=null){
+            if (categoryPlanning != null) {
                 planningProjectVo.setSeasonalPlanningId(categoryPlanning.getSeasonalPlanningId());
             }
         }
@@ -90,17 +91,17 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean save(PlanningProjectSaveDTO planningProjectSaveDTO) {
-        //判断新增或者修改的时候是否存在相同的季度和渠道
-        QueryWrapper<PlanningProject> queryWrapper =new QueryWrapper<>();
-        queryWrapper.eq("season_id",planningProjectSaveDTO.getSeasonId());
-        queryWrapper.eq("planning_channel_code",planningProjectSaveDTO.getPlanningChannelCode());
-        queryWrapper.ne(StringUtils.isNotBlank(planningProjectSaveDTO.getId()),"id",planningProjectSaveDTO.getId());
+        // 判断新增或者修改的时候是否存在相同的季度和渠道
+        QueryWrapper<PlanningProject> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("season_id", planningProjectSaveDTO.getSeasonId());
+        queryWrapper.eq("planning_channel_code", planningProjectSaveDTO.getPlanningChannelCode());
+        queryWrapper.ne(StringUtils.isNotBlank(planningProjectSaveDTO.getId()), "id", planningProjectSaveDTO.getId());
 
         long count = this.count(queryWrapper);
-        if (count>0){
+        if (count > 0) {
             throw new RuntimeException("该季度已经存在该渠道的企划规划");
         }
-        //已匹配不允许修改
+        // 已匹配不允许修改
         // if (StringUtils.isNotBlank(planningProjectSaveDTO.getId())) {
         //     PlanningProject planningProject = this.getById(planningProjectSaveDTO.getId());
         //     if ("1".equals(planningProject.getIsMatch())){
@@ -109,31 +110,31 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         // }
 
 
-       this.saveOrUpdate(planningProjectSaveDTO);
-        //更新对应关联的数据
+        this.saveOrUpdate(planningProjectSaveDTO);
+        // 更新对应关联的数据
         List<PlanningProjectDimension> planningProjectDimensionList = planningProjectSaveDTO.getPlanningProjectDimensionList();
         for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
             planningProjectDimension.setPlanningProjectId(planningProjectSaveDTO.getId());
         }
-        planningProjectDimensionService.remove(new QueryWrapper<PlanningProjectDimension>().eq("planning_project_id",planningProjectSaveDTO.getId()));
+        planningProjectDimensionService.remove(new QueryWrapper<PlanningProjectDimension>().eq("planning_project_id", planningProjectSaveDTO.getId()));
         planningProjectDimensionService.saveBatch(planningProjectSaveDTO.getPlanningProjectDimensionList());
 
         List<PlanningProjectMaxCategory> planningProjectMaxCategoryList = planningProjectSaveDTO.getPlanningProjectMaxCategoryList();
         for (PlanningProjectMaxCategory planningProjectMaxCategory : planningProjectMaxCategoryList) {
             planningProjectMaxCategory.setPlanningProjectId(planningProjectSaveDTO.getId());
         }
-        planningProjectMaxCategoryService.remove(new QueryWrapper<PlanningProjectMaxCategory>().eq("planning_project_id",planningProjectSaveDTO.getId()));
+        planningProjectMaxCategoryService.remove(new QueryWrapper<PlanningProjectMaxCategory>().eq("planning_project_id", planningProjectSaveDTO.getId()));
         planningProjectMaxCategoryService.saveBatch(planningProjectSaveDTO.getPlanningProjectMaxCategoryList());
-        //如果是修改,先删除之前的坑位
+        // 如果是修改,先删除之前的坑位
         if (StringUtils.isNotBlank(planningProjectSaveDTO.getId())) {
             QueryWrapper<PlanningProjectPlank> queryWrapper2 = new QueryWrapper<>();
             queryWrapper2.eq("planning_project_id", planningProjectSaveDTO.getId());
             planningProjectPlankService.physicalDeleteQWrap(queryWrapper2);
         }
-        //生成坑位
+        // 生成坑位
         for (PlanningProjectDimension planningProjectDimension : planningProjectDimensionList) {
             List<PlanningProjectPlank> planningProjectPlanks = new ArrayList<>();
-            for (int i = 0; i <  Integer.parseInt(planningProjectDimension.getNumber()); i++) {
+            for (int i = 0; i < Integer.parseInt(planningProjectDimension.getNumber()); i++) {
                 PlanningProjectPlank planningProjectPlank = new PlanningProjectPlank();
                 planningProjectPlank.setPlanningProjectId(planningProjectSaveDTO.getId());
                 planningProjectPlank.setMatchingStyleStatus("0");
@@ -149,55 +150,54 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
 
     @Override
     public BasePageInfo<PlanningSeasonOverviewVo> historyList(PlanningProjectPageDTO dto) {
-        Map<String,Object> map =new HashMap<>();
-        //查询企划规划看板中每个品类或者或者开启中类的剩余未匹配的坑位数量
-        QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
-        queryWrapper.eq("planning_project_id",dto.getPlanningProjectId());
+        Map<String, Object> map = new HashMap<>();
+        // 查询企划规划看板中每个品类或者或者开启中类的剩余未匹配的坑位数量
+        QueryWrapper<PlanningProjectDimension> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.eq("planning_project_id", dto.getPlanningProjectId());
         List<PlanningProjectDimension> list = planningProjectDimensionService.list(queryWrapper);
 
         Set<String> category1stCodes = new HashSet<>();
         Set<String> categoryCodes = new HashSet<>();
-        //查询剩余还能匹配坑位的数量
+        // 查询剩余还能匹配坑位的数量
         for (PlanningProjectDimension planningProjectDimension : list) {
             category1stCodes.add(planningProjectDimension.getProdCategory1stCode());
             categoryCodes.add(planningProjectDimension.getProdCategoryCode());
 
-            QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
-            queryWrapper2.eq("planning_project_dimension_id",planningProjectDimension.getId());
-            queryWrapper2.eq("matching_style_status","0");
+            QueryWrapper<PlanningProjectPlank> queryWrapper2 = new BaseQueryWrapper<>();
+            queryWrapper2.eq("planning_project_dimension_id", planningProjectDimension.getId());
+            queryWrapper2.eq("matching_style_status", "0");
             long count = planningProjectPlankService.count(queryWrapper2);
             String key;
-            if ("1".equals(planningProjectDimension.getIsProdCategory2nd())){
-                key=planningProjectDimension.getProdCategory1stCode()+","+planningProjectDimension.getProdCategoryCode()+","+planningProjectDimension.getProdCategory2ndCode();
-            }else {
-                key=planningProjectDimension.getProdCategory1stCode()+","+planningProjectDimension.getProdCategoryCode();
+            if ("1".equals(planningProjectDimension.getIsProdCategory2nd())) {
+                key = planningProjectDimension.getProdCategory1stCode() + "," + planningProjectDimension.getProdCategoryCode() + "," + planningProjectDimension.getProdCategory2ndCode();
+            } else {
+                key = planningProjectDimension.getProdCategory1stCode() + "," + planningProjectDimension.getProdCategoryCode();
             }
 
             if (!Objects.isNull(map.get(key))) {
                 map.put(key, Long.parseLong(map.get(key).toString()) + count);
-            }else {
-                map.put(key,count);
+            } else {
+                map.put(key, count);
             }
         }
 
 
-
-        //查询已经匹配的大货款号
+        // 查询已经匹配的大货款号
         List<PlanningProjectPlank> projectPlanks = planningProjectPlankService.list(
-                new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no","his_design_no").isNotNull("bulk_style_no").
-                        ne("bulk_style_no","").or().isNotNull("his_design_no").ne("his_design_no",""));
-        List<String>  bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+                new QueryWrapper<PlanningProjectPlank>().select("bulk_style_no", "his_design_no").isNotNull("bulk_style_no").
+                        ne("bulk_style_no", "").or().isNotNull("his_design_no").ne("his_design_no", ""));
+        List<String> bulkNos = projectPlanks.stream().map(PlanningProjectPlank::getBulkStyleNo).distinct().filter(StringUtils::isNotBlank).collect(Collectors.toList());
         List<String> hisDesignNos = projectPlanks.stream().map(PlanningProjectPlank::getHisDesignNo).distinct().filter(StringUtils::isNotBlank).collect(Collectors.toList());
         bulkNos.addAll(hisDesignNos);
         List<PlanningChannel> planningChannels = planningChannelService.list(new QueryWrapper<PlanningChannel>().eq("channel", dto.getPlanningChannelCode()).eq("planning_season_id", dto.getSeasonId()));
-        if (planningChannels.isEmpty()){
+        if (planningChannels.isEmpty()) {
             throw new RuntimeException("该渠道不存在");
         }
         PlanningChannel planningChannel = planningChannels.get(0);
 
         QueryWrapper queryWrapper2 = new BaseQueryWrapper<>();
 
-        //中类筛选,有问题
+        // 中类筛选,有问题
         // List<String> category2ndCodes =new ArrayList<>();
         // for (PlanningProjectDimension planningProjectDimension : list) {
         //     if("1".equals(planningProjectDimension.getIsProdCategory2nd())){
@@ -210,17 +210,15 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         // }
 
 
-
-
-        queryWrapper2.eq("c.planning_channel_id",planningChannel.getId());
+        queryWrapper2.eq("c.planning_channel_id", planningChannel.getId());
         if (!bulkNos.isEmpty()) {
             queryWrapper2.notIn("c.his_design_no", bulkNos);
         }
         // queryWrapper2.eq("c.planning_season_id",dto.getSeasonId());
-        queryWrapper2.in("c.prod_category1st",category1stCodes);
-        queryWrapper2.ne("c.his_design_no","");
+        queryWrapper2.in("c.prod_category1st", category1stCodes);
+        queryWrapper2.ne("c.his_design_no", "");
         queryWrapper2.isNotNull("c.his_design_no");
-        queryWrapper2.in("c.prod_category",categoryCodes);
+        queryWrapper2.in("c.prod_category", categoryCodes);
 
         PageHelper.startPage(dto);
         dataPermissionsService.getDataPermissionsForQw(queryWrapper2, DataPermissionsBusinessTypeEnum.PlanningCategoryItem.getK(), "c.");
@@ -229,13 +227,13 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         BasePageInfo<PlanningSeasonOverviewVo> pageInfo = new BasePageInfo<>(planningSeasonOverviewVos);
 
 
-
         pageInfo.setMap(map);
-        return  pageInfo;
+        return pageInfo;
     }
 
     /**
      * 分页查询企划看板规划信息
+     *
      * @param dto 查询条件
      * @return 返回的结果
      */
@@ -248,11 +246,11 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             throw new OtherException("请选择维度数据！");
         }
         // 先查询维度数据主表信息
-        BaseQueryWrapper<PlanningProject> queryWrapper =new BaseQueryWrapper<>();
-        queryWrapper.notEmptyEq("season_id",dto.getSeasonId());
-        queryWrapper.notEmptyEq("planning_channel_code",dto.getPlanningChannelCode());
-        queryWrapper.notEmptyLike("season_name",dto.getYear());
-        queryWrapper.notEmptyLike("planning_project_name",dto.getPlanningProjectName());
+        BaseQueryWrapper<PlanningProject> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("season_id", dto.getSeasonId());
+        queryWrapper.notEmptyEq("planning_channel_code", dto.getPlanningChannelCode());
+        queryWrapper.notEmptyLike("season_name", dto.getYear());
+        queryWrapper.notEmptyLike("planning_project_name", dto.getPlanningProjectName());
 
 
         List<PlanningProject> list = this.list(queryWrapper);
@@ -260,18 +258,18 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         for (PlanningProjectVo planningProjectVo : planningProjectVos) {
             List<PlanningProjectDimension> planningProjectDimensions
                     = planningProjectDimensionService.list(
-                            new QueryWrapper<PlanningProjectDimension>()
-                                    .in("dimension_id", CollUtil.newArrayList(dimensionIds.split(",")))
-                                    .eq("planning_project_id", planningProjectVo.getId()));
+                    new QueryWrapper<PlanningProjectDimension>()
+                            .in("dimension_id", CollUtil.newArrayList(dimensionIds.split(",")))
+                            .eq("planning_project_id", planningProjectVo.getId()));
             planningProjectVo.setPlanningProjectDimensionList(planningProjectDimensions);
             List<PlanningProjectMaxCategory> planningProjectMaxCategories
                     = planningProjectMaxCategoryService.list(
-                            new QueryWrapper<PlanningProjectMaxCategory>()
-                                    .eq("planning_project_id", planningProjectVo.getId()));
+                    new QueryWrapper<PlanningProjectMaxCategory>()
+                            .eq("planning_project_id", planningProjectVo.getId()));
             planningProjectVo.setPlanningProjectMaxCategoryList(planningProjectMaxCategories);
 
             CategoryPlanning categoryPlanning = categoryPlanningService.getById(planningProjectVo.getCategoryPlanningId());
-            if (categoryPlanning!=null){
+            if (categoryPlanning != null) {
                 planningProjectVo.setSeasonalPlanningId(categoryPlanning.getSeasonalPlanningId());
             }
         }
@@ -312,6 +310,82 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         return planningProjectDimensionService.list(queryWrapper);
     }
 
+    /**
+     * @param planningProjectDTO 筛选条件
+     * @return
+     */
+    @Override
+    public List<Map<String, Object>> getProdCategory(PlanningProjectDTO planningProjectDTO) {
+        String planningProjectId = planningProjectDTO.getPlanningProjectId();
+        if (ObjectUtil.isEmpty(planningProjectId)) {
+            throw new OtherException("请选择企划看板数据！");
+        }
+        PlanningProject planningProject = getById(planningProjectId);
+        if (ObjectUtil.isEmpty(planningProject)) {
+            throw new OtherException("企划看板数据不存在，请刷新后重试！");
+        }
+
+        LambdaQueryWrapper<PlanningProjectDimension> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(PlanningProjectDimension::getPlanningProjectId, planningProject.getId());
+
+        String parentCode = planningProjectDTO.getParentCode();
+        Integer type = planningProjectDTO.getType();
+        if ((type.equals(2) || type.equals(3)) && ObjectUtil.isEmpty(parentCode)) {
+            throw new OtherException("type 类型为品类/中类时父类 code 不能为空！");
+        }
+
+        switch (type) {
+            case 1:
+                queryWrapper.groupBy(
+                        PlanningProjectDimension::getProdCategory1stCode,
+                        PlanningProjectDimension::getProdCategory1stName);
+                break;
+            case 2:
+                queryWrapper.eq(PlanningProjectDimension::getProdCategory1stCode, parentCode);
+                queryWrapper.groupBy(
+                        PlanningProjectDimension::getProdCategoryCode,
+                        PlanningProjectDimension::getProdCategoryName);
+                break;
+            case 3:
+                queryWrapper.eq(PlanningProjectDimension::getProdCategoryCode, parentCode);
+                queryWrapper.groupBy(
+                        PlanningProjectDimension::getProdCategory2ndCode,
+                        PlanningProjectDimension::getProdCategory2ndName);
+                break;
+            default:
+                throw new OtherException("type 类型错误！");
+        }
+
+        List<PlanningProjectDimension> projectDimensionList = planningProjectDimensionService.list(queryWrapper);
+
+        // 初始化返回数据
+        List<Map<String, Object>> resultList = new ArrayList<>(projectDimensionList.size());
+
+        if (ObjectUtil.isNotEmpty(projectDimensionList)) {
+            for (PlanningProjectDimension planningProjectDimension : projectDimensionList) {
+                HashMap<String, Object> resultMap = new HashMap<>();
+                switch (type) {
+                    case 1:
+                        resultMap.put("code", planningProjectDimension.getProdCategory1stCode());
+                        resultMap.put("name", planningProjectDimension.getProdCategory1stName());
+                        break;
+                    case 2:
+                        resultMap.put("code", planningProjectDimension.getProdCategoryCode());
+                        resultMap.put("name", planningProjectDimension.getProdCategoryName());
+                        break;
+                    case 3:
+                        resultMap.put("code", planningProjectDimension.getProdCategory2ndCode());
+                        resultMap.put("name", planningProjectDimension.getProdCategory2ndName());
+                        break;
+                    default:
+                        throw new OtherException("type 类型错误！");
+                }
+                resultList.add(resultMap);
+            }
+        }
+        return resultList;
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     @DuplicationCheck
@@ -321,19 +395,19 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         updateWrapper.in("id", idList);
         updateWrapper.set("status", status);
 
-        //如果是停用,清空关联的坑位数据,不清除关联历史款的坑位数据
+        // 如果是停用,清空关联的坑位数据,不清除关联历史款的坑位数据
         if ("1".equals(status)) {
             updateWrapper.set("is_match", "0");
 
-            UpdateWrapper<PlanningProjectPlank> wrapper =new UpdateWrapper<>();
-            wrapper.in("planning_project_id",idList);
+            UpdateWrapper<PlanningProjectPlank> wrapper = new UpdateWrapper<>();
+            wrapper.in("planning_project_id", idList);
             // wrapper.ne("matching_style_status","3");
-            wrapper.set("bulk_style_no","");
-            wrapper.set("pic","");
-            wrapper.set("color_system","");
-            wrapper.set("style_color_id","");
-            wrapper.set("his_design_no","");
-            wrapper.set("matching_style_status","0");
+            wrapper.set("bulk_style_no", "");
+            wrapper.set("pic", "");
+            wrapper.set("color_system", "");
+            wrapper.set("style_color_id", "");
+            wrapper.set("his_design_no", "");
+            wrapper.set("matching_style_status", "0");
             planningProjectPlankService.update(wrapper);
         } else {
             // 如果是启用 需要先判断品类企划是否启用
@@ -362,7 +436,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             categoryPlanningList.forEach(item -> {
                 if ("1".equals(item.getStatus())) {
-                    throw new OtherException("请先启用品类企划「" + item.getSeasonName() + "●品类企划（" + item.getChannelName() + "）"+ simpleDateFormat.format(item.getCreateDate()) + "」！");
+                    throw new OtherException("请先启用品类企划「" + item.getSeasonName() + "●品类企划（" + item.getChannelName() + "）" + simpleDateFormat.format(item.getCreateDate()) + "」！");
                 }
             });
         }
@@ -386,15 +460,15 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
             throw new OtherException("企划看板数据不存在，请刷新后重试！");
         }
         boolean b = removeByIds(idList);
-        if (b){
-            QueryWrapper<PlanningProjectDimension> queryWrapper =new BaseQueryWrapper<>();
-            queryWrapper.in("planning_project_id",idList);
+        if (b) {
+            QueryWrapper<PlanningProjectDimension> queryWrapper = new BaseQueryWrapper<>();
+            queryWrapper.in("planning_project_id", idList);
             planningProjectDimensionService.remove(queryWrapper);
-            QueryWrapper<PlanningProjectMaxCategory> queryWrapper1 =new BaseQueryWrapper<>();
-            queryWrapper1.in("planning_project_id",idList);
+            QueryWrapper<PlanningProjectMaxCategory> queryWrapper1 = new BaseQueryWrapper<>();
+            queryWrapper1.in("planning_project_id", idList);
             planningProjectMaxCategoryService.remove(queryWrapper1);
-            QueryWrapper<PlanningProjectPlank> queryWrapper2 =new BaseQueryWrapper<>();
-            queryWrapper2.in("planning_project_id",idList);
+            QueryWrapper<PlanningProjectPlank> queryWrapper2 = new BaseQueryWrapper<>();
+            queryWrapper2.in("planning_project_id", idList);
             planningProjectPlankService.remove(queryWrapper2);
             // 企划看板删除后 把品类企划的已提交类型改成未暂存
             // 如果是品类企划调用的此删除接口或者品类企划不存在
@@ -419,7 +493,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                 }
             }
         } else {
-           throw new OtherException("企划看板删除失败，请刷新后重试！");
+            throw new OtherException("企划看板删除失败，请刷新后重试！");
         }
     }
 
