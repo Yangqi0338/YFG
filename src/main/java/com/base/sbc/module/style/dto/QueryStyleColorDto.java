@@ -253,4 +253,7 @@ public class QueryStyleColorDto extends Page {
      */
     @ApiModelProperty(value = "下单阶段-打标状态:未打标(0)、部分打标(1)、全部打标(2)"  )
     private String orderMarkingStatus;
+
+    @ApiModelProperty(value = "数据权限类型")
+    private String businessType;
 }

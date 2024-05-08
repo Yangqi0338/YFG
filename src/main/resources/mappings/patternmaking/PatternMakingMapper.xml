@@ -721,6 +721,9 @@
         t.pattern_design_id,
         t.brand,
         t.planning_season_id,
+        t.prod_category,
+        t.receive_dept_id,
+        t.send_dept_id,
         t1.create_date,
         date_format(t.create_date,'%Y-%m-%d') as noNextDraft,
         date_format(check_start_time,'%Y-%m-%d') as reviewedDraft,
@@ -814,7 +817,9 @@
         <if test=" nodeCode == 'bossStyle' ">
             AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
         </if>
-
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
         ORDER BY t.create_date,t.designNo DESC
     </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">

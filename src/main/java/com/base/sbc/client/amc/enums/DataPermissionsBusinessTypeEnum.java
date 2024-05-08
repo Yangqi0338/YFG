@@ -30,6 +30,8 @@ public enum DataPermissionsBusinessTypeEnum {
     capacity_contrast_statistics("capacity_contrast_statistics", "样衣产能对比"),
     style_group("style_group", "款式搭配"),
     style_order_book("style_order_book", "订货本"),
+    order_book_follow("order_book_follow", "订货本跟进"),
+    style_research_node("style_research_node", "研发总进度"),
     retentionStyle("retentionStyle", "滞留款查询"),
     fabric_summary("fabric_summary", "面料汇总"),
     style_pricing("style_pricing", "款式定价"),

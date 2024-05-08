@@ -4,6 +4,7 @@
     <select id="queryList" resultType="com.base.sbc.module.orderbook.vo.OrderBookVo">
         select tob.*,(select count(1) from t_order_book_detail tobd where tobd.order_book_id=tob.id and tobd.del_flag='0') as count from
             t_order_book tob
+            left join t_planning_season tps on tpb.season_id = tps.id
         where tob.del_flag='0'
         <if test="dto.detailStatus != null">
             and (select count(*) from t_order_book_detail tobd where tobd.order_book_id = tob.id and tobd.audit_status = #{dto.detailStatus}) > 0
@@ -18,6 +19,7 @@
         count(1) as total
         FROM
         t_order_book tob
+        left join t_planning_season tps on tpb.season_id = tps.id
         where del_flag='0'
         <if test="ew.customSqlSegment!= null and ew.customSqlSegment!= ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
