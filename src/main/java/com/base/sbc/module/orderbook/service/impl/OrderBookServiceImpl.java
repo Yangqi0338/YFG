@@ -30,9 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -156,22 +155,37 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
 
     @Override
     public List<YearSeasonBandVo> queryYearBrandTreeOrderBook(List<YearSeasonBandVo> yearSeasonBandVos) {
+        List<String> seasonIds = Lists.newArrayList();
         for (YearSeasonBandVo yearSeasonBandVo : yearSeasonBandVos) {
             if (Objects.isNull(yearSeasonBandVo.getChildren())){
                 continue;
             }
-
+            List<YearSeasonBandVo> list = Objects.isNull(yearSeasonBandVo.getChildren())? Lists.newArrayList():
+                    (List<YearSeasonBandVo>) yearSeasonBandVo.getChildren();
+            for (YearSeasonBandVo seasonBandVo : list) {
+                seasonIds.add(seasonBandVo.getPlanningSeasonId());
+            }
         }
+        Map<String, List<OrderBookVo>> collect = new HashMap<>();
+        if(!seasonIds.isEmpty()){
+            OrderBookQueryDto dto = new OrderBookQueryDto();
+            if(seasonIds.size() < 1000){
+                //小于1000时查询，否则全查
+                dto.setSeasonIds(seasonIds);
+            }
+            PageInfo<OrderBookVo> orderBookVoPageInfo = this.queryPage(dto);
+            collect = orderBookVoPageInfo.getList().stream().collect(Collectors.groupingBy(OrderBook::getSeasonId));
+        }
+
+        Map<String, List<OrderBookVo>> finalCollect = collect;
         yearSeasonBandVos.parallelStream().forEach(yearSeasonBandVo ->{
             List<YearSeasonBandVo> list = Objects.isNull(yearSeasonBandVo.getChildren())? Lists.newArrayList():
                     (List<YearSeasonBandVo>) yearSeasonBandVo.getChildren();
 
             list.forEach(item ->{
-                OrderBookQueryDto dto = new OrderBookQueryDto();
-                dto.setSeasonId(item.getPlanningSeasonId());
-                PageInfo<OrderBookVo> orderBookVoPageInfo = this.queryPage(dto);
-                orderBookVoPageInfo.getList().forEach(orderBookVo ->orderBookVo.setYearName(yearSeasonBandVo.getYearName()));
-                item.setSupplementInfo(orderBookVoPageInfo.getList());
+                List<OrderBookVo> orderBookVoPage = finalCollect.getOrDefault(item.getPlanningSeasonId(),new ArrayList<>());
+                orderBookVoPage.forEach(orderBookVo ->orderBookVo.setYearName(yearSeasonBandVo.getYearName()));
+                item.setSupplementInfo(orderBookVoPage);
             });
         });
         return yearSeasonBandVos;
@@ -183,6 +197,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
     private BaseQueryWrapper<OrderBook> buildQueryWrapper(OrderBookQueryDto dto) {
         BaseQueryWrapper<OrderBook> queryWrapper=new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tob.season_id",dto.getSeasonId());
+        queryWrapper.notEmptyIn("tob.season_id",dto.getSeasonIds());
         queryWrapper.notEmptyEq("tob.status",dto.getStatus());
         queryWrapper.likeList("tob.name",dto.getName());
         queryWrapper.notNullEq("tob.order_status", dto.getOrderStatus());
