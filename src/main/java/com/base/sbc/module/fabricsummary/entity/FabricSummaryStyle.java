@@ -71,23 +71,23 @@ public class FabricSummaryStyle extends BaseDataEntity<String> {
     /** 波段名称 */
     @ApiModelProperty(value = "波段名称"  )
     private String bandName;
-    /** 供应商 */
-    @ApiModelProperty(value = "供应商"  )
-    private String supplier;
-    /** 供应商编码 */
-    @ApiModelProperty(value = "供应商编码"  )
-    private String supplierCode;
-    /** 供应商简称 */
-    @ApiModelProperty(value = "供应商简称"  )
-    private String supplierAbbreviation;
-    /** 供应商款号 */
-    @ApiModelProperty(value = "供应商款号"  )
-    private String supplierNo;
-    /** 供应商颜色 */
-    @ApiModelProperty(value = "供应商颜色"  )
-    private String supplierColor;
+//    /** 供应商 */
+//    @ApiModelProperty(value = "供应商"  )
+//    private String supplier;
+//    /** 供应商编码 */
+//    @ApiModelProperty(value = "供应商编码"  )
+//    private String supplierCode;
+//    /** 供应商简称 */
+//    @ApiModelProperty(value = "供应商简称"  )
+//    private String supplierAbbreviation;
+//    /** 供应商款号 */
+//    @ApiModelProperty(value = "供应商款号"  )
+//    private String supplierNo;
+//    /** 供应商颜色 */
+//    @ApiModelProperty(value = "供应商颜色"  )
+//    private String supplierColor;
     @ApiModelProperty(value = "供应商颜色号"  )
-    private String supplierColorCode;
+    private String supplierColorNo;
     /** 坑位信息id */
     @ApiModelProperty(value = "坑位信息id"  )
     private String planningCategoryItemId;
@@ -156,5 +156,7 @@ public class FabricSummaryStyle extends BaseDataEntity<String> {
     @ApiModelProperty(value = "组id"  )
     private String groupId;
 
+    @ApiModelProperty(value = "pomId")
+    private String pomId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

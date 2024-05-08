@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.vo.*;
+import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -66,11 +67,8 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	 */
 	List<BasicsdatumMaterialPageAndStyleVo> getBasicsdatumMaterialAndStyleList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
-	List<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorCodeList(@Param("companyCode") String companyCode,
-																		 @Param("materialCode") String materialCode,
-																			 @Param("colorCode") String colorCode,
-																		 @Param("status") String status
-	);
+
+    List<FabricSummary> getMaterialSummaryInfo(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 // 自定义方法区 不替换的区域【other_end】
 }
 

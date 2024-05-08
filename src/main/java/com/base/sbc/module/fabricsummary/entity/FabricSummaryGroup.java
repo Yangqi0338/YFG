@@ -35,6 +35,28 @@ public class FabricSummaryGroup extends BaseDataEntity<String> {
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /** 组名称 */
     @ApiModelProperty(value = "组名称"  )
-    private String name;
+    private String groupName;
+
+    /** 产品季id */
+    @ApiModelProperty(value = "产品季id"  )
+    private String planningSeasonId;
+
+    /** 产品季名称 */
+    @ApiModelProperty(value = "产品季名称"  )
+    private String planningSeasonName;
+
+    /** 组名称 */
+    @ApiModelProperty(value = "年份名称"  )
+    private String yearName;
+    /**
+     * 季节
+     */
+    @ApiModelProperty(value = "季节")
+    private String season;
+    /**
+     * 季节名称
+     */
+    @ApiModelProperty(value = "季节名称")
+    private String seasonName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

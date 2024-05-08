@@ -249,9 +249,4 @@ public interface PackBomService extends PackBaseService<PackBom> {
 
     PageInfo<FabricStyleGroupVo> fabricSummaryGroup(FabricSummaryGroupDto dto);
 
-    boolean fabricSummaryGroupSaveOrUpdate(FabricStyleGroupVo fabricStyleGroupVo);
-
-    boolean deleteFabricSummaryGroup(FabricStyleGroupVo fabricStyleGroupVo);
-
-    PageInfo<StyleMaterialInfoVo> fabricSummaryStyleMaterialList(FabricSummaryStyleMaterialDto dto);
 }

@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @ApiModel("面料汇总-查询")
@@ -56,5 +57,24 @@ public class FabricSummaryV2Dto extends QueryFieldDto {
 
     @ApiModelProperty(value = "组Id"  )
     private String groupId;
+
+    @ApiModelProperty(value = "年份"  )
+    private String yearName;
+
+    @ApiModelProperty(value = "季节名称"  )
+    private String seasonName;
+
+    @ApiModelProperty(value = "供应商编码"  )
+    private String formerSupplierCode;
+
+
+    @ApiModelProperty(value = "产品季id"  )
+    private String planningSeasonId;
+
+    @ApiModelProperty(value = "款式(大货款号)"  )
+    private String styleNo;
+
+    @ApiModelProperty(value = "款式(大货款号)列表"  )
+    private List<String> styleNos;
 
 }

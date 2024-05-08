@@ -11,7 +11,7 @@ public class FabricSummaryGroupDto extends Page {
 
     /** 组名称 */
     @ApiModelProperty(value = "组名称"  )
-    private String name;
+    private String groupName;
 
     /**  创建者名称 */
     private String createName;

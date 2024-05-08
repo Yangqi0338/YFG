@@ -7,6 +7,9 @@
 package com.base.sbc.module.fabricsummary.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryGroup;
+import com.base.sbc.module.sample.dto.FabricSummaryStyleMaterialDto;
+import com.base.sbc.module.sample.vo.FabricSummaryGroupVo;
+import com.github.pagehelper.PageInfo;
 
 /** 
  * 类描述：款式管理-面料汇总-组管理 service类
@@ -17,6 +20,7 @@ import com.base.sbc.module.fabricsummary.entity.FabricSummaryGroup;
  * @version 1.0  
  */
 public interface FabricSummaryGroupService extends BaseService<FabricSummaryGroup>{
+    PageInfo<FabricSummaryGroupVo> getGroupList(FabricSummaryStyleMaterialDto dto);
 
 // 自定义方法区 不替换的区域【other_start】
 

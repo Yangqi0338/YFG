@@ -8,6 +8,8 @@ package com.base.sbc.module.fabricsummary.service;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryStyle;
 
+import java.util.List;
+
 /** 
  * 类描述：款式管理-面料款式关联 service类
  * @address com.base.sbc.module.fabricsummary.service.FabricSummaryStyleService
@@ -20,7 +22,7 @@ public interface FabricSummaryStyleService extends BaseService<FabricSummaryStyl
 
 // 自定义方法区 不替换的区域【other_start】
 
-
+    List<FabricSummaryStyle> getByGroupStyle(String groupId, String pomId, String styleNo);
 
 // 自定义方法区 不替换的区域【other_end】
 

@@ -37,15 +37,12 @@ import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumBomTemplateMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialPrice;
-import com.base.sbc.module.basicsdatum.entity.BasicsdatumSupplier;
+import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
+import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorSelectVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
@@ -70,6 +67,7 @@ import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
 import com.base.sbc.module.pack.vo.PackBomColorVo;
 import com.base.sbc.module.pack.vo.PackBomSizeVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
@@ -196,6 +194,12 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Autowired
     private FabricSummaryGroupService fabricSummaryGroupService;
+
+    @Autowired
+    private PlanningSeasonService planningSeasonService;
+
+    @Autowired
+    private BasicsdatumMaterialColorService materialColorService;
 
     private final ReentrantLock saveLock = new ReentrantLock();
 
@@ -802,53 +806,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         Page<FabricStyleGroupVo> page = PageHelper.startPage(dto);
         QueryWrapper<FabricSummaryGroup> qw = new QueryWrapper<>();
         qw.lambda().eq(FabricSummaryGroup::getCompanyCode,companyUserInfo.get().getCompanyCode());
-        qw.lambda().likeLeft(StringUtils.isNotBlank(dto.getName()), FabricSummaryGroup::getName, dto.getName());
+        qw.lambda().likeLeft(StringUtils.isNotBlank(dto.getGroupName()), FabricSummaryGroup::getGroupName, dto.getGroupName());
         qw.lambda().likeLeft(StringUtils.isNotBlank(dto.getCreateName()), FabricSummaryGroup::getCreateName, dto.getCreateName());
         if (null != dto.getStartDate() && null != dto.getEndDate()){
             qw.lambda().between(FabricSummaryGroup::getCreateDate,dto.getStartDate(),dto.getEndDate());
         }
         fabricSummaryGroupService.list(qw);
         return page.toPageInfo();
-    }
-
-    @Override
-    public boolean fabricSummaryGroupSaveOrUpdate(FabricStyleGroupVo fabricStyleGroupVo) {
-        if (StringUtils.isBlank(fabricStyleGroupVo.getName())){
-            throw new OtherException("名称不能为空");
-        }
-        QueryWrapper<FabricSummaryGroup> qw = new QueryWrapper<>();
-        qw.lambda().eq(FabricSummaryGroup::getName,fabricStyleGroupVo.getName());
-        qw.lambda().eq(FabricSummaryGroup::getDelFlag,"0");
-        List<FabricSummaryGroup> list = fabricSummaryGroupService.list(qw);
-        if (CollectionUtils.isNotEmpty(list)){
-            throw new OtherException("名称不能重复，请检查名称");
-        }
-        if (StringUtils.isNotBlank(fabricStyleGroupVo.getId())){
-            fabricStyleGroupVo.updateInit();
-        }else {
-            fabricStyleGroupVo.setId(new IdGen().nextIdStr());
-            fabricStyleGroupVo.insertInit();
-        }
-        return fabricSummaryGroupService.saveOrUpdate(fabricStyleGroupVo);
-    }
-
-    @Override
-    public boolean deleteFabricSummaryGroup(FabricStyleGroupVo fabricStyleGroupVo) {
-        if (StringUtils.isBlank(fabricStyleGroupVo.getId())){
-            return true;
-        }
-        UpdateWrapper<FabricSummaryGroup> uw = new UpdateWrapper<>();
-        uw.lambda().eq(FabricSummaryGroup::getId,fabricStyleGroupVo.getId());
-        uw.lambda().set(FabricSummaryGroup::getDelFlag,"1");
-        return fabricSummaryGroupService.update(uw);
-    }
-
-    @Override
-    public PageInfo<StyleMaterialInfoVo> fabricSummaryStyleMaterialList(FabricSummaryStyleMaterialDto dto) {
-//        FabricSummary;
-//        FabricSummaryStyle;
-//        bomFabricList();
-        return null;
     }
 
     /**
@@ -1552,9 +1516,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (StringUtils.isBlank(fabricStyleVo.getColorCode())){
             return;
         }
-        List<BasicsdatumMaterialColorPageVo> list  = basicsdatumMaterialService.getBasicsdatumMaterialColorCodeList(fabricSummary.getCompanyCode(), fabricSummary.getMaterialCode(), fabricStyleVo.getColorCode(), null);
+        List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(fabricSummary.getMaterialCode(), fabricStyleVo.getColorCode());
         if (CollectionUtils.isNotEmpty(list)){
-            fabricStyleVo.setSupplierColorCode(list.get(0).getSupplierColorCode());
+            fabricStyleVo.setSupplierColorNo(list.get(0).getSupplierColorCode());
         }
 
     }

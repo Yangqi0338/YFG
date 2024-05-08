@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 
 @Data
 public class FabricSummaryInfoVo extends FabricSummary {
-    @ApiModelProperty(value = "款式id"  )
+    @ApiModelProperty(value = "面料款式id"  )
     private String fabricSummaryStyleId;
     /** 款式(大货款号) */
     @ApiModelProperty(value = "款式(大货款号)"  )
@@ -23,6 +23,9 @@ public class FabricSummaryInfoVo extends FabricSummary {
     /** 款式配色图 */
     @ApiModelProperty(value = "款式配色图"  )
     private String styleColorPic;
+
+    @ApiModelProperty(value = "款式配色图Url"  )
+    private String styleColorPicUrl;
     /** 配色 */
     @ApiModelProperty(value = "配色"  )
     private String colorName;
@@ -116,6 +119,9 @@ public class FabricSummaryInfoVo extends FabricSummary {
     @ApiModelProperty(value = "款式图"  )
     private String stylePic;
 
+    @ApiModelProperty(value = "款式图Url"  )
+    private String stylePicUrl;
+
     /** 款式图 */
     @ApiModelProperty(value = "版师名称"  )
     private String patternDesignName;
@@ -126,4 +132,23 @@ public class FabricSummaryInfoVo extends FabricSummary {
 
     @ApiModelProperty(value = "款式版本号"  )
     private Integer fabricSummaryStyleVersion;
+
+    @ApiModelProperty(value = "组id"  )
+    private String groupId;
+
+    @ApiModelProperty(value = "年份名称"  )
+    private String yearName;
+
+    @ApiModelProperty(value = "季节名称")
+    private String seasonName;
+
+    @ApiModelProperty(value = "引用状态，1：已引用，0：未引用")
+    private String citeStatus = "0";
+
+    @ApiModelProperty(value = "设计师核实情况，1：确认，0：未确认")
+    private String designVerify;
+
+    @ApiModelProperty(value = "pomId")
+    private String pomId;
+
 }

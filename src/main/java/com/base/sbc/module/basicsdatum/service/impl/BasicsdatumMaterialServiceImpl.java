@@ -48,6 +48,7 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
+import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.purchase.entity.MaterialStock;
@@ -892,10 +893,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
-    public List<BasicsdatumMaterialColorPageVo> getBasicsdatumMaterialColorCodeList(String companyCode, String materialCode, String colorCode, String status) {
-        List<BasicsdatumMaterialColorPageVo> list = this.baseMapper
-                .getBasicsdatumMaterialColorCodeList(companyCode, materialCode,colorCode, status);
-        return list;
+    public FabricSummary getMaterialSummaryInfo(String materialCode) {
+        BaseQueryWrapper baseQueryWrapper = new BaseQueryWrapper<>();
+        baseQueryWrapper.eq("tbm.material_code",materialCode);
+        List<FabricSummary> list = baseMapper.getMaterialSummaryInfo(baseQueryWrapper);
+        return CollectionUtils.isEmpty(list) ? new FabricSummary() : list.get(0);
     }
 
     /**
