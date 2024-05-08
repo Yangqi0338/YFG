@@ -330,9 +330,6 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
 
         String parentCode = planningProjectDTO.getParentCode();
         Integer type = planningProjectDTO.getType();
-        if ((type.equals(2) || type.equals(3)) && ObjectUtil.isEmpty(parentCode)) {
-            throw new OtherException("type 类型为品类/中类时父类 code 不能为空！");
-        }
 
         switch (type) {
             case 1:
@@ -341,12 +338,18 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
                         PlanningProjectDimension::getProdCategory1stName);
                 break;
             case 2:
+                if (ObjectUtil.isEmpty(parentCode)) {
+                    throw new OtherException("请选择大类！");
+                }
                 queryWrapper.eq(PlanningProjectDimension::getProdCategory1stCode, parentCode);
                 queryWrapper.groupBy(
                         PlanningProjectDimension::getProdCategoryCode,
                         PlanningProjectDimension::getProdCategoryName);
                 break;
             case 3:
+                if (ObjectUtil.isEmpty(parentCode)) {
+                    throw new OtherException("请选择品类！");
+                }
                 queryWrapper.eq(PlanningProjectDimension::getProdCategoryCode, parentCode);
                 queryWrapper.groupBy(
                         PlanningProjectDimension::getProdCategory2ndCode,

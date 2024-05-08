@@ -14,6 +14,7 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -68,6 +69,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     @Autowired
     @Lazy
     private SeasonalPlanningDetailsService seasonalPlanningDetailsService;
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Override
     public PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto) {
@@ -1157,10 +1160,11 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     if (!removeFlag || !remove) {
                         throw new OtherException("反审核失败，请刷新后重试！");
                     }
-
-
+                    // 企划看板查询条件去除
+                    redisUtils.del("planningProjectPlank:ListByDto:"+planningProjectDimensions.get(0).getPlanningProjectId() +":"+ this.getUserId());
                 }
             }
+
         }
     }
 
