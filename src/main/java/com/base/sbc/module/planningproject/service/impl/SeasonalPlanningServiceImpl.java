@@ -547,7 +547,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         queryWrapper.eq("season", planningSeason.getSeason());
         List<BasicsdatumBrandSeason> brandSeasons = basicsdatumBrandSeasonService.list(queryWrapper);
         if (CollectionUtils.isEmpty(brandSeasons)) {
-            return null;
+            throw new RuntimeException("该品牌未配置 季节-月份，请联系管理员");
         }
         return brandSeasons.stream().map(BasicsdatumBrandSeason::getMonth).collect(Collectors.toList());
     }
