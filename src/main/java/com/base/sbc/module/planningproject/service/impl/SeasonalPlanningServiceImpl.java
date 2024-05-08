@@ -950,7 +950,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     sumRow.put(index, String.valueOf(sum));
                     orderSumRow.put(index, String.valueOf(orderSum));
                     Integer countRow = sumSumColumnMap.get(seasonalPlanningDetails.getStyleCategory());
-                    Integer orderCountRow = sumSumColumnMap.get(seasonalPlanningDetails.getStyleCategory());
+                    Integer orderCountRow = sumSumOrderColumnMap.get(seasonalPlanningDetails.getStyleCategory());
                     if (null == countRow) {
                         countRow = 0;
                     }
