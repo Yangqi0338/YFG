@@ -5,6 +5,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
@@ -42,9 +44,9 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
 
     @Autowired
     private PlanningSeasonService planningSeasonService;
-//
-//    @Autowired
-//    private DataPermissionsService dataPermissionsService;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 //    @Autowired
 //    private OrderBookDetailMapper orderBookDetailMapper;
@@ -64,6 +66,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
 
     @Override
     public List<OrderBookVo> queryList(QueryWrapper<OrderBook> queryWrapper, OrderBookQueryDto dto) {
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.order_book_follow.getK());
         List<OrderBookVo> voList = this.baseMapper.queryList(queryWrapper, dto);
 //        if (CollectionUtil.isNotEmpty(voList)) {
 //            BaseQueryWrapper<OrderBookDetail> baseCountQuery = new BaseQueryWrapper<>();
@@ -95,6 +98,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
     @Override
     public List<Map<String,String>>  countByStatus(OrderBookQueryDto dto) {
         BaseQueryWrapper<OrderBook> orderBookBaseQueryWrapper = this.buildQueryWrapper(dto);
+        dataPermissionsService.getDataPermissionsForQw(orderBookBaseQueryWrapper, DataPermissionsBusinessTypeEnum.order_book_follow.getK());
         return this.baseMapper.countByStatus(orderBookBaseQueryWrapper);
     }
 
@@ -138,6 +142,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         if (StrUtil.isNotBlank(dto.getId())){
             this.updateById(dto);
         }else {
+            dto.setCreateDeptId(getVirtualDetpIds());
             this.save(dto);
         }
         return this.getById(dto.getId());

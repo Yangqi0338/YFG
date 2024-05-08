@@ -557,8 +557,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 qw.ge("p.receive_sample_date", split[0]);
                 qw.le("p.receive_sample_date", split[1]);
             }
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.retentionStyle.getK());
+        }else{
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         }
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         Page<TechnologyCenterTaskVo> page = null;
         if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
             page = PageHelper.startPage(dto);
@@ -774,8 +776,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 版房主管和设计师 看到全部，版师、裁剪工、车缝工、样衣组长看到自己,
 //        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
 
-        // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType(), "s.");
+        // 数据权限 -- 这里 打版任务、样衣任务都走这里查询，所以数据权限根据前端传值查询
+        //打版任务  patternMakingTask
+        //样衣任务  sampleTask
+        //黑单打版任务    blackPatternMakingTask
+        //黑单样衣任务    blackSampleTask
+        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
         if (StrUtil.isBlank(dto.getOrderBy())) {
             qw.orderByDesc("p.create_date");
             qw.orderByAsc("p.sort");
@@ -953,11 +959,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdQw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
         sdQw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", StrUtil.split(dto.getDesignerIds(), StrUtil.COMMA));
         sdQw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
-        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.patternMakingSteps.getK());
         sdQw.eq(COMPANY_CODE, getCompanyCode());
         sdQw.eq("del_flag", BaseGlobal.NO);
         sdQw.eq("status", BasicNumber.TWO.getNumber());
-        sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0'");
+
+        BaseQueryWrapper<Style> permissionSql = new BaseQueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(permissionSql, DataPermissionsBusinessTypeEnum.patternMakingSteps.getK());
+        String sqlSegment = permissionSql.getSqlSegment();
+        if(StrUtil.isNotBlank(sqlSegment)) {
+            sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0' and " + sqlSegment);
+        }else{
+            sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0'");
+        }
 //        if (StrUtil.isNotBlank(dto.getOrderBy())) {
 //        }
         dto.setOrderBy("create_date desc");
@@ -1032,7 +1045,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 return new PageInfo<>(null);
             }
         }
-        List<StyleResearchProcessVo> list = this.getBaseMapper().getResearchProcessList(dto);
+
+        BaseQueryWrapper<StyleResearchProcessVo> qw = new BaseQueryWrapper();
+        dataPermissionsService.getDataPermissionsForQw(qw,DataPermissionsBusinessTypeEnum.style_research_node.getK());
+
+        List<StyleResearchProcessVo> list = this.getBaseMapper().getResearchProcessList(dto,qw);
 
         //region 节点明细数据
         StyleResearchNodeVo styleResearchNodeVo = null;
@@ -1389,7 +1406,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }*/
 
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK());
         if(!StringUtils.isBlank(dto.getDeriveflag())){
             qw.groupBy("p.id");
             baseMapper.deriveList(qw);

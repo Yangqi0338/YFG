@@ -16,6 +16,8 @@ import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -88,6 +90,9 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
 
     Logger log = LoggerFactory.getLogger(getClass());
 
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
+
     @Override
     public PageInfo<StyleColorCorrectInfoVo> findList(QueryStyleColorCorrectDto page) {
         /*分页*/
@@ -116,6 +121,9 @@ public class StyleColorCorrectInfoServiceImpl extends BaseServiceImpl<StyleColor
         queryWrapper.notEmptyEq("tsc.id", page.getStyleColorId());
         queryWrapper.notExists("select 1 from t_style_color_correct_info t1 WHERE t1.style_color_id = tsc.id AND t1.del_flag = '1'");
         queryWrapper.eq("tsc.del_flag","0");
+
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_color_correct_info.getK());
+
         List<StyleColorCorrectInfoVo> infoVoList = baseMapper.findList(queryWrapper);
 
         /*查询款式图*/

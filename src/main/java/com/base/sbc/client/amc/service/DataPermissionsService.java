@@ -1,5 +1,6 @@
 package com.base.sbc.client.amc.service;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -164,12 +165,12 @@ public class DataPermissionsService {
         }
         List<String> authorityField=new ArrayList<>();
         //用户存在多个用户组，用户组之间用or
-        boolean userGroupSize = dataPermissionsList.size() != 1;
+        boolean userGroupSize = dataPermissionsList.stream().filter(o-> CollUtil.isNotEmpty(o.getFieldDataPermissions())).count() != 1;
         for (DataPermissionVO dataPermissions : dataPermissionsList) {
             if (DataPermissionsRangeEnum.ALL.getK().equals(dataPermissions.getRange())) {
                 //如果该用户有一个角色是全部 权限时
-                authorityField.clear();
-                break;
+                /*authorityField.clear();
+                break;*/
             }
             List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
             if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
@@ -245,7 +246,7 @@ public class DataPermissionsService {
         }
 
         if(CollectionUtils.isNotEmpty(authorityField)) {
-            String authorityFieldStr = "(" + StringUtils.join(authorityField, " ") + ")";
+            String authorityFieldStr = StringUtils.join(authorityField, " ");
             ret.put("authorityField", authorityFieldStr);
         }
         return ret;

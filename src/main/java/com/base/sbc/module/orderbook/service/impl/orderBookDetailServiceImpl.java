@@ -190,7 +190,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         List<Integer> judgeList = ArrayUtil.asMutableList(judgeGroup);
         boolean openDataAuth = CommonUtils.judge(judgeList, 0, 1);
         if (openDataAuth) {
-            dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK());
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
         if (CommonUtils.judge(judgeList, 1, 0) || CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
@@ -624,7 +624,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public Map<String, BigDecimal> queryCount(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK());
         List<OrderBookDetailVo> querylistAll = this.getBaseMapper().queryPage(queryWrapper);
         HashMap<String, Double> hashMap =new HashMap<>();
         double materialMoneySum = 0;
