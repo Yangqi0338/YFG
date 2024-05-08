@@ -169,8 +169,8 @@ public class DataPermissionsService {
         for (DataPermissionVO dataPermissions : dataPermissionsList) {
             if (DataPermissionsRangeEnum.ALL.getK().equals(dataPermissions.getRange())) {
                 //如果该用户有一个角色是全部 权限时
-                /*authorityField.clear();
-                break;*/
+                authorityField.clear();
+                break;
             }
             List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
             if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
