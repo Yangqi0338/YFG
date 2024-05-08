@@ -167,7 +167,26 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             // 获取所有维度等级的数据
             List<String> prodCategoryNameList = detailsList.stream()
                     .map(SeasonalPlanningDetails::getProdCategoryName).distinct().collect(Collectors.toList());
-            List<PlanningDimensionality> planningDimensionalityList = getPlanningDimensionalitieList(prodCategoryNameList, seasonalPlanning.getChannelCode(), seasonalPlanning.getSeasonId());
+
+            // 将季节企划详情数据转换成品类下面是中类集合的格式 用作查询维度数据信息
+            Map<String, List<SeasonalPlanningDetails>> seasonalPlanningDetailMap
+                    = detailsList.stream().collect(Collectors.groupingBy(SeasonalPlanningDetails::getProdCategoryName));
+            // 初始化返回格式
+            Map<String, List<String>> resultMap = new HashMap<>(seasonalPlanningDetailMap.size());
+            for (Map.Entry<String, List<SeasonalPlanningDetails>> stringListEntry : seasonalPlanningDetailMap.entrySet()) {
+                // 拿到品类分组下的季节企划数据
+                List<SeasonalPlanningDetails> seasonalPlanningDetailsList = stringListEntry.getValue();
+                // 初始化中类名称集合
+                List<String> list = new ArrayList<>(seasonalPlanningDetailsList.size());
+                for (SeasonalPlanningDetails details : seasonalPlanningDetailsList) {
+                    if (ObjectUtil.isNotEmpty(details.getProdCategory2ndName())) {
+                        // 如果品类下面的中类的名称不是空的 那么放到集合里面
+                        list.add(details.getProdCategory2ndName());
+                    }
+                }
+                resultMap.put(stringListEntry.getKey(), list);
+            }
+            List<PlanningDimensionality> planningDimensionalityList = getAllPlanningDimensionalitieList(resultMap, seasonalPlanning.getChannelCode(), seasonalPlanning.getSeasonId());
             if (ObjectUtil.isNotEmpty(dimensionIdList)) {
                 planningDimensionalityList = planningDimensionalityList.stream()
                         .filter(item -> dimensionIdList.contains(item.getFieldId())).collect(Collectors.toList());
@@ -352,6 +371,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         planningDimensionalityQueryWrapper.eq("planning_season_id", seasonId);
         planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
         planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
+        planningDimensionalityQueryWrapper.ne("prod_category2nd", "");
+        planningDimensionalityQueryWrapper.isNotNull("prod_category2nd");
 
         List<PlanningDimensionality> list = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
         if (ObjectUtil.isNotEmpty(list)) {
@@ -372,9 +393,117 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
         planningDimensionalityQueryWrapper.isNotNull("dimensionality_grade");
         planningDimensionalityQueryWrapper.ne("dimensionality_grade", "");
+        planningDimensionalityQueryWrapper.ne("prod_category2nd", "");
+        planningDimensionalityQueryWrapper.isNotNull("prod_category2nd");
         // 拿到所有等级的维度数据
         List<PlanningDimensionality> planningDimensionalityList = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
         return planningDimensionalityList;
+    }
+
+    /**
+     * 获取所有等级的维度数据，如果品类没有就使用中类，如果中类也没有 那么抛出异常
+     *
+     * @param resultMap   品类和中类名称 Map 集合
+     * @param channelCode 渠道 code
+     * @param seasonId    产品季 id
+     * @return
+     */
+    public List<PlanningDimensionality> getAllPlanningDimensionalitieList(Map<String, List<String>> resultMap, String channelCode, String seasonId) {
+        // 初始化中类或者品类对应的维度信息
+        List<PlanningDimensionality> resultList = new ArrayList<>();
+        // 品类名称集合
+        List<String> initProdCategoryNameList = new ArrayList<>(resultMap.keySet());
+        // 先查询品类的第一维度数据
+        QueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new QueryWrapper<>();
+        planningDimensionalityQueryWrapper.eq("channel", channelCode);
+        planningDimensionalityQueryWrapper.eq("planning_season_id", seasonId);
+        planningDimensionalityQueryWrapper.in("prod_category_name", initProdCategoryNameList);
+        planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
+        planningDimensionalityQueryWrapper.ne("prod_category2nd", "");
+        planningDimensionalityQueryWrapper.isNotNull("prod_category2nd");
+        List<PlanningDimensionality> prodCategorylist = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
+
+        // 找出品类没有第一维度的数据
+        // 初始化需要查询维度信息的品类
+        List<String> prodCategoryNameList = new ArrayList<>();
+        // 初始化需要查询第一维度数据的中类
+        List<String> prodCategory2ndNameList = new ArrayList<>();
+        // 初始化没有查询到品类级别的第一维度数据的品类 且品类下面没有中类
+        List<String> prodCategoryNo2ndNameList = new ArrayList<>();
+        if (ObjectUtil.isNotEmpty(prodCategorylist)) {
+            List<String> alreadyExistsList = prodCategorylist
+                    .stream().map(PlanningDimensionality::getProdCategoryName).collect(Collectors.toList());
+            for (Map.Entry<String, List<String>> item : resultMap.entrySet()) {
+                if (!alreadyExistsList.contains(item.getKey())) {
+                    if (ObjectUtil.isNotEmpty(item.getValue())) {
+                        // 如果中类集合为空 代表导入的季节企划数据当前品类没有中类 那么这个品类必须有第一维度配置 而不是去查询下面的中类的第一维度配置
+                        prodCategoryNo2ndNameList.add(item.getKey());
+                    } else {
+                        // 如果没有查询到品类级别的第一维度 那么就取出需要查询第一维度的中类级别的数据
+                        prodCategory2ndNameList.addAll(item.getValue());
+                    }
+                } else {
+                    // 需要查询其他维度的品类名称
+                    prodCategoryNameList.add(item.getKey());
+                }
+            }
+        } else {
+            for (Map.Entry<String, List<String>> item : resultMap.entrySet()) {
+                // 品类级别的第一维度都没查询到 全都要去查中类级别的第一维度
+                prodCategory2ndNameList.add(item.getKey());
+            }
+        }
+
+        if (ObjectUtil.isNotEmpty(prodCategoryNo2ndNameList)) {
+            // 此时需要提示配置品类级别的第一维度
+            throw new OtherException("由于季节企划没有导入以下品类「" + Arrays.toString(prodCategoryNo2ndNameList.toArray()) + "」下的中类数据，所以必须配置第一维度数据！");
+        }
+
+        if (ObjectUtil.isNotEmpty(prodCategory2ndNameList)) {
+            // 说明品类级别的第一维度不存在 需要查询中类级别的第一维度
+            planningDimensionalityQueryWrapper.clear();
+            planningDimensionalityQueryWrapper.eq("channel", channelCode);
+            planningDimensionalityQueryWrapper.eq("planning_season_id", seasonId);
+            planningDimensionalityQueryWrapper.in("prod_category2nd_name", prodCategory2ndNameList);
+            planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
+            List<PlanningDimensionality> prodCategory2ndlist = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
+            if (ObjectUtil.isNotEmpty(prodCategory2ndlist)) {
+                if (prodCategory2ndNameList.size() != prodCategory2ndlist.size()) {
+                    List<String> stringList = prodCategory2ndlist.stream().map(PlanningDimensionality::getProdCategoryName).collect(Collectors.toList());
+                    List<String> newProdCategory2ndNameList = prodCategory2ndNameList.stream()
+                            .filter(item -> !stringList.contains(item)).collect(Collectors.toList());
+                    throw new OtherException("请配置以下中类「" + Arrays.toString(newProdCategory2ndNameList.toArray()) + "」或者中类上级品类的第一维度数据！");
+                }
+            } else {
+                throw new OtherException("请配置中类为「" + Arrays.toString(prodCategory2ndNameList.toArray()) + "」的第一维度数据！");
+            }
+
+            // 如果中类（刨除品类已配置第一维度）都有第一维度 查询中类的所有等级的维度数据
+            planningDimensionalityQueryWrapper.clear();
+            planningDimensionalityQueryWrapper.eq("channel", channelCode);
+            planningDimensionalityQueryWrapper.eq("planning_season_id", seasonId);
+            planningDimensionalityQueryWrapper.in("prod_category2nd_name", prodCategory2ndNameList);
+            planningDimensionalityQueryWrapper.isNotNull("dimensionality_grade");
+            planningDimensionalityQueryWrapper.ne("dimensionality_grade", "");
+            // 拿到所有等级的维度数据
+            resultList.addAll(planningDimensionalityService.list(planningDimensionalityQueryWrapper));
+        }
+
+        if (ObjectUtil.isNotEmpty(prodCategoryNameList)) {
+            // 如果品类（刨除中类已配置第一维度）都有第一维度 查询品类的所有等级的维度数据
+            planningDimensionalityQueryWrapper.clear();
+            planningDimensionalityQueryWrapper.eq("channel", channelCode);
+            planningDimensionalityQueryWrapper.eq("planning_season_id", seasonId);
+            planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
+            planningDimensionalityQueryWrapper.isNotNull("dimensionality_grade");
+            planningDimensionalityQueryWrapper.ne("dimensionality_grade", "");
+            planningDimensionalityQueryWrapper.ne("prod_category2nd", "");
+            planningDimensionalityQueryWrapper.isNotNull("prod_category2nd");
+            // 拿到所有等级的维度数据
+            resultList.addAll(planningDimensionalityService.list(planningDimensionalityQueryWrapper));
+        }
+
+        return resultList;
     }
 
     private Map<String, Map<String, String>> getFeildData(List<FieldManagementVo> fieldManagementList, Map<String, Map<String, String>> dictMap, HashMap<String, List<BasicStructureTreeVo>> structureMap) {
