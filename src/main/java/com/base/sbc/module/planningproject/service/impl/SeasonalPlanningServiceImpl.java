@@ -169,18 +169,17 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         // 新增list
         List<SeasonalPlanningDetails> addList = new ArrayList<>();
         // 更新list
-        List<SeasonalPlanningDetails> updateList = new ArrayList<>();
-        // 新增list
+        List<SeasonalPlanningDetails> relDelList = new ArrayList<>();
+        // 删除list
         List<SeasonalPlanningDetails> delList = new ArrayList<>();
-        compareForUpdate(importDetailsList, seasonalPlanningDetailsList, addList, updateList, delList);
-        if (CollectionUtils.isEmpty(addList) && CollectionUtils.isEmpty(updateList) && CollectionUtils.isEmpty(delList)) {
+        compareForUpdate(importDetailsList, seasonalPlanningDetailsList, addList, relDelList, delList);
+        if (CollectionUtils.isEmpty(addList) && CollectionUtils.isEmpty(relDelList) && CollectionUtils.isEmpty(delList)) {
             return ApiResult.error("无数据变更,无需提交更新", 500);
         }
         for (SeasonalPlanningDetails addDetails : addList) {
             addDetails.setSeasonalPlanningId(seasonalPlanningSaveDto.getId());
         }
         seasonalPlanningDetailsService.saveBatch(addList);
-        seasonalPlanningDetailsService.updateBatchById(updateList);
         if (CollectionUtils.isNotEmpty(delList)) {
             List<String> ids = delList.stream().map(SeasonalPlanningDetails::getId).collect(Collectors.toList());
             seasonalPlanningDetailsService.removeByIds(ids);
@@ -202,13 +201,13 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             queryWrapperByProdCa.in("prod_category_name", prdoCategory);
             List<SeasonalPlanningDetails> seasonalPlanningDetailsForUpdate = seasonalPlanningDetailsService.list(queryWrapperByProdCa);
 
-            categoryPlanningDetailsService.updateBySeasonalPlanning(seasonalPlanningDetailsForUpdate, delList);
+            categoryPlanningDetailsService.updateBySeasonalPlanning(seasonalPlanningDetailsForUpdate, relDelList);
         }
         return ApiResult.success("更新成功");
     }
 
     private void compareForUpdate(List<SeasonalPlanningDetails> importDetailsList, List<SeasonalPlanningDetails> oldDetailsList,
-                                  List<SeasonalPlanningDetails> addList, List<SeasonalPlanningDetails> updateList, List<SeasonalPlanningDetails> delList) {
+                                  List<SeasonalPlanningDetails> addList, List<SeasonalPlanningDetails> relDelList, List<SeasonalPlanningDetails> delList) {
         // 更新数据
         Map<String, List<SeasonalPlanningDetails>> importDetailsMap = importDetailsList.stream().collect(Collectors.groupingBy(
                         SeasonalPlanningDetails::getProdCategoryName,
@@ -232,23 +231,12 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
             }
             break;
         }
-
-        /*// 新增新品类，不允许新增波段
-                Map<String, List<SeasonalPlanningDetails>> bandMap = importSeasonalList.stream().collect(Collectors.groupingBy(
-                        SeasonalPlanningDetails::getBandName,
-                        Collectors.toList()
-                ));
-                for (String bandName : bandMap.keySet()) {
-                    if (!bandNameList.contains(bandName)) {
-                        throw new RuntimeException("更新新的品类时，不允许新增波段");
-                    }
-                }*/
+        // TODO 波段更新校验
         for (String prodCategoryName : importDetailsMap.keySet()) {
             List<SeasonalPlanningDetails> oldSeasonalList = oldDetailsMap.get(prodCategoryName);
             List<SeasonalPlanningDetails> importSeasonalList = importDetailsMap.get(prodCategoryName);
+            // old数据中不存在的品类 ----新增
             if (CollectionUtils.isEmpty(oldSeasonalList)) {
-                // old数据中不存在的品类 ----新增
-
                 // 导入数据是否为 "0"
                 if (StringUtils.isBlank(importSeasonalList.get(0).getProdCategory2ndName())) {
                     int sumOfValues = importSeasonalList.stream()
@@ -284,6 +272,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             s.setDelFlag("1");
                             return s;
                         }).collect(Collectors.toList());
+                        relDelList.addAll(delDetalsList);
                         delList.addAll(delDetalsList);
                         // 导入数据是否为 "0"
                         int sumOfValues = importSeasonalList.stream()
@@ -298,6 +287,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                 .mapToInt(s -> Integer.valueOf(s.getSkcCount()))
                                 .sum();
                         if (0 == sumOfValues) {
+                            relDelList.addAll(oldSeasonalList);
                             delList.addAll(oldSeasonalList);
                         } else {
                             /*copySeasonalPlanningDetails(importSeasonalList, oldSeasonalList);
@@ -346,6 +336,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                         s.setDelFlag("1");
                                         return s;
                                     }).collect(Collectors.toList());
+                                    relDelList.addAll(deloldProdCategory2ndsList);
                                     delList.addAll(deloldProdCategory2ndsList);
                                 } else {
                                     /*copySeasonalPlanningDetails(importProdCategory2nds, oldProdCategory2nds);
@@ -364,6 +355,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             s.setDelFlag("1");
                             return s;
                         }).collect(Collectors.toList());
+                        relDelList.addAll(deloldoldSeasonalList);
                         delList.addAll(deloldoldSeasonalList);
                         // 导入数据是否为 "0"
                         int sumOfValues = importSeasonalList.stream()
