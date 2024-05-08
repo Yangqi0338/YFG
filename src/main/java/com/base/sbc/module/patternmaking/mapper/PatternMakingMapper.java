@@ -105,7 +105,7 @@ public interface PatternMakingMapper extends BaseMapper<PatternMaking> {
 
     List<NodeListVo> getProgressSteps(NodestatusPageSearchDto dto);
 
-    List<StyleResearchProcessVo> getResearchProcessList(ResearchProgressPageDto dto,@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<StyleResearchProcessVo> getResearchProcessList(@Param("dto") ResearchProgressPageDto dto,@Param(Constants.WRAPPER) QueryWrapper qw);
 /** 自定义方法区 不替换的区域【other_end】 **/
 }
 
