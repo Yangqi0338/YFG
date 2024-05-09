@@ -329,7 +329,7 @@ public class HangTagListVO extends HangTag {
      * 是否可编辑
      */
     @ApiModelProperty(value = "是否可编辑")
-    private String isEdit;
+    private Integer isEdit = 0;
 
 }
 
