@@ -183,36 +183,78 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
         qc.eq("tbm.company_code", this.getCompanyCode());
-//        qc.andLike(dto.getSearch(), "tbm.material_code", "tbm.material_name");
-//        qc.notEmptyEq("tbm.status", dto.getStatus());
-//        qc.notEmptyLike("tbm.material_code_name", dto.getMaterialCodeName());
-//        qc.notEmptyLike("tbm.supplier_fabric_code", dto.getSupplierFabricCode());
-//        qc.notEmptyLike("tbm.supplier_name", dto.getSupplierName());
-//        qc.notEmptyLike("tbm.material_code", dto.getMaterialCode());
-//        qc.notEmptyLike("tbm.material_name", dto.getMaterialName());
-//        qc.notEmptyLike("tbmc.color_name", dto.getColorName());
-//        qc.notEmptyLike("tbmc.color_code", dto.getColorCode());
-//        qc.notEmptyLike("tbmc.supplier_color_code", dto.getSupplierColorCode());
-//        if (StringUtils.isNotEmpty(dto.getCategoryId())) {
-//            qc.and(Wrapper -> Wrapper.eq("tbm.category_id", dto.getCategoryId()).or()
-//                    .eq("tbm.category1_code ", dto.getCategoryId()).or().eq("tbm.category2_code", dto.getCategoryId()).or()
-//                    .eq("tbm.category3_code", dto.getCategoryId()));
-//        }
-//        qc.eq("tbm.biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
-//        if (StringUtils.isNotEmpty(dto.getConfirmStatus())) {
-//            List<String> confirmStatus = Arrays.stream(dto.getConfirmStatus().split(",")).collect(Collectors.toList());
-//            qc.in("tbm.confirm_status", confirmStatus);
-//        } else {
-//            qc.eq("tbm.confirm_status", "2");
-//        }
-//        qc.notEmptyIn("brand",dto.getBrandList());
+        qc.andLike(dto.getSearch(), "tbm.material_code", "tbm.material_name");
+        qc.notEmptyEq("tbm.status", dto.getStatus());
+        qc.notEmptyLike("tbm.material_code_name", dto.getMaterialCodeName());
+        qc.notEmptyLike("tbm.supplier_fabric_code", dto.getSupplierFabricCode());
+        qc.notEmptyLike("tbm.supplier_name", dto.getSupplierName());
+        qc.notEmptyLike("tbm.material_code", dto.getMaterialCode());
+        qc.notEmptyLike("tbm.material_name", dto.getMaterialName());
+        qc.notEmptyLike("tbmc.color_name", dto.getColorName());
+        qc.notEmptyLike("tbmc.color_code", dto.getColorCode());
+        qc.notEmptyLike("tbmc.supplier_color_code", dto.getSupplierColorCode());
+        if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+            qc.and(Wrapper -> Wrapper.eq("tbm.category_id", dto.getCategoryId()).or()
+                    .eq("tbm.category1_code ", dto.getCategoryId()).or().eq("tbm.category2_code", dto.getCategoryId()).or()
+                    .eq("tbm.category3_code", dto.getCategoryId()));
+        }
+        qc.eq("tbm.biz_type", BasicsdatumMaterialBizTypeEnum.MATERIAL.getK());
+        if (StringUtils.isNotEmpty(dto.getConfirmStatus())) {
+            List<String> confirmStatus = Arrays.stream(dto.getConfirmStatus().split(",")).collect(Collectors.toList());
+            qc.in("tbm.confirm_status", confirmStatus);
+        } else {
+            qc.eq("tbm.confirm_status", "2");
+        }
+        qc.notEmptyIn("brand",dto.getBrandList());
+        qc.orderByDesc("tbm.create_date");
+        qc.eq("tbm.del_flag", "0");
+        dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
+        List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
+        // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
+        List<String> stringList = IdGen.getIds(list.size());
+        int index = 0;
+        for (BasicsdatumMaterialPageVo basicsdatumMaterialPageVo : list) {
+            basicsdatumMaterialPageVo.setIds(stringList.get(index));
+            index++;
+            String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
+            /*查询物料的最新检测报告*/
+            List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
+            List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = materialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode));
+            List<String> collect = basicsdatumMaterialWidths.stream().map(BasicsdatumMaterialWidth::getName).collect(Collectors.toList());
+            basicsdatumMaterialPageVo.setWidthName(String.join(",", collect));
+
+            if ( CollUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto)) {
+
+
+                basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.get(0).getRemark());
+                basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.get(0).getCompanyFullName());
+                basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.get(0).getArriveDate());
+                basicsdatumMaterialPageVo
+                        .setCheckValidDate(Integer.valueOf(escmMaterialCompnentInspectCompanyDto.get(0).getValidityTime()));
+                basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.get(0).getSendInspectContent());
+                basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.get(0).getMakerByName());
+                basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.get(0).getFileUrl());
+            }
+
+        }
+        minioUtils.setObjectUrlToList(list, "imageUrl");
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(BasicsdatumMaterialQueryDto dto) {
+        if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
+            PageHelper.startPage(dto);
+        }
+        BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
+        qc.eq("tbm.company_code", this.getCompanyCode());
         qc.orderByDesc("tbm.create_date");
         qc.eq("tbm.del_flag", "0");
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
 
-        List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
+        List<BasicsdatumMaterialPageVo> list = baseMapper.getMaterialSkuList(qc);
 
         if (CollUtil.isEmpty(list)) {
             return new PageInfo<>(list);
@@ -220,35 +262,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         if (isColumnHeard) {
             return new PageInfo<>(list);
         }
-
-
-        // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
-//        List<String> stringList = IdGen.getIds(list.size());
-//        int index = 0;
-//        for (BasicsdatumMaterialPageVo basicsdatumMaterialPageVo : list) {
-//            basicsdatumMaterialPageVo.setIds(stringList.get(index));
-//            index++;
-//            String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
-//            /*查询物料的最新检测报告*/
-//            List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
-//
-//            List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = materialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode));
-//
-//            List<String> collect = basicsdatumMaterialWidths.stream().map(BasicsdatumMaterialWidth::getName).collect(Collectors.toList());
-//
-//            basicsdatumMaterialPageVo.setWidthName(String.join(",", collect));
-//
-//            if ( CollUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto)) {
-//                basicsdatumMaterialPageVo.setFabricEvaluation(escmMaterialCompnentInspectCompanyDto.get(0).getRemark());
-//                basicsdatumMaterialPageVo.setCheckCompanyName(escmMaterialCompnentInspectCompanyDto.get(0).getCompanyFullName());
-//                basicsdatumMaterialPageVo.setCheckDate(escmMaterialCompnentInspectCompanyDto.get(0).getArriveDate());
-//                basicsdatumMaterialPageVo.setCheckValidDate(Integer.valueOf(escmMaterialCompnentInspectCompanyDto.get(0).getValidityTime()));
-//                basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.get(0).getSendInspectContent());
-//                basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.get(0).getMakerByName());
-//                basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.get(0).getFileUrl());
-//            }
-//
-//        }
         minioUtils.setObjectUrlToList(list, "imageUrl");
         return new PageInfo<>(list);
     }

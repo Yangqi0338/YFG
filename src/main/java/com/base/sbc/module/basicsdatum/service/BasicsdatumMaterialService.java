@@ -34,6 +34,7 @@ import java.util.Map;
 public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMaterial> {
 
 	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto);
+	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(BasicsdatumMaterialQueryDto dto);
 
 	BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto);
 
