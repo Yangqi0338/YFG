@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.enums.business.CountryLanguageType;
@@ -69,4 +70,12 @@ public class StyleCountryStatus extends BaseDataEntity<String> {
     private Date printTime;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
+    @TableField(exist = false)
+    @ApiModelProperty(value = "品牌")
+    private String brand;
+
+    /** 接收部门 */
+    @TableField(exist = false)
+    @ApiModelProperty(value = "接收部门"  )
+    private String receiveDeptId;
 }

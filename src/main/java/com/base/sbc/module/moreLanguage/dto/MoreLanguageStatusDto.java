@@ -26,6 +26,12 @@ public class MoreLanguageStatusDto extends EditPermissionReturnVo {
     @ApiModelProperty(value = "款号")
     private String bulkStyleNo;
 
+    @ApiModelProperty(value = "品牌")
+    private String brand;
+
+    @ApiModelProperty(value = "接收部门"  )
+    private String receiveDeptId;
+
     @ApiModelProperty(value = "国家编码列表")
     private List<MoreLanguageStatusCountryDto> countryList;
 

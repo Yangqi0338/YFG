@@ -318,7 +318,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
                 List<StyleCountryStatus> statusList = allList.stream()
                         .filter(it -> bulkStyleNo.equals(it.getBulkStyleNo()))
                         .collect(Collectors.toList());
-                moreLanguageStatusList.add(new MoreLanguageStatusDto(bulkStyleNo, MORE_LANGUAGE_CV.copyList2CountryDTO(statusList)));
+                moreLanguageStatusList.add(new MoreLanguageStatusDto(bulkStyleNo, styleCountryStatus.getBrand(), styleCountryStatus.getReceiveDeptId(), MORE_LANGUAGE_CV.copyList2CountryDTO(statusList)));
             });
         }
 

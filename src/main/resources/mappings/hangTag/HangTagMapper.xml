@@ -25,6 +25,8 @@
         tsd.id as styleId,
         tpi.id as packInfoId,
         tsd.devt_type AS produceType,
+        tsd.devt_type AS devtType,
+        tsd.receive_dept_id AS receiveDeptId,
         tsd.style_type AS styleType,
         tsd.devt_type_name AS produceTypeName,
         tsd.style_type_name AS styleTypeName,
