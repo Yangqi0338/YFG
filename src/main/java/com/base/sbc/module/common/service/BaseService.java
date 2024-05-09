@@ -170,6 +170,9 @@ public interface BaseService<T> extends IService<T> {
      * 根据queryWrapper检查是否存在
      */
     boolean exists(Wrapper<T> wrapper);
+
+    boolean exists(String id);
+
     T findOne(QueryWrapper<T> wrapper);
     T findOne(LambdaQueryWrapper<T> wrapper);
     <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
