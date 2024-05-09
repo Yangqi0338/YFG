@@ -6,7 +6,9 @@
  *****************************************************************************/
 package com.base.sbc.module.pricing.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.pricing.dto.PricingSearchDTO;
 import com.base.sbc.module.pricing.entity.Pricing;
 import com.base.sbc.module.pricing.vo.PricingListVO;
@@ -36,7 +38,7 @@ public interface PricingMapper extends BaseMapper<Pricing> {
      * @param dto
      * @return
      */
-    List<PricingListVO> getItemDimension(@Param("dto") PricingSearchDTO dto);
+    List<PricingListVO> getItemDimension(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("dto") PricingSearchDTO dto);
 
     /**
      * 列表查询-汇总维度
@@ -44,7 +46,7 @@ public interface PricingMapper extends BaseMapper<Pricing> {
      * @param dto
      * @return
      */
-    List<PricingListVO> getSummaryDimension(@Param("dto") PricingSearchDTO dto);
+    List<PricingListVO> getSummaryDimension(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("dto") PricingSearchDTO dto);
 
 
 // 自定义方法区 不替换的区域【other_end】

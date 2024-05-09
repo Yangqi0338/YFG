@@ -14,13 +14,18 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.annotation.EditPermission;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.BusinessException;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pricing.dto.*;
 import com.base.sbc.module.pricing.entity.PricingTemplate;
@@ -72,16 +77,22 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
 
     @Autowired
     private CcmFeignService ccmFeignService;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
+    @EditPermission(type = DataPermissionsBusinessTypeEnum.pricingTemplate)
     public PageInfo<PricingTemplateVO> queryPageInfo(PricingTemplateSearchDTO dto, String userCompany) {
-        QueryWrapper<PricingTemplate> qc = new QueryWrapper<>();
+        BaseQueryWrapper<PricingTemplate> qc = new BaseQueryWrapper<>();
         qc.like(StringUtils.isNotEmpty(dto.getTemplateCode()), "template_code", dto.getTemplateCode());
         qc.like(StringUtils.isNotEmpty(dto.getTemplateName()), "template_name", dto.getTemplateName());
         qc.eq(StringUtils.isNotEmpty(dto.getStatus()), "status", dto.getStatus());
         qc.eq("company_code", userCompany);
         qc.eq("del_flag", YesOrNoEnum.NO.getValueStr());
         qc.orderByDesc("create_date");
+        QueryGenerator.initQueryWrapperByMap(qc,dto);
+
+        dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.pricingTemplate.getK());
         PageHelper.startPage(dto);
         com.github.pagehelper.Page<PricingTemplateVO> basicLabelUseScopePage = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         super.list(qc);
@@ -90,11 +101,8 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
 
     @Override
     public PricingTemplateVO getDetailsById(String id, String userCompany) {
-        LambdaQueryWrapper<PricingTemplate> queryWrapper = new QueryWrapper<PricingTemplate>().lambda()
-                .eq(PricingTemplate::getId, id)
-                .eq(PricingTemplate::getCompanyCode, userCompany)
-                .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr());
-        PricingTemplate pricingTemplate = super.getOne(queryWrapper);
+        if (!this.exists(id)) throw new OtherException("无效的核价模板");
+        PricingTemplate pricingTemplate = super.getById(id);
         if (Objects.isNull(pricingTemplate)) {
             throw new BusinessException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
@@ -131,18 +139,15 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
     }
 
     @Override
-    public void delById(PricingDelDTO pricingDelDTO, String userCompany) {
-        logger.info("PricingTemplateService#deleteByIdDelFlag 删除 pricingDelDTO:{}, userCompany:{}", JSON.toJSONString(pricingDelDTO), userCompany);
-        if (CollectionUtils.isEmpty(pricingDelDTO.getIds())) {
+    public void delById(PricingDelDTO pricingDelDTO) {
+        logger.info("PricingTemplateService#deleteByIdDelFlag 删除 pricingDelDTO:{}", JSON.toJSONString(pricingDelDTO));
+        List<String> ids = pricingDelDTO.getIds();
+        if (CollectionUtils.isEmpty(ids)) {
             throw new BusinessException(BaseErrorEnum.ERR_DELETE_ATTRIBUTE_NOT_REQUIREMENTS);
         }
-        LambdaUpdateWrapper<PricingTemplate> wrapper = new LambdaUpdateWrapper<PricingTemplate>()
-                .set(PricingTemplate::getDelFlag, BaseEntity.DEL_FLAG_NORMAL)
-                .in(PricingTemplate::getId, pricingDelDTO.getIds())
-                .eq(PricingTemplate::getCompanyCode, userCompany);
-        pricingTemplateMapper.delete(wrapper);
+        pricingTemplateMapper.deleteBatchIds(ids);
     }
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void defaultSetting(String id, String userCompany) {
         logger.info("PricingTemplateService#defaultSetting 默认设置 id:{}, userCompany:{}", id, userCompany);
@@ -151,40 +156,30 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
         if(ccmFeignService.getSwitchByCode("PRICING_DEVT_TYOE_DEFAULT_TEMPLATE")){
             pricing = baseMapper.selectById(id);
         }
-        PricingTemplate pricingTemplate = new PricingTemplate();
-        pricingTemplate.setDefaultFlag(YesOrNoEnum.NO.getValueStr());
-        LambdaUpdateWrapper<PricingTemplate> wrapper = new UpdateWrapper<PricingTemplate>().lambda()
+
+        super.update(new LambdaUpdateWrapper<PricingTemplate>()
+                .set(PricingTemplate::getDefaultFlag, YesOrNoEnum.NO.getValueStr())
                 .eq(PricingTemplate::getCompanyCode, userCompany)
                 .eq(PricingTemplate::getDefaultFlag, YesOrNoEnum.YES.getValueStr())
-                .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr())
-                .eq(StrUtil.isNotBlank(pricing.getDevtType()),PricingTemplate::getDevtType, pricing.getDevtType());
-        super.update(pricingTemplate, wrapper);
+                .eq(StrUtil.isNotBlank(pricing.getBrand()),PricingTemplate::getBrand, pricing.getBrand())
+                .eq(StrUtil.isNotBlank(pricing.getDevtType()),PricingTemplate::getDevtType, pricing.getDevtType()));
 
-        PricingTemplate template = new PricingTemplate();
-        template.setDefaultFlag(YesOrNoEnum.YES.getValueStr());
-        LambdaUpdateWrapper<PricingTemplate> updateWrapper = new UpdateWrapper<PricingTemplate>().lambda()
-                .in(PricingTemplate::getId, id)
-                .eq(PricingTemplate::getCompanyCode, userCompany)
-                .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr())
-                .eq(StrUtil.isNotBlank(pricing.getDevtType()),PricingTemplate::getDevtType, pricing.getDevtType());
-        super.update(template, updateWrapper);
-
+        super.update(new LambdaUpdateWrapper<PricingTemplate>()
+                .set(PricingTemplate::getDefaultFlag, YesOrNoEnum.YES.getValueStr())
+                .in(PricingTemplate::getId, id));
     }
 
     @Override
-    public void updateStatus(PricingUpdateStatusDTO dto, String userCompany) {
-        logger.info("PricingTemplateService#updateStatus 更新状态 dto:{}, userCompany:{}", JSON.toJSONString(dto), userCompany);
+    public void updateStatus(PricingUpdateStatusDTO dto) {
+        logger.info("PricingTemplateService#updateStatus 更新状态 dto:{}", JSON.toJSONString(dto));
         if (CollectionUtils.isEmpty(dto.getIds())) {
             throw new BusinessException(BaseErrorEnum.ERR_UPDATE_ATTRIBUTE_NOT_REQUIREMENTS);
         }
-        PricingTemplate pricingTemplate = new PricingTemplate();
-        pricingTemplate.setStatus(dto.getStatus());
 
-        LambdaUpdateWrapper<PricingTemplate> updateWrapper = new UpdateWrapper<PricingTemplate>().lambda()
-                .in(PricingTemplate::getId, dto.getIds())
-                .eq(PricingTemplate::getCompanyCode, userCompany)
-                .eq(PricingTemplate::getDelFlag, YesOrNoEnum.NO.getValueStr());
-        super.update(pricingTemplate, updateWrapper);
+        LambdaUpdateWrapper<PricingTemplate> updateWrapper = new LambdaUpdateWrapper<PricingTemplate>()
+                .set(PricingTemplate::getStatus, dto.getStatus())
+                .in(PricingTemplate::getId, dto.getIds());
+        super.update(updateWrapper);
     }
 
     @Override
@@ -211,21 +206,23 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
     /**
      * 获取默认模板
      *
+     * @param brand
      * @param devtType
      * @param userCompany
      * @return
      */
     @Override
-    public PricingTemplateVO getDefaultPricingTemplate( String devtType,String userCompany) {
+    public PricingTemplateVO getDefaultPricingTemplate(String brand, String devtType,String userCompany) {
         PricingTemplateVO pricingTemplateVO=new PricingTemplateVO();
-        QueryWrapper queryWrapper =new QueryWrapper();
+        QueryWrapper<PricingTemplate> queryWrapper =new QueryWrapper<>();
         queryWrapper.eq("company_code", userCompany);
         queryWrapper.eq("default_flag", BaseGlobal.YES);
+        queryWrapper.eq("brand", brand);
         /*是否使用生产类型判断*/
         if(ccmFeignService.getSwitchByCode("PRICING_DEVT_TYOE_DEFAULT_TEMPLATE")){
             queryWrapper.eq(StrUtil.isNotBlank(devtType) ,"devt_type",devtType);
         }
-        List<PricingTemplate> templateList =  baseMapper.selectList(queryWrapper);
+        List<PricingTemplate> templateList = baseMapper.selectList(queryWrapper);
         if(CollUtil.isEmpty(templateList)){
             throw new OtherException("无默认模板");
         }

@@ -84,7 +84,7 @@ public class PricingTemplateController extends BaseController {
     @ApiOperation(value = "删除")
     @PostMapping("/delById")
     public ApiResult delById(@Valid @RequestBody PricingDelDTO pricingDelDTO) {
-        pricingTemplateService.delById(pricingDelDTO, super.getUserCompany());
+        pricingTemplateService.delById(pricingDelDTO);
         return deleteSuccess("操作成功");
     }
 
@@ -111,7 +111,7 @@ public class PricingTemplateController extends BaseController {
     @ApiOperation(value = "修改状态")
     @PostMapping(value = "/updateStatus")
     public ApiResult updateStatus(@Valid @RequestBody PricingUpdateStatusDTO dto) {
-        pricingTemplateService.updateStatus(dto, super.getUserCompany());
+        pricingTemplateService.updateStatus(dto);
         return updateSuccess("操作成功");
     }
 
@@ -129,7 +129,7 @@ public class PricingTemplateController extends BaseController {
 
     @ApiOperation(value = "获取默认模板")
     @GetMapping("/getDefaultPricingTemplate")
-    public PricingTemplateVO  getDefaultPricingTemplate(String devtType){
-        return pricingTemplateService.getDefaultPricingTemplate( devtType ,super.getUserCompany());
+    public PricingTemplateVO  getDefaultPricingTemplate(@RequestParam String brand, @RequestParam String devtType){
+        return pricingTemplateService.getDefaultPricingTemplate(brand, devtType ,super.getUserCompany());
     }
 }

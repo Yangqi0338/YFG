@@ -177,8 +177,8 @@
                     tsd.design_no like concat('%',#{designNo},'%')
                 </foreach>
             </if>
-            <if test="authSql != null and authSql != ''">
-                and (${authSql})
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
             </if>
             <choose>
                 <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
