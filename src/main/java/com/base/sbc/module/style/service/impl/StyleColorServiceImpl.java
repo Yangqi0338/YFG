@@ -458,6 +458,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (CollectionUtils.isEmpty(list)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
+        list = list.stream()
+                .filter(it-> StrUtil.isNotBlank(it.getStyleId()) && styleService.exists(it.getStyleId()))
+                .collect(Collectors.toList());
         List<StyleColorVo> styleColorVoList = BeanUtil.copyToList(list, StyleColorVo.class);
         return styleColorVoList;
     }
