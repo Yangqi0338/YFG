@@ -36,4 +36,6 @@ public class FieldDataPermissionVO {
     private String groupSelectType;
 
     private String groupIdx;
+
+    private String sortIdx;
 }

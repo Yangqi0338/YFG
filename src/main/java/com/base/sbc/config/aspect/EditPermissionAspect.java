@@ -90,6 +90,7 @@ public class EditPermissionAspect {
                         for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
 
                             List<FieldDataPermissionVO> value = entry.getValue();
+                            value.sort(Comparator.comparingInt(s-> StrUtil.isNotEmpty(s.getSortIdx()) ? Integer.parseInt(s.getSortIdx()) : 0));
                             String groupSelectType = value.get(0).getGroupSelectType();
                             //组内 结果集
                             Boolean lastEdit = null;
