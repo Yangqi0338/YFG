@@ -185,7 +185,64 @@
 			${ew.sqlSelect}
 		</if>
 		<if test="ew.sqlSelect == null or ew.sqlSelect == ''">
-			tbm.*,
+			tbm.distribute,
+			tbm.category_name,
+			tbm.material_code_name,
+			tbm.supplier_name,
+			tbm.supplier_fabric_code,
+			tbm.factory_composition,
+			tbm.stock_unit_name,
+			tbmp.order_day,
+			tbm.specification,
+			tbm.gram_weight,
+			tbm.is_protection,
+			tbmp.width_name,
+			tbm.supplier_color_say,
+			tbm.image_url,
+			tbm.material_code,
+			tbm.status,
+			tbm.confirm_status,
+			tbm.material_name,
+			tbm.brand_name,
+			tbm.year,
+			tbm.season_name,
+			tbm.material_category_name,
+			tbm.ingredient,
+			tbm.proc_mode_name,
+			tbm.picking_method_name,
+			tbm.material_source_name,
+			tbm.dev_name,
+			tbm.purchase_dept_name,
+			tbm.purchase_name,
+			tbm.total_inventory,
+			tbm.inventory_availability,
+			tbm.fabric_difficulty_name,
+			tbm.remarks,
+			tbm.quality_level_name,
+			tbm.purchase_unit_name,
+			tbm.purchase_convert_stock,
+			tbm.ingredient_say,
+			tbm.fabric_sale_point,
+			tbm.embryonic_cycle,
+			tbm.embryonic_free_cycle,
+			tbm.replenishment_production_cycle,
+			tbm.density,
+			tbm.weave_type_name,
+			tbm.embryo_type_name,
+			tbm.fabric_property_type_name,
+			tbm.auxiliary_material,
+			tbm.check_bill_code,
+			tbm.check_company_name,
+			tbm.check_result,
+			tbm.check_date,
+			tbm.check_valid_date,
+			tbm.fabric_difficulty_score_name,
+			tbm.fabric_evaluation,
+			tbm.risk_description,
+			tbm.create_name,
+			tbm.create_date,
+			tbm.update_name,
+			tbm.update_date,
 			tbmc.color_code,
 			tbmc.color_name,
 			tbmp.quotation_price,
@@ -193,11 +250,10 @@
 			tbmc.supplier_color_code
 		</if>
 		FROM
-			t_basicsdatum_material tbm
-			LEFT JOIN t_basicsdatum_material_color tbmc on  tbmc.material_code = tbm.material_code and tbmc.del_flag='0'
-			LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code and select_flag ='1'   and tbmp.del_flag='0'
-			    ${ew.customSqlSegment}
-
+		t_basicsdatum_material tbm
+		LEFT JOIN t_basicsdatum_material_color tbmc on tbmc.material_code = tbm.material_code AND tbmc.company_code = tbm.company_code AND tbmc.del_flag='0'
+		LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'
+		${ew.customSqlSegment}
 	</select>
 
 	<select id="getBasicsdatumMaterialAndStyleList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageAndStyleVo">
