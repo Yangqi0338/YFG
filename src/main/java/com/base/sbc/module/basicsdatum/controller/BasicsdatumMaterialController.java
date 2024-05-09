@@ -211,7 +211,7 @@ public class BasicsdatumMaterialController extends BaseController {
     @ApiOperation(value = "主物料:查询列表")
     @GetMapping("/getBasicsdatumMaterialList")
     public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto) {
-        return basicsdatumMaterialService.getBasicsdatumMaterialList(dto);
+        return basicsdatumMaterialService.getBasicsdatumMaterialNewList(dto);
     }
 
     @ApiOperation(value = "主物料:解锁")

@@ -60,6 +60,7 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	String selectMaxMaterialCode(@Param(Constants.WRAPPER) QueryWrapper qc);
 
     List<BasicsdatumMaterialPageVo> listSku(@Param(Constants.WRAPPER) BaseQueryWrapper<BasicsdatumMaterial> qw);
+    List<BasicsdatumMaterialPageVo> getMaterialSkuList(@Param(Constants.WRAPPER) BaseQueryWrapper<BasicsdatumMaterial> qw);
 
 	/**
 	 * 物料被bom使用清单
