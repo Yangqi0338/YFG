@@ -188,6 +188,7 @@ public class DataPermissionsService {
                 boolean isFieldFlag = false;
                 for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
                     List<FieldDataPermissionVO> value = entry.getValue();
+                    value.sort(Comparator.comparingInt(s-> StrUtil.isNotEmpty(s.getSortIdx()) ? Integer.parseInt(s.getSortIdx()) : 0));
                     //如果配置只有一组，不添加括号
                     if(permissionGroup){
                         if(first){
