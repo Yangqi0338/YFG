@@ -987,20 +987,21 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             Map<StyleSaleIntoCalculateResultType, OrderBookSimilarStyleChannelVo> calculateSizeMap = ORDER_BOOK_CV.copyResultTypeMyself(map);
 
             calculateSizeMap.forEach((calculateResultType, channelVo)-> {
-                String code = calculateResultType.getCode();
-                List<StyleSaleIntoDto> calculateDetailList = dtoDetailList.stream()
-                        .filter(it -> it.getResultType().getCode().contains(code))
-                        .collect(Collectors.toList());
                 channelVo.getChannelSizeMap().forEach((channel, sizeMap)-> {
-                    calculateDetailList.stream().filter(it -> it.getChannel() == channel).findFirst().ifPresent(detail-> {
-                        detail.getSizeMap().forEach((size,num)-> {
-                            if (sizeMap.getNumSizeMap().containsKey(size)) {
-                                sizeMap.getNumSizeMap().put(size, num);
-                            }
-                        });
+                    Map<String, Double> numSizeMap = sizeMap.getNumSizeMap();
+                    dtoDetailList.stream()
+                            .filter(it -> it.getResultType().getCode().contains(calculateResultType.getCode()))
+                            .filter(it -> it.getChannel() == channel).forEach(detail-> {
+                                detail.getSizeMap().forEach((size,num)-> {
+                                    if (numSizeMap.containsKey(size)) {
+                                        Double sum = numSizeMap.getOrDefault(size, 0.0);
+                                        numSizeMap.put(size,sum+num);
+                                    }
+                                });
+                            });
                     });
                 });
-            });
+
             calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE_INTO).getChannelSizeMap().forEach((channel, sizeMap)-> {
                 sizeMap.getNumSizeMap().keySet().forEach(size-> {
                     double sale = calculateSizeMap.get(StyleSaleIntoCalculateResultType.SALE).getChannelSizeMap()
