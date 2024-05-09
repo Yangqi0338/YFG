@@ -969,15 +969,23 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             throw new OtherException("请选择品类数据！");
         }
 
-        CategoryPlanningDetails details = getOne(
+        List<CategoryPlanningDetails> detailsList = list(
                 new LambdaQueryWrapper<CategoryPlanningDetails>()
                         .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
-                        .eq(CategoryPlanningDetails::getProdCategoryCode, prodCategoryCode)
-                        .last("limit 1"));
+                        .eq(CategoryPlanningDetails::getProdCategoryCode, prodCategoryCode));
 
+        if (ObjectUtil.isEmpty(detailsList)) {
+            throw new OtherException("品类企划信息不存在，请刷新后重试！");
+        }
+
+        // 初始化返回格式
+        Map<String, List<String>> resultMap = new HashMap<>(1);
+        List<String> prodCategory2ndNameList = detailsList.stream().map(CategoryPlanningDetails::getProdCategory2ndName)
+                .distinct().filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+        resultMap.put(detailsList.get(0).getProdCategoryName(), prodCategory2ndNameList);
         // 查询此品类所有的维度信息
         List<PlanningDimensionality> planningDimensionalityList = categoryPlanningService
-                .getPlanningDimensionalitieList(CollUtil.newArrayList(details.getProdCategoryName()), categoryPlanning.getChannelCode(), categoryPlanning.getSeasonId());
+                .getAllPlanningDimensionalitieList(resultMap, categoryPlanning.getChannelCode(), categoryPlanning.getSeasonId());
 
         List<CategoryPlanningDetails> dynamicCategoryPlanningDetailsList = planningDimensionalityList.stream().map(
                 item -> {

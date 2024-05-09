@@ -13,6 +13,7 @@ import com.base.sbc.module.planningproject.vo.CategoryPlanningVo;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -43,7 +44,25 @@ public interface CategoryPlanningService extends BaseService<CategoryPlanning> {
             , List<String> dimensionIdList) ;
 
 
+    /**
+     * 获取所有等级的维度数据
+     *
+     * @param prodCategoryNameList 品类名称集合
+     * @param channelCode          渠道 code
+     * @param seasonId             产品季 id
+     * @return
+     */
     List<PlanningDimensionality> getPlanningDimensionalitieList(List<String> prodCategoryNameList, String channelCode, String seasonId);
+
+    /**
+     * 获取所有等级的维度数据，如果品类没有就使用中类，如果中类也没有 那么抛出异常
+     *
+     * @param resultMap   品类和中类名称 Map 集合
+     * @param channelCode 渠道 code
+     * @param seasonId    产品季 id
+     * @return
+     */
+    List<PlanningDimensionality> getAllPlanningDimensionalitieList(Map<String, List<String>> resultMap, String channelCode, String seasonId);
 
     /**
      * 启用停用
