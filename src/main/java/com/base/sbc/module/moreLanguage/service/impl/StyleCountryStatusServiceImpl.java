@@ -300,9 +300,9 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
     public PageInfo<MoreLanguageStatusDto> listQuery(MoreLanguageStatusQueryDto statusQueryDto) {
         // 查询分组后的状态款号列表
         BaseQueryWrapper<StyleCountryStatus> qw = buildGroupQueryWrapper(statusQueryDto).unwrap();
-        QueryGenerator.initQueryWrapperByMap(qw,statusQueryDto);
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,statusQueryDto);
         Page<StyleCountryStatus> page = statusQueryDto.startPage();
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleCountryStatus.getK());
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleCountryStatus.getK(), "ts.");
         List<StyleCountryStatus> list = baseMapper.queryList(qw);
 
         List<MoreLanguageStatusDto> moreLanguageStatusList = new ArrayList<>();
