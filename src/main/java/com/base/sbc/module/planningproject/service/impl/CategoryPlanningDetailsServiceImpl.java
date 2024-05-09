@@ -634,7 +634,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             }
 
             if (ObjectUtil.isNotEmpty(finalList)) {
-                updateBatchById(oldCategoryPlanningDetailsList);
+                updateBatchById(finalList);
             }
         }
 
@@ -1150,16 +1150,14 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
 
                 ).collect(Collectors.toList());
                 if (ObjectUtil.isNotEmpty(planningProjectDimensions)) {
-                    boolean removeFlag = planningProjectDimensionService.removeBatchByIds(planningProjectDimensions);
+                    planningProjectDimensionService.removeBatchByIds(planningProjectDimensions);
                     List<String> idList = planningProjectDimensions
                             .stream().map(PlanningProjectDimension::getId).collect(Collectors.toList());
-                    boolean remove = planningProjectPlankService.remove(
+                    planningProjectPlankService.remove(
                             new LambdaQueryWrapper<PlanningProjectPlank>()
                                     .in(PlanningProjectPlank::getPlanningProjectDimensionId, idList)
                     );
-                    if (!removeFlag || !remove) {
-                        throw new OtherException("反审核失败，请刷新后重试！");
-                    }
+
                     // 企划看板查询条件去除
                     redisUtils.del("planningProjectPlank:ListByDto:"+planningProjectDimensions.get(0).getPlanningProjectId() +":"+ this.getUserId());
                 }
