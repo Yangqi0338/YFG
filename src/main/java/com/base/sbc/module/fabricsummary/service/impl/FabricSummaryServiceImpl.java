@@ -317,7 +317,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
 
 
 
-        return false;
+        return true;
     }
 
 
@@ -371,7 +371,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         if (CollectionUtils.isEmpty(pageInfo.getList())){
             throw new OtherException(JSON.toJSONString(fabricSummaryV2Dto.getStyleNos())+"等款式，已经不在引用该物料："+fabricSummary.getMaterialCode());
         }
-
+//        pageInfo.getList().stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::get))
 
     }
 
