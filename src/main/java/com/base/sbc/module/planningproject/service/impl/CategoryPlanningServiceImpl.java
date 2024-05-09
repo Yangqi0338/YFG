@@ -152,7 +152,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
             List<SeasonalPlanningDetails> detailsList
             , SeasonalPlanning seasonalPlanning
             , CategoryPlanning categoryPlanning
-            , List<String> dimensionIdList) {
+            , List<Map<String, String>> queryList) {
         // 初始化返回的数据
         List<CategoryPlanningDetails> categoryPlanningDetailsList = new ArrayList<>();
         // 初始化当前品类企划中所有品类的企划需求管理数据
@@ -190,9 +190,22 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                 resultMap.put(stringListEntry.getKey(), list);
             }
             List<PlanningDimensionality> planningDimensionalityList = getAllPlanningDimensionalitieList(resultMap, seasonalPlanning.getChannelCode(), seasonalPlanning.getSeasonId());
-            if (ObjectUtil.isNotEmpty(dimensionIdList)) {
+            if (ObjectUtil.isNotEmpty(queryList)) {
                 planningDimensionalityList = planningDimensionalityList.stream()
-                        .filter(item -> dimensionIdList.contains(item.getFieldId())).collect(Collectors.toList());
+                        .filter(item -> {
+                            for (Map<String, String> stringStringMap : queryList) {
+                                if (ObjectUtil.isNotEmpty(stringStringMap.get("prodCategory2nd"))) {
+                                    if (stringStringMap.get("prodCategory2nd").equals(item.getProdCategory2nd()) && stringStringMap.get("dimensionId").equals(item.getFieldId())) {
+                                        return true;
+                                    }
+                                } else {
+                                    if (stringStringMap.get("dimensionId").equals(item.getFieldId())) {
+                                        return true;
+                                    }
+                                }
+                            }
+                            return false;
+                        }).collect(Collectors.toList());
             }
             if (ObjectUtil.isEmpty(planningDimensionalityList)) {
                 return new ArrayList<>();

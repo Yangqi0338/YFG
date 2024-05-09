@@ -4,6 +4,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 品类企划详情查询条件
  *
@@ -31,4 +34,12 @@ public class CategoryPlanningDetailDTO {
      */
     @ApiModelProperty(value = "维度数据 id，多选逗号分隔")
     private String dimensionIds;
+
+    /**
+     * "prodCategory2nd":""
+     * "dimensionId":""
+     * 中类和维度id
+     */
+    @ApiModelProperty(value = "中类和维度id")
+    private List<Map<String, String>> queryList;
 }

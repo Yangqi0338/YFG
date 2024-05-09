@@ -41,7 +41,7 @@ public interface CategoryPlanningService extends BaseService<CategoryPlanning> {
             List<SeasonalPlanningDetails> detailsList
             , SeasonalPlanning seasonalPlanning
             , CategoryPlanning categoryPlanning
-            , List<String> dimensionIdList) ;
+            , List<Map<String, String>> queryList) ;
 
 
     /**
