@@ -77,4 +77,8 @@ public class FabricSummaryV2Dto extends QueryFieldDto {
     @ApiModelProperty(value = "款式(大货款号)列表"  )
     private List<String> styleNos;
 
+    @ApiModelProperty(value = "bom列表"  )
+    private List<String> pomList;
+    /*是否导出图片*/
+    private String imgFlag ;
 }

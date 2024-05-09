@@ -213,7 +213,9 @@
             tpb.supplier_id,
             ts.season_name,
             ts.year_name,
-            tpb.design_verify
+            tpb.design_verify,
+            tpb.color as material_color,
+            tpb.color_code as material_colorCode
         from
             t_pack_info tpi
                 left join t_style_color tsc on tpi.style_color_id = tsc.id

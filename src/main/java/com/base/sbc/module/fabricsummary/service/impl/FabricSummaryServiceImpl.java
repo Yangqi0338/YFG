@@ -25,6 +25,7 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryGroup;
+import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryStyle;
 import com.base.sbc.module.fabricsummary.mapper.FabricSummaryMapper;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryGroupService;
@@ -39,6 +40,7 @@ import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.sample.dto.FabricSummaryStyleMaterialDto;
 import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
+import com.base.sbc.module.sample.dto.PrintFabricSummaryLogDto;
 import com.base.sbc.module.sample.vo.FabricStyleGroupVo;
 import com.base.sbc.module.sample.vo.FabricSummaryGroupVo;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
@@ -122,8 +124,8 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             qw.eq("tfs.id",dto.getId());
         }
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
-        qw.eq("tfs.company_code",dto.getCompanyCode());
-        qw.eq("tfs.group_id",dto.getGroupId());
+        qw.eq("tfs.company_code", super.getCompanyCode());
+        qw.in("tfs.group_id",StringUtils.convertList(dto.getGroupId()));
         qw.in(StringUtils.isNotEmpty(dto.getMaterialCode()),"tfs.material_code",StringUtils.convertList(dto.getMaterialCode()));
         qw.in(StringUtils.isNotEmpty(dto.getStyleNo()),"tfss.style_no",StringUtils.convertList(dto.getStyleNo()));
         qw.orderByDesc("tfs.create_date");
@@ -188,7 +190,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteFabricSummaryGroup(FabricStyleGroupVo fabricStyleGroupVo) {
-        if (org.apache.commons.lang3.StringUtils.isBlank(fabricStyleGroupVo.getId())){
+        if (StringUtils.isBlank(fabricStyleGroupVo.getId())){
             return true;
         }
         QueryWrapper<FabricSummary> queryWrapper = new QueryWrapper<>();
@@ -261,13 +263,10 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             fabricSummaryStyle.setId(new IdGen().nextIdStr());
             //补充款式信息
             fullFabricSummaryStyle(fabricSummaryInfoVo);
-            QueryWrapper<FabricSummary> qw = new QueryWrapper<>();
-            qw.lambda().eq(FabricSummary::getMaterialCode, fabricSummaryInfoVo.getMaterialCode());
-            qw.lambda().eq(FabricSummary::getDelFlag, "0");
-            qw.lambda().eq(FabricSummary::getGroupId, groupServiceById.getId());
-            List<FabricSummary> list = list(qw);
-            if (CollectionUtils.isNotEmpty(list)){
-                fabricSummaryStyle.setFabricSummaryId(list.get(0).getId());
+
+            FabricSummary byGroupIdAndMaterialCode = getByGroupIdAndMaterialCode(groupServiceById.getId(), fabricSummaryInfoVo.getMaterialCode());
+            if (!Objects.isNull(byGroupIdAndMaterialCode)){
+                fabricSummaryStyle.setFabricSummaryId(byGroupIdAndMaterialCode.getId());
                 fabricSummaryStyles.add(fabricSummaryStyle);
                 continue;
             }
@@ -293,6 +292,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
     }
 
     @Override
+    @Transactional(rollbackFor =Exception.class)
     public boolean fabricSummarySync(List<FabricSummaryV2Dto> dto) {
         if (CollectionUtils.isEmpty(dto)){
             return true;
@@ -301,25 +301,34 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         if (Objects.isNull(groupServiceById)){
             throw new OtherException("上级盒子不存在！");
         }
-
         for (FabricSummaryV2Dto fabricSummaryV2Dto : dto) {
+
             fabricSummaryV2Dto.setPlanningSeasonId(groupServiceById.getPlanningSeasonId());
             FabricSummary fabricSummary = getById(fabricSummaryV2Dto.getId());
             if (Objects.isNull(fabricSummary)){
                 throw new OtherException("数据不存在！");
             }
-            //检查款式相关
-            checkSynStyle(fabricSummary,fabricSummaryV2Dto);
-
-
-
+            //检查更新相关
+            checkSynFabricSummary(fabricSummary,fabricSummaryV2Dto);
         }
-
-
-
+        //打印日志
+        FabricSummaryPrintLog fabricSummaryPrintLog = new FabricSummaryPrintLog();
+        fabricSummaryPrintLog.insertInit();
+        fabricSummaryPrintLog.setFabricSummaryId(JSON.toJSONString(dto.get(0).getId()));
+        fabricSummaryPrintLogService.save(fabricSummaryPrintLog);
         return true;
     }
 
+    @Override
+    public PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto) {
+        QueryWrapper qw = new QueryWrapper<>();
+        qw.eq("del_flag","0");
+        qw.eq(org.apache.commons.lang3.StringUtils.isNotBlank(dto.getCreateName()),"create_name",dto.getCreateName());
+        qw.eq(org.apache.commons.lang3.StringUtils.isNotBlank(dto.getFabricSummaryId()),"fabric_summary_id",dto.getFabricSummaryId());
+        Page<FabricSummaryPrintLog> page = PageHelper.startPage(dto);
+        fabricSummaryPrintLogService.list(qw);
+        return page.toPageInfo();
+    }
 
     private void fullFabricSummary(FabricSummary fabricSummaryInfoVo) {
         fabricSummaryInfoVo.setFabricSummaryCode("ML"+System.currentTimeMillis());
@@ -354,7 +363,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
      * 检查款式相关
      * @param fabricSummary
      */
-    private void checkSynStyle(FabricSummary fabricSummary, FabricSummaryV2Dto fabricSummaryV2Dto) {
+    private void checkSynFabricSummary(FabricSummary fabricSummary, FabricSummaryV2Dto fabricSummaryV2Dto) {
         QueryWrapper<FabricSummaryStyle> queryWrapper = new QueryWrapper();
         queryWrapper.lambda()
                 .eq(FabricSummaryStyle::getFabricSummaryId,fabricSummary.getId())
@@ -364,16 +373,69 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         if (CollectionUtils.isEmpty(list)){
             return;
         }
-        fabricSummaryV2Dto.setMaterialCode(fabricSummary.getMaterialCode());
+        fabricSummaryV2Dto.setPomList(list.stream().map(FabricSummaryStyle::getPomId).collect(Collectors.toList()));
         fabricSummaryV2Dto.setStyleNos(list.stream().map(FabricSummaryStyle::getStyleNo).collect(Collectors.toList()));
         PageInfo<FabricSummaryInfoVo> pageInfo = packetInfoService.selectFabricSummaryStyle(fabricSummaryV2Dto);
-
         if (CollectionUtils.isEmpty(pageInfo.getList())){
             throw new OtherException(JSON.toJSONString(fabricSummaryV2Dto.getStyleNos())+"等款式，已经不在引用该物料："+fabricSummary.getMaterialCode());
         }
-//        pageInfo.getList().stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::get))
+        //不存在的引用关系需要删除
+        List<FabricSummaryStyle> deletes = Lists.newArrayList();
+        Map<String, List<FabricSummaryInfoVo>> map = pageInfo.getList().stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::getPomId));
+        Set<String> poms = map.keySet();
+        String materialCode = pageInfo.getList().get(0).getMaterialCode();
+        for (FabricSummaryStyle fabricSummaryStyle : list) {
+            //不存在引用，或者对应的引用被替换
+            if (!poms.contains(fabricSummaryStyle.getPomId()) || !fabricSummary.getMaterialCode().equals(materialCode)){
+                fabricSummaryStyle.setDelFlag("1");
+                deletes.add(fabricSummaryStyle);
+                continue;
+            }
+            //检查更新款式相关
+            checkUpdateFabricSummary(fabricSummary,fabricSummaryStyle,map.get(fabricSummaryStyle.getPomId()));
+        }
+        if (CollectionUtils.isNotEmpty(deletes)){
+            fabricSummaryStyleService.updateBatchById(deletes);
+        }
+    }
+
+    private void checkUpdateFabricSummary(FabricSummary fabricSummary, FabricSummaryStyle fabricSummaryStyle, List<FabricSummaryInfoVo> fabricSummaryInfoVos) {
+        FabricSummaryInfoVo infoVo = fabricSummaryInfoVos.get(0);
+        boolean isUpdate = false;
+
+        //数据更新
+        fabricSummary.setGramWeight(infoVo.getGramWeight());
+        fabricSummary.setDensity(infoVo.getDensity());
+        fabricSummary.setMinimumOrderQuantity(infoVo.getMinimumOrderQuantity());
+        fabricSummary.setSpecification(infoVo.getSpecification());
+        updateById(fabricSummary);
+
+        if (StringUtils.isNotEmpty(infoVo.getMaterialColor()) && !infoVo.getMaterialColor().equals(fabricSummaryStyle.getMaterialColor())){
+            fabricSummaryStyle.setMaterialColor(infoVo.getMaterialColor());
+            fabricSummaryStyle.setMaterialColorCode(infoVo.getMaterialColorCode());
+            //色号
+            List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(infoVo.getMaterialCode(), infoVo.getColorCode());
+            if (CollectionUtils.isNotEmpty(list)){
+                fabricSummaryStyle.setSupplierColorNo(list.get(0).getSupplierColorCode());
+            }
+            isUpdate= true;
+        }
+
+        if (isUpdate){
+            fabricSummaryStyleService.updateById(fabricSummaryStyle);
+        }
 
     }
+
+    private FabricSummary getByGroupIdAndMaterialCode(String groupId, String materialCode){
+        QueryWrapper<FabricSummary> qw = new QueryWrapper<>();
+        qw.lambda().eq(FabricSummary::getMaterialCode, materialCode);
+        qw.lambda().eq(FabricSummary::getDelFlag, "0");
+        qw.lambda().eq(FabricSummary::getGroupId, groupId);
+        List<FabricSummary> list = list(qw);
+        return CollectionUtils.isNotEmpty(list) ? list.get(0) : null;
+    }
+
 
 // 自定义方法区 不替换的区域【other_start】
 

@@ -453,6 +453,10 @@ public class PackBom extends BaseDataEntity<String> {
      * 是否是迁移历史数据 0否 1是
      */
     private String historicalData;
+
+    @ApiModelProperty(value = "设计师核查，1：确认，0：未确认")
+    private String designVerify;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
     // 获取单位用量

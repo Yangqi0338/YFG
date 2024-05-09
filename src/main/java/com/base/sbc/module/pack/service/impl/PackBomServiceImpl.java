@@ -6,10 +6,13 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service.impl;
 
+import cn.afterturn.easypoi.excel.entity.ExportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -100,6 +103,9 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
@@ -749,17 +755,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     }
 
     @Override
-    public PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto) {
-        QueryWrapper qw = new QueryWrapper<>();
-        qw.eq("del_flag","0");
-        qw.eq(StringUtils.isNotBlank(dto.getCreateName()),"create_name",dto.getCreateName());
-        qw.eq(StringUtils.isNotBlank(dto.getFabricSummaryId()),"fabric_summary_id",dto.getFabricSummaryId());
-        Page<FabricSummaryPrintLog> page = PageHelper.startPage(dto);
-        fabricSummaryPrintLogService.list(qw);
-        return page.toPageInfo();
-    }
-
-    @Override
     public NeedUpdateVo ifNeedUpdate(String id) {
         FabricSummary fabricSummary = fabricSummaryService.getById(id);
         if (fabricSummary == null){
@@ -815,6 +810,51 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         return page.toPageInfo();
     }
 
+    @Override
+    public void fabricSummaryExcelExport(HttpServletResponse response, FabricSummaryV2Dto dto) {
+        PageInfo<FabricSummaryInfoVo> infoVoPageInfo = fabricSummaryListV2(dto);
+        List<FabricSummaryInfoVo> infoList = infoVoPageInfo.getList();
+        List<FabricSummaryInfoExcel>  list = BeanUtil.copyToList(infoList, FabricSummaryInfoExcel.class);
+        list.add(list.get(2));
+        list.add(list.get(2));
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .setWorkQueue(new LinkedBlockingQueue<>(CollectionUtils.isEmpty(list) ? 0 :list.size()))
+                .build();
+        try {
+            if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(infoList) && infoList.size() > 1500) {
+                    throw new OtherException("带图片导出最多只能导出1500条");
+                }
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                for (FabricSummaryInfoExcel fabricSummaryInfoExcel : list) {
+                    executor.submit(() -> {
+                        try {
+                            final String stylePic = fabricSummaryInfoExcel.getStylePic();
+                            final String imageUrl = fabricSummaryInfoExcel.getImageUrl();
+                            fabricSummaryInfoExcel.setStylePic1(HttpUtil.downloadBytes(stylePic));
+                            fabricSummaryInfoExcel.setImageUrl1(HttpUtil.downloadBytes(imageUrl));
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            ExcelUtils.exportExcel(list, FabricSummaryInfoExcel.class, "面料详单.xlsx", new ExportParams("面料详单", "面料详单", ExcelType.HSSF), response);
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+
+    }
+
     /**
      * 物料bom是否还在使用
      * @param materialCode
@@ -851,7 +891,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 fabricSummary.setSupplierId(basicsdatumMaterialPrice.getSupplierId());
                 fabricSummary.setSupplierFabricCode(basicsdatumMaterialPrice.getSupplierMaterialCode());
                 fabricSummary.setSupplierName(basicsdatumMaterialPrice.getSupplierName());
-                fabricSummary.setSupplierColorNo(materialByCode.getSupplierColorNo());
                 fabricSummary.setSupplierQuotationPrice(basicsdatumMaterialPrice.getQuotationPrice());
                 fabricSummary.setSupplierColorSay(materialByCode.getSupplierColorSay());
                 fabricSummary.setIngredient(materialByCode.getIngredient());

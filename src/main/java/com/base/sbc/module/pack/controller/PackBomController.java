@@ -17,7 +17,6 @@ import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
-import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.service.PackBaseService;
 import com.base.sbc.module.pack.service.PackBomService;
@@ -282,12 +281,6 @@ public class PackBomController extends BaseController{
         packBomService.fabricSummaryExcel(response,dto);
     }
 
-    @GetMapping("/printFabricSummaryLog")
-    @ApiOperation(value = "面料汇总-款式添加")
-    public PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto) {
-        return  packBomService.printFabricSummaryLog(dto);
-    }
-
     @ApiOperation(value = "/面料是否需要更新")
     @GetMapping("/ifNeedUpdate")
     public NeedUpdateVo ifNeedUpdate(String id) {
@@ -304,8 +297,6 @@ public class PackBomController extends BaseController{
     public PageInfo<FabricStyleGroupVo>  fabricSummaryGroup(FabricSummaryGroupDto dto) {
         return packBomService.fabricSummaryGroup(dto);
     }
-
-
 
 
 

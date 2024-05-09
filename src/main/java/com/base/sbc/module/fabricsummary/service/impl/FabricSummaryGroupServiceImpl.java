@@ -36,6 +36,7 @@ public class FabricSummaryGroupServiceImpl extends BaseServiceImpl<FabricSummary
     public PageInfo<FabricSummaryGroupVo> getGroupList(FabricSummaryStyleMaterialDto dto) {
         QueryWrapper<FabricSummaryGroup> qw = new QueryWrapper<>();
         qw.lambda().eq(FabricSummaryGroup::getDelFlag,"0");
+        qw.lambda().orderByDesc(FabricSummaryGroup::getCreateDate);
         if (StringUtils.isEmpty(dto.getMaterialCode()) && StringUtils.isEmpty(dto.getStyleNo()) && StringUtils.isEmpty(dto.getDesignNo())){
             if (StringUtils.isNotBlank(dto.getPlanningSeasonId())){
                 qw.lambda().eq(FabricSummaryGroup::getPlanningSeasonId,dto.getPlanningSeasonId());

@@ -8,7 +8,6 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.IdDto;
-import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
@@ -241,12 +240,11 @@ public interface PackBomService extends PackBaseService<PackBom> {
      */
     boolean deleteFabricSummary(String dtoList);
 
-    PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto);
-
     NeedUpdateVo ifNeedUpdate(String id);
 
     boolean fabricSummarySync(String id);
 
     PageInfo<FabricStyleGroupVo> fabricSummaryGroup(FabricSummaryGroupDto dto);
 
+    void fabricSummaryExcelExport(HttpServletResponse response, FabricSummaryV2Dto dto);
 }
