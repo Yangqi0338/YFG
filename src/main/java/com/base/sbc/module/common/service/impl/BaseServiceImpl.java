@@ -696,6 +696,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     @Override
+    public boolean exists(String id) {
+        return this.count(new QueryWrapper<T>().eq("id",id)) > 0;
+    }
+
+    @Override
     public T findOne(QueryWrapper<T> wrapper) {
         return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
     }
