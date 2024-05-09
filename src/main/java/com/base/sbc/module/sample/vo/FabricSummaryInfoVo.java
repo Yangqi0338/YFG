@@ -151,7 +151,7 @@ public class FabricSummaryInfoVo extends FabricSummary {
     @ApiModelProperty(value = "设计师核实情况，1：确认，0：未确认")
     private String designVerify;
 
-    @ApiModelProperty(value = "pomId")
-    private String pomId;
+    @ApiModelProperty(value = "bomId")
+    private String bomId;
 
 }

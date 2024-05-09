@@ -157,6 +157,6 @@ public class FabricSummaryStyle extends BaseDataEntity<String> {
     private String groupId;
 
     @ApiModelProperty(value = "pomId")
-    private String pomId;
+    private String bomId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

@@ -28,7 +28,7 @@ public class FabricSummaryStyleServiceImpl extends BaseServiceImpl<FabricSummary
     @Override
     public List<FabricSummaryStyle> getByGroupStyle(String groupId, String pomId, String styleNo) {
         QueryWrapper<FabricSummaryStyle> qw = new QueryWrapper<>();
-        qw.lambda().eq(FabricSummaryStyle::getPomId, pomId);
+        qw.lambda().eq(FabricSummaryStyle::getBomId, pomId);
         qw.lambda().eq(FabricSummaryStyle::getDelFlag, "0");
         qw.lambda().eq(FabricSummaryStyle::getStyleNo, styleNo);
         qw.lambda().eq(FabricSummaryStyle::getGroupId, groupId);
