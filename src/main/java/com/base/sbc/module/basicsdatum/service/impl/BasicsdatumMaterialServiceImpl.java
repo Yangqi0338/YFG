@@ -246,6 +246,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
             PageHelper.startPage(dto);
         }
+
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
         qc.eq("tbm.company_code", this.getCompanyCode());
         qc.orderByDesc("tbm.create_date");
