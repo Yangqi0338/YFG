@@ -203,7 +203,7 @@
             tpb.part_code,
             tpb.part_name,
             tpb.unit_use,
-            tpb.id as pom_id,
+            tpb.id as bom_id,
             tpb.material_code,
             tpb.material_code_name,
             tpb.material_name,
