@@ -10,6 +10,7 @@ import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -226,6 +227,11 @@ public class HangTag extends BaseDataEntity<String> {
      */
     private String outFactory;
 
+    /**
+     * 温馨提示是否换行
+     */
+    @ApiModelProperty(value = "温馨提示是否换行")
+    private YesOrNoEnum warmTipsDefaultWrap;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

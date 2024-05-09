@@ -236,8 +236,7 @@
     <select id="getDetailsByBulkStyleNo" resultType="com.base.sbc.module.hangtag.vo.HangTagVO">
         SELECT
         tsd.design_no AS style,
-        tsd.devt_type AS produceType,
-        tsd.style_type AS styleType,
+        tsd.brand AS brand,
         tsd.size_range AS modelType,
         tsd.size_range_name AS modelTypeName,
         tsd.designer as designer,
