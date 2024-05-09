@@ -19,6 +19,11 @@ public class SaleProductIntoDto extends Page implements Serializable {
     private static final long serialVersionUID = -927874174170828211L;
 
     /**
+     * 年份 in
+     */
+    private String year;
+
+    /**
      * 大货款号 like
      */
     private String bulkStyleNo;

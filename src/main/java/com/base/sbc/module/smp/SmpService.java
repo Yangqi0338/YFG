@@ -1857,6 +1857,7 @@ public class SmpService {
         dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
         qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.notEmptyIn("T.YEARS", saleProductIntoDto.getYear());
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
         qw.notEmptyEq("T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNo());
         qw.in(CollUtil.isNotEmpty(saleProductIntoDto.getSimilarBulkStyleNos()),"T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNos());
@@ -1878,6 +1879,7 @@ public class SmpService {
     public List<StyleSaleIntoDto> querySaleIntoPage(SaleProductIntoDto saleProductIntoDto) {
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
         qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.notEmptyIn("T.YEARS", saleProductIntoDto.getYear());
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
         dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
         List<Map<String, Object>> detailMaps = this.querySaleIntoPage(qw, 0);

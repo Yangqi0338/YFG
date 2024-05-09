@@ -54,6 +54,12 @@ public class StyleSaleIntoDto {
     private StylePutIntoType type;
 
     /**
+     * 年份
+     */
+    @ApiModelProperty(value = "年份")
+    private String year;
+
+    /**
      * 尺码的投产和销售详细数据
      */
     @ApiModelProperty(value = "尺码的投产和销售详细数据")

@@ -43,6 +43,7 @@ public interface OrderBookConvert {
             @Mapping(target = "brand", source = "BRAND_NAME", qualifiedByName = "obj2Str"),
             @Mapping(target = "sum", source = "SUM", qualifiedByName = "obj2Str"),
             @Mapping(target = "resultType", source = "RESULTTYPE", qualifiedByName = "obj2Str"),
+            @Mapping(target = "year", source = "YEARS", qualifiedByName = "obj2Str"),
     })
     StyleSaleIntoDto copy2StyleSaleInto(Map<String, Object> map);
     List<StyleSaleIntoDto> copyList2StyleSaleInto(List<Map<String, Object>> source);
