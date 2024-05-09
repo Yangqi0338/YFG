@@ -206,12 +206,14 @@ public class DataPermissionsService {
                     boolean sqlType = false;
                     for (FieldDataPermissionVO fieldDataPermissionVO : value) {
                         if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
-                            fieldArr.add(sqlType ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
-                            sqlType = true;
                             String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
                             if (isAssignFields && StringUtils.isBlank(fieldName)) {
                                 continue;
                             }
+                            if(sqlType){
+                                fieldArr.add(sqlType ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
+                            }
+                            sqlType = true;
                             isFieldFlag = true;
                             fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
                             if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
