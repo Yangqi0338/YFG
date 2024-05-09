@@ -147,7 +147,8 @@
         p.grading_date,
         p.sample_making_score,
         p.sample_making_quality_score,
-        p.second_processing
+        p.second_processing,
+        p.receive_sample
         FROM
         t_pattern_making p,
         t_style s
@@ -196,6 +197,7 @@
             p.sgl_kitting,
             p.kitting_reason,
             p.stitcher_remark,
+            p.kitting_reason,
             p.stitcher,
             s.technician_name,
             p.pattern_technician_name,
@@ -734,7 +736,8 @@
         CASE
         WHEN WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) &lt; 1 THEN DATE_SUB(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) -1) % 7 DAY)
         ELSE DATE_ADD(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (8 - WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d'))) % 7 DAY)
-        END AS 'tempOrderBookProduction'
+        END AS 'tempOrderBookProduction',
+        tobd.commissioning_date as 'businessEnterprises'
         FROM t_style t
         INNER JOIN t_basicsdatum_research_process_template template ON t.brand = template.brand_code AND t.devt_type = template.product_type and template.del_flag = '0' and template.enable_flag = '0'
         LEFT JOIN t_style_color t1 ON t.id = t1.style_id AND t1.del_flag = '0' and t1.historical_data = 0
@@ -742,12 +745,20 @@
         LEFT JOIN (select id,style_id from t_pattern_making where sample_type_name = '初版样' and del_flag = '0' GROUP BY style_id,sample_type_name ORDER BY create_date ASC ) as tpm ON tpm.style_id = t.id
         LEFT JOIN t_node_status as tns ON tns.data_id = tpm.id AND tns.node = '打版任务' AND tns.status = '打版完成'
         LEFT JOIN t_node_status as tns1 ON tns1.data_id = tpm.id AND tns1.node = '样衣任务' AND tns1.status = '车缝完成'
+        LEFT JOIN t_order_book_detail tobd ON t1.id = tobd.style_color_id
+
         WHERE
         t.del_flag = '0' and t.historical_data = 0
         ) t
         WHERE 1=1
         <if test="dto.search != '' and dto.search != null">
             AND (t.design_no like concat('%',#{dto.search},'%')  or t.style_no  like concat('%',#{dto.search},'%'))
+        </if>
+        <if test="null != dto.templateIds and dto.templateIds.size() > 0">
+            AND t.templateId IN
+            <foreach collection="dto.templateIds" item="templateId" separator="," open="(" close=")">
+                #{templateId}
+            </foreach>
         </if>
         <if test="null != dto.devtTypes and dto.devtTypes.size() > 0">
             AND t.devt_type IN
@@ -817,6 +828,12 @@
 
         <if test=" dto.nodeCode == 'bossStyle' ">
             AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
+            AND t.businessEnterprises is null
+        </if>
+
+        <if test=" dto.nodeCode == 'businessEnterprises' ">
+            AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
+            AND t.businessEnterprises is not null
         </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
@@ -859,5 +876,24 @@
         LEFT JOIN t_node_status ns9 ON ( ns9.data_id = p.id AND ns9.del_flag = '0' and ns9.node = '样衣任务' and ns9.`status` = '样衣完成')
         ${ew.customSqlSegment}
     </select>
+
+
+    <select id="sampleBoardScore" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingScoreVo">
+        SELECT
+        sum(p.sample_making_score) as sampleMakingScoreSum,
+        sum(p.sample_making_quality_score) as sampleMakingQualityScoreSum,
+        sum(p.pattern_making_score) as patternMakingScoreSum
+        FROM
+        t_style s
+        LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
+        where
+        p.del_flag = '0'
+        and s.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
+
 </mapper>
 
