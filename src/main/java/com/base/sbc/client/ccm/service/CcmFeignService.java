@@ -302,6 +302,24 @@ public class CcmFeignService {
     }
 
     /**
+     * 通过编码获取开关是否开启或关闭
+     * @param code
+     * @return
+     */
+    public YesOrNoEnum inSettingOptions(String code, String... value) {
+        List<String> valueList = Arrays.stream(value).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+        if (CollUtil.isEmpty(valueList)) return YesOrNoEnum.NO;
+        String resultStr = ccmService.getCompanySettingData(code);
+        JSONObject jsonObject = JSON.parseObject(resultStr);
+        JSONObject data = jsonObject.getJSONObject("data");
+        if (Objects.isNull(data) || !jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            return YesOrNoEnum.NO;
+        }
+        String settingValue = data.getString("value");
+        return YesOrNoEnum.findByValue(Arrays.stream(value).allMatch(settingValue::contains));
+    }
+
+    /**
      * 查询所有单位列表，可根据类型筛选
      * @param type 类型
      *

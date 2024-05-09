@@ -159,6 +159,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
@@ -260,6 +262,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Value("${hang-tag.packingDefaultType:P1}")
 	private String packingDefaultType;
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
 	@Override
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
@@ -413,6 +417,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		minioUtils.setObjectUrlToObject(hangTagVO, "washingLabel");
 		if (StringUtils.isEmpty(hangTagVO.getStatus())) {
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_COMMIT);
+		}
+
+		hangTagVO.setIngredientDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_INGREDIENT_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
+		if (hangTagVO.getWarmTipsDefaultWrap() == null) {
+			hangTagVO.setWarmTipsDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_WARM_TIPS_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
 		}
 
 		PackInfo pack = packInfoService
