@@ -5,6 +5,7 @@ import com.base.sbc.client.amc.entity.Team;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
+import com.base.sbc.module.common.dto.VirtualDept;
 import com.base.sbc.open.dto.DesignerDto;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
@@ -238,5 +239,17 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/open/user/getUserCodeNotNullUserList")
     String getUserCodeNotNullUserList();
+
+    /**
+     * 获取用户所在部门关系
+     */
+    @GetMapping("/amc/api/token/virtualDeptRelationships/getByUserId")
+    ApiResult getDeptRelationByUserId(@RequestParam("userId") String userId,@RequestParam("type") String type);
+
+    /**
+     * 获取用户所在部门
+     */
+    @GetMapping("/amc/api/token/virtualDept/getVirtualDeptByUserId")
+    ApiResult<List<VirtualDept>> getVirtualDeptByUserId(@RequestParam("userId") String userId);
 
 }

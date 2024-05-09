@@ -2,24 +2,19 @@ package com.base.sbc.module.orderbook.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
-import com.base.sbc.module.orderbook.entity.OrderBookDetail;
-import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.mapper.OrderBookMapper;
-import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookExportVo;
 import com.base.sbc.module.orderbook.vo.OrderBookVo;
@@ -35,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -47,9 +41,9 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
 
     @Autowired
     private PlanningSeasonService planningSeasonService;
-//
-//    @Autowired
-//    private DataPermissionsService dataPermissionsService;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 //    @Autowired
 //    private OrderBookDetailMapper orderBookDetailMapper;
@@ -69,6 +63,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
 
     @Override
     public List<OrderBookVo> queryList(QueryWrapper<OrderBook> queryWrapper, OrderBookQueryDto dto) {
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.order_book_follow.getK());
         List<OrderBookVo> voList = this.baseMapper.queryList(queryWrapper, dto);
 //        if (CollectionUtil.isNotEmpty(voList)) {
 //            BaseQueryWrapper<OrderBookDetail> baseCountQuery = new BaseQueryWrapper<>();
@@ -100,6 +95,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
     @Override
     public List<Map<String,String>>  countByStatus(OrderBookQueryDto dto) {
         BaseQueryWrapper<OrderBook> orderBookBaseQueryWrapper = this.buildQueryWrapper(dto);
+        dataPermissionsService.getDataPermissionsForQw(orderBookBaseQueryWrapper, DataPermissionsBusinessTypeEnum.order_book_follow.getK());
         return this.baseMapper.countByStatus(orderBookBaseQueryWrapper);
     }
 
@@ -143,6 +139,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         if (StrUtil.isNotBlank(dto.getId())){
             this.updateById(dto);
         }else {
+            dto.setCreateDeptId(getVirtualDetpIds());
             this.save(dto);
         }
         return this.getById(dto.getId());

@@ -53,4 +53,8 @@ public class OrderBook extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "序号")
     private String serialNumber;
+
+    /** 创建部门 */
+    @ApiModelProperty(value = "创建部门"  )
+    private String createDeptId;
 }

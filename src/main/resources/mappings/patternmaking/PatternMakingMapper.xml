@@ -721,6 +721,9 @@
         t.pattern_design_id,
         t.brand,
         t.planning_season_id,
+        t.prod_category,
+        t.receive_dept_id,
+        t.send_dept_id,
         t1.create_date,
         date_format(t.create_date,'%Y-%m-%d') as noNextDraft,
         date_format(check_start_time,'%Y-%m-%d') as reviewedDraft,
@@ -742,79 +745,81 @@
         t.del_flag = '0' and t.historical_data = 0
         ) t
         WHERE 1=1
-        <if test="search != '' and search != null">
-            AND (t.design_no like concat('%',#{search},'%')  or t.style_no  like concat('%',#{search},'%'))
+        <if test="dto.search != '' and dto.search != null">
+            AND (t.design_no like concat('%',#{dto.search},'%')  or t.style_no  like concat('%',#{dto.search},'%'))
         </if>
-        <if test="null != devtTypes and devtTypes.size() > 0">
+        <if test="null != dto.devtTypes and dto.devtTypes.size() > 0">
             AND t.devt_type IN
-            <foreach collection="devtTypes" item="devtType" separator="," open="(" close=")">
+            <foreach collection="dto.devtTypes" item="devtType" separator="," open="(" close=")">
                 #{devtType}
             </foreach>
         </if>
-        <if test="null != designerIds and designerIds.size() > 0">
+        <if test="null != dto.designerIds and dto.designerIds.size() > 0">
             AND t.designer_id IN
-            <foreach collection="designerIds" item="designerId" separator="," open="(" close=")">
+            <foreach collection="dto.designerIds" item="designerId" separator="," open="(" close=")">
                 #{designerId}
             </foreach>
         </if>
-        <if test="null != patternDesignIds and patternDesignIds.size() > 0">
+        <if test="null != dto.patternDesignIds and dto.patternDesignIds.size() > 0">
             AND t.pattern_design_id IN
-            <foreach collection="patternDesignIds" item="patternDesignId" separator="," open="(" close=")">
+            <foreach collection="dto.patternDesignIds" item="patternDesignId" separator="," open="(" close=")">
                 #{patternDesignId}
             </foreach>
         </if>
-        <if test="null != brandIds and brandIds.size() > 0">
+        <if test="null != dto.brandIds and dto.brandIds.size() > 0">
             AND t.brand IN
-            <foreach collection="brandIds" item="brandId" separator="," open="(" close=")">
+            <foreach collection="dto.brandIds" item="brandId" separator="," open="(" close=")">
                 #{brandId}
             </foreach>
         </if>
 
-        <if test="null != planningSeasonIds and planningSeasonIds.size() > 0">
+        <if test="null != dto.planningSeasonIds and dto.planningSeasonIds.size() > 0">
             AND t.planning_season_id IN
-            <foreach collection="planningSeasonIds" item="planningSeasonId" separator="," open="(" close=")">
+            <foreach collection="dto.planningSeasonIds" item="planningSeasonId" separator="," open="(" close=")">
                 #{planningSeasonId}
             </foreach>
         </if>
 
-        <if test=" nodeCode == 'noNextDraft' ">
+        <if test=" dto.nodeCode == 'noNextDraft' ">
             AND t.noNextDraft is not null
             AND t.reviewedDraft is null
             AND t.nextDraft is null
             AND t.punchingCompleted is null
         </if>
-        <if test=" nodeCode == 'reviewedDraft' ">
+        <if test=" dto.nodeCode == 'reviewedDraft' ">
             AND t.noNextDraft is not null
             AND t.reviewedDraft is not null
             AND t.nextDraft is null
             AND t.punchingCompleted is null
         </if>
 
-        <if test=" nodeCode == 'nextDraft' ">
+        <if test=" dto.nodeCode == 'nextDraft' ">
             AND t.nextDraft is not null
             AND t.punchingCompleted is null
             AND t.sampleClothingCompleted is null
         </if>
 
-        <if test=" nodeCode == 'punchingCompleted' ">
+        <if test=" dto.nodeCode == 'punchingCompleted' ">
             AND t.punchingCompleted is not null
             AND t.sampleClothingCompleted is null
         </if>
 
-        <if test=" nodeCode == 'sampleClothingCompleted' ">
+        <if test=" dto.nodeCode == 'sampleClothingCompleted' ">
             AND t.sampleClothingCompleted is not null
             AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is  null
         </if>
 
-        <if test=" nodeCode == 'orderBookProduction' ">
+        <if test=" dto.nodeCode == 'orderBookProduction' ">
             AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is not null
             AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null)  is  null
         </if>
 
-        <if test=" nodeCode == 'bossStyle' ">
+        <if test=" dto.nodeCode == 'bossStyle' ">
             AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
         </if>
-
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
         ORDER BY t.create_date,t.designNo DESC
     </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">

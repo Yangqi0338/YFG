@@ -853,12 +853,16 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         List<String> seatIds = new ArrayList<>(2);
         for (PlanningCategoryItem planningCategoryItem : list) {
             seatIds.add(planningCategoryItem.getId());
-
+            if(StrUtil.isEmpty(planningCategoryItem.getSendDeptId()) || StrUtil.isEmpty(planningCategoryItem.getReceiveDeptId())){
+                throw new OtherException("发送部门和接收部门不能为空");
+            }
         }
         Date sendDate = new Date();
         UpdateWrapper<PlanningCategoryItem> seatUw = new UpdateWrapper<>();
         seatUw.set("status", BasicNumber.ONE.getNumber());
         seatUw.set("send_date", sendDate);
+        seatUw.set("send_dept_id", list.get(0).getSendDeptId());
+        seatUw.set("receive_dept_id", list.get(0).getReceiveDeptId());
         seatUw.in("status", BasicNumber.ZERO.getNumber(), "-1");
         seatUw.in("id", seatIds);
         update(seatUw);
@@ -1179,6 +1183,8 @@ public class PlanningCategoryItemServiceImpl extends BaseServiceImpl<PlanningCat
         UpdateWrapper<PlanningCategoryItem> uw = new UpdateWrapper<>();
         uw.in("id", seatIds);
         uw.set("status", "-1");
+        uw.set("send_dept_id", "");
+        uw.set("receive_dept_id", "");
         update(uw);
         styleService.remove(sdQw);
         return true;

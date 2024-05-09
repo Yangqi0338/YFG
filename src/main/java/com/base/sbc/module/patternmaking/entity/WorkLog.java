@@ -127,6 +127,10 @@ public class WorkLog extends BaseDataEntity<String> {
      */
     @TableField(exist = false)
     private Integer groupCount;
+
+    /** 创建部门 */
+    @ApiModelProperty(value = "创建部门"  )
+    private String createDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
