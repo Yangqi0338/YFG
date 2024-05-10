@@ -918,6 +918,13 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return this.querylist(queryWrapper,1);
     }
 
+    @Override
+    public String getByStyleNoTotalProduction(String styleNo) {
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        queryWrapper.eq("tsc.style_no",styleNo);
+        return baseMapper.getByStyleNoTotalProductionList(queryWrapper);
+    }
+
     /**
      * 查询款式定价数据
      */

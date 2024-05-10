@@ -32,9 +32,7 @@ import com.base.sbc.module.fabricsummary.service.FabricSummaryGroupService;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryPrintLogService;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryService;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryStyleService;
-import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
@@ -345,13 +343,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
 
     private void fullFabricSummaryStyle(FabricSummaryInfoVo fabricSummaryInfoVo) {
         // 总投产
-        OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
-        orderBookDetailQueryDto.setBulkStyleNoFull(fabricSummaryInfoVo.getStyleNo());
-        List<OrderBookDetailVo> orderBookDetailVoPageInfo = orderBookDetailService.queryList(orderBookDetailQueryDto);
-        if(CollectionUtils.isNotEmpty(orderBookDetailVoPageInfo)){
-            List<String> totalProductions = orderBookDetailVoPageInfo.stream().map(OrderBookDetailVo::getTotalProduction).collect(Collectors.toList());
-            fabricSummaryInfoVo.setTotalProduction(String.valueOf(totalProductions.stream().filter(org.apache.commons.lang3.StringUtils::isNotBlank).mapToDouble(Double::parseDouble).sum()));
-        }
+        fabricSummaryInfoVo.setTotalProduction(orderBookDetailService.getByStyleNoTotalProduction(fabricSummaryInfoVo.getStyleNo()));
         //色号
         List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(fabricSummaryInfoVo.getMaterialCode(), fabricSummaryInfoVo.getColorCode());
         if (CollectionUtils.isNotEmpty(list)){

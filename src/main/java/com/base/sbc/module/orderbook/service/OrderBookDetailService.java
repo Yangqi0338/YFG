@@ -85,4 +85,12 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto dto);
 
     List<OrderBookDetailVo> queryList(OrderBookDetailQueryDto dto);
+
+    /**
+     * 根据款式号获取，改款式的总投产
+     * @return
+     */
+    String getByStyleNoTotalProduction(String styleNo);
+
+
 }

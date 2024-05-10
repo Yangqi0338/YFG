@@ -70,4 +70,11 @@
         group by tobl.order_book_id
     </select>
 
+    <select id="getByStyleNoTotalProductionList" resultType="java.lang.String">
+        select sum(total_production)  from t_order_book_detail tobd left join  t_style_color tsc on tobd.style_color_id = tsc.id
+        where tobd.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
 </mapper>
