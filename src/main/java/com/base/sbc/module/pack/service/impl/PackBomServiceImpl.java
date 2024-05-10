@@ -1555,7 +1555,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         if (StringUtils.isBlank(fabricStyleVo.getColorCode())){
             return;
         }
-        List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(fabricSummary.getMaterialCode(), fabricStyleVo.getColorCode());
+        List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(fabricSummary.getMaterialCode(), fabricStyleVo.getMaterialColorCode());
         if (CollectionUtils.isNotEmpty(list)){
             fabricStyleVo.setSupplierColorNo(list.get(0).getSupplierColorCode());
         }

@@ -356,7 +356,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         // 总投产
         fabricSummaryInfoVo.setTotalProduction(orderBookDetailService.getByStyleNoTotalProduction(fabricSummaryInfoVo.getStyleNo()));
         //色号
-        List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(fabricSummaryInfoVo.getMaterialCode(), fabricSummaryInfoVo.getColorCode());
+        List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(fabricSummaryInfoVo.getMaterialCode(), fabricSummaryInfoVo.getMaterialColorCode());
         if (CollectionUtils.isNotEmpty(list)){
             fabricSummaryInfoVo.setSupplierColorNo(list.get(0).getSupplierColorCode());
         }
@@ -422,7 +422,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             fabricSummaryStyle.setMaterialColor(infoVo.getMaterialColor());
             fabricSummaryStyle.setMaterialColorCode(infoVo.getMaterialColorCode());
             //色号
-            List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(infoVo.getMaterialCode(), infoVo.getColorCode());
+            List<BasicsdatumMaterialColor> list  = materialColorService.getBasicsdatumMaterialColorCodeList(infoVo.getMaterialCode(), infoVo.getMaterialColorCode());
             if (CollectionUtils.isNotEmpty(list)){
                 fabricSummaryStyle.setSupplierColorNo(list.get(0).getSupplierColorCode());
             }
