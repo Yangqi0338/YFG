@@ -1408,6 +1408,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				tagPrinting.setC8_APPBOM_StorageReq(null);
 				String bulkStyleNo = tagPrinting.getStyleCode();
 				MoreLanguageTagPrinting sourcePrinting = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
+				MoreLanguageTagPrinting zhPrinting = HANG_TAG_CV.copyMyself(sourcePrinting);
+				zhPrinting.setLanguageCode("ZH");
+				zhPrinting.setLanguageName("中文");
+				zhPrinting.setTranslateApproved(true);
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
@@ -1429,6 +1433,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 							printing.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
+							zhPrinting.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
 							if (!MoreLanguageProperties.checkInternal(languageCode)) {
 								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 								if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
@@ -1463,11 +1468,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					});
 					// 检查cnCheck
 					if (tagPrintingList.stream().noneMatch(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode()))) {
-						MoreLanguageTagPrinting printing = HANG_TAG_CV.copyMyself(sourcePrinting);
-						printing.setLanguageCode("ZH");
-						printing.setLanguageCode("ZH");
-						printing.setTranslateApproved(true);
-                        tagPrintingList.addFirst(printing);
+                        tagPrintingList.addFirst(zhPrinting);
 					}
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
 				});
