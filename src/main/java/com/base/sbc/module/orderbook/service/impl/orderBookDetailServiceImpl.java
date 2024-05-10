@@ -367,6 +367,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
             orderBookDetailQueryDto.setSimilarBulkStyleNos(similarBulkStyleNos);
             orderBookDetailQueryDto.setChannel(Arrays.asList(OrderBookChannelType.values()));
+            orderBookDetailQueryDto.setPageNum(1);
+            orderBookDetailQueryDto.setPageSize(100);
             List<OrderBookSimilarStyleVo> similarStyleVos = this.similarStyleList(orderBookDetailQueryDto).getList();
             Map<String, List<OrderBookSimilarStyleVo>> map = similarStyleVos.stream().collect(Collectors.groupingBy(OrderBookSimilarStyleVo::getBulkStyleNo));
             orderBookDetailVos.forEach(item ->{

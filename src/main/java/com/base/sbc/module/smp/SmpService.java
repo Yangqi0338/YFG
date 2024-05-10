@@ -1856,7 +1856,7 @@ public class SmpService {
         BaseQueryWrapper qw = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
         qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
-        qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.in(!CollectionUtils.isEmpty(saleProductIntoDto.getBulkStyleNoList()),"T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.notEmptyIn("T.YEARS", saleProductIntoDto.getYear());
         qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
         qw.notEmptyEq("T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNo());

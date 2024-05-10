@@ -474,6 +474,9 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "参考款款号")
     private String similarBulkStyleNo;
 
+    @ApiModelProperty(value = "参考款款号备注")
+    private String similarBulkRemark;
+
     public String getCommissioningSizeTotal(){
         //线下
         JSONObject offlineJsonObject = Opt.ofNullable(JSON.parseObject(this.offlineCommissioningSize)).orElse(new JSONObject());

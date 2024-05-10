@@ -41,6 +41,12 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
     @JsonIgnore
     private List<OrderBookChannelType> channelList = new ArrayList<>();
 
+    @ApiModelProperty(value = "参考款式配色图")
+    private String referStyleColorPic;
+
+    @ApiModelProperty(value = "参考款号")
+    private String referBulkStyleNo;
+
     public String getChannelCode(){
         return channelList.stream().map(OrderBookChannelType::getCode).collect(Collectors.joining(COMMA));
     }
@@ -162,4 +168,12 @@ public class OrderBookSimilarStyleVo extends StyleSaleIntoDto {
         return BigDecimalUtil.dividePercentage(getTotalSale(), getTotalInto()).toString() + "%";
     }
 
+
+    public String getReferStyleColorPic() {
+        return getStyleColorPic();
+    }
+
+    public String getReferBulkStyleNo() {
+        return getBulkStyleNo();
+    }
 }
