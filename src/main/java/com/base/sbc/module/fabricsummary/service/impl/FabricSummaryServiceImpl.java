@@ -426,6 +426,18 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             isUpdate= true;
         }
 
+        if (StringUtils.isNotEmpty(infoVo.getCollocationName()) && !infoVo.getCollocationName().equals(fabricSummaryStyle.getCollocationName())){
+            fabricSummaryStyle.setCollocationName(infoVo.getCollocationName());
+            fabricSummaryStyle.setCollocationCode(infoVo.getCollocationCode());
+            isUpdate= true;
+        }
+
+        if (StringUtils.isNotEmpty(infoVo.getPartName()) && !infoVo.getPartName().equals(fabricSummaryStyle.getPartName())){
+            fabricSummaryStyle.setPartName(infoVo.getPartName());
+            fabricSummaryStyle.setPartCode(infoVo.getPartCode());
+            isUpdate= true;
+        }
+
         if (isUpdate){
             fabricSummaryStyleService.updateById(fabricSummaryStyle);
         }
