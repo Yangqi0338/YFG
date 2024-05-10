@@ -39,6 +39,7 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageHelper;
@@ -210,7 +211,7 @@ public class BasicsdatumMaterialController extends BaseController {
 
     @ApiOperation(value = "主物料:查询列表")
     @GetMapping("/getBasicsdatumMaterialList")
-    public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto) {
+    public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(MaterialColumnHeadDto dto) {
         return basicsdatumMaterialService.getBasicsdatumMaterialNewList(dto);
     }
 

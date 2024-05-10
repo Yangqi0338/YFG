@@ -14,6 +14,7 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +35,7 @@ import java.util.Map;
 public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMaterial> {
 
 	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto);
-	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(BasicsdatumMaterialQueryDto dto);
+	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(MaterialColumnHeadDto dto);
 
 	BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto);
 

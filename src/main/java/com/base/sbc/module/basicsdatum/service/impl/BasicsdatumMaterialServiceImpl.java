@@ -52,6 +52,7 @@ import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockService;
+import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
@@ -242,19 +243,18 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     }
 
     @Override
-    public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(BasicsdatumMaterialQueryDto dto) {
-        if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
-            PageHelper.startPage(dto);
-        }
+    public PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(MaterialColumnHeadDto dto) {
 
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
-        qc.eq("tbm.company_code", this.getCompanyCode());
+        //qc.eq("tbm.company_code", this.getCompanyCode());
+        qc.notEmptyLike("tbm.material_code_name", dto.getMaterialCodeName());
         qc.orderByDesc("tbm.create_date");
         qc.eq("tbm.del_flag", "0");
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
 
+        PageHelper.startPage(dto);
         List<BasicsdatumMaterialPageVo> list = baseMapper.getMaterialSkuList(qc);
 
         if (CollUtil.isEmpty(list)) {
@@ -990,7 +990,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             String category3CodeParam = basicsdatumMaterialUpdateDto.getCategory3Code();
 
             if ("1".equals(distribute) || "3".equals(distribute)) {
-                throw new OtherException("材料编号:" + materialCodeParam + ",已下发到下游系统，不能修改！");
+                throw new OtherException("材料编号:" + materialCode + ",已下发到下游系统，不能修改！");
             }
             if (StrUtil.isNotEmpty(materialCode)) {
                 BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> checkBomQc = new BaseQueryWrapper<>();
