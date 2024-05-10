@@ -19,7 +19,7 @@ import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
 public interface FabricSummaryPrintLogService extends BaseService<FabricSummaryPrintLog>{
 
 // 自定义方法区 不替换的区域【other_start】
-
+    Long getPrintLogCount(String fabricSummaryId);
 
 
 // 自定义方法区 不替换的区域【other_end】

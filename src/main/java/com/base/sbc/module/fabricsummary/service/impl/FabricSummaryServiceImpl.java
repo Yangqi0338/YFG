@@ -7,7 +7,6 @@
 package com.base.sbc.module.fabricsummary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -151,6 +150,18 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             result.addAll(fabricSummaryInfoVoList);
         }
         pageInfo.setList(result.stream().sorted(Comparator.comparing(FabricSummaryInfoVo::getCreateDate).reversed()).collect(Collectors.toList()));
+        Map<String, Long> printLogCountMap = new HashMap<>();
+        //打印次数
+        pageInfo.getList().forEach(item ->{
+            if (null != printLogCountMap.get(item.getFabricSummaryId())){
+                item.setPrintCount(printLogCountMap.get(item.getFabricSummaryId()));
+            }else {
+                Long printLogCount = fabricSummaryPrintLogService.getPrintLogCount(item.getFabricSummaryId());
+                item.setPrintCount(printLogCount);
+                printLogCountMap.put(item.getFabricSummaryId(), printLogCount);
+            }
+        });
+
         return pageInfo;
 
 
@@ -312,7 +323,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         //打印日志
         FabricSummaryPrintLog fabricSummaryPrintLog = new FabricSummaryPrintLog();
         fabricSummaryPrintLog.insertInit();
-        fabricSummaryPrintLog.setFabricSummaryId(JSON.toJSONString(dto.get(0).getId()));
+        fabricSummaryPrintLog.setFabricSummaryId(dto.get(0).getId());
         fabricSummaryPrintLogService.save(fabricSummaryPrintLog);
         return true;
     }

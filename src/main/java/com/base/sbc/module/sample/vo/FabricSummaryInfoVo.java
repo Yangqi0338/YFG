@@ -161,4 +161,6 @@ public class FabricSummaryInfoVo extends FabricSummary {
     @ApiModelProperty(value = "搭配名称"  )
     private String collocationName;
 
+    @ApiModelProperty(value = "打印次数"  )
+    private Long printCount;
 }

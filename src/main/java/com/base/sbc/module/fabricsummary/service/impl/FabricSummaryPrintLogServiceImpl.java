@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.fabricsummary.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabricsummary.mapper.FabricSummaryPrintLogMapper;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
@@ -21,6 +22,14 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class FabricSummaryPrintLogServiceImpl extends BaseServiceImpl<FabricSummaryPrintLogMapper, FabricSummaryPrintLog> implements FabricSummaryPrintLogService {
+
+    @Override
+    public Long getPrintLogCount(String fabricSummaryId) {
+        QueryWrapper<FabricSummaryPrintLog> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(FabricSummaryPrintLog::getFabricSummaryId,fabricSummaryId);
+        queryWrapper.lambda().eq(FabricSummaryPrintLog::getDelFlag,"0");
+        return count(queryWrapper);
+    }
 
 // 自定义方法区 不替换的区域【other_start】
 
