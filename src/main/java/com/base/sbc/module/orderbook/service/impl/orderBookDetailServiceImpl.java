@@ -1092,6 +1092,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 updateBookDetail.setBraiding(dto.getBraiding());
                 updateBookDetail.setOfflineProduction(dto.getOfflineProduction());
                 updateBookDetail.setOfflineCommissioningSize(dto.getOfflineCommissioningSize());
+                updateBookDetail.setReferRemark(dto.getReferRemark());
                 Integer version = dto.getVersion()+1;
                 updateBookDetail.setVersion(version);
                 updateResultVo.setResult(this.update(updateBookDetail,uw));
