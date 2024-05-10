@@ -912,6 +912,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return result;
     }
 
+    @Override
+    public List<OrderBookDetailVo> queryList(OrderBookDetailQueryDto dto) {
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
+        return this.querylist(queryWrapper,1);
+    }
+
     /**
      * 查询款式定价数据
      */

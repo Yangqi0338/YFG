@@ -347,9 +347,9 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         // 总投产
         OrderBookDetailQueryDto orderBookDetailQueryDto = new OrderBookDetailQueryDto();
         orderBookDetailQueryDto.setBulkStyleNoFull(fabricSummaryInfoVo.getStyleNo());
-        PageInfo<OrderBookDetailVo> orderBookDetailVoPageInfo = orderBookDetailService.queryPage(orderBookDetailQueryDto);
-        if(CollectionUtils.isNotEmpty(orderBookDetailVoPageInfo.getList())){
-            List<String> totalProductions = orderBookDetailVoPageInfo.getList().stream().map(OrderBookDetailVo::getTotalProduction).collect(Collectors.toList());
+        List<OrderBookDetailVo> orderBookDetailVoPageInfo = orderBookDetailService.queryList(orderBookDetailQueryDto);
+        if(CollectionUtils.isNotEmpty(orderBookDetailVoPageInfo)){
+            List<String> totalProductions = orderBookDetailVoPageInfo.stream().map(OrderBookDetailVo::getTotalProduction).collect(Collectors.toList());
             fabricSummaryInfoVo.setTotalProduction(String.valueOf(totalProductions.stream().filter(org.apache.commons.lang3.StringUtils::isNotBlank).mapToDouble(Double::parseDouble).sum()));
         }
         //色号
