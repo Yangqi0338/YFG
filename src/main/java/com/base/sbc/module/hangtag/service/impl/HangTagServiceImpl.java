@@ -149,6 +149,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1540,15 +1541,16 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				TagPrinting tagPrinting = hangTagPrinting(hangTagVOList).get(0);
 				tagPrinting.setC8_APPBOM_StorageReq(null);
 				String bulkStyleNo = tagPrinting.getStyleCode();
+				MoreLanguageTagPrinting sourcePrinting = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
 				resultList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageBaseVO::getCode)).forEach((code, sameCodeList)-> {
-					List<MoreLanguageTagPrinting> tagPrintingList = new ArrayList<>();
+					LinkedList<MoreLanguageTagPrinting> tagPrintingList = new LinkedList<>();
 					sameCodeList.sort(Comparator.comparing(HangTagMoreLanguageBaseVO::getPropertiesNameLength).reversed());
 					// 获取所有的语言
 					sameCodeList.stream().flatMap(it-> it.getLanguageList().stream().map(HangTagMoreLanguageVO::getLanguageCode)).distinct().forEach(languageCode-> {
-						MoreLanguageTagPrinting printing = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
+						MoreLanguageTagPrinting printing = HANG_TAG_CV.copyMyself(sourcePrinting);
 						Map<String, CodeMapping<?>> codeMap = printing.getCodeMap();
 
 						for (HangTagMoreLanguageBaseVO result : sameCodeList) {
@@ -1584,6 +1586,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 								}
 							}
 							printing.setLanguageName(languageVO.getLanguageName());
+							printing.setLanguageCode(languageVO.getLanguageCode());
 						}
 
 						// 全部审核完才为true，所以直接判断吊牌状态即可
@@ -1592,6 +1595,14 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						));
 						tagPrintingList.add(printing);
 					});
+					// 检查cnCheck
+					if (tagPrintingList.stream().noneMatch(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode()))) {
+						MoreLanguageTagPrinting printing = HANG_TAG_CV.copyMyself(sourcePrinting);
+						printing.setLanguageCode("ZH");
+						printing.setLanguageCode("ZH");
+						printing.setTranslateApproved(true);
+                        tagPrintingList.addFirst(printing);
+					}
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
 				});
 				return tagPrintingResultList;
