@@ -1181,8 +1181,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         qw.in(StringUtils.isNotEmpty(dto.getFormerSupplierCode()),"tpb.supplier_id",StringUtils.convertList(dto.getFormerSupplierCode()));
         qw.likeRight(StringUtils.isNotEmpty(dto.getSupplierFabricCode()),"tpb.supplier_material_code",dto.getSupplierFabricCode());
         qw.eq(StringUtils.isNotEmpty(dto.getMaterialCode()),"tpb.material_code", dto.getMaterialCode());
-        qw.in(!CollectionUtils.isEmpty(dto.getPomList()),"tpb.pom_id", dto.getPomList());
+        qw.in(!CollectionUtils.isEmpty(dto.getBomList()),"tpb.id", dto.getBomList());
         qw.in(!CollectionUtils.isEmpty(dto.getStyleNos()),"tsc.style_no", dto.getStyleNos());
+        qw.orderByDesc("tpi.create_date");
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.fabric_summary.getK(), "tsc.");
         Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
         baseMapper.selectFabricSummaryStyle(dto,qw);

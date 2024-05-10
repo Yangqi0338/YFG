@@ -215,7 +215,11 @@
             ts.year_name,
             tpb.design_verify,
             tpb.color as material_color,
-            tpb.color_code as material_colorCode
+            tpb.color_code as material_colorCode,
+            tpb.part_code,
+            tpb.part_name,
+            tpb.collocation_code,
+            tpb.collocation_name
         from
             t_pack_info tpi
                 left join t_style_color tsc on tpi.style_color_id = tsc.id

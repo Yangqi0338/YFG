@@ -8,6 +8,7 @@ package com.base.sbc.module.fabricsummary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
@@ -56,6 +57,17 @@ public class FabricSummaryGroupServiceImpl extends BaseServiceImpl<FabricSummary
         pageInfo.setList(fabricSummaryGroupVos);
         //TODO 靳帅 补充所属部门
         return pageInfo;
+    }
+
+    @Override
+    public boolean deleteByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)){
+            return true;
+        }
+        UpdateWrapper<FabricSummaryGroup> qw = new UpdateWrapper<>();
+        qw.lambda().in(FabricSummaryGroup::getId,ids);
+        qw.lambda().set(FabricSummaryGroup::getDelFlag,"1");
+        return update(qw);
     }
 
 // 自定义方法区 不替换的区域【other_start】

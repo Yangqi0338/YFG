@@ -154,4 +154,11 @@ public class FabricSummaryInfoVo extends FabricSummary {
     @ApiModelProperty(value = "bomId")
     private String bomId;
 
+    /** 部位编码 */
+    @ApiModelProperty(value = "搭配编码"  )
+    private String collocationCode;
+    /** 部位名称 */
+    @ApiModelProperty(value = "搭配名称"  )
+    private String collocationName;
+
 }

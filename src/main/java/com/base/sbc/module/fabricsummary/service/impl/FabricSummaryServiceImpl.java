@@ -297,17 +297,17 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         if (CollectionUtils.isEmpty(dto)){
             return true;
         }
-        FabricSummaryGroup groupServiceById = fabricSummaryGroupService.getById(dto.get(0).getGroupId());
-        if (Objects.isNull(groupServiceById)){
-            throw new OtherException("上级盒子不存在！");
-        }
-        for (FabricSummaryV2Dto fabricSummaryV2Dto : dto) {
 
-            fabricSummaryV2Dto.setPlanningSeasonId(groupServiceById.getPlanningSeasonId());
+        for (FabricSummaryV2Dto fabricSummaryV2Dto : dto) {
             FabricSummary fabricSummary = getById(fabricSummaryV2Dto.getId());
             if (Objects.isNull(fabricSummary)){
                 throw new OtherException("数据不存在！");
             }
+            FabricSummaryGroup groupServiceById = fabricSummaryGroupService.getById(fabricSummary.getGroupId());
+            if (Objects.isNull(groupServiceById)){
+                throw new OtherException("上级盒子不存在！");
+            }
+            fabricSummaryV2Dto.setPlanningSeasonId(groupServiceById.getPlanningSeasonId());
             //检查更新相关
             checkSynFabricSummary(fabricSummary,fabricSummaryV2Dto);
         }
@@ -373,14 +373,19 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         if (CollectionUtils.isEmpty(list)){
             return;
         }
-        fabricSummaryV2Dto.setPomList(list.stream().map(FabricSummaryStyle::getBomId).collect(Collectors.toList()));
+        fabricSummaryV2Dto.setBomList(list.stream().map(FabricSummaryStyle::getBomId).collect(Collectors.toList()));
         fabricSummaryV2Dto.setStyleNos(list.stream().map(FabricSummaryStyle::getStyleNo).collect(Collectors.toList()));
         PageInfo<FabricSummaryInfoVo> pageInfo = packetInfoService.selectFabricSummaryStyle(fabricSummaryV2Dto);
+//        if (CollectionUtils.isEmpty(pageInfo.getList())){
+//            throw new OtherException(JSON.toJSONString(fabricSummaryV2Dto.getStyleNos())+"等款式，已经不在引用该物料："+fabricSummary.getMaterialCode());
+//        }
         if (CollectionUtils.isEmpty(pageInfo.getList())){
-            throw new OtherException(JSON.toJSONString(fabricSummaryV2Dto.getStyleNos())+"等款式，已经不在引用该物料："+fabricSummary.getMaterialCode());
+            list.forEach(item ->item.setDelFlag("1")) ;
+            fabricSummaryStyleService.deleteByIds(list.stream().map(FabricSummaryStyle::getId).collect(Collectors.toList()));
+            return;
         }
         //不存在的引用关系需要删除
-        List<FabricSummaryStyle> deletes = Lists.newArrayList();
+        List<String> deletes = Lists.newArrayList();
         Map<String, List<FabricSummaryInfoVo>> map = pageInfo.getList().stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::getBomId));
         Set<String> poms = map.keySet();
         String materialCode = pageInfo.getList().get(0).getMaterialCode();
@@ -388,14 +393,14 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             //不存在引用，或者对应的引用被替换
             if (!poms.contains(fabricSummaryStyle.getBomId()) || !fabricSummary.getMaterialCode().equals(materialCode)){
                 fabricSummaryStyle.setDelFlag("1");
-                deletes.add(fabricSummaryStyle);
+                deletes.add(fabricSummaryStyle.getId());
                 continue;
             }
             //检查更新款式相关
             checkUpdateFabricSummary(fabricSummary,fabricSummaryStyle,map.get(fabricSummaryStyle.getBomId()));
         }
         if (CollectionUtils.isNotEmpty(deletes)){
-            fabricSummaryStyleService.updateBatchById(deletes);
+            fabricSummaryStyleService.deleteByIds(deletes);
         }
     }
 

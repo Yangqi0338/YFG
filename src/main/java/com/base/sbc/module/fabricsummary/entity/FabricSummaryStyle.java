@@ -158,5 +158,12 @@ public class FabricSummaryStyle extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "pomId")
     private String bomId;
+
+    /** 部位编码 */
+    @ApiModelProperty(value = "搭配编码"  )
+    private String collocationCode;
+    /** 部位名称 */
+    @ApiModelProperty(value = "搭配名称"  )
+    private String collocationName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

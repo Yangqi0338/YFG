@@ -7,10 +7,12 @@
 package com.base.sbc.module.fabricsummary.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabricsummary.mapper.FabricSummaryStyleMapper;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryStyle;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryStyleService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +35,17 @@ public class FabricSummaryStyleServiceImpl extends BaseServiceImpl<FabricSummary
         qw.lambda().eq(FabricSummaryStyle::getStyleNo, styleNo);
         qw.lambda().eq(FabricSummaryStyle::getGroupId, groupId);
         return list(qw);
+    }
+
+    @Override
+    public boolean deleteByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)){
+            return true;
+        }
+        UpdateWrapper<FabricSummaryStyle> qw = new UpdateWrapper<>();
+        qw.lambda().in(FabricSummaryStyle::getId,ids);
+        qw.lambda().set(FabricSummaryStyle::getDelFlag, "1");
+        return update(qw);
     }
 
 // 自定义方法区 不替换的区域【other_start】
