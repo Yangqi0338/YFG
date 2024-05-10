@@ -475,7 +475,7 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     private String similarBulkStyleNo;
 
     @ApiModelProperty(value = "参考款款号备注")
-    private String similarBulkRemark;
+    private String referRemark;
 
     public String getCommissioningSizeTotal(){
         //线下
