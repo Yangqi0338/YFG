@@ -351,6 +351,7 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         planningDimensionalityQueryWrapper.eq("planning_season_id", seasonId);
         planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
         planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
+        planningDimensionalityQueryWrapper.and(item -> item.eq("prod_category2nd", "").or().isNull("prod_category2nd"));
 
         List<PlanningDimensionality> list = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
         if (ObjectUtil.isNotEmpty(list)) {
@@ -371,6 +372,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         planningDimensionalityQueryWrapper.in("prod_category_name", prodCategoryNameList);
         planningDimensionalityQueryWrapper.isNotNull("dimensionality_grade");
         planningDimensionalityQueryWrapper.ne("dimensionality_grade", "");
+        planningDimensionalityQueryWrapper.and(item -> item.eq("prod_category2nd", "").or().isNull("prod_category2nd"));
+
         // 拿到所有等级的维度数据
         List<PlanningDimensionality> planningDimensionalityList = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
         return planningDimensionalityList;
