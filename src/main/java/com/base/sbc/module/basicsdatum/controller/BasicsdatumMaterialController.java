@@ -39,6 +39,7 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.base.sbc.module.patternmaking.vo.StylePmDetailVo;
 import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
@@ -46,6 +47,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
@@ -298,7 +300,7 @@ public class BasicsdatumMaterialController extends BaseController {
         return basicsdatumMaterialService.getBasicsdatumMaterialWidthList(dto);
     }
 
-    @ApiOperation(value = "物料规格:新增规格")
+    @ApiOperation(value = "物料规格:新增规格/修改")
     @PostMapping("/saveBasicsdatumMaterialWidth")
     public Boolean saveBasicsdatumMaterialWidth(@Valid @RequestBody BasicsdatumMaterialWidthSaveDto dto) {
         return basicsdatumMaterialService.saveBasicsdatumMaterialWidth(dto);
@@ -308,6 +310,12 @@ public class BasicsdatumMaterialController extends BaseController {
     @PostMapping("/saveBasicsdatumMaterialWidthGroup")
     public Boolean saveBasicsdatumMaterialWidthGroup(@Valid @RequestBody BasicsdatumMaterialWidthGroupSaveDto dto) {
         return basicsdatumMaterialService.saveBasicsdatumMaterialWidthGroup(dto);
+    }
+
+    @ApiOperation(value = "物料规格组，检查当前物料是否被引用")
+    @GetMapping("/checkMaterialRelyOnBom/{materialCode}")
+    public Integer materialRelyOnBom(@PathVariable("materialCode") String materialCode) {
+        return basicsdatumMaterialService.materialRelyOnBom(materialCode);
     }
 
     @ApiOperation(value = "物料规格:停用/启用规格")

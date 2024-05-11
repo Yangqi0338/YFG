@@ -269,6 +269,8 @@
 			tbm.create_date,
 			tbm.update_name,
 			tbm.update_date,
+			tbm.width_group,
+			tbm.width_group_name,
 			tbmc.color_code,
 			tbmc.color_name,
 			tbmp.quotation_price,

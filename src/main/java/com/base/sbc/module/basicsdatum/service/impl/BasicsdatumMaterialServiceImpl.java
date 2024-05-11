@@ -20,6 +20,7 @@ import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
@@ -49,6 +50,8 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.entity.PackBom;
+import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockService;
@@ -106,6 +109,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
     private final BasicsdatumMaterialPriceDetailService basicsdatumMaterialPriceDetailService;
     private final EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
     private final FlowableService flowableService;
+    @Lazy
+    private final PackBomService packBomService;
 
 
     @Autowired
@@ -685,18 +690,6 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             throw new OtherException("当前规格已存在!");
         }
 
-        if (StrUtil.isNotEmpty(dto.getMaterialCode())) {
-            BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> qc = new BaseQueryWrapper<>();
-            qc.notEmptyEq("t.materialsCode", dto.getMaterialCode());
-            List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(qc);
-            if (CollUtil.isNotEmpty(list)) {
-                throw new OtherException("该物料规格已被BOM使用，无法修改。详情查看物料报表!");
-            }
-        }
-
-
-
-
         BasicsdatumMaterialWidth entity = CopyUtil.copy(dto, BasicsdatumMaterialWidth.class);
         BasicsdatumMaterialWidth oldEntity = null;
         String type = null;
@@ -719,6 +712,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
             }
         } else {
+
+            checkMaterialWidth(dto.getMaterialCode(), dto.getWidthCode(), dto.getName(), dto.getOldWidthCode());
+
             type = "修改";
             oldEntity = materialWidthService.getById(entity.getId());
         }
@@ -737,6 +733,24 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         return b;
     }
+    /**
+     * 检查物料规格是否被bom引用，引用了不允许修改，删除
+     * @param materialCode 物料编码
+     * @param widthCode  物料规格编码
+     * @param widthName 物料规格名称
+     */
+    private void checkMaterialWidth(String materialCode,String widthCode,String widthName,String oldWidthCode) {
+        if (StrUtil.isNotEmpty(materialCode)) {
+            BaseQueryWrapper<PackBom> qcMaterialQuery = new BaseQueryWrapper<>();
+            qcMaterialQuery.eq("material_code", materialCode);
+            qcMaterialQuery.eq("translate_code", StrUtil.isNotEmpty(oldWidthCode) ? oldWidthCode : widthCode);
+            qcMaterialQuery.eq("del_flag","0");
+            List<PackBom> list = packBomService.list(qcMaterialQuery);
+            if (CollUtil.isNotEmpty(list)) {
+                throw new OtherException("该物料【"+materialCode+"】,物料规格【"+ widthName+"】已被BOM使用，无法修改/删除。详情查看物料BOM报表!");
+            }
+        }
+    }
 
     @Override
     public Boolean startStopBasicsdatumMaterialWidth(StartStopDto dto) {
@@ -746,6 +760,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
         //停用需要校验下游系统是否引用
         if ("1".equals(dto.getStatus())) {
+            //检查物料规格是否被bom引用，引用了不允许修改，删除
+            checkMaterialWidth(dto.getMaterialCode(),dto.getCodes(),dto.getNames(),null);
+
             QueryWrapper<BasicsdatumMaterialWidth> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.in("id", StringUtils.convertList(dto.getIds()));
             List<BasicsdatumMaterialWidth> list = materialWidthService.list(queryWrapper);
@@ -762,6 +779,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Override
     public Boolean delBasicsdatumMaterialWidth(RemoveDto removeDto) {
+        //检查物料规格是否被bom引用，引用了不允许修改，删除
+        checkMaterialWidth(removeDto.getMaterialCode(), removeDto.getCodes(), removeDto.getNames(),null);
+
         return this.materialWidthService.removeByIds(removeDto);
     }
 
@@ -970,7 +990,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         //物料id
         String id = basicsdatumMaterialUpdateDto.getId();
         if (StrUtil.isEmpty(id)) {
-            throw new OtherException("当前id为空，所以找不到对应的物料信息！");
+            throw new OtherException("当前id为空，找不到对应的物料信息！");
         }
         BasicsdatumMaterial basicsdatumMaterial = this.getById(id);
 
@@ -992,16 +1012,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             if ("1".equals(distribute) || "3".equals(distribute)) {
                 throw new OtherException("材料编号:" + materialCode + ",已下发到下游系统，不能修改！");
             }
-            if (StrUtil.isNotEmpty(materialCode)) {
-                BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> checkBomQc = new BaseQueryWrapper<>();
-                checkBomQc.notEmptyEq("t.materialsCode", materialCode);
-                List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(checkBomQc);
-                if (CollUtil.isNotEmpty(list)) {
-                    throw new OtherException("该物料规格已被BOM使用，无法修改。详情查看物料报表!");
-                }
-            } else {
-                throw new OtherException("找不到对应物料库编号!");
-            }
+            checkBomRelyOn(materialCode);
 
 
             if (StrUtil.isNotEmpty(materialCodeParam)) {
@@ -1052,6 +1063,34 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             }
         }
         return basicsdatumMaterialUpdateVo;
+    }
+
+    private void checkBomRelyOn(String materialCode) {
+        if (StrUtil.isNotEmpty(materialCode)) {
+            BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> checkBomQc = new BaseQueryWrapper<>();
+            checkBomQc.notEmptyEq("t.materialsCode", materialCode);
+            List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(checkBomQc);
+            if (CollUtil.isNotEmpty(list)) {
+                throw new OtherException("该物料已被BOM使用，无法修改。详情查看物料报表!");
+            }
+        } else {
+            throw new OtherException("找不到对应物料库编号!");
+        }
+    }
+
+    @Override
+    public Integer materialRelyOnBom(String materialCode) {
+        if (StrUtil.isNotEmpty(materialCode)) {
+            BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> checkBomQc = new BaseQueryWrapper<>();
+            checkBomQc.notEmptyEq("t.materialsCode", materialCode);
+            List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(checkBomQc);
+            if (CollUtil.isNotEmpty(list)) {
+                return 1;
+            }
+        } else {
+            return 1;
+        }
+        return 0;
     }
 
     /**
@@ -1106,11 +1145,34 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
 
     @Override
     public Boolean delBasicsdatumMaterialColor(RemoveDto removeDto) {
+
+        if (StrUtil.isNotEmpty(removeDto.getMaterialCode())) {
+            BaseQueryWrapper<PackBom> qcMaterialQuery = new BaseQueryWrapper<>();
+            qcMaterialQuery.eq("material_code", removeDto.getMaterialCode());
+            qcMaterialQuery.eq("color_code", removeDto.getCodes());
+            qcMaterialQuery.eq("del_flag","0");
+            List<PackBom> list = packBomService.list(qcMaterialQuery);
+            if (CollUtil.isNotEmpty(list)) {
+                throw new OtherException("该物料【"+removeDto.getMaterialCode()+"】,颜色名称【"+ removeDto.getNames()+"】已被BOM使用，无法删除。详情查看物料BOM报表!");
+            }
+        }
+
         return this.materialColorService.removeByIds(removeDto);
     }
 
     @Override
     public Boolean startStopBasicsdatumMaterialColor(StartStopDto dto) {
+        if (StrUtil.isNotEmpty(dto.getMaterialCode())) {
+            BaseQueryWrapper<PackBom> qcMaterialQuery = new BaseQueryWrapper<>();
+            qcMaterialQuery.eq("material_code", dto.getMaterialCode());
+            qcMaterialQuery.eq("color_code", dto.getCodes());
+            qcMaterialQuery.eq("del_flag","0");
+            List<PackBom> list = packBomService.list(qcMaterialQuery);
+            if (CollUtil.isNotEmpty(list)) {
+                throw new OtherException("该物料【"+dto.getMaterialCode()+"】,颜色名称【"+ dto.getNames()+"】已被BOM使用，无法删除。详情查看物料BOM报表!");
+            }
+        }
+
         UpdateWrapper<BasicsdatumMaterialColor> uw = new UpdateWrapper<>();
         uw.in("id", StringUtils.convertList(dto.getIds()));
         uw.set("status", dto.getStatus());
@@ -1252,6 +1314,17 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         // 2、清理现有物料规格
         this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq(COMPANY_CODE, getCompanyCode())
                 .eq("material_code", dto.getMaterialCode()));
+
+        if (StrUtil.isEmpty(dto.getWidthGroupCode())) {
+            LambdaUpdateWrapper<BasicsdatumMaterial> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.eq(BasicsdatumMaterial::getMaterialCode, dto.getMaterialCode());
+            updateWrapper.eq(BasicsdatumMaterial::getDelFlag, "0");
+            updateWrapper.set(BasicsdatumMaterial::getWidthGroup,null);
+            updateWrapper.set(BasicsdatumMaterial::getWidthGroupName,null);
+            this.update(updateWrapper);
+        }
+
+
         // 3、添加规格组的规格
         if (specifications != null && specifications.size() > 0) {
             List<BasicsdatumMaterialWidth> wList = new ArrayList<>();
@@ -1266,6 +1339,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 wList.add(width);
             }
             this.materialWidthService.saveBatch(wList);
+            BasicsdatumMaterial basicsdatumMaterial = this.getOne(new QueryWrapper<BasicsdatumMaterial>().eq("material_code", dto.getMaterialCode()).eq("del_flag", "0"));
+            if (basicsdatumMaterial != null) {
+                basicsdatumMaterial.setWidthGroup(specificationGroup.getCode());
+                basicsdatumMaterial.setWidthGroupName(specificationGroup.getName());
+                this.updateById(basicsdatumMaterial);
+            }
         }
         return true;
     }
@@ -1279,6 +1358,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         // 1、清理现有物料规格
         this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq(COMPANY_CODE, getCompanyCode())
                 .eq("material_code", dto.getMaterialCode()));
+
         String[] codes = dto.getWidth().split(",");
         String[] names = dto.getWidthName().split(",");
         // 2、添加规格组的规格

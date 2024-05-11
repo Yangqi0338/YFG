@@ -170,5 +170,12 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @param basicsdatumMaterialUpdateDto
 	 */
 	BasicsdatumMaterialUpdateVo updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto);
+
+	/**
+	 * 检查物料是否被BOM引用
+	 * @param materialCode
+	 * @return
+	 */
+	Integer materialRelyOnBom(String materialCode);
 }
 
