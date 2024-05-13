@@ -965,7 +965,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             queryWrapper.eq("material_code", materialCode);
 
             List<BasicsdatumMaterialColor> basicsdatumMaterialColors = basicsdatumMaterialColorService.list(queryWrapper);
-            if (CollectionUtils.isNotEmpty(basicsdatumMaterialColors)) {
+            if (CollUtil.isNotEmpty(basicsdatumMaterialColors)) {
                 if (!StringUtils.equals(normalizeString(packBom.getColorPic()), normalizeString(basicsdatumMaterialColors.get(0).getPicture()))) {
                     desc.append("颜色图片地址字段有变更" + "\n");
                 }
@@ -973,7 +973,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
             queryWrapper.eq("select_flag", 1);
             List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = basicsdatumMaterialPriceService.list(queryWrapper);
-            if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)) {
+            if (CollUtil.isNotEmpty(basicsdatumMaterialPrices)) {
                 if (!packBom.getPrice().stripTrailingZeros().equals(basicsdatumMaterialPrices.get(0).getQuotationPrice().stripTrailingZeros())) {
                     desc.append("单价 旧值：" + packBom.getPrice() + " 新值：" + basicsdatumMaterialPrices.get(0).getQuotationPrice() + "\n");
                 }
@@ -1022,7 +1022,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
             // 检查图片是否更新
             List<BasicsdatumMaterialColor> basicsdatumMaterialColorList = basicsdatumMaterialColorService.list(queryWrapper);
-            if (CollectionUtils.isNotEmpty(basicsdatumMaterialColorList)) {
+            if (CollUtil.isNotEmpty(basicsdatumMaterialColorList)) {
                 BasicsdatumMaterialColor basicsdatumMaterialColor = basicsdatumMaterialColorList.stream()
                         .filter(materialColor -> StringUtils.equals(packBom.getColorCode(), materialColor.getColorCode()))
                         .findFirst().orElse(null);
@@ -1034,7 +1034,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             // 供应商，单价、成本
             queryWrapper.eq("select_flag", 1);
             List<BasicsdatumMaterialPrice> basicsdatumMaterialPrices = basicsdatumMaterialPriceService.list(queryWrapper);
-            if (CollectionUtils.isNotEmpty(basicsdatumMaterialPrices)) {
+            if (CollUtil.isNotEmpty(basicsdatumMaterialPrices)) {
                 packBom.setPrice(basicsdatumMaterialPrices.get(0).getQuotationPrice());
                 packBom.calculateCost();
             }
