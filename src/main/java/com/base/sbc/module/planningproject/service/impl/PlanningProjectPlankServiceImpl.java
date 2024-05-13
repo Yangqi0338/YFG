@@ -39,7 +39,7 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import com.base.sbc.module.tablecolumn.vo.TableColumnVo;
 import com.github.pagehelper.PageInfo;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,25 +55,42 @@ import java.util.stream.Collectors;
  * @mail 247967116@qq.com
  */
 @Service
-@RequiredArgsConstructor
 public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningProjectPlankMapper, PlanningProjectPlank> implements PlanningProjectPlankService {
-    private final StyleColorService styleColorService;
-    private final StylePicUtils stylePicUtils;
-    private final StylePricingMapper stylePricingMapper;
-    private final BasicsdatumColourLibraryService basicsdatumColourLibraryService;
-    private final FieldValService fieldValService;
-    private final PlanningProjectDimensionService planningProjectDimensionService;
-    private final PlanningProjectPlankDimensionService planningProjectPlankDimensionService;
-    private final PlanningDimensionalityService planningDimensionalityService;
-    private final FieldManagementService fieldManagementService;
-    private final RedisUtils redisUtils;
-    private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
-    private final CategoryPlanningDetailsService categoryPlanningDetailsService;
+    @Autowired
+    private StyleColorService styleColorService;
+    @Autowired
+    private StylePicUtils stylePicUtils;
+    @Autowired
+    private StylePricingMapper stylePricingMapper;
+    @Autowired
+    private BasicsdatumColourLibraryService basicsdatumColourLibraryService;
+    @Autowired
+    private FieldValService fieldValService;
+    @Autowired
+    @Lazy
+    private PlanningProjectDimensionService planningProjectDimensionService;
+    @Autowired
+    @Lazy
+    private PlanningProjectPlankDimensionService planningProjectPlankDimensionService;
+    @Autowired
+    @Lazy
+    private PlanningDimensionalityService planningDimensionalityService;
+    @Autowired
+    private FieldManagementService fieldManagementService;
+    @Autowired
+    private RedisUtils redisUtils;
+    @Autowired
+    @Lazy
+    private SeasonalPlanningDetailsService seasonalPlanningDetailsService;
+    @Autowired
+    @Lazy
+    private CategoryPlanningDetailsService categoryPlanningDetailsService;
 
     @Resource
     @Lazy
     private PlanningProjectService planningProjectService;
-    private final SmpService smpService;
+    @Resource
+    private SmpService smpService;
 
     @Override
     public Map<String, Object> ListByDto(PlanningProjectPlankPageDto dto) {
