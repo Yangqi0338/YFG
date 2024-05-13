@@ -424,26 +424,8 @@
 
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
-            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
-            <version>4.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>swagger-models</artifactId>
-                    <groupId>io.swagger</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>springfox-swagger2</artifactId>
-                    <groupId>io.springfox</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>springfox-spring-web</artifactId>
-                    <groupId>io.springfox</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>springfox-spi</artifactId>
-                    <groupId>io.springfox</groupId>
-                </exclusion>
-            </exclusions>
+            <artifactId>knife4j-spring-boot-starter</artifactId>
+            <version>2.0.5</version>
         </dependency>
 
         <dependency>
