@@ -64,6 +64,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -255,6 +256,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qc.notEmptyLike("tbm.material_code_name", dto.getMaterialCodeName());
         qc.orderByDesc("tbm.create_date");
         qc.eq("tbm.del_flag", "0");
+
+        if (StringUtils.isNotEmpty(dto.getCategoryId())) {
+            qc.and(Wrapper -> Wrapper.eq("tbm.category_id", dto.getCategoryId()).or()
+                    .eq("tbm.category1_code ", dto.getCategoryId()).or().eq("tbm.category2_code", dto.getCategoryId()).or()
+                    .eq("tbm.category3_code", dto.getCategoryId()));
+        }
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
@@ -1020,21 +1027,25 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     throw new OtherException("材料编号:" + materialCodeParam + "须以" + materialCode + "[" + category3Name + "]开头,请重新定义!");
                 }
                 //修改物料名称
-                basicsdatumMaterial.setMaterialCodeName(materialCodeParam + "_" + materialName);
+                //物料名称为null 设置为空字符串
+                String materilCodeNameNull = getCodeNameNull(materialName);
+                basicsdatumMaterial.setMaterialCodeName(materialCodeParam + materilCodeNameNull);
                 basicsdatumMaterial.setMaterialCode(materialCodeParam);
-                basicsdatumMaterialUpdateVo.setMaterialCodeName(materialCodeParam + "_" + materialName);
+                basicsdatumMaterialUpdateVo.setMaterialCodeName(materilCodeNameNull);
             } else if (StrUtil.isNotEmpty(materialNameParam)) {
                 if (StrUtil.isNotEmpty(materialCode)) {
                     //修改物料名称
-                    basicsdatumMaterial.setMaterialCodeName(materialCode + "_" + materialNameParam);
+                    String materilCodeNameNullParam = getCodeNameNull(materialNameParam);
+                    basicsdatumMaterial.setMaterialCodeName(materialCode + materilCodeNameNullParam);
                     basicsdatumMaterial.setMaterialName(materialNameParam);
-                    basicsdatumMaterialUpdateVo.setMaterialCodeName(materialCode + "_" + materialNameParam);
+                    basicsdatumMaterialUpdateVo.setMaterialCodeName(materialCode + materilCodeNameNullParam);
                 }
             } else if (StrUtil.isNotEmpty(category3CodeParam)) {
                 String value = materialCode.replace(category3Code, category3CodeParam);
+                String materialNameNull = getCodeNameNull(materialName);
                 //修改材料三级分类
                 basicsdatumMaterial.setMaterialCode(value);
-                basicsdatumMaterial.setMaterialCodeName(value + "_" + materialName);
+                basicsdatumMaterial.setMaterialCodeName(value + materialNameNull);
                 basicsdatumMaterial.setCategory2Code(basicsdatumMaterialUpdateDto.getCategory2Code());
                 basicsdatumMaterial.setCategory2Name(basicsdatumMaterialUpdateDto.getCategory2Name());
                 basicsdatumMaterial.setCategory3Code(basicsdatumMaterialUpdateDto.getCategory3Code());
@@ -1042,7 +1053,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 basicsdatumMaterial.setCategoryId(basicsdatumMaterialUpdateDto.getCategory3Code());
                 basicsdatumMaterial.setCategoryName(basicsdatumMaterial.getCategory1Name() + "-" + basicsdatumMaterialUpdateDto.getCategory2Name() + "-" + basicsdatumMaterialUpdateDto.getCategory3Name());
 
-                basicsdatumMaterialUpdateVo.setMaterialCodeName(value + "_" + materialName);
+                basicsdatumMaterialUpdateVo.setMaterialCodeName(value + materialNameNull);
                 basicsdatumMaterialUpdateVo.setMaterialCode(value);
 
             }
@@ -1063,6 +1074,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             }
         }
         return basicsdatumMaterialUpdateVo;
+    }
+
+    @NotNull
+    private static String getCodeNameNull(String materialName) {
+        String materilCodeNameNull = StrUtil.isNotEmpty(materialName) ? "_" + materialName : "";
+        return materilCodeNameNull;
     }
 
     private void checkBomRelyOn(String materialCode) {
