@@ -25,6 +25,7 @@ import lombok.Value;
 import org.apache.commons.lang.math.IntRange;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,7 +63,7 @@ public class SecondIngredientController extends BaseController {
 
     @Autowired
     public CcmService ccmService;
-
+    @Lazy
     @Autowired
     public SmpService smpService;
 

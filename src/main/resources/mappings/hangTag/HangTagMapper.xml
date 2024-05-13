@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.base.sbc.module.hangtag.mapper.HangTagMapper">
+    <insert id="addHangTagInspectCompany">
+        INSERT INTO
+        t_hang_tag_inspect_company
+        (id,inspect_company_id,hang_tag_id,create_id,create_name,create_date,update_id,update_name,update_date,company_code)
+        values
+        (#{htc.id},#{htc.inspectCompanyId},#{htc.hangTagId},#{htc.createId},#{htc.createName},#{htc.createDate},#{htc.updateId},#{htc.updateName},#{htc.updateDate},#{htc.companyCode})
+    </insert>
     <!--
         吊牌表
         创建人：xhj
@@ -238,6 +245,7 @@
         tsd.planning_season_id as planningSeasonId,
         tsd.devt_type_name as produceTypeName,
         tsd.prod_category1st_name as prodCategory1stName,
+        tsd.prod_category1st as prodCategory1st,
         tsd.dev_class as devClass,
         tsd.dev_class_name as devClassName,
 
@@ -292,6 +300,15 @@
                 </otherwise>
             </choose>
         </where>
+    </select>
+    <select id="listHangTagInspectCompany"
+            resultType="com.base.sbc.module.hangtag.entity.HangTagInspectCompany">
+        SELECT
+        inspect_company_id as inspectCompanyId, hang_tag_id as hangTagId ,`status`,del_flag as delFlag
+        FROM t_hang_tag_inspect_company
+        where inspect_company_id=#{inspectCompanyId} and hang_tag_id=#{hangTagId} and del_flag = '0'
+        ORDER BY update_date DESC
+        LIMIT 1;
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

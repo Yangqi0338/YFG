@@ -12,7 +12,6 @@ import com.base.sbc.module.pack.dto.PackPricingOtherCostsDto;
 import com.base.sbc.module.pack.entity.PackPricingOtherCosts;
 import com.base.sbc.module.pack.vo.PackPricingOtherCostsVo;
 import com.github.pagehelper.PageInfo;
-import org.apache.ibatis.annotations.Param;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -49,9 +48,10 @@ public interface PackPricingOtherCostsService extends PackBaseService<PackPricin
      * 通过主id统计
      *
      * @param foreignIds
+     * @param isPackType
      * @return
      */
-    List<PackPricingOtherCosts> getPriceSumByForeignIds(List<String> foreignIds, String companyCode);
+    List<PackPricingOtherCosts> getPriceSumByForeignIds(List<String> foreignIds, String companyCode, String packType);
 
     /**
      * 生成费用明细单

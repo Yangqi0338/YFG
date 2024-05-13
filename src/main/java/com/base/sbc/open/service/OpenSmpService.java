@@ -195,6 +195,8 @@ public class OpenSmpService {
             String categorySByNameAndLevel = ccmService.getOpenCategorySByNameAndLevel("材料", smpOpenMaterialDto.getC8_Material_2ndCategory(), "1");
             String str2 = JSON.parseObject(categorySByNameAndLevel).getJSONArray("data").getJSONObject(0).getString("name");
             basicsdatumMaterial.setCategoryName(basicsdatumMaterial.getCategoryName() + "-" + str2);
+            basicsdatumMaterial.setCategory2Name(str2);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -202,6 +204,8 @@ public class OpenSmpService {
             String categorySByNameAndLevel = ccmService.getOpenCategorySByNameAndLevel("材料", smpOpenMaterialDto.getC8_Material_3rdCategory(), "2");
             String str3 = JSON.parseObject(categorySByNameAndLevel).getJSONArray("data").getJSONObject(0).getString("name");
             basicsdatumMaterial.setCategoryName(basicsdatumMaterial.getCategoryName() + "-" + str3);
+            basicsdatumMaterial.setCategory3Name(str3);
+
         } catch (Exception e) {
             e.printStackTrace();
         }

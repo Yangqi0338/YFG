@@ -364,7 +364,7 @@ public class StyleColorController {
 		return styleColorService.agentSync(ids);
 	}
 
-	@ApiOperation(value = "mango导入Excel")
+	@ApiOperation(value = "mango导入图片")
 	@PostMapping("/uploadStyleColorPics")
 	public ApiResult uploadStyleColorPics(Principal user, @RequestParam("files") MultipartFile[] files) {
 		return styleColorService.uploadStyleColorPics(user,files);

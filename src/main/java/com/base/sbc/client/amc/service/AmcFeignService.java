@@ -99,6 +99,16 @@ public class AmcFeignService {
         }
         return null;
     }
+    public List<UserCompany> getUserCodeNotNullUserList() {
+        String responseStr = amcService.getUserCodeNotNullUserList();
+        JSONObject jsonObject = JSON.parseObject(responseStr);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
+            List<UserCompany> userCompanies = data.toJavaList(UserCompany.class);
+            return userCompanies;
+        }
+        return null;
+    }
 
     public boolean isSampleTeamLeader(String deptId, String userId) {
         List<UserCompany> deptManager = getDeptManager(deptId, "2");

@@ -79,6 +79,11 @@ public class ColumnGroupDefineItem extends BaseDataEntity<String> {
 	@ApiModelProperty(value = "固定方式")
 	private String fixType;
 	/**
+	 * 是否可编辑
+	 */
+	@ApiModelProperty(value = "是否可编辑")
+	private String isEdit;
+	/**
 	 * 列宽
 	 */
 	@ApiModelProperty(value = "列宽")

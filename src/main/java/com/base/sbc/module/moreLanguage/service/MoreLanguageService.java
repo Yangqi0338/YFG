@@ -8,6 +8,7 @@ package com.base.sbc.module.moreLanguage.service;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.module.moreLanguage.dto.CountryDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
@@ -32,6 +33,8 @@ public interface MoreLanguageService {
     List<StandardColumnDto> findStandardColumn(String code);
     // 不要删,通过反射调用
     List<BasicsdatumSize> findSize(String code);
+
+    void exportMergeExcel(HangTagMoreLanguageDTO moreLanguageDTO);
 
 // 自定义方法区 不替换的区域【other_start】
 

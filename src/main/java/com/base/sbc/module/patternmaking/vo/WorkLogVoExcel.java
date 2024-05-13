@@ -87,19 +87,19 @@ public class WorkLogVoExcel {
      * 计件数量
      */
     @ApiModelProperty(value = "计件数量")
-    @Excel(name = "计件数量", width=15)
+    @Excel(name = "计件数量" ,numFormat = "#.#",type = 10, width=15)
     private BigDecimal pieceCount;
     /**
      * 计时时间（分钟）
      */
     @ApiModelProperty(value = "计时时间（分钟）")
-    @Excel(name = "计时时间（分钟）", width=15)
+    @Excel(name = "计时时间（分钟）",numFormat = "#.#",type = 10, width=15)
     private BigDecimal timeMinutes;
     /**
      * 工作分数
      */
     @ApiModelProperty(value = "工作分数")
-    @Excel(name = "工作分数", width=15)
+    @Excel(name = "工作分数",numFormat = "#.#",type = 10,width=15)
     private BigDecimal score;
 
 }

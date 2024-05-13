@@ -173,4 +173,18 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param cost
      */
     void costUpdate(String packInfoId, BigDecimal cost);
+
+    /**
+     * 获取backPom更新详情
+     * @param id
+     * @return
+     */
+    ApiResult getRenovatePackBomInfo(String id);
+
+    /**
+     * 更新backPom
+     * @param id
+     * @return
+     */
+    boolean renovatePackBom(String id);
 }

@@ -37,11 +37,13 @@ public interface PackPricingOtherCostsMapper extends BaseMapper<PackPricingOther
 
     /**
      * 通过主id统计
+     *
      * @param foreignIds
+     * @param isPackType
      * @return
      */
     List<PackPricingOtherCosts> getPriceSumByForeignIds(@Param("foreignIds") List<String> foreignIds,
-                                                        @Param("companyCode") String companyCode);
+                                                        @Param("companyCode") String companyCode, @Param("packType")String packType);
 
 
 

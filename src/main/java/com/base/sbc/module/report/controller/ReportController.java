@@ -113,4 +113,16 @@ public class ReportController {
         reportService.designOrderScheduleDetailsExport(response, dto);
     }
 
+    @ApiOperation(value = "季节企划完成率报表")
+    @GetMapping("/seasonPlanPercentage")
+    public PageInfo<SeasonPlanPercentageVo> seasonPlanPercentage(SeasonPlanPercentageQueryDto dto) {
+        return reportService.seasonPlanPercentage(dto);
+    }
+
+    @ApiOperation(value = "季节企划完成率报表-导出")
+    @GetMapping("/seasonPlanPercentageExport")
+    public void seasonPlanPercentageExport(HttpServletResponse response, SeasonPlanPercentageQueryDto dto) throws IOException {
+        reportService.seasonPlanPercentageExport(response, dto);
+    }
+
 }

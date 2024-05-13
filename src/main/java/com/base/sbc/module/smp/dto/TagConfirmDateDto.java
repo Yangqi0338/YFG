@@ -74,4 +74,21 @@ public class TagConfirmDateDto {
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date planCostConfirmDate;
+
+    /**
+     * 工艺部接收日期-正确样
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date technicsDate;
+
+    /**
+     * 计控接明细单日期-明细单
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date planControlDate;
+
+    /**
+     * 枚举：正确样：correct_sample
+     */
+    private String type;
 }

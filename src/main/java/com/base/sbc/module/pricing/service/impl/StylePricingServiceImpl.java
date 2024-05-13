@@ -140,7 +140,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }else {
             stylePicUtils.setStyleColorPic2(stylePricingList, "styleColorPic");
         }
-        this.dataProcessing(stylePricingList, dto.getCompanyCode());
+        this.dataProcessing(stylePricingList, dto.getCompanyCode(),true);
         return new PageInfo<>(stylePricingList);
     }
 
@@ -150,12 +150,16 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
      * @param stylePricingList
      * @param companyCode
      */
-    private void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode) {
+    public void dataProcessing(List<StylePricingVO> stylePricingList, String companyCode,boolean isPackType) {
         List<String> packId = stylePricingList.stream()
                 .map(StylePricingVO::getId)
                 .collect(Collectors.toList());
-        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode);
-        Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
+        String packType="";
+        if (isPackType){
+            packType ="packBigGoods";
+        }
+        Map<String, BigDecimal> otherCostsMap = this.getOtherCosts(packId, companyCode,packType);
+//        Map<String, List<PackBomCalculateBaseVo>> packBomCalculateBaseVoS = this.getPackBomCalculateBaseVoS(packId);
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
@@ -167,7 +171,12 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
             executor.submit(() -> {
                 // List<PackBomCalculateBaseVo> packBomCalculateBaseVos = packBomCalculateBaseVoS.get(stylePricingVO.getId() + stylePricingVO.getPackType());
                 PackCommonSearchDto packCommonSearchDto = new PackCommonSearchDto();
-                packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+                if (isPackType){
+                    packCommonSearchDto.setPackType(PackUtils.PACK_TYPE_BIG_GOODS);
+                }else {
+                    packCommonSearchDto.setPackType(stylePricingVO.getPackType());
+                }
+
                 packCommonSearchDto.setForeignId(stylePricingVO.getId());
                 //材料成本,如果fob,则不计算
                 if ("CMT".equals(stylePricingVO.getProductionType())) {
@@ -276,7 +285,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (CollectionUtils.isEmpty(stylePricingList)) {
             return null;
         }
-        this.dataProcessing(stylePricingList, companyCode);
+        this.dataProcessing(stylePricingList, companyCode,true);
         return stylePricingList.get(0);
     }
 
@@ -486,8 +495,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
      * @param companyCode
      * @return
      */
-    private Map<String, BigDecimal> getOtherCosts(List<String> packId, String companyCode) {
-        List<PackPricingOtherCosts> packPricingOtherCosts = packPricingOtherCostsService.getPriceSumByForeignIds(packId, companyCode);
+    private Map<String, BigDecimal> getOtherCosts(List<String> packId, String companyCode, String packType) {
+        List<PackPricingOtherCosts> packPricingOtherCosts = packPricingOtherCostsService.getPriceSumByForeignIds(packId, companyCode,packType);
         if (CollectionUtils.isEmpty(packPricingOtherCosts)) {
             return new HashMap<>();
         }

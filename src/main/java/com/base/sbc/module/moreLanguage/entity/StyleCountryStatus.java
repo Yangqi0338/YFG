@@ -8,6 +8,7 @@ package com.base.sbc.module.moreLanguage.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -16,6 +17,8 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 类描述：款式国家打印表 实体类
@@ -46,15 +49,24 @@ public class StyleCountryStatus extends BaseDataEntity<String> {
     @ApiModelProperty(value = "状态"  )
     @NotNull(message = "状态不能为空")
     private StyleCountryStatusEnum status;
-    /** 国家编码 */
-    @ApiModelProperty(value = "国家编码"  )
-    private String countryCode;
-    /** 国家编码 */
-    @ApiModelProperty(value = "国家编码"  )
-    private String countryName;
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    private String code;
+    /** 名字 */
+    @ApiModelProperty(value = "名字"  )
+    private String name;
+    /** 标准类型 */
+    @ApiModelProperty(value = "标准类型"  )
+    private CountryLanguageType type;
+    /** 标准列编码 */
+    @ApiModelProperty(value = "标准列编码"  )
+    private String standardColumnCode;
     /** 检查详情Json */
     @ApiModelProperty(value = "检查详情Json"  )
     private String checkDetailJson;
+    /** 打印时间 */
+    @ApiModelProperty(value = "打印时间"  )
+    private Date printTime;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
 }

@@ -19,29 +19,41 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
+import com.base.sbc.client.ccm.entity.BasicBaseDict;
+import com.base.sbc.client.ccm.service.CcmFeignService;
+import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
+import com.base.sbc.config.enums.business.SystemSource;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisKeyBuilder;
-import com.base.sbc.config.redis.RedisKeyConstant;
-import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSizeService;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
+import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageBCSVO;
+import com.base.sbc.module.hangtag.vo.HangTagMoreLanguageWebBaseVO;
 import com.base.sbc.module.moreLanguage.dto.CountryLanguageDto;
 import com.base.sbc.module.moreLanguage.dto.CountryQueryDto;
 import com.base.sbc.module.moreLanguage.dto.EasyPoiMapExportParam;
-import com.base.sbc.module.moreLanguage.dto.ExcelStyleUtil;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelTemplateDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageTableTitle;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
@@ -58,6 +70,9 @@ import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import com.github.pagehelper.PageInfo;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.poi.ss.formula.functions.Count;
+import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -67,7 +82,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,12 +103,26 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
-import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.*;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.INCORRECT_STANDARD_CODE;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.NOT_EXIST_STANDARD_CODE;
+import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.NOT_FOUND_COUNTRY_LANGUAGE;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.idFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.languageCodeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.singleLanguageFlagFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.CountryLanguageServiceImpl.typeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.contentFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.countryLanguageIdFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.propertiesCodeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.titleCodeFunc;
+import static com.base.sbc.module.moreLanguage.service.impl.StandardColumnCountryTranslateServiceImpl.updateDateFunc;
 
 /**
  * 类描述：吊牌列头翻译表 service类
@@ -121,30 +150,25 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
     @Autowired
     private StandardColumnCountryTranslateMapper standardColumnCountryTranslateMapper;
 
+    @Autowired
+    private HangTagService hangTagService;
+
+    @Autowired
+    private CcmFeignService ccmFeignService;
+
+    public static final SFunction<MoreLanguageTableTitle, Integer> keyFunc = MoreLanguageTableTitle::getKey;
+    public static final SFunction<MoreLanguageTableTitle, Integer> keyNameFunc = MoreLanguageTableTitle::getKeyName;
+
 // 自定义方法区 不替换的区域【other_start】
 
     @Override
     public  List<StandardColumnDto> queryCountryTitle(MoreLanguageQueryDto moreLanguageQueryDto) {
 //        ForkJoinPool workPool = new ForkJoinPool(2, ForkJoinPool.defaultForkJoinWorkerThreadFactory, null, true);
 
-        /* ----------------------------可以分成两个线程进行操作---------------------------- */
-
         // 查询根标准列
 //        ForkJoinTask<List<StandardColumnDto>> rootStandardColumnFuture = workPool.submit(() -> {
 //            StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
 //            queryDto.setTypeList(StandardColumnType.findRootList());
-//            return standardColumnService.listQuery(queryDto);
-//        }).fork();
-
-//        ForkJoinTask<List<StandardColumnDto>> standardColumnFuture = workPool.submit(() -> {
-            // 查询 关联表
-            // 可以从redis拿,只有countryAdd和导入会更新,频率低
-//            List<String> standardColumnCodeList = findStandardColumnCodeList(countryLanguageId);
-//
-//            // 只查询可配置的
-//            StandardColumnQueryDto queryDto = new StandardColumnQueryDto();
-//            queryDto.setNoModel(StandardColumnModel.TEXT);
-//            queryDto.setCodeList(standardColumnCodeList);
 //            return standardColumnService.listQuery(queryDto);
 //        }).fork();
 
@@ -215,7 +239,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 //                    });
 //                    return thread;
 //                });
-        List<CountryLanguageType> typeList = countryLanguageDtoList.stream().map(CountryLanguageDto::getType).distinct().collect(Collectors.toList());
+        List<CountryLanguageType> typeList = countryLanguageDtoList.stream().map(typeFunc).distinct().collect(Collectors.toList());
         // 标识哪一个sheet的哪一行需要做空值判断
         Map<String, List<Integer>> sheetBlankCellNumMap = new HashMap<>();
         boolean lackHandler = YesOrNoEnum.YES == excelQueryDto.getShowLack();
@@ -232,13 +256,20 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
             for (StandardColumnDto standardColumnDto : standardColumnDtoList) {
 //                threadPoolExecutor.execute(()-> {
                     String standardColumnCode = standardColumnDto.getCode();
-                    String sheetName = type.getText() + "-" + standardColumnDto.getName();
-
                     String tableTitleJson = standardColumnDto.getTableTitleJson();
                     if (StrUtil.isBlank(tableTitleJson)) {
                         return;
                     }
+
+                    String sheetName = type.getText() + "-" + standardColumnDto.getName();
+                    ExportParams params = new ExportParams(MoreLanguageProperties.excelTitle, sheetName, ExcelType.XSSF);
                     List<ExcelExportEntity> beanList = new ArrayList<>();
+
+                    // 设置ExcelPoi的导出参数
+                    EasyPoiMapExportParam exportParam = new EasyPoiMapExportParam();
+                    exportParam.setTitle(params);
+                    exportParam.setEntity(beanList);
+
                     // json转表头配置列表并遍历 (!!)
                     List<MoreLanguageTableTitle> tableTitleList = JSONUtil.toList(tableTitleJson, MoreLanguageTableTitle.class);
                     for (int i = 0; i < tableTitleList.size(); i++) {
@@ -260,20 +291,9 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     }
 
                     // 拼装多个key,若没有取第一个
-                    List<MoreLanguageTableTitle> keyList = tableTitleList.stream().filter(it -> it.getKey() != null)
-                            .sorted(Comparator.comparing(MoreLanguageTableTitle::getKey)).collect(Collectors.toList());
-                    if (CollectionUtil.isEmpty(keyList)) {
-                        keyList = Collections.singletonList(tableTitleList.get(0));
-                    }
-                    String key = keyList.stream().map(MoreLanguageTableTitle::getCode).collect(Collectors.joining("-"));
-
+                    String key = findUniqueCode(tableTitleList, keyFunc, 0);
                     // 拼装多个keyName,若没有取第二个
-                    List<MoreLanguageTableTitle> keyNameList = tableTitleList.stream().filter(it -> it.getKeyName() != null)
-                            .sorted(Comparator.comparing(MoreLanguageTableTitle::getKeyName)).collect(Collectors.toList());
-                    if (CollectionUtil.isEmpty(keyNameList)) {
-                        keyNameList = Collections.singletonList(tableTitleList.get(1));
-                    }
-                    String keyName = keyNameList.stream().map(MoreLanguageTableTitle::getCode).collect(Collectors.joining("-"));
+                    String keyName = findUniqueCode(tableTitleList, keyNameFunc, 1);
 
                     // 封装导出的基础类
                     MoreLanguageExportBaseDTO exportBaseDTO = new MoreLanguageExportBaseDTO();
@@ -288,23 +308,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     exportBaseDTO.setExcelCode(singleLanguageFlag == YesOrNoEnum.YES ? baseCountryLanguage.getLanguageCode() : code);
 
                     // 添加map默认表头,否则无法支持导入
-                    // 直接在ExcelExportService拷出来的
-                    Class<MoreLanguageExportBaseDTO> pojoClass = MoreLanguageExportBaseDTO.class;
-                    Field[] fileds = PoiPublicUtil.getClassFields(pojoClass);
-                    ExcelTarget etarget = pojoClass.getAnnotation(ExcelTarget.class);
-                    String targetId = etarget == null ? null : etarget.value();
-
-                    // 封装导出的参数
-                    ExportParams params = new ExportParams(MoreLanguageProperties.excelTitle, sheetName, ExcelType.XSSF);
-//                    params.setStyle(ExcelStyleUtil.class);
-
-                    // poi源代码,将基础类各个属性转为ExcelPoi的导出实体并添加到处理列表 (!!)
-                    ExcelUtils.getAllExcelField(params.getExclusions(), targetId, fileds, beanList, pojoClass, null, null);
-
-                    // 设置ExcelPoi的导出参数
-                    EasyPoiMapExportParam exportParam = new EasyPoiMapExportParam();
-                    exportParam.setTitle(params);
-                    exportParam.setEntity(beanList);
+                    beanList.addAll(buildExportEntityListByClass(MoreLanguageExportBaseDTO.class));
 
                     // 获取列表数据
                     MoreLanguageQueryDto moreLanguageQueryDto = BeanUtil.copyProperties(languageQueryDto, MoreLanguageQueryDto.class);
@@ -331,100 +335,9 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         /* ----------------------------处理导出以及样式调整---------------------------- */
 
-        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setCharacterEncoding("utf-8");
-
-        // 这里URLEncoder.encode可以防止中文乱码
-        String fileName = URLEncoder.encode(
-                String.format("(%s)吊牌&洗唛多语言-%s.xlsx",
-                        (baseCountryLanguage.getCountryName()),
-                        System.currentTimeMillis()),"UTF-8").replaceAll("\\+", "%20");
-
-        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
-
-        Workbook workbook = null;
-        try (OutputStream out = response.getOutputStream();
-             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ) {
-            if (CollectionUtil.isNotEmpty(exportParams)) {
-                // 遍历每个sheet的导出实体
-                for (EasyPoiMapExportParam exportParam : exportParams) {
-                    ExportParams title = exportParam.getTitle();
-                    if (workbook == null) {
-                        // 初始化并创建第一个自定义表头的sheet
-                        workbook = ExcelExportUtil.exportExcel(title, exportParam.getEntity(), exportParam.getData());
-                    } else {
-                        // 创建自定义表头的sheet
-                        excelExportService.createSheetForMap(workbook, title, exportParam.getEntity(), exportParam.getData());
-                    }
-
-                    Sheet sheet = workbook.getSheet(title.getSheetName());
-
-                    // 修正表头高度
-                    Row titleRow = sheet.getRow(0);
-                    titleRow.setHeightInPoints(80);
-                    // 修正表头样式
-                    CellStyle titleStyle = workbook.createCellStyle();
-//                    rowStyle.setBorderTop(BorderStyle.THIN);
-//                    rowStyle.setBorderBottom(BorderStyle.THIN);
-//                    rowStyle.setBorderLeft(BorderStyle.THIN);
-//                    rowStyle.setBorderRight(BorderStyle.THIN);
-                    titleStyle.setAlignment(HorizontalAlignment.LEFT);
-                    titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-                    titleStyle.setWrapText(false);
-//                    Font font = workbook.createFont();
-//                    font.setColor(IndexedColors.RED.index);
-//                    font.setFontName("宋体");
-//                    font.setBold(true);
-//                    font.setFontHeightInPoints((short) 10);
-//                    rowStyle.setFont(font);
-                    titleRow.setRowStyle(titleStyle);
-
-                    // 若需要处理空白缺失
-                    if (lackHandler) {
-                        // 获取需要处理的列
-                        List<Integer> lackCheckCellNumList = sheetBlankCellNumMap.get(sheet.getSheetName());
-                        if (CollectionUtil.isNotEmpty(lackCheckCellNumList)) {
-                            int rowCount = sheet.getLastRowNum();
-                            // 从第三行开始遍历，跳过表头
-                            for (int i = MoreLanguageProperties.excelDataRowNum; i <= rowCount; i++) {
-                                Row row = sheet.getRow(i);
-                                if (row != null) {
-                                    int cellCount = row.getLastCellNum();
-                                    // 判断翻译是否为空
-                                    boolean needHandlerLack = lackCheckCellNumList.stream()
-                                            .anyMatch(cellNum -> StrUtil.isBlank(row.getCell(cellNum).getStringCellValue()));
-                                    for (int j = 0; j < cellCount; j++) {
-                                        if (needHandlerLack) {
-                                            // 为空,将整段样式改为红色字体
-                                            Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                                            CellStyle cellStyle = workbook.createCellStyle();
-                                            cellStyle.cloneStyleFrom(cell.getCellStyle());
-                                            Font font = workbook.createFont();
-                                            font.setColor(IndexedColors.RED.getIndex());
-                                            cellStyle.setFont(font);
-                                            cell.setCellStyle(cellStyle);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-//                    CellStyle cellStyle = workbook.createCellStyle();
-//                    cellStyle.setAlignment(HorizontalAlignment.LEFT);
-//                    sheet.setDefaultColumnStyle(0, cellStyle);
-                }
-
-                workbook.write(baos);
-                response.setHeader("Content-Length", String.valueOf(baos.size()));
-                out.write( baos.toByteArray() );
-            }
-        }finally {
-            if (workbook != null) {
-                workbook.close();
-            }
-        }
+        buildMapSheet(String.format("(%s)吊牌&洗唛多语言-%s.xlsx", baseCountryLanguage.getName(), System.currentTimeMillis()),
+                exportParams, sheetBlankCellNumMap
+        );
     }
 
     @Override
@@ -447,7 +360,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         CountryLanguageDto baseCountryLanguage = countryLanguageList.get(0);
         String code = baseCountryLanguage.getCode();
         CountryLanguageType type = baseCountryLanguage.getType();
-        YesOrNoEnum singleLanguageFlag = baseCountryLanguage.getSingleLanguageFlag();
 
         // 查redis
         StandardColumn standardColumn = MoreLanguageProperties.getStandardColumn(standardColumnService, type, standardColumnCode);
@@ -456,6 +368,15 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         if (!standardColumnCodeList.contains(standardColumnCode)) {
             throw new OtherException(MoreLanguageProperties.getMsg(INCORRECT_STANDARD_CODE));
         }
+
+        // 获取单语言
+        CountryQueryDto languageDto = new CountryQueryDto();
+        languageDto.setType(type);
+        languageDto.setLanguageCode(countryLanguageList.stream()
+                .map(it-> it.getLanguageCodeByColumnCode(standardColumnCode))
+                .distinct().collect(Collectors.joining(COMMA)));
+        languageDto.setSingleLanguageFlag(YesOrNoEnum.YES);
+        List<CountryLanguageDto> languageDtoList = countryLanguageService.listQuery(languageDto);
 
         /* ----------------------------处理表头+翻译数据查询---------------------------- */
 
@@ -471,16 +392,6 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                 .map(Field::getName)
                 .filter(fieldName-> tableTitleList.stream().anyMatch(it-> fieldName.equals(it.getCode())))
                 .collect(Collectors.toList());
-
-        // 获取多键集合,没有就取第一个
-        List<MoreLanguageTableTitle> one2ManyKeyList = tableTitleList.stream()
-                .filter(it -> it.getKey() != null)
-                .sorted(Comparator.comparing(MoreLanguageTableTitle::getKey))
-                .collect(Collectors.toList());
-        if (CollectionUtil.isEmpty(one2ManyKeyList)) {
-            one2ManyKeyList = CollUtil.toList(tableTitleList.get(0));
-        }
-        List<String> keyList = one2ManyKeyList.stream().map(it-> StrUtil.toUnderlineCase(it.getCode())).collect(Collectors.toList());;
 
         // 剪裁掉翻译的字段
         tableTitleList.removeIf(tableTitle -> translateFieldList.contains(tableTitle.getCode()));
@@ -500,36 +411,42 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         // 获取所有关键编码的翻译key列表
         List<Map<String, Object>> resultList = mapList.getList();
-        List<String> propertiesCodeList = resultList.stream()
-                .map(it -> keyList.stream().map(key-> it.get(key).toString()).collect(Collectors.joining("-"))).collect(Collectors.toList());
+
+        // 获取多键集合,没有就取第一个
+        List<String> codeList = Opt.ofEmptyAble(tableTitleList.stream()
+                .filter(it -> ObjectUtil.isNotEmpty(keyFunc.apply(it))).sorted(Comparator.comparing(keyFunc))
+                .collect(Collectors.toList())
+        ).orElse(Collections.singletonList(tableTitleList.get(0))).stream().map(it-> StrUtil.toUnderlineCase(it.getCode())).collect(Collectors.toList());
+        List<String> propertiesCodeList = new ArrayList<>();
+        resultList.forEach(resultMap-> {
+            String realPropertiesCode = resultMap.entrySet().stream()
+                    .filter(it -> codeList.contains(it.getKey()))
+                    .map(it -> it.getValue().toString())
+                    .collect(Collectors.joining("-"));
+            resultMap.put("realPropertiesCode", realPropertiesCode);
+            propertiesCodeList.add(realPropertiesCode);
+        });
 
         // 查询翻译 也可以找redis,不常修改
         List<StandardColumnCountryTranslate> translateList = new ArrayList<>();
         if (CollectionUtil.isNotEmpty(propertiesCodeList)) {
             // 查询翻译
-            LambdaQueryWrapper<StandardColumnCountryTranslate> translateQueryWrapper = new LambdaQueryWrapper<StandardColumnCountryTranslate>()
-                    .eq(StandardColumnCountryTranslate::getTitleCode, standardColumnCode)
-                    .in(StandardColumnCountryTranslate::getPropertiesCode, propertiesCodeList)
-                    .and(qw-> qw.isNotNull(StandardColumnCountryTranslate::getContent).ne(StandardColumnCountryTranslate::getContent,""));
-
-            translateList.addAll(standardColumnCountryTranslateService.page(moreLanguageQueryDto.toMPPage(StandardColumnCountryTranslate.class),
-                    translateQueryWrapper.clone()
-                            .in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
-            ).getRecords());
-
-            // 如果为空, 查找单语言翻译
-            if(CollectionUtil.isEmpty(translateList)) {
-                CountryQueryDto languageDto = new CountryQueryDto();
-                languageDto.setLanguageCode(countryLanguageList.stream().map(CountryLanguage::getLanguageCode).distinct().collect(Collectors.joining(COMMA)));
-                languageDto.setSingleLanguageFlag(YesOrNoEnum.YES);
-                List<CountryLanguageDto> countryLanguageDtoList = countryLanguageService.listQuery(languageDto);
-                countryLanguageList.addAll(countryLanguageDtoList);
-
-                translateList.addAll(standardColumnCountryTranslateService.page(moreLanguageQueryDto.toMPPage(StandardColumnCountryTranslate.class),
-                        translateQueryWrapper.clone()
-                                .in(StandardColumnCountryTranslate::getCountryLanguageId, countryLanguageDtoList.stream().map(CountryLanguage::getId).collect(Collectors.toList()))
-                ).getRecords());
-            }
+            translateList.addAll(standardColumnCountryTranslateService.list( new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                    .eq(titleCodeFunc, standardColumnCode)
+                    .in(propertiesCodeFunc, propertiesCodeList)
+                    .in(countryLanguageIdFunc, languageDtoList.stream().map(idFunc).collect(Collectors.toList()))
+                    .and(qw-> qw.isNotNull(contentFunc).ne(contentFunc,""))));
+            // 将单语言的翻译修正为模板翻译id
+            translateList.forEach(translate-> {
+                languageDtoList.stream().filter(it -> translate.getCountryLanguageId().equals(it.getId())).findFirst().flatMap(countryLanguageDto ->
+                        countryLanguageList.stream().filter(it ->
+                                countryLanguageDto.getLanguageCode().equals(it.getLanguageCodeByColumnCode(standardColumnCode))
+                                        && countryLanguageDto.getType() == it.getType()
+                        ).findFirst()
+                ).ifPresent(countryLanguage -> {
+                    translate.setCountryLanguageId(countryLanguage.getId());
+                });
+            });
         }
 
         /* ----------------------------处理数据---------------------------- */
@@ -539,12 +456,12 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         // 设置数据
         mapList.setList(resultList.stream().map(resultMap-> {
             // 获取当前数据的关键key
-            String propertiesKey = keyList.stream().map(key -> resultMap.getOrDefault(key, "").toString()).collect(Collectors.joining("-"));
+            String propertiesKey = resultMap.get("realPropertiesCode").toString();
             Map<String, Object> map = new HashMap<>(showFieldList.size());
             // 更新时间倒序获取标题翻译 (DP00的)
             List<StandardColumnCountryTranslate> translatePropertiesList = translateList.stream()
                     .filter(it -> it.getPropertiesCode().equals(propertiesKey))
-                    .sorted(Comparator.comparing(StandardColumnCountryTranslate::getUpdateDate).reversed()).collect(Collectors.toList());
+                    .sorted(Comparator.comparing(updateDateFunc).reversed()).collect(Collectors.toList());
             // 遍历需要展示的每个表头
             showFieldList.forEach(field->{
                 Object fieldValue = null;
@@ -630,6 +547,192 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     }
                 });
         return result;
+    }
+
+    @SneakyThrows
+    @Override
+    public void exportMergeExcel(HangTagMoreLanguageDTO moreLanguageDTO) {
+        moreLanguageDTO.setSource(SystemSource.PDM);
+        moreLanguageDTO.setSingleLanguageFlag(YesOrNoEnum.YES);
+
+        List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList(MoreLanguageProperties.languageDictCode);
+        // 中文排第一个
+        dictList.sort((a,b)-> {
+            if (MoreLanguageProperties.checkInternal(a.getValue())) return -1;
+            if (MoreLanguageProperties.checkInternal(b.getValue())) return 1;
+            return a.getValue().compareTo(b.getValue());
+        });
+
+        // 获取每个对应语言和号型的国家
+        List<CountryLanguageDto> list = MORE_LANGUAGE_CV.copyList2Dto(countryLanguageService.list(new BaseLambdaQueryWrapper<CountryLanguage>()
+                .in(languageCodeFunc, dictList.stream().map(BasicBaseDict::getValue).collect(Collectors.toList()))
+                .eq(singleLanguageFlagFunc, YesOrNoEnum.YES)
+        ));
+
+        List<String> codeList = new ArrayList<>();
+        dictList.forEach(dict -> {
+            CountryLanguage countryLanguage = list.stream().filter(it -> it.getLanguageCode().equals(dict.getValue()))
+                    .findFirst().orElseThrow(() -> new OtherException("请维护" + dict.getName() + "的单语言翻译"));
+            codeList.add(countryLanguage.getCode());
+        });
+        moreLanguageDTO.setCode(String.join(COMMA,codeList));
+        Map<StandardColumnType, List<HangTagMoreLanguageWebBaseVO>> resultMap = (Map<StandardColumnType, List<HangTagMoreLanguageWebBaseVO>>)
+                hangTagService.getMoreLanguageDetailsByBulkStyleNo(moreLanguageDTO);
+
+        EasyPoiMapExportParam exportParam = new EasyPoiMapExportParam();
+        ExportParams params = new ExportParams("全语言翻译", "全语言翻译", ExcelType.XSSF);
+        exportParam.setTitle(params);
+
+        // 封装excel的字段
+        List<ExcelExportEntity> beanList = new ArrayList<>(buildExportEntityListByClass(MoreLanguageStatusExcelTemplateDTO.class));
+        exportParam.setEntity(beanList);
+        int dynamicExportEntityStartIndex = beanList.size();
+        dictList.forEach(languageDict -> {
+            ExcelExportEntity exportEntity = new ExcelExportEntity(languageDict.getName(), languageDict.getValue());
+            exportEntity.setWidth(100);
+            beanList.add(exportEntity);
+        });
+
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        exportParam.setData(mapList);
+        StrUtil.split(moreLanguageDTO.getBulkStyleNo(), COMMA).forEach(bulkStyleNo-> {
+            MoreLanguageStatusExcelTemplateDTO excelTemplateDTO = new MoreLanguageStatusExcelTemplateDTO();
+            excelTemplateDTO.setBulkStyleNo(bulkStyleNo);
+            resultMap.forEach((countryLanguageType, sameTypeList) -> {
+                sameTypeList.stream().filter(it-> it.getBulkStyleNo().equals(bulkStyleNo))
+                        .collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getStandardColumnCode)).forEach((standardColumnCode, sameStandardList)-> {
+                            Map<String, Object> map = BeanUtil.beanToMap(excelTemplateDTO);
+                            mapList.add(map);
+                            dictList.forEach(languageDict -> {
+                                String languageCode = languageDict.getValue();
+                                String content = "";
+                                if (MoreLanguageProperties.checkInternal(languageCode)) {
+                                    content = sameStandardList.get(0).getSourceContent();
+                                } else {
+                                    Optional<HangTagMoreLanguageWebBaseVO> webBaseVOOpt = sameStandardList.stream()
+                                            .filter(webBaseVO -> webBaseVO.getLanguageList().stream().anyMatch(it -> it.getLanguageCode().equals(languageCode)))
+                                            .findFirst();
+                                    if (webBaseVOOpt.isPresent()) {
+                                        content = webBaseVOOpt.get().getContent().getOrDefault(languageCode, "");
+                                    }
+                                }
+                                map.put(languageCode, content);
+                            });
+                        });
+            });
+        });
+
+        /* ----------------------------处理导出以及样式调整---------------------------- */
+
+        buildMapSheet(String.format("吊牌&洗唛多语言翻译导出-%s.xlsx", System.currentTimeMillis()), Collections.singletonList(exportParam),
+                MapUtil.of(params.getSheetName(),IntStream.range(dynamicExportEntityStartIndex, beanList.size()).boxed().collect(Collectors.toList())));
+    }
+
+    private List<ExcelExportEntity> buildExportEntityListByClass(Class<?> clazz){
+        List<ExcelExportEntity> beanList = new ArrayList<>();
+        Field[] fileds = PoiPublicUtil.getClassFields(clazz);
+        ExcelTarget etarget = clazz.getAnnotation(ExcelTarget.class);
+        String targetId = etarget == null ? null : etarget.value();
+
+        // 直接在ExcelExportService拷出来的
+        // poi源代码,将基础类各个属性转为ExcelPoi的导出实体并添加到处理列表 (!!)
+        ExcelUtils.getAllExcelField(new String[] {}, targetId, fileds, beanList, clazz, null, null);
+        return beanList;
+    }
+
+    private <T extends Comparable<? super T>> String findUniqueCode(List<MoreLanguageTableTitle> tableTitleList, SFunction<MoreLanguageTableTitle, T> keyFunc, Integer defaultIndex){
+        return Opt.ofBlankAble(
+                tableTitleList.stream().filter(it -> ObjectUtil.isNotEmpty(keyFunc.apply(it))).sorted(Comparator.comparing(keyFunc))
+                        .map(MoreLanguageTableTitle::getCode)
+                        .collect(Collectors.joining("-"))
+        ).orElse(tableTitleList.get(defaultIndex).getCode());
+    }
+
+    @SneakyThrows
+    private void buildMapSheet(String fileName, List<EasyPoiMapExportParam> exportParams, Map<String, List<Integer>> sheetBlankCellNumMap){
+        if (CollectionUtil.isEmpty(exportParams)) return;
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+
+        // 这里URLEncoder.encode可以防止中文乱码
+        fileName = URLEncoder.encode(fileName,"UTF-8").replaceAll("\\+", "%20");
+
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
+        Workbook workbook = null;
+        ExcelExportService excelExportService = new ExcelExportService();
+        try (OutputStream out = response.getOutputStream();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ) {
+            // 遍历每个sheet的导出实体
+            for (EasyPoiMapExportParam exportParam : exportParams) {
+                ExportParams title = exportParam.getTitle();
+                if (workbook == null) {
+                    // 初始化并创建第一个自定义表头的sheet
+                    workbook = ExcelExportUtil.exportExcel(title, exportParam.getEntity(), exportParam.getData());
+                } else {
+                    // 创建自定义表头的sheet
+                    excelExportService.createSheetForMap(workbook, title, exportParam.getEntity(), exportParam.getData());
+                }
+
+                Sheet sheet = workbook.getSheet(title.getSheetName());
+
+                // 修正表头高度
+                Row titleRow = sheet.getRow(0);
+                titleRow.setHeightInPoints(80);
+                // 修正表头样式
+                CellStyle titleStyle = workbook.createCellStyle();
+                titleStyle.setAlignment(HorizontalAlignment.LEFT);
+                titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+                titleStyle.setWrapText(false);
+                titleRow.setRowStyle(titleStyle);
+
+                // 获取需要处理的列
+                List<Integer> lackCheckCellNumList = sheetBlankCellNumMap.getOrDefault(sheet.getSheetName(), new ArrayList<>());
+                int rowCount = sheet.getLastRowNum();
+                // 从第三行开始遍历，跳过表头
+                for (int i = MoreLanguageProperties.excelDataRowNum; i <= rowCount; i++) {
+                    Row row = sheet.getRow(i);
+                    if (row != null) {
+                        int cellCount = row.getLastCellNum();
+                        // 判断翻译是否为空
+                        boolean needHandlerLack = lackCheckCellNumList.stream()
+                                .anyMatch(cellNum -> StrUtil.isBlank(row.getCell(cellNum).getStringCellValue()));
+                        for (int j = 0; j < cellCount; j++) {
+                            Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                            CellStyle cellStyle = workbook.createCellStyle();
+                            cellStyle.cloneStyleFrom(cell.getCellStyle());
+                            Font font = workbook.createFont();
+                            if (needHandlerLack) {
+                                // 为空,将整段样式改为红色字体
+                                font.setColor(IndexedColors.RED.getIndex());
+                            }
+                            String stringCellValue = cell.getStringCellValue();
+                            if (StrUtil.isNotBlank(stringCellValue) && stringCellValue.contains("\n")) {
+                                cell.setCellValue(new XSSFRichTextString(stringCellValue));
+                                cellStyle.setWrapText(true);
+                                row.setHeight((short) -1);
+                            }
+                            cellStyle.setFont(font);
+                            cell.setCellStyle(cellStyle);
+                        }
+                    }
+                }
+
+//                    CellStyle cellStyle = workbook.createCellStyle();
+//                    cellStyle.setAlignment(HorizontalAlignment.LEFT);
+//                    sheet.setDefaultColumnStyle(0, cellStyle);
+            }
+
+            workbook.write(baos);
+            response.setHeader("Content-Length", String.valueOf(baos.size()));
+            out.write( baos.toByteArray() );
+
+        }finally {
+            if (workbook != null) {
+                workbook.close();
+            }
+        }
     }
 
 // 自定义方法区 不替换的区域【other_end】

@@ -45,7 +45,6 @@ public class MoreLanguageManyKeyTableTitle extends MoreLanguageTableTitleHandler
             for (int i = 0; i < countryLanguageList.size(); i++) {
                 CountryLanguage countryLanguage = countryLanguageList.get(i);
                 MoreLanguageTableTitle countryLanguageTableTitle = BeanUtil.copyProperties(tableTitle, MoreLanguageTableTitle.class);
-                countryLanguageTableTitle.setText(countryLanguage.getLanguageName() + tableTitle.getText());
                 countryLanguageTableTitle.setCode(countryLanguage.getLanguageCode() + "-" + tableTitle.getCode());
                 tableTitleList.add(baseIndex+i, countryLanguageTableTitle);
             }
