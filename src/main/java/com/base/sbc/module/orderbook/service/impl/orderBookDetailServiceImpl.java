@@ -722,6 +722,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                     .filter(it ->
                             it.endsWith(OrderBookChannelType.OFFLINE.getFill()) || it.endsWith(OrderBookChannelType.ONLINE.getFill())
                     ).mapToInt(jsonObject::getInteger)
+                    .filter(Objects::nonNull)
                     .sum();
             if (sumProduction != Integer.parseInt(totalProduction)) {
                 throw new OtherException("尺码总数量与投产数量不一致，请重新填写");
