@@ -680,9 +680,15 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         //获取字典依赖管理的配置
         List<BasicBaseDict> styleCategorys = ccmFeignService.getDictInfoToList("StyleCategory");
         Map<Integer, String> sortStyleCategory = new HashMap<>();
+        if (CollUtil.isEmpty(styleCategorys)) {
+            throw new RuntimeException("款式类别字典未配置");
+        }
         for (BasicBaseDict baseDict : styleCategorys) {
+            if (null == baseDict.getSort()) {
+                throw new RuntimeException("款式类别字典排序字段配置有误");
+            }
             if (baseDict.getSort().stripTrailingZeros().scale() != 0) {
-                throw new RuntimeException("款式类别排序字段配置有误");
+                throw new RuntimeException("款式类别字典排序字段配置有误");
             }
             sortStyleCategory.put(baseDict.getSort().intValueExact(), baseDict.getName());
         }
