@@ -15,5 +15,6 @@ public interface ConvertContext {
     BaseConvert BASE_CV = BaseConvert.INSTANCE;
     MoreLanguageConvert MORE_LANGUAGE_CV = MoreLanguageConvert.INSTANCE;
     OpenConvert OPEN_CV = OpenConvert.INSTANCE;
+    OrderBookConvert ORDER_BOOK_CV = OrderBookConvert.INSTANCE;
 
 }

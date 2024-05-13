@@ -26,25 +26,6 @@ public interface HangTagLogService extends BaseService<HangTagLog> {
     // 自定义方法区 不替换的区域【other_start】
 
     /**
-     * 保存
-     *
-     * @param hangTagId
-     * @param operationDescription
-     * @param userCompany
-     */
-    void save(String hangTagId, String operationDescription, String userCompany);
-
-
-    /**
-     * 批量保存
-     *
-     * @param hangTagIds
-     * @param operationDescription
-     * @param userCompany
-     */
-    void saveBatch(List<String> hangTagIds, String operationDescription, String userCompany);
-
-    /**
      * 通过吊牌id获取
      *
      * @param HangTagId

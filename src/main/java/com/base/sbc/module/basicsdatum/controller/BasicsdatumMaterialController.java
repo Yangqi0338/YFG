@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.controller;
 
+import cn.hutool.core.util.BooleanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -169,7 +170,7 @@ public class BasicsdatumMaterialController extends BaseController {
                 }
             }
         }
-        if (needCode) {
+        if (BooleanUtil.isTrue(needCode)) {
             List<BasicBaseDict> ingredientsRemarksDictList = ccmFeignService.getDictInfoToList("IngredientsRemarks");
             List<BasicsdatumIngredient> ingredientList = ingredientService.list(new LambdaQueryWrapper<BasicsdatumIngredient>()
                     .select(BasicsdatumIngredient::getCode, BasicsdatumIngredient::getIngredient)

@@ -13,11 +13,13 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.afterturn.easypoi.exception.excel.ExcelExportException;
 import cn.afterturn.easypoi.exception.excel.enums.ExcelExportEnum;
+import cn.afterturn.easypoi.handler.inter.IWriter;
 import cn.afterturn.easypoi.util.PoiPublicUtil;
 import cn.afterturn.easypoi.util.PoiReflectorUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -27,8 +29,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.service.ColumnUserDefineService;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -60,6 +64,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExcelUtils {
 
     private static final Log logger = LogFactory.getLog(ExcelUtils.class);
+
+    private static final List<String> filters = Arrays.asList("row-select","operation");
 
 
 
@@ -99,7 +105,18 @@ public class ExcelUtils {
     private static void defaultExport(List<?> list, Class<?> pojoClass, String fileName, HttpServletResponse response, ExportParams exportParams) throws IOException {
         //把数据添加到excel表格中
         exportParams.setStyle(ExcelExportTitleStyle.class);
-        Workbook workbook = ExcelExportUtil.exportExcel(exportParams, pojoClass, list);
+        Workbook workbook;
+        if(list.size() < 10000){
+            workbook = ExcelExportUtil.exportExcel(exportParams, pojoClass, list);
+        }else{
+            IWriter<Workbook> workbookIWriter = ExcelExportUtil.exportBigExcel(exportParams, pojoClass);
+            List<? extends List<?>> partition = Lists.partition(list, 10000);
+            for (List<?> objects : partition) {
+                workbookIWriter.write(objects);
+            }
+            workbook = workbookIWriter.get();
+            workbookIWriter.close();
+        }
         downLoadExcel(fileName, response, workbook);
     }
 
@@ -116,7 +133,7 @@ public class ExcelUtils {
         defaultExport(list, pojoClass, fileName, response, exportParams);
     }
 
-    public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode)  throws IOException {
+    public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode,String imgFlag,Integer maxNumber,String... columns)  throws IOException {
         Assert.notBlank(tableCode,"tableCode不能为空");
         ColumnUserDefineService columnUserDefineService = SpringUtil.getBean(ColumnUserDefineService.class);
         List<ColumnDefine> detail = columnUserDefineService.findDefaultDetail(tableCode);
@@ -151,7 +168,8 @@ public class ExcelUtils {
             }
         }
 
-        defaultExport(list,fileName,response,exportParams,newExcelParams);
+        // defaultExport(list,fileName,response,exportParams,newExcelParams);
+        executorExportExcel1(list,fileName,imgFlag,maxNumber,response,exportParams,newExcelParams,columns);
     }
 
     public static void defaultExport(List<?> list, String fileName, HttpServletResponse response, ExportParams exportParams,List<ExcelExportEntity> entityList) throws IOException {
@@ -361,6 +379,7 @@ public class ExcelUtils {
                     executor.submit(() -> {
                         try {
                             for (String column : columns) {
+                                // column =  com.base.sbc.config.utils.StringUtils.toCamelCase(column);
                                 final String stylePic = BeanUtil.getProperty(o, column);
                                 BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
                             }
@@ -377,6 +396,49 @@ public class ExcelUtils {
             }
             ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
 
+        } catch (Exception e) {
+            throw new OtherException(e.getMessage());
+        } finally {
+            executor.shutdown();
+        }
+    }
+
+    public static void executorExportExcel1(List<?> list, String name, String imgFlag, Integer maxNumber, HttpServletResponse response, ExportParams exportParams, List<ExcelExportEntity> newExcelParams, String... columns){
+        long t1 = System.currentTimeMillis();
+
+        ExecutorService executor = ExecutorBuilder.create()
+                .setCorePoolSize(8)
+                .setMaxPoolSize(10)
+                .build();
+        try {
+            if (StrUtil.equals(imgFlag, BaseGlobal.YES)) {
+                /*导出图片*/
+                if (CollUtil.isNotEmpty(list) && list.size() > maxNumber) {
+                    throw new OtherException("带图片导出最多只能导出" + maxNumber + "条");
+                }
+                CountDownLatch countDownLatch = new CountDownLatch(list.size());
+
+                for (Object o  : list) {
+                    executor.submit(() -> {
+                        try {
+                            for (String column : columns) {
+                                // column =  com.base.sbc.config.utils.StringUtils.toCamelCase(column);
+                                final String stylePic = BeanUtil.getProperty(o, column);
+                                BeanUtil.setProperty(o,  column+"1", HttpUtil.downloadBytes(stylePic));
+                            }
+                        } catch (Exception e) {
+                            logger.error(e.getMessage());
+                        } finally {
+                            //每次减一
+                            countDownLatch.countDown();
+                            logger.info(String.valueOf(countDownLatch.getCount()));
+                        }
+                    });
+                }
+                countDownLatch.await();
+            }
+            // ExcelUtils.exportExcel(list,pojoClass, name+".xlsx", new ExportParams(name, name, ExcelType.HSSF), response);
+            defaultExport(list,name+".xlsx",response,exportParams,newExcelParams);
         } catch (Exception e) {
             throw new OtherException(e.getMessage());
         } finally {
@@ -430,6 +492,7 @@ public class ExcelUtils {
     private static ExcelExportEntity createExcelExportEntity(Field field, String targetId, Class<?> pojoClass, List<Method> getMethods, ExcelEntity excelGroup) {
         Excel excel = field.getAnnotation(Excel.class);
         ExcelExportEntity excelEntity = new ExcelExportEntity();
+        excelEntity.setType(excel.type());
         excelEntity.setKey(field.getName());
         excelEntity.setName(PoiPublicUtil.getValueByTargetId(excel.name(), targetId, null));
         excelEntity.setWidth(excel.width());
@@ -481,19 +544,25 @@ public class ExcelUtils {
         Assert.notEmpty(detail, "没有找到对应列配置，请联系管理员维护");
         List<ExcelExportEntity> excelParams = new ArrayList<>();
 
-        List<String> imgColumns = new ArrayList<>();
+        Map<String,String> imgColumnMap = new HashMap<>();
+        Set<String> mapColumns = new HashSet<>();
         for (ColumnDefine columnDefine : detail) {
-            if (BaseGlobal.NO.equals(columnDefine.getHidden())) {
+            if (BaseGlobal.NO.equals(columnDefine.getHidden()) || filters.contains(columnDefine.getColumnCode()) ) {
                 continue;
             }
             ExcelExportEntity excelEntity = new ExcelExportEntity();
             excelEntity.setKey(columnDefine.getColumnCode());
+            if(columnDefine.getColumnCode().contains(".")){
+                mapColumns.add(columnDefine.getColumnCode().split("\\.")[0]);
+            }
             excelEntity.setName(columnDefine.getColumnName());
-            excelEntity.setWidth((double) columnDefine.getColumnWidth() / 5);
+            excelEntity.setWidth((double) columnDefine.getColumnWidth() / 6.8);
             //excelEntity.setHeight(excel.height());
-            //excelEntity.setNeedMerge(excel.needMerge());
-            //excelEntity.setMergeVertical(excel.mergeVertical());
-            //excelEntity.setMergeRely(excel.mergeRely());
+            /*if("1".equals(columnDefine.getColumnMerge())){
+                excelEntity.setNeedMerge(true);
+                excelEntity.setMergeVertical(true);
+                //excelEntity.setMergeRely(excel.mergeRely());
+            }*/
             if (StrUtil.isNotEmpty(columnDefine.getDictType())) {
                 JSONArray jsonArray = JSONArray.parseArray(columnDefine.getDictType());
                 String[] replace = new String[jsonArray.size() + 1];
@@ -508,17 +577,23 @@ public class ExcelUtils {
             }
             excelEntity.setOrderNum(columnDefine.getSortOrder());
             //excelEntity.setWrap(excel.isWrap());
-            if (StrUtil.isNotEmpty(columnDefine.getColumnType()) && "img".equals(columnDefine.getColumnType())) {
-                excelEntity.setExportImageType(2);
-                excelEntity.setType(2);
-                imgColumns.add(columnDefine.getColumnCode());
-                //将key拼接1，后续将byte[]处理到对应字段上
-                excelEntity.setKey(columnDefine.getColumnCode() + "1");
+            if(StrUtil.isNotEmpty(columnDefine.getColumnType())){
+                if ("img".equals(columnDefine.getColumnType())) {
+                    excelEntity.setExportImageType(2);
+                    excelEntity.setType(2);
+                    imgColumnMap.put(columnDefine.getColumnCode(),columnDefine.getDataFormat());
+                    //将key拼接1，后续将byte[]处理到对应字段上
+                    excelEntity.setKey(columnDefine.getColumnCode() + "1");
+                } else if ("date".equals(columnDefine.getColumnType())) {
+                    excelEntity.setFormat(columnDefine.getDataFormat());
+                    excelEntity.setDatabaseFormat(columnDefine.getDataFormat());
+                } else if ("num".equals(columnDefine.getColumnType())) {
+                    excelEntity.setType(10);
+                }
             }
 
             //excelEntity.setSuffix(excel.suffix());
             //excelEntity.setDatabaseFormat(excel.databaseFormat());
-            excelEntity.setFormat(columnDefine.getDataFormat());
             //excelEntity.setStatistics(excel.isStatistics());
             //excelEntity.setHyperlink(excel.isHyperlink());
             //excelEntity.setMethod(PoiReflectorUtil.fromCache(pojoClass).getGetMethod(field.getName()));
@@ -535,15 +610,32 @@ public class ExcelUtils {
             excelParams.add(excelEntity);
         }
 
+        //这里就是要转成JSONObject类型，不要保留原对象类型
         JSONArray jsonArray = JSONArray.parseArray(JSONObject.toJSONString(list));
+        //将sizeMap.templateM  这种类型数据 从map中取出，平铺到对象中
+        if (!mapColumns.isEmpty()) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                for (String mapColumn : mapColumns) {
+                    if (jsonObject.containsKey(mapColumn) && jsonObject.get(mapColumn) instanceof Map) {
+                        JSONObject jsonObject1 = jsonObject.getJSONObject(mapColumn);
+                        for (Map.Entry<String, Object> entry : jsonObject1.entrySet()) {
+                            jsonObject.put(mapColumn + "." + entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+            }
+        }
 
-        if (CollUtil.isNotEmpty(imgColumns) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
+        if (MapUtil.isNotEmpty(imgColumnMap) && StrUtil.equals(queryFieldDto.getImgFlag(), BaseGlobal.YES)) {
             StylePicUtils stylePicUtils = SpringUtil.getBean(StylePicUtils.class);
+            MinioUtils minioUtils = SpringUtil.getBean(MinioUtils.class);
             ExecutorService executor = ExecutorBuilder.create()
                     .setCorePoolSize(8)
                     .setMaxPoolSize(10)
                     .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
                     .build();
+            Map<String,byte[]> picMap = Collections.synchronizedMap(new HashMap<>());
             try {
                 /*导出图片*/
                 if (CollUtil.isNotEmpty(list) && list.size() > 1500) {
@@ -554,9 +646,26 @@ public class ExcelUtils {
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
                     executor.submit(() -> {
                         try {
-                            for (String imgColumn : imgColumns) {
-                                String imgUrl = stylePicUtils.getStyleColorUrl2(imgColumn, 30);
-                                jsonObject.put(imgColumn + "1", HttpUtil.downloadBytes(imgUrl));
+                            for (Map.Entry<String, String> entry : imgColumnMap.entrySet()) {
+                                String imgColumn = entry.getKey();
+                                String type = entry.getValue();
+
+                                byte[] bytes;
+                                if(picMap.containsKey(imgColumn)){
+                                    bytes = picMap.get(imgColumn);
+                                }else{
+                                    String imgUrl;
+                                    if(StrUtil.isEmpty(type) || "stylePic".equals(type)){
+                                        //stylePic
+                                        imgUrl = stylePicUtils.getStyleColorUrl2(imgColumn, 30);
+                                    }else {
+                                        //minio
+                                        imgUrl = minioUtils.getObjectUrl(jsonObject.getString(imgColumn));
+                                    }
+                                    bytes = HttpUtil.downloadBytes(imgUrl);
+                                }
+
+                                jsonObject.put(imgColumn + "1", bytes);
                             }
                         } catch (Exception e) {
                             log.error(e.getMessage());

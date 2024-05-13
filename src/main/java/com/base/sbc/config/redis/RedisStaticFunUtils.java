@@ -212,6 +212,20 @@ public class RedisStaticFunUtils {
 	}
 
 	/**
+	 * 普通缓存获取并删除
+	 * @param key 键
+	 * @return 值
+	 */
+	public static Object sPop(String key){
+		// 使用Lua脚本保证原子性 TODO
+		if (StrUtil.isBlank(key)) return null;
+		Object value = getRedisTemplate().opsForValue().get(key);
+		del(key);
+		return value;
+	}
+
+
+	/**
 	 * 普通缓存放入
 	 * @param key 键
 	 * @param value 值

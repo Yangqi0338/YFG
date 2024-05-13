@@ -12,6 +12,7 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.style.dto.LatestCommissioningDateQueryDto;
+import com.base.sbc.module.style.entity.LatestCommissioningDate;
 import com.base.sbc.module.style.service.LatestCommissioningDateService;
 import com.base.sbc.module.style.vo.LatestCommissioningDateExcel;
 import com.base.sbc.module.style.vo.LatestCommissioningDateVo;
@@ -69,6 +70,12 @@ public class LatestCommissioningDateController {
     @GetMapping("/exportExcel")
     public void exportExcel(HttpServletResponse response, LatestCommissioningDateQueryDto dto) throws Exception {
         latestCommissioningDateService.exportExcel(response, dto);
+    }
+
+    @ApiOperation(value = "修改")
+    @PostMapping("/updateMain")
+    public ApiResult updateMain(@RequestBody LatestCommissioningDate vo) {
+        return latestCommissioningDateService.updateMain(vo);
     }
 
 }

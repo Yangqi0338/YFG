@@ -16,54 +16,60 @@
     <select id="technologyCenterTaskList"
             resultType="com.base.sbc.module.patternmaking.vo.TechnologyCenterTaskVo">
         SELECT
-        p.id,
-        s.design_no,
-        s.style_pic,
-        s.prod_category1st_name,
-        s.prod_category_name,
-        s.prod_category2nd_name,
-        s.prod_category3rd_name,
-        s.prod_category1st,
-        s.prod_category,
-        s.prod_category2nd,
-        s.prod_category3rd,
-        s.brand,
-        s.brand_name,
-        s.year,
-        s.year_name,
-        s.month,
-        s.month_name,
-        s.season,
-        s.season_name,
-        s.band_code,
-        s.band_name,
-        s.style_name,
-        s.designer,
-        p.design_send_date,
-        p.prm_send_date,
-        p.prm_send_status,
-        p.urgency,
-        p.urgency_name,
-        p.planning_season_id,
-        p.pattern_design_id,
-        p.break_off_sample,
-        p.break_off_pattern,
-        p.pattern_design_name,
-        s.pattern_design_name as `firstPatternDesignName`,
-        p.color_name,
-        p.color_code,
-        p.pattern_room,
-        p.pattern_room_id,
-        p.sample_type_name,
-        p.pattern_making_score,
-        p.demand_finish_date,
-        p.node,
-        p.status as `pmStatus`,
-        p.pattern_req_date,
-        p.revision_comments,
-        p.receive_sample_date,
-        p.pattern_designer_name,
-        p.receive_reason
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            p.id,
+            s.design_no,
+            s.style_pic,
+            concat(s.year_name," ",s.season_name," ",s.brand_name) planningSeason,
+            s.prod_category1st_name,
+            s.prod_category_name,
+            s.prod_category2nd_name,
+            s.prod_category3rd_name,
+            s.prod_category1st,
+            s.prod_category,
+            s.prod_category2nd,
+            s.prod_category3rd,
+            s.brand,
+            s.brand_name,
+            s.year,
+            s.year_name,
+            s.month,
+            s.month_name,
+            s.season,
+            s.season_name,
+            s.band_code,
+            s.band_name,
+            s.style_name,
+            s.designer,
+            p.design_send_date,
+            p.prm_send_date,
+            (CASE WHEN p.break_off_pattern = '1' THEN '9' ELSE p.prm_send_status END) as prmSendStatus,
+            p.urgency,
+            p.urgency_name,
+            p.planning_season_id,
+            p.pattern_design_id,
+            p.break_off_sample,
+            p.break_off_pattern,
+            p.pattern_design_name,
+            s.pattern_design_name as `firstPatternDesignName`,
+            p.color_name,
+            p.color_code,
+            p.pattern_room,
+            p.pattern_room_id,
+            p.sample_type_name,
+            p.pattern_making_score,
+            p.demand_finish_date,
+            p.node,
+            p.status as `pmStatus`,
+            p.pattern_req_date,
+            p.revision_comments,
+            p.receive_sample_date,
+            p.pattern_designer_name,
+            p.receive_reason
+        </if>
         FROM
         t_pattern_making p,
         t_style s
@@ -167,12 +173,13 @@
             p.pattern_design_id ,
             p.pat_diff,p.pat_diff_name,
             p.sample_bar_code sampleBarCode,
-
+            s.id as styleId,
             CONCAT(s.year_name,s.season_name,s.brand_name) as season,
+            s.planning_season_id,
             s.style_pic,
             p.sample_type,
             p.pat_seq_name,
-            (CASE WHEN p.technician_kitting = 0 THEN '否' ELSE '是' END) as technician_kitting,
+            p.technician_kitting,
             p.technician_kitting_date,
             p.pattern_req_date,
             p.demand_finish_date,
@@ -186,7 +193,7 @@
             p.cutter_name,
             s.design_no,
             p.cutter_finish_num,
-            (CASE WHEN p.sgl_kitting = 0 THEN '否' ELSE '是' END) as sgl_kitting,
+            p.sgl_kitting,
             p.stitcher_remark,
             p.stitcher,
             s.technician_name,
@@ -210,8 +217,9 @@
             p.sample_making_quality_score,
             p.second_processing,
             p.prm_send_date,
-            (CASE WHEN p.prm_send_status = 0 THEN '未发送' ELSE '已发送' END) as prm_send_status,
+            p.prm_send_status,
             p.pattern_no,
+            p.grading_id,
             p.grading_name,
             p.grading_date,
             s.band_name,
@@ -219,12 +227,13 @@
             p.receive_sample_date,
             s.devt_type_name,
             (CASE WHEN p.break_off_Pattern = '1' THEN '打板中断' WHEN p.break_off_sample = '1' THEN '样衣中断' ELSE '启用' END) as pmStatus,
-
+            p.refer_sample,
             p.break_off_Pattern,
             p.break_off_sample,
             p.status pStatus,
             p.create_date as `pmCreateDate`,
-            p.demand_finish_date as demandFinishDate
+            p.demand_finish_date as demandFinishDate,
+            p.del_flag
         </if>
         FROM
         t_style s
@@ -834,12 +843,12 @@
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id AND p.del_flag = '0' )
         LEFT JOIN t_node_status ns1 ON ( ns1.data_id = p.id AND ns1.del_flag = '0' and ns1.node = '技术中心' and ns1.`status` = '版房主管下发')
         LEFT JOIN t_node_status ns2 ON ( ns2.data_id = p.id AND ns2.del_flag = '0' and ns2.node = '打版任务' and ns2.`status` = '已接收')
-        LEFT JOIN t_node_status ns3 ON ( ns3.data_id = p.id AND ns3.del_flag = '0'   and ns3.`status` = '已接收')
-        LEFT JOIN t_node_status ns4 ON ( ns4.data_id = p.id AND ns4.del_flag = '0' and ns4.node  = '打版任务' and ns4.`status` = '打版完成')
+        LEFT JOIN t_node_status ns3 ON ( ns3.data_id = p.id AND ns3.del_flag = '0' and ns3.node = '技术中心' and ns3.`status` = '已接收')
+        LEFT JOIN t_node_status ns4 ON ( ns4.data_id = p.id AND ns4.del_flag = '0' and ns4.node = '打版任务' and ns4.`status` = '打版完成')
         LEFT JOIN t_node_status ns5 ON ( ns5.data_id = p.id AND ns5.del_flag = '0' and ns5.node = '样衣任务' and ns5.`status` = '裁剪开始')
         LEFT JOIN t_node_status ns6 ON ( ns6.data_id = p.id AND ns6.del_flag = '0' and ns6.node = '样衣任务' and ns6.`status` = '裁剪完成')
         LEFT JOIN t_node_status ns7 ON ( ns7.data_id = p.id AND ns7.del_flag = '0' and ns7.node = '样衣任务' and ns7.`status` = '车缝进行中')
-        LEFT JOIN t_node_status ns8 ON ( ns8.data_id = p.id AND ns8.del_flag = '0' and ns8.node = '样衣任务' and  ns8.`status` = '车缝完成')
+        LEFT JOIN t_node_status ns8 ON ( ns8.data_id = p.id AND ns8.del_flag = '0' and ns8.node = '样衣任务' and ns8.`status` = '车缝完成')
         LEFT JOIN t_node_status ns9 ON ( ns9.data_id = p.id AND ns9.del_flag = '0' and ns9.node = '样衣任务' and ns9.`status` = '样衣完成')
         ${ew.customSqlSegment}
     </select>

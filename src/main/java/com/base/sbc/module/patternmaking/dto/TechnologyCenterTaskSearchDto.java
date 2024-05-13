@@ -1,6 +1,6 @@
 package com.base.sbc.module.patternmaking.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -15,7 +15,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel("技术中心看板-任务列表搜索dto TechnologyCenterTaskSearchDto ")
-public class TechnologyCenterTaskSearchDto extends Page {
+public class TechnologyCenterTaskSearchDto extends QueryFieldDto {
 
 
     @ApiModelProperty(value = "年份", example = "2022")

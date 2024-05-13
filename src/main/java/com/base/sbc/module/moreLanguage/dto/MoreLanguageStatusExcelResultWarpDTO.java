@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -17,7 +18,7 @@ import java.util.List;
 public class MoreLanguageStatusExcelResultWarpDTO {
 
     @ApiModelProperty(value = "款号")
-    private List<MoreLanguageStatusExcelResultDTO> result;
+    private List<MoreLanguageStatusExcelResultDTO> result = new ArrayList<>();
 
     @ApiModelProperty(value = "Redis 查询唯一标识")
     private String uniqueValue;

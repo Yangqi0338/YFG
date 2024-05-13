@@ -48,6 +48,7 @@ public class BasicProcessGalleryServiceImpl extends BaseServiceImpl<BasicProcess
         queryWrapper.notEmptyEq("name", basicProcessGalleryDto.getName());
         queryWrapper.notEmptyEq("type_name", basicProcessGalleryDto.getTypeName());
         queryWrapper.notEmptyEq("type_code", basicProcessGalleryDto.getTypeCode());
+        queryWrapper.notEmptyLike("remarks", basicProcessGalleryDto.getRemarks());
         if (StringUtils.isNotBlank(basicProcessGalleryDto.getCreateDate())){
             queryWrapper.between("create_date", basicProcessGalleryDto.getCreateDate().split(","));
         }

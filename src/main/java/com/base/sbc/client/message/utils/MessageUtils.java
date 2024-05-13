@@ -445,4 +445,31 @@ public class MessageUtils {
             String s = messagesService.sendNoticeByModel(modelMessage);
         }
     }
+
+    /**
+     * 发送普通消息
+     *
+     * @param userId    用户id
+     * @param title     标题
+     * @param address   地址
+     * @param groupUser 用户信息
+     */
+    public void sendCommonMessage(String userId, String title, String address, GroupUser groupUser) {
+        if (StringUtils.isNotBlank(userId)) {
+            log.info("————————————————————————发送消息消息提醒发送提醒消息用户" + userId);
+            Map<String, String> map = new HashMap<>();
+            map.put("title", title);
+            map.put("userId", groupUser.getId());
+            map.put("userName", groupUser.getName());
+            map.put("avatar", groupUser.getAvatar());
+            map.put("address", address);
+            ModelMessage modelMessage = new ModelMessage();
+            modelMessage.setUserIds(userId);
+            //通用模板
+            modelMessage.setModelCode("SJ9113");
+            modelMessage.setParams(map);
+            String s = messagesService.sendNoticeByModel(modelMessage);
+        }
+    }
+
 }

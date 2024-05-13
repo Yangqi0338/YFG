@@ -25,6 +25,6 @@
 /nbdist/
 /.nb-gradle/
 
-bootstrap-dev.yml
+bootstrap-local.yml
 rebel.xml
 pom-*.xml

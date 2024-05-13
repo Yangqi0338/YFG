@@ -44,7 +44,7 @@ public class StandardColumn extends BaseDataEntity<String> {
     private String name;
     /** 是否是默认吊牌属性（决定是否能删除） */
     @ApiModelProperty(value = "是否是默认吊牌属性（决定是否能删除）"  )
-    private String isDefault;
+    private YesOrNoEnum isDefault;
     /** 标准类型 */
     @ApiModelProperty(value = "标准类型"  )
     private StandardColumnType type;

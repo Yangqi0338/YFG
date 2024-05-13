@@ -100,7 +100,7 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
         PageInfo<WorkLogVo> workLogVoPageInfo = pageInfo(dto);
         List<WorkLogVo> list1 = workLogVoPageInfo.getList();
         List<WorkLogVoExcel> list = BeanUtil.copyToList(list1, WorkLogVoExcel.class);
-        ExcelUtils.exportExcel(list, WorkLogVoExcel.class, "基础资料-号型类型.xlsx", new ExportParams(), response);
+        ExcelUtils.exportExcel(list, WorkLogVoExcel.class, "工作小账.xlsx", new ExportParams(), response);
 
     }
 

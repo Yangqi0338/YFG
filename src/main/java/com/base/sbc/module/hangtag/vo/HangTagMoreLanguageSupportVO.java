@@ -6,17 +6,23 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.vo;
 
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StandardColumnType;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
 import com.base.sbc.open.dto.MoreLanguageTagPrinting;
+import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * 类描述：吊牌表 实体类
@@ -53,7 +59,7 @@ public class HangTagMoreLanguageSupportVO {
     /**
      * 国家类型
      */
-    @JsonIgnore
+    @JsonEnumDefaultValue
     @ApiModelProperty(value = "国家类型")
     protected CountryLanguageType countryLanguageType;
 
@@ -72,13 +78,6 @@ public class HangTagMoreLanguageSupportVO {
     protected String tableName;
 
     /**
-     * 国家编码
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "国家编码")
-    protected String countryCode;
-
-    /**
      * 具体数据的编码
      */
     @JsonIgnore
@@ -93,13 +92,6 @@ public class HangTagMoreLanguageSupportVO {
     protected Boolean isGroup = false;
 
     /**
-     * 有语言的
-     */
-    @JsonIgnore
-    @ApiModelProperty(value = "有语言的")
-    protected Boolean hasLanguage = true;
-
-    /**
      * 中文检查
      */
     @JsonIgnore
@@ -107,10 +99,23 @@ public class HangTagMoreLanguageSupportVO {
     protected Boolean cnCheck = true;
 
     /**
+     * 吊牌状态
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "吊牌状态")
+    private HangTagStatusEnum status;
+
+    /**
      * 分类列表
      */
     @ApiModelProperty(value = "分类列表")
-    @JsonIgnore
     private List<HangTagMoreLanguageVO> languageList = new ArrayList<>();
+
+    /**
+     * 有语言的
+     */
+    @JsonIgnore
+    @ApiModelProperty(value = "有语言的")
+    protected Boolean hasLanguage = true;
 
 }

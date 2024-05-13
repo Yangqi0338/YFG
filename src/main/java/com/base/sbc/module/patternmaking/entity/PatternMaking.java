@@ -403,6 +403,13 @@ public class PatternMaking extends BaseDataEntity<String> {
     /** 停留原因 */
     @ApiModelProperty(value = "停留原因"  )
     private String receiveReason;
+
+    @ApiModelProperty(value = "是否参考样衣，0：否，1：是"  )
+    private Integer referSample;
+
+    @ApiModelProperty(value = "挂起时间记录"  )
+    private String suspendDateRecord;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

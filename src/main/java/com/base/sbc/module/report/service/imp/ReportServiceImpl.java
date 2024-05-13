@@ -3,9 +3,13 @@ package com.base.sbc.module.report.service.imp;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -19,6 +23,7 @@ import com.base.sbc.module.style.service.LatestCommissioningDateService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -45,6 +50,9 @@ public class ReportServiceImpl implements ReportService {
     @Resource
     private LatestCommissioningDateService commissioningDateService;
 
+    @Resource
+    private DataPermissionsService dataPermissionsService;
+
     @Override
     public PageInfo<HangTagReportVo> getHangTagReortPage(HangTagReportQueryDto dto) {
         BaseQueryWrapper<HangTagReportQueryDto> qw = new BaseQueryWrapper<>();
@@ -52,11 +60,24 @@ public class ReportServiceImpl implements ReportService {
         List<String> bulkStyleNos = dto.getBulkStyleNos();
         String year = dto.getYear();
         String season = dto.getSeason();
-        QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
+        //QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
+
+        boolean bulkStyleNosEmpty = CollUtil.isEmpty(bulkStyleNos);
+        boolean yearEmpty = StrUtil.isEmpty(year);
+        if (!bulkStyleNosEmpty && bulkStyleNos.size() > 2000) {
+            throw new OtherException("大货款号最多输入2000个！");
+        }
+        if (bulkStyleNosEmpty && yearEmpty ) {
+            throw new OtherException("请输入大货款号或年份参数查询！");
+        }
+
         qw.notEmptyIn("t.bulk_style_no", bulkStyleNos);
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("t.create_date");
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagReport.getK());
+
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<HangTagReportVo> list = reportMapper.getHangTagReortList(qw);
@@ -90,7 +111,7 @@ public class ReportServiceImpl implements ReportService {
         List<String> materialNos = dto.getMaterialNos();
         String year = dto.getYear();
         String season = dto.getSeason();
-        QueryGenerator.reportParamMaterialsNoCheck(materialNos, year, season);
+        //QueryGenerator.reportParamMaterialsNoCheck(materialNos, year, season);
         qw.notEmptyIn("t.material_code", materialNos);
         qw.notEmptyEq("t.year", year);
         qw.notEmptyEq("t.season", season);
@@ -129,6 +150,8 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.year", year);
         qw.notEmptyEq("ts.season", season);
         qw.orderByDesc("tsc.create_date");
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.stylePackBomMaterialReport.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StylePackBomMaterialReportVo> list = reportMapper.getStylePackBomListReport(qw);
@@ -165,6 +188,8 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.season", season);
         QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNos, year, season);
         qw.orderByDesc("tsc.create_date");
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleSizeReport.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<StyleSizeReportVo> list = reportMapper.getStyleSizeReport(qw);
@@ -225,6 +250,10 @@ public class ReportServiceImpl implements ReportService {
         qw.notEmptyEq("ts.season", seasonParam);
         QueryGenerator.reportParamBulkStyleNosCheck(bulkStyleNosParam, yearParam, seasonParam);
         qw.orderByDesc("tsc.create_date");
+
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.designOrderScheduleDetailsReport.getK());
+
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         PageHelper.startPage(dto);
         List<DesignOrderScheduleDetailsReportVo> list = reportMapper.getDesignOrderScheduleDetailsReport(qw);
@@ -244,10 +273,9 @@ public class ReportServiceImpl implements ReportService {
             //订货本投产时间
             Date commissioningDate = report.getCommissioningDate();
             if (commissioningDate == null) {
-//                report.setSendMainFabricDay("不延期");
-//                report.setDesignDetailDay("不延期");
-//                report.setDesignCorrectDay("不延期");
                 continue;
+            }else{
+                commissioningDate = DateUtil.parse(DateUtil.formatDate(commissioningDate),"yyyy-MM-dd");
             }
 
             String brandName = report.getBrandName();
@@ -258,15 +286,17 @@ public class ReportServiceImpl implements ReportService {
             if (latestCommissioningDate != null) {
                 Date lastDate = null;
                 if (latestCommissioningDate == null) {
-                    lastDate = new Date();
+                    lastDate = DateUtil.parse(DateUtil.formatDate(new Date()),"yyyy-MM-dd");
                 } else {
-                    lastDate = latestCommissioningDate.getLatestCommissioningDate();
+                    lastDate = DateUtil.parse(DateUtil.formatDate(latestCommissioningDate.getLatestCommissioningDate()),"yyyy-MM-dd");
                 }
 
                 /**面料详单*/
                 Date sendMainFabricDate = report.getSendMainFabricDate();
                 if (sendMainFabricDate == null) {
-                    sendMainFabricDate = new Date();
+                    sendMainFabricDate = DateUtil.parse(DateUtil.formatDate(new Date()),"yyyy-MM-dd");
+                }else{
+                    sendMainFabricDate = DateUtil.parse(DateUtil.formatDate(sendMainFabricDate),"yyyy-MM-dd");
                 }
 
                 //比较面料详单和投产日期
@@ -276,16 +306,16 @@ public class ReportServiceImpl implements ReportService {
                     int compare = DateUtil.compare(lastDate, commissioningDate);
                     if (compare == 1) {
                         long betweenDay = DateUtil.between(sendMainFabricDate, commissioningDate, DateUnit.DAY);
-                        if (betweenDay > 2) {
-                            report.setSendMainFabricDay((betweenDay - 2) + "");
+                        if (betweenDay > 6) {
+                            report.setSendMainFabricDay((betweenDay - 6) + "");
                         } else {
                             report.setSendMainFabricDay("不延期");
                         }
                     } else {
                         //首单（没超出也是首单）
                         long betweenDay = DateUtil.between(sendMainFabricDate, commissioningDate, DateUnit.DAY);
-                        if (betweenDay > 6) {
-                            report.setSendMainFabricDay((betweenDay - 6) + "");
+                        if (betweenDay > 2) {
+                            report.setSendMainFabricDay((betweenDay - 2) + "");
                         } else {
                             report.setSendMainFabricDay("不延期");
                         }
@@ -297,7 +327,10 @@ public class ReportServiceImpl implements ReportService {
                 /**明细单*/
                 Date designDetailDate = report.getDesignDetailDate();
                 if (designDetailDate == null) {
-                    designDetailDate = new Date();
+                    designDetailDate = DateUtil.parse(DateUtil.formatDate(new Date()),"yyyy-MM-dd");
+
+                }else{
+                    designDetailDate = DateUtil.parse(DateUtil.formatDate(designDetailDate),"yyyy-MM-dd");
                 }
 
                 int designDetailCompare = DateUtil.compare(designDetailDate, commissioningDate);
@@ -305,15 +338,15 @@ public class ReportServiceImpl implements ReportService {
                     int compare = DateUtil.compare(lastDate, commissioningDate);
                     if (compare == 1) {
                         long betweenDay = DateUtil.between(designDetailDate, commissioningDate, DateUnit.DAY);
-                        if (betweenDay > 2) {
-                            report.setDesignDetailDay((betweenDay - 2) + "");
+                        if (betweenDay > 6) {
+                            report.setDesignDetailDay((betweenDay - 6) + "");
                         } else {
                             report.setDesignDetailDay("不延期");
                         }
                     } else {
                         long betweenDay = DateUtil.between(designDetailDate, commissioningDate, DateUnit.DAY);
-                        if (betweenDay > 6) {
-                            report.setDesignDetailDay((betweenDay - 6) + "");
+                        if (betweenDay > 2) {
+                            report.setDesignDetailDay((betweenDay - 2) + "");
                         } else {
                             report.setDesignDetailDay("不延期");
                         }
@@ -325,7 +358,9 @@ public class ReportServiceImpl implements ReportService {
                 /**正确样*/
                 Date designCorrectDate = report.getDesignCorrectDate();
                 if (designCorrectDate == null) {
-                    designCorrectDate = new Date();
+                    designCorrectDate = DateUtil.parse(DateUtil.formatDate(new Date()),"yyyy-MM-dd");
+                }else{
+                    designCorrectDate = DateUtil.parse(DateUtil.formatDate(designCorrectDate),"yyyy-MM-dd");
                 }
                 int designCorrectCompare = DateUtil.compare(designCorrectDate, commissioningDate);
 
@@ -410,5 +445,22 @@ public class ReportServiceImpl implements ReportService {
         dto.setPageSize(0);
         List<DesignOrderScheduleDetailsReportVo> list = getDesignOrderScheduleDetailsReportPage(dto).getList();
         ExcelUtils.exportExcelByTableCode(list, "设计下单进度明细报表", response, dto);
+    }
+
+    @Override
+    public PageInfo<SeasonPlanPercentageVo> seasonPlanPercentage(SeasonPlanPercentageQueryDto dto) {
+        BaseQueryWrapper<SeasonPlanPercentageQueryDto> qw = new BaseQueryWrapper<>();
+        QueryGenerator.initQueryWrapperByMap(qw, dto);
+        PageHelper.startPage(dto);
+        List<SeasonPlanPercentageVo> list = reportMapper.seasonPlanPercentage(qw);
+        return new PageInfo<>(list);
+    }
+
+    @Override
+    public void seasonPlanPercentageExport(HttpServletResponse response, SeasonPlanPercentageQueryDto dto) throws IOException {
+        dto.setPageNum(0);
+        dto.setPageSize(0);
+        List<SeasonPlanPercentageVo> list = seasonPlanPercentage(dto).getList();
+        ExcelUtils.exportExcelByTableCode(list, "季节企划完成率报表", response, dto);
     }
 }
