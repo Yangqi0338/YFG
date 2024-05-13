@@ -1505,7 +1505,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						languageVO.setCannotFindPropertiesContent(true);
 					}
 					languageVO.setIsGroup(true);
-					content = String.join(MoreLanguageProperties.multiSeparator, propertiesCountryTranslateList);
+					content = String.join(MoreLanguageProperties.getMultiSeparator(translate.getTitleCode()), propertiesCountryTranslateList);
 				} else {
 					content = translate.getContent();
 				}
@@ -1522,7 +1522,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				resultList.removeIf(it-> it.getShowFlag() == YesOrNoEnum.NO);
 				List<HangTagMoreLanguageWebBaseVO> webBaseList = HANG_TAG_CV.copyList2Web(resultList);
 				decorateWebList(hangTagVOList, webBaseList);
-				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> MoreLanguageProperties.isInternalLanguageCode(it.getLanguageCode())));
+				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode())));
 				return webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getType));
 			case BCS:
 			case ESCM:
@@ -1542,6 +1542,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				tagPrinting.setC8_APPBOM_StorageReq(null);
 				String bulkStyleNo = tagPrinting.getStyleCode();
 				MoreLanguageTagPrinting sourcePrinting = HANG_TAG_CV.copy2MoreLanguage(tagPrinting);
+				MoreLanguageTagPrinting zhPrinting = HANG_TAG_CV.copyMyself(sourcePrinting);
+				zhPrinting.setLanguageCode("ZH");
+				zhPrinting.setLanguageName("中文");
+				zhPrinting.setTranslateApproved(true);
 
 				// 多国家
 				List<MoreLanguageTagPrintingList> tagPrintingResultList = new ArrayList<>();
@@ -1563,11 +1567,12 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 							printing.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
-							if (MoreLanguageProperties.checkInternal(languageCode)) {
+							zhPrinting.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
+							if (!MoreLanguageProperties.checkInternal(languageCode)) {
 								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 								if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
 
-								String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(MoreLanguageProperties.isInternalLanguageCode(languageCode) ? result.getStandardColumnName() : "");
+								String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(MoreLanguageProperties.checkInternal(languageCode) ? result.getStandardColumnName() : "");
 								printing.getTitleMap().put(codeMapping.getTitleCode(), titleContent);
 
 								if (codeMapping.getMapping() != null) {
@@ -1597,11 +1602,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 					});
 					// 检查cnCheck
 					if (tagPrintingList.stream().noneMatch(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode()))) {
-						MoreLanguageTagPrinting printing = HANG_TAG_CV.copyMyself(sourcePrinting);
-						printing.setLanguageCode("ZH");
-						printing.setLanguageCode("ZH");
-						printing.setTranslateApproved(true);
-                        tagPrintingList.addFirst(printing);
+                        tagPrintingList.addFirst(zhPrinting);
 					}
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
 				});
@@ -1747,8 +1748,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							languageVo.setCannotFindStandardColumnContent(true);
 						}
 						// 若还是和之前一样，那就是没找到翻译
-						String fillSeparator = MoreLanguageProperties.showInfoLanguageSeparator + MoreLanguageProperties.multiSeparator;
-						String groupContent = StrUtil.replace(languageVo.propertiesContent, MoreLanguageProperties.multiSeparator, fillSeparator);
+						String fillSeparator = MoreLanguageProperties.showInfoLanguageSeparator + separator;
+						String groupContent = StrUtil.replace(languageVo.propertiesContent, separator, fillSeparator);
 						languageVo.setPropertiesContent(groupContent);
 					});
 					groupVO.setPropertiesName(propertiesName);

@@ -93,7 +93,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     public StyleCountryStatusEnum getAuditStatus(){
         // 内部有一个未审核,那就是未审核
         return getLanguageList().stream().anyMatch(it->
-                MoreLanguageProperties.checkInternal(it.getLanguageCode()) &&
+                !MoreLanguageProperties.checkInternal(it.getLanguageCode()) &&
                 it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK
         ) ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
     };
@@ -110,7 +110,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
         // 名字
         return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
                 findStandardColumnName(),
-                this.isGroup ? MoreLanguageProperties.multiSeparator : "",
+                this.isGroup ? MoreLanguageProperties.getMultiSeparator(standardColumnCode) : "",
                 Opt.ofNullable(this.propertiesName).orElse("")
         );
     }

@@ -46,6 +46,8 @@ public class MoreLanguageProperties {
     public static String languageDictCode = "language";
     public static String saftyStandardCode = "DP02";
     public static String multiSeparator = "\n";
+    public static String specialMultiSeparator = ";";
+    public static String specialStandardColumnCode = "DP16,XM01";
     public static String fieldValueSeparator = ":";
     public static String showInfoLanguageSeparator = "；";
     public static String checkItemSeparator = "/";
@@ -74,10 +76,6 @@ public class MoreLanguageProperties {
     public static String notCheckStandardColumnCode = "DP14,XM02,XM03,XM04,XM05,XM08,XM09,XM10,XM11";
     public static Map<String,String> msgEnumMap = CollUtil.list(false,MoreLanguageMsgEnum.values())
             .stream().collect(Collectors.toMap(MoreLanguageMsgEnum::name,MoreLanguageMsgEnum::getText));
-
-    public static Boolean isInternalLanguageCode(String languageCode) {
-        return MoreLanguageProperties.internalLanguageCode.equals(languageCode);
-    }
 
     public static String getMsg(MoreLanguageMsgEnum msgEnum, Object... param) {
         return String.format(msgEnumMap.getOrDefault(msgEnum.name(), ""), param);
@@ -129,7 +127,7 @@ public class MoreLanguageProperties {
     }
 
     public static Boolean checkInternal(String languageCode) {
-        return !MoreLanguageProperties.internalLanguageCode.equals(languageCode) || MoreLanguageProperties.internalCheck;
+        return MoreLanguageProperties.internalLanguageCode.equals(languageCode) && !MoreLanguageProperties.internalCheck;
     }
 
     public void setInternalLanguageCode(String internalLanguageCode) {
@@ -150,6 +148,20 @@ public class MoreLanguageProperties {
 
     public void setMultiSeparator(String multiSeparator) {
         MoreLanguageProperties.multiSeparator = multiSeparator;
+    }
+
+    public static String getMultiSeparator(String standardColumnCode) {
+        return MoreLanguageProperties.specialStandardColumnCode.contains(standardColumnCode)
+                ? MoreLanguageProperties.specialMultiSeparator :
+                MoreLanguageProperties.multiSeparator;
+    }
+
+    public void setSpecialMultiSeparator(String specialMultiSeparator) {
+        MoreLanguageProperties.specialMultiSeparator = specialMultiSeparator;
+    }
+
+    public void setSpecialStandardColumnCode(String specialStandardColumnCode) {
+        MoreLanguageProperties.specialStandardColumnCode = specialStandardColumnCode;
     }
 
     public void setFieldValueSeparator(String fieldValueSeparator) {
