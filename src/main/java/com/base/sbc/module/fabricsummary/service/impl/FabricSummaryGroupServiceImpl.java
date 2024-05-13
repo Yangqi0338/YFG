@@ -49,6 +49,9 @@ public class FabricSummaryGroupServiceImpl extends BaseServiceImpl<FabricSummary
             queryWrapper.eq(StringUtils.isNotEmpty(dto.getStyleNo()),"tfsg.style_no",dto.getStyleNo());
             queryWrapper.eq(StringUtils.isNotEmpty(dto.getMaterialCode()),"tfs.material_code",dto.getMaterialCode());
             List<String> idList = baseMapper.getGroupIds(queryWrapper);
+            if (CollectionUtils.isEmpty(idList)){
+                return new PageInfo<>();
+            }
             qw.lambda().in(!CollectionUtils.isEmpty(idList),FabricSummaryGroup::getId,idList);
         }
         List<FabricSummaryGroup> list = list(qw);
