@@ -17,6 +17,7 @@ import com.base.sbc.module.fabricsummary.mapper.FabricSummaryGroupMapper;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryGroupService;
 import com.base.sbc.module.sample.dto.FabricSummaryStyleMaterialDto;
 import com.base.sbc.module.sample.vo.FabricSummaryGroupVo;
+import com.beust.jcommander.internal.Lists;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -50,7 +51,10 @@ public class FabricSummaryGroupServiceImpl extends BaseServiceImpl<FabricSummary
             queryWrapper.eq(StringUtils.isNotEmpty(dto.getMaterialCode()),"tfs.material_code",dto.getMaterialCode());
             List<String> idList = baseMapper.getGroupIds(queryWrapper);
             if (CollectionUtils.isEmpty(idList)){
-                return new PageInfo<>();
+                PageInfo<FabricSummaryGroupVo> pageInfo = new PageInfo<>();
+                pageInfo.setList(Lists.newArrayList());
+                BeanUtil.copyProperties(dto,pageInfo);
+                return pageInfo;
             }
             qw.lambda().in(!CollectionUtils.isEmpty(idList),FabricSummaryGroup::getId,idList);
         }
