@@ -230,6 +230,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 if(StrUtil.isBlank(style.getOldPlanningSeasonId())){
                     dto.setOldPlanningSeasonId(style.getPlanningSeasonId());
                 }
+                //款式配色产品季节改变
+                UpdateWrapper<StyleColor> objectUpdateWrapper = new UpdateWrapper<>();
+                objectUpdateWrapper.lambda().eq(StyleColor::getStyleId,style.getId());
+                objectUpdateWrapper.lambda().set(StyleColor::getPlanningSeasonId,dto.getPlanningSeasonId());
+                styleColorMapper.update(null,objectUpdateWrapper);
             }
             BeanUtil.copyProperties(dto, style);
             setMainStylePic(style, dto.getStylePicList());

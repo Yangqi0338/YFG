@@ -586,7 +586,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         String category = "";
         /*查询产品季*/
-        PlanningSeason planningSeason = planningSeasonService.getById(StrUtil.isNotBlank(style.getOldPlanningSeasonId()) ? style.getOldPlanningSeasonId() : style.getPlanningSeasonId());
+        PlanningSeason planningSeason = planningSeasonService.getById(StrUtil.isNotBlank(style.getPlanningSeasonId()) ? style.getPlanningSeasonId() : style.getOldPlanningSeasonId());
         String brand = planningSeason.getBrand();
         String year = planningSeason.getYearName();
         // 240429 存在修改季节但不修改产品季的操作, 这里用产品季季节会导致匹配不上
