@@ -30,7 +30,6 @@ import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO;
 import com.base.sbc.module.planning.entity.PlanningSeason;
-import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningQueryDto;
 import com.base.sbc.module.planningproject.dto.SeasonalPlanningSaveDto;
@@ -48,10 +47,6 @@ import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageHelper;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -84,8 +79,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
     private StyleColorService styleColorService;
     @Autowired
     private StyleService styleService;
-    @Autowired
-    private PlanningDimensionalityService planningDimensionalityService;
     @Autowired
     private CategoryPlanningService categoryPlanningService;
     @Autowired
@@ -218,19 +211,7 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                 SeasonalPlanningDetails::getProdCategoryName,
                 Collectors.toList()
         ));
-        // 获取旧数据中的波段信息
-        List<String> bandNameList = new ArrayList<>();
-        for (String oldDetails : oldDetailsMap.keySet()) {
-            List<SeasonalPlanningDetails> seasonalPlanningDetails = oldDetailsMap.get(oldDetails);
-            Map<String, List<SeasonalPlanningDetails>> bandMap = seasonalPlanningDetails.stream().collect(Collectors.groupingBy(
-                    SeasonalPlanningDetails::getBandName,
-                    Collectors.toList()
-            ));
-            for (String bandName : bandMap.keySet()) {
-                bandNameList.add(bandName);
-            }
-            break;
-        }
+
         // TODO 波段更新校验
         for (String prodCategoryName : importDetailsMap.keySet()) {
             List<SeasonalPlanningDetails> oldSeasonalList = oldDetailsMap.get(prodCategoryName);
@@ -290,8 +271,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                             relDelList.addAll(oldSeasonalList);
                             delList.addAll(oldSeasonalList);
                         } else {
-                            /*copySeasonalPlanningDetails(importSeasonalList, oldSeasonalList);
-                            updateList.addAll(oldSeasonalList);*/
                             List<SeasonalPlanningDetails> delDetalsList = oldSeasonalList.stream().map(s -> {
                                 s.setDelFlag("1");
                                 return s;
@@ -325,7 +304,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                 if (0 != sumOfValues) {
                                     addList.addAll(importProdCategory2nds);
                                 }
-
                             } else {
                                 // 导入数据是否为 "0"
                                 int sumOfValues = importProdCategory2nds.stream()
@@ -339,8 +317,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                                     relDelList.addAll(deloldProdCategory2ndsList);
                                     delList.addAll(deloldProdCategory2ndsList);
                                 } else {
-                                    /*copySeasonalPlanningDetails(importProdCategory2nds, oldProdCategory2nds);
-                                    updateList.addAll(oldProdCategory2nds);*/
                                     List<SeasonalPlanningDetails> deloldProdCategory2ndsList = oldProdCategory2nds.stream().map(s -> {
                                         s.setDelFlag("1");
                                         return s;
@@ -364,28 +340,9 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                         if (0 != sumOfValues) {
                             addList.addAll(importSeasonalList);
                         }
-
                     }
                 }
             }
-        }
-    }
-
-    // 校验导入的数据是否为0
-    private void sumImport() {}
-
-    private void copySeasonalPlanningDetails(List<SeasonalPlanningDetails> newSeasonalList, List<SeasonalPlanningDetails> oldSeasonalList) {
-        for (SeasonalPlanningDetails detail : oldSeasonalList) {
-            SeasonalPlanningDetails newSl = newSeasonalList.stream().filter(ns -> StringUtils.equals(detail.getProdCategoryName(), ns.getProdCategoryName()) &&
-                    StringUtils.equals(detail.getProdCategory2ndName(), ns.getProdCategory2ndName()) &&
-                    StringUtils.equals(detail.getBandName(), ns.getBandName()) &&
-                    StringUtils.equals(detail.getStyleCategory(), ns.getStyleCategory())).findFirst().orElse(null);
-            if (null == newSl) {
-                detail.setSkcCount("0");
-            } else {
-                detail.setSkcCount(newSl.getSkcCount());
-            }
-
         }
     }
 
@@ -561,7 +518,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         queryWrapper.eq("del_flag", "0");
         queryWrapper.orderBy(true, true, "band_name");
         SeasonalPlanning seasonalPlanning = this.getById(seasonalPlanningDetails.getId());
-        String channel = StringUtils.isBlank(seasonalPlanning.getChannelName()) ? "" : seasonalPlanning.getChannelName();
         String lableName = seasonalPlanning.getName();
 
         // 查询总需求列表
@@ -721,6 +677,17 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         Map<Integer, String> row03 = new LinkedHashMap<>();
         Map<Integer, String> row04 = new LinkedHashMap<>();
         Map<Integer, String> row05 = new LinkedHashMap<>();
+
+        //获取字典依赖管理的配置
+        List<BasicBaseDict> styleCategorys = ccmFeignService.getDictInfoToList("StyleCategory");
+        Map<Integer, String> sortStyleCategory = new HashMap<>();
+        for (BasicBaseDict baseDict : styleCategorys) {
+            if (baseDict.getSort().stripTrailingZeros().scale() != 0) {
+                throw new RuntimeException("款式类别排序字段配置有误");
+            }
+            sortStyleCategory.put(baseDict.getSort().intValueExact(), baseDict.getValue());
+        }
+        Map<Integer, String> sortStyleCategoryMap = sort(sortStyleCategory);
 
         List<BasicStructureTreeVo> basicStructureTreeVos = ccmFeignService.basicStructureTreeByCode("品类", null, "0,1,2");
         Map<String, Integer> sortMap = new HashMap<>();
@@ -891,17 +858,20 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
                     }
                 }
                 int rowSum = row;
-                for (String styleCat : columnSumMap.keySet()) {
-                    row01.put(rowSum, "总需求");
-                    orderRow01.put(rowSum, "实际下单");
-                    row02.put(rowSum, "合计");
-                    row03.put(rowSum, "-");
-                    row04.put(rowSum, "-");
-                    row05.put(rowSum, styleCat);
-                    rowData.put(rowSum, String.valueOf(columnSumMap.get(styleCat)));
-                    orderRowData.put(rowSum, String.valueOf(orderColumnSumMap.get(styleCat)));
-                    sortSumMap.put(rowSum, styleCat);
-                    rowSum++;
+                for (int sortNum : sortStyleCategoryMap.keySet()) {
+                    String styleCat = sortStyleCategoryMap.get(sortNum);
+                    if (null != columnSumMap.get(styleCat)) {
+                        row01.put(rowSum, "总需求");
+                        orderRow01.put(rowSum, "实际下单");
+                        row02.put(rowSum, "合计");
+                        row03.put(rowSum, "-");
+                        row04.put(rowSum, "-");
+                        row05.put(rowSum, styleCat);
+                        rowData.put(rowSum, String.valueOf(columnSumMap.get(styleCat)));
+                        orderRowData.put(rowSum, String.valueOf(orderColumnSumMap.get(styleCat)));
+                        sortSumMap.put(rowSum, styleCat);
+                        rowSum++;
+                    }
                 }
                 // 行数 + 1
                 rowNum++;
@@ -1075,15 +1045,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         }
         String[] s = prodCategoryMap.get(prodCategory1stName + "_" + prodCategoryName).split("_");
         String prodCategory = s[1];
-        /*QueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new QueryWrapper<>();
-        planningDimensionalityQueryWrapper.eq("channel", seasonalPlanningSaveDto.getChannelCode());
-        planningDimensionalityQueryWrapper.eq("planning_season_id", seasonalPlanningSaveDto.getSeasonId());
-        planningDimensionalityQueryWrapper.eq("prod_category", prodCategory);
-        planningDimensionalityQueryWrapper.eq("dimensionality_grade", "1");
-        List<PlanningDimensionality> planningDimensionalities = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
-        if (CollectionUtils.isEmpty(planningDimensionalities)) {
-            return ApiResult.error("品类:" + prodCategoryName + "未配置第一维度数据", 500);
-        }*/
 
         if (StringUtils.isNotBlank(seasonalPlanningSaveDto.getId())) {
             // 是否生成品类企划
@@ -1506,10 +1467,6 @@ public class SeasonalPlanningServiceImpl extends BaseServiceImpl<SeasonalPlannin
         seasonalPlanningDetailsService.saveBatch(detailsList);
 
         saveDetailsList(seasonalPlanningSaveDto, hashMaps, basicStructureTreeVos, c8Band);
-
-        // seasonalPlanningDetails.setSkcCount(sum);
-        // seasonalPlanningDetails.setSeasonalPlanningId();
-
     }
 
     private void saveDetailsList(SeasonalPlanningSaveDto seasonalPlanningSaveDto, List<HashMap<Integer, String>> hashMaps, List<BasicStructureTreeVo> basicStructureTreeVos, List<BasicBaseDict> c8Band) {
