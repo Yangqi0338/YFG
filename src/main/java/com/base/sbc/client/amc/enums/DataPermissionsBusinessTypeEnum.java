@@ -9,7 +9,12 @@ public enum DataPermissionsBusinessTypeEnum {
     //企划管理
     PlanningSeason("PlanningSeason", "产品季"),
     PlanningChannel("PlanningChannel", "产品季"),
+    planningBoard("planningBoard", "企划看板"),
     PlanningCategoryItem("PlanningCategoryItem", "坑位数据"),
+    requirementsManagement("requirementsManagement", "企划需求"),
+    seasonPlanning("seasonPlanning", "季节企划"),
+    categoryPlanning("categoryPlanning", "品类企划"),
+    planningProject("planningProject", "企划看板"),
     ChartBar("ChartBar", "波段汇总统计"),
     ProductBar("ProductBar", "品类汇总统计"),
     //款式设计
@@ -57,6 +62,7 @@ public enum DataPermissionsBusinessTypeEnum {
     stylePackBomMaterialReport("stylePackBomMaterialReport", "BOM清单查询报表"),
 
     work_log("work_log","工作小账"),
+    PATTERN_LIBRARY("t_pattern_library","版型库"),
     ;
     private final String k;
     private final String v;
