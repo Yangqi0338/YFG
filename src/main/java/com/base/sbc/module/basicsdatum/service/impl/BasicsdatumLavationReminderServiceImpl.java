@@ -148,7 +148,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
            Map<String,BasicBaseDict> newDictInfoMap = new HashMap<>();
            AtomicInteger up = new AtomicInteger(0);
            for (BasicsdatumLavationReminderExcelDto basicsdatumLavationReminderExcelDto : list) {
-               StrJoiner reminderNameJoiner = StrJoiner.of("\n");
+               StrJoiner reminderNameJoiner = StrJoiner.of(COMMA);
                StrJoiner reminderCodeJoiner = StrJoiner.of(COMMA);
                if(StringUtils.isNotBlank(basicsdatumLavationReminderExcelDto.getReminderName())){
                    List<String> reminderList = StrUtil.split(basicsdatumLavationReminderExcelDto.getReminderName(), "\n");
