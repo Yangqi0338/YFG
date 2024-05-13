@@ -46,7 +46,7 @@
     <parent>
         <groupId>org.springframework.cloud</groupId>
         <artifactId>spring-cloud-starter-parent</artifactId>
-        <version>Greenwich.SR2</version>
+        <version>Hoxton.SR6</version>
     </parent>
 
     <dependencies>
