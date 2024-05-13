@@ -3,8 +3,10 @@ package com.base.sbc.module.planningproject.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.redis.RedisUtils;
@@ -25,15 +27,9 @@ import com.base.sbc.module.planning.service.PlanningDimensionalityService;
 import com.base.sbc.module.planning.vo.FieldDisplayVo;
 import com.base.sbc.module.planningproject.constants.GeneralConstant;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
-import com.base.sbc.module.planningproject.entity.PlanningProject;
-import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
-import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
-import com.base.sbc.module.planningproject.entity.PlanningProjectPlankDimension;
+import com.base.sbc.module.planningproject.entity.*;
 import com.base.sbc.module.planningproject.mapper.PlanningProjectPlankMapper;
-import com.base.sbc.module.planningproject.service.PlanningProjectDimensionService;
-import com.base.sbc.module.planningproject.service.PlanningProjectPlankDimensionService;
-import com.base.sbc.module.planningproject.service.PlanningProjectPlankService;
-import com.base.sbc.module.planningproject.service.PlanningProjectService;
+import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.base.sbc.module.pricing.mapper.StylePricingMapper;
 import com.base.sbc.module.smp.SmpService;
@@ -46,6 +42,8 @@ import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -69,6 +67,8 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
     private final PlanningDimensionalityService planningDimensionalityService;
     private final FieldManagementService fieldManagementService;
     private final RedisUtils redisUtils;
+    private final SeasonalPlanningDetailsService seasonalPlanningDetailsService;
+    private final CategoryPlanningDetailsService categoryPlanningDetailsService;
 
     @Resource
     @Lazy
@@ -599,5 +599,153 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
         }
         return list;
 
+    }
+
+    /**
+     * 根据 id 删除
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    @Override
+    public void delById(PlanningProjectPlank plank) {
+        PlanningProjectPlank planningProjectPlank = getById(plank.getId());
+        if (ObjectUtil.isEmpty(planningProjectPlank)) {
+            throw new OtherException("数据不存在，请刷新后重试！");
+        }
+        planningProjectPlank.setStyleCategory(plank.getStyleCategory());
+        planningProjectPlank.setIsRelevancyUpdateSeasonalPlanning(plank.getIsRelevancyUpdateSeasonalPlanning());
+        if (!removeById(planningProjectPlank)) {
+            throw new OtherException("删除失败，请刷新后重试！");
+        }
+        // 变更坑位数量
+        PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectPlank.getPlanningProjectDimensionId());
+        if (ObjectUtil.isNotEmpty(planningProjectDimension)) {
+            long pitPositionCount = count(
+                    new LambdaQueryWrapper<PlanningProjectPlank>()
+                            .eq(PlanningProjectPlank::getPlanningProjectDimensionId, planningProjectDimension.getId())
+            );
+            planningProjectDimension.setNumber(String.valueOf(pitPositionCount));
+            if (!planningProjectDimensionService.updateById(planningProjectDimension)) {
+                throw new OtherException("删除失败，请刷新后重试！");
+            }
+            updateCategoryAndSeasonPlanning(planningProjectPlank, planningProjectDimension, pitPositionCount, 2);
+        }
+    }
+
+    /**
+     * 保存
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    @Override
+    public void saveData(@RequestBody PlanningProjectPlank planningProjectPlank) {
+        if (StringUtils.isEmpty(planningProjectPlank.getId())) {
+            save(planningProjectPlank);
+            // 重新增加坑位数量
+            String planningProjectDimensionId = planningProjectPlank.getPlanningProjectDimensionId();
+            PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectDimensionId);
+            if (ObjectUtil.isNotEmpty(planningProjectDimension)) {
+                long pitPositionCount = count(
+                        new LambdaQueryWrapper<PlanningProjectPlank>()
+                                .eq(PlanningProjectPlank::getPlanningProjectDimensionId, planningProjectDimensionId)
+                );
+                planningProjectDimension.setNumber(String.valueOf(pitPositionCount));
+                planningProjectDimensionService.updateById(planningProjectDimension);
+
+                updateCategoryAndSeasonPlanning(planningProjectPlank, planningProjectDimension, pitPositionCount, 1);
+            }
+        } else {
+            updateById(planningProjectPlank);
+        }
+    }
+
+    /**
+     * 同步修改品类企划和季节企划信息
+     *
+     * @param planningProjectPlank     企划看板坑位信息
+     * @param planningProjectDimension 企划看板维度信息
+     * @param pitPositionCount         修改后的数量
+     * @param type                     类型 1-添加 2-删除
+     */
+    @Override
+    public void updateCategoryAndSeasonPlanning(PlanningProjectPlank planningProjectPlank,
+                                                PlanningProjectDimension planningProjectDimension,
+                                                long pitPositionCount,
+                                                Integer type
+    ) {
+        // 同步修改品类企划的需求数量
+        CategoryPlanningDetails categoryPlanningDetails = categoryPlanningDetailsService.getById(planningProjectDimension.getCategoryPlanningDetailsId());
+        if (ObjectUtil.isNotEmpty(categoryPlanningDetails)) {
+            categoryPlanningDetails.setNumber(String.valueOf(pitPositionCount));
+            categoryPlanningDetailsService.updateById(categoryPlanningDetails);
+
+            if (planningProjectPlank.getIsRelevancyUpdateSeasonalPlanning().equals(0)
+                    && type.equals(1)) {
+                List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailsService.list(
+                        new LambdaQueryWrapper<CategoryPlanningDetails>()
+                                .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanningDetails.getCategoryPlanningId())
+                                .eq(CategoryPlanningDetails::getProdCategory1stCode, planningProjectDimension.getProdCategory1stCode())
+                                .eq(CategoryPlanningDetails::getProdCategoryCode, planningProjectDimension.getProdCategoryCode())
+                                .eq(ObjectUtil.isNotEmpty(planningProjectDimension.getProdCategory2ndCode()), CategoryPlanningDetails::getProdCategory2ndCode, planningProjectDimension.getProdCategory2ndCode())
+                                .eq(CategoryPlanningDetails::getBandCode, planningProjectPlank.getBandCode())
+                );
+                if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
+                    throw new OtherException("数据不存在，请刷新后重试！");
+                }
+                int num = 0;
+                for (CategoryPlanningDetails details : categoryPlanningDetailsList) {
+                    num += Integer.parseInt(details.getNumber());
+                }
+                if (num > Integer.parseInt(categoryPlanningDetailsList.get(0).getSkcCount())) {
+                    throw new OtherException("坑位数量超出需求数量，请关联修改季节企划数据！");
+                }
+            }
+
+            if (planningProjectPlank.getIsRelevancyUpdateSeasonalPlanning().equals(1)) {
+                String styleCategory = planningProjectPlank.getStyleCategory();
+                if (ObjectUtil.isEmpty(styleCategory)) {
+                    String typeName = type.equals(1) ? "新增" : "删除";
+                    throw new OtherException(typeName + "坑位的时候必须选择相应的款式类别！");
+                }
+
+                // 同步修改季节企划的数量按照「大类-品类-中类-波段-款式类别」粒度去修改
+                List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(
+                        new LambdaQueryWrapper<SeasonalPlanningDetails>()
+                                .eq(SeasonalPlanningDetails::getSeasonalPlanningId, categoryPlanningDetails.getSeasonalPlanningId())
+                                .eq(SeasonalPlanningDetails::getProdCategory1stCode, planningProjectDimension.getProdCategory1stCode())
+                                .eq(SeasonalPlanningDetails::getProdCategoryCode, planningProjectDimension.getProdCategoryCode())
+                                .eq(ObjectUtil.isNotEmpty(planningProjectDimension.getProdCategory2ndCode()), SeasonalPlanningDetails::getProdCategory2ndCode, planningProjectDimension.getProdCategory2ndCode())
+                                .eq(SeasonalPlanningDetails::getBandCode, planningProjectDimension.getBandCode())
+                                .eq(SeasonalPlanningDetails::getStyleCategory, styleCategory)
+                );
+                if (ObjectUtil.isEmpty(seasonalPlanningDetailsList)) {
+                    throw new OtherException("季节企划不存在当前「" + styleCategory + "」的数据");
+                }
+
+                for (SeasonalPlanningDetails details : seasonalPlanningDetailsList) {
+                    Integer skcCount = type.equals(1) ? Integer.parseInt(details.getSkcCount()) + 1 : Integer.parseInt(details.getSkcCount()) - 1;
+                    details.setSkcCount(String.valueOf(skcCount));
+                }
+                seasonalPlanningDetailsService.updateBatchById(seasonalPlanningDetailsList);
+
+                // 同步修改品类企划的合计数量按照「大类-品类-中类」粒度去修改
+                List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailsService.list(
+                        new LambdaQueryWrapper<CategoryPlanningDetails>()
+                                .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanningDetails.getCategoryPlanningId())
+                                .eq(CategoryPlanningDetails::getProdCategory1stCode, planningProjectDimension.getProdCategory1stCode())
+                                .eq(CategoryPlanningDetails::getProdCategoryCode, planningProjectDimension.getProdCategoryCode())
+                                .eq(ObjectUtil.isNotEmpty(planningProjectDimension.getProdCategory2ndCode()), CategoryPlanningDetails::getProdCategory2ndCode, planningProjectDimension.getProdCategory2ndCode())
+                );
+                if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                    for (CategoryPlanningDetails details : categoryPlanningDetailsList) {
+                        Integer total = type.equals(1) ? Integer.parseInt(details.getTotal()) + 1 : Integer.parseInt(details.getTotal()) - 1;
+                        Integer skcCount = type.equals(1) ? Integer.parseInt(details.getSkcCount()) + 1 : Integer.parseInt(details.getSkcCount()) - 1;
+                        details.setTotal(String.valueOf(total));
+                        details.setSkcCount(String.valueOf(skcCount));
+                    }
+                    categoryPlanningDetailsService.updateBatchById(categoryPlanningDetailsList);
+                }
+            }
+        }
     }
 }

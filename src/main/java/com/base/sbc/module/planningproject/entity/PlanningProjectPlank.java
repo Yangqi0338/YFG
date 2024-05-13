@@ -74,4 +74,13 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
     @ApiModelProperty(value = "样式类别")
     private String styleCategory;
 
+    @TableField(exist = false)
+    @ApiModelProperty(value = "是否关联修改季节企划（0-否 1-是）")
+    private Integer isRelevancyUpdateSeasonalPlanning;
+
+    {
+        // 是否关联修改季节企划默认为否
+        isRelevancyUpdateSeasonalPlanning = 0;
+    }
+
 }

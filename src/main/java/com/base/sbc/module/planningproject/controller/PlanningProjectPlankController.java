@@ -1,10 +1,7 @@
 package com.base.sbc.module.planningproject.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
@@ -29,7 +26,10 @@ import com.base.sbc.module.planningproject.dto.MatchSaveDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankDto;
 import com.base.sbc.module.planningproject.dto.PlanningProjectPlankPageDto;
 import com.base.sbc.module.planningproject.dto.UnMatchDto;
-import com.base.sbc.module.planningproject.entity.*;
+import com.base.sbc.module.planningproject.entity.CategoryPlanningDetails;
+import com.base.sbc.module.planningproject.entity.PlanningProject;
+import com.base.sbc.module.planningproject.entity.PlanningProjectDimension;
+import com.base.sbc.module.planningproject.entity.PlanningProjectPlank;
 import com.base.sbc.module.planningproject.service.*;
 import com.base.sbc.module.planningproject.vo.PlanningProjectPlankVo;
 import com.base.sbc.module.style.entity.Style;
@@ -375,36 +375,8 @@ public class PlanningProjectPlankController extends BaseController {
      */
     @ApiOperation(value = "根据 id 删除")
     @DeleteMapping("/delById")
-    @Transactional(rollbackFor = Exception.class)
-    @DuplicationCheck
-    public ApiResult<String> delById(String id) {
-        PlanningProjectPlank planningProjectPlanks = planningProjectPlankService.getById(id);
-        if (ObjectUtil.isEmpty(planningProjectPlanks)) {
-            throw new OtherException("数据不存在，请刷新后重试！");
-        }
-        if (!planningProjectPlankService.removeById(planningProjectPlanks)) {
-            throw new OtherException("删除失败，请刷新后重试！");
-        }
-        // 变更坑位数量
-        PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectPlanks.getPlanningProjectDimensionId());
-        if (ObjectUtil.isNotEmpty(planningProjectDimension)) {
-            long pitPositionCount = planningProjectPlankService.count(
-                    new LambdaQueryWrapper<PlanningProjectPlank>()
-                            .eq(PlanningProjectPlank::getPlanningProjectDimensionId, planningProjectDimension.getId())
-            );
-            planningProjectDimension.setNumber(String.valueOf(pitPositionCount));
-            if (!planningProjectDimensionService.updateById(planningProjectDimension)) {
-                throw new OtherException("删除失败，请刷新后重试！");
-            }
-            // 同步修改品类企划的需求数量(目前没有批量删除 所以直接再循环里面修改)
-            CategoryPlanningDetails categoryPlanningDetails = categoryPlanningDetailsService.getById(planningProjectDimension.getCategoryPlanningDetailsId());
-            if (ObjectUtil.isNotEmpty(categoryPlanningDetails)) {
-                categoryPlanningDetails.setNumber(String.valueOf(pitPositionCount));
-                if (!categoryPlanningDetailsService.updateById(categoryPlanningDetails)) {
-                    throw new OtherException("删除失败，请刷新后重试！");
-                }
-            }
-        }
+    public ApiResult<String> delById(PlanningProjectPlank plank) {
+        planningProjectPlankService.delById(plank);
         return ApiResult.success("删除成功！");
     }
 
@@ -413,73 +385,11 @@ public class PlanningProjectPlankController extends BaseController {
      */
     @ApiOperation(value = "保存")
     @PostMapping("/save")
-    @Transactional(rollbackFor = Exception.class)
-    @DuplicationCheck
     public ApiResult save(@RequestBody PlanningProjectPlank planningProjectPlank) {
-        if (StringUtils.isEmpty(planningProjectPlank.getId())) {
-            planningProjectPlankService.save(planningProjectPlank);
-            // 重新增加坑位数量
-            String planningProjectDimensionId = planningProjectPlank.getPlanningProjectDimensionId();
-            PlanningProjectDimension planningProjectDimension = planningProjectDimensionService.getById(planningProjectDimensionId);
-            if (ObjectUtil.isNotEmpty(planningProjectDimension)) {
-                long pitPositionCount = planningProjectPlankService.count(
-                        new LambdaQueryWrapper<PlanningProjectPlank>()
-                                .eq(PlanningProjectPlank::getPlanningProjectDimensionId, planningProjectDimensionId)
-                );
-                planningProjectDimension.setNumber(String.valueOf(pitPositionCount));
-                planningProjectDimensionService.updateById(planningProjectDimension);
-
-                // 同步修改品类企划的需求数量
-                CategoryPlanningDetails categoryPlanningDetails = categoryPlanningDetailsService.getById(planningProjectDimension.getCategoryPlanningDetailsId());
-                if (ObjectUtil.isNotEmpty(categoryPlanningDetails)) {
-                    categoryPlanningDetails.setNumber(String.valueOf(pitPositionCount));
-                    categoryPlanningDetailsService.updateById(categoryPlanningDetails);
-
-                    // 同步修改品类企划的合计数量按照「大类-品类-中类」粒度去修改
-                    List<CategoryPlanningDetails> categoryPlanningDetailsList = categoryPlanningDetailsService.list(
-                            new LambdaQueryWrapper<CategoryPlanningDetails>()
-                                    .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanningDetails.getCategoryPlanningId())
-                                    .eq(CategoryPlanningDetails::getProdCategory1stCode, planningProjectDimension.getProdCategory1stCode())
-                                    .eq(CategoryPlanningDetails::getProdCategoryCode, planningProjectDimension.getProdCategoryCode())
-                                    .eq(ObjectUtil.isNotEmpty(planningProjectDimension.getProdCategory2ndCode()), CategoryPlanningDetails::getProdCategory2ndCode, planningProjectDimension.getProdCategory2ndCode())
-                    );
-                    if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
-                        for (CategoryPlanningDetails details : categoryPlanningDetailsList) {
-                            details.setTotal(String.valueOf(Integer.parseInt(details.getTotal()) + 1));
-                            details.setSkcCount(String.valueOf(Integer.parseInt(details.getSkcCount()) + 1));
-                        }
-                        categoryPlanningDetailsService.updateBatchById(categoryPlanningDetailsList);
-                    }
-                }
-
-                String styleCategory = planningProjectPlank.getStyleCategory();
-                if (ObjectUtil.isEmpty(styleCategory)) {
-                    throw new OtherException("新增坑位的时候必须选择相应的款式类别进行新增！");
-                }
-                // 同步修改季节企划的数量按照「大类-品类-中类-波段-款式类别」粒度去修改
-                List<SeasonalPlanningDetails> seasonalPlanningDetailsList = seasonalPlanningDetailsService.list(
-                        new LambdaQueryWrapper<SeasonalPlanningDetails>()
-                                .eq(SeasonalPlanningDetails::getSeasonalPlanningId, categoryPlanningDetails.getSeasonalPlanningId())
-                                .eq(SeasonalPlanningDetails::getProdCategory1stCode, planningProjectDimension.getProdCategory1stCode())
-                                .eq(SeasonalPlanningDetails::getProdCategoryCode, planningProjectDimension.getProdCategoryCode())
-                                .eq(ObjectUtil.isNotEmpty(planningProjectDimension.getProdCategory2ndCode()), SeasonalPlanningDetails::getProdCategory2ndCode, planningProjectDimension.getProdCategory2ndCode())
-                                .eq(SeasonalPlanningDetails::getBandCode, planningProjectDimension.getBandCode())
-                                .eq(SeasonalPlanningDetails::getStyleCategory, styleCategory)
-                );
-                if (ObjectUtil.isNotEmpty(seasonalPlanningDetailsList)) {
-                    for (SeasonalPlanningDetails details : seasonalPlanningDetailsList) {
-                        details.setSkcCount(String.valueOf(Integer.parseInt(details.getSkcCount()) + 1));
-                    }
-                    seasonalPlanningDetailsService.updateBatchById(seasonalPlanningDetailsList);
-                }
-            }
-            return insertSuccess("新增成功");
-        } else {
-            planningProjectPlankService.updateById(planningProjectPlank);
-            return updateSuccess("修改成功");
-        }
-
+        planningProjectPlankService.saveData(planningProjectPlank);
+        return ApiResult.success("操作成功");
     }
+
 
     // <==================== 企划看板 2.0
 
