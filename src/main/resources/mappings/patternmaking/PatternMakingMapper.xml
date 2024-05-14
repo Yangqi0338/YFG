@@ -828,6 +828,7 @@
         ns7.start_date AS cfkssj,
         ns8.start_date AS cfwcsj,
         ns9.start_date AS yywcsj,
+        p.refer_sample as referSample,
         p.id AS patternMakingId,
         CONCAT( s.year_name, ' ', s.season, ' ', s.brand_name ) AS season,
         p.sample_bar_code AS sampleBarCode,
