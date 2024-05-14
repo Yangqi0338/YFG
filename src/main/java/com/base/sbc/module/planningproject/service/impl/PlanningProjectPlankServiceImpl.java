@@ -714,7 +714,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                     num += Integer.parseInt(details.getNumber());
                 }
                 if (num > Integer.parseInt(categoryPlanningDetailsList.get(0).getSkcCount())) {
-                    throw new OtherException("坑位数量超出需求数量，请关联修改季节企划数据！");
+                    throw new OtherException("坑位数量超出需求数量，请联动修改季节企划数据！");
                 }
             }
 
@@ -722,7 +722,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                 String styleCategory = planningProjectPlank.getStyleCategory();
                 if (ObjectUtil.isEmpty(styleCategory)) {
                     String typeName = type.equals(1) ? "新增" : "删除";
-                    throw new OtherException(typeName + "坑位的时候必须选择相应的款式类别！");
+                    throw new OtherException("联动季节企划时" + typeName + "坑位的时候必须选择相应的款式类别！");
                 }
 
                 // 同步修改季节企划的数量按照「大类-品类-中类-波段-款式类别」粒度去修改
