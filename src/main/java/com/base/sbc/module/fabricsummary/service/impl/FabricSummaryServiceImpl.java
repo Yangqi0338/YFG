@@ -294,10 +294,10 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
 
         }
         if (CollectionUtils.isNotEmpty(fabricSummaries)){
-            saveBatch(fabricSummaries);
+            saveOrUpdateBatch(fabricSummaries);
         }
 
-        return fabricSummaryStyleService.saveBatch(fabricSummaryStyles);
+        return fabricSummaryStyleService.saveOrUpdateBatch(fabricSummaryStyles);
     }
 
     @Override
