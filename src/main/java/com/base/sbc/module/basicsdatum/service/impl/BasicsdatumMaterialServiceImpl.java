@@ -262,11 +262,13 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     .eq("tbm.category1_code ", dto.getCategoryId()).or().eq("tbm.category2_code", dto.getCategoryId()).or()
                     .eq("tbm.category3_code", dto.getCategoryId()));
         }
+
+        PageHelper.startPage(dto);
+
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
 
-        PageHelper.startPage(dto);
         List<BasicsdatumMaterialPageVo> list = baseMapper.getMaterialSkuList(qc);
 
         if (CollUtil.isEmpty(list)) {
@@ -1032,7 +1034,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 basicsdatumMaterial.setMaterialCodeName(materialCodeParam + materilCodeNameNull);
                 basicsdatumMaterial.setMaterialCode(materialCodeParam);
                 basicsdatumMaterialUpdateVo.setMaterialCodeName(materilCodeNameNull);
-            } else if (StrUtil.isNotEmpty(materialNameParam)) {
+            } else if (StrUtil.isNotEmpty(materialNameParam) || !materialNameParam.equals(materialName)) {
                 if (StrUtil.isNotEmpty(materialCode)) {
                     //修改物料名称
                     String materilCodeNameNullParam = getCodeNameNull(materialNameParam);
