@@ -1553,7 +1553,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getOfflineCommissioningSize())).orElse(new JSONObject());
 
             int sumOffProduction = jsonObject.keySet().stream()
-                    .filter(it -> it.endsWith(OrderBookChannelType.OFFLINE.getFill()))
+                    .filter(it -> it.endsWith(OrderBookChannelType.OFFLINE.getFill()) &&
+                            null != jsonObject.get(it) && StringUtils.isNotBlank(String.valueOf(jsonObject.get(it))))
                     .mapToInt(jsonObject::getInteger)
                     .filter(Objects::nonNull)
                     .sum();
