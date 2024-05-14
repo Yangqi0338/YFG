@@ -1552,8 +1552,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getOfflineCommissioningSize())).orElse(new JSONObject());
 
             int sumOffProduction = jsonObject.keySet().stream()
-                    .filter(it ->
-                            it.endsWith(OrderBookChannelType.OFFLINE.getFill())).mapToInt(jsonObject::getInteger)
+                    .filter(it -> it.endsWith(OrderBookChannelType.OFFLINE.getFill()))
+                    .mapToInt(jsonObject::getInteger)
+                    .filter(Objects::nonNull)
                     .sum();
             if (sumOffProduction != Integer.parseInt(orderBookDetail.getOfflineProduction())) {
                 throw new OtherException("线下尺码总数量与线下投产数量不一致，请检查");
