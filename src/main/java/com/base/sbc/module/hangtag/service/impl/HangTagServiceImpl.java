@@ -205,7 +205,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private final StyleService styleService;
 	private final BasicsdatumSizeService basicsdatumSizeService;
 
-	private final PackBomService packBomService;
+	@Autowired
+	@Lazy
+	private PackBomService packBomService;
 	@Autowired
 	@Lazy
 	private DataPermissionsService dataPermissionsService;

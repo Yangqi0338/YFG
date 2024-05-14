@@ -132,6 +132,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     private SmpService smpService;
 
     @Resource
+    @Lazy
     private HangTagService hangTagService;
 
     @Resource
