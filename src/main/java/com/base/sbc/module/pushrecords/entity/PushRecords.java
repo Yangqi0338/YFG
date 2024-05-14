@@ -73,7 +73,7 @@ public class PushRecords extends BaseDataEntity<String> {
         this.setRelatedId(httpResp.getCode());
         this.setRelatedName(httpResp.getName());
         this.setPushStatus(httpResp.isSuccess() ? PushRespStatus.SUCCESS : PushRespStatus.FAILURE);
-        this.setResponseMessage(httpResp.getMessage());
+        this.setResponseMessage(httpResp.isSuccess() ? httpResp.getData() : httpResp.getMessage());
         this.setCreateId(httpResp.getUserId());
     }
 }

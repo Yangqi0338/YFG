@@ -30,9 +30,6 @@ public class RestTemplateService {
 
     private final RestTemplate restTemplate;
     private final CcmFeignService ccmFeignService;
-    @Autowired
-    @Lazy
-    private PushRecordsService pushRecordsService;
 
 
     @SafeVarargs
