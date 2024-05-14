@@ -110,7 +110,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
         // 名字
         return MoreLanguageProperties.getMsg(CONTENT_FORMAT,
                 findStandardColumnName(),
-                this.isGroup ? MoreLanguageProperties.getMultiSeparator(standardColumnCode) : "",
+                this.isGroup ? MoreLanguageProperties.multiSeparator : "",
                 Opt.ofNullable(this.propertiesName).orElse("")
         );
     }

@@ -1505,7 +1505,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						languageVO.setCannotFindPropertiesContent(true);
 					}
 					languageVO.setIsGroup(true);
-					content = String.join(MoreLanguageProperties.getMultiSeparator(translate.getTitleCode()), propertiesCountryTranslateList);
+					content = String.join(MoreLanguageProperties.multiSeparator, propertiesCountryTranslateList);
 				} else {
 					content = translate.getContent();
 				}
@@ -1748,8 +1748,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							languageVo.setCannotFindStandardColumnContent(true);
 						}
 						// 若还是和之前一样，那就是没找到翻译
-						String fillSeparator = MoreLanguageProperties.showInfoLanguageSeparator + separator;
-						String groupContent = StrUtil.replace(languageVo.propertiesContent, separator, fillSeparator);
+						String fillSeparator = MoreLanguageProperties.showInfoLanguageSeparator + MoreLanguageProperties.multiSeparator;
+						String groupContent = StrUtil.replace(languageVo.propertiesContent, MoreLanguageProperties.multiSeparator, fillSeparator);
 						languageVo.setPropertiesContent(groupContent);
 					});
 					groupVO.setPropertiesName(propertiesName);
