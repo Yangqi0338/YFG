@@ -137,6 +137,13 @@ public class SampleBoardExcel {
     @Excel(name = "需求数",type = 10)
     private BigDecimal requirementNum;
 
+    /**
+     * 是否参考样衣
+     */
+    @ApiModelProperty(value = "是否参考样衣")
+    @Excel(name = "是否参考样衣",type = 11)
+    private String referSample;
+
 
 
     @ApiModelProperty(value = "纸样完成时间")
