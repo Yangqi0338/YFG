@@ -835,6 +835,7 @@
         p.demand_finish_date AS demandFinishDate,
         s.*,
         p.*,
+        p.refer_sample as referSample,
         p.cutter_name AS cutterName,
         p.stitcher AS stitcher
 
