@@ -141,7 +141,7 @@ public class SampleBoardExcel {
      * 是否参考样衣
      */
     @ApiModelProperty(value = "是否参考样衣")
-    @Excel(name = "是否参考样衣",type = 11,replace = {"是_1", "否_0"})
+    @Excel(name = "是否参考样衣",replace = {"是_1", "否_0","_null"})
     private String referSample;
 
 
