@@ -143,25 +143,19 @@ public class DataPermissionsService {
         if (CollectionUtils.isEmpty(dataPermissionsList)) {
             return ret;
         }
-        AtomicReference<Integer> authorityState= new AtomicReference<>(0);
-        AtomicBoolean isField= new AtomicBoolean(true);
-        dataPermissionsList.forEach(e->{
-            if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(e.getRange()) && authorityState.get()!=2) {
-                authorityState.set(1);
-            }
-            if (DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(e.getRange()) && DataPermissionsSelectTypeEnum.AND.getK().equals(e.getSelectType())) {
-                authorityState.set(2);
-            }
-            if(CollectionUtils.isNotEmpty(e.getFieldDataPermissions())){
-                isField.set(true);
-            }
-        });
-        if (authorityState.get()!=1) {
+        List<String> rangeList = dataPermissionsList.stream().map(DataPermissionVO::getRange).distinct().collect(Collectors.toList());
+        //如果有一个用户组有全部可见 权限，则全部可见
+        if(rangeList.contains(DataPermissionsRangeEnum.ALL.getK())){
+            ret.put("authorityState",Boolean.TRUE);
+            return ret;
+        }
+        //如果都是全部不可见,则直接返回false
+        if (rangeList.size()==1 && rangeList.get(0).equals(DataPermissionsRangeEnum.ALL_INOPERABLE.getK())) {
             ret.put("authorityState",Boolean.FALSE);
             return ret;
         }
-        if(tablePre == null || !isField.get()){
-            return ret;
+        if(tablePre == null){
+            tablePre = "";
         }
         List<String> authorityField=new ArrayList<>();
         //用户存在多个用户组，用户组之间用or
@@ -211,7 +205,7 @@ public class DataPermissionsService {
                                 continue;
                             }
                             if(sqlType){
-                                fieldArr.add(sqlType ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
+                                fieldArr.add(DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and ");
                             }
                             sqlType = true;
                             isFieldFlag = true;
@@ -238,8 +232,12 @@ public class DataPermissionsService {
                             fieldArr.add(fieldDataPermissionVO.getSqlField());
                         }
                     }
-                    if(permissionGroup){
-                        fieldArr.add(" ) ");
+                    if(sqlType){
+                        if(permissionGroup){
+                            fieldArr.add(" ) ");
+                        }
+                    }else{
+                        fieldArr.remove(fieldArr.size()-1);
                     }
                 }
                 if(userGroupSize){
