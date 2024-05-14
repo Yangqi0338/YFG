@@ -1,6 +1,9 @@
 package com.base.sbc.config.swagger;
 
 import com.google.common.collect.Lists;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.configuration.ClassicConfiguration;
+import org.flywaydb.core.api.configuration.FluentConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -10,14 +13,14 @@ import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
 import java.util.List;
 /**
  * @author Fred
  * @data 创建时间:2020/2/3
  */
-@EnableSwagger2
+@EnableSwagger2WebMvc
 @Configuration
 public class Swagger2Config {
 
