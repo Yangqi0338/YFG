@@ -247,4 +247,6 @@ public interface PackBomService extends PackBaseService<PackBom> {
     PageInfo<FabricStyleGroupVo> fabricSummaryGroup(FabricSummaryGroupDto dto);
 
     void fabricSummaryExcelExport(HttpServletResponse response, FabricSummaryV2Dto dto);
+
+    boolean designAffirm(PackBomVo dto);
 }

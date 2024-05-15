@@ -855,6 +855,27 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean designAffirm(PackBomVo dto) {
+        if (StringUtils.isBlank(dto.getId())){
+            return true;
+        }
+        if (StringUtils.isBlank(dto.getDesignVerify())){
+            throw new OtherException("确认状态不能为空");
+        }
+        PackBom packBom = getById(dto.getId());
+        if (StringUtils.isBlank(packBom.getDesignVerify())){
+            packBom.setDesignVerify(dto.getDesignVerify());
+            return updateById(packBom);
+        }
+        if (dto.getDesignVerify().equals(packBom.getDesignVerify())){
+            return true;
+        }
+        packBom.setDesignVerify(dto.getDesignVerify());
+        return updateById(packBom);
+    }
+
     /**
      * 物料bom是否还在使用
      * @param materialCode

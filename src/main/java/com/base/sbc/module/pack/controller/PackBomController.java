@@ -299,6 +299,13 @@ public class PackBomController extends BaseController{
     }
 
 
+    @ApiOperation(value = "设计师确认")
+    @PostMapping("designAffirm")
+    public boolean designAffirm(@Valid PackBomVo dto) {
+        return packBomService.designAffirm(dto);
+    }
+
+
 
 }
 
