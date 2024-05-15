@@ -32,8 +32,8 @@ public class EscmMaterialCompnentInspectCompanyServiceImpl extends BaseServiceIm
         /*查询检查报告*/
         List<EscmMaterialCompnentInspectCompanyDto> list = list(queryWrapper);
         /*按年份和到货时间排序*/
-        list.sort(Comparator.comparing(EscmMaterialCompnentInspectCompanyDto::getYear)
-                .thenComparing(EscmMaterialCompnentInspectCompanyDto::getArriveDate).reversed());
+        list.sort(CommonUtils.nullLastComparing(EscmMaterialCompnentInspectCompanyDto::getYear)
+                .thenComparing(CommonUtils.nullLastComparing(EscmMaterialCompnentInspectCompanyDto::getArriveDate)).reversed());
 
         /*按物料分组*/
         Map<String, List<EscmMaterialCompnentInspectCompanyDto>> map = list.stream()
