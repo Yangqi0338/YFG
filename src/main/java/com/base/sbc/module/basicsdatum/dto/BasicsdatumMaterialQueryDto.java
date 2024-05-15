@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 物料列表页面查询条件dto
  *
@@ -92,4 +94,7 @@ public class BasicsdatumMaterialQueryDto extends Page {
 
 	@ApiModelProperty(value = "供应商色号")
 	private String supplierColorCode;
+
+	@ApiModelProperty(value = "品牌")
+	private List<String> brandList;
 }

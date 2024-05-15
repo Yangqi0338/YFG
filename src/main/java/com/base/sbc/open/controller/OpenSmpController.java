@@ -125,17 +125,23 @@ public class OpenSmpController extends BaseController {
         return insertSuccess(null);
     }
 
+
     /**
      * hr-部门
      */
     @PostMapping("/hrDeptSave")
     @ApiOperation(value = "hr-部门新增或者修改", notes = "hr-部门新增或者修改")
     public ApiResult hrDeptSave(@RequestBody JSONObject jsonObject) {
-        SmpDept smpDept = JSONObject.parseObject(jsonObject.toJSONString(), SmpDept.class);
+        SmpDept smpDept = JSONObject.parseObject(jsonObject.getJSONObject("content").toJSONString(), SmpDept.class);
         smpDept.preInsert();
         smpDept.setCreateName("smp请求");
         smpDept.setUpdateName("smp请求");
-        amcService.hrDeptSave(smpDept);
+        if (smpDept != null) {
+            String depGroup = smpDept.getDepGroup();
+            if (!"终端办公室".equals(depGroup) && !"终端店铺".equals(depGroup) && !"终端管理".equals(depGroup) && !"托管店铺".equals(depGroup) ) {
+                amcService.hrDeptSave(smpDept);
+            }
+        }
         return insertSuccess(null);
     }
 
@@ -145,7 +151,7 @@ public class OpenSmpController extends BaseController {
     @PostMapping("/hrPostSave")
     @ApiOperation(value = "hr-岗位新增或者修改", notes = "hr-岗位新增或者修改")
     public ApiResult hrPostSave(@RequestBody JSONObject jsonObject) {
-        SmpPost smpPost = JSONObject.parseObject(jsonObject.toJSONString(), SmpPost.class);
+        SmpPost smpPost = JSONObject.parseObject(jsonObject.getJSONObject("content").toJSONString(), SmpPost.class);
         amcService.hrPostSave(smpPost);
         return insertSuccess(null);
     }

@@ -1,5 +1,6 @@
 package com.base.sbc.config.enums.business;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 
@@ -23,9 +24,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public enum StandardColumnType {
     TAG("吊牌","DP"),
-    TAG_ROOT("吊牌字段", "DP", Arrays.asList(TAG)),
+    TAG_ROOT("吊牌字段", "DP", CollUtil.newArrayList(TAG)),
     WASHING("温馨提示", "XM"),
-    WASHING_ROOT("洗唛", "XM", Arrays.asList(WASHING)),
+    WASHING_ROOT("洗唛", "XM", CollUtil.newArrayList(WASHING)),
     ;
     /** 编码 */
     @EnumValue
@@ -57,11 +58,11 @@ public enum StandardColumnType {
     }
 
     public static List<StandardColumnType> findRootList(){
-        return Arrays.stream(StandardColumnType.values()).filter(it-> it.code.contains("_root")).collect(Collectors.toList());
+        return Arrays.stream(StandardColumnType.values()).filter(it-> StrUtil.toUnderlineCase(it.code).contains("_root")).collect(Collectors.toList());
     }
 
-    public static StandardColumnType findParent(StandardColumnType type){
-        return Arrays.stream(StandardColumnType.values()).filter(it-> it.childrenTypeList.contains(type)).findFirst().orElse(null);
+    public StandardColumnType findParent(){
+        return Arrays.stream(StandardColumnType.values()).filter(it-> it.childrenTypeList.contains(this)).findFirst().orElse(null);
     }
 
     public static StandardColumnType findByCode(String code) {

@@ -245,6 +245,7 @@
         tsd.planning_season_id as planningSeasonId,
         tsd.devt_type_name as produceTypeName,
         tsd.prod_category1st_name as prodCategory1stName,
+        tsd.prod_category1st as prodCategory1st,
         tsd.dev_class as devClass,
         tsd.dev_class_name as devClassName,
 

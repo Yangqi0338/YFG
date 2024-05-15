@@ -4,30 +4,25 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.moreLanguage.entity;
+package com.base.sbc.module.basicsdatum.vo;
 import java.util.Date;
-
-import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 /**
- * 类描述：标准列头翻译表 实体类
- * @address com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate
- * @author KC
- * @email KC
- * @date 创建时间：2023-11-30 15:07:58
+ * 类描述：品牌-季度表Vo 实体类
+ * @address com.base.sbc.module.basicsdatum.vo.BasicsdatumBrandSeasonVo
+ * @author 谭博文
+ * @email your email
+ * @date 创建时间：2024-4-9 9:42:49
  * @version 1.0
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@TableName("t_standard_column_translate")
-@ApiModel("吊牌列头翻译表 TagTranslate")
-public class StandardColumnTranslate extends BaseDataEntity<String> {
+@ApiModel("品牌-季度表 BasicsdatumBrandSeasonVo")
+public class BasicsdatumBrandSeasonVo extends BaseDataEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 	/**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -36,23 +31,26 @@ public class StandardColumnTranslate extends BaseDataEntity<String> {
 	/**********************************实体存放的其他字段区 【other_end】******************************************/
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
-    /** 国家编码 */
-    @ApiModelProperty(value = "国家语言Id"  )
-    private String countryLanguageId;
-    /** 属性编码 */
-    @ApiModelProperty(value = "属性编码"  )
-    private String standardColumnCode;
-    /** 属性名称 */
-    @ApiModelProperty(value = "属性名称"  )
-    private String standardColumnName;
-    /** 吊牌类型 */
-    @ApiModelProperty(value = "吊牌类型"  )
-    private CountryLanguageType type;
-    /** 翻译文本 */
-    @ApiModelProperty(value = "翻译文本"  )
-    private String content;
-    /** 备注 */
-    @ApiModelProperty(value = "备注"  )
-    private String remarks;
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+    /** 品牌名称 */
+    @ApiModelProperty(value = "品牌名称"  )
+    private String brandName;
+    /** 季节 */
+    @ApiModelProperty(value = "季节"  )
+    private String season;
+    /** 季节名称 */
+    @ApiModelProperty(value = "季节名称"  )
+    private String seasonName;
+    /** 月份 */
+    @ApiModelProperty(value = "月份"  )
+    private String month;
+    /** 月份名称 */
+    @ApiModelProperty(value = "月份名称"  )
+    private String monthName;
+    /** 启用状态：0 启用； 1 未启用  */
+    @ApiModelProperty(value = "启用状态：0 启用； 1 未启用 "  )
+    private String status;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

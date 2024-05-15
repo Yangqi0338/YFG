@@ -9,15 +9,20 @@ package com.base.sbc.module.hangtag.vo;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.constant.MoreLanguageProperties;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.sql.Array;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.CONTENT_FORMAT;
 
@@ -50,6 +55,10 @@ public class HangTagMoreLanguageVO {
      */
     @ApiModelProperty(value = "语言名")
     private String languageName;
+
+
+    @ApiModelProperty(value = "具体数据的编码")
+    protected String propertiesCode;
 
     /**
      * 标准列翻译
@@ -92,22 +101,14 @@ public class HangTagMoreLanguageVO {
         return forceFindContent() && this.cannotFindPropertiesContent;
     }
 
-    /**
-     * 标准列模型
-     */
-    @JsonIgnore
     @ApiModelProperty(value = "标准列模型")
     protected StandardColumnModel model;
 
-    @JsonIgnore
     public Boolean forceFindContent(){
         return this.model != StandardColumnModel.TEXT;
     }
 
-    /**
-     * 是组合的
-     */
-    @JsonIgnore
+
     @ApiModelProperty(value = "是组合的")
     protected Boolean isGroup = false;
 
@@ -134,6 +135,15 @@ public class HangTagMoreLanguageVO {
      * 审核状态
      */
     @ApiModelProperty(value = "审核状态")
-    protected StyleCountryStatusEnum auditStatus = StyleCountryStatusEnum.UNCHECK;
+    protected StyleCountryStatusEnum contentAuditStatus = StyleCountryStatusEnum.UNCHECK;
+
+    protected StyleCountryStatusEnum titleAuditStatus = StyleCountryStatusEnum.UNCHECK;
+
+    public StyleCountryStatusEnum getAuditStatus(){
+        StyleCountryStatusEnum statusEnum = (!forceFindContent() || contentAuditStatus == StyleCountryStatusEnum.CHECK) && titleAuditStatus == StyleCountryStatusEnum.CHECK
+                ? StyleCountryStatusEnum.CHECK
+                : StyleCountryStatusEnum.UNCHECK;
+        return statusEnum;
+    }
 
 }

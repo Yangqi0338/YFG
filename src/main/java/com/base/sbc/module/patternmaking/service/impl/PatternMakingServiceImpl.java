@@ -139,9 +139,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Autowired
     private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
 
-    @Autowired
-    private PatternMakingService patternMakingService;
-
 
     private final ReentrantLock lock = new ReentrantLock();
 
@@ -510,7 +507,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
         QueryGenerator.initQueryWrapperByMap(qw,dto);
 
-        /*qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
+        //不要注释，滞留款查询正在使用这些条件
+        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.like(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type_name", dto.getSampleType());
         qw.eq(StrUtil.isNotBlank(dto.getUrgencyName()), "p.urgency_name", dto.getUrgencyName());
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
@@ -530,7 +528,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             String[] split = dto.getPrmSendDate().split(",");
             qw.ge("p.prm_send_date", split[0]);
             qw.le("p.prm_send_date", split[1]);
-        }*/
+        }
 
         qw.eq( "p.disable_flag", BaseGlobal.NO);
         qw.eq("design_send_status", BaseGlobal.YES);
@@ -1217,7 +1215,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMakingQueryWrapper.eq("style_id",stylelId);
         patternMakingQueryWrapper.last(" limit 1 ");
         patternMakingQueryWrapper.orderByAsc("create_date");
-        PatternMaking patternMaking = patternMakingService.getOne(patternMakingQueryWrapper);
+        PatternMaking patternMaking = this.getOne(patternMakingQueryWrapper);
         if (patternMaking != null) {
             patternMakeId = patternMaking.getId();
         }
@@ -1631,6 +1629,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         ) {
             throw new OtherException("节点不匹配");
         }
+        if (StrUtil.isNotEmpty(dto.getSampleBarCode())) {
+            /*查询样衣码是否重复*/
+            checkSampleBarcodeRepeat(new SetSampleBarCodeDto(dto.getId(),dto.getSampleBarCode()));
+        }
+
+
+        //endregion
         sort(byId, true);
         byId.setStitcher(dto.getStitcher());
         byId.setStitcherId(dto.getStitcherId());
@@ -1958,6 +1963,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class})
     public boolean setSampleBarCode(SetSampleBarCodeDto dto) {
         /*查询样衣码是否重复*/
+        checkSampleBarcodeRepeat(dto);
+        PatternMaking update = new PatternMaking();
+        update.setSampleBarCode(dto.getSampleBarCode());
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PatternMaking::getId, dto.getId());
+        return update(update, uw);
+    }
+
+    /**
+     * 查询样衣码是否重复
+     * @param dto
+     */
+    private void checkSampleBarcodeRepeat(SetSampleBarCodeDto dto) {
+        if (StrUtil.isEmpty(dto.getId())) {
+            throw new OtherException("id不能为空！");
+        }
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("sample_bar_code", dto.getSampleBarCode());
         queryWrapper.ne("id", dto.getId());
@@ -1966,11 +1987,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (CollUtil.isNotEmpty(patternMakingList)) {
             throw new OtherException("样衣条码重复");
         }
-        PatternMaking update = new PatternMaking();
-        update.setSampleBarCode(dto.getSampleBarCode());
-        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
-        uw.lambda().eq(PatternMaking::getId, dto.getId());
-        return update(update, uw);
     }
 
     @Override

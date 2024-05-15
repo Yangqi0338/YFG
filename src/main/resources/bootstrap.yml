@@ -15,7 +15,9 @@ spring:
           - data-id: dbSync-pdm.yml
             refresh: true
           - data-id: mysql-pdm.yml
+#            group: prod
             refresh: true
+
 # 暂不打印
 #logging:
 #  level:

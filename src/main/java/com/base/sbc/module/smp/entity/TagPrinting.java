@@ -166,11 +166,6 @@ public class TagPrinting {
     private Boolean Approved;
 
     /**
-     * 翻译确认
-     */
-    private Boolean TranslateApproved;
-
-    /**
      * 温馨提示
      */
     private String Attention;

@@ -52,7 +52,6 @@ public class MoreLanguageCopyTableTitle extends MoreLanguageTableTitleHandler {
             CountryLanguage countryLanguage = countryLanguageList.get(i);
             // 复制一份,将编码和文本都加上语言并逐一设置回原来的位置
             MoreLanguageTableTitle countryLanguageTableTitle = BeanUtil.copyProperties(tableTitle, MoreLanguageTableTitle.class);
-            countryLanguageTableTitle.setText(countryLanguage.getLanguageName() + tableTitle.getText());
             countryLanguageTableTitle.setCode(countryLanguage.getLanguageCode() + "-" + tableTitle.getCode());
             tableTitleList.add(baseIndex+i, countryLanguageTableTitle);
         }

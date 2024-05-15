@@ -123,14 +123,14 @@ public interface AmcService {
     /**
      * hr-部门
      */
-    @PostMapping("/amc/api/open/smp/hrUserSave")
-    String hrDeptSave(@RequestBody SmpDept smpUser);
+    @PostMapping("/amc/api/open/smp/hrDeptSave")
+    String hrDeptSave(@RequestBody SmpDept smpDept);
 
     /**
      * hr-岗位
      */
-    @PostMapping("/amc/api/open/smp/hrUserSave")
-    String hrPostSave(@RequestBody SmpPost smpUser);
+    @PostMapping("/amc/api/open/smp/hrPostSave")
+    String hrPostSave(@RequestBody SmpPost smpPost);
 
 
     @PostMapping(value = "/amc/api/open/initData/dept",headers = {"Content-type=application/json"})

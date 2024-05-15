@@ -156,7 +156,6 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
             } else {
                 groupDefineItem.insertInit();
             }
-            groupDefineItem.setId(groupDefineItem.getSysId());
             //groupDefineItem.setTableCode(tableCode);
             groupDefineItem.setUserGroupId(userGroupId);
             //groupDefineItem.setVersionId(id);

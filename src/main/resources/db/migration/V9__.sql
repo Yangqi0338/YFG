@@ -1,0 +1,1 @@
+ALTER table t_pack_bom add column copy varchar(1) default null comment '是否复制'

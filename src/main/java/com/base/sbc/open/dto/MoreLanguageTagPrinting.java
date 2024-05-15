@@ -34,4 +34,10 @@ public class MoreLanguageTagPrinting extends TagPrintingSupportVO {
     public Map<String, String> getTitleMap() {
         return titleMap;
     }
+
+    /**
+     * 翻译确认
+     */
+    @JsonIgnore
+    private Boolean TranslateApproved;
 }

@@ -24,42 +24,25 @@ import lombok.Data;
 public class BasicsdatumLavationReminderExcelDto  {
 
     private String id;
-    /** 编码 */
-    @ApiModelProperty(value = "洗标编码"  )
-    @Excel(name = "洗标编码")
-    private String code;
-    /** 洗涤图标名称 */
-    @ApiModelProperty(value = "洗标名称"  )
-    @Excel(name = "洗标名称")
-    private String  name;
 
-    @ApiModelProperty(value = "图标编码"  )
-    @Excel(name = "图标编码")
+    /** 图片 */
+    @ApiModelProperty(value = "图片"  )
+    @Excel(name = "图片")
+    private String url;
+    /** 编码 */
+    @ApiModelProperty(value = "编码"  )
+    @Excel(name = "编码")
+    private String code;
+    @ApiModelProperty(value = "洗标"  )
+    @Excel(name = "洗标")
     private String washIconCode;
-    /** 贮藏要求 */
-    @ApiModelProperty(value = "描述"  )
-    @Excel(name = "描述")
-    private String description;
     /** 有配饰款 */
     @ApiModelProperty(value = "洗护类别"  )
     @Excel(name = "洗护类别")
     private String washType;
-    /** 图片 */
-    @ApiModelProperty(value = "图片"  )
-    @Excel(name = "图片",type = 2)
-    private String url;
-    /** 状态(0正常,1停用) */
-    @ApiModelProperty(value = "状态(0正常,1停用)"  )
-    @Excel(name  = "可用的" , replace = {"true_0", "false_1"} )
-    private String status;
-    /** 温馨提示 */
-    @ApiModelProperty(value = "语言"  )
-    @Excel(name = "语言")
-    private String language;
     /** 温馨提示 */
     @ApiModelProperty(value = "温馨提示"  )
     private String reminderCode;
-
     /** 温馨提示名称 */
     @ApiModelProperty(value = "温馨提示名称"  )
     @Excel(name = "温馨提示")

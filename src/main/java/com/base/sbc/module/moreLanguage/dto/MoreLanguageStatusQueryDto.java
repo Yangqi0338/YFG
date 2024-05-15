@@ -32,7 +32,7 @@ public class MoreLanguageStatusQueryDto extends Page {
     @ApiModelProperty(value = "款号列表")
     private String bulkStyleNo;
 
-    @ApiModelProperty(value = "国家编码列表")
+    @ApiModelProperty(value = "编码列表")
     private String countryCode;
 
     @ApiModelProperty(value = "品控确认时间")
