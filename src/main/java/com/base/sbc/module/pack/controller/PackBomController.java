@@ -15,6 +15,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.module.column.service.ColumnUserDefineService;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.pack.dto.*;
@@ -62,6 +63,9 @@ public class PackBomController extends BaseController{
 
     @Autowired
     private PackBomVersionService packBomVersionService;
+
+    @Autowired
+    private ColumnUserDefineService columnUserDefineService;
 
     @ApiOperation(value = "版本列表")
     @GetMapping("/version")
