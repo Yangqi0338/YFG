@@ -1,7 +1,9 @@
 package com.base.sbc.open.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.mapper.EscmMaterialCompnentInspectCompanyMapper;
@@ -26,33 +28,33 @@ public class EscmMaterialCompnentInspectCompanyServiceImpl extends BaseServiceIm
      * @return
      */
     @Override
-    public List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper, boolean isInsert) {
+    public List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper, List<String> existsIdList) {
         /*查询检查报告*/
         List<EscmMaterialCompnentInspectCompanyDto> list = list(queryWrapper);
+        /*按年份和到货时间排序*/
+        list.sort(Comparator.comparing(EscmMaterialCompnentInspectCompanyDto::getYear)
+                .thenComparing(EscmMaterialCompnentInspectCompanyDto::getArriveDate).reversed());
+
         /*按物料分组*/
         Map<String, List<EscmMaterialCompnentInspectCompanyDto>> map = list.stream()
-                .collect(Collectors.groupingBy(EscmMaterialCompnentInspectCompanyDto::getMaterialsNo));
+                .collect(CommonUtils.groupingBy(EscmMaterialCompnentInspectCompanyDto::getMaterialsNo));
 
-        List<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoList = map.entrySet().stream()
-                .map(entry -> {
-                    List<EscmMaterialCompnentInspectCompanyDto> value = entry.getValue();
-                    /*按年份获取最大的数据*/
-                    EscmMaterialCompnentInspectCompanyDto maxYearItem = value.stream()
-                            .max(Comparator.comparing(EscmMaterialCompnentInspectCompanyDto::getYear).thenComparing(EscmMaterialCompnentInspectCompanyDto::getValidityTime))
-                            .orElse(null);
-
-                    if (maxYearItem != null) {
-                        /*整个分组放到集合返回前端*/
-                        List<EscmMaterialCompnentInspectCompanyDto> companyDtoList = BeanUtil.copyToList(value,EscmMaterialCompnentInspectCompanyDto.class);
-                        maxYearItem.setCompanyDtoList(companyDtoList);
-                        maxYearItem.setInspectCompanyId(maxYearItem.getId());
-                        if (isInsert) {
-                            maxYearItem.setId(null);
-                        }
+        return map.values().stream()
+                .map(value -> {
+                    // 获取中间表数据
+                    Optional<EscmMaterialCompnentInspectCompanyDto> inspectCompanyDtoOpt = value.stream().filter(it -> existsIdList.contains(it.getId())).findFirst();
+                    EscmMaterialCompnentInspectCompanyDto inspectCompanyDto;
+                    if (inspectCompanyDtoOpt.isPresent()) {
+                        inspectCompanyDto = inspectCompanyDtoOpt.get();
+                    }else {
+                        inspectCompanyDto = value.get(0);
+                        inspectCompanyDto.setId(null);
                     }
-                    return maxYearItem;
-                }).filter(Objects::nonNull).collect(Collectors.toList());
-        return inspectCompanyDtoList;
+                    List<EscmMaterialCompnentInspectCompanyDto> companyDtoList = BeanUtil.copyToList(value, EscmMaterialCompnentInspectCompanyDto.class);
+                    inspectCompanyDto.setCompanyDtoList(companyDtoList);
+
+                    return inspectCompanyDto;
+                }).collect(Collectors.toList());
     }
 
     /**
