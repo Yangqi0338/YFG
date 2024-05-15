@@ -87,6 +87,8 @@ public class PricingTemplateServiceImpl extends BaseServiceImpl<PricingTemplateM
         qc.like(StringUtils.isNotEmpty(dto.getTemplateCode()), "template_code", dto.getTemplateCode());
         qc.like(StringUtils.isNotEmpty(dto.getTemplateName()), "template_name", dto.getTemplateName());
         qc.eq(StringUtils.isNotEmpty(dto.getStatus()), "status", dto.getStatus());
+        qc.notEmptyEq("brand", dto.getBrand());
+        qc.notEmptyEq("devt_type", dto.getDevtType());
         qc.eq("company_code", userCompany);
         qc.eq("del_flag", YesOrNoEnum.NO.getValueStr());
         qc.orderByDesc("create_date");
