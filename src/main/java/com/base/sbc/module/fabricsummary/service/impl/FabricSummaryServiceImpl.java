@@ -19,10 +19,12 @@ import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialPriceQueryDto;
 import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialWidthQueryDto;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
+import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPricePageVo;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialWidthPageVo;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
@@ -357,6 +359,15 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         if (CollUtil.isNotEmpty(basicsdatumMaterialWidthList.getList()) && basicsdatumMaterialWidthList.getList().size() == 1){
             fabricSummaryInfoVo.setWidthName(basicsdatumMaterialWidthList.getList().get(0).getName());
         }
+
+        //期货
+        BasicsdatumMaterialPriceQueryDto basicsdatumMaterialPriceQueryDto = new BasicsdatumMaterialPriceQueryDto();
+        basicsdatumMaterialPriceQueryDto.setMaterialCode(fabricSummaryInfoVo.getMaterialCode());
+        PageInfo<BasicsdatumMaterialPricePageVo> basicsdatumMaterialPriceList = basicsdatumMaterialService.getBasicsdatumMaterialPriceList(basicsdatumMaterialPriceQueryDto);
+        if (CollUtil.isNotEmpty(basicsdatumMaterialPriceList.getList())){
+            fabricSummaryInfoVo.setProductionDay(basicsdatumMaterialPriceList.getList().get(0).getProductionDay());
+        }
+
     }
 
     private void fullFabricSummaryStyle(FabricSummaryInfoVo fabricSummaryInfoVo) {
