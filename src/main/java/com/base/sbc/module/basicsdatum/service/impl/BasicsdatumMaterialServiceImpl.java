@@ -1197,7 +1197,9 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         uw.set("status", dto.getStatus());
 
         //停用需要校验下游系统是否引用
-        if ("1".equals(dto.getStatus())) {
+
+        //region pdm系统卡控，无需验证下游系统。
+        /*if ("1".equals(dto.getStatus())) {
             QueryWrapper<BasicsdatumMaterialColor> queryWrapper = new BaseQueryWrapper<>();
             queryWrapper.in("id", StringUtils.convertList(dto.getIds()));
             List<BasicsdatumMaterialColor> list = materialColorService.list(queryWrapper);
@@ -1207,7 +1209,8 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     throw new OtherException("\"" + basicsdatumMaterialColor.getColorName() + "\"下游系统以引用,不允许停用");
                 }
             }
-        }
+        }*/
+        //endregion
         this.startStopLog(dto);
         return this.materialColorService.update(null, uw);
     }
