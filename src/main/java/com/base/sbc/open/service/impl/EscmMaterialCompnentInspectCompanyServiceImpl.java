@@ -38,7 +38,7 @@ public class EscmMaterialCompnentInspectCompanyServiceImpl extends BaseServiceIm
                     List<EscmMaterialCompnentInspectCompanyDto> value = entry.getValue();
                     /*按年份获取最大的数据*/
                     EscmMaterialCompnentInspectCompanyDto maxYearItem = value.stream()
-                            .max(Comparator.comparing(EscmMaterialCompnentInspectCompanyDto::getYear))
+                            .max(Comparator.comparing(EscmMaterialCompnentInspectCompanyDto::getYear).thenComparing(EscmMaterialCompnentInspectCompanyDto::getValidityTime))
                             .orElse(null);
 
                     if (maxYearItem != null) {
