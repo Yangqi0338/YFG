@@ -7,10 +7,13 @@
 package com.base.sbc.module.fabricsummary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
+import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -41,6 +44,7 @@ import com.base.sbc.module.sample.dto.PrintFabricSummaryLogDto;
 import com.base.sbc.module.sample.vo.FabricStyleGroupVo;
 import com.base.sbc.module.sample.vo.FabricSummaryGroupVo;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
+import com.base.sbc.module.sample.vo.PrintCheckVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -266,6 +270,9 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         Map<String, FabricSummary> infoVoMap = Maps.newHashMap();
         List<FabricSummaryStyle> fabricSummaryStyles= Lists.newArrayList();
         for (FabricSummaryInfoVo fabricSummaryInfoVo : dto) {
+            if (!Constants.ONE_STR.equals(fabricSummaryInfoVo.getDesignVerify())){
+                throw new OtherException("设计师未确认的详单不允许添加！"+"未确认的款号："+fabricSummaryInfoVo.getStyleNo());
+            }
             FabricSummaryStyle fabricSummaryStyle = new FabricSummaryStyle();
             BeanUtil.copyProperties(fabricSummaryInfoVo, fabricSummaryStyle);
             fabricSummaryStyle.insertInit();
@@ -302,30 +309,22 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
 
     @Override
     @Transactional(rollbackFor =Exception.class)
-    public boolean fabricSummarySync(List<FabricSummaryV2Dto> dto) {
+    public ApiResult<PrintCheckVo> fabricSummarySync(List<FabricSummaryV2Dto> dto) {
         if (CollectionUtils.isEmpty(dto)){
-            return true;
+            throw new OtherException("参数不能为空");
         }
-
-        for (FabricSummaryV2Dto fabricSummaryV2Dto : dto) {
-            FabricSummary fabricSummary = getById(fabricSummaryV2Dto.getId());
-            if (Objects.isNull(fabricSummary)){
-                throw new OtherException("数据不存在！");
-            }
-            FabricSummaryGroup groupServiceById = fabricSummaryGroupService.getById(fabricSummary.getGroupId());
-            if (Objects.isNull(groupServiceById)){
-                throw new OtherException("上级盒子不存在！");
-            }
-            fabricSummaryV2Dto.setPlanningSeasonId(groupServiceById.getPlanningSeasonId());
-            //检查更新相关
-            checkSynFabricSummary(fabricSummary,fabricSummaryV2Dto);
+        FabricSummaryV2Dto fabricSummaryV2Dto = dto.get(0);
+        FabricSummary fabricSummary = getById(fabricSummaryV2Dto.getId());
+        if (Objects.isNull(fabricSummary)){
+            throw new OtherException("数据不存在！");
         }
-        //打印日志
-        FabricSummaryPrintLog fabricSummaryPrintLog = new FabricSummaryPrintLog();
-        fabricSummaryPrintLog.insertInit();
-        fabricSummaryPrintLog.setFabricSummaryId(dto.get(0).getId());
-        fabricSummaryPrintLogService.save(fabricSummaryPrintLog);
-        return true;
+        FabricSummaryGroup groupServiceById = fabricSummaryGroupService.getById(fabricSummary.getGroupId());
+        if (Objects.isNull(groupServiceById)){
+            throw new OtherException("上级盒子不存在！");
+        }
+        fabricSummaryV2Dto.setPlanningSeasonId(groupServiceById.getPlanningSeasonId());
+        //检查更新相关
+        return checkSynFabricSummary(fabricSummary,fabricSummaryV2Dto);
     }
 
     @Override
@@ -337,6 +336,15 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         Page<FabricSummaryPrintLog> page = PageHelper.startPage(dto);
         fabricSummaryPrintLogService.list(qw);
         return page.toPageInfo();
+    }
+
+    @Override
+    public boolean printLogRecord(FabricSummaryV2Dto dto) {
+        //打印日志
+        FabricSummaryPrintLog fabricSummaryPrintLog = new FabricSummaryPrintLog();
+        fabricSummaryPrintLog.insertInit();
+        fabricSummaryPrintLog.setFabricSummaryId(dto.getId());
+        return fabricSummaryPrintLogService.save(fabricSummaryPrintLog);
     }
 
     private void fullFabricSummary(FabricSummary fabricSummaryInfoVo) {
@@ -366,7 +374,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
      * 检查款式相关
      * @param fabricSummary
      */
-    private void checkSynFabricSummary(FabricSummary fabricSummary, FabricSummaryV2Dto fabricSummaryV2Dto) {
+    private ApiResult<PrintCheckVo> checkSynFabricSummary(FabricSummary fabricSummary, FabricSummaryV2Dto fabricSummaryV2Dto) {
         QueryWrapper<FabricSummaryStyle> queryWrapper = new QueryWrapper();
         queryWrapper.lambda()
                 .eq(FabricSummaryStyle::getFabricSummaryId,fabricSummary.getId())
@@ -374,37 +382,39 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
                 .eq(FabricSummaryStyle::getGroupId,fabricSummary.getGroupId());
         List<FabricSummaryStyle> list = fabricSummaryStyleService.list(queryWrapper);
         if (CollectionUtils.isEmpty(list)){
-            return;
+            return ApiResult.success("成功",new PrintCheckVo());
         }
         fabricSummaryV2Dto.setBomList(list.stream().map(FabricSummaryStyle::getBomId).collect(Collectors.toList()));
         fabricSummaryV2Dto.setStyleNos(list.stream().map(FabricSummaryStyle::getStyleNo).collect(Collectors.toList()));
         PageInfo<FabricSummaryInfoVo> pageInfo = packetInfoService.selectFabricSummaryStyle(fabricSummaryV2Dto);
-//        if (CollectionUtils.isEmpty(pageInfo.getList())){
-//            throw new OtherException(JSON.toJSONString(fabricSummaryV2Dto.getStyleNos())+"等款式，已经不在引用该物料："+fabricSummary.getMaterialCode());
-//        }
         if (CollectionUtils.isEmpty(pageInfo.getList())){
-            list.forEach(item ->item.setDelFlag("1")) ;
-            fabricSummaryStyleService.deleteByIds(list.stream().map(FabricSummaryStyle::getId).collect(Collectors.toList()));
-            return;
+            return ApiResult.error("该物料下已无引用的款式，请确认！",200);
         }
-        //不存在的引用关系需要删除
-        List<String> deletes = Lists.newArrayList();
+
+        List<String> bomIds = pageInfo.getList().stream().map(FabricSummaryInfoVo::getBomId).collect(Collectors.toList());
+        //已经被删除引用的款式
+        List<FabricSummaryStyle> delFabricSummaryStyle = list.stream().filter(item -> !bomIds.contains(item.getBomId())).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(delFabricSummaryStyle)){
+            return ApiResult.error(delFabricSummaryStyle.get(0).getStyleNo()+"款已不引用改物料，请删除后再打印！",200);
+        }
+
         Map<String, List<FabricSummaryInfoVo>> map = pageInfo.getList().stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::getBomId));
-        Set<String> poms = map.keySet();
-        String materialCode = pageInfo.getList().get(0).getMaterialCode();
+        List<FabricSummaryStyle> designerNotlist = Lists.newArrayList();
         for (FabricSummaryStyle fabricSummaryStyle : list) {
-            //不存在引用，或者对应的引用被替换
-            if (!poms.contains(fabricSummaryStyle.getBomId()) || !fabricSummary.getMaterialCode().equals(materialCode)){
-                fabricSummaryStyle.setDelFlag("1");
-                deletes.add(fabricSummaryStyle.getId());
+            FabricSummaryInfoVo fabricSummaryInfoVo =  map.get(fabricSummaryStyle.getBomId()).get(0);
+            if (StringUtils.isBlank(fabricSummaryInfoVo.getSupplierFabricCode()) && StringUtils.isBlank(fabricSummary.getSupplierFabricCode())){
                 continue;
             }
-            //检查更新款式相关
-            checkUpdateFabricSummary(fabricSummary,fabricSummaryStyle,map.get(fabricSummaryStyle.getBomId()));
+            //物料号改变
+            if (Optional.ofNullable(fabricSummaryInfoVo.getSupplierFabricCode()).orElse("").
+                    equals(Optional.ofNullable(fabricSummary.getSupplierFabricCode()).orElse(""))){
+                return ApiResult.error(fabricSummaryStyle.getStyleNo()+"款已不引用改物料，请删除后再打印！",200);
+            }
+            if (!Constants.ONE_STR.equals(fabricSummaryInfoVo.getDesignVerify())){
+                designerNotlist.add(fabricSummaryStyle);
+            }
         }
-        if (CollectionUtils.isNotEmpty(deletes)){
-            fabricSummaryStyleService.deleteByIds(deletes);
-        }
+        return ApiResult.success("成功",new PrintCheckVo(designerNotlist));
     }
 
     private void checkUpdateFabricSummary(FabricSummary fabricSummary, FabricSummaryStyle fabricSummaryStyle, List<FabricSummaryInfoVo> fabricSummaryInfoVos) {

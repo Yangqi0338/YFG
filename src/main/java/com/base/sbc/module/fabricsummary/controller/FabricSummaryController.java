@@ -8,6 +8,7 @@ import cn.afterturn.easypoi.util.PoiMergeCellUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSON;
 import com.base.sbc.config.annotation.DuplicationCheck;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.utils.ExcelExportTitleStyle;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
@@ -16,10 +17,7 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.sample.dto.FabricSummaryStyleMaterialDto;
 import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
 import com.base.sbc.module.sample.dto.PrintFabricSummaryLogDto;
-import com.base.sbc.module.sample.vo.FabricStyleGroupVo;
-import com.base.sbc.module.sample.vo.FabricSummaryGroupVo;
-import com.base.sbc.module.sample.vo.FabricSummaryInfoExcel;
-import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
+import com.base.sbc.module.sample.vo.*;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -78,7 +76,7 @@ public class FabricSummaryController {
 
     @PostMapping("/fabricSummarySync")
     @ApiOperation(value = "面料信息同步更新")
-    public boolean fabricSummarySync(@RequestBody List<FabricSummaryV2Dto> dto) {
+    public ApiResult<PrintCheckVo> fabricSummarySync(@RequestBody List<FabricSummaryV2Dto> dto) {
         return fabricSummaryService.fabricSummarySync(dto);
     }
 
@@ -93,6 +91,12 @@ public class FabricSummaryController {
     @ApiOperation(value = "面料汇总打印日志")
     public PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto) {
         return  fabricSummaryService.printFabricSummaryLog(dto);
+    }
+
+    @PostMapping("/printLogRecord")
+    @ApiOperation(value = "打印日志记录")
+    public boolean printLogRecord(@RequestBody FabricSummaryV2Dto dto) {
+        return fabricSummaryService.printLogRecord(dto);
     }
 
     public static void main(String[] args) throws IOException {

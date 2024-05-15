@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.fabricsummary.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryPrintLog;
@@ -15,6 +16,7 @@ import com.base.sbc.module.sample.dto.PrintFabricSummaryLogDto;
 import com.base.sbc.module.sample.vo.FabricStyleGroupVo;
 import com.base.sbc.module.sample.vo.FabricSummaryGroupVo;
 import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
+import com.base.sbc.module.sample.vo.PrintCheckVo;
 import com.github.pagehelper.PageInfo;
 
 import java.util.List;
@@ -42,9 +44,11 @@ public interface FabricSummaryService extends BaseService<FabricSummary>{
 
     Boolean saveFabricSummary(List<FabricSummaryInfoVo> dto);
 
-    boolean fabricSummarySync(List<FabricSummaryV2Dto> dto);
+    ApiResult<PrintCheckVo> fabricSummarySync(List<FabricSummaryV2Dto> dto);
 
     PageInfo<FabricSummaryPrintLog> printFabricSummaryLog(PrintFabricSummaryLogDto dto);
+
+    boolean printLogRecord(FabricSummaryV2Dto dto);
 
 // 自定义方法区 不替换的区域【other_start】
 

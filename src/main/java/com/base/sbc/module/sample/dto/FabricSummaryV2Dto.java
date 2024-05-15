@@ -81,4 +81,7 @@ public class FabricSummaryV2Dto extends QueryFieldDto {
     private List<String> bomList;
     /*是否导出图片*/
     private String imgFlag ;
+
+    @ApiModelProperty(value = "不打印的设计师确认列表")
+    private List<String> designerNotPomList;
 }
