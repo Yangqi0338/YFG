@@ -12,6 +12,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -385,6 +386,28 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                     return stylePricing;
                 }).collect(Collectors.toList());
         super.saveOrUpdateBatch(stylePricings);
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void unAuditStatus(List<String> ids) {
+        LambdaUpdateWrapper<StylePricing> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StylePricing::getWagesConfirm, "0");
+        updateWrapper.set(StylePricing::getControlConfirm, "0");
+        updateWrapper.set(StylePricing::getControlHangtagConfirm, "0");
+        updateWrapper.set(StylePricing::getProductHangtagConfirm, "0");
+        updateWrapper.set(StylePricing::getWagesConfirmTime, null);
+        updateWrapper.set(StylePricing::getControlConfirmTime, null);
+        updateWrapper.set(StylePricing::getControlHangtagConfirmTime, null);
+        updateWrapper.set(StylePricing::getProductHangtagConfirmTime, null);
+
+        updateWrapper.set(StylePricing::getUpdateId, getUserId());
+        updateWrapper.set(StylePricing::getUpdateName, getUserName());
+        updateWrapper.set(StylePricing::getUpdateDate, new Date());
+
+        updateWrapper.in(StylePricing::getId, ids);
+
+        update(updateWrapper);
     }
 
     /**
