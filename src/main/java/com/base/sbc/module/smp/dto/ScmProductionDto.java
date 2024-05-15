@@ -3,6 +3,7 @@ package com.base.sbc.module.smp.dto;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.ProductionType;
@@ -10,6 +11,7 @@ import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
+import com.base.sbc.config.utils.BigDecimalUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,11 +71,24 @@ public class ScmProductionDto extends ScmProductionSupportDto {
 
     @JsonAnyGetter
     public Map<String, String> getSingleSizeMap() {
+        return facMerge == YesOrNoEnum.YES ? new HashMap<>() : getSizeMap(null);
+    }
+
+    public Map<String, String> getSizeMap(OrderBookChannelType channelType) {
         Map<String, String> map = new HashMap<>(7);
-        if (isSingleChannel()) {
-            for (Map.Entry<OrderBookChannelType, Map<String, String>> entry : getAllSizeMap().entrySet()) {
-                map = entry.getValue();
-                break;
+        boolean isAll = channelType == null;
+        for (Map.Entry<OrderBookChannelType, Map<String, String>> entry : getAllSizeMap().entrySet()) {
+            OrderBookChannelType key = entry.getKey();
+            Map<String, String> sizeMap = entry.getValue();
+            if (isAll || channelType == key) {
+                String fill = isAll ? "" : (channelType.ordinal() + 1) + "";
+                sizeMap.forEach((sizeName,value)-> {
+                    String realSizeName = sizeName + fill;
+                    BigDecimal defaultValue = BigDecimal.ZERO;
+                    BigDecimal num = NumberUtil.isNumber(value) ? new BigDecimal(value) : defaultValue;
+                    String sum = map.getOrDefault(realSizeName, defaultValue.toString());
+                    map.put(realSizeName, new BigDecimal(sum).add(num).toString());
+                });
             }
         }
         return map;
@@ -146,19 +162,23 @@ public class ScmProductionDto extends ScmProductionSupportDto {
     /** 是否投产合并 */
     private YesOrNoEnum facMerge;
 
+    public void setFacMerge(YesOrNoEnum facMerge) {
+        this.facMerge = facMerge == null ? (isSingleChannel() ? YesOrNoEnum.NO : YesOrNoEnum.YES) : facMerge;
+    }
+
     public String getFacMerge(){
-        if (facMerge != null) return facMerge.getName();
-        return isSingleChannel() ? YesOrNoEnum.NO.getName() : YesOrNoEnum.YES.getName();
-    };
+        return facMerge.getName();
+    }
 
     @JsonAnyGetter
     public Map<String, String> getOnlineSizeMap() {
-        return getSizeMap(OrderBookChannelType.ONLINE);
+        return facMerge == YesOrNoEnum.NO ? new HashMap<>() : getSizeMap(OrderBookChannelType.ONLINE);
+
     }
 
     @JsonAnyGetter
     public Map<String, String> getOfflineSizeMap() {
-        return getSizeMap(OrderBookChannelType.OFFLINE);
+        return facMerge == YesOrNoEnum.NO ? new HashMap<>() : getSizeMap(OrderBookChannelType.OFFLINE);
     }
 
     /** 工号 */

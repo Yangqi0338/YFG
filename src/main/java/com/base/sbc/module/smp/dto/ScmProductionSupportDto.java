@@ -50,15 +50,4 @@ public class ScmProductionSupportDto {
     public boolean isSingleChannel(){
         return getChannelTypeList().size() <= 1;
     }
-
-    public Map<String, String> getSizeMap(OrderBookChannelType channelType) {
-        Map<String, String> map = new HashMap<>(7);
-        if (!isSingleChannel()) {
-            Map<String, String> sizeMap = getAllSizeMap().getOrDefault(channelType, new HashMap<>());
-            sizeMap.forEach((key,value)-> {
-                map.put(key + (channelType.ordinal() + 1), value);
-            });
-        }
-        return map;
-    }
 }

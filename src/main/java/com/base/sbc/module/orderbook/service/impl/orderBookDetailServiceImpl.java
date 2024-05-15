@@ -1191,10 +1191,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             productionDto.setName(orderBookDetail.getBulkStyleNo());
             // 检查必填参数是否校验完成
             ValidationUtil.validate(productionDto);
-            if (orderBookDetail.getFacMerge() == YesOrNoEnum.YES) {
-                long count = productionDto.getAllSizeMap().values().stream().filter(it -> !it.isEmpty()).count();
-                if (count < 2){
-                    throw new OtherException("投产单为合并投产，请填写预分货分配数量");
+            long count = productionDto.getAllSizeMap().values().stream().filter(it -> !it.isEmpty()).count();
+            YesOrNoEnum facMerge = orderBookDetail.getFacMerge();
+            if ((facMerge.getValue() + 1) != count) {
+                switch (facMerge) {
+                    case NO: throw new OtherException("不合并投产就只能填写线上/线下的其中一个投产");
+                    case YES: throw new OtherException("合并投产需要线上投产、线下投产都填写");
                 }
             }
             productionList.add(productionDto);
