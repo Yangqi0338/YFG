@@ -415,7 +415,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         }
 
         Map<String, List<FabricSummaryInfoVo>> map = pageInfo.getList().stream().collect(Collectors.groupingBy(FabricSummaryInfoVo::getBomId));
-        List<FabricSummaryStyle> designerNotlist = Lists.newArrayList();
+        List<FabricSummaryInfoVo> designerNotlist = Lists.newArrayList();
         for (FabricSummaryStyle fabricSummaryStyle : list) {
             FabricSummaryInfoVo fabricSummaryInfoVo =  map.get(fabricSummaryStyle.getBomId()).get(0);
             if (StringUtils.isBlank(fabricSummaryInfoVo.getSupplierFabricCode()) && StringUtils.isBlank(fabricSummary.getSupplierFabricCode())){
@@ -427,10 +427,10 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
                 return ApiResult.error(fabricSummaryStyle.getStyleNo()+"款已不引用改物料，请删除后再打印！",200);
             }
             if (!Constants.ONE_STR.equals(fabricSummaryInfoVo.getDesignVerify())){
-                designerNotlist.add(fabricSummaryStyle);
+                designerNotlist.add(fabricSummaryInfoVo);
             }
         }
-        return ApiResult.success("成功",new PrintCheckVo(designerNotlist));
+        return ApiResult.success("成功",new PrintCheckVo(CollUtil.isNotEmpty(designerNotlist) ? designerNotlist : null));
     }
 
     private void checkUpdateFabricSummary(FabricSummary fabricSummary, FabricSummaryStyle fabricSummaryStyle, List<FabricSummaryInfoVo> fabricSummaryInfoVos) {

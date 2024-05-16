@@ -30,6 +30,9 @@
             tfss.id as fabric_summary_style_id,
             tfs.*,
             tpb.design_unit_use as unit_use,
+            tpb.color as color,
+            tpb.collocation_name as collocation_name,
+            tpb.part_name as collocation_name,
             tfss.*
         </if>
         from t_fabric_summary tfs
