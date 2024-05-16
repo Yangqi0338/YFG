@@ -46,8 +46,10 @@ public class EscmMaterialCompnentInspectCompanyServiceImpl extends BaseServiceIm
                     EscmMaterialCompnentInspectCompanyDto inspectCompanyDto;
                     if (inspectCompanyDtoOpt.isPresent()) {
                         inspectCompanyDto = inspectCompanyDtoOpt.get();
+                        inspectCompanyDto.setInspectCompanyId(inspectCompanyDto.getId());
                     }else {
                         inspectCompanyDto = value.get(0);
+                        inspectCompanyDto.setInspectCompanyId(inspectCompanyDto.getId());
                         inspectCompanyDto.setId(null);
                     }
                     List<EscmMaterialCompnentInspectCompanyDto> companyDtoList = BeanUtil.copyToList(value, EscmMaterialCompnentInspectCompanyDto.class);
