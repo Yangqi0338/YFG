@@ -15,7 +15,9 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
+import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
@@ -59,6 +61,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -102,6 +105,9 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
 
     @Autowired
     private BasicsdatumMaterialColorService materialColorService;
+
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Override
     public  PageInfo<String> fabricSummaryIdList(FabricSummaryV2Dto dto) {
@@ -349,7 +355,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
     }
 
     private void fullFabricSummary(FabricSummary fabricSummaryInfoVo) {
-        fabricSummaryInfoVo.setFabricSummaryCode("ML"+System.currentTimeMillis());
+        fabricSummaryInfoVo.setFabricSummaryCode(getFabricSummaryCode(fabricSummaryInfoVo));
         fabricSummaryInfoVo.insertInit();
         fabricSummaryInfoVo.setId(new IdGen().nextIdStr());
         //规格
@@ -474,6 +480,25 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         qw.lambda().eq(FabricSummary::getGroupId, groupId);
         List<FabricSummary> list = list(qw);
         return CollUtil.isNotEmpty(list) ? list.get(0) : null;
+    }
+
+    /**
+     * 获取面料编码
+     * @param fabricSummary
+     * @return
+     */
+    private String getFabricSummaryCode(FabricSummary fabricSummary){
+        String serialNumberMaxKey = String.format("fabric_summary_code_seral_%s",fabricSummary.getGroupId());
+        long serialNumber;
+        if (null != redisUtils.get(serialNumberMaxKey)){
+            serialNumber =  redisUtils.incr(serialNumberMaxKey,1,3600, TimeUnit.SECONDS);
+        }else {
+            Long serialNumberMax = this.getBaseMapper().getSerialNumberMax(fabricSummary.getGroupId());
+            serialNumber = null == serialNumberMax ? 1 : serialNumberMax + 1;
+            redisUtils.set(serialNumberMaxKey,serialNumber,3600);
+        }
+        //XD+品牌代码+日期+4位流水
+        return "XD" + fabricSummary.getBrand() + DateUtils.formatDate(new Date(), "yyyyMMdd") +String.format("%04d", serialNumber);
     }
 
 

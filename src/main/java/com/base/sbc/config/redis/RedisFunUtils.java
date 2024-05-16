@@ -2,7 +2,6 @@
 package com.base.sbc.config.redis;
 
 
-import com.base.sbc.config.utils.SpringContextHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
@@ -211,6 +210,22 @@ public class RedisFunUtils {
 		}
 		setRedisTemplateInit(redisFlag);
 		return redisTemplate.opsForValue().increment(key, delta);
+	}
+
+	/**
+	 * 递增
+	 * @param key 键
+	 * @param delta 要增加几(大于0)
+	 * @return
+	 */
+	public long incr(String key, long delta, long timeout, TimeUnit unit){
+		if(delta<0){
+			throw new RuntimeException("递增因子必须大于0");
+		}
+		setRedisTemplateInit(redisFlag);
+		Long increment = redisTemplate.opsForValue().increment(key, delta);
+		redisTemplate.expire(key,timeout,unit);
+		return increment;
 	}
 
 	/**

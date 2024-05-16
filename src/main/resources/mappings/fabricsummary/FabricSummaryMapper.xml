@@ -38,5 +38,9 @@
         </if>
     </select>
 
+    <select id="getSerialNumberMax" resultType="java.lang.Long">
+        select MAX(serial_number) from t_fabric_summary tfs where group_id = #{groupId};
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

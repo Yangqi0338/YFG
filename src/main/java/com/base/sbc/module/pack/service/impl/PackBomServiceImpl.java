@@ -946,7 +946,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         for (FabricSummaryStyle fabricSummaryStyle : fabricSummaryStyles) {
             //检测该款式是否还用了此物料
             QueryWrapper  queryWrapper1 = new QueryWrapper<>();
-            queryWrapper1.eq("pb.foreign_id",fabricSummaryStyle.getForeignId());
             queryWrapper1.eq("pb.material_code",fabricSummary.getMaterialCode());
             int styleUseMaterialCount = baseMapper.materialBomCount(queryWrapper1);
             if (styleUseMaterialCount <= 0){
@@ -1590,7 +1589,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
      */
     private void fullMaterialBomInfo(FabricSummary fabricSummary, FabricSummaryStyle fabricSummaryStyle) {
         QueryWrapper qc = new QueryWrapper();
-        qc.eq("pb.foreign_id",fabricSummaryStyle.getForeignId());
         qc.eq("pb.material_code",fabricSummary.getMaterialCode());
         List<PackBom> packBomList = baseMapper.selectByForeignId(qc);
         PackBom packBom ;

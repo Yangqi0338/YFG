@@ -114,10 +114,6 @@ public class FabricSummaryInfoVo extends FabricSummary {
     @ApiModelProperty(value = "面料汇总id"  )
     private String fabricSummaryId;
 
-    /** 主数据id-packbom */
-    @ApiModelProperty(value = "主数据id-packbom"  )
-    private String foreignId;
-
     /** 款式图 */
     @ApiModelProperty(value = "款式图"  )
     private String stylePic;
