@@ -29,9 +29,12 @@
             tfs.id as id,
             tfss.id as fabric_summary_style_id,
             tfs.*,
+            tpb.design_unit_use as unit_use,
             tfss.*
         </if>
-        from t_fabric_summary tfs left join t_fabric_summary_style tfss on tfs. id = tfss.fabric_summary_id and tfss.del_flag = '0'
+        from t_fabric_summary tfs
+        left join t_fabric_summary_style tfss on tfs. id = tfss.fabric_summary_id and tfss.del_flag = '0'
+        left join t_pack_bom tpb on tfss.bom_id = tpb.id
         where tfs.del_flag = '0' and (tfss.del_flag is null or tfss.del_flag = '0')
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
