@@ -355,7 +355,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
     }
 
     private void fullFabricSummary(FabricSummary fabricSummaryInfoVo) {
-        fabricSummaryInfoVo.setFabricSummaryCode(getFabricSummaryCode(fabricSummaryInfoVo));
+        getFabricSummaryCode(fabricSummaryInfoVo);
         fabricSummaryInfoVo.insertInit();
         fabricSummaryInfoVo.setId(new IdGen().nextIdStr());
         //规格
@@ -487,7 +487,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
      * @param fabricSummary
      * @return
      */
-    private String getFabricSummaryCode(FabricSummary fabricSummary){
+    private void getFabricSummaryCode(FabricSummary fabricSummary){
         String serialNumberMaxKey = String.format("fabric_summary_code_seral_%s",fabricSummary.getGroupId());
         long serialNumber;
         if (null != redisUtils.get(serialNumberMaxKey)){
@@ -498,7 +498,10 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             redisUtils.set(serialNumberMaxKey,serialNumber,3600);
         }
         //XD+品牌代码+日期+4位流水
-        return "XD" + fabricSummary.getBrand() + DateUtils.formatDate(new Date(), "yyyyMMdd") +String.format("%04d", serialNumber);
+        String fabricSummaryCode = "XD" + fabricSummary.getBrand() + DateUtils.formatDate(new Date(), "yyyyMMdd") +String.format("%04d", serialNumber);
+        fabricSummary.setFabricSummaryCode(fabricSummaryCode);
+        fabricSummary.setSerialNumber(serialNumber);
+
     }
 
 
