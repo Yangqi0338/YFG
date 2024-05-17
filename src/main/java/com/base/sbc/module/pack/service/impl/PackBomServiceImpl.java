@@ -159,7 +159,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
 
-        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        BaseQueryWrapper<PackBom> qw = new BaseQueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getBomVersionId()), "bom_version_id", dto.getBomVersionId());
         qw.orderByAsc("sort");
@@ -170,6 +170,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             }
             qw.in("id", bomIds);
         }
+        qw.notEmptyLike("material_code", dto.getMaterialCode());
+        qw.notEmptyEq("unit_use", dto.getUnitUse());
+        qw.notEmptyLike("ingredient", dto.getIngredient());
+        qw.notEmptyLike("supplier_factory_ingredient", dto.getSupplierFactoryIngredient());
+        qw.notEmptyLike("material_name", dto.getMaterialName());
         Page<PackBom> page = PageHelper.startPage(dto);
         List<PackBom> list = list(qw);
 
