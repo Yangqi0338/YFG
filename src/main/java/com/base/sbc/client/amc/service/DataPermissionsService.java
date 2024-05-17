@@ -169,7 +169,7 @@ public class DataPermissionsService {
             List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
             if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
                 //判断配置是否分组
-                Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
+                Map<Integer, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->Integer.parseInt(StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():"0")));
                 boolean permissionGroup = permissionMap.size() != 1;
 
                 List<String> fieldArr = new ArrayList<>();
@@ -178,20 +178,27 @@ public class DataPermissionsService {
                     String sqlType = authorityField.isEmpty() ? " ( " : " or ( ";
                     fieldArr.add(sqlType);
                 }
+                List<Integer> permissionMapKeys = new ArrayList<>(permissionMap.keySet());
+                permissionMapKeys.sort(Integer::compare);
+                boolean first = true;
                 boolean isFieldFlag = false;
-                for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
-                    List<FieldDataPermissionVO> value = entry.getValue();
+                for (Integer entry : permissionMapKeys) {
+                    List<FieldDataPermissionVO> value = permissionMap.get(entry);
                     value.sort(Comparator.comparingInt(s-> StrUtil.isNotEmpty(s.getSortIdx()) ? Integer.parseInt(s.getSortIdx()) : 0));
                     //如果配置只有一组，不添加括号
                     if(permissionGroup){
-                        String groupSelectType = value.get(0).getGroupSelectType();
-                        if ("and".equals(groupSelectType)) {
-                            fieldArr.add(" and ( ");
+                        if(first){
+                            fieldArr.add(" ( ");
                         }else{
-                            fieldArr.add(" or ( ");
+                            String groupSelectType = value.get(0).getGroupSelectType();
+                            if ("and".equals(groupSelectType)) {
+                                fieldArr.add(" and ( ");
+                            }else{
+                                fieldArr.add(" or ( ");
+                            }
                         }
                     }
-                    permissionGroup = false;
+                    first = false;
                     boolean sqlType = false;
                     for (FieldDataPermissionVO fieldDataPermissionVO : value) {
                         if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
@@ -232,6 +239,7 @@ public class DataPermissionsService {
                             fieldArr.add(" ) ");
                         }
                     }else{
+                        first = true;
                         fieldArr.remove(fieldArr.size()-1);
                     }
                 }
