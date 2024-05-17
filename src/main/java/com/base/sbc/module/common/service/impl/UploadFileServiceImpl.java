@@ -210,7 +210,12 @@ public class UploadFileServiceImpl extends BaseServiceImpl<UploadFileMapper, Upl
                     case "ingredientsAtactiform":
                         objectName = "Seasoning/Fabric/" + System.currentTimeMillis() + "." + extName;
                         break;
-
+                    case "SampleVideo":
+                        QueryWrapper qw = new QueryWrapper();
+                        qw.eq("design_no", code);
+                        Style style2 = styleMapper.selectOne(qw);
+                        objectName = type + "/" + style2.getBrandName() + "/" + style2.getYearName() + "/" + style2.getDesignNo() + "/" + System.currentTimeMillis() + "." + extName;
+                        break;
                     default:
                         objectName = DateUtils.getDate() + "/" + System.currentTimeMillis() + "." + extName;
                 }
