@@ -15,13 +15,15 @@ public class SchedulingConfig implements SchedulingConfigurer {
 
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
+        String redisKey = RedisKeyConstant.JOB_THREAD_ID.build();
+        RedisStaticFunUtils.del(redisKey);
         //设置taskScheduler
         ThreadPoolTaskScheduler taskScheduler = new ThreadPoolTaskScheduler();
         taskScheduler.setPoolSize(5);
         taskScheduler.setThreadNamePrefix("taskScheduler");
         taskScheduler.setThreadFactory((runnable)-> {
             Thread thread = taskScheduler.newThread(runnable);
-            RedisStaticFunUtils.lSet(RedisKeyConstant.JOB_THREAD_ID.build(), thread.getId());
+            RedisStaticFunUtils.lSet(redisKey, thread.getId());
             return thread;
         });
         taskScheduler.initialize();
