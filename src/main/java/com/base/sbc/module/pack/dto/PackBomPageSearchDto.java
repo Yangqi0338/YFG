@@ -5,6 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.math.BigDecimal;
+
 /**
  * 类描述：bom 分页查询条件
  *
@@ -22,4 +24,14 @@ public class PackBomPageSearchDto extends PackCommonPageSearchDto {
     private String bomVersionId;
     @ApiModelProperty(value = "颜色编码")
     private String styleColorCode;
+    @ApiModelProperty(value = "物料编码")
+    private String materialCode;
+    @ApiModelProperty(value = "物料名称")
+    private String materialName;
+    @ApiModelProperty(value = "用量")
+    private BigDecimal unitUse;
+    @ApiModelProperty(value = "成分")
+    private String ingredient;
+    @ApiModelProperty(value = "厂家成分")
+    private String supplierFactoryIngredient;
 }

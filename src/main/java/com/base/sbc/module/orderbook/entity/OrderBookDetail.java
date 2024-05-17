@@ -94,6 +94,17 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @Excel(name = "面料吊牌")
     private String fabricDrop;
 
+    /**
+     * 认证吊牌
+     */
+    @Excel(name = "认证吊牌")
+    private String authDrop;
+
+    /**
+     * cmt公司面料bomId
+     */
+    @Excel(name = "cmt公司面料bomId")
+    private String cmtPackBomId;
 
     /**
      * 款式配色id
