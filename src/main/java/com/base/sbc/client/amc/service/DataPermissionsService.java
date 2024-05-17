@@ -178,20 +178,25 @@ public class DataPermissionsService {
                     String sqlType = authorityField.isEmpty() ? " ( " : " or ( ";
                     fieldArr.add(sqlType);
                 }
+                boolean first = true;
                 boolean isFieldFlag = false;
                 for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
                     List<FieldDataPermissionVO> value = entry.getValue();
                     value.sort(Comparator.comparingInt(s-> StrUtil.isNotEmpty(s.getSortIdx()) ? Integer.parseInt(s.getSortIdx()) : 0));
                     //如果配置只有一组，不添加括号
                     if(permissionGroup){
-                        String groupSelectType = value.get(0).getGroupSelectType();
-                        if ("and".equals(groupSelectType)) {
-                            fieldArr.add(" and ( ");
+                        if(first){
+                            fieldArr.add(" ( ");
                         }else{
-                            fieldArr.add(" or ( ");
+                            String groupSelectType = value.get(0).getGroupSelectType();
+                            if ("and".equals(groupSelectType)) {
+                                fieldArr.add(" and ( ");
+                            }else{
+                                fieldArr.add(" or ( ");
+                            }
                         }
                     }
-                    permissionGroup = false;
+                    first = false;
                     boolean sqlType = false;
                     for (FieldDataPermissionVO fieldDataPermissionVO : value) {
                         if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
