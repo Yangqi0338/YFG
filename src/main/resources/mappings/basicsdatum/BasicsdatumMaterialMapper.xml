@@ -276,40 +276,21 @@
 			tbmp.quotation_price,
 			tbmp.supplier_material_code,
 			tbmc.supplier_color_code,
-			tbmw.widthName,
-			temcic.fabricEvaluation,
-			temcic.checkCompanyName,
-			temcic.checkDate,
-			temcic.checkValidDate,
-			temcic.checkItems,
-			temcic.checkOrderUserName,
-			temcic.fileUrl
+			(SELECT GROUP_CONCAT(tbmw.NAME) FROM t_basicsdatum_material_width tbmw WHERE tbmw.del_flag = 0 and tbmw.material_code = tbm.material_code GROUP BY tbmw.material_code) as widthName,
+			temcic.remark as fabricEvaluation,
+			temcic.company_full_name as checkCompanyName,
+			temcic.check_date as checkDate,
+			temcic.validity_time as checkValidDate,
+			temcic.send_inspect_content as checkItems,
+			temcic.maker_by_name as checkOrderUserName,
+			temcic.file_url as checkFileUrl
 		</if>
 		FROM
 		t_basicsdatum_material tbm
 		LEFT JOIN t_basicsdatum_material_color tbmc on tbmc.material_code = tbm.material_code AND tbmc.company_code = tbm.company_code AND tbmc.del_flag='0'
 		LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'
-		LEFT JOIN (
-		select material_code,GROUP_CONCAT(name) as widthName from t_basicsdatum_material_width
-		WHERE
-		del_flag = 0
-		GROUP BY material_code
-		)tbmw ON tbmw.material_code = tbm.material_code
-
-		LEFT JOIN (SELECT
-		t.materials_no,
-		t.remark as fabricEvaluation,
-		t.company_full_name as checkCompanyName,
-		t.check_date as checkDate,
-		t.validity_time as checkValidDate,
-		t.send_inspect_content as checkItems,
-		t.maker_by_name as checkOrderUserName,
-		t.file_url as fileUrl
-		FROM
-		( SELECT id as inspectCompanyId, file_url,check_date,send_inspect_content,remark,company_full_name,validity_time,materials_no,maker_by_name FROM `t_escm_material_component_inspect_company`
-
-		ORDER BY YEAR DESC, validity_time DESC ) t
-		GROUP BY t.materials_no	 ) temcic ON temcic.materials_no = tbm.material_code
+		LEFT JOIN t_escm_material_component_inspect_company temcic ON temcic.id = (
+		select id from t_escm_material_component_inspect_company  where materials_no = tbm.material_code ORDER BY YEAR DESC, validity_time DESC limit 1)
 		${ew.customSqlSegment}
 	</select>
 
