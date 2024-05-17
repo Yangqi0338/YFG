@@ -1542,10 +1542,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         if (orderBookDetail.getAuditStatus() != OrderBookDetailAuditStatusEnum.NOT_COMMIT)
             throw new OtherException("已经发起审核,无法分配商企");
 
-        if (OrderBookDepartmentEnum.DESIGN.getCode().equals(orderBookDetail.getDepartment()) &&
-                departmentEnum != OrderBookDepartmentEnum.OFFLINE){
-            throw new OtherException("请先分配线下商企！");
-        }
+//        if (OrderBookDepartmentEnum.DESIGN.getCode().equals(orderBookDetail.getDepartment()) &&
+//                departmentEnum != OrderBookDepartmentEnum.OFFLINE){
+//            throw new OtherException("请先分配线下商企！");
+//        }
         //分配线上商企
         if (departmentEnum == OrderBookDepartmentEnum.ONLINE && channels.contains(OrderBookDepartmentEnum.OFFLINE.getCode())){
             if (StringUtils.isBlank(orderBookDetail.getOfflineProduction())){
