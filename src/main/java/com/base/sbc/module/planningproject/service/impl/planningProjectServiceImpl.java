@@ -16,6 +16,7 @@ import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.vo.BasePageInfo;
 import com.base.sbc.module.planning.entity.PlanningChannel;
+import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.vo.PlanningSeasonOverviewVo;
 import com.base.sbc.module.planningproject.dto.PlanningProjectDTO;
@@ -284,6 +285,7 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
     public List<PlanningProjectDimension> getDimensionality(PlanningProjectDTO planningProjectDTO) {
         String planningProjectId = planningProjectDTO.getPlanningProjectId();
         String prodCategoryCode = planningProjectDTO.getProdCategoryCode();
+        String prodCategory2ndCode = planningProjectDTO.getProdCategory2ndCode();
         if (ObjectUtil.isEmpty(planningProjectId)) {
             throw new OtherException("请选择企划看板数据！");
         }
@@ -298,16 +300,57 @@ public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectM
         LambdaQueryWrapper<PlanningProjectDimension> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PlanningProjectDimension::getPlanningProjectId, planningProject.getId());
         queryWrapper.eq(PlanningProjectDimension::getProdCategoryCode, prodCategoryCode);
+        queryWrapper.eq(ObjectUtil.isNotEmpty(prodCategory2ndCode), PlanningProjectDimension::getProdCategory2ndCode, prodCategory2ndCode);
         queryWrapper.select(
                 PlanningProjectDimension::getProdCategoryCode,
+                PlanningProjectDimension::getProdCategoryName,
+                PlanningProjectDimension::getProdCategory2ndName,
+                PlanningProjectDimension::getProdCategory2ndCode,
                 PlanningProjectDimension::getDimensionId,
                 PlanningProjectDimension::getDimensionName,
-                PlanningProjectDimension::getDimensionalityGradeName
+                PlanningProjectDimension::getDimensionalityGradeName,
+                PlanningProjectDimension::getDimensionalityType
         );
         queryWrapper.isNotNull(PlanningProjectDimension::getDimensionName);
         queryWrapper.ne(PlanningProjectDimension::getDimensionName, "");
         queryWrapper.groupBy(PlanningProjectDimension::getProdCategoryCode, PlanningProjectDimension::getDimensionId);
-        return planningProjectDimensionService.list(queryWrapper);
+        List<PlanningProjectDimension> projectDimensionList = planningProjectDimensionService.list(queryWrapper);
+
+        if (ObjectUtil.isNotEmpty(projectDimensionList)) {
+            // 初始化返回格式
+            Map<String, List<String>> resultMap = new HashMap<>(1);
+            List<String> prodCategory2ndNameList = projectDimensionList.stream().map(PlanningProjectDimension::getProdCategory2ndName)
+                    .distinct().filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+            resultMap.put(projectDimensionList.get(0).getProdCategoryName(), prodCategory2ndNameList);
+            // 查询此品类所有的维度信息
+            List<PlanningDimensionality> planningDimensionalityList = categoryPlanningService
+                    .getAllPlanningDimensionalitieList(resultMap, planningProject.getPlanningChannelCode(), planningProject.getSeasonId());
+            // 根据维度配置 把已提交的企划看板的维度数据不存在于企划需求配置中的数据剔除
+            if (ObjectUtil.isNotEmpty(planningDimensionalityList)) {
+                projectDimensionList = projectDimensionList.stream().filter(
+                        item -> {
+                            for (PlanningDimensionality planningDimensionality : planningDimensionalityList) {
+                                if (item.getDimensionalityType().equals(1)) {
+                                    // 到品类级别
+                                    if (item.getDimensionId().equals(planningDimensionality.getFieldId())
+                                            && ObjectUtil.isEmpty(planningDimensionality.getProdCategory2nd())) {
+                                        return true;
+                                    }
+                                } else {
+                                    // 到中类级别
+                                    if (item.getDimensionId().equals(planningDimensionality.getFieldId())
+                                            && ObjectUtil.isNotEmpty(planningDimensionality.getProdCategory2nd())
+                                    && planningDimensionality.getProdCategory2nd().equals(item.getProdCategory2ndCode())) {
+                                        return true;
+                                    }
+                                }
+                            }
+                            return false;
+                        }
+                ).collect(Collectors.toList());
+            }
+        }
+        return projectDimensionList;
     }
 
     /**

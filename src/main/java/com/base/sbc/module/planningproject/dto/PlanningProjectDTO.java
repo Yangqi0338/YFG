@@ -37,5 +37,10 @@ public class PlanningProjectDTO {
      */
     @ApiModelProperty(value = "品类 code")
     private String prodCategoryCode;
+    /**
+     * 中类 code
+     */
+    @ApiModelProperty(value = "中类 code")
+    private String prodCategory2ndCode;
 
 }

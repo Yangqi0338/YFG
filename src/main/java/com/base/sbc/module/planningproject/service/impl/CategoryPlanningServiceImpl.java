@@ -164,10 +164,6 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         // 初始化结构管理数据
         HashMap<String, List<BasicStructureTreeVo>> structureMap = new HashMap<>();
         {
-            // 获取所有维度等级的数据
-            List<String> prodCategoryNameList = detailsList.stream()
-                    .map(SeasonalPlanningDetails::getProdCategoryName).distinct().collect(Collectors.toList());
-
             // 将季节企划详情数据转换成品类下面是中类集合的格式 用作查询维度数据信息
             Map<String, List<SeasonalPlanningDetails>> seasonalPlanningDetailMap
                     = detailsList.stream().collect(Collectors.groupingBy(SeasonalPlanningDetails::getProdCategoryName));
@@ -261,7 +257,6 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
                             if (!prodCategory2nd.equals(details.getProdCategory2ndCode())) {
                                 continue;
                             }
-
                         }
                         // 拿到一个维度字段数据
                         FieldManagementVo fieldManagement = fieldManagementMap.get(planningDimensionality.getFieldId());
@@ -661,6 +656,15 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
         categoryPlanningDetails.setDimensionValue(dimensionValue);
         categoryPlanningDetails.setDimensionalityGrade(planningDimensionality.getDimensionalityGrade());
         categoryPlanningDetails.setDimensionalityGradeName(planningDimensionality.getDimensionalityGradeName());
+        String prodCategory2nd = planningDimensionality.getProdCategory2nd();
+        // 判断这个维度数据是中类级别 还是品类级别
+        if (ObjectUtil.isEmpty(prodCategory2nd)) {
+            // 空的 就是品类级别
+            categoryPlanningDetails.setDimensionalityType(1);
+        } else {
+            // 不是空的就是中类级别
+            categoryPlanningDetails.setDimensionalityType(2);
+        }
         categoryPlanningDetails.setBandCode(details.getBandCode());
         categoryPlanningDetails.setBandName(details.getBandName());
         // 计算不同款式类别相加起来的需求数

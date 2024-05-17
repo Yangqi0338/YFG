@@ -79,6 +79,11 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "维度等级名称")
     private String dimensionalityGradeName;
+    /**
+     * 维度类型（1-品类 2-中类）
+     */
+    @ApiModelProperty(value = "维度类型（1-品类 2-中类）")
+    private Integer dimensionalityType;
 
     @ApiModelProperty(value = "波段名称")
     private String bandName;

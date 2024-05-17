@@ -704,6 +704,7 @@ public class PlanningProjectPlankServiceImpl extends BaseServiceImpl<PlanningPro
                                 .eq(CategoryPlanningDetails::getProdCategory1stCode, planningProjectDimension.getProdCategory1stCode())
                                 .eq(CategoryPlanningDetails::getProdCategoryCode, planningProjectDimension.getProdCategoryCode())
                                 .eq(ObjectUtil.isNotEmpty(planningProjectDimension.getProdCategory2ndCode()), CategoryPlanningDetails::getProdCategory2ndCode, planningProjectDimension.getProdCategory2ndCode())
+                                .eq(CategoryPlanningDetails::getDimensionId, planningProjectDimension.getDimensionId())
                                 .eq(CategoryPlanningDetails::getBandCode, planningProjectPlank.getBandCode())
                 );
                 if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
