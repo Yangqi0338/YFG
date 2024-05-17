@@ -785,7 +785,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public PageInfo<PatternMakingTaskListVo> patternMakingTaskList(PatternMakingTaskSearchDto dto) {
         BaseQueryWrapper qw = new BaseQueryWrapper();
 //        qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
-        qw.eq("p.historical_data", "0");
+//        qw.eq("p.historical_data", "0");
         qw.andLike(dto.getSearch(), "s.design_no", "p.code");
         qw.eq(StrUtil.isNotBlank(dto.getYear()), "s.year", dto.getYear());
         qw.eq(StrUtil.isNotBlank(dto.getMonth()), "s.month", dto.getMonth());

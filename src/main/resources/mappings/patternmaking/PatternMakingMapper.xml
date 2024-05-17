@@ -162,7 +162,7 @@
         and p.prm_send_status='1'
         and p.del_flag &lt;&gt; '1'
         and s.del_flag &lt;&gt; '1'
-
+        AND (p.historical_data != '1' or (p.historical_data = '1' and p.design_send_date>= DATE_SUB(CURDATE(), INTERVAL 2 MONTH) ))
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
