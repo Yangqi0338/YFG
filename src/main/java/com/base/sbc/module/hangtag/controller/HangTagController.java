@@ -81,7 +81,6 @@ public class HangTagController extends BaseController {
 
     @ApiOperation(value = "查询详情")
     @GetMapping("/getDetailsByBulkStyleNo")
-    @Deprecated
     public ApiResult getDetailsByBulkStyleNo(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType) {
         return selectSuccess(hangTagService.getDetailsByBulkStyleNo(bulkStyleNo, super.getUserCompany(), selectType));
     }
