@@ -297,7 +297,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
                 infoVoMap.put(fabricSummaryInfoVo.getMaterialCode(),fabricSummary);
             }
             //补充信息
-            fullFabricSummary(fabricSummary, index++);
+            fullFabricSummary(fabricSummary, ++index);
             fabricSummaries.add(fabricSummary);
 
             fabricSummaryStyle.setFabricSummaryId(fabricSummary.getId());
