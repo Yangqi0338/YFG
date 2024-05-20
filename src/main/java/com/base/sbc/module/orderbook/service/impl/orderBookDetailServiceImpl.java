@@ -1547,24 +1547,24 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            throw new OtherException("请先分配线下商企！");
 //        }
         //分配线上商企
-        if (departmentEnum == OrderBookDepartmentEnum.ONLINE && channels.contains(OrderBookDepartmentEnum.OFFLINE.getCode())){
-            if (StringUtils.isBlank(orderBookDetail.getOfflineProduction())){
-                throw new OtherException("分配线上商企，线下投产不能为空！");
-            }
-            // 检查投产数是否一致
-            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getOfflineCommissioningSize())).orElse(new JSONObject());
-
-            int sumOffProduction = jsonObject.keySet().stream()
-                    .filter(it -> it.endsWith(OrderBookChannelType.OFFLINE.getFill()) &&
-                            null != jsonObject.get(it) && StringUtils.isNotBlank(String.valueOf(jsonObject.get(it))))
-                    .mapToInt(jsonObject::getInteger)
-                    .filter(Objects::nonNull)
-                    .sum();
-            if (sumOffProduction != Integer.parseInt(orderBookDetail.getOfflineProduction())) {
-                throw new OtherException("线下尺码总数量与线下投产数量不一致，请检查");
-            }
-
-        }
+//        if (departmentEnum == OrderBookDepartmentEnum.ONLINE && channels.contains(OrderBookDepartmentEnum.OFFLINE.getCode())){
+//            if (StringUtils.isBlank(orderBookDetail.getOfflineProduction())){
+//                throw new OtherException("分配线上商企，线下投产不能为空！");
+//            }
+//            // 检查投产数是否一致
+//            JSONObject jsonObject = Opt.ofNullable(JSON.parseObject(orderBookDetail.getOfflineCommissioningSize())).orElse(new JSONObject());
+//
+//            int sumOffProduction = jsonObject.keySet().stream()
+//                    .filter(it -> it.endsWith(OrderBookChannelType.OFFLINE.getFill()) &&
+//                            null != jsonObject.get(it) && StringUtils.isNotBlank(String.valueOf(jsonObject.get(it))))
+//                    .mapToInt(jsonObject::getInteger)
+//                    .filter(Objects::nonNull)
+//                    .sum();
+//            if (sumOffProduction != Integer.parseInt(orderBookDetail.getOfflineProduction())) {
+//                throw new OtherException("线下尺码总数量与线下投产数量不一致，请检查");
+//            }
+//
+//        }
 
 
     }
