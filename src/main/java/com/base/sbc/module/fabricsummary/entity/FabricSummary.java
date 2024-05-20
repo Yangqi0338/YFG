@@ -139,9 +139,5 @@ public class FabricSummary extends BaseDataEntity<String> {
     @ApiModelProperty(value = "组id"  )
     private String groupId;
 
-    @ApiModelProperty(value = "流水号"  )
-    private Long serialNumber;
-
-
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

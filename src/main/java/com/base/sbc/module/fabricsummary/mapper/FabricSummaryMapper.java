@@ -31,7 +31,7 @@ public interface FabricSummaryMapper extends BaseMapper<FabricSummary> {
     List<FabricSummaryInfoVo> fabricSummaryInfoVoList( @Param(Constants.WRAPPER) BaseQueryWrapper<FabricSummaryInfoVo> qw);
 
 
-    Long getSerialNumberMax(@Param("groupId")String groupId);
+    int getSerialNumberMax(@Param("groupId")String groupId);
 
 // 自定义方法区 不替换的区域【other_start】
 

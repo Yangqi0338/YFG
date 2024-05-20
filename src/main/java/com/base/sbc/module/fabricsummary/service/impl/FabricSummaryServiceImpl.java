@@ -15,7 +15,6 @@ import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.constant.Constants;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.DateUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -61,7 +60,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -106,8 +104,6 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
     @Autowired
     private BasicsdatumMaterialColorService materialColorService;
 
-    @Autowired
-    private RedisUtils redisUtils;
 
     @Override
     public  PageInfo<String> fabricSummaryIdList(FabricSummaryV2Dto dto) {
@@ -276,6 +272,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         List<FabricSummary> fabricSummaries = Lists.newArrayList();
         Map<String, FabricSummary> infoVoMap = Maps.newHashMap();
         List<FabricSummaryStyle> fabricSummaryStyles= Lists.newArrayList();
+        int index = 0;
         for (FabricSummaryInfoVo fabricSummaryInfoVo : dto) {
             if (!Constants.ONE_STR.equals(fabricSummaryInfoVo.getDesignVerify())){
                 throw new OtherException("设计师未确认的详单不允许添加！"+"未确认的款号："+fabricSummaryInfoVo.getStyleNo());
@@ -300,7 +297,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
                 infoVoMap.put(fabricSummaryInfoVo.getMaterialCode(),fabricSummary);
             }
             //补充信息
-            fullFabricSummary(fabricSummary);
+            fullFabricSummary(fabricSummary, index++);
             fabricSummaries.add(fabricSummary);
 
             fabricSummaryStyle.setFabricSummaryId(fabricSummary.getId());
@@ -354,8 +351,8 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         return fabricSummaryPrintLogService.save(fabricSummaryPrintLog);
     }
 
-    private void fullFabricSummary(FabricSummary fabricSummaryInfoVo) {
-        getFabricSummaryCode(fabricSummaryInfoVo);
+    private void fullFabricSummary(FabricSummary fabricSummaryInfoVo, int index) {
+        getFabricSummaryCode(fabricSummaryInfoVo, index);
         fabricSummaryInfoVo.insertInit();
         fabricSummaryInfoVo.setId(new IdGen().nextIdStr());
         //规格
@@ -487,20 +484,11 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
      * @param fabricSummary
      * @return
      */
-    private void getFabricSummaryCode(FabricSummary fabricSummary){
-        String serialNumberMaxKey = String.format("fabric_summary_code_seral_%s",fabricSummary.getGroupId());
-        long serialNumber;
-        if (null != redisUtils.get(serialNumberMaxKey)){
-            serialNumber =  redisUtils.incr(serialNumberMaxKey,1,3600, TimeUnit.SECONDS);
-        }else {
-            Long serialNumberMax = this.getBaseMapper().getSerialNumberMax(fabricSummary.getGroupId());
-            serialNumber = null == serialNumberMax ? 1 : serialNumberMax + 1;
-            redisUtils.set(serialNumberMaxKey,serialNumber,3600);
-        }
+    private void getFabricSummaryCode(FabricSummary fabricSummary, int index){
+        int serialNumber = this.getBaseMapper().getSerialNumberMax(fabricSummary.getGroupId()) + index;
         //XD+品牌代码+日期+4位流水
         String fabricSummaryCode = "XD" + fabricSummary.getBrand() + DateUtils.formatDate(new Date(), "yyyyMMdd") +String.format("%04d", serialNumber);
         fabricSummary.setFabricSummaryCode(fabricSummaryCode);
-        fabricSummary.setSerialNumber(serialNumber);
 
     }
 
