@@ -913,8 +913,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             // 根据大类或设计款号获取款式
             Opt.ofEmptyAble(styleService.listOneField(new BaseLambdaQueryWrapper<Style>()
                     .notEmptyEq(Style::getProdCategory, category1stCode)
-                    .notEmptyEq(Style::getDesignNo, designNo)
-                    .notEmptyEq(Style::getRegisteringNo, registeringNo)
+                    .notEmptyIn(Style::getDesignNo, StringUtils.convertList(designNo))
+                    .notEmptyIn(Style::getRegisteringNo,  StringUtils.convertList(registeringNo))
                     , Style::getId)
             ).ifPresent(styleIdList-> {
                 // 根据款式获取款号
