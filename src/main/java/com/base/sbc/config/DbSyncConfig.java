@@ -12,6 +12,8 @@ import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Import;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
 
@@ -24,7 +26,8 @@ import static com.base.sbc.config.constant.Constants.COMMA;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnProperty(prefix = DbSyncProperties.KEY, name = "enabled", matchIfMissing = true)
-@EnableConfigurationProperties({DbSyncProperties.class})
+@EnableConfigurationProperties
+@DependsOn({DbSyncProperties.KEY})
 public class DbSyncConfig {
 
     @Configuration(proxyBeanMethods = false)

@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
  * @CopyRight @ 广州尚捷科技有限公司
  * @since 2023/11/29
  */
-@Configuration
+@Configuration(DbSyncProperties.KEY)
 @EnableConfigurationProperties
 @ConfigurationProperties(DbSyncProperties.KEY)
 public class DbSyncProperties {
