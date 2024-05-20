@@ -112,7 +112,8 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
     @Override
     public PageInfo<StylePricingVO> getStylePricingList(Principal user, StylePricingSearchDTO dto) {
         dto.setCompanyCode(super.getCompanyCode());
-        com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        // 关闭自动count,数据太多了,cpu差
+        com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize(), false);
         BaseQueryWrapper qw = new BaseQueryWrapper();
         qw.notEmptyEq("sd.year", dto.getYear());
         qw.notEmptyEq("sd.season", dto.getSeason());

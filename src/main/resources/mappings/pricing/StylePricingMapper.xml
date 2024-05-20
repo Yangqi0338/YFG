@@ -51,6 +51,9 @@
         ht.print_or_not as tagPrintFlag,
         tpp.calc_item_val as calcItemVal
         from t_pack_info p
+        <include refid="getStylePricingList"/>
+    </select>
+    <sql id="getStylePricingList">
         LEFT JOIN t_pack_info_status ps ON (p.id = ps.foreign_id and ps.del_flag = '0')
         left join t_style sd on (sd.id = p.foreign_id and sd.del_flag = '0')
         left join t_style_color ssc on (ssc.style_no = p.style_no and ssc.del_flag = '0')
@@ -58,10 +61,10 @@
         left join t_pack_pricing as tpp on (tpp.foreign_id = p.id and tpp.del_flag = '0' and tpp.pack_type =
         ps.pack_type)
         left join t_hang_tag ht on (ht.bulk_style_no = ssc.style_no and ht.del_flag = '0')
-<!--        left join t_style_order_book_color ssobc on (ssobc.style_no = p.style_no and ssobc.del_flag = '0')-->
+        <!--        left join t_style_order_book_color ssobc on (ssobc.style_no = p.style_no and ssobc.del_flag = '0')-->
         LEFT JOIN t_hang_tag_ingredient hti ON ht.id = hti.hang_tag_id
-<!--        left join t_style_order_book ssob-->
-<!--        on (ssob.order_book_code = ssobc.order_book_code and ssob.del_flag = '0')-->
+        <!--        left join t_style_order_book ssob-->
+        <!--        on (ssob.order_book_code = ssobc.order_book_code and ssob.del_flag = '0')-->
         <where>
             p.del_flag = '0'
             <if test="dto.prodCategory1st != null and dto.prodCategory1st != ''">
@@ -106,6 +109,10 @@
         </where>
 
         group by p.id
+    </sql>
+    <select id="getStylePricingList_COUNT" resultType="com.base.sbc.module.pricing.vo.StylePricingVO">
+        SELECT count(0) from t_pack_info p
+        <include refid="getStylePricingList"/>
     </select>
     <select id="getByStyleList" resultType="com.base.sbc.module.style.vo.StyleColorVo"
             parameterType="com.base.sbc.module.style.dto.StyleColorsDto">
