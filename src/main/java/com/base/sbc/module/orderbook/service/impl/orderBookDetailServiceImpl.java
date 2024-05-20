@@ -907,12 +907,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         String category1stCode = queryDto.getCategory1stCode();
         String designNo = queryDto.getDesignNo();
+        String registeringNo = queryDto.getRegisteringNo();
         Set<String> searchBulkStyleNoList = new HashSet<>();
-        if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(designNo)) {
+        if (StrUtil.isNotBlank(category1stCode) || StrUtil.isNotBlank(designNo) || StrUtil.isNotBlank(registeringNo)) {
             // 根据大类或设计款号获取款式
             Opt.ofEmptyAble(styleService.listOneField(new BaseLambdaQueryWrapper<Style>()
                     .notEmptyEq(Style::getProdCategory, category1stCode)
-                    .notEmptyEq(Style::getDesignNo, designNo), Style::getId)
+                    .notEmptyEq(Style::getDesignNo, designNo)
+                    .notEmptyEq(Style::getRegisteringNo, registeringNo)
+                    , Style::getId)
             ).ifPresent(styleIdList-> {
                 // 根据款式获取款号
                 searchBulkStyleNoList.addAll(styleColorService.listOneField(new LambdaQueryWrapper<StyleColor>()
