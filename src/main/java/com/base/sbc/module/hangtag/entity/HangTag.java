@@ -177,6 +177,11 @@ public class HangTag extends BaseDataEntity<String> {
     /** 样衣工名称 */
     @ApiModelProperty(value = "样衣工名称"  )
     private String sampleMakerName;
+    /**
+     * 温馨提示编码
+     */
+    @ApiModelProperty(value = "洗标与温馨提示编码")
+    private String lavationReminderCode;
     /** 温馨提示 */
     @ApiModelProperty(value = "温馨提示"  )
     private String warmTips;
