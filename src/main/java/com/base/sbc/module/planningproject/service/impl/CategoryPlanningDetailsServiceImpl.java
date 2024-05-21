@@ -14,6 +14,7 @@ import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.entity.FieldManagement;
@@ -68,6 +69,8 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     @Autowired
     @Lazy
     private SeasonalPlanningDetailsService seasonalPlanningDetailsService;
+    @Autowired
+    private RedisUtils redisUtils;
 
     @Override
     public PageInfo<CategoryPlanningDetailsVo> queryPage(CategoryPlanningDetailsQueryDto dto) {
@@ -533,19 +536,19 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public CategoryPlanningDetailVO getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
+    public CategoryPlanningDetailVO  getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         // 初始化返回的对象
         CategoryPlanningDetailVO categoryPlanningDetailVO = new CategoryPlanningDetailVO();
         String categoryPlanningId = categoryPlanningDetailDTO.getCategoryPlanningId();
         String prodCategoryCode = categoryPlanningDetailDTO.getProdCategoryCode();
-        String dimensionIds = categoryPlanningDetailDTO.getDimensionIds();
+        List<Map<String, String>> queryList = categoryPlanningDetailDTO.getQueryList();
         if (ObjectUtil.isEmpty(categoryPlanningId)) {
             throw new OtherException("请选择品类企划！");
         }
         if (ObjectUtil.isEmpty(prodCategoryCode)) {
             throw new OtherException("请选择品类！");
         }
-        if (ObjectUtil.isEmpty(dimensionIds)) {
+        if (ObjectUtil.isEmpty(queryList)) {
             throw new OtherException("请选择维度数据！");
         }
         CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningId);
@@ -560,15 +563,25 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             return categoryPlanningDetailVO;
         }
 
+        // 查询当前品类企划详情数据
+        List<CategoryPlanningDetails> oldCategoryPlanningDetailsList = list(
+                new LambdaQueryWrapper<CategoryPlanningDetails>()
+                        .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
+                        .eq(CategoryPlanningDetails::getProdCategoryCode, categoryPlanningDetailDTO.getProdCategoryCode())
+        );
+
+        if (ObjectUtil.isEmpty(oldCategoryPlanningDetailsList)) {
+            throw new OtherException("品类企划详情数据不存在，请刷新后重试！");
+        }
+
         // 根据传入的维度 id 判断是否有不能存在的维度 如果有 则新增品类企划数据
         List<CategoryPlanningDetails> dimensionality = getDimensionalitySelf(categoryPlanningDetailDTO, categoryPlanning);
         if (ObjectUtil.isNotEmpty(dimensionality)) {
-            Map<String, CategoryPlanningDetails> categoryPlanningDetailsMap = dimensionality.stream()
-                    .collect(Collectors.toMap(CategoryPlanningDetails::getDimensionId, item -> item));
-            List<String> dimensionIdList = CollUtil.newArrayList(dimensionIds.split(","));
-            dimensionIdList = dimensionIdList.stream()
-                    .filter(item -> ObjectUtil.isEmpty(categoryPlanningDetailsMap.get(item))).collect(Collectors.toList());
-            if (ObjectUtil.isNotEmpty(dimensionIdList)) {
+            Map<String, List<CategoryPlanningDetails>> categoryPlanningDetailsMap = dimensionality.stream()
+                    .collect(Collectors.groupingBy(item -> item.getDimensionalityType() + "-" + (item.getDimensionalityType().equals(2) ? item.getProdCategory2ndCode() : "") + "-" + item.getDimensionId()));
+            List<Map<String, String>> newQueryList = queryList.stream()
+                    .filter(item -> ObjectUtil.isEmpty(categoryPlanningDetailsMap.get((ObjectUtil.isEmpty(item.get("prodCategory2nd")) ? 1:2)+ "-" + item.get("prodCategory2nd") + "-" + item.get("dimensionId")))).collect(Collectors.toList());
+            if (ObjectUtil.isNotEmpty(newQueryList)) {
                 // 新增此维度的数据
                 // 查询季节企划信息
                 SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(categoryPlanning.getSeasonalPlanningId());
@@ -583,12 +596,16 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                 seasonalPlanningDetailsList,
                                 seasonalPlanning,
                                 categoryPlanning,
-                                dimensionIdList
+                                newQueryList
                         );
                         if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
+                            // 还要判断当前的品类数据是否撤回 如果撤回 那么新增的数据也是撤回的 因为撤回是到品类级别的
+                            if (oldCategoryPlanningDetailsList.get(0).getIsGenerate().equals("2")) {
+                                categoryPlanningDetailsList.forEach(item -> item.setIsGenerate("2"));
+                            }
                             boolean saveFlag = saveBatch(categoryPlanningDetailsList);
                             if (!saveFlag) {
-                                log.error("生成品类企划失败！");
+                                throw new OtherException("同步最新维度数据出现错误，请刷新后重试！");
                             }
                         }
                     }
@@ -596,11 +613,40 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             }
         }
 
+        {
+            // 最新的维度配置
+            List<CategoryPlanningDetails> dynamicCategoryPlanningDetailsList = getDimensionality(categoryPlanningDetailDTO);
+            Map<String, CategoryPlanningDetails> categoryPlanningDetailsMap = dynamicCategoryPlanningDetailsList.stream()
+                    .collect(Collectors.toMap(item ->
+                            (ObjectUtil.isEmpty(item.getProdCategory2ndCode()) ? 1 : 2)
+                                    + "-" + item.getProdCategory2ndCode()
+                                    + "-" + item.getDimensionId(), item -> item));
+
+            List<CategoryPlanningDetails> finalList = new ArrayList<>();
+            for (CategoryPlanningDetails categoryPlanningDetails : oldCategoryPlanningDetailsList) {
+                CategoryPlanningDetails details = categoryPlanningDetailsMap.get(
+                        categoryPlanningDetails.getDimensionalityType()
+                                + "-" + (categoryPlanningDetails.getDimensionalityType().equals(2) ? categoryPlanningDetails.getProdCategory2ndCode() : "")
+                                + "-" + categoryPlanningDetails.getDimensionId()
+                );
+                if (ObjectUtil.isNotEmpty(details)) {
+                    if (!details.getDimensionalityGrade().equals(categoryPlanningDetails.getDimensionalityGrade())) {
+                        categoryPlanningDetails.setDimensionalityGrade(details.getDimensionalityGrade());
+                        categoryPlanningDetails.setDimensionalityGradeName(details.getDimensionalityGradeName());
+                        finalList.add(categoryPlanningDetails);
+                    }
+                }
+            }
+
+            if (ObjectUtil.isNotEmpty(finalList)) {
+                updateBatchById(oldCategoryPlanningDetailsList);
+            }
+        }
 
         LambdaQueryWrapper<CategoryPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
         // 查询出筛选后的品类企划
         {
-            assembleFilters(queryWrapper, categoryPlanning, prodCategoryCode, dimensionIds);
+            assembleFilters(queryWrapper, categoryPlanning, prodCategoryCode, queryList);
             queryWrapper.select(
                     CategoryPlanningDetails::getId,
                     CategoryPlanningDetails::getNumber,
@@ -625,6 +671,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                     + "-" + item.getBandName()
                             , LinkedHashMap::new, Collectors.toList()
                     ));
+
             for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : brandCategoryPlanningDetailsMap.entrySet()) {
                 List<CategoryPlanningDetails> list = stringListEntry.getValue();
                 CategoryPlanningDetails categoryPlanningDetails = list.get(0);
@@ -666,7 +713,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
 
         // 查询品类企划根据 大/品/中/维度类型/维度值 分组后的数据
         {
-            assembleFilters(queryWrapper, categoryPlanning, prodCategoryCode, dimensionIds);
+            assembleFilters(queryWrapper, categoryPlanning, prodCategoryCode, queryList);
             queryWrapper.select(
                     CategoryPlanningDetails::getProdCategory1stName,
                     CategoryPlanningDetails::getProdCategoryName,
@@ -682,6 +729,21 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                     CategoryPlanningDetails::getDimensionCode);
             List<CategoryPlanningDetails> groupByDimensionalityValueList = list(queryWrapper);
 
+            // 重新排序
+            {
+
+                Map<String, List<CategoryPlanningDetails>> categoryPlanningDetailsMap = groupByDimensionalityValueList.stream()
+                        .collect(Collectors.groupingBy(
+                                item -> item.getProdCategoryName()
+                                        + "-" + item.getProdCategory2ndName()
+                                , LinkedHashMap::new, Collectors.toList()
+                        ));
+                groupByDimensionalityValueList = new ArrayList<>();
+                for (Map.Entry<String, List<CategoryPlanningDetails>> stringListEntry : categoryPlanningDetailsMap.entrySet()) {
+                    groupByDimensionalityValueList.addAll(stringListEntry.getValue());
+                }
+            }
+
             // 在每个维度名称后面增加合计的数据
             Map<String, List<CategoryPlanningDetails>> categoryPlanningDetailsMap = groupByDimensionalityValueList.stream()
                     .collect(Collectors.groupingBy(
@@ -690,6 +752,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                                     + "-" + item.getDimensionName()
                             , LinkedHashMap::new, Collectors.toList()
                     ));
+
 
             // 设置初始化的索引位置
             int index = 0;
@@ -721,7 +784,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         // 查询品类企划数据根据波段分组后的数据
         // 初始化 数据
         {
-            assembleFilters(queryWrapper, categoryPlanning, prodCategoryCode, dimensionIds);
+            assembleFilters(queryWrapper, categoryPlanning, prodCategoryCode, queryList);
             queryWrapper.select(CategoryPlanningDetails::getBandName);
             queryWrapper.groupBy(CategoryPlanningDetails::getBandName);
             List<CategoryPlanningDetails> groupByBandList = list(queryWrapper);
@@ -736,12 +799,21 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         return categoryPlanningDetailVO;
     }
 
-    private void assembleFilters(LambdaQueryWrapper<CategoryPlanningDetails> queryWrapper, CategoryPlanning categoryPlanning, String prodCategoryCode, String dimensionIds) {
+    private void assembleFilters(LambdaQueryWrapper<CategoryPlanningDetails> queryWrapper, CategoryPlanning categoryPlanning, String prodCategoryCode, List<Map<String, String>> queryList) {
         queryWrapper.clear();
         queryWrapper.eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId());
         queryWrapper.eq(CategoryPlanningDetails::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL);
         queryWrapper.eq(CategoryPlanningDetails::getProdCategoryCode, prodCategoryCode);
-        queryWrapper.in(CategoryPlanningDetails::getDimensionId, CollUtil.newArrayList(dimensionIds.split(",")));
+        queryWrapper.and(
+                item -> {
+                    for (Map<String, String> stringStringMap : queryList) {
+                        item.or(item1 -> {
+                            item1.eq(ObjectUtil.isNotEmpty(stringStringMap.get("prodCategory2nd")), CategoryPlanningDetails::getProdCategory2ndCode, stringStringMap.get("prodCategory2nd"));
+                            item1.eq(CategoryPlanningDetails::getDimensionId, stringStringMap.get("dimensionId"));
+                        });
+                    }
+                }
+        );
     }
 
     @Override
@@ -749,10 +821,35 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     @DuplicationCheck
     public void staging(List<CategoryPlanningDetails> categoryPlanningDetailsList) {
         if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
-            throw new OtherException("暂存数据不能为空！");
+            throw new OtherException("保存数据不能为空！");
         }
-        if ("1".equals(categoryPlanningDetailsList.get(0).getIsGenerate())) {
-            throw new RuntimeException("数据已经生成,无法暂存！");
+
+        // 根据 id 集合查询品类企划详情数据
+        List<String> categoryPlanningDetailsIdList = categoryPlanningDetailsList.stream()
+                .map(CategoryPlanningDetails::getId).collect(Collectors.toList());
+        List<CategoryPlanningDetails> detailsList = listByIds(categoryPlanningDetailsIdList);
+
+        if (ObjectUtil.isEmpty(detailsList)) {
+            throw new OtherException("品类企划数据不存在，请刷新后重试！");
+        }
+
+        List<String> dimensionNameList = detailsList.stream()
+                .filter(item -> "2".equals(item.getIsGenerate()))
+                .map(CategoryPlanningDetails::getDimensionName)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!dimensionNameList.isEmpty()) {
+            // 说明此品类已经作废 无法保存
+            throw new OtherException("「" + CollUtil.join(dimensionNameList, ",") + "」维度数据已作废，无法保存！");
+        }
+        // 判断保存的数据是否已经审核
+        List<String> stringList = categoryPlanningDetailsList.stream()
+                .filter(item -> "1".equals(item.getIsGenerate()))
+                .map(CategoryPlanningDetails::getDimensionName)
+                .collect(Collectors.toList());
+        if (!stringList.isEmpty()) {
+            // 说明部分维度已经审核 无法保存
+            throw new OtherException("「" + CollUtil.join(stringList, ",") + "」维度数据已审核，无法保存！");
         }
         updateBatchById(categoryPlanningDetailsList);
     }
@@ -762,7 +859,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     @DuplicationCheck
     public void preservation(List<CategoryPlanningDetails> categoryPlanningDetailsList) {
         if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
-            throw new OtherException("保存数据不能为空！");
+            throw new OtherException("审核数据不能为空！");
         }
         // 根据 id 集合查询品类企划详情数据
         Map<String, CategoryPlanningDetails> categoryPlanningDetailsMap
@@ -771,7 +868,26 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         List<CategoryPlanningDetails> detailsList = listByIds(categoryPlanningDetailsIdList);
 
         if (ObjectUtil.isEmpty(detailsList)) {
-            throw new OtherException("品类企划详情数据不存在，请刷新后重试！");
+            throw new OtherException("品类企划数据不存在，请刷新后重试！");
+        }
+
+        List<String> dimensionNameList = detailsList.stream()
+                .filter(item -> "2".equals(item.getIsGenerate()))
+                .map(CategoryPlanningDetails::getDimensionName)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!dimensionNameList.isEmpty()) {
+            // 说明此品类已经作废 无法审核
+            throw new OtherException("「" + CollUtil.join(dimensionNameList, ",") + "」维度数据已作废，无法审核！");
+        }
+        // 判断保存的数据是否已经审核
+        List<String> stringList = categoryPlanningDetailsList.stream()
+                .filter(item -> "1".equals(item.getIsGenerate()))
+                .map(CategoryPlanningDetails::getDimensionName)
+                .collect(Collectors.toList());
+        if (!stringList.isEmpty()) {
+            // 说明部分维度已经审核 无法审核
+            throw new OtherException("「" + CollUtil.join(stringList, ",") + "」维度数据已审核，无法审核！");
         }
 
         // 然后设置需求数
@@ -790,9 +906,6 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningDetails.getCategoryPlanningId());
         if (ObjectUtil.isEmpty(categoryPlanning)) {
             throw new OtherException("品类企划数据不存在，请刷新后重试！");
-        }
-        if ("1".equals(categoryPlanningDetails.getIsGenerate())) {
-            throw new RuntimeException("数据已经生成,无法保存！");
         }
         // 将品类企划详情数据改成已经生成的状态
         categoryPlanningDetailsList.forEach(item -> item.setIsGenerate("1"));
@@ -852,50 +965,64 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     }
 
     /**
+     * 获取维度配置中的维度数据
+     *
      * @param categoryPlanningDetailDTO 要保存的数据
+     * @return
      */
     @Override
     public List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO) {
         // 先根据品类企划 id 查询品类企划信息
         CategoryPlanning categoryPlanning = categoryPlanningService.getById(categoryPlanningDetailDTO.getCategoryPlanningId());
-        List<CategoryPlanningDetails> categoryPlanningDetailsList = getDimensionalitySelf(categoryPlanningDetailDTO, categoryPlanning);
-        // 查询已经配置的维度字段
-        SeasonalPlanning seasonalPlanning = seasonalPlanningService.getById(categoryPlanning.getSeasonalPlanningId());
-
-        QueryWrapper<PlanningDimensionality> planningDimensionalityQueryWrapper = new QueryWrapper<>();
-        // 当品类都有第一维度数据后 查询维度表维度数据维度等级不为空的数据
-        planningDimensionalityQueryWrapper.clear();
-        planningDimensionalityQueryWrapper.eq("channel", seasonalPlanning.getChannelCode());
-        planningDimensionalityQueryWrapper.eq("planning_season_id", seasonalPlanning.getSeasonId());
-        planningDimensionalityQueryWrapper.eq("prod_category", categoryPlanningDetailDTO.getProdCategoryCode());
-        planningDimensionalityQueryWrapper.isNotNull("dimensionality_grade");
-        planningDimensionalityQueryWrapper.ne("dimensionality_grade", "");
-        // 拿到所有等级的维度数据
-        List<PlanningDimensionality> planningDimensionalityList = planningDimensionalityService.list(planningDimensionalityQueryWrapper);
-
-        if (ObjectUtil.isNotEmpty(planningDimensionalityList)) {
-            List<CategoryPlanningDetails> dynamicCategoryPlanningDetailsList = planningDimensionalityList.stream().map(
-                    item -> {
-                        CategoryPlanningDetails categoryPlanningDetails = new CategoryPlanningDetails();
-                        categoryPlanningDetails.setProdCategoryCode(categoryPlanningDetailDTO.getProdCategoryCode());
-                        categoryPlanningDetails.setDimensionId(item.getFieldId());
-                        categoryPlanningDetails.setDimensionName(item.getDimensionalityName());
-                        categoryPlanningDetails.setDimensionalityGradeName(item.getDimensionalityGradeName());
-                        return categoryPlanningDetails;
-                    }
-            ).collect(Collectors.toList());
-            Map<String, CategoryPlanningDetails> categoryPlanningDetailsMap = categoryPlanningDetailsList
-                    .stream().collect(Collectors.toMap(CategoryPlanningDetails::getDimensionId, item -> item));
-            for (CategoryPlanningDetails categoryPlanningDetails : dynamicCategoryPlanningDetailsList) {
-                CategoryPlanningDetails details = categoryPlanningDetailsMap.get(categoryPlanningDetails.getDimensionId());
-                if (ObjectUtil.isEmpty(details)) {
-                    categoryPlanningDetailsList.add(categoryPlanningDetails);
-                }
-            }
+        if (ObjectUtil.isEmpty(categoryPlanning)) {
+            throw new OtherException("品类企划信息不存在，请刷新后重试！");
         }
-        return categoryPlanningDetailsList;
+        String prodCategoryCode = categoryPlanningDetailDTO.getProdCategoryCode();
+        if (ObjectUtil.isEmpty(prodCategoryCode)) {
+            throw new OtherException("请选择品类数据！");
+        }
+
+        List<CategoryPlanningDetails> detailsList = list(
+                new LambdaQueryWrapper<CategoryPlanningDetails>()
+                        .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
+                        .eq(CategoryPlanningDetails::getProdCategoryCode, prodCategoryCode));
+
+        if (ObjectUtil.isEmpty(detailsList)) {
+            throw new OtherException("品类企划信息不存在，请刷新后重试！");
+        }
+
+        // 初始化返回格式
+        Map<String, List<String>> resultMap = new HashMap<>(1);
+        List<String> prodCategory2ndNameList = detailsList.stream().map(CategoryPlanningDetails::getProdCategory2ndName)
+                .distinct().filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+        resultMap.put(detailsList.get(0).getProdCategoryName(), prodCategory2ndNameList);
+        // 查询此品类所有的维度信息
+        List<PlanningDimensionality> planningDimensionalityList = categoryPlanningService
+                .getAllPlanningDimensionalitieList(resultMap, categoryPlanning.getChannelCode(), categoryPlanning.getSeasonId());
+
+        List<CategoryPlanningDetails> dynamicCategoryPlanningDetailsList = planningDimensionalityList.stream().map(
+                item -> {
+                    CategoryPlanningDetails categoryPlanningDetails = new CategoryPlanningDetails();
+                    categoryPlanningDetails.setProdCategoryCode(item.getProdCategory());
+                    categoryPlanningDetails.setProdCategory2ndCode(item.getProdCategory2nd());
+                    categoryPlanningDetails.setProdCategory2ndName(item.getProdCategory2ndName());
+                    categoryPlanningDetails.setDimensionId(item.getFieldId());
+                    categoryPlanningDetails.setDimensionName(item.getDimensionalityName());
+                    categoryPlanningDetails.setDimensionalityGrade(item.getDimensionalityGrade());
+                    categoryPlanningDetails.setDimensionalityGradeName(item.getDimensionalityGradeName());
+                    return categoryPlanningDetails;
+                }
+        ).collect(Collectors.toList());
+        return dynamicCategoryPlanningDetailsList;
     }
 
+    /**
+     * 获取已经存在的维度数据
+     *
+     * @param categoryPlanningDetailDTO
+     * @param categoryPlanning
+     * @return
+     */
     public List<CategoryPlanningDetails> getDimensionalitySelf(CategoryPlanningDetailDTO categoryPlanningDetailDTO, CategoryPlanning categoryPlanning) {
         if (ObjectUtil.isEmpty(categoryPlanning)) {
             throw new OtherException("品类企划信息不存在，请刷新后重试！");
@@ -909,13 +1036,16 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         queryWrapper.eq(CategoryPlanningDetails::getProdCategoryCode, prodCategoryCode);
         queryWrapper.select(
                 CategoryPlanningDetails::getProdCategoryCode,
+                CategoryPlanningDetails::getProdCategory2ndCode,
                 CategoryPlanningDetails::getDimensionId,
                 CategoryPlanningDetails::getDimensionName,
-                CategoryPlanningDetails::getDimensionalityGradeName
+                CategoryPlanningDetails::getDimensionalityGrade,
+                CategoryPlanningDetails::getDimensionalityGradeName,
+                CategoryPlanningDetails::getDimensionalityType
         );
         queryWrapper.isNotNull(CategoryPlanningDetails::getDimensionName);
         queryWrapper.ne(CategoryPlanningDetails::getDimensionName, "");
-        queryWrapper.groupBy(CategoryPlanningDetails::getProdCategoryCode, CategoryPlanningDetails::getDimensionId);
+        queryWrapper.groupBy(CategoryPlanningDetails::getProdCategoryCode, CategoryPlanningDetails::getProdCategory2ndCode, CategoryPlanningDetails::getDimensionId);
         List<CategoryPlanningDetails> categoryPlanningDetailsList = list(queryWrapper);
         if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
             throw new OtherException("当前品类类型数据不存在，请刷新后重试！");
@@ -924,7 +1054,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
     }
 
     /**
-     * @param categoryPlanningDetailDTO 要撤回的数据
+     * @param categoryPlanningDetailDTO 要作废的数据
      * @return
      */
     @Override
@@ -945,19 +1075,143 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
                 new LambdaQueryWrapper<CategoryPlanningDetails>()
                         .eq(CategoryPlanningDetails::getCategoryPlanningId, categoryPlanning.getId())
                         .eq(CategoryPlanningDetails::getProdCategoryCode, prodCategoryCode)
-                        .eq(CategoryPlanningDetails::getIsGenerate, "0")
         );
-        // 判断撤回的数据是否是未生成数据状态 如果是 才能修改
+
         if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
-            throw new OtherException("已生成数据无法撤回！");
+            throw new OtherException("品类企划信息不存在，请刷新后重试！");
         }
+        // 获取最新的维度信息配置 由于作废的时候 可能有已经审核过的维度数据比如 A
+        // 但这个时候修改维度配置 没有 A 了，此时作废时看不到审核的 A，没办法把 A 反审核
+        // 所以需要排除掉不在最新维度配置中的数据
+        List<CategoryPlanningDetails> dimensionality = getDimensionality(categoryPlanningDetailDTO);
+        // 只有暂存的数据能被作废 其他的不允许作废
+        long count = categoryPlanningDetailsList.stream().filter(
+                item ->
+                {
+                    for (CategoryPlanningDetails details : dimensionality) {
+                        if (item.getDimensionalityType().equals(1)) {
+                            // 品类级别维度数据
+                            if (!"0".equals(item.getIsGenerate()) && details.getDimensionId().equals(item.getDimensionId())) {
+                                return true;
+                            }
+                        } else {
+                            // 中类级别维度数据
+                            if (!"0".equals(item.getIsGenerate())
+                                    && details.getDimensionId().equals(item.getDimensionId())
+                                    && details.getProdCategory2ndCode().equals(item.getProdCategory2ndCode())
+                            ) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+        ).count();
+        if (count > 0) {
+            throw new OtherException("已审核/已作废数据无法作废");
+        }
+
         for (CategoryPlanningDetails categoryPlanningDetails : categoryPlanningDetailsList) {
-            // 设置成已撤回的状态
+            // 设置成已作废的状态
             categoryPlanningDetails.setIsGenerate("2");
         }
         boolean updateBatchFlag = updateBatchById(categoryPlanningDetailsList);
         if (!updateBatchFlag) {
-            throw new OtherException("撤回失败，请重试！");
+            throw new OtherException("作废失败，请重试！");
+        }
+    }
+
+    /**
+     * @param categoryPlanningDetailsList 要反审核的数据
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void reverseAudit(List<CategoryPlanningDetails> categoryPlanningDetailsList) {
+        if (ObjectUtil.isEmpty(categoryPlanningDetailsList)) {
+            throw new OtherException("反审核数据不能为空！");
+        }
+        // 根据 id 集合查询品类企划详情数据
+        List<String> categoryPlanningDetailsIdList = categoryPlanningDetailsList.stream().map(CategoryPlanningDetails::getId).collect(Collectors.toList());
+        List<CategoryPlanningDetails> detailsList = listByIds(categoryPlanningDetailsIdList);
+
+        if (ObjectUtil.isEmpty(detailsList)) {
+            throw new OtherException("品类企划数据不存在，请刷新后重试！");
+        }
+
+        List<String> dimensionNameList = detailsList.stream()
+                .filter(item -> "2".equals(item.getIsGenerate()))
+                .map(CategoryPlanningDetails::getDimensionName)
+                .distinct()
+                .collect(Collectors.toList());
+        if (!dimensionNameList.isEmpty()) {
+            // 说明此品类已经作废 无法反审核
+            throw new OtherException("「" + CollUtil.join(dimensionNameList, ",") + "」维度数据已作废，无法反审核！");
+        }
+
+        // 判断保存的数据是否未审核
+        List<String> stringList = categoryPlanningDetailsList.stream()
+                .filter(item -> "0".equals(item.getIsGenerate()))
+                .map(CategoryPlanningDetails::getDimensionName)
+                .collect(Collectors.toList());
+        if (!stringList.isEmpty()) {
+            // 说明部分维度未审核 无法反审核
+            throw new OtherException("「" + CollUtil.join(stringList, ",") + "」维度数据未审核，无法反审核！");
+        }
+
+        for (CategoryPlanningDetails details : detailsList) {
+            // 将已审核的数据改成未审核状态
+            details.setIsGenerate("0");
+        }
+
+        // 更新状态
+        boolean updateFlag = updateBatchById(detailsList);
+        if (!updateFlag) {
+            throw new OtherException("反审核失败，请刷新后重试！");
+        }
+
+        // 根据 品类-中类-维度名 删除对应企划看板
+        Map<String, List<CategoryPlanningDetails>> map = detailsList.stream()
+                .collect(Collectors.groupingBy(item ->
+                        item.getProdCategoryCode() + "-"
+                                + item.getProdCategory2ndCode() + "-"
+                                + item.getDimensionName() + "-"
+                ));
+
+        PlanningProject planningProject = planningProjectService.getOne(
+                new LambdaQueryWrapper<PlanningProject>()
+                        .eq(PlanningProject::getCategoryPlanningId, detailsList.get(0).getCategoryPlanningId())
+        );
+        if (ObjectUtil.isNotEmpty(planningProject)) {
+            // 查询该企划看板该品类下的数据 缩小范围
+            List<PlanningProjectDimension> projectDimensionList = planningProjectDimensionService.list(
+                    new LambdaQueryWrapper<PlanningProjectDimension>()
+                            .eq(PlanningProjectDimension::getPlanningProjectId, planningProject.getId())
+                            .eq(PlanningProjectDimension::getProdCategoryCode, detailsList.get(0).getProdCategoryCode())
+            );
+            if (ObjectUtil.isNotEmpty(projectDimensionList)) {
+                // 筛选出需要删除的企划看板数据
+                List<PlanningProjectDimension> planningProjectDimensions = projectDimensionList.stream().filter(
+                        item ->
+                                ObjectUtil.isNotEmpty(map.get(item.getProdCategoryCode() + "-"
+                                        + item.getProdCategory2ndCode() + "-"
+                                        + item.getDimensionName() + "-"))
+
+                ).collect(Collectors.toList());
+                if (ObjectUtil.isNotEmpty(planningProjectDimensions)) {
+                    planningProjectDimensionService.removeBatchByIds(planningProjectDimensions);
+                    List<String> idList = planningProjectDimensions
+                            .stream().map(PlanningProjectDimension::getId).collect(Collectors.toList());
+                    planningProjectPlankService.remove(
+                            new LambdaQueryWrapper<PlanningProjectPlank>()
+                                    .in(PlanningProjectPlank::getPlanningProjectDimensionId, idList)
+                    );
+
+                    // 企划看板查询条件去除
+                    redisUtils.del("planningProjectPlank:ListByDto:" + planningProjectDimensions.get(0).getPlanningProjectId() + ":" + this.getUserId());
+                }
+            }
+
         }
     }
 
@@ -1017,7 +1271,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
             if (ObjectUtil.isNotEmpty(categoryPlanningDetailsList)) {
                 // 只要有一个不是已撤回的数据 那么报错
                 if (categoryPlanningDetailsList.stream().anyMatch(item -> !"2".equals(item.getIsGenerate()))) {
-                    throw new OtherException("未撤回数据无法更新，请刷新后重试！");
+                    throw new OtherException("未作废数据无法更新，请刷新后重试！");
                 }
 
                 // 如果没有已撤回的数据那么删除这些数据 然后进行新增
@@ -1092,6 +1346,7 @@ public class CategoryPlanningDetailsServiceImpl extends BaseServiceImpl<Category
         planningProjectDimension.setDimensionTypeCode(planningDetails.getDimensionTypeCode());
         planningProjectDimension.setDimensionalityGrade(planningDetails.getDimensionalityGrade());
         planningProjectDimension.setDimensionalityGradeName(planningDetails.getDimensionalityGradeName());
+        planningProjectDimension.setDimensionalityType(planningDetails.getDimensionalityType());
         return planningProjectDimension;
     }
 

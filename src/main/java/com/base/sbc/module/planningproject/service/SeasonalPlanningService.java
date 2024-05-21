@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -23,7 +24,7 @@ public interface SeasonalPlanningService extends BaseService<SeasonalPlanning> {
 
     ApiResult importSeasonalPlanningExcel(MultipartFile file, SeasonalPlanningSaveDto seasonalPlanningSaveDto);
 
-    ApiResult getSeasonalPlanningDetails(SeasonalPlanningDetails seasonalPlanningDetails);
+    Map<Integer, Map<Integer, String>> getSeasonalPlanningDetails(SeasonalPlanningDetails seasonalPlanningDetails);
 
     @Deprecated
     void importExcel(MultipartFile file, SeasonalPlanningSaveDto seasonalPlanningSaveDto) throws IOException;

@@ -1,7 +1,9 @@
 package com.base.sbc.module.planningproject.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -67,5 +69,18 @@ public class PlanningProjectPlank extends BaseDataEntity<String> {
     private String matchingStyleStatus;
 
     private String hisDesignNo;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "样式类别")
+    private String styleCategory;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "是否关联修改季节企划（0-否 1-是）")
+    private Integer isRelevancyUpdateSeasonalPlanning;
+
+    {
+        // 是否关联修改季节企划默认为否
+        isRelevancyUpdateSeasonalPlanning = 0;
+    }
 
 }

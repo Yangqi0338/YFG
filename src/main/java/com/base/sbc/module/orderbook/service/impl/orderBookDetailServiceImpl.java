@@ -932,8 +932,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     @Override
     public List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto) {
-        List<OrderBookDetailForSeasonPlanningVO> l = this.getBaseMapper().querySeasonalPlanningOrder(dto);
-        return l;
+        return this.getBaseMapper().querySeasonalPlanningOrder(dto);
     }
 
     /**

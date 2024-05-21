@@ -35,16 +35,16 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
     CategoryPlanningDetailVO getDetail(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 
     /**
-     * 品类企划暂存
+     * 品类企划保存
      *
-     * @param categoryPlanningDetailsList 要暂存的数据
+     * @param categoryPlanningDetailsList 要保存的数据
      */
     void staging(List<CategoryPlanningDetails> categoryPlanningDetailsList);
 
     /**
-     * 品类企划保存
+     * 品类企划审核
      *
-     * @param categoryPlanningDetailsList 要保存的数据
+     * @param categoryPlanningDetailsList 要审核的数据
      */
     void preservation(List<CategoryPlanningDetails> categoryPlanningDetailsList);
 
@@ -56,16 +56,23 @@ public interface CategoryPlanningDetailsService extends BaseService<CategoryPlan
     List<CategoryPlanningDetails> getDimensionality(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 
     /**
-     * 撤回品类企划 只能撤回未提交的数据 撤回的粒度是到品类级别
+     * 作废品类企划 只能作废未提交的数据 作废的粒度是到品类级别
      *
-     * @param categoryPlanningDetailDTO 要撤回的数据
+     * @param categoryPlanningDetailDTO 要作废的数据
      */
     void revocation(CategoryPlanningDetailDTO categoryPlanningDetailDTO);
 
     /**
+     * 反审核品类企划 只能反审核已审核的数据 反审核粒度是到维度级别
+     *
+     * @param categoryPlanningDetailsList 要反审核的数据
+     */
+    void reverseAudit(List<CategoryPlanningDetails> categoryPlanningDetailsList);
+
+    /**
      * 品类企划更新接口
      *
-     * @param seasonalPlanningDetailsList 季节企划重新导入后 需要修改和需要新增的季节企划的数据
+     * @param seasonalPlanningDetailsList   季节企划重新导入后 需要修改和需要新增的季节企划的数据
      * @param removeSeasonPlaningDetailList 季节企划重新导入后 需要删除季节企划的数据
      */
     void updateBySeasonalPlanning(List<SeasonalPlanningDetails> seasonalPlanningDetailsList,

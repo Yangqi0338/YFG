@@ -79,6 +79,11 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "维度等级名称")
     private String dimensionalityGradeName;
+    /**
+     * 维度类型（1-品类 2-中类）
+     */
+    @ApiModelProperty(value = "维度类型（1-品类 2-中类）")
+    private Integer dimensionalityType;
 
     @ApiModelProperty(value = "波段名称")
     private String bandName;
@@ -109,8 +114,8 @@ public class CategoryPlanningDetails extends BaseDataEntity<String> {
     private String dataJson;
 
     /**
-     * 是否已生成数据（到品类维度）
+     * 是否已生成数据（到品类维度）（0-已保存 1-已审核 2-已作废）
      */
-    @ApiModelProperty(value = "是否已生成数据（到品类维度）")
+    @ApiModelProperty(value = "是否已生成数据（到品类维度）（0-已保存 1-已审核 2-已作废）")
     private String isGenerate;
 }

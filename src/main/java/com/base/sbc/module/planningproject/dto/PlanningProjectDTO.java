@@ -21,9 +21,26 @@ public class PlanningProjectDTO {
     private String planningProjectId;
 
     /**
+     * 类型（1-大类 2-品类 3-中类）
+     */
+    @ApiModelProperty(value = "类型（1-大类 2-品类 3-中类）")
+    private Integer type;
+
+    /**
+     * 父类大类/品类 code
+     */
+    @ApiModelProperty(value = "品类类型（父类大类/品类 code")
+    private String parentCode;
+
+    /**
      * 品类 code
      */
     @ApiModelProperty(value = "品类 code")
     private String prodCategoryCode;
+    /**
+     * 中类 code
+     */
+    @ApiModelProperty(value = "中类 code")
+    private String prodCategory2ndCode;
 
 }
