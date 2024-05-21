@@ -70,6 +70,7 @@ import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
+import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
@@ -1384,6 +1385,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*复制状态*/
         packInfoStatusService.copy(packInfo.getId(), packType, copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES);
         /*查询BOM状态，BOM阶段修改未为样品 BOM里面物料也修改为样品*/
+        List<PackBom> packBomList = packBomService.list(copyPackInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+        if (CollUtil.isNotEmpty(packBomList)) {
+            packBomList.forEach(item->{
+                    item.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                    packBomService.updateById(item);
+            });
+        }
+
         /*复制出来的BOM*/
         PackInfoStatus copyPackInfoStatus = packInfoStatusService.get(copyPackInfo.getId(), packInfoStatus.getPackType());
         copyPackInfoStatus.setBomStatus(BaseGlobal.STATUS_NORMAL);
