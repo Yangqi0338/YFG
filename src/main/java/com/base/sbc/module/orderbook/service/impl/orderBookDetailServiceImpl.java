@@ -933,7 +933,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         SaleProductIntoDto saleProductIntoDto = BeanUtil.copyProperties(queryDto, SaleProductIntoDto.class);
         saleProductIntoDto.setChannelList(channelList);
         saleProductIntoDto.setBulkStyleNoList(Lists.newArrayList(searchBulkStyleNoList));
-        fullSaleProductIntoDto(saleProductIntoDto);
+//        fullSaleProductIntoDto(saleProductIntoDto);
         PageInfo<OrderBookSimilarStyleVo> result = smpService.querySaleIntoPageTotal(saleProductIntoDto);
         List<OrderBookSimilarStyleVo> dtoList = result.getList();
         if (CollUtil.isEmpty(dtoList)) {
