@@ -24,8 +24,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
@@ -211,7 +209,9 @@ public class DataPermissionsService {
                             }
                             sqlType = true;
                             isFieldFlag = true;
-                            fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
+                            if(StrUtil.isBlank(fieldName)){
+                                fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() :  tablePre + fieldDataPermissionVO.getFieldName();
+                            }
                             if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
                                 //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
                                 //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
@@ -282,6 +282,9 @@ public class DataPermissionsService {
                 if(ss[1].equals(val)){
                     return ss[0];
                 }
+            }
+            if(val.endsWith("."+s)){
+                return s;
             }
         }
         return null;
