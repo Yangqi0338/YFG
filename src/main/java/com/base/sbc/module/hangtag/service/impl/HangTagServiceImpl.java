@@ -448,7 +448,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			}
 		}
 		String packagingBagStandardCode = hangTagVO.getPackagingBagStandardCode();
-		if (StrUtil.isNotBlank(packagingBagStandardCode)) {
+		if (StrUtil.isNotBlank(packagingBagStandardCode) && hangTagVO.getStatus() == HangTagStatusEnum.NOT_INPUT) {
 			hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
 					.findFirst().map(BasicBaseDict::getName).orElse(""));
 		}
@@ -507,6 +507,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
 						}
 					}
+				}
+				String packagingBagStandardCode = hangTagVO.getPackagingBagStandardCode();
+				if (StrUtil.isNotBlank(packagingBagStandardCode) && hangTagVO.getStatus() == HangTagStatusEnum.NOT_INPUT) {
+					hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
+							.findFirst().map(BasicBaseDict::getName).orElse(""));
 				}
 				return hangTagVO;
 			}
