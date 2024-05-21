@@ -240,7 +240,9 @@ public class DataPermissionsService {
                         }
                     }else{
                         first = true;
-                        fieldArr.remove(fieldArr.size()-1);
+                        if(CollUtil.isNotEmpty(fieldArr)){
+                            fieldArr.remove(fieldArr.size()-1);
+                        }
                     }
                 }
                 if(userGroupSize){
