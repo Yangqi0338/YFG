@@ -3,6 +3,10 @@
 <mapper namespace="com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper">
     <select id="queryPage" resultType="com.base.sbc.module.orderbook.vo.OrderBookDetailVo">
         SELECT
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
         tobl.*,
         tob.name as orderBookName,
         ts.id as styleId,
@@ -25,8 +29,9 @@
         tsc.style_color_pic,
         tsc.style_no as bulkStyleNo,
         tsc.his_style_no as hisStyleNo,
-        ts.devt_type_name,
+        IFNULL(tobl.devt_type,ts.devt_type) as styleDevtType,
         ts.size_codes,
+        (tsc.style_no REGEXP "Q$") as high,
         tsc.band_name,
         tsc.band_code,
         tsc.color_name,
@@ -44,14 +49,19 @@
         tpi.name as bomName,
         tob.channel as channel,
         tob.channel_name as channelName,
-        IFNULL(tobl.material,0) * IFNULL(tsc.tag_price,0) as materialMoney
+        (IFNULL(tobl.material,0) + IFNULL(tobl.online_material,0)) * IFNULL(tsc.tag_price,0) as materialMoney,
+
+        <!-- 一键投产 -->
+        ts.year_name,
+        ts.season_name
+        </if>
         FROM
         t_order_book_detail tobl
         left join t_style_color tsc on tobl.style_color_id = tsc.id and tsc.del_flag='0'
         left join t_style ts on ts.id = tsc.style_id and ts.del_flag='0'
         left join t_order_book tob on tob.id = tobl.order_book_id and tob.del_flag='0'
         left join t_basicsdatum_colour_library tbcl on tbcl.colour_code = tsc.color_code and tbcl.del_flag='0'
-        LEFT JOIN t_pack_info tpi ON tsc.style_no = tpi.style_no
+        LEFT JOIN t_pack_info tpi ON tsc.id = tpi.style_color_id and tpi.del_flag = '0'
         where tobl.del_flag='0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

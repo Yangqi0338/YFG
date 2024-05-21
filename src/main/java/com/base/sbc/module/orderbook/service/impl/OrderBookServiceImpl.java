@@ -2,31 +2,26 @@ package com.base.sbc.module.orderbook.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
-import com.base.sbc.module.orderbook.entity.OrderBookDetail;
-import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.mapper.OrderBookMapper;
-import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookExportVo;
 import com.base.sbc.module.orderbook.vo.OrderBookVo;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * @author 卞康
@@ -152,6 +147,29 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         // orderBook.setName(dto.getName());
         // baseMapper.insert(orderBook);
         // return orderBook;
+    }
+
+    @Override
+    public List<YearSeasonBandVo> queryYearBrandTreeOrderBook(List<YearSeasonBandVo> yearSeasonBandVos) {
+        for (YearSeasonBandVo yearSeasonBandVo : yearSeasonBandVos) {
+            if (Objects.isNull(yearSeasonBandVo.getChildren())){
+                continue;
+            }
+
+        }
+        yearSeasonBandVos.parallelStream().forEach(yearSeasonBandVo ->{
+            List<YearSeasonBandVo> list = Objects.isNull(yearSeasonBandVo.getChildren())? Lists.newArrayList():
+                    (List<YearSeasonBandVo>) yearSeasonBandVo.getChildren();
+
+            list.forEach(item ->{
+                OrderBookQueryDto dto = new OrderBookQueryDto();
+                dto.setSeasonId(item.getPlanningSeasonId());
+                PageInfo<OrderBookVo> orderBookVoPageInfo = this.queryPage(dto);
+                orderBookVoPageInfo.getList().forEach(orderBookVo ->orderBookVo.setYearName(yearSeasonBandVo.getYearName()));
+                item.setSupplementInfo(orderBookVoPageInfo.getList());
+            });
+        });
+        return yearSeasonBandVos;
     }
 
     /**

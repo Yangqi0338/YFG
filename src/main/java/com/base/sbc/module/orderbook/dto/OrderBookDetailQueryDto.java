@@ -1,20 +1,25 @@
 package com.base.sbc.module.orderbook.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
+import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class OrderBookDetailQueryDto extends Page {
+public class OrderBookDetailQueryDto extends QueryFieldDto {
 
     /**
      * 当前用户登录id
      */
     private String userId;
+    private String userName;
 
     private String id;
 
@@ -45,6 +50,11 @@ public class OrderBookDetailQueryDto extends Page {
      * 生产类型
      */
     private String devtTypeName;
+
+    /**
+     * 设计款号
+     */
+    private String designNo;
 
     /**
      * 大货款号
@@ -79,7 +89,7 @@ public class OrderBookDetailQueryDto extends Page {
     private String status;
     private OrderBookDetailAuditStatusEnum auditStatus;
 
-    private String isOrder;
+    private OrderBookDetailOrderStatusEnum orderStatus;
 
     /**
      * 生产紧急程度
@@ -143,6 +153,16 @@ public class OrderBookDetailQueryDto extends Page {
     private String braiding;
     private String dimensionInfo;
     private String gramWeight;
+    private PutInProductionType styleDevtType;
+
+    /**
+     * 参考款款号 eq
+     */
+    @ApiModelProperty(value = "参考款款号")
+    private String similarBulkStyleNo;
+
+    @ApiModelProperty(value = "参考款款号")
+    private List<String>  similarBulkStyleNos;
 
     private List<OrderBookChannelType> channel;
 }

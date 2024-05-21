@@ -37,6 +37,7 @@ import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.config.utils.StringUtils.MatchStrType;
@@ -326,7 +327,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getSizeRangeName()), "ts.size_range_name", queryDto.getSizeRangeName());
         queryWrapper.notEmptyEqOrIsNull("ts.band_code", queryDto.getBandCode());
         queryWrapper.notEmptyEqOrIsNull("ts.brand_name", queryDto.getBrandName());
-        queryWrapper.notEmptyLikeOrIsNull("ts.band_name", queryDto.getBandName());
+        queryWrapper.notEmptyLikeOrIsNull("tsc.band_name", queryDto.getBandName());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getDesigner()), "ts.designer", queryDto.getDesigner());
         queryWrapper.like(StringUtils.isNotBlank(queryDto.getTechnicianName()), "ts.technician_name", queryDto.getTechnicianName());
         queryWrapper.eq(StringUtils.isNotBlank(queryDto.getStatus()), "tsc.status", queryDto.getStatus());
@@ -459,6 +460,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (CollectionUtils.isEmpty(list)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_NOT_FOUND);
         }
+        list = list.stream()
+                .filter(it-> StrUtil.isNotBlank(it.getStyleId()) && styleService.exists(it.getStyleId()))
+                .collect(Collectors.toList());
         List<StyleColorVo> styleColorVoList = BeanUtil.copyToList(list, StyleColorVo.class);
         return styleColorVoList;
     }
@@ -2508,8 +2512,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 styleColor.setTagPrice(new BigDecimal(dto.getTagPrice()));
 
 
-                styleColor.setDevtType("999");
-                styleColor.setDevtTypeName("代销");
+                styleColor.setDevtType(ProductionType.SALE);
+                styleColor.setDevtTypeName(ProductionType.SALE.getText());
                 style.setDevtType("999");
                 style.setDevtTypeName("代销");
 

@@ -34,4 +34,6 @@ public class FieldDataPermissionVO {
     private String selectType;
 
     private String groupSelectType;
+
+    private String groupIdx;
 }

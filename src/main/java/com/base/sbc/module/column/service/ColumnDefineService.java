@@ -32,5 +32,7 @@ public interface ColumnDefineService extends BaseService<ColumnDefine> {
 
     void saveMain(List<ColumnDefine> list, String tableCode);
 
+    List<ColumnDefine> getByTableCode(String tableCode, String columnCode, boolean isSys);
+
 
 }

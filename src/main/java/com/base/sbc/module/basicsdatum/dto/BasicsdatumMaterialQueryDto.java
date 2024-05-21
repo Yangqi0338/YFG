@@ -97,4 +97,12 @@ public class BasicsdatumMaterialQueryDto extends Page {
 
 	@ApiModelProperty(value = "品牌")
 	private List<String> brandList;
+
+	/** 物料编号 */
+	@ApiModelProperty(value = "物料编号--非模糊查询")
+	private String materialCodeNoLike;
+
+
+	@ApiModelProperty(value = "合并物料颜色 : 1：合并，0：不合并, 默认不合并")
+	private String mergeMaterialColor = "0";
 }

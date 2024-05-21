@@ -710,6 +710,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
     }
 
     @Override
+    public boolean exists(String id) {
+        return this.count(new QueryWrapper<T>().eq("id",id)) > 0;
+    }
+
+    @Override
     public T findOne(QueryWrapper<T> wrapper) {
         return this.list(wrapper.last("limit 1")).stream().findFirst().orElse(null);
     }
@@ -766,6 +771,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         // https://blog.csdn.net/qq_42696265/article/details/131944397
         SqlUtil.clearLocalPage();
         return this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function).orElse(null);
+    }
+
+    @Override
+    public <R> List<R> groupOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
+        return this.list(wrapper.groupBy(function).select(function)).stream().map(function).collect(Collectors.toList());
     }
 
     @Override

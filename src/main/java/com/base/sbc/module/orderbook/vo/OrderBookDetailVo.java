@@ -1,14 +1,13 @@
 package com.base.sbc.module.orderbook.vo;
 
-import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Date;
 
 @Data
 public class OrderBookDetailVo extends OrderBookDetail {
@@ -107,7 +106,16 @@ public class OrderBookDetailVo extends OrderBookDetail {
      * 生产类型
      */
     @ApiModelProperty(value = "生产类型")
-    private String devtTypeName;
+    public String getDevtTypeName(){
+        if (this.getDevtType() == null) return "";
+        return this.getDevtType().getText();
+    }
+
+    /**
+     * 面料类型
+     */
+    @ApiModelProperty(value = "面料类型")
+    private String fabricCompositionType;
 
     /**
      * 厂家
@@ -296,4 +304,45 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @ApiModelProperty(value = "尺码codes")
     private String sizeCodes;
 
+    /**
+     * 是否轻奢款
+     */
+    @ApiModelProperty(value = "尺码codes")
+    private String high;
+
+    private String yearName;
+
+
+    private String seasonName;
+
+
+    private OrderBookSimilarStyleVo similarStyle;
+
+    /**
+     * 投产日期
+     */
+    @ApiModelProperty(value = "投产日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date commissioningDate;
+
+    /**
+     * 下单时间
+     */
+    @ApiModelProperty(value = "下单时间")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date orderDate;
+
+    /** 商品要求货期 */
+    @ApiModelProperty(value = "商品要求货期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date deliveryAt;
+
+    /** 动态列 */
+    private Integer groupCount;
+
+    @ApiModelProperty(value = "线下投产占比")
+    private Double offLinkSizeProportion;
+
+    @ApiModelProperty(value = "线上投产占比")
+    private Double onLinkSizeProportion;
 }

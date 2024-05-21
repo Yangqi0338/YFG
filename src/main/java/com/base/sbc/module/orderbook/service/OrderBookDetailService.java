@@ -1,21 +1,25 @@
 package com.base.sbc.module.orderbook.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
 import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.*;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
+import com.base.sbc.module.smp.dto.HttpResp;
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -25,15 +29,9 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      * @param dto  查询条件
      * @return  分页结果
      */
-    PageInfo<OrderBookDetailVo> queryPage(OrderBookDetailQueryDto dto);
+    OrderBookDetailPageVo queryPage(OrderBookDetailQueryDto dto);
 
-    /**
-     *  * 订货本详情-分页条件查询
-     * @param queryWrapper  查询条件
-     * @param openDataAuth 开启数据权限标识 1关闭 其它都是开启
-     * @return  分页结果
-     */
-    List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer openDataAuth);
+    List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper, Integer... judgeGroup);
 
     /**
      * * 订货本详情-导出
@@ -72,19 +70,33 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      */
     boolean assignmentDesigner(List<OrderBookDetailSaveDto> dto);
 
-    Map<String, Object> queryCount(OrderBookDetailQueryDto dto);
+    Map<String, BigDecimal> queryCount(OrderBookDetailQueryDto dto);
 
     void submitForApproval(OrderBookDetailSaveDto dto);
 
-    void placeAnOrderReject(OrderBookDetailQueryDto dto);
+    String placeAnOrderReject(OrderBookDetailQueryDto dto);
 
-    boolean placeAnOrder(OrderBookDetailQueryDto dto, String orderBookId);
+    boolean placeAnOrder(OrderBookDetailQueryDto dto);
 
     boolean assignPersonnel(OrderBookDetailSaveDto dto);
 
     Map<OrderBookChannelType, OrderBookDetailPageConfigVo> pageConfig(OrderBookDetailQueryDto dto);
 
     PageInfo<OrderBookSimilarStyleVo> similarStyleList(OrderBookDetailQueryDto dto);
+
+    String placeAnProduction(OrderBookDetailQueryDto dto);
+
+    String handlePlaceAnCancelProduction(List<OrderBookDetail> list, List<HttpResp> httpRespList);
+
+    String handlePlaceAnProduction(List<OrderBookDetail> list, List<HttpResp> httpRespList);
+
+    List<MaterialSupplierInfo> updateMaterial(MaterialUpdateDto dto);
+
+    UpdateResultVo businessConfirm(OrderBookDetailSaveDto dto);
+
+    boolean removeByIds(RemoveDto removeDto);
+
+    boolean similarStyleBinding(OrderBookDetailSaveDto dto);
 
     List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto);
 }

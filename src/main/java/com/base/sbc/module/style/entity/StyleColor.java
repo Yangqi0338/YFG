@@ -11,6 +11,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpGoodsDto;
@@ -142,7 +143,7 @@ public class StyleColor extends BaseDataEntity<String> {
     private String bom;
     /** 生产类型 */
     @ApiModelProperty(value = "生产类型"  )
-    private String devtType;
+    private ProductionType devtType;
     /** 生产类型名称 */
     @ApiModelProperty(value = "生产类型名称"  )
     private String devtTypeName;

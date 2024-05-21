@@ -12,8 +12,8 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -35,6 +35,7 @@ import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.CopyUtil;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
@@ -46,15 +47,13 @@ import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
-import com.base.sbc.module.pack.vo.PackBomColorVo;
-import com.base.sbc.module.pack.vo.PackBomSizeVo;
-import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
@@ -64,11 +63,13 @@ import com.base.sbc.module.sample.vo.MaterialSampleDesignVO;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
+import com.base.sbc.module.style.vo.StyleVo;
 import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -159,10 +160,14 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
     @Autowired
     private BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
+    @Autowired
+    @Lazy
+    private PackInfoStatusService packInfoStatusService;
+
     @Override
     public PageInfo<PackBomVo> pageInfo(PackBomPageSearchDto dto) {
 
-        QueryWrapper<PackBom> qw = new QueryWrapper<>();
+        BaseQueryWrapper<PackBom> qw = new BaseQueryWrapper<>();
         PackUtils.commonQw(qw, dto);
         qw.eq(StrUtil.isNotBlank(dto.getBomVersionId()), "bom_version_id", dto.getBomVersionId());
         qw.orderByAsc("sort").orderByAsc("id");
@@ -173,6 +178,11 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             }
             qw.in("id", bomIds);
         }
+        qw.notEmptyLike("material_code", dto.getMaterialCode());
+        qw.notEmptyEq("unit_use", dto.getUnitUse());
+        qw.notEmptyLike("ingredient", dto.getIngredient());
+        qw.notEmptyLike("supplier_factory_ingredient", dto.getSupplierFactoryIngredient());
+        qw.notEmptyLike("material_name", dto.getMaterialName());
         Page<PackBom> page = PageHelper.startPage(dto);
         List<PackBom> list = list(qw);
 
@@ -372,6 +382,126 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 }
             }
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public List<MaterialSupplierInfo> updateMaterial(MaterialUpdateDto dto) {
+        QueryWrapper<PackBom> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("bom_version_id", dto.getBomVersionId());
+        queryWrapper.eq("del_flag", "0");
+        queryWrapper.eq("foreign_id",dto.getForeignId());
+        List<PackBom> packBoms = list(queryWrapper);
+//        if (CollectionUtil.isEmpty(packBoms)){
+//            throw new OtherException("bom物料不存在");
+//        }
+        Map<String, List<PackBom>> map = packBoms.stream().collect(Collectors.groupingBy(PackBom::getMaterialCode, Collectors.toList()));
+        // 检查是否可以更新
+        checkUpdateMaterial(dto,map);
+
+        PackInfo packInfo = packInfoService.getById(dto.getForeignId());
+        if (null == packInfo){
+            throw new OtherException("资料包不存在");
+        }
+        //获取款式信息
+        StyleVo styleVo = styleService.getDetail(packInfo.getForeignId());
+        if (Objects.isNull(styleVo)){
+            styleVo = new StyleVo();
+        }
+        //尺码id
+        List<String> productSizes = StringUtils.isBlank(styleVo.getProductSizes())? new ArrayList<>() : Arrays.asList(styleVo.getProductSizes().split(","));
+        //尺码型号类型
+        List<String> sizeIds = StringUtils.isBlank(styleVo.getSizeIds())?  new ArrayList<>() : Arrays.asList(styleVo.getSizeIds().substring(1).split(","));
+        for (MaterialSupplierInfo materialSupplierInfo : dto.getMaterialSupplierInfos()) {
+            List<String> materialCodes = basicsdatumMaterialService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
+            if (CollectionUtils.isEmpty(materialCodes)){
+                throw new OtherException("此供应商未有物料关联："+materialSupplierInfo.getSupplierAbbreviation());
+            }
+            if (materialCodes.size() > 1){
+                throw new OtherException("供应商"+materialSupplierInfo.getSupplierAbbreviation()+"关联了多个物料:"+JSON.toJSONString(materialCodes)+"，请检查是否有脏数据！");
+            }
+            String materialCode = materialCodes.get(0);
+            List<PackBom> packBomList = map.get(materialSupplierInfo.getMaterialCode());
+            //已有的物料，不做处理
+            if (materialCode.equals(materialSupplierInfo.getMaterialCode())){
+                continue;
+            }
+            //获取物料信息
+            BasicsdatumMaterialQueryDto basicsdatumMaterialQueryDto = new BasicsdatumMaterialQueryDto();
+            basicsdatumMaterialQueryDto.setMaterialCodeNoLike(materialCode);
+            List<BomSelMaterialVo> list = basicsdatumMaterialService.getBomSelMaterialList(basicsdatumMaterialQueryDto).getList();
+            if (CollectionUtils.isEmpty(list)){
+                log.error("updateMaterial 物料不存在："+ JSON.toJSONString(basicsdatumMaterialQueryDto));
+                throw new OtherException("物料不存在");
+            }
+            PackBomDto packBomDto = new PackBomDto();
+            BeanUtil.copyProperties(list.get(0), packBomDto);
+            packBomDto.setBomVersionId(dto.getBomVersionId());
+            //补充规格信息
+            fullPackBomDto(packBomDto, sizeIds, productSizes,list.get(0));
+            //是否替换
+            if (StringUtils.isNotBlank(materialSupplierInfo.getMaterialCode())){
+                UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
+                uw.in("id", packBomList.get(0).getId());
+                uw.set("del_flag", "1");
+                update(uw);
+            }
+            materialSupplierInfo.setMaterialCode(materialCode);
+            saveBatchByDto(dto.getBomVersionId(),"0",Lists.newArrayList(packBomDto));
+        }
+        return dto.getMaterialSupplierInfos();
+    }
+
+    /**
+     * 检查更新物料
+     * @param dto
+     * @param map
+     */
+    private void checkUpdateMaterial(MaterialUpdateDto dto, Map<String, List<PackBom>> map) {
+
+        PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        if (ObjectUtils.isNotEmpty(packDesignStatus) && BasicNumber.ONE.getNumber().equals(packDesignStatus.getBomStatus())){
+            throw new OtherException("物料已转大货，不允许更新！");
+        }
+
+        //检查需要替换的物料编号是否在bom中
+        if (StringUtils.isNotBlank(dto.getMaterialCode())){
+
+            for (MaterialSupplierInfo materialSupplierInfo : dto.getMaterialSupplierInfos()) {
+                List<PackBom> packBoms1 = map.get(materialSupplierInfo.getMaterialCode());
+                if (CollectionUtil.isEmpty(packBoms1)){
+                    throw new OtherException("需要替换的:"+materialSupplierInfo.getMaterialCode()+"物料编号在bom中未有关联！");
+                }
+                List<PackBom> packBoms = packBoms1.stream().filter(item -> !"1".equals(item.getScmSendFlag())).collect(Collectors.toList());
+                if (CollectionUtils.isEmpty(packBoms)){
+                    throw new OtherException("物料："+materialSupplierInfo.getMaterialCode()+"已发送，暂不允许替换");
+                }
+                map.put(materialSupplierInfo.getMaterialCode(),packBoms);
+
+            }
+
+        }
+
+    }
+
+
+    private void fullPackBomDto(PackBomDto dto, List<String> sizeRangeSizeIds, List<String> sizeRangeSizes, BomSelMaterialVo bomSelMaterialVo) {
+        if (CollectionUtils.isEmpty(sizeRangeSizeIds) || CollectionUtils.isEmpty(sizeRangeSizes)){
+            return;
+        }
+        if (sizeRangeSizeIds.size() != sizeRangeSizes.size()){
+            throw new RuntimeException("尺码信息异常");
+        }
+        List<PackBomSizeDto> packBomSizeList = Lists.newArrayList();
+        for (int i = 0; i < sizeRangeSizeIds.size(); i++) {
+            PackBomSizeDto packBomSizeDto = new PackBomSizeDto();
+            packBomSizeDto.setSize(sizeRangeSizes.get(i));
+            packBomSizeDto.setSizeId(sizeRangeSizeIds.get(i));
+            packBomSizeDto.setWidth(bomSelMaterialVo.getTranslate());
+            packBomSizeDto.setWidthCode(bomSelMaterialVo.getTranslateCode());
+            packBomSizeList.add(packBomSizeDto);
+        }
+        dto.setPackBomSizeList(packBomSizeList);
     }
 
 

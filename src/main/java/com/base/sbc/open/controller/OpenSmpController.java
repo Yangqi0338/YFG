@@ -353,7 +353,7 @@ public class OpenSmpController extends BaseController {
         orderBookDetailQueryWrapper.eq("order_book_id", orderBookId);
         OrderBook orderBook = orderBookService.getById(orderBookId);
         if (orderBook != null) {
-            List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(orderBookDetailQueryWrapper, 1);
+            List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(orderBookDetailQueryWrapper, 0, 1);
             List<OrderBookDetailDataVo> orderBookDetailDataVos = BeanUtil.copyToList(querylist, OrderBookDetailDataVo.class);
             PlanningSeason planningSeason = planningSeasonService.getById(orderBook.getSeasonId());
             if (planningSeason != null) {
