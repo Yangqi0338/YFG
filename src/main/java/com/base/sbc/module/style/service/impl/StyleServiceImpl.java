@@ -314,28 +314,39 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
             StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
 
+            //查询该设计款下，下发成功的大货款号（包含配饰款），并重新下发
             QueryWrapper<StyleColor> colorQueryWrapper = new QueryWrapper<>();
             colorQueryWrapper.eq("style_id", style.getId());
             colorQueryWrapper.eq("status","0");
             colorQueryWrapper.eq("del_flag","0");
-            List<StyleColor> list = styleColorService.list(colorQueryWrapper);
+            colorQueryWrapper.eq("scm_send_flag","1");
+            List<StyleColor> scmSendStyleColorList = styleColorService.list(colorQueryWrapper);
 
 
-            //判断款式配色 同步状态，如果不能同步则报错
-
-            List<StyleColor> styleColorList = styleColorMapper.getStyleMainAccessories(Collections.singletonList(dto.getStyleColorId()));
-            /*查询配色是否下发*/
-            if (CollectionUtils.isEmpty(styleColorList)) {
-                throw new OtherException("该大货款号已经同步，请在款式配色解锁后保存下发");
+            List<String> styleColorIds = scmSendStyleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(styleColorIds)) {
+                String[] stringArray = styleColorIds.toArray(new String[0]);
+                try {
+                    smpService.goods(stringArray);
+                } catch (Exception e) {
+                    log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
+                    throw new OtherException("同步SCM失败：" + e.getMessage());
+                }
             }
-            StyleColorService styleColorService1 = null;
-                    //SpringContextHolder.getBean(StyleColorService.class);
-            try {
-                styleColorService.issueScm(dto.getStyleColorId());
-            }catch (Exception e){
-                log.error("同步SCM失败",e);
-                throw new OtherException("同步SCM失败："+e.getMessage());
-            }
+
+//            //判断款式配色 同步状态，如果不能同步则报错
+//            List<StyleColor> styleColorList = styleColorMapper.getStyleMainAccessories(Collections.singletonList(dto.getStyleColorId()));
+//            /*查询配色是否下发*/
+//            if (CollectionUtils.isEmpty(styleColorList)) {
+//                throw new OtherException("该大货款号已经同步，请在款式配色解锁后保存下发");
+//            }
+//            StyleColorService styleColorService1 = SpringContextHolder.getBean(StyleColorService.class);
+//            try {
+//                styleColorService.issueScm(dto.getStyleColorId());
+//            }catch (Exception e){
+//                log.error("同步SCM失败",e);
+//                throw new OtherException("同步SCM失败："+e.getMessage());
+//            }
         }
 
         return style;
