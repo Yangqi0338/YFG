@@ -32,9 +32,6 @@ public class FeignConfig {
                     if (headerNames != null) {
                         while (headerNames.hasMoreElements()) {
                             String name = headerNames.nextElement();
-                            if ("content-length".equals(name)) {
-                                continue;
-                            }
                             if(!"Content-type".equalsIgnoreCase(name)){
                                 String values = request.getHeader(name);
                                 requestTemplate.header(name, values);
