@@ -182,6 +182,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         qw.notEmptyEq("unit_use", dto.getUnitUse());
         qw.notEmptyLike("ingredient", dto.getIngredient());
         qw.notEmptyLike("supplier_factory_ingredient", dto.getSupplierFactoryIngredient());
+        qw.notEmptyLike("supplier_material_code", dto.getSupplierMaterialCode());
         qw.notEmptyLike("material_name", dto.getMaterialName());
         Page<PackBom> page = PageHelper.startPage(dto);
         List<PackBom> list = list(qw);
