@@ -208,6 +208,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         CommonUtils.removeQuerySplit(dto, ",", "patternPartsPic");
         CommonUtils.removeQuery(dto, "stylePic");
 
+        //是否同步SCM
+        boolean isPushScm = false;
+
         if (CommonUtils.isInitId(dto.getId())) {
             style = saveNewStyle(dto);
         } else {
@@ -237,13 +240,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             this.updateById(style);
             reviseAllDesignNo(oldDesignNo, style.getDesignNo());
             planningCategoryItemService.updateBySampleDesignChange(style);
+            //当修改设计款是默认修改
+            isPushScm = true;
             //修改生产类型
             baseMapper.changeDevtType(style.getId(), style.getDevtType(), style.getDevtTypeName());
 
         }
-
-        //是否同步SCM
-        boolean isPushScm = false;
 
         //添加打标逻辑 - markingType 默认为空时和设计阶段，打标逻辑一致，如果维度数据全部填写则全部打标，否则部分打标，全部未填写时为未打标
         if(StrUtil.isEmpty(dto.getMarkingType())){
@@ -256,7 +258,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             styleColorUpdateWrapper.eq(StyleColor::getId,dto.getStyleColorId());
             styleColorMapper.update(null,styleColorUpdateWrapper);
 
-            String plateType = "";
+           /* String plateType = "";
             String GarmentWash = "";
             for (FieldVal fieldVal : dto.getTechnologyInfo()) {
                 if("plateType".equals(fieldVal.getFieldName())){
@@ -277,7 +279,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 if(plateType.equals(oldFvMap.getOrDefault("plateType","")) && GarmentWash.equals(oldFvMap.getOrDefault("GarmentWash",""))){
                     isPushScm = false;
                 }
-            }
+            }*/
 
             // 保存下单阶段工艺信息
             fieldValService.save(dto.getStyleColorId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER, dto.getTechnologyInfo());
@@ -306,7 +308,19 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 //        } catch (Exception e) {
 //            logger.error(" 是否开启单款多色开关/保存款式设计详情颜色异常报错如下：" , e);
 //        }
-        if(isPushScm && StrUtil.isNotBlank(dto.getStyleColorId())){
+
+
+        if(isPushScm){
+
+            StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
+
+            QueryWrapper<StyleColor> colorQueryWrapper = new QueryWrapper<>();
+            colorQueryWrapper.eq("style_id", style.getId());
+            colorQueryWrapper.eq("status","0");
+            colorQueryWrapper.eq("del_flag","0");
+            List<StyleColor> list = styleColorService.list(colorQueryWrapper);
+
+
             //判断款式配色 同步状态，如果不能同步则报错
 
             List<StyleColor> styleColorList = styleColorMapper.getStyleMainAccessories(Collections.singletonList(dto.getStyleColorId()));
@@ -314,7 +328,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (CollectionUtils.isEmpty(styleColorList)) {
                 throw new OtherException("该大货款号已经同步，请在款式配色解锁后保存下发");
             }
-            StyleColorService styleColorService = SpringContextHolder.getBean(StyleColorService.class);
+            StyleColorService styleColorService1 = null;
+                    //SpringContextHolder.getBean(StyleColorService.class);
             try {
                 styleColorService.issueScm(dto.getStyleColorId());
             }catch (Exception e){
