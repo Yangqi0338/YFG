@@ -590,7 +590,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PlanningSeason planningSeason = planningSeasonService.getById(StrUtil.isNotBlank(style.getOldPlanningSeasonId()) ? style.getOldPlanningSeasonId() : style.getPlanningSeasonId());
         String brand = planningSeason.getBrand();
         String year = planningSeason.getYearName();
-        String season = planningSeason.getSeason();
+        // 240429 存在修改季节但不修改产品季的操作, 这里用产品季季节会导致匹配不上
+        String season = style.getSeason();
         if (StringUtils.isNotBlank(style.getProdCategory())) {
             category = style.getProdCategory();
         }
@@ -2048,7 +2049,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         if ("1".equals(queryDto.getUploadImageFlag())) {
             queryWrapper.isNotNullStr("tsc.style_color_pic");
-        } else {
+        } else if ("0".equals(queryDto.getUploadImageFlag())) {
             queryWrapper.isNullStr("tsc.style_color_pic");
         }
 

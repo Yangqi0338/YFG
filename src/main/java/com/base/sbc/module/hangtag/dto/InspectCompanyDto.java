@@ -11,6 +11,11 @@ import java.util.List;
 @Data
 public class InspectCompanyDto {
     /**
+     * 吊牌Id
+     */
+    private String hangTagId;
+
+    /**
      * 文件地址
      */
     private String fileUrl;

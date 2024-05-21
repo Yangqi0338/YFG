@@ -137,6 +137,13 @@ public class SampleBoardExcel {
     @Excel(name = "需求数",type = 10)
     private BigDecimal requirementNum;
 
+    /**
+     * 是否参考样衣
+     */
+    @ApiModelProperty(value = "是否参考样衣")
+    @Excel(name = "是否参考样衣",replace = {"是_1", "否_0","_null"})
+    private String referSample;
+
 
 
     @ApiModelProperty(value = "纸样完成时间")
@@ -178,6 +185,9 @@ public class SampleBoardExcel {
     @ApiModelProperty(value = "样衣组长确认齐套")
     @Excel(name = "样衣组长确认齐套", replace = {"是_1", "否_0"})
     private String sglKitting;
+
+    @ApiModelProperty(value = "是否齐套原因")
+    private String kittingReason;
 
     @ApiModelProperty(value = "备注")
     private String stitcherRemark;

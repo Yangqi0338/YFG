@@ -170,8 +170,11 @@ public class StylePricingController extends BaseController {
         List<StylePricing> stylePricings = stylePricingService.listByIds(list);
         for (StylePricing stylePricing : stylePricings) {
 
-            if ("1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
+            if ("1".equals(dto.getWagesConfirm()) &&"1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
                 throw new OtherException("存在已经提交审核");
+            }
+            if ("1".equals(dto.getControlConfirm()) && "0".equals(stylePricing.getWagesConfirm())){
+                throw new OtherException("工时部确认后计控才能确认成本");
             }
             if ("1".equals(dto.getProductHangtagConfirm()) && "0".equals(stylePricing.getControlConfirm())){
                 throw new OtherException("请先计控确认");
@@ -179,26 +182,33 @@ public class StylePricingController extends BaseController {
             if ("1".equals(dto.getControlHangtagConfirm()) && ("0".equals(stylePricing.getProductHangtagConfirm())  || "0".equals(stylePricing.getControlConfirm()))){
                 throw new OtherException("请先商品吊牌确认");
             }
+            if (!StringUtils.isEmpty(dto.getWagesConfirm())){
+                if (dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
+                    throw new OtherException("工时部已确认");
+                }
+                stylePricing.setWagesConfirm(dto.getWagesConfirm());
+                stylePricing.setWagesConfirmTime(new Date());
+            }
             if (!StringUtils.isEmpty(dto.getControlConfirm())){
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("计控已确认");
                 }
                 stylePricing.setControlConfirm(dto.getControlConfirm());
                 stylePricing.setControlConfirmTime(new Date());
             }
             if (!StringUtils.isEmpty(dto.getProductHangtagConfirm())){
                 if (dto.getProductHangtagConfirm().equals(stylePricing.getProductHangtagConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("商品吊牌已确认");
                 }
                 stylePricing.setProductHangtagConfirm(dto.getProductHangtagConfirm());
-                stylePricing.setControlConfirmTime(new Date());
+                stylePricing.setProductHangtagConfirmTime(new Date());
             }
             if (!StringUtils.isEmpty(dto.getControlHangtagConfirm())){
                 if (dto.getControlHangtagConfirm().equals(stylePricing.getControlHangtagConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("计控吊牌已确认");
                 }
                 stylePricing.setControlHangtagConfirm(dto.getControlHangtagConfirm());
-                stylePricing.setControlConfirmTime(new Date());
+                stylePricing.setControlHangtagConfirmTime(new Date());
             }
 //            计控确认时设置计控成本价等于总成本
             if (StrUtil.equals(stylePricing.getControlConfirm(),BaseGlobal.YES)){
@@ -246,6 +256,14 @@ public class StylePricingController extends BaseController {
             }
         }
         return updateSuccess("提交成功");
+    }
+
+    @ApiOperation(value = "反审核")
+    @PostMapping("/unAuditStatus")
+    @DuplicationCheck
+    public ApiResult unAuditStatus( @RequestBody List<String> ids) {
+        stylePricingService.unAuditStatus(ids);
+        return updateSuccess("反审核成功");
     }
 
 

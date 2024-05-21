@@ -93,7 +93,7 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     public StyleCountryStatusEnum getAuditStatus(){
         // 内部有一个未审核,那就是未审核
         return getLanguageList().stream().anyMatch(it->
-                MoreLanguageProperties.checkInternal(it.getLanguageCode()) &&
+                !MoreLanguageProperties.checkInternal(it.getLanguageCode()) &&
                 it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK
         ) ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
     };

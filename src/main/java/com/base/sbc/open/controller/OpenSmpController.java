@@ -136,7 +136,12 @@ public class OpenSmpController extends BaseController {
         smpDept.preInsert();
         smpDept.setCreateName("smp请求");
         smpDept.setUpdateName("smp请求");
-        amcService.hrDeptSave(smpDept);
+        if (smpDept != null) {
+            String depGroup = smpDept.getDepGroup();
+            if (!"终端办公室".equals(depGroup) && !"终端店铺".equals(depGroup) && !"终端管理".equals(depGroup) && !"托管店铺".equals(depGroup) ) {
+                amcService.hrDeptSave(smpDept);
+            }
+        }
         return insertSuccess(null);
     }
 

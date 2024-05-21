@@ -218,7 +218,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             index++;
             String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
             /*查询物料的最新检测报告*/
-           List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
+           List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode), new ArrayList<>());
             List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = materialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode));
             List<String> collect = basicsdatumMaterialWidths.stream().map(BasicsdatumMaterialWidth::getName).collect(Collectors.toList());
             basicsdatumMaterialPageVo.setWidthName(String.join(",", collect));

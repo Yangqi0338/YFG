@@ -467,36 +467,40 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         boolean updateBatch = this.saveOrUpdateBatch(statusList);
 
         if (needUpdateHangTag) {
-            // 可能存在未处理的状态,需要筛选
-            List<String> rightBulkStyleNoList = statusList.stream().map(bulkStyleNoFunc).collect(Collectors.toList());
-            hangTagList.stream()
-                    .filter(it-> rightBulkStyleNoList.contains(it.getBulkStyleNo()))
-                    .map(hangTag-> {
-                        HangTagStatusEnum status = HangTagStatusEnum.PART_TRANSLATE_CHECK;
-                        if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
-                            if (this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
-                                    .eq(bulkStyleNoFunc, hangTag.getBulkStyleNo())
-                                    .eq(statusFunc, StyleCountryStatusEnum.CHECK)) >= (size * CountryLanguageType.values().length)) {
-                                status = HangTagStatusEnum.FINISH;
+            statusList.stream().collect(Collectors.groupingBy((it)-> Pair.of(it.getStatus(), it.getType()))).forEach((keyPair,sameKeyList)-> {
+                // 可能存在未处理的状态,需要筛选
+                List<String> rightBulkStyleNoList = statusList.stream().map(bulkStyleNoFunc).collect(Collectors.toList());
+                hangTagList.stream()
+                        .filter(it-> rightBulkStyleNoList.contains(it.getBulkStyleNo()))
+                        .map(hangTag-> {
+                            HangTagStatusEnum status = HangTagStatusEnum.PART_TRANSLATE_CHECK;
+                            if (hangTag.getStatus() != HangTagStatusEnum.TRANSLATE_CHECK) {
+                                if (this.count(new BaseLambdaQueryWrapper<StyleCountryStatus>()
+                                        .eq(bulkStyleNoFunc, hangTag.getBulkStyleNo())
+                                        .eq(statusFunc, StyleCountryStatusEnum.CHECK)) >= (size * CountryLanguageType.values().length)
+                                ) {
+                                    status = HangTagStatusEnum.FINISH;
+                                }
                             }
-                        }
-                        if (hangTag.getStatus() == status) return null;
-                        return Pair.of(status, hangTag);
-                    }).filter(Objects::nonNull)
-                    .collect(CommonUtils.groupingBy(Pair::getKey, Pair::getValue))
-                    .forEach((status,sameStatusHangTagList)-> {
-                        // 直接调用吊牌更新接口, 将吊牌状态修改为完成
-                        HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
-                        statusDTO.setIds(sameStatusHangTagList.stream().map(HangTag::getId).distinct().collect(Collectors.toList()));
-                        statusDTO.setStatus(status);
-                        statusDTO.setUserCompany(getCompanyCode());
-                        statusDTO.setCountryCode(codeList);
-                        // 设置为translate_check 打破循环
-                        if (status == HangTagStatusEnum.PART_TRANSLATE_CHECK) {
-                            sameStatusHangTagList.forEach(it-> it.setStatus(HangTagStatusEnum.TRANSLATE_CHECK));
-                        }
-                        hangTagService.updateStatus(statusDTO,true, sameStatusHangTagList);
-                    });
+                            if (hangTag.getStatus() == status) return null;
+                            return Pair.of(status, hangTag);
+                        }).filter(Objects::nonNull)
+                        .collect(CommonUtils.groupingBy(Pair::getKey, Pair::getValue))
+                        .forEach((status,sameStatusHangTagList)-> {
+                            // 直接调用吊牌更新接口, 将吊牌状态修改为完成
+                            HangTagUpdateStatusDTO statusDTO = new HangTagUpdateStatusDTO();
+                            statusDTO.setIds(sameStatusHangTagList.stream().map(HangTag::getId).distinct().collect(Collectors.toList()));
+                            statusDTO.setStatus(status);
+                            statusDTO.setCountryCode(codeList);
+                            statusDTO.setCountryStatus(keyPair.getKey());
+                            statusDTO.setType(keyPair.getValue());
+                            // 设置为translate_check 打破循环
+                            if (status == HangTagStatusEnum.PART_TRANSLATE_CHECK) {
+                                sameStatusHangTagList.forEach(it-> it.setStatus(HangTagStatusEnum.TRANSLATE_CHECK));
+                            }
+                            hangTagService.updateStatus(statusDTO,true, sameStatusHangTagList);
+                        });
+            });
         }
 
         return updateBatch;
