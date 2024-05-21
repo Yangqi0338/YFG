@@ -34,4 +34,6 @@ public class PackBomPageSearchDto extends PackCommonPageSearchDto {
     private String ingredient;
     @ApiModelProperty(value = "厂家成分")
     private String supplierFactoryIngredient;
+    @ApiModelProperty(value = "供应商物料号")
+    private String supplierMaterialCode;
 }
