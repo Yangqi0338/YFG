@@ -3,6 +3,7 @@ package com.base.sbc.config.utils;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.exception.OtherException;
@@ -16,6 +17,15 @@ import java.util.stream.Collectors;
 
 public class QueryGenerator {
 
+
+    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
+        return initQueryWrapperByMap(qw, dto, true);
+    }
+
+    public static <T> boolean initQueryWrapperByMapNoDataPermission(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
+        return initQueryWrapperByMap(qw, dto, false);
+    }
+
     /**
      * 特别注意，该方法中有查询  PageHelper 写到该方法下面
      *
@@ -24,7 +34,12 @@ public class QueryGenerator {
      * @param <T>
      * @return
      */
-    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto) {
+    public static <T> boolean initQueryWrapperByMap(BaseQueryWrapper<T> qw, QueryFieldDto dto, boolean dataPermission) {
+        if (StrUtil.isNotEmpty(dto.getTableCode()) && dataPermission) {
+            //添加数据权限
+            DataPermissionsService dataPermissionsService = SpringContextHolder.getBean(DataPermissionsService.class);
+            dataPermissionsService.getDataPermissionsForQw(qw, dto.getTableCode());
+        }
         if (StrUtil.isEmpty(dto.getTableCode()) || MapUtil.isEmpty(dto.getFieldQueryMap())) {
             return false;
         }

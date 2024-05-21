@@ -10,6 +10,7 @@ import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.UserUtils;
@@ -48,6 +49,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author 孔祥基
@@ -94,7 +96,8 @@ public class StandardColumnController extends BaseController {
             throw new OtherException("参数不能为空");
         }
         standardColumnQueryDto.setPageSize(Integer.MAX_VALUE);
-        return selectSuccess(new PageInfo<>(standardColumnService.listQuery(standardColumnQueryDto)));
+        return selectSuccess(new PageInfo<>(standardColumnService.listQuery(standardColumnQueryDto)
+                .stream().filter(it-> !MoreLanguageProperties.modelStandardColumnCode.equals(it.getCode())).collect(Collectors.toList())));
     }
     
 }

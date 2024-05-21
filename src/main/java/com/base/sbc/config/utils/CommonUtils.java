@@ -6,13 +6,15 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.text.StrJoiner;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.*;
+import cn.hutool.core.util.ReflectUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.poi.ss.formula.functions.T;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -334,6 +336,17 @@ public class CommonUtils {
         }
     }
 
+    public static <T, U extends Comparable<U>> Comparator<T> nullFirstComparing(Function<? super T, ? extends U> keyExtractor) {
+        return comparing(keyExtractor, false);
+    }
+
+    public static <T, U extends Comparable<U>> Comparator<T> nullLastComparing(Function<? super T, ? extends U> keyExtractor) {
+        return comparing(keyExtractor, true);
+    }
+
+    public static <T, U extends Comparable<U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor, boolean nullLast) {
+        return Comparator.comparing(keyExtractor, nullLast ? Comparator.nullsLast(Comparable::compareTo): Comparator.nullsFirst(Comparable::compareTo));
+    }
 
     public static <T, K> Collector<T, ?, Map<K, List<T>>> groupingBy(Function<? super T, ? extends K> classifier) {
         return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.toList());

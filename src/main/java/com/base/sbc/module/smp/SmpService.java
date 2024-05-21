@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -315,9 +316,9 @@ public class SmpService {
             smpGoodsDto.setShapeName(style.getPlateType());
             smpGoodsDto.setUniqueCode(styleColor.getWareCode());
 
-//            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
-//            Map<String, String> map = dictInfoToMap.get("C8_Band");
-//            smpGoodsDto.setBandName(map.get(style.getBandCode()));
+            Map<String, Map<String, String>> dictInfoToMap = ccmFeignService.getDictInfoToMap("C8_Band");
+            Map<String, String> map = dictInfoToMap.get("C8_Band");
+            smpGoodsDto.setBandName(map.get(styleColor.getBandCode()));
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
 
@@ -772,7 +773,9 @@ public class SmpService {
         if(CollUtil.isEmpty(list)){
             throw new OtherException("已下发数据不在重复下发");
         }
-        List<String> materialCodeList = new ArrayList<>();
+        List<String> materialCodeList = list.stream().map(PackBom::getMaterialCode).distinct().collect(Collectors.toList());
+        List<BasicsdatumMaterial> materialList = basicsdatumMaterialService.listByField("material_code", materialCodeList);
+        Map<String, BasicsdatumMaterial> materialMap = materialList.stream().collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode,o->o,(v1,v2)->v1));
         for (PackBom packBom : list) {
             //验证如果是大货类型则判断大货用量是否为空或者0
             if (PackUtils.PACK_TYPE_BIG_GOODS.equals(packBom.getPackType())) {
@@ -842,7 +845,12 @@ public class SmpService {
             if (styleColor == null) {
                 throw new OtherException("未关联配色,无法下发");
             }
-            if (StrUtil.isEmpty(styleColor.getDefectiveNo()) && BaseGlobal.NO.equals(packBom.getUnusableFlag())) {
+            String category2Code = "";
+            if(materialMap.containsKey(packBom.getMaterialCode())){
+                BasicsdatumMaterial basicsdatumMaterial = materialMap.get(packBom.getMaterialCode());
+                category2Code = basicsdatumMaterial.getCategory2Code();
+            }
+            if (StrUtil.isEmpty(styleColor.getDefectiveNo()) && BaseGlobal.NO.equals(packBom.getUnusableFlag()) && !"FB".equals(category2Code)) {
                 QueryWrapper queryWrapper = new QueryWrapper();
                 queryWrapper.eq("is_supplier",BaseGlobal.YES);
                 queryWrapper.eq("supplier_code",packBom.getSupplierId());
@@ -853,7 +861,6 @@ public class SmpService {
                     throw new OtherException(packBom.getMaterialCode()+"_"+packBom.getMaterialName()+" "+collect+"供应商已停用");
                 }
             }
-            materialCodeList.add(packBom.getMaterialCode());
 
             packBomVersionService.checkBomDataEmptyThrowException(packBom);
         }
@@ -1618,17 +1625,6 @@ public class SmpService {
      * 正确样下发
      */
     public void styleColorCorrectInfoDate(TagConfirmDateDto tagConfirmDateDto) {
-        String type = tagConfirmDateDto.getType();
-        if (null == tagConfirmDateDto.getPlanControlDate() && "plan_control_date".equals(type)) {//
-            String styleNo = tagConfirmDateDto.getStyleNo();
-            QueryWrapper<StyleColorCorrectInfo> queryWrapper = new QueryWrapper();
-            queryWrapper.eq("style_no", styleNo);
-            queryWrapper.eq("del_flag", "0");
-            List<StyleColorCorrectInfo> list = styleColorCorrectInfoService.list(queryWrapper);
-            if (CollUtil.isNotEmpty(list)) {
-                tagConfirmDateDto.setPlanControlDate(list.get(0).getPlanControlDate());
-            }
-        }
         String params = JSONArray.toJSONString(Arrays.asList(tagConfirmDateDto));
         restTemplateService.spmPost(SCM_URL + "/tagConfirmDate", params,
                 Pair.of("moduleName","scm"),
@@ -1702,11 +1698,12 @@ public class SmpService {
                 smpGoodsDto.setPlanCost(stylePricingVO.getControlPlanCost());
             }
 
-            if( StrUtil.equals(style.getEnableStatus(),BaseGlobal.YES)){
+            if (StrUtil.equals(styleColor.getStatus(), BaseGlobal.YES)) {
                 smpGoodsDto.setBomPhase("Sample");
-            }else{
+            } else {
                 smpGoodsDto.setBomPhase("Production");
             }
+
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());

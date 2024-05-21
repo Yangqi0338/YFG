@@ -244,8 +244,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     public PageInfo<StyleColorVo> getSampleStyleColorList(Principal user, QueryStyleColorDto queryDto) {
 
         /*分页*/
-        Page<Object> objects = PageHelper.startPage(queryDto);
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
+        Page<Object> objects = PageHelper.startPage(queryDto);
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
         if (StringUtils.isNotBlank(queryDto.getColorListFlag())) {
@@ -540,6 +541,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         for (StyleColor styleColor : styleColorList) {
             // 保存工艺信息
             fieldValService.save(styleColor.getId(), FieldValDataGroupConstant.STYLE_COLOR, fieldValList);
+            fieldValService.save(styleColor.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER, fieldValList);
             /*获取全部的主款或配饰*/
             if (CollUtil.isNotEmpty(saveDtoList)) {
                 saveDtoList.forEach(s -> s.setStyleColorId(styleColor.getId()));
@@ -591,7 +593,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PlanningSeason planningSeason = planningSeasonService.getById(StrUtil.isNotBlank(style.getOldPlanningSeasonId()) ? style.getOldPlanningSeasonId() : style.getPlanningSeasonId());
         String brand = planningSeason.getBrand();
         String year = planningSeason.getYearName();
-        String season = planningSeason.getSeason();
+        // 240429 存在修改季节但不修改产品季的操作, 这里用产品季季节会导致匹配不上
+        String season = style.getSeason();
         if (StringUtils.isNotBlank(style.getProdCategory())) {
             category = style.getProdCategory();
         }
@@ -1998,6 +2001,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         queryWrapper.eq("ts.brand_name","MANGO");
         queryWrapper.eq("tsca.del_flag","0");
+
+        if ("1".equals(queryDto.getUploadImageFlag())) {
+            queryWrapper.isNotNullStr("tsc.style_color_pic");
+        } else if ("0".equals(queryDto.getUploadImageFlag())) {
+            queryWrapper.isNullStr("tsc.style_color_pic");
+        }
+
         objects.setOrderBy("tsc.create_date desc,tsc.style_no,tsca.size_id");
 
         List<StyleColorAgentVo> list = baseMapper.agentList(queryWrapper);
@@ -2049,6 +2059,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 TagPrinting.Size size = new TagPrinting.Size();
                 size.setSORTCODE(styleColorAgentVo.getOutsideSizeCode());
                 size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
+                size.setEXTSIZECODE(styleColorAgentVo.getHangtags());
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
@@ -2121,16 +2132,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException("只有重新打开或可编辑时才能停用");
         }
         StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
-        String styleId = styleColor.getStyleId();
-        Style style = styleService.getById(styleId);
-        if("1".equals(style.getEnableStatus())){
+        String styleColorId = styleColor.getStyleId();
+        if("1".equals(styleColor.getStatus())){
             throw new OtherException("该款已经停用");
         }
 
-        LambdaUpdateWrapper<Style> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.set(Style::getEnableStatus,"1");
-        updateWrapper.eq(Style::getId,styleId);
-        styleService.update(updateWrapper);
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getStatus,"1");
+        updateWrapper.eq(StyleColor::getId,styleColorId);
+        styleColorService.update(updateWrapper);
 
         //同步下游系统
         smpService.goodsAgent(new String[]{styleColor.getId()},true);
@@ -2160,16 +2170,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException("只有重新打开或可编辑时才能启用");
         }
         StyleColor styleColor = styleColorService.getById(byId.getStyleColorId());
-        String styleId = styleColor.getStyleId();
-        Style style = styleService.getById(styleId);
-        if("0".equals(style.getEnableStatus())){
+        String styleColorId = styleColor.getId();
+        if("0".equals(styleColor.getStatus())){
             throw new OtherException("该款已经启用");
         }
 
-        LambdaUpdateWrapper<Style> updateWrapper = new LambdaUpdateWrapper<>();
-        updateWrapper.set(Style::getEnableStatus,"0");
-        updateWrapper.eq(Style::getId,styleId);
-        styleService.update(updateWrapper);
+        LambdaUpdateWrapper<StyleColor> updateWrapper = new LambdaUpdateWrapper<>();
+        updateWrapper.set(StyleColor::getStatus,"0");
+        updateWrapper.eq(StyleColor::getId,styleColorId);
+        styleColorService.update(updateWrapper);
 
         //同步下游系统
         smpService.goodsAgent(new String[]{styleColor.getId()},true);
@@ -2395,18 +2404,18 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
                 //品类
-                String prodCategoryName = dto.getProdCategoryName();
                 String prodCategory1stName = dto.getProdCategory1stName();
+                String prodCategoryName = dto.getProdCategoryName();
                 String prodCategory2ndName = dto.getProdCategory2ndName();
 
                 String key = prodCategory1stName + "-" + prodCategoryName + "-" + prodCategory2ndName;
                 if (checkMap.containsKey(key)) {
                     String mapValue = checkMap.get(key);
                     if (StrUtil.isNotEmpty(mapValue)) {
-                        style.setProdCategoryName(prodCategoryName);
-                        style.setProdCategory(mapValue.split("-")[0]);
                         style.setProdCategory1stName(prodCategory1stName);
-                        style.setProdCategory1st(mapValue.split("-")[1]);
+                        style.setProdCategory1st(mapValue.split("-")[0]);
+                        style.setProdCategoryName(prodCategoryName);
+                        style.setProdCategory(mapValue.split("-")[1]);
                         style.setProdCategory2ndName(prodCategory2ndName);
                         style.setProdCategory2nd(mapValue.split("-")[2]);
                     }else{
@@ -2645,14 +2654,14 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             if (checkMap.containsKey(updatekey)) {
                                 String updateMapValue = checkMap.get(updatekey);
                                 if (StrUtil.isNotEmpty(updateMapValue)) {
-                                    styleUpdate.setProdCategoryName(prodCategoryName1);
-                                    styleUpdate.setProdCategory(updateMapValue.split("-")[1]);
-                                    styleColorUpdate.setProductName(prodCategoryName1);
-                                    styleColorUpdate.setProductCode(updateMapValue.split("-")[1]);
                                     styleUpdate.setProdCategory1stName(prodCategory1stName1);
                                     styleUpdate.setProdCategory1st(updateMapValue.split("-")[0]);
+                                    styleUpdate.setProdCategoryName(prodCategoryName1);
+                                    styleUpdate.setProdCategory(updateMapValue.split("-")[1]);
                                     styleUpdate.setProdCategory2ndName(prodCategory2ndName1);
-                                    styleUpdate.setProdCategory2nd(updateMapValue.split("-")[1]);
+                                    styleUpdate.setProdCategory2nd(updateMapValue.split("-")[2]);
+                                    styleColorUpdate.setProductName(prodCategoryName1);
+                                    styleColorUpdate.setProductCode(updateMapValue.split("-")[1]);
                                 }else{
                                     throw new OtherException("第" + (i + 1) + "行,系统找不到对应的大类-品类-中类" + updatekey);
                                 }
@@ -2933,7 +2942,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
                 boolean styleStatus = "0".equals(styleColor.getStatus());
                 if ("1".equals(status) && styleStatus) {
-                    rowText = commonPromptInfo(styleColorAgent != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "已下发到下游业务系统，需先运维人员解除卡控再导入数据！\n");
+                    rowText = commonPromptInfo(styleColorAgent != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】" + "已下发到下游业务系统，需先解锁再导入数据！\n");
                 }else if ("2".equals(status) && styleStatus) {
                     if (styleColor != null) {
                         String styleId = styleColor.getStyleId();
@@ -2949,12 +2958,21 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                             rowText = commonPromptInfo( !style.getProdCategory2ndName().equals(entity.getProdCategory2ndName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getProdCategory2ndName() + "】 数据已下发过，中类不允许修改！\n");
                             //号型类型
                             rowText = commonPromptInfo( !style.getSizeRangeName().equals(entity.getSizeRangeName()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getSizeRangeName() + "】 数据已下发过，号型类型不允许修改！\n");
-                            //合作方尺码
-                            rowText = commonPromptInfo( !styleColorAgent.getOutsideSizeCode().equals(entity.getOutsideSizeCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideSizeCode() + "】 数据已下发过，合作方尺码不允许修改！\n");
                             //合作方颜色
                             rowText = commonPromptInfo( !styleColorAgent.getOutsideColorCode().equals(entity.getOutsideColorCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideColorCode() + "】 数据已下发过，合作方颜色编码不允许修改！\n");
-                            //外部条形码
-                            rowText = commonPromptInfo(StrUtil.isNotBlank(styleColorAgent.getOutsideBarcode()) && !styleColorAgent.getOutsideBarcode().equals(entity.getOutsideBarcode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getOutsideBarcode()+"】 数据已下发过，外部条形码不允许修改！\n");
+
+
+
+                            QueryWrapper styleColorAgentQueryWrapperExit = new QueryWrapper<StyleColorAgent>();
+                            styleColorAgentQueryWrapperExit.eq("style_color_no",styleColorNo);
+                            styleColorAgentQueryWrapperExit.eq("outside_size_code",entity.getOutsideSizeCode());
+                            styleColorAgentQueryWrapperExit.last("limit 1");
+
+                            StyleColorAgent styleColorAgentServiceOne = styleColorAgentService.getOne(styleColorAgentQueryWrapperExit);
+                            if (styleColorAgentServiceOne != null) {
+                                //合作方尺码
+                                rowText = commonPromptInfo( styleColorAgentServiceOne.getOutsideSizeCode().equals(entity.getOutsideSizeCode()), rowText, "第" + (i + 1) + "行" +"【"+entity.getStyleColorNo()+"】,"+ "【" + entity.getOutsideSizeCode() + "】 数据已下发过，合作方尺码不允许修改！\n");
+                            }
                         }
                     }
                 }else if ("3".equals(status) && !styleStatus){
@@ -2971,7 +2989,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             styleColorAgentQueryBarcodeWrapper.eq("del_flag",0);
             styleColorAgentQueryBarcodeWrapper.last("limit 1");
             StyleColorAgent styleColorAgentExit = styleColorAgentService.getOne(styleColorAgentQueryBarcodeWrapper);
-            rowText = commonPromptInfo(styleColorAgentExit != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】,【" + entity.getOutsideColorCode() + "】" + "数据库存在重复数据请确认后再导入数据！\n");
+            rowText = commonPromptInfo(styleColorAgentExit != null, rowText, "第" + (i + 1) + "行" + "【" + styleColorNo + "】【"+entity.getOutsideSizeCode()+"】【" + entity.getOutsideBarcode() + "】" + "数据库存在重复数据请确认后再导入数据！\n");
 
             QueryWrapper styleColorAgentBracodeQueryBarcodeWrapper = new QueryWrapper<StyleColorAgent>();
             styleColorAgentBracodeQueryBarcodeWrapper.ne("style_color_no",styleColorNo);

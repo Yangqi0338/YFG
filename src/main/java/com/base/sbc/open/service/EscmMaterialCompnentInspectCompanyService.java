@@ -19,7 +19,7 @@ public interface EscmMaterialCompnentInspectCompanyService extends BaseService<E
      * @param queryWrapper
      * @return
      */
-    List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper);
+    List<EscmMaterialCompnentInspectCompanyDto> getListByMaterialsNo(QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper, List<String> existsIdList);
 
 
     /**

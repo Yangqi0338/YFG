@@ -8,6 +8,8 @@ public class BasicsdatumMaterialPageAndStyleVo {
      * 物料清单id
      */
     private String packBomId;
+
+    private String packId;
     /**
      * 物料图片
      */
@@ -84,4 +86,9 @@ public class BasicsdatumMaterialPageAndStyleVo {
      * 列头筛选数量
      */
     private Integer groupCount;
+    /**
+     * 是否是迁移历史数据
+     */
+    private String historicalData;
+
 }

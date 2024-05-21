@@ -6,7 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.client.ccm.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -44,6 +47,12 @@ public class BasicBaseDict extends BaseDataEntity<String> {
     private String isLeaf;
     /** 是否初始值(1.是 0.否) */
     private String isInitial;
+
+    @JsonIgnore
+    @ApiModelProperty(value = "具体数据")
+    public int getNameLength(){
+        return StrUtil.length(this.getName());
+    };
 
 }
 

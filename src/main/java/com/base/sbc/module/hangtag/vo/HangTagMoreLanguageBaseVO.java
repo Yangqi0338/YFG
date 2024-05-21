@@ -12,6 +12,7 @@ import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.StandardColumnModel;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,6 +20,8 @@ import lombok.EqualsAndHashCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.CONTENT_FORMAT;
 
@@ -48,6 +51,12 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     protected String code;
 
     /**
+     * 标题编码
+     */
+    @ApiModelProperty(value = "标题编码")
+    private String titleCode;
+
+    /**
      * 标准列码
      */
     @ApiModelProperty(value = "标准列码")
@@ -66,10 +75,10 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     private YesOrNoEnum showFlag;
 
     /**
-     * 国家名
+     * 模板名
      */
-    @ApiModelProperty(value = "国家名")
-    private String countryName;
+    @ApiModelProperty(value = "模板名")
+    private String name;
 
     /**
      * 具体数据
@@ -83,8 +92,10 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
     @ApiModelProperty(value = "审核状态")
     public StyleCountryStatusEnum getAuditStatus(){
         // 内部有一个未审核,那就是未审核
-        return getLanguageList().stream().anyMatch(it-> it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK)
-                 ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
+        return getLanguageList().stream().anyMatch(it->
+                !MoreLanguageProperties.checkInternal(it.getLanguageCode()) &&
+                it.getAuditStatus() == StyleCountryStatusEnum.UNCHECK
+        ) ? StyleCountryStatusEnum.UNCHECK : StyleCountryStatusEnum.CHECK;
     };
 
     protected String findStandardColumnName() {
@@ -103,5 +114,34 @@ public class HangTagMoreLanguageBaseVO extends HangTagMoreLanguageSupportVO {
                 Opt.ofNullable(this.propertiesName).orElse("")
         );
     }
+
+    @JsonIgnore
+    public Map<String, List<MoreLanguageStatusCheckDetailAuditDTO>> buildAuditMap(){
+        return getLanguageList().stream().collect(Collectors.toMap(HangTagMoreLanguageVO::getLanguageCode, (languageDto)-> {
+            List<MoreLanguageStatusCheckDetailAuditDTO> auditDtoList = new ArrayList<>();
+            if (languageDto.forceFindContent()) {
+                MoreLanguageStatusCheckDetailAuditDTO contentStatus = new MoreLanguageStatusCheckDetailAuditDTO();
+                contentStatus.setStandardColumnCode(standardColumnCode);
+                contentStatus.setSource(languageDto.getPropertiesCode());
+                contentStatus.setContent(languageDto.getPropertiesContent());
+                contentStatus.setStatus(YesOrNoEnum.YES.getValueStr());
+                auditDtoList.add(contentStatus);
+            }
+
+            MoreLanguageStatusCheckDetailAuditDTO titleStatus = new MoreLanguageStatusCheckDetailAuditDTO();
+            titleStatus.setStandardColumnCode(titleCode);
+            titleStatus.setSource(standardColumnCode);
+            titleStatus.setContent(languageDto.getStandardColumnContent());
+            titleStatus.setStatus(YesOrNoEnum.YES.getValueStr());
+            auditDtoList.add(titleStatus);
+            return auditDtoList.stream().filter(it-> StrUtil.isNotBlank(it.getContent())).collect(Collectors.toList());
+        }));
+    }
+
+    @JsonIgnore
+    @ApiModelProperty(value = "具体数据")
+    public int getPropertiesNameLength(){
+        return StrUtil.length(this.getPropertiesName());
+    };
 
 }
