@@ -1019,7 +1019,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             String materialNameParam = basicsdatumMaterialUpdateDto.getMaterialName();
             String category3CodeParam = basicsdatumMaterialUpdateDto.getCategory3Code();
 
-            if ("1".equals(distribute) || "3".equals(distribute)) {
+            if ("1".equals(distribute)) {
                 throw new OtherException("材料编号:" + materialCode + ",已下发到下游系统，不能修改！");
             }
             checkBomRelyOn(materialCode);
