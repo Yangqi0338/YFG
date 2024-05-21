@@ -29,6 +29,7 @@ import com.base.sbc.module.planningproject.vo.PlanningProjectVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 public class planningProjectServiceImpl extends BaseServiceImpl<PlanningProjectMapper, PlanningProject> implements PlanningProjectService {
     private final PlanningProjectDimensionService planningProjectDimensionService;
     private final PlanningProjectMaxCategoryService planningProjectMaxCategoryService;
+    @Lazy
     private final PlanningProjectPlankService planningProjectPlankService;
     private final DataPermissionsService dataPermissionsService;
     private final MinioUtils minioUtils;

@@ -67,6 +67,8 @@ public class CategoryPlanningServiceImpl extends BaseServiceImpl<CategoryPlannin
     private FieldManagementMapper fieldManagementMapper;
     @Autowired
     private CcmFeignService ccmFeignService;
+
+    @Lazy
     @Autowired
     private PlanningProjectService planningProjectService;
 
