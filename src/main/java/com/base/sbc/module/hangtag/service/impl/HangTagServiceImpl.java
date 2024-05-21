@@ -447,9 +447,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 			}
 		}
-		String secondPackagingFormCode = hangTagVO.getSecondPackagingFormCode();
-		if (StrUtil.isNotBlank(secondPackagingFormCode)) {
-			hangTagVO.setSecondPackagingForm(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(secondPackagingFormCode))
+		String packagingBagStandardCode = hangTagVO.getPackagingBagStandardCode();
+		if (StrUtil.isNotBlank(packagingBagStandardCode)) {
+			hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
 					.findFirst().map(BasicBaseDict::getName).orElse(""));
 		}
 
