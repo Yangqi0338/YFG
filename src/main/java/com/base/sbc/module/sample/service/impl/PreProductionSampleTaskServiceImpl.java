@@ -32,7 +32,6 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
-import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
@@ -58,7 +57,6 @@ import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
-import com.base.sbc.module.style.service.StyleColorCorrectInfoService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.style.vo.StyleVo;
@@ -236,6 +234,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         } else {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
         }
+        if(StrUtil.isEmpty(dto.getOrderBy())){
+            qw.orderByDesc("t.create_date");
+        }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
@@ -270,19 +271,19 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
         List<PreProductionSampleTaskVoExcel> list = CopyUtil.copy(sampleTaskVoList, PreProductionSampleTaskVoExcel.class);
 
-
+        ExcelUtils.exportExcelByTableCode(list, "产前样看板", response, dto);
         /*开启一个线程池*/
-        ExecutorService executor = ExecutorBuilder.create()
+        /*ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
                 .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
                 .build();
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
-                /*获取图片链接*/
+                *//*获取图片链接*//*
                 stylePicUtils.setStylePic(list, "stylePic",30);
                 minioUtils.setObjectUrlToList(list, "samplePic");
-                /*计时器*/
+                *//*计时器*//*
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (PreProductionSampleTaskVoExcel preProductionSampleTaskVoExcel : list) {
                     executor.submit(() -> {
@@ -305,7 +306,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             log.info(e.getMessage());
         } finally {
             executor.shutdown();
-        }
+        }*/
     }
 
     @Override
@@ -459,7 +460,15 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         }
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.eq("id", dto.getId());
-        update(dto, uw);
+        //是否齐套
+        uw.set("kitting", dto.getKitting());
+        //放码日期
+        uw.set("grading_date", dto.getGradingDate());
+        //面辅料信息
+        uw.set("material_info", dto.getMaterialInfo());
+        //技术接收时间
+        uw.set("tech_receive_time", dto.getTechReceiveTime());
+        update(uw);
 
         // 修改裁剪时间和车缝时间
         QueryWrapper<NodeStatus> queryWrapper1 = new BaseQueryWrapper<>();

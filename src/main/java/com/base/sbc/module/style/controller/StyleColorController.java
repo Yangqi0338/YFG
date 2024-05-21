@@ -364,11 +364,11 @@ public class StyleColorController {
         return styleColorService.agentSync(ids);
     }
 
-    @ApiOperation(value = "mango导入Excel")
-    @PostMapping("/uploadStyleColorPics")
-    public ApiResult uploadStyleColorPics(Principal user, @RequestParam("files") MultipartFile[] files) {
-        return styleColorService.uploadStyleColorPics(user, files);
-    }
+	@ApiOperation(value = "mango导入图片")
+	@PostMapping("/uploadStyleColorPics")
+	public ApiResult uploadStyleColorPics(Principal user, @RequestParam("files") MultipartFile[] files) {
+		return styleColorService.uploadStyleColorPics(user,files);
+	}
 
     /**
      * 修改轻奢款

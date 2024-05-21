@@ -45,6 +45,15 @@ public class StylePricing extends BaseDataEntity<String> {
     /** 企划倍率 */
     @ApiModelProperty(value = "企划倍率"  )
     private BigDecimal planningRate;
+    /** 工时部确认工价 0.否、1.是 */
+    @ApiModelProperty(value = "工时部确认工价 0.否、1.是"  )
+    private String wagesConfirm;
+    /**
+     * 工时部确认工价时间
+     */
+    @ApiModelProperty(value = "工时部确认工价时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date wagesConfirmTime;
     /** 是否计控确认 0.否、1.是 */
     @ApiModelProperty(value = "是否计控确认 0.否、1.是"  )
     private String controlConfirm;
@@ -52,10 +61,22 @@ public class StylePricing extends BaseDataEntity<String> {
     @ApiModelProperty(value = "是否商品吊牌确认 0.否、1.是")
     private String productHangtagConfirm;
     /**
+     * 是否商品吊牌确认时间
+     */
+    @ApiModelProperty(value = "是否商品吊牌确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date productHangtagConfirmTime;
+    /**
      * 是否计控吊牌确认 0.否、1.是
      */
     @ApiModelProperty(value = "是否计控吊牌确认 0.否、1.是")
     private String controlHangtagConfirm;
+    /**
+     * 是否计控吊牌确认时间
+     */
+    @ApiModelProperty(value = "是否计控吊牌确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date controlHangtagConfirmTime;
     /**
      * 资料包id
      */

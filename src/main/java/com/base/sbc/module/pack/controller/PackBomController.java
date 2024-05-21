@@ -211,35 +211,17 @@ public class PackBomController extends BaseController{
 
         return packBomService.packBomMaterialColor(userCompany, id, colorCode);
     }
+
+    @GetMapping("/getRenovatePackBomInfo/{id}")
+    @ApiOperation(value = "查询物料更新详情")
+    public ApiResult getRenovatePackBomInfo(@PathVariable("id") String id){
+        return packBomService.getRenovatePackBomInfo(id);
+    }
+
+    @PostMapping("/renovatePackBom")
+    @ApiOperation(value = "刷新物料信息")
+    public Boolean renovatePackBom(@RequestBody IdDto dto) {
+        return packBomService.renovatePackBom(dto.getId());
+    }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

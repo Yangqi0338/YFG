@@ -37,6 +37,8 @@ public interface LatestCommissioningDateService extends BaseService<LatestCommis
 
     void exportExcel(HttpServletResponse response, LatestCommissioningDateQueryDto dto) throws IOException;
 
+    ApiResult updateMain(LatestCommissioningDate vo);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

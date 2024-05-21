@@ -15,17 +15,17 @@ import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.common.dto.IdsDto;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackTechPackaging;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackTechPackagingService;
-import com.base.sbc.module.pack.service.PackTechSpecService;
+import com.base.sbc.module.pack.entity.PackingDictionary;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.vo.PackTechSpecVo;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -35,6 +35,8 @@ import springfox.documentation.annotations.ApiIgnore;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 类描述：资料包-工艺说明 Controller类
@@ -49,7 +51,7 @@ import java.util.List;
 @Api(tags = "资料包-工艺说明")
 @RequestMapping(value = BaseController.SAAS_URL + "/packTechSpec", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 @Validated
-public class PackTechSpecController {
+public class PackTechSpecController extends BaseController{
 
     @Autowired
     private PackTechSpecService packTechSpecService;
@@ -61,6 +63,8 @@ public class PackTechSpecController {
     private PackInfoStatusService packInfoStatusService;
     @Autowired
     private PackInfoService packInfoService;
+    @Autowired
+    private PackingDictionaryService packingDictionaryService;
     @Autowired
     private UserUtils userUtils;
     final String lockField = "techSpecLockFlag";
@@ -133,6 +137,23 @@ public class PackTechSpecController {
     public PackTechPackaging savePackaging(@RequestBody PackTechPackaging packaging) {
         return packTechPackagingService.savePackaging(packaging);
     }
+
+    @ApiOperation(value = "保存包装方式同步吊牌详情")
+    @GetMapping("/savePackagingHangtag")
+    @Deprecated
+    public String updatePackaging(@Valid @NotBlank(message = "大货款号不可为空") String bulkStyleNo, String selectType,@RequestBody HangTagVO hangTagVO) {
+        return packTechPackagingService.updatePackaging(bulkStyleNo, super.getUserCompany(), selectType,hangTagVO);
+    }
+
+
+
+    @ApiOperation(value = "保存包装方式长宽高回显")
+    @PostMapping("/packagingEcho")
+    public PackingDictionary Packaging(@RequestBody PackingDictionary packing ) {
+        PackingDictionary packingDictionary = packingDictionaryService.queryPackingDictionary(packing);
+        return packingDictionary;
+    }
+
 
     @ApiOperation(value = "查询包装方式和体积重量")
     @GetMapping("/packaging")

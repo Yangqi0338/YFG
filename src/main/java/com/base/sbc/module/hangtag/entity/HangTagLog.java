@@ -43,5 +43,10 @@ public class HangTagLog extends BaseDataEntity<String> {
     @ApiModelProperty(value = "吊牌id"  )
     private String hangTagId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+
+    public HangTagLog(String operationDescription, String hangTagId) {
+        this.operationDescription = operationDescription;
+        this.hangTagId = hangTagId;
+    }
 }
 

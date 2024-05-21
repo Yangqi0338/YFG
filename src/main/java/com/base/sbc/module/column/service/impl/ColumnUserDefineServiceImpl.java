@@ -6,10 +6,18 @@
  *****************************************************************************/
 package com.base.sbc.module.column.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.EnumUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.client.amc.service.AmcService;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.module.column.dto.ColumnUserDefineDto;
@@ -73,10 +81,9 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
     @Override
     public List<ColumnDefine> findDetail(String tableCode, String id) {
         //查询用户组级配置，如果没有用户组配置则返回的系统级配置
-        /*ApiResult jobList = amcService.getUserGroupByUserId(getUserId());
+        ApiResult jobList = amcService.getUserGroupByUserId(getUserId());
         List<LinkedHashMap> list1 = (List<LinkedHashMap>) (((LinkedHashMap) jobList.getData()).get("list"));
-        List<String> jobs = list1.stream().map(o->o.get("id").toString()).collect(Collectors.toList());*/
-        List<String> jobs = new ArrayList<>();
+        List<String> jobs = list1.stream().map(o->o.get("id").toString()).collect(Collectors.toList());
         List<ColumnDefine> byTableCode = columnGroupDefineService.findDetailByJoblist(tableCode, jobs);
 
         //查询用户配置
@@ -98,6 +105,11 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
                 columnDefine.setColumnColor(userDefineItem.getColumnColor());
             } else {
                 columnDefine.setId(null);
+            }
+            // 代表是一个枚举
+            String dictType = columnDefine.getDictType();
+            if (StrUtil.startWith(dictType,"com.base.sbc")) {
+                columnDefine.setDictType(decorateDictType(dictType));
             }
         }
         byTableCode.sort(Comparator.comparing(ColumnDefine::getSortOrder));
@@ -225,5 +237,35 @@ public class ColumnUserDefineServiceImpl extends BaseServiceImpl<ColumnUserDefin
         }
 
         return newList;
+    }
+
+    /** 反射获取限定名枚举的所有值 */
+    private static String decorateDictType(String dictType){
+        try {
+            Class<?> clazz = Class.forName(dictType);
+            JSONArray jsonArray = JSONUtil.createArray();
+            if (clazz.isEnum()) {
+                Class<? extends Enum<?>> enumClass = (Class<? extends Enum<?>>) clazz;
+                List<String> fieldNames = EnumUtil.getFieldNames(enumClass);
+                if (CollUtil.containsAll(fieldNames, Arrays.asList("code","text"))) {
+                    Map<String, Object> codeMap = EnumUtil.getNameFieldMap(enumClass,"code");
+                    Map<String, Object> textMap = EnumUtil.getNameFieldMap(enumClass,"text");
+
+                    codeMap.forEach((enumName, code)-> {
+                        JSONObject jsonObject = JSONUtil.createObj();
+                        Object text = textMap.get(enumName);
+                        jsonObject.putAll(MapUtil.ofEntries(MapUtil.entry("value",code), MapUtil.entry("label",text)));
+                        jsonArray.add(jsonObject);
+                    });
+                }
+            }
+            return JSONUtil.toJsonStr(jsonArray);
+        } catch (ClassNotFoundException ignored) {}
+        return dictType;
+    }
+
+    public static void main(String[] args) {
+        String s = decorateDictType("com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum");
+        System.out.println(s);
     }
 }

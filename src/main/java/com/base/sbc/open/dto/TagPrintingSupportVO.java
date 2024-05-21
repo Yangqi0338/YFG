@@ -5,6 +5,7 @@ import cn.hutool.core.lang.Pair;
 import cn.hutool.core.lang.func.Func;
 import cn.hutool.core.lang.func.Func1;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.BooleanUtil;
 import com.base.sbc.module.hangtag.vo.MoreLanguageHangTagVO;
 import com.base.sbc.module.smp.entity.TagPrinting;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -27,31 +28,25 @@ public class TagPrintingSupportVO extends TagPrinting {
     @Override
     @JsonIgnore
     public Boolean getIsGift() {
-        return super.getIsGift();
+        return BooleanUtil.isTrue(super.getIsGift());
     }
 
     @Override
     @JsonIgnore
     public Boolean getMerchApproved() {
-        return super.getMerchApproved();
+        return BooleanUtil.isTrue(super.getMerchApproved());
     }
 
     @Override
     @JsonIgnore
     public Boolean getApproved() {
-        return super.getApproved();
-    }
-
-    @Override
-    @JsonIgnore
-    public Boolean getTranslateApproved() {
-        return super.getTranslateApproved();
+        return BooleanUtil.isTrue(super.getApproved());
     }
 
     @Override
     @JsonIgnore
     public Boolean getTechApproved() {
-        return super.getTechApproved();
+        return BooleanUtil.isTrue(super.getTechApproved());
     }
 
     @Override
@@ -87,7 +82,7 @@ public class TagPrintingSupportVO extends TagPrinting {
     @Override
     @JsonIgnore
     public Boolean getIsAccessories() {
-        return super.getIsAccessories();
+        return BooleanUtil.isTrue(super.getIsAccessories());
     }
 
     @Override

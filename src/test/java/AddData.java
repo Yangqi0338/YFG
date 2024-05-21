@@ -1,16 +1,24 @@
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.PdmApplication;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
+import com.base.sbc.config.enums.business.SystemSource;
+import com.base.sbc.module.hangtag.dto.HangTagMoreLanguageDTO;
 import com.base.sbc.config.enums.business.StandardColumnType;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailAuditDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailDTO;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusCheckDetailOldDTO;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryRelation;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
+import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import com.base.sbc.module.moreLanguage.service.CountryLanguageService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryRelationService;
 import com.base.sbc.module.moreLanguage.service.StandardColumnCountryTranslateService;
+import com.base.sbc.module.moreLanguage.service.StyleCountryStatusService;
 import com.base.sbc.module.standard.entity.StandardColumn;
 import com.base.sbc.module.standard.service.StandardColumnService;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +32,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
 /**
  * {@code 描述：添加数据}
@@ -44,6 +54,8 @@ public class AddData {
     private StandardColumnCountryTranslateService standardColumnCountryTranslateService;
     @Autowired
     private CountryLanguageService countryLanguageService;
+    @Autowired
+    private StyleCountryStatusService styleCountryStatusService;
 
     @Test
     public void setPdmHangTagDbV2(){
@@ -201,5 +213,88 @@ public class AddData {
 
         standardColumnCountryTranslateService.saveOrUpdateBatch(tagList1);
         standardColumnCountryTranslateService.saveOrUpdateBatch(washingList1);
+    }
+
+    @Test
+    public void setPdmHangTagDbV4(){
+        List<StyleCountryStatus> countryStatusList = styleCountryStatusService.list();
+        List<StyleCountryStatus> countryStatusList1 = new ArrayList<>();
+        countryStatusList.forEach(it-> {
+            String checkDetailJson = it.getCheckDetailJson();
+            List<MoreLanguageStatusCheckDetailOldDTO> list = JSONUtil.toList(checkDetailJson, MoreLanguageStatusCheckDetailOldDTO.class);
+            list.stream().collect(Collectors.groupingBy(MoreLanguageStatusCheckDetailOldDTO::getType)).forEach((type,oldDTOList)-> {
+                StyleCountryStatus newStatus = it;
+                if (type.equals(CountryLanguageType.WASHING.getCode())) {
+                    newStatus = MORE_LANGUAGE_CV.copyMyself(it);
+                    newStatus.setId(null);
+                    newStatus.updateClear();
+                }
+                newStatus.setType(CountryLanguageType.findByCode(type));
+                List<MoreLanguageStatusCheckDetailDTO> checkDetailDTOS = new ArrayList<>();
+                oldDTOList.stream().collect(Collectors.groupingBy(MoreLanguageStatusCheckDetailOldDTO::getLanguageCode)).forEach((languageCode,sameCodeList)-> {
+                    MoreLanguageStatusCheckDetailDTO checkDetailDTO = new MoreLanguageStatusCheckDetailDTO();
+                    checkDetailDTO.setLanguageCode(languageCode);
+
+                    List<MoreLanguageStatusCheckDetailAuditDTO> auditDTOList = new ArrayList<>();
+                    sameCodeList.get(0).getStandardColumnCodeList().forEach(standardColumnCode-> {
+                        MoreLanguageStatusCheckDetailAuditDTO auditDTO = new MoreLanguageStatusCheckDetailAuditDTO();
+                        auditDTO.setStandardColumnCode(standardColumnCode);
+                        auditDTO.setContent("");
+                        auditDTO.setSource("");
+                        auditDTO.setStatus(YesOrNoEnum.YES.getValueStr());
+                        auditDTOList.add(auditDTO);
+                    });
+                    checkDetailDTO.setAuditList(auditDTOList);
+                    checkDetailDTOS.add(checkDetailDTO);
+                });
+                newStatus.setCheckDetailJson(JSONUtil.toJsonStr(checkDetailDTOS));
+                countryStatusList1.add(newStatus);
+            });
+        });
+
+        styleCountryStatusService.saveOrUpdateBatch(countryStatusList1);
+    }
+
+    @Test
+    public void setPdmHangTagDbV5(){
+        List<StandardColumnCountryTranslate> list = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                .eq(StandardColumnCountryTranslate::getCountryLanguageId, "1747439257242419202"
+                ).eq(StandardColumnCountryTranslate::getTitleCode, "DP13"));
+        String s = "1747439257368248321,1750450374088609794";
+        List<StandardColumnCountryTranslate> list1 = new ArrayList<>();
+        for (String newId : s.split(",")) {
+            list.forEach(it-> {
+                StandardColumnCountryTranslate translate = BeanUtil.copyProperties(it, StandardColumnCountryTranslate.class);
+                translate.updateClear();
+                translate.setId(null);
+                translate.setTitleCode("XM11");
+                translate.setCountryLanguageId(newId);
+                list1.add(translate);
+            });
+        }
+        System.out.println();
+        if (CollUtil.isNotEmpty(list1)) {
+            standardColumnCountryTranslateService.saveOrUpdateBatch(list1);
+        }
+
+        List<StandardColumnCountryTranslate> list2 = standardColumnCountryTranslateService.list(new LambdaQueryWrapper<StandardColumnCountryTranslate>()
+                .eq(StandardColumnCountryTranslate::getCountryLanguageId, "1768897160130129922"
+                ).eq(StandardColumnCountryTranslate::getTitleCode, "DP13"));
+        String s1 = "1747433462421372929,1750450235617857538";
+        List<StandardColumnCountryTranslate> list3 = new ArrayList<>();
+        for (String newId : s1.split(",")) {
+            list2.forEach(it-> {
+                StandardColumnCountryTranslate translate = BeanUtil.copyProperties(it, StandardColumnCountryTranslate.class);
+                translate.updateClear();
+                translate.setId(null);
+                translate.setTitleCode("XM11");
+                translate.setCountryLanguageId(newId);
+                list3.add(translate);
+            });
+        }
+        System.out.println();
+        if (CollUtil.isNotEmpty(list3)) {
+            standardColumnCountryTranslateService.saveOrUpdateBatch(list3);
+        }
     }
 }

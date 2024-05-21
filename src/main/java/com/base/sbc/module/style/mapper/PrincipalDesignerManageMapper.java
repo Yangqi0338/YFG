@@ -4,24 +4,24 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.moreLanguage.mapper;
+package com.base.sbc.module.style.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
 import org.apache.ibatis.annotations.Mapper;
-import com.base.sbc.module.moreLanguage.entity.StandardColumnTranslate;
-/** 
- * 类描述：吊牌列头翻译表 dao类
- * @address com.base.sbc.module.moreLanguage.dao.StandardColumnTranslateMapper
- * @author KC  
- * @email  KC
- * @date 创建时间：2023-11-30 15:07:58 
- * @version 1.0  
+import com.base.sbc.module.style.entity.PrincipalDesignerManage;
+
+/**
+ * 类描述：负责设计师配置表 dao类
+ *
+ * @author your name
+ * @version 1.0
+ * @address com.base.sbc.module.style.dao.PrincipalDesignerManageDao
+ * @email your email
+ * @date 创建时间：2024-3-18 16:27:53
  */
 @Mapper
-public interface StandardColumnTranslateMapper extends BaseMapper<StandardColumnTranslate> {
+public interface PrincipalDesignerManageMapper extends BaseMapper<PrincipalDesignerManage> {
 // 自定义方法区 不替换的区域【other_start】
-
 
 
 // 自定义方法区 不替换的区域【other_end】

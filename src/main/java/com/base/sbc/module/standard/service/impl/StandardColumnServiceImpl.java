@@ -11,6 +11,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.YesOrNoEnum;
@@ -38,12 +39,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.EXIST_STANDARD;
 import static com.base.sbc.module.common.convert.ConvertContext.MORE_LANGUAGE_CV;
 
@@ -66,17 +65,27 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
 
     private final ReentrantLock saveLock = new ReentrantLock();
 
+    private static final SFunction<StandardColumn, YesOrNoEnum> isDefaultFunc = StandardColumn::getIsDefault;
+    private static final SFunction<StandardColumn, String> nameFunc = StandardColumn::getName;
+    private static final SFunction<StandardColumn, String> codeFunc = StandardColumn::getCode;
+    private static final SFunction<StandardColumn, StandardColumnModel> modelFunc = StandardColumn::getModel;
+    private static final SFunction<StandardColumn, StandardColumnType> typeFunc = StandardColumn::getType;
+    private static final SFunction<StandardColumn, YesOrNoEnum> showFlagFunc = StandardColumn::getShowFlag;
+    private static final SFunction<StandardColumn, String> tableCodeFunc = StandardColumn::getTableCode;
+    private static final SFunction<StandardColumn, String> tableNameFunc = StandardColumn::getTableName;
+    private static final SFunction<StandardColumn, String> tableTitleJsonFunc = StandardColumn::getTableTitleJson;
+    private static final SFunction<StandardColumn, String> idFunc = StandardColumn::getId;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String save(StandardColumnSaveDto standardColumnSaveDto) {
-        String rightOperationValue = YesOrNoEnum.NO.getValueStr();
         StandardColumnType type = standardColumnSaveDto.getType();
 
         String id = standardColumnSaveDto.getId();
 
         // 初始化实体类
         StandardColumn standardColumn = new StandardColumn();
-        standardColumn.setIsDefault(rightOperationValue);
+        standardColumn.setIsDefault(YesOrNoEnum.NO);
         standardColumn.setModel(standardColumnSaveDto.getModel());
 
         // 做个最简单的lock
@@ -84,16 +93,16 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         try {
             // 构建code唯一qw
             LambdaQueryWrapper<StandardColumn> queryWrapper = new LambdaQueryWrapper<StandardColumn>()
-                    .eq(StandardColumn::getName, standardColumnSaveDto.getName())
-                    .eq(StandardColumn::getType, type);
+                    .eq(nameFunc, standardColumnSaveDto.getName())
+                    .eq(typeFunc, type);
             boolean isUpdate = StrUtil.isNotBlank(id);
             if (isUpdate) {
                 standardColumn = this.getById(id);
-                queryWrapper.ne(StandardColumn::getId, id);
+                queryWrapper.ne(idFunc, id);
             }else {
                 // 新创建编码
                 StandardColumn maxStandColumn = this.findOne(new BaseLambdaQueryWrapper<StandardColumn>()
-                        .eq(StandardColumn::getType, type).orderByDesc(StandardColumn::getId));
+                        .eq(typeFunc, type).orderByDesc(idFunc));
                 int code = Integer.parseInt(maxStandColumn.getCode().replace(type.getPreCode(), "")) + 1;
                 standardColumn.setCode(type.getPreCode() + code);
             }
@@ -135,10 +144,10 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean delByIds(List<String> list) {
-        List<String> standColumnCodeList = this.listByIds2OneField(list, StandardColumn::getCode);
+        List<String> standColumnCodeList = this.listByIds2OneField(list, codeFunc);
         boolean removeSuccess = this.remove(new BaseLambdaQueryWrapper<StandardColumn>()
-                .in(StandardColumn::getId, list)
-                .eq(StandardColumn::getIsDefault, YesOrNoEnum.NO.getValueStr()));
+                .in(idFunc, list)
+                .eq(isDefaultFunc, YesOrNoEnum.NO.getValueStr()));
         if (removeSuccess) {
             standardColumnCountryRelationService.remove(new BaseLambdaQueryWrapper<StandardColumnCountryRelation>()
                     .in(StandardColumnCountryRelation::getStandardColumnCode, standColumnCodeList));
@@ -162,12 +171,13 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
         if (CollectionUtil.isEmpty(typeList) && type != null) {
             typeList = CollUtil.toList(type);
         }
-        queryWrapper.notEmptyIn(StandardColumn::getType, typeList);
-        queryWrapper.notNullNe(StandardColumn::getModel, noModel);
-        queryWrapper.notEmptyIn(StandardColumn::getCode, codeList);
-        queryWrapper.notNullEq(StandardColumn::getShowFlag, showFlag);
 
-        List<StandardColumn> standardColumnList = this.list(queryWrapper);
+        List<StandardColumn> standardColumnList = this.list(queryWrapper
+                .notEmptyIn(typeFunc, typeList)
+                .notNullNe(modelFunc, noModel)
+                .notEmptyIn(codeFunc, codeList)
+                .notNullEq(showFlagFunc, showFlag)
+        );
 
         return BeanUtil.copyToList(standardColumnList, StandardColumnDto.class);
     }
@@ -175,7 +185,7 @@ public class StandardColumnServiceImpl extends BaseServiceImpl<StandardColumnMap
     @Override
     public StandardColumn findByCode(String code) {
         String[] codes = code.split(RedisKeyBuilder.COMMA);
-        return this.findOne(new BaseLambdaQueryWrapper<StandardColumn>().like(StandardColumn::getType, codes[0]).eq(StandardColumn::getCode, codes.length > 1 ? codes[1] : ""));
+        return this.findOne(new BaseLambdaQueryWrapper<StandardColumn>().like(typeFunc, codes[0]).eq(codeFunc, codes.length > 1 ? codes[1] : ""));
     }
 
 
