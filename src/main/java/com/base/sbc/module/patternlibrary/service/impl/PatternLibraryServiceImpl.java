@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternlibrary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
@@ -29,10 +30,7 @@ import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
-import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
-import com.base.sbc.module.patternlibrary.dto.ExcelImportDTO;
-import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
-import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
+import com.base.sbc.module.patternlibrary.dto.*;
 import com.base.sbc.module.patternlibrary.entity.*;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.listener.PatterLibraryListener;
@@ -42,6 +40,7 @@ import com.base.sbc.module.patternlibrary.service.*;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.ExcelExportVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
+import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
@@ -518,6 +517,21 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     }
 
     @Override
+    public List<UseStyleVO> listUseStyle(UseStyleDTO useStyleDTO) {
+        PatternLibrary patternLibrary = getById(useStyleDTO.getPatternLibraryId());
+        if (ObjectUtil.isEmpty(patternLibrary)) {
+            throw new OtherException("版型库数据不存在，请刷新后重试！");
+        }
+        // 列表分页
+        PageHelper.startPage(useStyleDTO.getPageNum(), useStyleDTO.getPageSize());
+        QueryWrapper<UseStyleVO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ts.registering_id", useStyleDTO.getPatternLibraryId());
+        queryWrapper.orderByDesc("ts.create_date");
+        List<UseStyleVO> useStyleVOList = baseMapper.listUseStyle(queryWrapper);
+        return useStyleVOList;
+    }
+
+    @Override
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeDetail(String patternLibraryId) {
@@ -533,6 +547,17 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         }
         if (patternLibrary.getStatus().equals(PatternLibraryStatusEnum.REVIEWED.getCode())) {
             throw new OtherException(ResultConstant.CURRENT_STATE_DATA_NOT_DO_IT);
+        }
+        // 判断是否有款式关联了此版型 如果关联了 那么不允许删除 并进行提示
+        List<Style> styleList = styleService.list(
+                new LambdaQueryWrapper<Style>()
+                        .eq(Style::getRegisteringId, patternLibrary.getId())
+                        .select(Style::getDesignNo)
+        );
+        if (ObjectUtil.isNotEmpty(styleList)) {
+            String styleNames = CollUtil.join(styleList.stream().map(Style::getDesignNo).collect(Collectors.toList()), ",");
+            throw new OtherException(ResultConstant.PATTERN_LIBRARY_HAS_BEEN_STYLE_RELEVANCY + "被关联的款号为：「" +
+                    styleNames + "」");
         }
         // 删除版型库主表数据
         removeById(patternLibraryId);
@@ -782,7 +807,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                             .eq(PatternLibrary::getCode, search)
             );
             if (count > 0) {
-               throw new OtherException(ResultConstant.LAYOUT_LIBRARY_ENCODING_ALREADY_EXISTS);
+                throw new OtherException(ResultConstant.LAYOUT_LIBRARY_ENCODING_ALREADY_EXISTS);
             } else {
                 throw new OtherException(ResultConstant.THERE_IS_NO_CORRESPONDING_DESIGN_VERSION);
             }

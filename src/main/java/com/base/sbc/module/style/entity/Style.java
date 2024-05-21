@@ -564,9 +564,16 @@ public class Style extends BaseDataEntity<String> {
     private String colorCrash;
 
     /**
-     * 套版款号
+     * 套版id（版型库id）
      */
-    @ApiModelProperty(value = "套版款号"  )
+    @ApiModelProperty(value = "套版id（版型库id）"  )
+    private String registeringId;
+
+
+    /**
+     * 套版款号（版型库编码）
+     */
+    @ApiModelProperty(value = "套版款号（版型库编码）"  )
     private String registeringNo;
 
     /**

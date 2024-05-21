@@ -1,8 +1,6 @@
 package com.base.sbc.module.patternlibrary.controller;
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
@@ -12,13 +10,14 @@ import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
+import com.base.sbc.module.patternlibrary.dto.UseStyleDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.enums.PatternLibraryStatusEnum;
 import com.base.sbc.module.patternlibrary.service.PatternLibraryService;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
+import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.style.entity.Style;
-import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -61,6 +60,13 @@ public class PatternLibraryController {
     public ApiResult<PatternLibrary> getDetail(String patternLibraryId) {
         PatternLibrary patternLibrary = patternLibraryService.getDetail(patternLibraryId);
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibrary);
+    }
+
+    @ApiOperation(value = "使用款记录")
+    @GetMapping("/listUseStyle")
+    public ApiResult<List<UseStyleVO>> listUseStyle(UseStyleDTO useStyleDTO) {
+        List<UseStyleVO> useStyleVOList = patternLibraryService.listUseStyle(useStyleDTO);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, useStyleVOList);
     }
 
     @ApiOperation(value = "版型库新增/编辑")

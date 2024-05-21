@@ -26,5 +26,6 @@ public class ResultConstant {
     public static final String FILTER_TYPE_DOES_NOT_EXIST = "筛选条件类型不存在！";
     public static final String LAYOUT_LIBRARY_ENCODING_ALREADY_EXISTS = "版型库编码已存在！";
     public static final String THERE_IS_NO_CORRESPONDING_DESIGN_VERSION = "没有对应的设计款！";
+    public static final String PATTERN_LIBRARY_HAS_BEEN_STYLE_RELEVANCY = "版型已被款式关联！";
 
 }

@@ -4,9 +4,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
+import com.base.sbc.module.patternlibrary.dto.UseStyleDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
+import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.style.entity.Style;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,6 +63,14 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 版型库详情
      */
     PatternLibrary getDetail(String patternLibraryId);
+
+    /**
+     * 根据版型库 id 查询使用款记录列表
+     *
+     * @param useStyleDTO 查询条件
+     * @return 使用款记录列表
+     */
+    List<UseStyleVO> listUseStyle(UseStyleDTO useStyleDTO);
 
     /**
      * 版型库删除

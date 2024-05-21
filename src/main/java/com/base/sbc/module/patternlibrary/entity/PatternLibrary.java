@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -200,6 +201,20 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     @ApiModelProperty("大货图片文件 ID-URL 集合")
     @TableField(exist = false)
     private List<Map<String, String>> picIdList;
+
+    /**
+     * 版型使用率
+     */
+    @ApiModelProperty("版型使用率")
+    @TableField(exist = false)
+    private BigDecimal patternLibraryUtilization;
+
+    /**
+     * 使用款记录数量
+     */
+    @ApiModelProperty("使用款记录数量")
+    @TableField(exist = false)
+    private Integer useStyleNum;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）

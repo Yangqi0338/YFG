@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
+import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.style.entity.Style;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -31,6 +32,15 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
             @Param(Constants.WRAPPER) QueryWrapper<PatternLibrary> queryWrapper,
             @Param("patternLibraryPageDTO") PatternLibraryPageDTO patternLibraryPageDTO
     );
+
+    /**
+     * 根据版型库 id 查询使用款记录列表
+     *
+     * @param queryWrapper 查询条件
+     * @return 使用款记录列表
+     */
+    List<UseStyleVO> listUseStyle(
+            @Param(Constants.WRAPPER) QueryWrapper<UseStyleVO> queryWrapper);
 
     /**
      * 版型库筛选条件查询
