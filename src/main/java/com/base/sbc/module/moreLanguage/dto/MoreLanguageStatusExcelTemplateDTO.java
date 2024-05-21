@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 public class MoreLanguageStatusExcelTemplateDTO {
 
-    @Excel(name = "大货款号")
+    @Excel(name = "大货款号", width = 30.0, mergeVertical = true)
     private String bulkStyleNo;
 
 }

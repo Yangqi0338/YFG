@@ -534,7 +534,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (StrUtil.isBlank(dto.getPlanningSeasonId())) {
             throw new OtherException("未选择产品季");
         }
-        // 查询产品季
+
+        if (StrUtil.isBlank(dto.getStyleUnit()) || StrUtil.isBlank(dto.getStyleUnitCode())) {
+            throw new OtherException("款式单位不能为空");
+        }
+        //查询产品季
         PlanningSeason planningSeason = planningSeasonService.getById(dto.getPlanningSeasonId());
 
         if (ObjectUtil.isEmpty(planningSeason)) {

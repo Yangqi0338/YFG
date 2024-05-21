@@ -10,6 +10,7 @@ import cn.hutool.core.lang.Opt;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.smp.dto.SmpBomDto;
 import com.base.sbc.module.smp.entity.BomMaterial;
 import io.swagger.annotations.ApiModel;
@@ -453,6 +454,12 @@ public class PackBom extends BaseDataEntity<String> {
      * 是否是迁移历史数据 0否 1是
      */
     private String historicalData;
+
+    /**
+     * 是否复制过来的
+     */
+    private YesOrNoEnum copy;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
     // 获取单位用量

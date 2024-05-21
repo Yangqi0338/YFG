@@ -6,8 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.dto;
 
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.HangTagStatusCheckEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
+import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -39,6 +41,8 @@ public class HangTagUpdateStatusDTO {
     @ApiModelProperty(value = "状态")
     private HangTagStatusEnum status;
 
+    private StyleCountryStatusEnum countryStatus;
+    private CountryLanguageType type;
 
     private HangTagStatusCheckEnum checkType;
 

@@ -37,6 +37,7 @@
         ssc.order_flag as meetFlag, #临时改为取配色的是否下单
         sp.id as stylePricingId,
         sp.planning_rate as planningRatio,
+        sp.wages_confirm as wagesConfirm,
         sp.control_confirm as planCostConfirm,
         sp.product_hangtag_confirm as productTagPriceConfirm,
         sp.control_hangtag_confirm as planTagPriceConfirm,

@@ -205,7 +205,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private final StyleService styleService;
 	private final BasicsdatumSizeService basicsdatumSizeService;
 
-	private final PackBomService packBomService;
+	@Autowired
+	@Lazy
+	private PackBomService packBomService;
 	@Autowired
 	@Lazy
 	private DataPermissionsService dataPermissionsService;
@@ -427,19 +429,22 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			if (StrUtil.isNotBlank(hangTagVO.getId()) && CollUtil.isNotEmpty(packBomList)) {
 				// 查询检测报告
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
-				List<HangTagInspectCompany> hangTagInspectCompanyList = hangTagInspectCompanyService.listByField("hang_tag_id", com.base.sbc.config.utils.StringUtils.convertList(hangTagVO.getId()));
-				if (CollUtil.isNotEmpty(hangTagInspectCompanyList)) {
-					if (CollUtil.isNotEmpty(codes)) {
-						List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes));
-						for (EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto : list) {
-							if (StrUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto.getRemark())) {
-								escmMaterialCompnentInspectCompanyDto.setRemark(escmMaterialCompnentInspectCompanyDto.getMaterialsNo()+":"+escmMaterialCompnentInspectCompanyDto.getRemark());
-							}
+				if (CollUtil.isNotEmpty(codes)) {
+					List<String> inspectCompanyIdList = hangTagInspectCompanyService.listOneField(
+							new LambdaQueryWrapper<HangTagInspectCompany>().eq(HangTagInspectCompany::getHangTagId,hangTagVO.getId()), HangTagInspectCompany::getInspectCompanyId);
+					List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(
+							new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no", codes),
+							inspectCompanyIdList
+					);
+					for (EscmMaterialCompnentInspectCompanyDto escmMaterialCompnentInspectCompanyDto : list) {
+						if (StrUtil.isNotEmpty(escmMaterialCompnentInspectCompanyDto.getRemark())) {
+							escmMaterialCompnentInspectCompanyDto.setRemark(escmMaterialCompnentInspectCompanyDto.getMaterialsNo()+":"+escmMaterialCompnentInspectCompanyDto.getRemark());
 						}
-						hangTagVO.setCompnentInspectCompanyDtoList(list);
-						return hangTagVO;
 					}
+					hangTagVO.setCompnentInspectCompanyDtoList(list);
+					return hangTagVO;
 				}
+
 			}
 		}
 
@@ -468,7 +473,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				List<String> codes = packBomList.stream().map(PackBom::getMaterialCode).collect(Collectors.toList());
 				if (CollUtil.isNotEmpty(codes)) {
 					/*查询物料*/
-					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes), false);
+					List<String> inspectCompanyIdList = hangTagInspectCompanyService.listOneField(
+							new LambdaQueryWrapper<HangTagInspectCompany>().eq(HangTagInspectCompany::getHangTagId,hangTagVO.getId()), HangTagInspectCompany::getInspectCompanyId);
+					List<EscmMaterialCompnentInspectCompanyDto> list =	escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(
+							new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().in("materials_no",codes),inspectCompanyIdList
+							);
 					hangTagVO.setCompnentInspectCompanyDtoList(list);
 				}
 			}
@@ -577,7 +586,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		// hangTagIngredientService.remove(new
 		// QueryWrapper<HangTagIngredient>().eq("hang_tag_id", id));
 		// hangTagIngredientService.save(hangTagIngredients, id, userCompany);
-		hangTagLogService.save(id, OperationDescriptionEnum.SAVE.getV(), userCompany);
+		hangTagLogService.save(new HangTagLog(OperationDescriptionEnum.SAVE.getV(), id));
 
 		/**
 		 * 当存在品名时同步到配色
@@ -716,9 +725,9 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Override
 	public void updateStatus(HangTagUpdateStatusDTO hangTagUpdateStatusDTO, boolean repeatUpdate, List<HangTag> hangTags) {
-		String userCompany = hangTagUpdateStatusDTO.getUserCompany();
+//		String userCompany = hangTagUpdateStatusDTO.getUserCompany();
 		logger.info("HangTagService#updateStatus 更新状态 hangTagUpdateStatusDTO:{}, userCompany:{}",
-				JSON.toJSONString(hangTagUpdateStatusDTO), userCompany);
+				JSON.toJSONString(hangTagUpdateStatusDTO), "");
 		if (CollectionUtils.isEmpty(hangTags)) {
 			LambdaQueryWrapper<HangTag> queryWrapper = new QueryWrapper<HangTag>().lambda().in(HangTag::getId,
 					hangTagUpdateStatusDTO.getIds());
@@ -745,7 +754,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						StyleCountryStatus status = new StyleCountryStatus();
 						status.setBulkStyleNo(hangTag.getBulkStyleNo());
 						status.setCode(hangTagUpdateStatusDTO.getCountryCode());
-						status.setStatus(StyleCountryStatusEnum.CHECK);
+						status.setType(hangTagUpdateStatusDTO.getType());
+						status.setStatus(Opt.ofNullable(hangTagUpdateStatusDTO.getCountryStatus()).orElse(StyleCountryStatusEnum.CHECK));
 						return status;
 					}).collect(Collectors.toList()), multiCheckList, multiCheck);
 					if (multiCheck) {
@@ -816,7 +826,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			updateHangTags.add(hangTag);
 		});
 		super.updateBatchById(updateHangTags);
-		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds(), updateStatus.getText(), userCompany);
+		hangTagLogService.saveBatch(hangTagUpdateStatusDTO.getIds().stream().map(it-> new HangTagLog(updateStatus.getText(), it)).collect(Collectors.toList()));
 
 		HangTagDeliverySCMStatusEnum type;
 		switch (updateStatus) {
@@ -1180,10 +1190,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				i.setHangTagId(hangTag.getId());
 			});
 			hangTagIngredientService.saveBatch(hangTagIngredientList);
-			HangTagLog hangTagLog = new HangTagLog();
-			hangTagLog.setHangTagId(hangTag.getId());
-			hangTagLog.setOperationDescription("报错款复制");
-			hangTagLogService.save(hangTagLog);
+			hangTagLogService.save(new HangTagLog("报错款复制",hangTag.getId()));
 		}
 		return true;
 	}
@@ -1523,7 +1530,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				resultList.removeIf(it-> it.getShowFlag() == YesOrNoEnum.NO);
 				List<HangTagMoreLanguageWebBaseVO> webBaseList = HANG_TAG_CV.copyList2Web(resultList);
 				decorateWebList(hangTagVOList, webBaseList);
-				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> MoreLanguageProperties.isInternalLanguageCode(it.getLanguageCode())));
+				webBaseList.forEach(webBaseVO-> webBaseVO.getLanguageList().removeIf(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode())));
 				return webBaseList.stream().collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getType));
 			case BCS:
 			case ESCM:
@@ -1563,11 +1570,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 							CodeMapping<?> codeMapping = codeMap.get(standardColumnCode);
 							printing.getTitleMap().put(codeMapping.getTitleCode(), codeMapping.getTitleName());
-							if (MoreLanguageProperties.checkInternal(languageCode)) {
+							if (!MoreLanguageProperties.checkInternal(languageCode)) {
 								Function<MoreLanguageTagPrinting, ? extends List<?>> listFunc = codeMapping.getListFunc();
 								if (listFunc == null) listFunc = MoreLanguageTagPrinting::getMySelfList;
 
-								String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(MoreLanguageProperties.isInternalLanguageCode(languageCode) ? result.getStandardColumnName() : "");
+								String titleContent = Opt.ofBlankAble(languageVO.getStandardColumnContent()).orElse(MoreLanguageProperties.checkInternal(languageCode) ? result.getStandardColumnName() : "");
 								printing.getTitleMap().put(codeMapping.getTitleCode(), titleContent);
 
 								if (codeMapping.getMapping() != null) {
@@ -1601,6 +1608,32 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 	}
 
+
+	/**
+	 * 通过物料编码获取检查报告
+	 * @param dto
+	 * @return
+	 */
+	@Override
+	public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto) {
+		if(StrUtil.isEmpty(dto.getMaterialsNo())){
+			throw new OtherException("物料编码不能为空");
+		}
+		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
+		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
+		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year",dto.getYear());
+		queryWrapper.eq(StrUtil.isNotBlank(dto.getMaterialsName()),"materials_name", dto.getMaterialsName());
+		/*查询基础资料-品类测量组数据*/
+		List<String> inspectCompanyIdList = new ArrayList<>();
+		String hangTagId = dto.getHangTagId();
+		if (StrUtil.isNotBlank(hangTagId)) {
+			inspectCompanyIdList.addAll(hangTagInspectCompanyService.listOneField(
+					new LambdaQueryWrapper<HangTagInspectCompany>().eq(HangTagInspectCompany::getHangTagId, hangTagId), HangTagInspectCompany::getInspectCompanyId));
+		}
+
+        return escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(queryWrapper, inspectCompanyIdList);
+	}
+
 	@Override
 	public boolean counterReview(HangTag reviewHangTag) {
 //		HangTagStatusEnum status = reviewHangTag.getStatus();
@@ -1626,27 +1659,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				.ne(StyleCountryStatus::getStatus, StyleCountryStatusEnum.UNCHECK)
 		);
 		return update;
-	}
-
-
-	/**
-	 * 通过物料编码获取检查报告
-	 * @param dto
-	 * @return
-	 */
-	@Override
-	public List<EscmMaterialCompnentInspectCompanyDto> getInspectReport(InspectCompanyDto dto) {
-		if(StrUtil.isEmpty(dto.getMaterialsNo())){
-			throw new OtherException("物料编码不能为空");
-		}
-		QueryWrapper<EscmMaterialCompnentInspectCompanyDto> queryWrapper = new QueryWrapper<>();
-		queryWrapper.in("materials_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getMaterialsNo()));
-		queryWrapper.eq(StrUtil.isNotBlank(dto.getYear()),"year",dto.getYear());
-		queryWrapper.eq(StrUtil.isNotBlank(dto.getMaterialsName()),"materials_name", dto.getMaterialsName());
-		/*查询基础资料-品类测量组数据*/
-
-		List<EscmMaterialCompnentInspectCompanyDto> list = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(queryWrapper);
-		return list;
 	}
 
 	private void decorateWebList(List<MoreLanguageHangTagVO> hangTagVOList, List<HangTagMoreLanguageWebBaseVO> webBaseList){

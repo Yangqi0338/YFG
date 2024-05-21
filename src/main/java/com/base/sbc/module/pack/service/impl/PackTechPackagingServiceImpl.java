@@ -12,6 +12,7 @@ import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.pack.entity.PackInfo;
@@ -20,6 +21,7 @@ import com.base.sbc.module.pack.mapper.PackTechPackagingMapper;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackTechPackagingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,7 +44,8 @@ public class PackTechPackagingServiceImpl extends AbstractPackBaseServiceImpl<Pa
 
 // 自定义方法区 不替换的区域【other_start】
     @Autowired
-    private HangTagServiceImpl hangTagService;
+    @Lazy
+    private HangTagService hangTagService;
 
     @Autowired
     private PackInfoService packInfoService;
