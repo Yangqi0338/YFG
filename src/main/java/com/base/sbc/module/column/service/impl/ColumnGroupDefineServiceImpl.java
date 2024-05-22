@@ -69,6 +69,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                 columnDefine.setColumnWidth(userDefineItem.getColumnWidth());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
                 columnDefine.setColumnColor(userDefineItem.getColumnColor());
+                columnDefine.setIsRequired(userDefineItem.getIsRequired());
             } else {
                 columnDefine.setId(null);
             }
@@ -103,6 +104,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                     columnDefine.setColumnWidth(groupDefineItem.getColumnWidth());
                     columnDefine.setSortOrder(groupDefineItem.getSortOrder());
                     columnDefine.setColumnColor(groupDefineItem.getColumnColor());
+                    columnDefine.setIsRequired(groupDefineItem.getIsRequired());
                     byTableCode1.add(columnDefine);
                 }
             }
