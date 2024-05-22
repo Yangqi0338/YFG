@@ -415,6 +415,9 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         List<FabricSummaryInfoVo> designerNotlist = Lists.newArrayList();
         for (FabricSummaryStyle fabricSummaryStyle : list) {
             FabricSummaryInfoVo fabricSummaryInfoVo =  map.get(fabricSummaryStyle.getBomId()).get(0);
+            if (!Constants.ONE_STR.equals(fabricSummaryInfoVo.getDesignVerify())){
+                designerNotlist.add(fabricSummaryInfoVo);
+            }
             if (StringUtils.isBlank(fabricSummaryInfoVo.getSupplierFabricCode()) && StringUtils.isBlank(fabricSummary.getSupplierFabricCode())){
                 continue;
             }
@@ -422,9 +425,6 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             if (!Optional.ofNullable(fabricSummaryInfoVo.getSupplierFabricCode()).orElse("").
                     equals(Optional.ofNullable(fabricSummary.getSupplierFabricCode()).orElse(""))){
                 return ApiResult.error(fabricSummaryStyle.getStyleNo()+"款已不引用改物料，请删除后再打印！",200);
-            }
-            if (!Constants.ONE_STR.equals(fabricSummaryInfoVo.getDesignVerify())){
-                designerNotlist.add(fabricSummaryInfoVo);
             }
         }
         return ApiResult.success("成功",new PrintCheckVo(CollUtil.isNotEmpty(designerNotlist) ? designerNotlist : null));
