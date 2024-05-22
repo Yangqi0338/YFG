@@ -1349,7 +1349,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         LambdaQueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<BasicsdatumMaterial>().lambda()
                 .in(BasicsdatumMaterial::getMaterialCode, materialCodes)
                 .eq(BasicsdatumMaterial::getDelFlag, "0")
-                .select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, BasicsdatumMaterial::getIngredient);
+                .select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, BasicsdatumMaterial::getIngredient,BasicsdatumMaterial::getSupplierFabricCode);
         List<BasicsdatumMaterial> list = super.list(qw);
         if (CollectionUtils.isEmpty(list)) {
             return new HashMap<>();

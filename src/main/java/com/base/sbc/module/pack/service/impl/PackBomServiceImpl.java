@@ -42,8 +42,6 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialPriceService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialColorPageVo;
-import com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialVo;
 import com.base.sbc.module.common.dto.IdDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
@@ -82,7 +80,6 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH;
@@ -235,6 +232,9 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
                 pbv.setSource(basicsdatumMaterial.getSource());
                 //成分取最新的
                 pbv.setIngredient(basicsdatumMaterial.getIngredient());
+            }
+            if (StringUtils.isBlank(pbv.getSupplierMaterialCode()) && !Objects.isNull(basicsdatumMaterial)){
+                pbv.setSupplierMaterialCode(basicsdatumMaterial.getSupplierFabricCode());
             }
         }
         List<String> ids = list.stream().map(PackBomVo::getSupplierId).collect(Collectors.toList());
