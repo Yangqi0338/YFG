@@ -424,7 +424,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             //物料号改变
             if (!Optional.ofNullable(fabricSummaryInfoVo.getSupplierFabricCode()).orElse("").
                     equals(Optional.ofNullable(fabricSummary.getSupplierFabricCode()).orElse(""))){
-                return ApiResult.error(fabricSummaryStyle.getStyleNo()+"款已不引用改物料，请删除后再打印！",200);
+                return ApiResult.error(fabricSummaryStyle.getStyleNo()+"款：物料号已经改变，请删除重新引用后再打印！",200);
             }
         }
         return ApiResult.success("成功",new PrintCheckVo(CollUtil.isNotEmpty(designerNotlist) ? designerNotlist : null));
