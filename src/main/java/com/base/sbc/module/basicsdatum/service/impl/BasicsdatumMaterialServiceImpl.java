@@ -254,6 +254,14 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         BaseQueryWrapper<BasicsdatumMaterial> qc = new BaseQueryWrapper<>();
         //qc.eq("tbm.company_code", this.getCompanyCode());
         qc.notEmptyLike("tbm.material_code_name", dto.getMaterialCodeName());
+        //增加多物料编号查询
+        if (StrUtil.isNotEmpty(dto.getMaterialCodesHead())) {
+            if (dto.getMaterialCodesHead().contains(",")) {
+                qc.in("tbm.material_code", StringUtils.convertList(dto.getMaterialCodesHead()));
+            }else{
+                qc.like("tbm.material_code",dto.getMaterialCodesHead());
+            }
+        }
         qc.notEmptyLike("tbm.supplier_fabric_code", dto.getSupplierMaterialCode());
         qc.orderByDesc("tbm.create_date");
         qc.eq("tbm.del_flag", "0");

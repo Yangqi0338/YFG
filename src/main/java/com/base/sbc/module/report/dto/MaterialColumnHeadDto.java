@@ -332,4 +332,9 @@ public class MaterialColumnHeadDto extends QueryFieldDto {
     /** 类别（物料分类id） */
     private String categoryId;
 
+    /**
+     * 物料编码多个查询
+     */
+    private String materialCodesHead;
+
 }
