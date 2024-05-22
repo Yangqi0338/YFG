@@ -1505,16 +1505,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public List<SampleUserVo> getAllPatternDesignList(PatternUserSearchVo vo) {
 
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.select("DISTINCT pattern_design_id as user_id, pattern_design_name as name");
-        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
-                .isNotNull(PatternMaking::getPatternDesignId)
-                .isNotNull(PatternMaking::getPatternDesignName)
-                .ne(PatternMaking::getPatternDesignName, "")
-                .ne(PatternMaking::getPatternDesignId, "")
+        qw.select("DISTINCT p.pattern_design_id as user_id, p.pattern_design_name as name");
+        qw.isNotNull("p.pattern_design_id")
+                .isNotNull("p.pattern_design_name")
+                .ne("p.pattern_design_id", "")
+                .ne("p.pattern_design_name", "")
                 // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
-        List<Map<String, Object>> maps = listMaps(qw);
-        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+        List<PatternMakingTaskListVo> list1 = getBaseMapper().patternMakingTaskList(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(list1, SampleUserVo.class);
         amcFeignService.setUserAvatarToList(list);
         return list;
     }
@@ -1522,16 +1522,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public List<SampleUserVo> getAllCutterList(PatternUserSearchVo vo) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.select("DISTINCT cutter_id as user_id, cutter_name as name");
-        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
-                .isNotNull(PatternMaking::getCutterName)
-                .isNotNull(PatternMaking::getCutterId)
-                .ne(PatternMaking::getCutterName, "")
-                .ne(PatternMaking::getCutterId, "")
+        qw.select("DISTINCT p.cutter_id as user_id, p.cutter_name as name");
+        qw.isNotNull("p.cutter_id")
+                .isNotNull("p.cutter_name")
+                .ne("p.cutter_id", "")
+                .ne("p.cutter_name", "")
                 // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
-        List<Map<String, Object>> maps = listMaps(qw);
-        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+        List<PatternMakingTaskListVo> list1 = getBaseMapper().patternMakingTaskList(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(list1, SampleUserVo.class);
         amcFeignService.setUserAvatarToList(list);
         return list;
     }
@@ -1539,17 +1539,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public List<SampleUserVo> getAllStitcherList(PatternUserSearchVo vo) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.select("DISTINCT stitcher_id as user_id,  stitcher as name");
-        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
-                .isNotNull(PatternMaking::getStitcher)
-                .isNotNull(PatternMaking::getStitcherId)
-                .ne(PatternMaking::getStitcher, "")
-                .ne(PatternMaking::getStitcherId, "")
+        qw.select("DISTINCT p.stitcher_id as user_id,  p.stitcher as name");
+        qw.isNotNull("p.stitcher_id")
+                .isNotNull("p.stitcher")
+                .ne("p.stitcher_id", "")
+                .ne("p.stitcher", "")
                 // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
-
-        List<Map<String, Object>> maps = listMaps(qw);
-        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+        List<PatternMakingTaskListVo> list1 = getBaseMapper().patternMakingTaskList(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(list1, SampleUserVo.class);
         amcFeignService.setUserAvatarToList(list);
         return list;
     }
