@@ -50,7 +50,7 @@ public class MSUtils implements Constant {
     public static MappedStatement newCountMappedStatement(MappedStatement ms) {
         String msId = ms.getId() + "_COUNT";
         MappedStatement existedMappedStatement = getExistedMappedStatement(ms.getConfiguration(), msId);
-        if (existedMappedStatement != null) return existedMappedStatement;
+        if (existedMappedStatement != null) ms = existedMappedStatement;
 
         MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), msId, ms.getSqlSource(), ms.getSqlCommandType());
         builder.resource(ms.getResource());
