@@ -269,10 +269,10 @@
 		tbm.specification as specification,
 		tbs.supplier_abbreviation
 		from t_basicsdatum_material tbm
-						  left join t_basicsdatum_material_price tbmpc  on tbm.material_code = tbmpc.material_code  and tbmpc.select_flag = 1
-						  left join t_basicsdatum_supplier tbs on tbmpc.supplier_id = tbs.supplier_code
+			left join t_basicsdatum_material_price tbmpc  on tbm.material_code = tbmpc.material_code and tbmpc.del_flag = '0'  and  tbmpc.select_flag = 1 and tbmpc.status = '0'
+			left join t_basicsdatum_supplier tbs on tbmpc.supplier_id = tbs.supplier_code and tbs.del_flag = '0'
 		where
-			tbm.del_flag = '0' and tbmpc.del_flag = '0' and tbs.del_flag = '0' and tbmpc.status = '0'
+			tbm.del_flag = '0'
 		<if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
 			${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
 		</if>
