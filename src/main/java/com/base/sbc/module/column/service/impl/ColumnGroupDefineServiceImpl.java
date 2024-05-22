@@ -184,6 +184,7 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                 columnDefine.setIsEdit(userDefineItem.getIsEdit());
                 columnDefine.setColumnWidth(userDefineItem.getColumnWidth());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
+                columnDefine.setIsRequired(userDefineItem.getIsRequired());
                 columnDefine.setColumnColor(userDefineItem.getColumnColor());
             } else {
                 columnDefine.setId(null);
