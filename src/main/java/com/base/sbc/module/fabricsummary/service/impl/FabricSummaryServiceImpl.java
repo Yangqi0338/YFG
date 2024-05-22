@@ -297,7 +297,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
                 infoVoMap.put(fabricSummaryInfoVo.getMaterialCode(),fabricSummary);
             }
             //补充信息
-            fullFabricSummary(fabricSummary, ++index);
+            fullFabricSummary(fabricSummary,fabricSummaryInfoVo, ++index);
             fabricSummaries.add(fabricSummary);
 
             fabricSummaryStyle.setFabricSummaryId(fabricSummary.getId());
@@ -351,24 +351,36 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         return fabricSummaryPrintLogService.save(fabricSummaryPrintLog);
     }
 
-    private void fullFabricSummary(FabricSummary fabricSummaryInfoVo, int index) {
-        getFabricSummaryCode(fabricSummaryInfoVo, index);
-        fabricSummaryInfoVo.insertInit();
-        fabricSummaryInfoVo.setId(new IdGen().nextIdStr());
+    private void fullFabricSummary(FabricSummary fabricSummaryInfo, FabricSummaryInfoVo fabricSummaryInfoVo,int index) {
+        getFabricSummaryCode(fabricSummaryInfo, index);
+        fabricSummaryInfo.insertInit();
+        fabricSummaryInfo.setId(new IdGen().nextIdStr());
+        if (StringUtils.isEmpty(fabricSummaryInfo.getSupplierFabricCode()) && StringUtils.isEmpty(fabricSummaryInfoVo.getSupplierFabricCode())){
+            return;
+        }
+        if (StringUtils.isEmpty(fabricSummaryInfo.getSupplierFabricCode()) && StringUtils.isNotEmpty(fabricSummaryInfoVo.getSupplierFabricCode())){
+            fabricSummaryInfo.setSupplierFabricCode(fabricSummaryInfoVo.getSupplierFabricCode());
+            fabricSummaryInfo.setSupplierAbbreviation(fabricSummaryInfoVo.getSupplierAbbreviation());
+            fabricSummaryInfo.setSupplierName(fabricSummaryInfoVo.getSupplierName());
+            fabricSummaryInfo.setSupplierId(fabricSummaryInfo.getSupplierId());
+            return;
+        }
+
+
         //规格
         BasicsdatumMaterialWidthQueryDto basicsdatumMaterialWidthQueryDto = new BasicsdatumMaterialWidthQueryDto();
-        basicsdatumMaterialWidthQueryDto.setMaterialCode(fabricSummaryInfoVo.getMaterialCode());
+        basicsdatumMaterialWidthQueryDto.setMaterialCode(fabricSummaryInfo.getMaterialCode());
         PageInfo<BasicsdatumMaterialWidthPageVo> basicsdatumMaterialWidthList = basicsdatumMaterialService.getBasicsdatumMaterialWidthList(basicsdatumMaterialWidthQueryDto);
         if (CollUtil.isNotEmpty(basicsdatumMaterialWidthList.getList()) && basicsdatumMaterialWidthList.getList().size() == 1){
-            fabricSummaryInfoVo.setWidthName(basicsdatumMaterialWidthList.getList().get(0).getName());
+            fabricSummaryInfo.setWidthName(basicsdatumMaterialWidthList.getList().get(0).getName());
         }
 
         //期货
         BasicsdatumMaterialPriceQueryDto basicsdatumMaterialPriceQueryDto = new BasicsdatumMaterialPriceQueryDto();
-        basicsdatumMaterialPriceQueryDto.setMaterialCode(fabricSummaryInfoVo.getMaterialCode());
+        basicsdatumMaterialPriceQueryDto.setMaterialCode(fabricSummaryInfo.getMaterialCode());
         PageInfo<BasicsdatumMaterialPricePageVo> basicsdatumMaterialPriceList = basicsdatumMaterialService.getBasicsdatumMaterialPriceList(basicsdatumMaterialPriceQueryDto);
         if (CollUtil.isNotEmpty(basicsdatumMaterialPriceList.getList())){
-            fabricSummaryInfoVo.setProductionDay(basicsdatumMaterialPriceList.getList().get(0).getProductionDay());
+            fabricSummaryInfo.setProductionDay(basicsdatumMaterialPriceList.getList().get(0).getProductionDay());
         }
 
     }
