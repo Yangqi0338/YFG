@@ -48,6 +48,7 @@ public class MSUtils implements Constant {
      * @return
      */
     public static MappedStatement newCountMappedStatement(MappedStatement ms) {
+        System.out.println("重写的PageHelper的源码");
         String msId = ms.getId() + "_COUNT";
         MappedStatement existedMappedStatement = getExistedMappedStatement(ms.getConfiguration(), msId);
         if (existedMappedStatement != null) ms = existedMappedStatement;
