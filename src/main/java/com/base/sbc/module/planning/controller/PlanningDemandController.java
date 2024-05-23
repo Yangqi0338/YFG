@@ -9,7 +9,6 @@ package com.base.sbc.module.planning.controller;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.module.formtype.dto.QueryFieldManagementDto;
-import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.planning.dto.*;
 import com.base.sbc.module.planning.entity.PlanningDemand;
 import com.base.sbc.module.planning.entity.PlanningDemandProportionData;
@@ -218,6 +217,11 @@ public class PlanningDemandController {
 	@PostMapping("/batchSaveMaterial")
 	public List<PlanningDimensionality> batchSaveMaterial(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
 		return planningDimensionalityService.batchSaveMaterial(dimensionalityDtoList);
+	}
+	@ApiOperation(value = "保存/编辑维度标签")
+	@PostMapping("/batchSaveDimensionality")
+	public List<PlanningDimensionality> batchSaveDimensionalityNoCheck(@Valid @RequestBody List<UpdateDimensionalityDto> dimensionalityDtoList) {
+		return planningDimensionalityService.batchSaveDimensionalityNoCheck(dimensionalityDtoList);
 	}
 
 }
