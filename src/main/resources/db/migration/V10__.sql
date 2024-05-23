@@ -1,0 +1,1 @@
+alter table t_hang_tag add column lavation_reminder_code varchar(50) default null comment '洗标与温馨提示编码';
