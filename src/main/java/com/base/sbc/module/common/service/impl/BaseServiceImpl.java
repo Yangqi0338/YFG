@@ -48,6 +48,7 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author 卞康
@@ -706,12 +707,12 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public <R> List<R> listOneField(LambdaQueryWrapper<T> wrapper, SFunction<T, R> function) {
-        return this.list(wrapper.select(function)).stream().map(function).collect(Collectors.toList());
+        return this.list(wrapper.select(function)).stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
     }
 
     @Override
     public <R> List<R> listByIds2OneField(List<String> ids, SFunction<T, R> function) {
-        return this.list(new LambdaQueryWrapper<T>().select(function).in(T::getId, ids)).stream().map(function).collect(Collectors.toList());
+        return this.list(new LambdaQueryWrapper<T>().select(function).in(T::getId, ids)).stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
     }
 
 
