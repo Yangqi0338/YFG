@@ -18,6 +18,7 @@ import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.style.entity.Style;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -64,9 +65,10 @@ public class PatternLibraryController {
 
     @ApiOperation(value = "使用款记录")
     @GetMapping("/listUseStyle")
-    public ApiResult<List<UseStyleVO>> listUseStyle(UseStyleDTO useStyleDTO) {
+    public ApiResult<PageInfo<UseStyleVO>> listUseStyle(UseStyleDTO useStyleDTO) {
+        PageHelper.startPage(useStyleDTO.getPageNum(), useStyleDTO.getPageSize());
         List<UseStyleVO> useStyleVOList = patternLibraryService.listUseStyle(useStyleDTO);
-        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, useStyleVOList);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, new PageInfo<>(useStyleVOList));
     }
 
     @ApiOperation(value = "版型库新增/编辑")
