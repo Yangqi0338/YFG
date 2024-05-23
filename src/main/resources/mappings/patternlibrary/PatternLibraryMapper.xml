@@ -76,7 +76,7 @@
         count( 1 )
         FROM
         t_style ts
-        LEFT JOIN t_style_color tsc ON ts.id = tsc.style_id
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
         AND tsc.del_flag = '0'
         WHERE
         ts.del_flag = 0
@@ -86,7 +86,7 @@
         count( 1 )
         FROM
         t_style ts
-        LEFT JOIN t_style_color tsc ON ts.id = tsc.style_id
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
         AND tsc.del_flag = '0'
         WHERE
         ts.del_flag = 0
@@ -95,7 +95,7 @@
         count( 1 )
         FROM
         t_style ts
-        LEFT JOIN t_style_color tsc ON ts.id = tsc.style_id
+        JOIN t_style_color tsc ON ts.id = tsc.style_id
         AND tsc.del_flag = '0'
         WHERE
         ts.del_flag = 0
@@ -130,7 +130,7 @@
         tsc.style_color_pic stylePic,ts.design_no, tsc.style_no, tsc.band_code, tsc.band_name
         FROM
         t_style ts
-        left join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
+        join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
         WHERE
         ts.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
