@@ -220,6 +220,8 @@ public class SmpService {
         }
 
         for (StyleColor styleColor : styleColors) {
+            //验证配饰款是否绑定主款号
+            checkAccessoriesMainStyleNo(styleColor);
 
             List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(styleColor.getId(), null);
             if (CollUtil.isNotEmpty(mainAccessoriesList)) {
@@ -233,6 +235,8 @@ public class SmpService {
                     styleColor.setPrincipalStyleNo(styleNos);
                 }
             }
+
+
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
             //吊牌价为空或者等于0
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
@@ -577,6 +581,23 @@ public class SmpService {
 
         }
         return i;
+    }
+
+    /**
+     * 判断配饰款是否绑定主款号
+     * @param styleColor
+     */
+    private static void checkAccessoriesMainStyleNo(StyleColor styleColor) {
+        //region 1.检查款号最后一位是不是P结尾的，2。 判断是否有主款号，没有就报错
+        String styleColorNo = styleColor.getStyleNo();
+        if (StrUtil.isNotBlank(styleColorNo) && styleColorNo.contains("P")) {
+            String lastStr = styleColorNo.substring(styleColorNo.length() - 1);
+            if ("P".equals(lastStr) && StrUtil.isEmpty(styleColor.getPrincipalStyleNo())) {
+                throw new OtherException("该配饰款：【" + styleColorNo + "】没有绑定著款号！");
+            }
+        }
+
+        //endregion
     }
 
     /**
