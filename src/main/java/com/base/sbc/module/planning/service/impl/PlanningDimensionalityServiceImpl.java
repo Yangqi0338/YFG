@@ -473,6 +473,31 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
         return new ArrayList<>();
     }
 
+    /**
+     * 批量保存修改
+     *
+     * @param dimensionalityDtoList
+     * @return
+     */
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public List<PlanningDimensionality> batchSaveDimensionalityNoCheck(List<UpdateDimensionalityDto> dimensionalityDtoList) {
+
+        if (dimensionalityDtoList.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<PlanningDimensionality> list = BeanUtil.copyToList(dimensionalityDtoList, PlanningDimensionality.class);
+        list.forEach(p -> {
+            if (CommonUtils.isInitId(p.getId())) {
+                p.setId(null);
+            }
+        });
+        saveOrUpdateBatch(list);
+
+        return new ArrayList<>();
+    }
+
 /** 自定义方法区 不替换的区域【other_start】 **/
 
 

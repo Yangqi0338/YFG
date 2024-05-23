@@ -14,6 +14,7 @@ import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.planning.vo.PlanningDimensionalityVo;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -79,6 +80,9 @@ public interface PlanningDimensionalityService extends BaseService<PlanningDimen
 
     List<PlanningDimensionality> batchSaveMaterial(List<UpdateDimensionalityDto> dimensionalityDtoList);
 
+
+    @Transactional(rollbackFor = {Exception.class})
+    List<PlanningDimensionality> batchSaveDimensionalityNoCheck(List<UpdateDimensionalityDto> dimensionalityDtoList);
 
 /** 自定义方法区 不替换的区域【other_end】 **/
 
