@@ -258,6 +258,7 @@ public class SmpService {
                 }
             }
 
+            smpGoodsDto.setSendMainFabricDate(styleColor.getSendMainFabricDate());
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());

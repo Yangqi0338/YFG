@@ -299,6 +299,12 @@ public class SmpGoodsDto extends SmpBaseDto {
      * 颜色停用标识
      */
     private String goodsColorFlag;
+    /**
+     * 下主面料单 时间
+     */
+    @ApiModelProperty(value = "下主面料单")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date sendMainFabricDate;
 
     /**
      * 指定面料集合
