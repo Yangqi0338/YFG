@@ -115,9 +115,11 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         BaseQueryWrapper qw = new BaseQueryWrapper();
         qw.notEmptyEq("sd.year", dto.getYear());
+        qw.notEmptyEq("sd.band_code", dto.getBandCode());
         qw.notEmptyEq("sd.season", dto.getSeason());
         qw.notEmptyEq("sd.month", dto.getMonth());
         qw.notEmptyEq("ssc.tag_price", dto.getTagPrice());
+        qw.notEmptyEq("ht.product_name", dto.getProductName());
         qw.likeList(StrUtil.isNotBlank(dto.getStyleNo()),"ssc.style_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getStyleNo()));
         qw.likeList(StrUtil.isNotBlank(dto.getDesignNo()),"sd.design_no", com.base.sbc.config.utils.StringUtils.convertList(dto.getDesignNo()));
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.style_pricing.getK(), "sd.");
