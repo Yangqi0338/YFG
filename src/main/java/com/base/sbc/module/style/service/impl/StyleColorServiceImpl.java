@@ -1385,7 +1385,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*复制状态*/
         packInfoStatusService.copy(packInfo.getId(), packType, copyPackInfo.getId(), packInfoStatus.getPackType(), BaseGlobal.YES);
         /*查询BOM状态，BOM阶段修改未为样品 BOM里面物料也修改为样品*/
-        List<PackBom> packBomList = packBomService.list(copyPackInfo.getId(), PackUtils.PACK_TYPE_BIG_GOODS);
+        QueryWrapper<PackBom> packBomQueryWrapper = new QueryWrapper<>();
+        packBomQueryWrapper.eq("foreign_id",copyPackInfo.getId());
+        packBomQueryWrapper.eq("del_flag",0);
+        List<PackBom> packBomList = packBomService.list(packBomQueryWrapper);
         if (CollUtil.isNotEmpty(packBomList)) {
             packBomList.forEach(item->{
                     item.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
