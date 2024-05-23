@@ -206,7 +206,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 	private final StylePricingService stylePricingService;
 	private final StyleService styleService;
 	private final BasicsdatumSizeService basicsdatumSizeService;
-	private final CcmFeignService ccmFeignService;
 
 	@Autowired
 	@Lazy
