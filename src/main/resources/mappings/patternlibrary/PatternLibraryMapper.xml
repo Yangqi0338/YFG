@@ -81,6 +81,7 @@
         WHERE
         ts.del_flag = 0
         AND ts.registering_id = tpl.id
+        AND ( ts.registering_id IS NOT NULL OR ts.registering_id != '' )
         ) useStyleNum,
         round((SELECT
         count( 1 )
@@ -91,6 +92,7 @@
         WHERE
         ts.del_flag = 0
         AND ts.registering_id = tpl.id
+        AND ( ts.registering_id IS NOT NULL OR ts.registering_id != '' )
         )/(SELECT
         count( 1 )
         FROM
