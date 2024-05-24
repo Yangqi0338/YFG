@@ -35,4 +35,6 @@ public class PlanningChannelSearchDto extends Page {
 
     @ApiModelProperty(value = "性别")
     private String sex;
+
+    private String businessType;
 }
