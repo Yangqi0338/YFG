@@ -12,15 +12,19 @@ import com.base.sbc.config.utils.FtpUtil;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.utils.VideoUtil;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.security.Principal;
+import java.util.UUID;
 
 @RestController
 @Api(tags = "2.1 文件上传 已登接口[上传]")
@@ -36,6 +40,12 @@ public class SaasUploadController extends BaseController {
     private FtpUtil util;
     @Autowired
     private CustomStylePicUpload customStylePicUpload;
+
+    /**
+     * 视频上传最大值：50 单位M
+     */
+    @Value("${upload.video.maxSize:50}")
+    private Long videoSMaxSize;
 
 
     @ApiOperation(value = "产品图片上传", notes = "用于产品图片上传，返回上传成功的地址")
@@ -91,10 +101,42 @@ public class SaasUploadController extends BaseController {
 
     @ApiOperation(value = "上传文件", notes = "上传文件")
     @RequestMapping(value = "/uploadFile", method = RequestMethod.POST)
-    public AttachmentVo uploadFile(@RequestPart(value = "file", required = false) MultipartFile file, String type, String code) throws Throwable {
+    public AttachmentVo uploadFile(@RequestPart(value = "file", required = false) MultipartFile file,  String type, String code, String isCompact) throws Throwable {
         if (file == null || file.getSize() == 0) {
             throw new OtherException("上传文件为空");
         }
-        return uploadFileService.uploadToMinio(file, type, code);
+        return uploadFileService.uploadToMinio(getVideoConvert(file, isCompact), type, code);
+    }
+
+
+    /**
+     * 转换视频
+     * @param sourceFile
+     * @param isCompact 是否转换
+     * @return
+     */
+    private MultipartFile getVideoConvert(MultipartFile sourceFile, String isCompact){
+        if (videoSMaxSize != null && videoSMaxSize < sourceFile.getSize()/1048576){
+            throw new OtherException("允许视频上传的最大值为："+videoSMaxSize+"M");
+        }
+        String contentType = sourceFile.getContentType();
+        if (!"1".equals(isCompact) || !sourceFile.getContentType().endsWith("mp4")){
+            return sourceFile;
+        }
+        File targetFile=null;
+
+        try{
+            targetFile= VideoUtil.toFile(sourceFile);
+            File newFile = VideoUtil.compressionVideo(targetFile, UUID.randomUUID().toString().replace("-", "") + ".mp4");
+//            minioUtils.convertFileToMultipartFile(newFile);
+            return VideoUtil.toMultipartFile(newFile,contentType);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new OtherException(e.getMessage());
+        }finally{
+            if (targetFile != null){
+                VideoUtil.delteTempFile(targetFile);
+            }
+        }
     }
 }
