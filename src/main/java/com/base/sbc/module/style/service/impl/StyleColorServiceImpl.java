@@ -1392,6 +1392,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (CollUtil.isNotEmpty(packBomList)) {
             packBomList.forEach(item->{
                     item.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                    item.setScmSendFlag("0");
                     packBomService.updateById(item);
             });
         }
