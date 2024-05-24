@@ -1601,7 +1601,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 						tagPrintingList.add(printing);
 					});
 					// 检查cnCheck
-					if (tagPrintingList.stream().noneMatch(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode()))) {
+					if (MoreLanguageProperties.chineseComparison && tagPrintingList.stream().noneMatch(it-> MoreLanguageProperties.checkInternal(it.getLanguageCode()))) {
                         tagPrintingList.addFirst(zhPrinting);
 					}
 					tagPrintingResultList.add(new MoreLanguageTagPrintingList(tagPrintingList));
