@@ -1361,20 +1361,20 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     @Override
     public PageInfo<BigGoodsPackInfoListVo> pageByBigGoods(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> sdQw = new BaseQueryWrapper<>();
-        sdQw.notEmptyEq("bom_status", pageDto.getBomStatus());
+        sdQw.notEmptyEq("ps.bom_status", pageDto.getBomStatus());
 //        sdQw.eq("pack_type", PackUtils.PACK_TYPE_BIG_GOODS);
-        sdQw.notEmptyEq("prod_category1st", pageDto.getProdCategory1st());
-        sdQw.notEmptyEq("prod_category", pageDto.getProdCategory());
-        sdQw.notEmptyEq("prod_category2nd", pageDto.getProdCategory2nd());
-        sdQw.notEmptyEq("prod_category3rd", pageDto.getProdCategory3rd());
-        sdQw.notEmptyEq("planning_season_id", pageDto.getPlanningSeasonId());
-        sdQw.andLike(pageDto.getSearch(), "design_no", "style_no", "style_name");
-        sdQw.likeList(StrUtil.isNotBlank(pageDto.getDesignNo()),"design_no",StringUtils.convertList(pageDto.getDesignNo()));
-        sdQw.likeList(StrUtil.isNotBlank(pageDto.getStyleNo()),"style_no",StringUtils.convertList(pageDto.getStyleNo()));
-        sdQw.isNotNull("style_no");
-        sdQw.ne("style_no","");
-        sdQw.notEmptyEq("devt_type", pageDto.getDevtType());
-        sdQw.orderByDesc("create_date");
+        sdQw.notEmptyEq("p.prod_category1st", pageDto.getProdCategory1st());
+        sdQw.notEmptyEq("p.prod_category", pageDto.getProdCategory());
+        sdQw.notEmptyEq("p.prod_category2nd", pageDto.getProdCategory2nd());
+        sdQw.notEmptyEq("p.prod_category3rd", pageDto.getProdCategory3rd());
+        sdQw.notEmptyEq("p.planning_season_id", pageDto.getPlanningSeasonId());
+        sdQw.andLike(pageDto.getSearch(), "p.design_no", "p.style_no", "p.style_name");
+        sdQw.likeList(StrUtil.isNotBlank(pageDto.getDesignNo()),"p.design_no",StringUtils.convertList(pageDto.getDesignNo()));
+        sdQw.likeList(StrUtil.isNotBlank(pageDto.getStyleNo()),"p.style_no",StringUtils.convertList(pageDto.getStyleNo()));
+        sdQw.isNotNull("p.style_no");
+        sdQw.ne("p.style_no","");
+        sdQw.notEmptyEq("sd.devt_type", pageDto.getDevtType());
+        sdQw.orderByDesc("p.create_date");
         // 数据权限
         dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.packBigGoods.getK());
         Page<PackInfoListVo> page = PageHelper.startPage(pageDto);
