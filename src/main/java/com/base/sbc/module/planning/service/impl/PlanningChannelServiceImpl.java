@@ -153,7 +153,12 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
         qw.notEmptyEq("c.channel", dto.getChannel());
         qw.notEmptyLike("c.sex", dto.getSex());
         qw.orderByDesc("id");
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningChannel.getK());
+        //根据入参设置数据权限
+        if (StrUtil.isNotEmpty(dto.getBusinessType())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType(),"",new String[]{"c.brand","c.channel","create_dept"},true);
+        } else {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningChannel.getK());
+        }
         Page<PlanningChannelVo> page = PageHelper.startPage(dto);
         List<PlanningChannelVo> list = getBaseMapper().list(qw);
         PageInfo<PlanningChannelVo> pageInfo = page.toPageInfo();
