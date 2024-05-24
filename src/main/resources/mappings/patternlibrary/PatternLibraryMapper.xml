@@ -72,7 +72,7 @@
         tpl.update_date,
         tpl.del_flag,
         tpl.company_code,
-        (SELECT
+        ifnull((SELECT
         count( 1 )
         FROM
         t_style ts
@@ -82,8 +82,8 @@
         ts.del_flag = 0
         AND ts.registering_id = tpl.id
         AND ( ts.registering_id IS NOT NULL OR ts.registering_id != '' )
-        ) useStyleNum,
-        round((SELECT
+        ), 0) useStyleNum,
+        ifnull(round((SELECT
         count( 1 )
         FROM
         t_style ts
@@ -102,7 +102,7 @@
         WHERE
         ts.del_flag = 0
         AND (ts.registering_id is not null or ts.registering_id != '')
-        ), 2) patternLibraryUtilization
+        ), 2),0) patternLibraryUtilization
         FROM
         t_pattern_library tpl
         LEFT JOIN t_pattern_library_item tpli ON tpli.pattern_library_id = tpl.id
