@@ -11,6 +11,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -130,6 +131,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.codehaus.jackson.node.NullNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,22 +279,36 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
-		if(StrUtil.isNotBlank(hangTagDTO.getDesignNo())){
-			hangTagDTO.setDesignNos(hangTagDTO.getDesignNo().split(","));
-		}
-
-		if(StrUtil.isNotBlank(hangTagDTO.getProductCode())){
-			hangTagDTO.setProductCodes(hangTagDTO.getProductCode().split(","));
-		}
-
-		if(StrUtil.isNotBlank(hangTagDTO.getProdCategory())){
-			hangTagDTO.setProdCategorys(hangTagDTO.getProdCategory().split(","));
-		}
-
 		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
-		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
+		qw.notEmptyEq("tsd.planning_season_id", hangTagDTO.getPlanningSeasonId());
+		qw.notEmptyIn("tsd.prod_category", hangTagDTO.getProdCategory());
+		qw.notEmptyEq("tsd.year", hangTagDTO.getYear());
+		qw.notEmptyEq("tsd.devt_type_name", hangTagDTO.getProduceTypeName());
+		qw.likeList("tsd.design_no", StrJoiner.of(COMMA).setNullMode(StrJoiner.NullMode.IGNORE)
+				.append(hangTagDTO.getStyle()).append(hangTagDTO.getDesignNo()).toString());
+		qw.notEmptyEq("ht.second_packaging_form_code", hangTagDTO.getSecondPackagingFormCode());
+		qw.notEmptyEq("ht.packaging_form_code", hangTagDTO.getPackagingFormCode());
+		qw.notEmptyLike("ht.ingredient", hangTagDTO.getIngredient());
+		qw.notEmptyIn("ht.product_code", hangTagDTO.getProductCode());
+		qw.notEmptyEq("ht.status", hangTagDTO.getStatus());
+		qw.notEmptyIn("ht.product_code", hangTagDTO.getConfirmDate());
+		qw.notEmptyIn("tssc.band_code", hangTagDTO.getBandName());
+		qw.likeList("tssc.style_no", hangTagDTO.getBulkStyleNo());
+		if (YesOrNoEnum.YES.getValueStr().equals(hangTagDTO.getLikeQueryFlag())) {
+			qw.notEmptyLike("tssc.style_no", hangTagDTO.getStyleNo());
+		} else {
+			qw.notEmptyEq("tssc.style_no", hangTagDTO.getStyleNo());
+		}
+
+		List<HangTagListVO> hangTagListVOS;
+		if ("packBigGoods".equals(hangTagDTO.getSelectType())) {
+			hangTagListVOS = hangTagMapper.queryList0(hangTagDTO, qw);
+		} else {
+			hangTagListVOS = hangTagMapper.queryList1(hangTagDTO, qw);
+		}
+
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
 				throw new OtherException("带图片导出2000条数据");

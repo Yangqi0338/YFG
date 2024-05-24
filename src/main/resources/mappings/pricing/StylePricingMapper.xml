@@ -137,14 +137,14 @@
             <if test="dto.packId != null and dto.packId != ''">
                 and p.id = #{dto.packId}
             </if>
-            <if test="ew.customSqlSegment != null and ew.customSqlSegment != '' and ew.groupSqlSegment.containsKey('ht')">
-                and EXISTS(select id from t_hang_tag ht where ht.bulk_style_no = ssc.style_no and ht.del_flag = '0' and ${ ew.groupSqlSegment.get('ht')})
+            <if test="ew.hasAlias('ht')">
+                and EXISTS(select id from t_hang_tag ht where ht.bulk_style_no = ssc.style_no and ht.del_flag = '0' and ${ ew.getSqlByAlias('ht')})
             </if>
-            <if test="ew.customSqlSegment != null and ew.customSqlSegment != '' and ew.groupSqlSegment.containsKey('sd')">
-                and EXISTS(select id from t_style sd where sd.id = p.foreign_id and sd.del_flag = '0' and ${ ew.groupSqlSegment.get('sd')})
+            <if test="ew.hasAlias('sd')">
+                and EXISTS(select id from t_style sd where sd.id = p.foreign_id and sd.del_flag = '0' and ${ ew.getSqlByAlias('sd')})
             </if>
-            <if test="ew.customSqlSegment != null and ew.customSqlSegment != '' and ew.groupSqlSegment.containsKey('ssc')">
-                and EXISTS(select id from t_style_color ssc where ssc.style_no = p.style_no and ssc.del_flag = '0' and ${ ew.groupSqlSegment.get('ssc')})
+            <if test="ew.hasAlias('ssc')">
+                and EXISTS(select id from t_style_color ssc where ssc.style_no = p.style_no and ssc.del_flag = '0' and ${ ew.getSqlByAlias('ssc')})
             </if>
             and p.style_no is not null
             and p.style_no !=''

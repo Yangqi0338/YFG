@@ -39,10 +39,12 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
      * @param dto
      * @return
      */
-    List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+    List<HangTagListVO> queryList0(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+
+    List<HangTagListVO> queryList1(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
 
 
-    List<TagPrinting> hangTagPrinting(@Param("companyCode") String companyCode, @Param("styleNo") String styleNo,@Param("likeQueryFlag") String likeQueryFlag);
+    List<TagPrinting> hangTagPrinting(@Param("companyCode") String companyCode, @Param("styleNo") String styleNo, @Param("likeQueryFlag") String likeQueryFlag);
 
     /**
      * 通过id查询详情
@@ -52,13 +54,15 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
      * @return
      */
     List<HangTagVO> getDetailsByBulkStyleNo(@Param("bulkStyleNoList") List<String> bulkStyleNoList,
-                                      @Param("companyCode") String companyCode,
-                                      @Param("selectType") String selectType);
+                                            @Param("companyCode") String companyCode,
+                                            @Param("selectType") String selectType);
 
-// 自定义方法区 不替换的区域【other_end】
-    int addHangTagInspectCompany(@Param("htc")HangTagInspectCompany htc);
+    // 自定义方法区 不替换的区域【other_end】
+    int addHangTagInspectCompany(@Param("htc") HangTagInspectCompany htc);
 
-    HangTagInspectCompany listHangTagInspectCompany(@Param("inspectCompanyId")String inspectCompanyId,@Param("hangTagId")String hangTagId);
+    HangTagInspectCompany listHangTagInspectCompany(@Param("inspectCompanyId") String inspectCompanyId, @Param("hangTagId") String hangTagId);
 
+    List<HangTagListVO> queryList0_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
+    List<HangTagListVO> queryList1_COUNT(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
 }
 
