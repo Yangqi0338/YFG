@@ -86,6 +86,18 @@ public class BasicsdatumSupplierController{
 		return basicsdatumSupplierService.selectSupplierPage(queryRevampBasicsdatumSupplierDto);
 	}
 
+	@ApiOperation(value = "下拉组件查询")
+	@GetMapping("/selectSupplierExitPage")
+	public PageInfo<SelectVo> selectSupplierExitPage(@RequestHeader(BaseConstant.USER_COMPANY) String userCompany,QueryRevampBasicsdatumSupplierDto queryRevampBasicsdatumSupplierDto) {
+		queryRevampBasicsdatumSupplierDto.setCompanyCode(userCompany);
+		if(null == queryRevampBasicsdatumSupplierDto.getPageNum() || null == queryRevampBasicsdatumSupplierDto.getPageSize()){
+			queryRevampBasicsdatumSupplierDto.setPageNum(Page.PAGE_NUM);
+			queryRevampBasicsdatumSupplierDto.setPageSize(Page.PAGE_SIZE);
+		}
+		return basicsdatumSupplierService.selectSupplierPage(queryRevampBasicsdatumSupplierDto);
+	}
+
+
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping("/getBasicsdatumSupplierList")

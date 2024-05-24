@@ -13,10 +13,23 @@
 
 
     <select id="selectSupplierPage" resultType="com.base.sbc.module.basicsdatum.vo.SelectVo" parameterType="com.base.sbc.module.basicsdatum.dto.QueryRevampBasicsdatumSupplierDto">
-        SELECT supplier_code as code,supplier AS name FROM t_basicsdatum_supplier WHERE del_flag = '0' AND status = '0' AND company_code = #{companyCode}
+        SELECT
+        supplier_code as code,
+        supplier AS name ,
+        supplier_abbreviation as supplierAbbreviation,
+        create_date as createDate
+        FROM t_basicsdatum_supplier WHERE del_flag = '0' AND status = '0'
+        AND company_code = #{companyCode}
         <if test="null != supplier and '' != supplier">
             AND supplier LIKE concat('%',#{supplier},'%')
         </if>
+        <if test="null != code and '' != code">
+            AND supplier_code LIKE concat('%',#{code},'%')
+        </if>
+        <if test="null != shortName and '' != shortName">
+            AND supplier_abbreviation LIKE concat('%',#{shortName},'%')
+        </if>
+        order create_date  by desc
     </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
