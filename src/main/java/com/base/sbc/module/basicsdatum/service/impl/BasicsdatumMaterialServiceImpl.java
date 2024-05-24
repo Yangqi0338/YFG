@@ -1131,6 +1131,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         // 1、清理现有物料规格
         this.materialWidthService.remove(new QueryWrapper<BasicsdatumMaterialWidth>().eq(COMPANY_CODE, getCompanyCode())
                 .eq("material_code", dto.getMaterialCode()));
+
+        //取消全选直接return
+        if (StrUtil.isEmpty(dto.getWidthName())) {
+            return true;
+        }
         String[] codes = dto.getWidth().split(",");
         String[] names = dto.getWidthName().split(",");
         // 2、添加规格组的规格
