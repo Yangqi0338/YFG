@@ -318,7 +318,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             return value.toString();
         });
         groupSqlSegment.putAll(MapUtil.removeNullValue(result));
-        return getGroupSqlSegment();
+        return groupSqlSegment;
     }
 
     public boolean hasAlias(String alias){
