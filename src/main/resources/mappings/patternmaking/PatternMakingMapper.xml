@@ -96,58 +96,64 @@
     <select id="patternMakingTaskList"
             resultType="com.base.sbc.module.patternmaking.vo.PatternMakingTaskListVo">
         SELECT
-        p.id,
-        s.design_no,
-        s.style_pic,
-        s.prod_category1st_name,
-        s.prod_category_name,
-        s.prod_category2nd_name,
-        s.prod_category3rd_name,
-        s.brand,
-        s.year,
-        s.month,
-        s.season,
-        s.band_code,
-        s.style_name,
-        s.designer,
-        s.designer_id,
-        p.style_id,
-        p.code,
-        p.sample_type,
-        p.design_send_date,
-        p.prm_send_date,
-        p.prm_send_status,
-        p.urgency,
-        p.urgency_name,
-        p.node,
-        p.status,
-        p.sgl_kitting,
-        p.technician_kitting,
-        p.sort,
-        p.suspend,
-        p.suspend_remarks,
-        p.suspend_status,
-        p.planning_season_id,
-        p.pattern_design_id,
-        p.stitcher,
-        p.stitcher_id,
-        p.cutter_name,
-        p.cutter_id,
-        p.break_off_sample,
-        p.break_off_pattern,
-        p.update_date,
-        p.pattern_design_name,
-        p.sample_making_score,
-        p.pattern_making_score,
-        p.pat_seq,
-        p.grading_id,
-        p.grading_name,
-        p.stitcher_remark,
-        p.sample_bar_code,
-        p.grading_date,
-        p.sample_making_score,
-        p.sample_making_quality_score,
-        p.second_processing
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            p.id,
+            s.design_no,
+            s.style_pic,
+            s.prod_category1st_name,
+            s.prod_category_name,
+            s.prod_category2nd_name,
+            s.prod_category3rd_name,
+            s.brand,
+            s.year,
+            s.month,
+            s.season,
+            s.band_code,
+            s.style_name,
+            s.designer,
+            s.designer_id,
+            p.style_id,
+            p.code,
+            p.sample_type,
+            p.design_send_date,
+            p.prm_send_date,
+            p.prm_send_status,
+            p.urgency,
+            p.urgency_name,
+            p.node,
+            p.status,
+            p.sgl_kitting,
+            p.technician_kitting,
+            p.sort,
+            p.suspend,
+            p.suspend_remarks,
+            p.suspend_status,
+            p.planning_season_id,
+            p.pattern_design_id,
+            p.stitcher,
+            p.stitcher_id,
+            p.cutter_name,
+            p.cutter_id,
+            p.break_off_sample,
+            p.break_off_pattern,
+            p.update_date,
+            p.pattern_design_name,
+            p.sample_making_score,
+            p.pattern_making_score,
+            p.pat_seq,
+            p.grading_id,
+            p.grading_name,
+            p.stitcher_remark,
+            p.sample_bar_code,
+            p.grading_date,
+            p.sample_making_score,
+            p.sample_making_quality_score,
+            p.second_processing,
+            p.receive_sample
+        </if>
         FROM
         t_pattern_making p,
         t_style s
@@ -196,6 +202,7 @@
             p.sgl_kitting,
             p.kitting_reason,
             p.stitcher_remark,
+            p.kitting_reason,
             p.stitcher,
             s.technician_name,
             p.pattern_technician_name,
@@ -722,6 +729,9 @@
         t.pattern_design_id,
         t.brand,
         t.planning_season_id,
+        t.prod_category,
+        t.receive_dept_id,
+        t.send_dept_id,
         t1.create_date,
         date_format(t.create_date,'%Y-%m-%d') as noNextDraft,
         date_format(check_start_time,'%Y-%m-%d') as reviewedDraft,
@@ -731,7 +741,8 @@
         CASE
         WHEN WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) &lt; 1 THEN DATE_SUB(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d')) -1) % 7 DAY)
         ELSE DATE_ADD(date_format(tns1.end_date,'%Y-%m-%d'), INTERVAL (8 - WEEKDAY(date_format(tns1.end_date,'%Y-%m-%d'))) % 7 DAY)
-        END AS 'tempOrderBookProduction'
+        END AS 'tempOrderBookProduction',
+        tobd.commissioning_date as 'businessEnterprises'
         FROM t_style t
         INNER JOIN t_basicsdatum_research_process_template template ON t.brand = template.brand_code AND t.devt_type = template.product_type and template.del_flag = '0' and template.enable_flag = '0'
         LEFT JOIN t_style_color t1 ON t.id = t1.style_id AND t1.del_flag = '0' and t1.historical_data = 0
@@ -739,83 +750,99 @@
         LEFT JOIN (select id,style_id from t_pattern_making where sample_type_name = '初版样' and del_flag = '0' GROUP BY style_id,sample_type_name ORDER BY create_date ASC ) as tpm ON tpm.style_id = t.id
         LEFT JOIN t_node_status as tns ON tns.data_id = tpm.id AND tns.node = '打版任务' AND tns.status = '打版完成'
         LEFT JOIN t_node_status as tns1 ON tns1.data_id = tpm.id AND tns1.node = '样衣任务' AND tns1.status = '车缝完成'
+        LEFT JOIN t_order_book_detail tobd ON t1.id = tobd.style_color_id
+
         WHERE
         t.del_flag = '0' and t.historical_data = 0
         ) t
         WHERE 1=1
-        <if test="search != '' and search != null">
-            AND (t.design_no like concat('%',#{search},'%')  or t.style_no  like concat('%',#{search},'%'))
+        <if test="dto.search != '' and dto.search != null">
+            AND (t.design_no like concat('%',#{dto.search},'%')  or t.style_no  like concat('%',#{dto.search},'%'))
         </if>
-        <if test="null != devtTypes and devtTypes.size() > 0">
+        <if test="null != dto.templateIds and dto.templateIds.size() > 0">
+            AND t.templateId IN
+            <foreach collection="dto.templateIds" item="templateId" separator="," open="(" close=")">
+                #{templateId}
+            </foreach>
+        </if>
+        <if test="null != dto.devtTypes and dto.devtTypes.size() > 0">
             AND t.devt_type IN
-            <foreach collection="devtTypes" item="devtType" separator="," open="(" close=")">
+            <foreach collection="dto.devtTypes" item="devtType" separator="," open="(" close=")">
                 #{devtType}
             </foreach>
         </if>
-        <if test="null != designerIds and designerIds.size() > 0">
+        <if test="null != dto.designerIds and dto.designerIds.size() > 0">
             AND t.designer_id IN
-            <foreach collection="designerIds" item="designerId" separator="," open="(" close=")">
+            <foreach collection="dto.designerIds" item="designerId" separator="," open="(" close=")">
                 #{designerId}
             </foreach>
         </if>
-        <if test="null != patternDesignIds and patternDesignIds.size() > 0">
+        <if test="null != dto.patternDesignIds and dto.patternDesignIds.size() > 0">
             AND t.pattern_design_id IN
-            <foreach collection="patternDesignIds" item="patternDesignId" separator="," open="(" close=")">
+            <foreach collection="dto.patternDesignIds" item="patternDesignId" separator="," open="(" close=")">
                 #{patternDesignId}
             </foreach>
         </if>
-        <if test="null != brandIds and brandIds.size() > 0">
+        <if test="null != dto.brandIds and dto.brandIds.size() > 0">
             AND t.brand IN
-            <foreach collection="brandIds" item="brandId" separator="," open="(" close=")">
+            <foreach collection="dto.brandIds" item="brandId" separator="," open="(" close=")">
                 #{brandId}
             </foreach>
         </if>
 
-        <if test="null != planningSeasonIds and planningSeasonIds.size() > 0">
+        <if test="null != dto.planningSeasonIds and dto.planningSeasonIds.size() > 0">
             AND t.planning_season_id IN
-            <foreach collection="planningSeasonIds" item="planningSeasonId" separator="," open="(" close=")">
+            <foreach collection="dto.planningSeasonIds" item="planningSeasonId" separator="," open="(" close=")">
                 #{planningSeasonId}
             </foreach>
         </if>
 
-        <if test=" nodeCode == 'noNextDraft' ">
+        <if test=" dto.nodeCode == 'noNextDraft' ">
             AND t.noNextDraft is not null
             AND t.reviewedDraft is null
             AND t.nextDraft is null
             AND t.punchingCompleted is null
         </if>
-        <if test=" nodeCode == 'reviewedDraft' ">
+        <if test=" dto.nodeCode == 'reviewedDraft' ">
             AND t.noNextDraft is not null
             AND t.reviewedDraft is not null
             AND t.nextDraft is null
             AND t.punchingCompleted is null
         </if>
 
-        <if test=" nodeCode == 'nextDraft' ">
+        <if test=" dto.nodeCode == 'nextDraft' ">
             AND t.nextDraft is not null
             AND t.punchingCompleted is null
             AND t.sampleClothingCompleted is null
         </if>
 
-        <if test=" nodeCode == 'punchingCompleted' ">
+        <if test=" dto.nodeCode == 'punchingCompleted' ">
             AND t.punchingCompleted is not null
             AND t.sampleClothingCompleted is null
         </if>
 
-        <if test=" nodeCode == 'sampleClothingCompleted' ">
+        <if test=" dto.nodeCode == 'sampleClothingCompleted' ">
             AND t.sampleClothingCompleted is not null
             AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is  null
         </if>
 
-        <if test=" nodeCode == 'orderBookProduction' ">
+        <if test=" dto.nodeCode == 'orderBookProduction' ">
             AND IF( t.tempOrderBookProduction &lt; CURDATE(), t.tempOrderBookProduction, NULL ) is not null
             AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null)  is  null
         </if>
 
-        <if test=" nodeCode == 'bossStyle' ">
+        <if test=" dto.nodeCode == 'bossStyle' ">
             AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
+            AND t.businessEnterprises is null
         </if>
 
+        <if test=" dto.nodeCode == 'businessEnterprises' ">
+            AND IF(t.tempOrderBookProduction != '' , IF(DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY) &lt; CURDATE(),DATE_ADD(t.tempOrderBookProduction, INTERVAL 1 DAY), null)  ,null) is not null
+            AND t.businessEnterprises is not null
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
         ORDER BY t.create_date,t.designNo DESC
     </select>
     <select id="deriveList" resultType="com.base.sbc.module.patternmaking.vo.SampleBoardExcel">
@@ -854,5 +881,24 @@
         LEFT JOIN t_node_status ns9 ON ( ns9.data_id = p.id AND ns9.del_flag = '0' and ns9.node = '样衣任务' and ns9.`status` = '样衣完成')
         ${ew.customSqlSegment}
     </select>
+
+
+    <select id="sampleBoardScore" resultType="com.base.sbc.module.patternmaking.vo.PatternMakingScoreVo">
+        SELECT
+        sum(p.sample_making_score) as sampleMakingScoreSum,
+        sum(p.sample_making_quality_score) as sampleMakingQualityScoreSum,
+        sum(p.pattern_making_score) as patternMakingScoreSum
+        FROM
+        t_style s
+        LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )
+        where
+        p.del_flag = '0'
+        and s.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
+
 </mapper>
 

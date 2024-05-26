@@ -40,10 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -156,7 +153,12 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
         qw.notEmptyEq("c.channel", dto.getChannel());
         qw.notEmptyLike("c.sex", dto.getSex());
         qw.orderByDesc("id");
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningChannel.getK(), "s.");
+        //根据入参设置数据权限
+        if (StrUtil.isNotEmpty(dto.getBusinessType())) {
+            dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType(),"",new String[]{"c.brand","c.channel","create_dept"},true);
+        } else {
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningChannel.getK());
+        }
         Page<PlanningChannelVo> page = PageHelper.startPage(dto);
         List<PlanningChannelVo> list = getBaseMapper().list(qw);
         PageInfo<PlanningChannelVo> pageInfo = page.toPageInfo();
@@ -196,8 +198,8 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
         qw.groupBy("planning_season_id");
 
         Map<String, Long> result = new HashMap<>(16);
-        List<Map<String, Object>> listMap = getBaseMapper().selectMaps(qw);
-        List<CountVo> list = BeanUtil.copyToList(listMap, CountVo.class);
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningChannel.getK());
+        List<CountVo> list = getBaseMapper().selectIdCount(qw);
         if (CollUtil.isNotEmpty(list)) {
             for (CountVo countVo : list) {
                 result.put(countVo.getLabel(), countVo.getCount());

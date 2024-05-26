@@ -365,6 +365,8 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         scQw.in("fv.val", dValues);
         scQw.notNull("fv.val");
         scQw.notNull("fv.val_name");
+        //数据权限
+        dataPermissionsService.getDataPermissionsForQw(scQw, DataPermissionsBusinessTypeEnum.planningBoard.getK());
         List<DemandOrderSkcVo> demandOrderSkcVos = styleColorMapper.queryDemandOrderSkc(scQw);
         amcFeignService.setUserAvatarToList(demandOrderSkcVos);
         /*查询款式配色图*/

@@ -162,6 +162,10 @@ public class PatternMakingTaskListVo extends PatternMaking {
 
     private List<NodeStatusVo> nodeStatusList;
 
+    private String userId;
+
+    private String name;
+
     public Map<String, NodeStatusVo> getNodeStatus() {
         return Optional.ofNullable(nodeStatusList).map(ns -> {
             return ns.stream().collect(Collectors.toMap(k -> k.getNode() + StrUtil.DASHED + k.getStatus(), v -> v, (a, b) -> b));

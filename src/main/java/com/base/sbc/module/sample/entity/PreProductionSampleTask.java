@@ -322,6 +322,10 @@ public class PreProductionSampleTask extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "是否为旧数据")
     private String historicalData;
+
+    /** 创建部门 */
+    @ApiModelProperty(value = "创建部门"  )
+    private String createDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
