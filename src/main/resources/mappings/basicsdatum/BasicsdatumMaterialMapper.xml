@@ -297,6 +297,18 @@
 		</if>
 		FROM
 		t_basicsdatum_material tbm
+		LEFT JOIN t_basicsdatum_material_color tbmc on tbmc.material_code = tbm.material_code AND tbmc.company_code = tbm.company_code AND tbmc.del_flag='0'
+		LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'
+		LEFT JOIN t_escm_material_component_inspect_company temcic ON temcic.id = (
+		select id from t_escm_material_component_inspect_company  where materials_no = tbm.material_code ORDER BY YEAR DESC, validity_time DESC limit 1)
+		${ew.customSqlSegment}
+	</select>
+
+	<select id="getMaterialSkuList_COUNT" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
+		SELECT
+		count(*)
+		FROM
+		t_basicsdatum_material tbm
 		<where>
 			<if test="ew.hasAlias('tbmc')">
 				and EXISTS(select id from t_basicsdatum_material_color tbmc where
@@ -308,22 +320,15 @@
 				tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'
 				and ${ ew.getSqlByAlias('tbmp')})
 			</if>
+			<if test="ew.hasAlias('temcic')">
+				and EXISTS(select id from t_escm_material_component_inspect_company temcic where
+				temcic.materials_no = tbm.material_code AND temcic.del_flag='0'
+				and ${ ew.getSqlByAlias('temcic')})
+			</if>
 			<if test="ew.hasAlias('tbm')">
 				and ${ ew.getSqlByAlias('tbm')}
 			</if>
 		</where>
-	</select>
-
-	<select id="getMaterialSkuList_COUNT" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
-		SELECT
-		count(*)
-		FROM
-		t_basicsdatum_material tbm
-		LEFT JOIN t_basicsdatum_material_color tbmc on tbmc.material_code = tbm.material_code AND tbmc.company_code = tbm.company_code AND tbmc.del_flag='0'
-		LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'
-		LEFT JOIN t_escm_material_component_inspect_company temcic ON temcic.id = (
-		select id from t_escm_material_component_inspect_company  where materials_no = tbm.material_code ORDER BY YEAR DESC, validity_time DESC limit 1)
-		${ew.customSqlSegment}
 	</select>
 
 	<select id="getBasicsdatumMaterialAndStyleList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageAndStyleVo">
