@@ -32,6 +32,7 @@
         <if test="typeLikeStart!=null and typeLikeStart!=''">
             and a.type like CONCAT(#{typeLikeStart},'%')
         </if>
+        order by a.sort,a.id
     </select>
     <select id="findByQw" resultType="com.base.sbc.module.common.vo.AttachmentVo">
         select a.id,

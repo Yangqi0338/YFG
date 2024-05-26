@@ -18,6 +18,7 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.MdUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -326,6 +327,14 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
         }
         List<PackTechAttachmentVo> packTechAttachmentVos = BeanUtil.copyToList(attachmentVos, PackTechAttachmentVo.class);
         return packTechAttachmentVos;
+    }
+
+    /**
+     * @param attachmentList
+     */
+    @Override
+    public void picListSort(List<Attachment> attachmentList) {
+        attachmentService.updateBatchById(attachmentList);
     }
 
     @Override
