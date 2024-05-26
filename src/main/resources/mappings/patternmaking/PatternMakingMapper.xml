@@ -202,7 +202,6 @@
             p.sgl_kitting,
             p.kitting_reason,
             p.stitcher_remark,
-            p.kitting_reason,
             p.stitcher,
             s.technician_name,
             p.pattern_technician_name,
