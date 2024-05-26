@@ -11,8 +11,6 @@ import java.nio.charset.StandardCharsets;
 @Configuration
 @RequiredArgsConstructor
 public class RestTemplateConfiguration {
-
-    private final RequestLoggingInterceptor requestLoggingInterceptor;
 //    @Bean
 //    public RestTemplateCustomizer restTemplateCustomizer() {
 //        return restTemplate -> {
@@ -25,7 +23,13 @@ public class RestTemplateConfiguration {
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().set(1,new StringHttpMessageConverter(StandardCharsets.UTF_8));
-        restTemplate.getInterceptors().add(requestLoggingInterceptor);
         return restTemplate;
+    }
+
+    @Bean
+    public RequestLoggingInterceptor requestLoggingInterceptor(RestTemplate restTemplate) {
+        RequestLoggingInterceptor interceptor = new RequestLoggingInterceptor(restTemplate.getMessageConverters());
+        restTemplate.getInterceptors().add(interceptor);
+        return interceptor;
     }
 }

@@ -221,6 +221,14 @@ public interface AmcService {
     @GetMapping("/amc/api/token/user/getUserByUserId")
     public String getUserByUserId( @RequestParam("userId") String userId);
 
+    /**
+     * 查询用户
+     * @param userId
+     * @return
+     */
+    @GetMapping("/amc/api/token/user/getUserByUserIds")
+    public String getUserByUserIds( @RequestParam("userIds") String userIds);
+
 
     /**
      * 根据用户Id查询用户组id集合

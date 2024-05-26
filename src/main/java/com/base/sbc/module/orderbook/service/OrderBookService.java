@@ -6,6 +6,7 @@ import com.base.sbc.module.orderbook.dto.OrderBookQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.vo.OrderBookVo;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageInfo;
 
 import javax.servlet.http.HttpServletResponse;
@@ -37,4 +38,6 @@ public interface OrderBookService extends BaseService<OrderBook> {
      * @return
      */
     OrderBook saveOrderBook(OrderBookSaveDto dto);
+
+    List<YearSeasonBandVo> queryYearBrandTreeOrderBook(List<YearSeasonBandVo> yearSeasonBandVos);
 }

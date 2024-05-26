@@ -17,6 +17,8 @@ public enum CcmBaseSettingEnum {
     MATERIAL_CREATE_PURCHASEDEMAND("MATERIAL_CREATE_PURCHASEDEMAND","笛莎物料清单转仓库配置项"),
     COMMODITY_PLANNING_SELECT_BAND_ALL("COMMODITY_PLANNING_SELECT_BAND_ALL","商品企划-编辑坑位是否选择所有的波段"),
     PATTERN_MAKING_SAMPLE_CROPPING_SWITCH("PATTERN_MAKING_SAMPLE_CROPPING_SWITCH","打版管理-样衣任务-裁剪页面是否显示"),
+    HANG_TAG_INGREDIENT_WRAP("dpppcfxxmrhh","吊牌品牌成分信息默认换行"),
+    HANG_TAG_WARM_TIPS_WRAP("dpppwxtsmrhh","吊牌品牌温馨提示默认换行"),
     ;
     private final String keyCode;
 

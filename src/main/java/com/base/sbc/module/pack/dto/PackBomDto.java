@@ -1,5 +1,6 @@
 package com.base.sbc.module.pack.dto;
 
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomColor;
 import io.swagger.annotations.ApiModel;
@@ -41,6 +42,7 @@ public class PackBomDto extends PackBom {
     @ApiModelProperty(value = "替换之前的搭配")
     private String replaceCollocationName;
 
-
+    @ApiModelProperty(value = "是否拷贝")
+    private YesOrNoEnum copy;
 
 }

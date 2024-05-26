@@ -12,7 +12,6 @@ import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -84,12 +83,12 @@ public class OpenSmpController extends BaseController {
 
     private final CcmService ccmService;
 
+    private final BasicsdatumGarmentInspectionService garmentInspectionService;
     private final OrderBookService orderBookService;
 
     private final OrderBookDetailService orderBookDetailService;
     private final PlanningSeasonService planningSeasonService;
 
-    private final BasicsdatumGarmentInspectionService garmentInspectionService;
 
     /**
      * bp供应商
@@ -136,7 +135,12 @@ public class OpenSmpController extends BaseController {
         smpDept.preInsert();
         smpDept.setCreateName("smp请求");
         smpDept.setUpdateName("smp请求");
-        amcService.hrDeptSave(smpDept);
+        if (smpDept != null) {
+            String depGroup = smpDept.getDepGroup();
+            if (!"终端办公室".equals(depGroup) && !"终端店铺".equals(depGroup) && !"终端管理".equals(depGroup) && !"托管店铺".equals(depGroup) ) {
+                amcService.hrDeptSave(smpDept);
+            }
+        }
         return insertSuccess(null);
     }
 
@@ -349,7 +353,7 @@ public class OpenSmpController extends BaseController {
         orderBookDetailQueryWrapper.eq("order_book_id", orderBookId);
         OrderBook orderBook = orderBookService.getById(orderBookId);
         if (orderBook != null) {
-            List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(orderBookDetailQueryWrapper, 1);
+            List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(orderBookDetailQueryWrapper, 0, 1);
             List<OrderBookDetailDataVo> orderBookDetailDataVos = BeanUtil.copyToList(querylist, OrderBookDetailDataVo.class);
             PlanningSeason planningSeason = planningSeasonService.getById(orderBook.getSeasonId());
             if (planningSeason != null) {

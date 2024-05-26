@@ -78,6 +78,13 @@
         select ${ew.sqlSelect} from t_style sd
         where
         sd.del_flag ='0'
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
         and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
         and sd.band_code is not null and sd.band_code &lt;&gt; ''
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
@@ -86,24 +93,36 @@
     </select>
     <select id="categoryBandSummary" resultType="com.base.sbc.module.planning.vo.PlanningSummaryDetailVo">
         SELECT
-        id,
-        prod_category_name,
-        design_no,
-        his_design_no,
-        price,
-        seasonal,
-        style_pic,
-        continuation_point,
-        designer,
-        designer_id,
-        band_name,
-        style_no
+        sd.id,
+        sd.prod_category_name,
+        sd.design_no,
+        sd.his_design_no,
+        sd.price,
+        sd.seasonal,
+        sd.style_pic,
+        sd.continuation_point,
+        sd.designer,
+        sd.designer_id,
+        sd.band_name,
+        sd.style_no,
+        sd.planning_season_id,
+        sd.plate_positioning_name,
+        sd.technician_name,
+        sd.dev_class_name,
+        sd.devt_type_name,
+        sd.registering_no
         FROM
-
         t_style sd
         WHERE
         sd.del_flag = '0'
         AND sd.del_flag = '0'
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
         and sd.prod_category is not null and sd.prod_category &lt;&gt; ''
         and sd.band_code is not null and sd.band_code &lt;&gt; ''
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
@@ -112,10 +131,11 @@
     </select>
     <select id="categorySummary" resultType="com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo">
         SELECT
-        prod_category1st,
-        prod_category,
-        prod_category2nd,
-        count( 1 ) skc
+        sd.prod_category1st,
+        sd.prod_category,
+        sd.prod_category2nd,
+        count( 1 ) skc,
+        count( sd.STATUS = 2 or null) scriptedNum
         FROM
         t_style sd
         LEFT JOIN t_style_color c ON ( sd.id = c.style_id )
@@ -124,6 +144,13 @@
         and prod_category1st is not null and prod_category1st!=''
         and prod_category is not null and prod_category!=''
         and prod_category2nd is not null and prod_category2nd!=''
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -138,12 +165,41 @@
     </select>
     <select id="colorCount" resultType="java.lang.Long">
         SELECT
-        count( 1 ) skc
+        count(sd.id) num
         FROM
         t_style sd
-        left join t_style_color c on(sd.id = c.style_id and c.del_flag ='0')
+        LEFT JOIN t_pattern_making p ON ( sd.id = p.style_id ) and p.del_flag = 0 and p.disable_flag = 0 and p.sample_type = "初版样"
         WHERE
         sd.del_flag ='0'
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
+
+    <select id="colorCountStyle" resultType="java.lang.Long">
+        SELECT
+        count(sd.id) num
+        FROM
+        t_style sd
+        WHERE
+        sd.del_flag ='0'
+        and sd.enable_status = '0'
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            and exists(select 1 from t_field_val tfv where tfv.foreign_id = sd.id and tfv.del_flag = '0' and
+            tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
@@ -175,6 +231,28 @@
           and company_code = #{companyCode}
     </select>
 
+    <select id="queryStyleField" resultType="com.base.sbc.module.style.vo.StyleDimensionVO">
+        SELECT DISTINCT
+        ts.id as styleId,
+        ts.prod_category1st as prodCategory1st,
+        ts.prod_category1st_name as prodCategory1stName,
+        ts.prod_category as prodCategory,
+        ts.prod_category_name as prodCategoryName,
+        ts.prod_category2nd as prodCategory2nd,
+        ts.prod_category2nd_name as prodCategory2ndName,
+        ts.band_code as bandCode,
+        ts.band_name as bandName,
+        tfv.field_id as fieldId,
+        tfv.field_explain as fieldExplain,
+        tfv.val as styleCode,
+        tfv.val_name as styleName
+        FROM t_style ts
+        LEFT JOIN t_field_val tfv ON ts.id = tfv.foreign_id AND ts.del_flag='0'
+        WHERE ts.del_flag='0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>

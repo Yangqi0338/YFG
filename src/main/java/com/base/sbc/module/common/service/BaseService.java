@@ -33,6 +33,15 @@ public interface BaseService<T> extends IService<T> {
      */
     List<T> listByField(String fieldName, Collection<?> list);
 
+    /**
+     * 跟据字段名称和字段集合查询列表
+     * @param fieldName 字段名称
+     * @param list     数据集合
+     * @return 查询结果
+     */
+    List<T> listByField(String fieldName, String list);
+
+
 
     /**
      * 跟据字段名称和字段查询一条数据
@@ -185,4 +194,5 @@ public interface BaseService<T> extends IService<T> {
         return null;
     }
     <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
+    <R> List<R> groupOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 }

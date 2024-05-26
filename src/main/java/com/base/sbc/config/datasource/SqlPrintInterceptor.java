@@ -1,14 +1,21 @@
 package com.base.sbc.config.datasource;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.annotation.DataIsolation;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.SqlProperties;
+import com.base.sbc.config.redis.RedisKeyBuilder;
+import com.base.sbc.config.redis.RedisKeyConstant;
+import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.SpringContextHolder;
 import com.base.sbc.module.httplog.entity.HttpLog;
+import com.base.sbc.module.pushrecords.entity.PushRecords;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -61,6 +68,9 @@ public class SqlPrintInterceptor implements Interceptor {
     @Resource
     private HttpServletRequest httpServletRequest;
 
+    @Resource
+    private SqlProperties sqlProperties;
+
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         long start = System.currentTimeMillis();
@@ -82,16 +92,26 @@ public class SqlPrintInterceptor implements Interceptor {
                 getAuthoritySql( boundSql, statementId, mappedStatement, sql,sqlCommandType);
             }
         }catch (Exception e){
-            logger.error("无法数据隔离");
+            List<Object> jobThreadIdList = RedisStaticFunUtils.lGet(RedisKeyConstant.JOB_THREAD_ID.build());
+            String id = Thread.currentThread().getId() + "";
+            if (CollUtil.isEmpty(jobThreadIdList) || jobThreadIdList.stream().noneMatch(it-> it.toString().equals(id))){
+                logger.error("无法数据隔离");
+            }
         }
 
 
         Configuration configuration = mappedStatement.getConfiguration();
-        Object parameterObject;
 
-        parameterObject = boundSql.getParameterObject();
+        Object parameterObject = boundSql.getParameterObject();
         String sql1 = getSql(boundSql, parameterObject, configuration);
         Object proceed = invocation.proceed();
+        if (sqlProperties.getExcludePrintList().contains(sql1)) {
+            return proceed;
+        }
+        // 如果是一些记录类的,如请求日志,推送日志等就不记录了
+        if (StrUtil.contains(sql1,"t_http_log") || StrUtil.contains(sql1,"t_push_record")) {
+            return proceed;
+        }
 
         long end = System.currentTimeMillis();
         long timing = end - start;

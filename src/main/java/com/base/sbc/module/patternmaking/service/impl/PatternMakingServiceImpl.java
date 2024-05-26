@@ -1453,14 +1453,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
 
-        //region 导出去掉设计师编码
-        excelList.forEach(item->{
-            if (StrUtil.isNotEmpty(item.getDesigner())) {
-                item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
-            }
-        });
-        //endregion
-
         /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
@@ -1659,6 +1651,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         byId.setSampleBarCode(dto.getSampleBarCode());
         byId.setSglKittingDate(new Date());
         byId.setStitcherRemark(dto.getStitcherRemark());
+        byId.setKittingReason(dto.getKittingReason());
         // 分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
         updateById(byId);

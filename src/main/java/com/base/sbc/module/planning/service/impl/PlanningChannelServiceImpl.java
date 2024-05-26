@@ -79,6 +79,15 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
             if (planningSeason == null) {
                 throw new OtherException("产品季信息为空");
             }
+
+            QueryWrapper<PlanningChannel> queryWrapper =new QueryWrapper<>();
+            queryWrapper.eq("planning_season_id",dto.getPlanningSeasonId());
+            queryWrapper.eq("channel",dto.getChannel());
+            long count = this.count(queryWrapper);
+            if(count>0){
+                throw new OtherException("该渠道已存在");
+            }
+
             PlanningChannel planningChannel = BeanUtil.copyProperties(dto, PlanningChannel.class);
             BeanUtil.copyProperties(planningSeason, planningChannel);
             CommonUtils.resetCreateUpdate(planningChannel);
@@ -92,6 +101,16 @@ public class PlanningChannelServiceImpl extends BaseServiceImpl<PlanningChannelM
             if (planningChannel == null) {
                 throw new OtherException(BaseErrorEnum.ERR_UPDATE_DATA_NOT_FOUND);
             }
+
+            QueryWrapper<PlanningChannel> queryWrapper =new QueryWrapper<>();
+            queryWrapper.eq("planning_season_id",dto.getPlanningSeasonId());
+            queryWrapper.eq("channel",dto.getChannel());
+            queryWrapper.ne("id",dto.getId());
+            long count = this.count(queryWrapper);
+            if(count>0){
+                throw new OtherException("该渠道已存在");
+            }
+
             planningChannel.setChannel(dto.getChannel());
             planningChannel.setChannelName(dto.getChannelName());
             planningChannel.setSex(dto.getSex());

@@ -32,6 +32,25 @@
         </if>
 
     </select>
+
+
+    <select id="supplierAbbreviation" resultType="java.lang.String">
+        SELECT
+        p.material_code
+        FROM
+        t_basicsdatum_material_price p
+        LEFT JOIN t_basicsdatum_supplier bm ON ( p.supplier_id = bm.supplier_code )
+        WHERE
+        p.select_flag = '1'
+        AND p.del_flag = '0'
+        AND p.`status` = '0'
+        AND p.status = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 
 

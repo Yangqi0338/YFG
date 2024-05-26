@@ -17,6 +17,7 @@ import com.base.sbc.module.sample.vo.StyleUploadVo;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.vo.ChartBarVo;
 import com.base.sbc.module.style.vo.StyleBoardCategorySummaryVo;
+import com.base.sbc.module.style.vo.StyleDimensionVO;
 import com.base.sbc.module.style.vo.StylePageVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -52,13 +53,15 @@ public interface StyleMapper extends BaseMapper<Style> {
      **/
     List<PatternMakingForSampleVo> getAllList(String status);
 
-    List<DimensionTotalVo> dimensionTotal(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<DimensionTotalVo> dimensionTotal(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
-    List<PlanningSummaryDetailVo> categoryBandSummary(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<PlanningSummaryDetailVo> categoryBandSummary(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
-    List<StyleBoardCategorySummaryVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<StyleBoardCategorySummaryVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
-    Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw);
+    Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
+
+   Long colorCountStyle(@Param(Constants.WRAPPER) QueryWrapper prsQw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
     String selectMaxDesignNo(@Param(Constants.WRAPPER) QueryWrapper qc);
 
@@ -84,5 +87,7 @@ public interface StyleMapper extends BaseMapper<Style> {
             @Param("category") String category,
             @Param("pxLength") int pxLength,
             @Param("length") int length);
+
+    List<StyleDimensionVO> queryStyleField(@Param(Constants.WRAPPER) QueryWrapper qw);
 }
 

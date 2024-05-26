@@ -18,6 +18,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Opt;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -51,6 +53,7 @@ import com.base.sbc.module.moreLanguage.dto.EasyPoiMapExportParam;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExcelQueryDto;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageExportBaseDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageStatusExcelTemplateDTO;
 import com.base.sbc.module.moreLanguage.dto.MoreLanguageTableTitle;
 import com.base.sbc.module.moreLanguage.entity.CountryLanguage;
 import com.base.sbc.module.moreLanguage.entity.StandardColumnCountryTranslate;
@@ -79,6 +82,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,8 +103,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static com.base.sbc.config.constant.Constants.COMMA;
@@ -302,14 +308,7 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                     exportBaseDTO.setExcelCode(singleLanguageFlag == YesOrNoEnum.YES ? baseCountryLanguage.getLanguageCode() : code);
 
                     // 添加map默认表头,否则无法支持导入
-                    // 直接在ExcelExportService拷出来的
-                    Class<MoreLanguageExportBaseDTO> pojoClass = MoreLanguageExportBaseDTO.class;
-                    Field[] fileds = PoiPublicUtil.getClassFields(pojoClass);
-                    ExcelTarget etarget = pojoClass.getAnnotation(ExcelTarget.class);
-                    String targetId = etarget == null ? null : etarget.value();
-
-                    // poi源代码,将基础类各个属性转为ExcelPoi的导出实体并添加到处理列表 (!!)
-                    ExcelUtils.getAllExcelField(params.getExclusions(), targetId, fileds, beanList, pojoClass, null, null);
+                    beanList.addAll(buildExportEntityListByClass(MoreLanguageExportBaseDTO.class));
 
                     // 获取列表数据
                     MoreLanguageQueryDto moreLanguageQueryDto = BeanUtil.copyProperties(languageQueryDto, MoreLanguageQueryDto.class);
@@ -336,90 +335,9 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
 
         /* ----------------------------处理导出以及样式调整---------------------------- */
 
-        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setCharacterEncoding("utf-8");
-
-        // 这里URLEncoder.encode可以防止中文乱码
-        String fileName = URLEncoder.encode(
-                String.format("(%s)吊牌&洗唛多语言-%s.xlsx",
-                        (baseCountryLanguage.getName()),
-                        System.currentTimeMillis()),"UTF-8").replaceAll("\\+", "%20");
-
-        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
-
-        Workbook workbook = null;
-        try (OutputStream out = response.getOutputStream();
-             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-             ) {
-            if (CollectionUtil.isNotEmpty(exportParams)) {
-                // 遍历每个sheet的导出实体
-                for (EasyPoiMapExportParam exportParam : exportParams) {
-                    ExportParams title = exportParam.getTitle();
-                    if (workbook == null) {
-                        // 初始化并创建第一个自定义表头的sheet
-                        workbook = ExcelExportUtil.exportExcel(title, exportParam.getEntity(), exportParam.getData());
-                    } else {
-                        // 创建自定义表头的sheet
-                        excelExportService.createSheetForMap(workbook, title, exportParam.getEntity(), exportParam.getData());
-                    }
-
-                    Sheet sheet = workbook.getSheet(title.getSheetName());
-
-                    // 修正表头高度
-                    Row titleRow = sheet.getRow(0);
-                    titleRow.setHeightInPoints(80);
-                    // 修正表头样式
-                    CellStyle titleStyle = workbook.createCellStyle();
-                    titleStyle.setAlignment(HorizontalAlignment.LEFT);
-                    titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-                    titleStyle.setWrapText(false);
-                    titleRow.setRowStyle(titleStyle);
-
-                    // 若需要处理空白缺失
-                    if (lackHandler) {
-                        // 获取需要处理的列
-                        List<Integer> lackCheckCellNumList = sheetBlankCellNumMap.get(sheet.getSheetName());
-                        if (CollectionUtil.isNotEmpty(lackCheckCellNumList)) {
-                            int rowCount = sheet.getLastRowNum();
-                            // 从第三行开始遍历，跳过表头
-                            for (int i = MoreLanguageProperties.excelDataRowNum; i <= rowCount; i++) {
-                                Row row = sheet.getRow(i);
-                                if (row != null) {
-                                    int cellCount = row.getLastCellNum();
-                                    // 判断翻译是否为空
-                                    boolean needHandlerLack = lackCheckCellNumList.stream()
-                                            .anyMatch(cellNum -> StrUtil.isBlank(row.getCell(cellNum).getStringCellValue()));
-                                    for (int j = 0; j < cellCount; j++) {
-                                        if (needHandlerLack) {
-                                            // 为空,将整段样式改为红色字体
-                                            Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                                            CellStyle cellStyle = workbook.createCellStyle();
-                                            cellStyle.cloneStyleFrom(cell.getCellStyle());
-                                            Font font = workbook.createFont();
-                                            font.setColor(IndexedColors.RED.getIndex());
-                                            cellStyle.setFont(font);
-                                            cell.setCellStyle(cellStyle);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-//                    CellStyle cellStyle = workbook.createCellStyle();
-//                    cellStyle.setAlignment(HorizontalAlignment.LEFT);
-//                    sheet.setDefaultColumnStyle(0, cellStyle);
-                }
-
-                workbook.write(baos);
-                response.setHeader("Content-Length", String.valueOf(baos.size()));
-                out.write( baos.toByteArray() );
-            }
-        }finally {
-            if (workbook != null) {
-                workbook.close();
-            }
-        }
+        buildMapSheet(String.format("(%s)吊牌&洗唛多语言-%s.xlsx", baseCountryLanguage.getName(), System.currentTimeMillis()),
+                exportParams, sheetBlankCellNumMap
+        );
     }
 
     @Override
@@ -631,115 +549,95 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
         return result;
     }
 
+    @SneakyThrows
     @Override
-    public void exportMergeExcel(String bulkStyleNoList) {
+    public void exportMergeExcel(HangTagMoreLanguageDTO moreLanguageDTO) {
+        moreLanguageDTO.setSource(SystemSource.PDM);
+        moreLanguageDTO.setSingleLanguageFlag(YesOrNoEnum.YES);
+
         List<BasicBaseDict> dictList = ccmFeignService.getDictInfoToList(MoreLanguageProperties.languageDictCode);
+        // 中文排第一个
+        dictList.sort((a,b)-> {
+            if (MoreLanguageProperties.checkInternal(a.getValue())) return -1;
+            if (MoreLanguageProperties.checkInternal(b.getValue())) return 1;
+            return a.getValue().compareTo(b.getValue());
+        });
 
         // 获取每个对应语言和号型的国家
-        List<CountryLanguage> list = countryLanguageService.list(new BaseLambdaQueryWrapper<CountryLanguage>()
+        List<CountryLanguageDto> list = MORE_LANGUAGE_CV.copyList2Dto(countryLanguageService.list(new BaseLambdaQueryWrapper<CountryLanguage>()
                 .in(languageCodeFunc, dictList.stream().map(BasicBaseDict::getValue).collect(Collectors.toList()))
                 .eq(singleLanguageFlagFunc, YesOrNoEnum.YES)
-        );
+        ));
 
+        List<String> codeList = new ArrayList<>();
         dictList.forEach(dict -> {
             CountryLanguage countryLanguage = list.stream().filter(it -> it.getLanguageCode().equals(dict.getValue()))
                     .findFirst().orElseThrow(() -> new OtherException("请维护" + dict.getName() + "的单语言翻译"));
+            codeList.add(countryLanguage.getCode());
+        });
+        moreLanguageDTO.setCode(String.join(COMMA,codeList));
+        Map<StandardColumnType, List<HangTagMoreLanguageWebBaseVO>> resultMap = (Map<StandardColumnType, List<HangTagMoreLanguageWebBaseVO>>)
+                hangTagService.getMoreLanguageDetailsByBulkStyleNo(moreLanguageDTO);
 
-            HangTagMoreLanguageDTO moreLanguageDTO = new HangTagMoreLanguageDTO();
-            moreLanguageDTO.setSource(SystemSource.PDM);
-            moreLanguageDTO.setBulkStyleNo(bulkStyleNoList);
-            moreLanguageDTO.setCode(countryLanguage.getCode());
-            moreLanguageDTO.setSingleLanguageFlag(YesOrNoEnum.YES);
-            List<HangTagMoreLanguageWebBaseVO> resultList = (List<HangTagMoreLanguageWebBaseVO>) hangTagService.getMoreLanguageDetailsByBulkStyleNo(moreLanguageDTO);
-            System.out.println(resultList);
+        EasyPoiMapExportParam exportParam = new EasyPoiMapExportParam();
+        ExportParams params = new ExportParams("全语言翻译", "全语言翻译", ExcelType.XSSF);
+        exportParam.setTitle(params);
+
+        // 封装excel的字段
+        List<ExcelExportEntity> beanList = new ArrayList<>(buildExportEntityListByClass(MoreLanguageStatusExcelTemplateDTO.class));
+        exportParam.setEntity(beanList);
+        int dynamicExportEntityStartIndex = beanList.size();
+        dictList.forEach(languageDict -> {
+            ExcelExportEntity exportEntity = new ExcelExportEntity(languageDict.getName(), languageDict.getValue());
+            exportEntity.setWidth(100);
+            beanList.add(exportEntity);
         });
 
-//        /* ----------------------------处理导出以及样式调整---------------------------- */
-//
-//        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-//        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//        response.setCharacterEncoding("utf-8");
-//
-//        // 这里URLEncoder.encode可以防止中文乱码
-//        String fileName = URLEncoder.encode(
-//                String.format("(%s)吊牌&洗唛多语言-%s.xlsx",
-//                        (baseCountryLanguage.getName()),
-//                        System.currentTimeMillis()),"UTF-8").replaceAll("\\+", "%20");
-//
-//        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
-//
-//        Workbook workbook = null;
-//        try (OutputStream out = response.getOutputStream();
-//             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        ) {
-//            if (CollectionUtil.isNotEmpty(exportParams)) {
-//                // 遍历每个sheet的导出实体
-//                for (EasyPoiMapExportParam exportParam : exportParams) {
-//                    ExportParams title = exportParam.getTitle();
-//                    if (workbook == null) {
-//                        // 初始化并创建第一个自定义表头的sheet
-//                        workbook = ExcelExportUtil.exportExcel(title, exportParam.getEntity(), exportParam.getData());
-//                    } else {
-//                        // 创建自定义表头的sheet
-//                        excelExportService.createSheetForMap(workbook, title, exportParam.getEntity(), exportParam.getData());
-//                    }
-//
-//                    Sheet sheet = workbook.getSheet(title.getSheetName());
-//
-//                    // 修正表头高度
-//                    Row titleRow = sheet.getRow(0);
-//                    titleRow.setHeightInPoints(80);
-//                    // 修正表头样式
-//                    CellStyle titleStyle = workbook.createCellStyle();
-//                    titleStyle.setAlignment(HorizontalAlignment.LEFT);
-//                    titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-//                    titleStyle.setWrapText(false);
-//                    titleRow.setRowStyle(titleStyle);
-//
-//                    // 若需要处理空白缺失
-//                    if (lackHandler) {
-//                        // 获取需要处理的列
-//                        List<Integer> lackCheckCellNumList = sheetBlankCellNumMap.get(sheet.getSheetName());
-//                        if (CollectionUtil.isNotEmpty(lackCheckCellNumList)) {
-//                            int rowCount = sheet.getLastRowNum();
-//                            // 从第三行开始遍历，跳过表头
-//                            for (int i = MoreLanguageProperties.excelDataRowNum; i <= rowCount; i++) {
-//                                Row row = sheet.getRow(i);
-//                                if (row != null) {
-//                                    int cellCount = row.getLastCellNum();
-//                                    // 判断翻译是否为空
-//                                    boolean needHandlerLack = lackCheckCellNumList.stream()
-//                                            .anyMatch(cellNum -> StrUtil.isBlank(row.getCell(cellNum).getStringCellValue()));
-//                                    for (int j = 0; j < cellCount; j++) {
-//                                        if (needHandlerLack) {
-//                                            // 为空,将整段样式改为红色字体
-//                                            Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-//                                            CellStyle cellStyle = workbook.createCellStyle();
-//                                            cellStyle.cloneStyleFrom(cell.getCellStyle());
-//                                            Font font = workbook.createFont();
-//                                            font.setColor(IndexedColors.RED.getIndex());
-//                                            cellStyle.setFont(font);
-//                                            cell.setCellStyle(cellStyle);
-//                                        }
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-////                    CellStyle cellStyle = workbook.createCellStyle();
-////                    cellStyle.setAlignment(HorizontalAlignment.LEFT);
-////                    sheet.setDefaultColumnStyle(0, cellStyle);
-//                }
-//
-//                workbook.write(baos);
-//                response.setHeader("Content-Length", String.valueOf(baos.size()));
-//                out.write( baos.toByteArray() );
-//            }
-//        }finally {
-//            if (workbook != null) {
-//                workbook.close();
-//            }
-//        }
+        List<Map<String, Object>> mapList = new ArrayList<>();
+        exportParam.setData(mapList);
+        StrUtil.split(moreLanguageDTO.getBulkStyleNo(), COMMA).forEach(bulkStyleNo-> {
+            MoreLanguageStatusExcelTemplateDTO excelTemplateDTO = new MoreLanguageStatusExcelTemplateDTO();
+            excelTemplateDTO.setBulkStyleNo(bulkStyleNo);
+            resultMap.forEach((countryLanguageType, sameTypeList) -> {
+                sameTypeList.stream().filter(it-> it.getBulkStyleNo().equals(bulkStyleNo))
+                        .collect(Collectors.groupingBy(HangTagMoreLanguageWebBaseVO::getStandardColumnCode)).forEach((standardColumnCode, sameStandardList)-> {
+                            Map<String, Object> map = BeanUtil.beanToMap(excelTemplateDTO);
+                            mapList.add(map);
+                            dictList.forEach(languageDict -> {
+                                String languageCode = languageDict.getValue();
+                                String content = "";
+                                if (MoreLanguageProperties.checkInternal(languageCode)) {
+                                    content = sameStandardList.get(0).getSourceContent();
+                                } else {
+                                    Optional<HangTagMoreLanguageWebBaseVO> webBaseVOOpt = sameStandardList.stream()
+                                            .filter(webBaseVO -> webBaseVO.getLanguageList().stream().anyMatch(it -> it.getLanguageCode().equals(languageCode)))
+                                            .findFirst();
+                                    if (webBaseVOOpt.isPresent()) {
+                                        content = webBaseVOOpt.get().getContent().getOrDefault(languageCode, "");
+                                    }
+                                }
+                                map.put(languageCode, content);
+                            });
+                        });
+            });
+        });
+
+        /* ----------------------------处理导出以及样式调整---------------------------- */
+
+        buildMapSheet(String.format("吊牌&洗唛多语言翻译导出-%s.xlsx", System.currentTimeMillis()), Collections.singletonList(exportParam),
+                MapUtil.of(params.getSheetName(),IntStream.range(dynamicExportEntityStartIndex, beanList.size()).boxed().collect(Collectors.toList())));
+    }
+
+    private List<ExcelExportEntity> buildExportEntityListByClass(Class<?> clazz){
+        List<ExcelExportEntity> beanList = new ArrayList<>();
+        Field[] fileds = PoiPublicUtil.getClassFields(clazz);
+        ExcelTarget etarget = clazz.getAnnotation(ExcelTarget.class);
+        String targetId = etarget == null ? null : etarget.value();
+
+        // 直接在ExcelExportService拷出来的
+        // poi源代码,将基础类各个属性转为ExcelPoi的导出实体并添加到处理列表 (!!)
+        ExcelUtils.getAllExcelField(new String[] {}, targetId, fileds, beanList, clazz, null, null);
+        return beanList;
     }
 
     private <T extends Comparable<? super T>> String findUniqueCode(List<MoreLanguageTableTitle> tableTitleList, SFunction<MoreLanguageTableTitle, T> keyFunc, Integer defaultIndex){
@@ -748,6 +646,93 @@ public class MoreLanguageServiceImpl implements MoreLanguageService {
                         .map(MoreLanguageTableTitle::getCode)
                         .collect(Collectors.joining("-"))
         ).orElse(tableTitleList.get(defaultIndex).getCode());
+    }
+
+    @SneakyThrows
+    private void buildMapSheet(String fileName, List<EasyPoiMapExportParam> exportParams, Map<String, List<Integer>> sheetBlankCellNumMap){
+        if (CollectionUtil.isEmpty(exportParams)) return;
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("utf-8");
+
+        // 这里URLEncoder.encode可以防止中文乱码
+        fileName = URLEncoder.encode(fileName,"UTF-8").replaceAll("\\+", "%20");
+
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName);
+        Workbook workbook = null;
+        ExcelExportService excelExportService = new ExcelExportService();
+        try (OutputStream out = response.getOutputStream();
+             ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ) {
+            // 遍历每个sheet的导出实体
+            for (EasyPoiMapExportParam exportParam : exportParams) {
+                ExportParams title = exportParam.getTitle();
+                if (workbook == null) {
+                    // 初始化并创建第一个自定义表头的sheet
+                    workbook = ExcelExportUtil.exportExcel(title, exportParam.getEntity(), exportParam.getData());
+                } else {
+                    // 创建自定义表头的sheet
+                    excelExportService.createSheetForMap(workbook, title, exportParam.getEntity(), exportParam.getData());
+                }
+
+                Sheet sheet = workbook.getSheet(title.getSheetName());
+
+                // 修正表头高度
+                Row titleRow = sheet.getRow(0);
+                titleRow.setHeightInPoints(80);
+                // 修正表头样式
+                CellStyle titleStyle = workbook.createCellStyle();
+                titleStyle.setAlignment(HorizontalAlignment.LEFT);
+                titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+                titleStyle.setWrapText(false);
+                titleRow.setRowStyle(titleStyle);
+
+                // 获取需要处理的列
+                List<Integer> lackCheckCellNumList = sheetBlankCellNumMap.getOrDefault(sheet.getSheetName(), new ArrayList<>());
+                int rowCount = sheet.getLastRowNum();
+                // 从第三行开始遍历，跳过表头
+                for (int i = MoreLanguageProperties.excelDataRowNum; i <= rowCount; i++) {
+                    Row row = sheet.getRow(i);
+                    if (row != null) {
+                        int cellCount = row.getLastCellNum();
+                        // 判断翻译是否为空
+                        boolean needHandlerLack = lackCheckCellNumList.stream()
+                                .anyMatch(cellNum -> StrUtil.isBlank(row.getCell(cellNum).getStringCellValue()));
+                        for (int j = 0; j < cellCount; j++) {
+                            Cell cell = row.getCell(j, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
+                            CellStyle cellStyle = workbook.createCellStyle();
+                            cellStyle.cloneStyleFrom(cell.getCellStyle());
+                            Font font = workbook.createFont();
+                            if (needHandlerLack) {
+                                // 为空,将整段样式改为红色字体
+                                font.setColor(IndexedColors.RED.getIndex());
+                            }
+                            String stringCellValue = cell.getStringCellValue();
+                            if (StrUtil.isNotBlank(stringCellValue) && stringCellValue.contains("\n")) {
+                                cell.setCellValue(new XSSFRichTextString(stringCellValue));
+                                cellStyle.setWrapText(true);
+                                row.setHeight((short) -1);
+                            }
+                            cellStyle.setFont(font);
+                            cell.setCellStyle(cellStyle);
+                        }
+                    }
+                }
+
+//                    CellStyle cellStyle = workbook.createCellStyle();
+//                    cellStyle.setAlignment(HorizontalAlignment.LEFT);
+//                    sheet.setDefaultColumnStyle(0, cellStyle);
+            }
+
+            workbook.write(baos);
+            response.setHeader("Content-Length", String.valueOf(baos.size()));
+            out.write( baos.toByteArray() );
+
+        }finally {
+            if (workbook != null) {
+                workbook.close();
+            }
+        }
     }
 
 // 自定义方法区 不替换的区域【other_end】

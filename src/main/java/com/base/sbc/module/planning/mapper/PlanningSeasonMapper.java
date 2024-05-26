@@ -27,8 +27,7 @@ import java.util.List;
 @Mapper
 public interface PlanningSeasonMapper extends BaseMapper<PlanningSeason> {
 
-
-
+    List<PlanningSeason> list(@Param(Constants.WRAPPER) QueryWrapper qw);
 
     List<SelectOptionsVo> getPlanningSeasonOptions(@Param(Constants.WRAPPER) QueryWrapper qw);
 

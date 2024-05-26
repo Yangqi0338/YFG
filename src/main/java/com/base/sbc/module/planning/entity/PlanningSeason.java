@@ -79,6 +79,9 @@ public class PlanningSeason extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "备注")
     private String remarks;
+
+    @ApiModelProperty(value = "创建人部门")
+    private String createDept;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

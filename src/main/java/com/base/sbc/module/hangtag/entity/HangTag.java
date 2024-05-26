@@ -8,8 +8,11 @@ package com.base.sbc.module.hangtag.entity;
 
 import java.util.Date;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -169,6 +172,7 @@ public class HangTag extends BaseDataEntity<String> {
     /** 下单时间 */
     @ApiModelProperty(value = "下单时间"  )
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Date placeOrderDate;
     /** 样衣工id */
     @ApiModelProperty(value = "样衣工id"  )
@@ -216,6 +220,7 @@ public class HangTag extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "生产日期")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(updateStrategy = FieldStrategy.IGNORED)
     private Date produceDate;
 
     private String historicalData;
@@ -226,6 +231,11 @@ public class HangTag extends BaseDataEntity<String> {
      */
     private String outFactory;
 
+    /**
+     * 温馨提示是否换行
+     */
+    @ApiModelProperty(value = "温馨提示是否换行")
+    private YesOrNoEnum warmTipsDefaultWrap;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
