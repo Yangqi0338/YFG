@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -1851,7 +1850,7 @@ public class SmpService {
     public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
         Page<Object> page = saleProductIntoDto.startPage();
         BaseQueryWrapper qw = new BaseQueryWrapper<>();
-        dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
+        dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "tobl.", new String[]{"brand"}, true);
         qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
         qw.in(!CollectionUtils.isEmpty(saleProductIntoDto.getBulkStyleNoList()),"T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.notEmptyIn("T.YEARS", saleProductIntoDto.getYear());
