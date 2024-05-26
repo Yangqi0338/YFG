@@ -1851,12 +1851,12 @@ public class SmpService {
         Page<Object> page = saleProductIntoDto.startPage();
         BaseQueryWrapper qw = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "tobl.", new String[]{"brand"}, true);
-        qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
-        qw.in(!CollectionUtils.isEmpty(saleProductIntoDto.getBulkStyleNoList()),"T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
-        qw.notEmptyIn("T.YEARS", saleProductIntoDto.getYear());
-        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
-        qw.notEmptyEq("T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNo());
-        qw.in(CollUtil.isNotEmpty(saleProductIntoDto.getSimilarBulkStyleNos()),"T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNos());
+        qw.notEmptyLike("tobl.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
+        qw.in(!CollectionUtils.isEmpty(saleProductIntoDto.getBulkStyleNoList()),"tobl.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.notEmptyIn("tobl.YEARS", saleProductIntoDto.getYear());
+        qw.in("tobl.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+        qw.notEmptyEq("tobl.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNo());
+        qw.in(CollUtil.isNotEmpty(saleProductIntoDto.getSimilarBulkStyleNos()),"tobl.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNos());
         List<Map<String, Object>> totalMaps = this.querySaleIntoPage(qw, 1);
         List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
 
