@@ -125,6 +125,14 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             }
             materialQueryDto.setIds(new ArrayList<>(ids));
         }
+
+        //如果有多选标识，并且品类id不为空
+        if ("1".equals(materialQueryDto.getMoreFlag()) && StringUtils.isNotEmpty(materialQueryDto.getCategoryId())){
+            List<String> categoryMores = StringUtils.convertList(materialQueryDto.getCategoryId());
+            materialQueryDto.setCategoryMores(categoryMores);
+            materialQueryDto.setCategoryId(null);
+        }
+
     }
 
     /**

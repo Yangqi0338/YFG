@@ -109,4 +109,31 @@ public class Material extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "备注")
     private String remarks;
+
+    @ApiModelProperty(value = "款号")
+    private String styleNo;
+
+    @ApiModelProperty(value = "版型名称")
+    private String shapeName;
+
+    @ApiModelProperty(value = "维度系数代码")
+    private String dimensionCode;
+
+    @ApiModelProperty(value = "维度数值")
+    private String dimensionValue;
+
+    @ApiModelProperty(value = "长度数值")
+    private String lengthValue;
+
+    @ApiModelProperty(value = "长度数值（后中）")
+    private String lengthValuePM;
+
+    @ApiModelProperty(value = "参考部位")
+    private String referencePosition;
+
+    @ApiModelProperty(value = "优质版型: 1:优质，0：")
+    private String highQualityShape;
+
+    @ApiModelProperty(value = "多选标志 1：是")
+    private String moreFlag;
 }

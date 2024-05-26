@@ -53,6 +53,13 @@
         <if test="createId != null and createId != ''">
             and tm.create_id = #{createId}
         </if>
+        <if test="categoryMores != null and categoryMores.length > 0">
+
+            <foreach collection="categoryMores" open="(" separator="," item="categoryId" close=")">
+                and FIND_IN_SET(#{categoryId}, category_id)
+            </foreach>
+
+        </if>
         order by create_date desc
     </select>
 </mapper>
