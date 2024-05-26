@@ -131,6 +131,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
+    @Lazy
     private final StyleColorService styleColorService;
     private final StyleService styleService;
 
