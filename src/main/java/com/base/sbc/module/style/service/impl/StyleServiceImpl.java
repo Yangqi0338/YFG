@@ -1631,7 +1631,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 根据已有订货本查询对应的款式ID集合 TODO：订货本没上生产 ——XHTE
         QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("tob.season_id", dto.getPlanningSeasonId());
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "tobl.");
         List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(queryWrapper, 1);
         if (ObjectUtil.isNotEmpty(querylist)) {
             long count = querylist.stream().map(OrderBookDetailVo::getStyle).filter(ObjectUtil::isNotEmpty).distinct().count();
