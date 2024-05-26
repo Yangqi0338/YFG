@@ -41,13 +41,13 @@ public class UseStyleVO implements Serializable {
      * 波段code
      */
     @ApiModelProperty("波段code")
-    private String brandCode;
+    private String bandCode;
 
     /**
      * 波段名称
      */
     @ApiModelProperty("波段名称")
-    private String brandName;
+    private String bandName;
 
     /**
      * 今年销售件数
