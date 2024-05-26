@@ -87,7 +87,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getYearName()), "year_name", queryFabricInformationDto.getYearName());
-        queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierCode()), "supplier_code", queryFabricInformationDto.getYearName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierCode()), "supplier_code", queryFabricInformationDto.getSupplierCode());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getSeasonName()), "season", queryFabricInformationDto.getSeasonName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getBrandName()), "brand", queryFabricInformationDto.getBrandName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getIsNewFabric()), "is_new_fabric", queryFabricInformationDto.getIsNewFabric());
