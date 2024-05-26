@@ -760,9 +760,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
         // 获取当前人所在的虚拟部门
-        String virtualDetpIds = super.getVirtualDetpIds();
-        if (StrUtil.isNotBlank(virtualDetpIds)) {
-            variables.put("sendDeptId", Arrays.asList(virtualDetpIds.split(",")));
+        String virtualDeptIds = super.getVirtualDeptIds();
+        if (StrUtil.isNotBlank(virtualDeptIds)) {
+            variables.put("sendDeptId", virtualDeptIds);
         }
         // 查询附件
         // List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);

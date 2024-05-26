@@ -90,7 +90,7 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
         bean.setCode(code);
 
         //保存创建人的虚拟部门
-        bean.setCreateDeptId(getVirtualDetpIds());
+        bean.setCreateDeptId(getVirtualDeptIds());
 
         this.save(bean, "工作小账");
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
