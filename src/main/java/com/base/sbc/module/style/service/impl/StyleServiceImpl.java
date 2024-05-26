@@ -64,10 +64,11 @@ import com.base.sbc.module.formtype.service.FormTypeService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
+import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -231,7 +232,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private FieldManagementMapper fieldManagementMapper;
 
     @Autowired
+    @Lazy
     private OrderBookDetailService orderBookDetailService;
+
+    @Autowired
+    @Lazy
+    private OrderBookService orderBookService;
 
     @Autowired
     @Lazy
@@ -1629,14 +1635,25 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         vo.setSampleMakingNum(sampleMakingNum);
         // 订货本制作
         // 根据已有订货本查询对应的款式ID集合 TODO：订货本没上生产 ——XHTE
-        QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("tob.season_id", dto.getPlanningSeasonId());
-        List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(queryWrapper, 1);
-        if (ObjectUtil.isNotEmpty(querylist)) {
-            long count = querylist.stream().map(OrderBookDetailVo::getStyle).filter(ObjectUtil::isNotEmpty).distinct().count();
-            vo.setOrderBookProductionNum(count);
-        } else {
-            vo.setOrderBookProductionNum(0L);
+        vo.setOrderBookProductionNum(0L);
+        List<OrderBook> orderBookList = orderBookService.list(
+                new LambdaQueryWrapper<OrderBook>()
+                        .eq(OrderBook::getSeasonId, dto.getPlanningSeasonId())
+        );
+        if (ObjectUtil.isNotEmpty(orderBookList)) {
+            List<String> orderBookIdList = orderBookList.stream().map(OrderBook::getId).collect(Collectors.toList());
+            List<OrderBookDetail> orderBookDetailList = orderBookDetailService.list(
+                    new LambdaQueryWrapper<OrderBookDetail>()
+                            .in(OrderBookDetail::getOrderBookId, orderBookIdList)
+            );
+            if (ObjectUtil.isNotEmpty(orderBookDetailList)) {
+                List<String> styleColorIdList = orderBookDetailList.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
+                List<StyleColor> styleColorList = styleColorService.listByIds(styleColorIdList);
+                if (ObjectUtil.isNotEmpty(styleColorList)) {
+                    List<String> styleIdList = styleColorList.stream().map(StyleColor::getStyleId).distinct().collect(Collectors.toList());
+                    vo.setOrderBookProductionNum(Long.valueOf(styleIdList.size()));
+                }
+            }
         }
         return vo;
     }
