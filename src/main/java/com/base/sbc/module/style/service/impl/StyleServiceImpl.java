@@ -79,7 +79,9 @@ import com.base.sbc.module.pack.vo.PackBomVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.dto.PlanningBoardSearchDto;
 import com.base.sbc.module.planning.entity.*;
+import com.base.sbc.module.planning.mapper.PlanningChannelMapper;
 import com.base.sbc.module.planning.mapper.PlanningDemandMapper;
+import com.base.sbc.module.planning.mapper.PlanningSeasonMapper;
 import com.base.sbc.module.planning.service.*;
 import com.base.sbc.module.planning.utils.PlanningUtils;
 import com.base.sbc.module.planning.vo.DimensionTotalVo;
@@ -148,6 +150,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     @Autowired
     private PlanningSeasonService planningSeasonService;
     @Autowired
+    private PlanningSeasonMapper planningSeasonMapper;
+    @Autowired
     private SeasonalPlanningService seasonalPlanningService;
     @Autowired
     private SeasonalPlanningDetailsService seasonalPlanningDetailsService;
@@ -210,7 +214,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private PackBomSizeService packBomSizeService;
 
     @Autowired
-    private PlanningChannelService planningChannelService;
+    private PlanningChannelMapper planningChannelMapper;
 
     @Autowired
     private CustomStylePicUpload customStylePicUpload;
@@ -1788,9 +1792,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         qc.eq("del_flag", BasicNumber.ZERO.getNumber());
         qc.select("id", "name", "season", "brand", "brand_name");
         qc.orderByDesc("name");
-        dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
+        dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.PlanningSeason.getK());
         /*查询到的产品季*/
-        List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
+        List<PlanningSeason> planningSeasonList = planningSeasonMapper.list(qc);
         Snowflake idGen = IdUtil.getSnowflake();
         /*查品类*/
         List<BasicStructureTreeVo> basicStructureTreeVoList = new ArrayList<>();
@@ -1814,9 +1818,10 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         } else if (vo.getLevel() == 0) {
             /*获取产品季渠道*/
-            QueryWrapper queryWrapper = new QueryWrapper();
+            BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
             queryWrapper.eq("planning_season_id", vo.getPlanningSeasonId());
-            List<PlanningChannel> channelList = planningChannelService.list(queryWrapper);
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.PlanningChannel.getK());
+            List<PlanningChannel> channelList = planningChannelMapper.list(queryWrapper);
             if (!CollUtil.isNotEmpty(channelList)) {
                 return null;
             }

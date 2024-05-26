@@ -144,6 +144,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         if (StrUtil.isEmpty(dto.getId())) {
             bean = BeanUtil.copyProperties(dto, PlanningSeason.class);
             bean.setStatus(BaseGlobal.STATUS_NORMAL);
+            bean.setCreateDept(getVirtualDetpIds());
             save(bean);
             if (ccmFeignService.getSwitchByCode(CcmBaseSettingEnum.ADD_PLANNING_SEASON_DEFAULT_INSERT_TEAM_SWITCH.getKeyCode())) {
                 amcFeignService.seasonSaveDefaultTeam(bean.getId());
@@ -280,7 +281,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
         qw.eq(StrUtil.isNotBlank(vo.getYear()), "year", vo.getYear());
         qw.eq("del_flag", BaseGlobal.NO);
         qw.orderByDesc("name");
-        dataPermissionsService.getDataPermissionsForQw(qw, businessType, "", new String[]{"brand"}, true);
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningSeason.getK());
         return getBaseMapper().getPlanningSeasonOptions(qw);
     }
 
@@ -607,7 +608,7 @@ public class PlanningSeasonServiceImpl extends BaseServiceImpl<PlanningSeasonMap
             qw.orderByDesc("year_name");
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.PlanningSeason.getK());
             //查询所有产品季
-            List<PlanningSeason> seasonList = list(qw);
+            List<PlanningSeason> seasonList = getBaseMapper().list(qw);
             if (CollUtil.isEmpty(seasonList)) {
                 return new ArrayList<>();
             }
