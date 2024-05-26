@@ -1240,7 +1240,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw, null);
         vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         //查询明细
-        QueryWrapper detailQw = new QueryWrapper();
+        BaseQueryWrapper detailQw = new BaseQueryWrapper();
         dataPermissionsService.getDataPermissionsForQw(detailQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw, null);
