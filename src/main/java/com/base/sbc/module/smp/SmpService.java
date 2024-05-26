@@ -1874,10 +1874,10 @@ public class SmpService {
 //    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public List<StyleSaleIntoDto> querySaleIntoPage(SaleProductIntoDto saleProductIntoDto) {
         BaseQueryWrapper<OrderBookDetail> qw = new BaseQueryWrapper<>();
-        qw.notEmptyIn("T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
-        qw.notEmptyIn("T.YEARS", saleProductIntoDto.getYear());
-        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
-        dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
+        qw.notEmptyIn("tobl.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.notEmptyIn("tobl.YEARS", saleProductIntoDto.getYear());
+        qw.in("tobl.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+        dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "tobl.", new String[]{"brand"}, true);
         List<Map<String, Object>> detailMaps = this.querySaleIntoPage(qw, 0);
         // 封装数据并转化Bean
         detailMaps.forEach(it-> it.put("sizeMap",new HashMap<>(it)));
