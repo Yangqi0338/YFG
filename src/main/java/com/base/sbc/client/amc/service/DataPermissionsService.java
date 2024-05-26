@@ -24,8 +24,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
@@ -143,25 +141,19 @@ public class DataPermissionsService {
         if (CollectionUtils.isEmpty(dataPermissionsList)) {
             return ret;
         }
-        AtomicReference<Integer> authorityState= new AtomicReference<>(0);
-        AtomicBoolean isField= new AtomicBoolean(true);
-        dataPermissionsList.forEach(e->{
-            if (!DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(e.getRange()) && authorityState.get()!=2) {
-                authorityState.set(1);
-            }
-            if (DataPermissionsRangeEnum.ALL_INOPERABLE.getK().equals(e.getRange()) && DataPermissionsSelectTypeEnum.AND.getK().equals(e.getSelectType())) {
-                authorityState.set(2);
-            }
-            if(CollectionUtils.isNotEmpty(e.getFieldDataPermissions())){
-                isField.set(true);
-            }
-        });
-        if (authorityState.get()!=1) {
+        List<String> rangeList = dataPermissionsList.stream().map(DataPermissionVO::getRange).distinct().collect(Collectors.toList());
+        //如果有一个用户组有全部可见 权限，则全部可见
+        if(rangeList.contains(DataPermissionsRangeEnum.ALL.getK())){
+            ret.put("authorityState",Boolean.TRUE);
+            return ret;
+        }
+        //如果都是全部不可见,则直接返回false
+        if (rangeList.size()==1 && rangeList.get(0).equals(DataPermissionsRangeEnum.ALL_INOPERABLE.getK())) {
             ret.put("authorityState",Boolean.FALSE);
             return ret;
         }
-        if(tablePre == null || !isField.get()){
-            return ret;
+        if(tablePre == null){
+            tablePre = "";
         }
         List<String> authorityField=new ArrayList<>();
         //用户存在多个用户组，用户组之间用or
@@ -175,7 +167,7 @@ public class DataPermissionsService {
             List<FieldDataPermissionVO> fieldDataPermissions = dataPermissions.getFieldDataPermissions();
             if (CollectionUtils.isNotEmpty(fieldDataPermissions) && !fieldDataPermissions.isEmpty()) {
                 //判断配置是否分组
-                Map<String, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():""));
+                Map<Integer, List<FieldDataPermissionVO>> permissionMap = fieldDataPermissions.stream().collect(Collectors.groupingBy(s->Integer.parseInt(StrUtil.isNotEmpty(s.getGroupIdx())?s.getGroupIdx():"0")));
                 boolean permissionGroup = permissionMap.size() != 1;
 
                 List<String> fieldArr = new ArrayList<>();
@@ -184,10 +176,13 @@ public class DataPermissionsService {
                     String sqlType = authorityField.isEmpty() ? " ( " : " or ( ";
                     fieldArr.add(sqlType);
                 }
+                List<Integer> permissionMapKeys = new ArrayList<>(permissionMap.keySet());
+                permissionMapKeys.sort(Integer::compare);
                 boolean first = true;
                 boolean isFieldFlag = false;
-                for (Map.Entry<String, List<FieldDataPermissionVO>> entry : permissionMap.entrySet()) {
-                    List<FieldDataPermissionVO> value = entry.getValue();
+                for (Integer entry : permissionMapKeys) {
+                    List<FieldDataPermissionVO> value = permissionMap.get(entry);
+                    value.sort(Comparator.comparingInt(s-> StrUtil.isNotEmpty(s.getSortIdx()) ? Integer.parseInt(s.getSortIdx()) : 0));
                     //如果配置只有一组，不添加括号
                     if(permissionGroup){
                         if(first){
@@ -205,14 +200,18 @@ public class DataPermissionsService {
                     boolean sqlType = false;
                     for (FieldDataPermissionVO fieldDataPermissionVO : value) {
                         if (StringUtils.isNotBlank(fieldDataPermissionVO.getFieldName())) {
-                            fieldArr.add(sqlType ? DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and " : " ");
-                            sqlType = true;
                             String fieldName = Objects.isNull(authorityFields) ? null : searchField(authorityFields, fieldDataPermissionVO.getFieldName());
                             if (isAssignFields && StringUtils.isBlank(fieldName)) {
                                 continue;
                             }
+                            if(sqlType){
+                                fieldArr.add(DataPermissionsSelectTypeEnum.OR.getK().equals(fieldDataPermissionVO.getSelectType()) ? " or " : " and ");
+                            }
+                            sqlType = true;
                             isFieldFlag = true;
-                            fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() : StringUtils.isNotBlank(fieldName) ? fieldName : tablePre + fieldDataPermissionVO.getFieldName();
+                            if(StrUtil.isBlank(fieldName)){
+                                fieldName = (fieldDataPermissionVO.getFieldName().contains(".")) ? fieldDataPermissionVO.getFieldName() :  tablePre + fieldDataPermissionVO.getFieldName();
+                            }
                             if("create_id_dept".equals(fieldDataPermissionVO.getFieldName())){
                                 //创建人部门 做一下特殊处理，表中没有保存创建人部门，所以这里关联用户部门表来判断
                                 //SQL:create_id in ( select user_id from c_amc_data.sys_user_dept where dept_id in ('0004','0811','0838','0839'))
@@ -235,8 +234,15 @@ public class DataPermissionsService {
                             fieldArr.add(fieldDataPermissionVO.getSqlField());
                         }
                     }
-                    if(permissionGroup){
-                        fieldArr.add(" ) ");
+                    if(sqlType){
+                        if(permissionGroup){
+                            fieldArr.add(" ) ");
+                        }
+                    }else{
+                        first = true;
+                        if(CollUtil.isNotEmpty(fieldArr)){
+                            fieldArr.remove(fieldArr.size()-1);
+                        }
                     }
                 }
                 if(userGroupSize){
@@ -276,6 +282,9 @@ public class DataPermissionsService {
                 if(ss[1].equals(val)){
                     return ss[0];
                 }
+            }
+            if(val.endsWith("."+s)){
+                return s;
             }
         }
         return null;
