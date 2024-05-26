@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Pair;
 import cn.hutool.core.stream.CollectorUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -1851,13 +1850,13 @@ public class SmpService {
     public PageInfo<OrderBookSimilarStyleVo> querySaleIntoPageTotal(SaleProductIntoDto saleProductIntoDto) {
         Page<Object> page = saleProductIntoDto.startPage();
         BaseQueryWrapper qw = new BaseQueryWrapper<>();
-        dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "T.", new String[]{"brand"}, true);
-        qw.notEmptyLike("T.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
-        qw.in(!CollectionUtils.isEmpty(saleProductIntoDto.getBulkStyleNoList()),"T.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
-        qw.notEmptyIn("T.YEARS", saleProductIntoDto.getYear());
-        qw.in("T.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
-        qw.notEmptyEq("T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNo());
-        qw.in(CollUtil.isNotEmpty(saleProductIntoDto.getSimilarBulkStyleNos()),"T.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNos());
+        dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "tobl.", new String[]{"brand"}, true);
+        qw.notEmptyLike("tobl.PROD_CODE", saleProductIntoDto.getBulkStyleNo());
+        qw.in(!CollectionUtils.isEmpty(saleProductIntoDto.getBulkStyleNoList()),"tobl.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
+        qw.notEmptyIn("tobl.YEARS", saleProductIntoDto.getYear());
+        qw.in("tobl.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+        qw.notEmptyEq("tobl.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNo());
+        qw.in(CollUtil.isNotEmpty(saleProductIntoDto.getSimilarBulkStyleNos()),"tobl.PROD_CODE", saleProductIntoDto.getSimilarBulkStyleNos());
         List<Map<String, Object>> totalMaps = this.querySaleIntoPage(qw, 1);
         List<OrderBookSimilarStyleVo> dtoList = ORDER_BOOK_CV.copyList2SimilarStyleVo(totalMaps);
 
