@@ -1184,6 +1184,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         qw.in(!CollectionUtils.isEmpty(dto.getBomList()),"tpb.id", dto.getBomList());
         qw.in(!CollectionUtils.isEmpty(dto.getStyleNos()),"tsc.style_no", dto.getStyleNos());
         qw.orderByDesc("tpb.design_verify");
+        qw.eq(StringUtils.isNotEmpty(dto.getFabricSummaryCode()),"tpb.supplier_material_code", dto.getFabricSummaryCode());
         Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
         baseMapper.selectFabricSummaryStyle(dto,qw);
         return page.toPageInfo();

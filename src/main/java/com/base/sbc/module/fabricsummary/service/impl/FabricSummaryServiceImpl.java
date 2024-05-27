@@ -238,7 +238,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         //是否引用关联
         pageInfo.getList().forEach(item ->{
             item.setGroupId(groupServiceById.getId());
-            List<FabricSummaryStyle> list = fabricSummaryStyleService.getByGroupStyle(groupServiceById.getId(),item.getBomId(),item.getStyleNo());
+            List<FabricSummaryStyle> list = fabricSummaryStyleService.getByGroupStyle(dto.getId(), groupServiceById.getId(),item.getBomId(),item.getStyleNo());
             if (CollUtil.isNotEmpty(list)){
                 item.setCiteStatus("1");
                 item.setFabricSummaryStyleId(list.get(0).getId());
@@ -264,7 +264,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             throw new OtherException(infoVos.get(0).getDesignNo() + "已添加，请勿重复添加");
         }
         dto.forEach(item ->{
-            List<FabricSummaryStyle> list = fabricSummaryStyleService.getByGroupStyle(groupServiceById.getId(),item.getBomId(),item.getStyleNo());
+            List<FabricSummaryStyle> list = fabricSummaryStyleService.getByGroupStyle(item.getFabricSummaryId(),groupServiceById.getId(),item.getBomId(),item.getStyleNo());
             if (CollUtil.isNotEmpty(list)){
                 throw new OtherException(item.getDesignNo() + "已添加，请勿重复添加");
             }
@@ -283,13 +283,6 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             fabricSummaryStyle.setId(new IdGen().nextIdStr());
             //补充款式信息
             fullFabricSummaryStyle(fabricSummaryInfoVo);
-
-            FabricSummary byGroupIdAndMaterialCode = getByGroupIdAndMaterialCode(groupServiceById.getId(), fabricSummaryInfoVo.getMaterialCode());
-            if (!Objects.isNull(byGroupIdAndMaterialCode)){
-                fabricSummaryStyle.setFabricSummaryId(byGroupIdAndMaterialCode.getId());
-                fabricSummaryStyles.add(fabricSummaryStyle);
-                continue;
-            }
             FabricSummary fabricSummary = infoVoMap.get(fabricSummaryInfoVo.getMaterialCode());
             if (null == fabricSummary){
                 fabricSummary =  basicsdatumMaterialService.getMaterialSummaryInfo(fabricSummaryInfoVo.getMaterialCode());

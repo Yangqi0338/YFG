@@ -6,13 +6,14 @@
  *****************************************************************************/
 package com.base.sbc.module.fabricsummary.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.fabricsummary.mapper.FabricSummaryStyleMapper;
 import com.base.sbc.module.fabricsummary.entity.FabricSummaryStyle;
+import com.base.sbc.module.fabricsummary.mapper.FabricSummaryStyleMapper;
 import com.base.sbc.module.fabricsummary.service.FabricSummaryStyleService;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,8 +29,9 @@ import java.util.List;
 @Service
 public class FabricSummaryStyleServiceImpl extends BaseServiceImpl<FabricSummaryStyleMapper, FabricSummaryStyle> implements FabricSummaryStyleService {
     @Override
-    public List<FabricSummaryStyle> getByGroupStyle(String groupId, String pomId, String styleNo) {
+    public List<FabricSummaryStyle> getByGroupStyle(String fabricSummaryId,String groupId, String pomId, String styleNo) {
         QueryWrapper<FabricSummaryStyle> qw = new QueryWrapper<>();
+        qw.lambda().eq(StringUtils.isNotEmpty(fabricSummaryId),FabricSummaryStyle::getFabricSummaryId, fabricSummaryId);
         qw.lambda().eq(FabricSummaryStyle::getBomId, pomId);
         qw.lambda().eq(FabricSummaryStyle::getDelFlag, "0");
         qw.lambda().eq(FabricSummaryStyle::getStyleNo, styleNo);
@@ -39,7 +41,7 @@ public class FabricSummaryStyleServiceImpl extends BaseServiceImpl<FabricSummary
 
     @Override
     public boolean deleteByIds(List<String> ids) {
-        if (CollectionUtils.isEmpty(ids)){
+        if (CollUtil.isEmpty(ids)){
             return true;
         }
         UpdateWrapper<FabricSummaryStyle> qw = new UpdateWrapper<>();

@@ -22,7 +22,7 @@ public interface FabricSummaryStyleService extends BaseService<FabricSummaryStyl
 
 // 自定义方法区 不替换的区域【other_start】
 
-    List<FabricSummaryStyle> getByGroupStyle(String groupId, String pomId, String styleNo);
+    List<FabricSummaryStyle> getByGroupStyle(String fabricSummaryId, String groupId, String pomId, String styleNo);
 
     boolean deleteByIds(List<String> ids);
 
