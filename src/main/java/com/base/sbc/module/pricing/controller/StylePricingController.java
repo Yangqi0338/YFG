@@ -182,17 +182,11 @@ public class StylePricingController extends BaseController {
             PackInfo packInfo = packInfoList.stream().filter(it -> it.getId().equals(stylePricing.getPackId()))
                     .findFirst().orElseThrow(() -> new OtherException("不存在资料包"));
             String devtType = styleService.findByIds2OneField(packInfo.getForeignId(), Style::getDevtType);
-            if (!ProductionType.CMT.getCode().equals(devtType)) {
-                if (stylePricing.getWagesConfirmTime() == null) {
-                    stylePricing.setWagesConfirmTime(new Date());
-                }
-                stylePricing.setWagesConfirm(YesOrNoEnum.YES.getValueStr());
-            }
-
+            boolean isCmt = ProductionType.CMT.getCode().equals(devtType);
             if ("1".equals(dto.getWagesConfirm()) &&"1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
                 throw new OtherException("存在已经提交审核");
             }
-            if ("1".equals(dto.getControlConfirm()) && "0".equals(stylePricing.getWagesConfirm())){
+            if (isCmt && "1".equals(dto.getControlConfirm()) && "0".equals(stylePricing.getWagesConfirm())){
                 throw new OtherException("工时部确认后计控才能确认成本");
             }
             if ("1".equals(dto.getProductHangtagConfirm()) && "0".equals(stylePricing.getControlConfirm())){
@@ -202,7 +196,7 @@ public class StylePricingController extends BaseController {
                 throw new OtherException("请先商品吊牌确认");
             }
             if (!StringUtils.isEmpty(dto.getWagesConfirm())){
-                if (dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
+                if (!isCmt || dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
                     throw new OtherException("工时部已确认");
                 }
                 stylePricing.setWagesConfirm(dto.getWagesConfirm());
