@@ -1292,7 +1292,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public Boolean addDefective(PublicStyleColorDto publicStyleColorDto) {
+    public Boolean addDefective(PublicStyleColorDto publicStyleColorDto,Principal user) {
         /**
          *复制一个配色次品款
          * 校验 计控吊牌确定已确定
@@ -1356,12 +1356,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }else {
             packType =  PackUtils.PACK_TYPE_BIG_GOODS;
         }
+
+        IdGen idGen = new IdGen();
         BasicsdatumColourLibrary basicsdatumColourLibrary = basicsdatumColourLibraryServicel.getByOne("colour_code",publicStyleColorDto.getColorCode());
         copyStyleColor.setColorName(basicsdatumColourLibrary.getColourName());
         copyStyleColor.setColorSpecification(basicsdatumColourLibrary.getColourSpecification());
         copyStyleColor.setColorCode(basicsdatumColourLibrary.getColourCode());
         copyStyleColor.setColourLibraryId(basicsdatumColourLibrary.getId());
         copyStyleColor.setStyleNo(styleColor.getStyleNo() + publicStyleColorDto.getDefectiveNo());
+        copyStyleColor.setStyleColorPic(styleColor.getStyleNo() + publicStyleColorDto.getDefectiveNo());
         copyStyleColor.setDefectiveName(publicStyleColorDto.getDefectiveName());
         copyStyleColor.setDefectiveNo(publicStyleColorDto.getDefectiveNo());
         copyStyleColor.setIsDefective(BaseGlobal.YES);
@@ -1373,7 +1376,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         copyStyleColor.setPrincipalStyle("");
         copyStyleColor.setAccessoryNo("");
         copyStyleColor.setAccessory("");
-        copyStyleColor.setId(null);
+        copyStyleColor.setId(String.valueOf(idGen.nextId()));
         baseMapper.insert(copyStyleColor);
 
         /*吊牌复制*/
@@ -1427,7 +1430,47 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         stylePricing.setPackId(copyPackInfo.getId());
         stylePricing.setCompanyCode(baseController.getUserCompany());
         stylePricingMapper.insert(stylePricing);
+
+
+
+        //region 20240527 huangqiang 生成报此款老款图片下载重新上传，上传成功后删除
+        uploadImg(user, styleColor, copyStyleColor);
+        //endregion
         return true;
+    }
+
+    private void uploadImg(Principal user, StyleColor styleColor, StyleColor copyStyleColor) {
+        if(StrUtil.isNotBlank(styleColor.getStyleColorPic())){
+            Boolean result = true;
+            String styleColorPic = styleColor.getStyleColorPic();
+            if(StringUtils.isNotBlank(copyStyleColor.getStyleNo())){
+                UploadStylePicDto uploadStylePicDto = new UploadStylePicDto();
+                uploadStylePicDto.setStyleColorId(copyStyleColor.getId());
+                MultipartFile multipartFile = null;
+                Boolean uploadStatus = false;
+                try {
+                    multipartFile = uploadFileService.downloadImage(styleColorPic, copyStyleColor.getStyleNo() + ".jpg");
+                    uploadStylePicDto.setFile(multipartFile);
+                    uploadStatus = uploadFileService.uploadStyleImage(uploadStylePicDto, user);
+                } catch (Exception e) {
+                    result = false;
+                    log.info(e.getMessage());
+//                throw new RuntimeException(e);
+                }finally {
+                    //上传成功后删除
+                    if (uploadStatus) {
+                        DelStylePicDto delStylePicDto = new DelStylePicDto();
+                        delStylePicDto.setStyleColorId(styleColor.getId());
+                        delStylePicDto.setStyleId(styleColor.getStyleId());
+                        uploadFileService.delStyleColorImage(delStylePicDto, user,styleColorPic,"0");
+                        uploadFileService.delStyleColorImage(delStylePicDto, user,styleColorPic,"1");
+                    }
+                }
+            }
+            if (!result) {
+                throw new OtherException("图片上传失败！");
+            }
+        }
     }
 
     /**

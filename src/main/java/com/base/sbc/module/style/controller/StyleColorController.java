@@ -166,8 +166,8 @@ public class StyleColorController {
 
     @ApiOperation(value = "新增次品款")
     @PostMapping("/addDefective")
-    public Boolean addDefective(@Valid @RequestBody PublicStyleColorDto publicStyleColorDto) {
-        return styleColorService.addDefective(publicStyleColorDto);
+    public Boolean addDefective(@Valid @RequestBody PublicStyleColorDto publicStyleColorDto,Principal user) {
+        return styleColorService.addDefective(publicStyleColorDto,user);
     }
 
     @ApiOperation(value = "更新下单标记")

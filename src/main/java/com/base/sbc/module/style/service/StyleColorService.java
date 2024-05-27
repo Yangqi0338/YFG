@@ -167,7 +167,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
          * @param publicStyleColorDto
          * @return
          */
-        Boolean addDefective(PublicStyleColorDto publicStyleColorDto);
+        Boolean addDefective(PublicStyleColorDto publicStyleColorDto,Principal user);
 
         /**
          * 方法描述 更新下单标记
