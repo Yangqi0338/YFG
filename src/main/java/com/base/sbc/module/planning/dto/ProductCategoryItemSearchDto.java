@@ -38,13 +38,13 @@ public class ProductCategoryItemSearchDto extends Page {
     private String channelCode;
     private String productLineName;
 
-    @ApiModelProperty(value = "设计师ids", required = false, example = "['1233']")
+    @ApiModelProperty(value = "设计师ids", required = false, example = "1233")
     private String designerIds;
 
-    @ApiModelProperty(value = "任务等级", required = false, example = "['1']")
+    @ApiModelProperty(value = "任务等级", required = false, example = "1")
     private String taskLevels;
 
-    @ApiModelProperty(value = "状态", required = false, example = "['1']")
+    @ApiModelProperty(value = "状态", required = false, example = "1")
     private String statusList;
 
     @ApiModelProperty(value = "大类code")
