@@ -1621,8 +1621,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         vo.setScriptedNum(scriptedNum);
         // 打版完成 样衣看板初版样 纸样需求日期不为空的款式数量
         BaseQueryWrapper<Style> pmicnQueryWrapper = new BaseQueryWrapper<>();
-        dataPermissionsService.getDataPermissionsForQw(pmicnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         pmicnQueryWrapper.isNotNull("p.pattern_req_date");
+        dataPermissionsService.getDataPermissionsForQw(pmicnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(pmicnQueryWrapper, dto);
         Long patternMakingIsCompleteNum = getBaseMapper().colorCount(pmicnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setPatternMakingIsCompleteNum(patternMakingIsCompleteNum);
@@ -1634,7 +1634,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         Long sampleMakingNum = getBaseMapper().colorCount(smnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setSampleMakingNum(sampleMakingNum);
         // 订货本制作
-        // 根据已有订货本查询对应的款式ID集合 TODO：订货本没上生产 ——XHTE
+        // 根据已有订货本查询对应的款式ID集合
         vo.setOrderBookProductionNum(0L);
         List<OrderBook> orderBookList = orderBookService.list(
                 new LambdaQueryWrapper<OrderBook>()
@@ -2710,7 +2710,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         // 查询明细
         BaseQueryWrapper detailQw = new BaseQueryWrapper();
-        dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
+        dataPermissionsService.getDataPermissionsForQw(detailQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         List<String> ids = detailVoList.stream().map(PlanningSummaryDetailVo::getId).collect(Collectors.toList());
