@@ -6,10 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.pack.service;
 
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.dto.PackPricingDto;
 import com.base.sbc.module.pack.entity.PackPricing;
 import com.base.sbc.module.pack.vo.PackPricingVo;
+import com.base.sbc.module.pricing.dto.QueryContractPriceDTO;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -26,7 +28,12 @@ import java.util.Map;
 public interface PackPricingService extends PackBaseService<PackPricing> {
 
 // 自定义方法区 不替换的区域【other_start】
-
+    /**
+     * 获取合同价
+     * @param queryContractPriceDTO
+     * @return
+     */
+    ApiResult getContractPrice(QueryContractPriceDTO queryContractPriceDTO);
 
     PackPricingVo getDetail(PackCommonSearchDto dto);
 

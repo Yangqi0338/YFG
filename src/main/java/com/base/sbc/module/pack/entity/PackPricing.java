@@ -103,6 +103,12 @@ public class PackPricing extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "颜色名称")
     private String colorName;
+
+    /**
+     * 成衣合同价
+     */
+    @ApiModelProperty(value = "成衣合同价")
+    private String finishedProductPrice;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
