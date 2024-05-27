@@ -194,5 +194,6 @@ public interface BaseService<T> extends IService<T> {
         return null;
     }
     <R> R findOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
+    <R> R findByIds2OneField(String id, SFunction<T,R> function);
     <R> List<R> groupOneField(LambdaQueryWrapper<T> wrapper, SFunction<T,R> function);
 }
