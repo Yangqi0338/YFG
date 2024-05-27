@@ -64,10 +64,18 @@ public class MaterialQueryDto extends Page {
     @ApiModelProperty(value = "季节")
     private String season;
 
-    @ApiModelProperty(value = "多选标志 1：是")
-    private String moreFlag;
+    @ApiModelProperty(value = "场合搭配code")
+    private String occasionCode;
 
-    @ApiModelProperty(value = "多选品类id")
-    private List<String> categoryMores;
+    @ApiModelProperty(value = "颜色搭配code")
+    private String colorMatchCode;
 
+    @ApiModelProperty(value = "图案种类")
+    private String patternTypes;
+
+    @ApiModelProperty(value = "图案种类列表")
+    private List<String>  patternTypeList;
+
+    @ApiModelProperty(value = "运用手法")
+    private String useSkill;
 }

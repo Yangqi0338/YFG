@@ -134,6 +134,22 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "优质版型: 1:优质，0：")
     private String highQualityShape;
 
-    @ApiModelProperty(value = "多选标志 1：是")
-    private String moreFlag;
+    @ApiModelProperty(value = "场合搭配code")
+    private String occasionCode;
+
+    @ApiModelProperty(value = "场合搭配")
+    private String occasionName;
+
+    @ApiModelProperty(value = "颜色搭配code")
+    private String colorMatchCode;
+
+    @ApiModelProperty(value = "颜色搭配")
+    private String colorMatchName;
+
+    @ApiModelProperty(value = "图案种类")
+    private String patternTypes;
+
+    @ApiModelProperty(value = "运用手法")
+    private String useSkill;
+
 }
