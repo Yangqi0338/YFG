@@ -544,7 +544,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (StrUtil.isBlank(dto.getStyleUnit()) || StrUtil.isBlank(dto.getStyleUnitCode())) {
             throw new OtherException("款式单位不能为空");
         }
-        //查询产品季
+        // 查询产品季
         PlanningSeason planningSeason = planningSeasonService.getById(dto.getPlanningSeasonId());
 
         if (ObjectUtil.isEmpty(planningSeason)) {
@@ -2674,9 +2674,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 查询季节企划
         BaseQueryWrapper<SeasonalPlanning> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("season_id", dto.getPlanningSeasonId());
-        queryWrapper.notEmptyEq("channel_code", dto.getChannel());
         queryWrapper.notEmptyEq("status", "0");
-        SeasonalPlanning seasonalPlanning = seasonalPlanningService.getOne(queryWrapper);
+        List<SeasonalPlanning> seasonalPlanningList = seasonalPlanningService.list(queryWrapper);
 
         StyleSummaryVo vo = new StyleSummaryVo();
         // 查询波段统计
@@ -2687,7 +2686,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         List<DimensionTotalVo> dimensionTotalVos = PlanningUtils.removeEmptyAndSort(bandTotal);
-        Map<String, Long> bandCount = getBandCount(dimensionTotalVos, seasonalPlanning, dto.getProdCategory());
+        Map<String, Long> bandCount = getBandCount(dimensionTotalVos, seasonalPlanningList, dto.getProdCategory());
         for (DimensionTotalVo dimensionTotalVo : dimensionTotalVos) {
             Long l = bandCount.get(dimensionTotalVo.getName());
             dimensionTotalVo.setTotal2(ObjectUtil.isEmpty(l) ? 0L : l);
@@ -2702,7 +2701,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
-        Map<String, Long> categoryCount = getCategoryCount(categoryTotal, seasonalPlanning, dto.getProdCategory());
+        Map<String, Long> categoryCount = getCategoryCount(categoryTotal, seasonalPlanningList, dto.getProdCategory());
         for (DimensionTotalVo dimensionTotalVo : categoryTotal) {
             Long l = categoryCount.get(dimensionTotalVo.getName());
             dimensionTotalVo.setTotal2(ObjectUtil.isEmpty(l) ? 0L : l);
@@ -2837,12 +2836,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     /**
      * 根据品类名称获取数量
      */
-    private Map<String, Long> getCategoryCount(List<DimensionTotalVo> dimensionTotalVos, SeasonalPlanning seasonalPlanning, String bandCode) {
-        if (ObjectUtil.isNotEmpty(seasonalPlanning) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
+    private Map<String, Long> getCategoryCount(List<DimensionTotalVo> dimensionTotalVos, List<SeasonalPlanning> seasonalPlanningList, String bandCode) {
+        if (ObjectUtil.isNotEmpty(seasonalPlanningList) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
             List<String> categoryList = dimensionTotalVos.stream()
                     .map(DimensionTotalVo::getName).distinct().collect(Collectors.toList());
             LambdaQueryWrapper<SeasonalPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId());
+            queryWrapper.in(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanningList.stream().map(SeasonalPlanning::getId).collect(Collectors.toList()));
             queryWrapper.in(SeasonalPlanningDetails::getProdCategoryName, categoryList);
             if (ObjectUtil.isNotEmpty(bandCode)) {
                 queryWrapper.in(SeasonalPlanningDetails::getBandCode, CollUtil.newArrayList(bandCode.split(",")));
@@ -2870,12 +2869,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     /**
      * 根据波段获取数量
      */
-    private Map<String, Long> getBandCount(List<DimensionTotalVo> dimensionTotalVos, SeasonalPlanning seasonalPlanning, String prodCategory) {
-        if (ObjectUtil.isNotEmpty(seasonalPlanning) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
+    private Map<String, Long> getBandCount(List<DimensionTotalVo> dimensionTotalVos, List<SeasonalPlanning> seasonalPlanningList, String prodCategory) {
+        if (ObjectUtil.isNotEmpty(seasonalPlanningList) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
             List<String> bandNameList = dimensionTotalVos.stream()
                     .map(DimensionTotalVo::getName).distinct().collect(Collectors.toList());
             LambdaQueryWrapper<SeasonalPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId());
+            queryWrapper.in(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanningList.stream().map(SeasonalPlanning::getId).collect(Collectors.toList()));
             queryWrapper.in(SeasonalPlanningDetails::getBandName, bandNameList);
             if (ObjectUtil.isNotEmpty(prodCategory)) {
                 queryWrapper.in(SeasonalPlanningDetails::getProdCategoryCode, CollUtil.newArrayList(prodCategory.split(",")));
