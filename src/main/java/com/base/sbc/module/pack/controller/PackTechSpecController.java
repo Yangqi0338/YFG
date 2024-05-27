@@ -82,8 +82,8 @@ public class PackTechSpecController extends BaseController{
     }
 
     @ApiOperation(value = "文件列表(图片)排序")
-    @GetMapping("/picListSort")
-    public ApiResult<String> picListSort(List<Attachment> attachmentList) {
+    @PostMapping("/picListSort")
+    public ApiResult<String> picListSort(@RequestBody List<Attachment> attachmentList) {
         packTechSpecService.picListSort(attachmentList);
         return ApiResult.success();
     }

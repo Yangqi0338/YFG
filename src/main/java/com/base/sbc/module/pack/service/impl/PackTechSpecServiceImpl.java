@@ -11,6 +11,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -333,6 +334,8 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
      * @param attachmentList
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
     public void picListSort(List<Attachment> attachmentList) {
         attachmentService.updateBatchById(attachmentList);
     }
