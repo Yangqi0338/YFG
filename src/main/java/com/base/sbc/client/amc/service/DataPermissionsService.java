@@ -257,7 +257,7 @@ public class DataPermissionsService {
         }
 
         if(CollectionUtils.isNotEmpty(authorityField)) {
-            String authorityFieldStr = StringUtils.join(authorityField, " ");
+            String authorityFieldStr = "(" + StringUtils.join(authorityField, " ") + ")";
             ret.put("authorityField", authorityFieldStr);
         }
         return ret;
