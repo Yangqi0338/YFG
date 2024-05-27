@@ -242,6 +242,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             if (CollUtil.isNotEmpty(list)){
                 item.setCiteStatus("1");
                 item.setFabricSummaryStyleId(list.get(0).getId());
+                item.setAddStatus(StringUtils.isBlank(dto.getId()) ? "0":"1");
             }
         });
         stylePicUtils.setStylePic(pageInfo.getList(), "stylePicUrl");

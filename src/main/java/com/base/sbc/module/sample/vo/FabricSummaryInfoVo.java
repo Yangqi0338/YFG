@@ -159,4 +159,7 @@ public class FabricSummaryInfoVo extends FabricSummary {
 
     @ApiModelProperty(value = "打印次数"  )
     private Long printCount;
+
+    @ApiModelProperty(value = "添加状态：1可添加"  )
+    private String addStatus;
 }
