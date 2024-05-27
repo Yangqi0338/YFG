@@ -9,6 +9,7 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.annotation.DuplicationCheck;
@@ -337,7 +338,9 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
     @Transactional(rollbackFor = Exception.class)
     @DuplicationCheck
     public void picListSort(List<Attachment> attachmentList) {
-        attachmentService.updateBatchById(attachmentList);
+        if (ObjectUtil.isNotEmpty(attachmentList)) {
+            attachmentService.updateBatchById(attachmentList);
+        }
     }
 
     @Override
