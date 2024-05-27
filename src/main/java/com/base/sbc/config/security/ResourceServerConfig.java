@@ -23,7 +23,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .authorizeRequests()
                 //开放文档地址不用权限    开放/api/open/下所有的请求
 				.antMatchers("/v2/api-docs", "/api/open/**", "/ureport/**", "/**.html", "/**.js", "/**.css",
-						"/swagger*/**", "/null/swagger*/**", "/excel/**", "/druid/**")
+						"/swagger*/**", "/null/swagger*/**", "/excel/**", "/druid/**", "/webjars/bycdao-ui/**")
 				.permitAll().anyRequest().authenticated()
                 .and()
 				.httpBasic().disable();
