@@ -872,8 +872,7 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
         uw.lambda().eq(PackBom::getId, dto.getId());
         uw.lambda().set(PackBom::getDesignVerify, dto.getDesignVerify());
         uw.lambda().set(PackBom::getDesignVerifyDate, BaseGlobal.YES.equals(dto.getDesignVerify()) ? new Date() : null);
-        packBom.setDesignVerify(dto.getDesignVerify());
-        return updateById(packBom);
+        return update(uw);
     }
 
     /**
