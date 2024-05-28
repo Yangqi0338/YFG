@@ -551,21 +551,13 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         saleProductIntoDto.setBulkStyleNoList(useStyleVOList.stream().map(UseStyleVO::getStyleNo).collect(Collectors.toList()));
         // 只要销售
         saleProductIntoDto.setResultTypeList(Arrays.stream(StyleSaleIntoResultType.values()).filter(it-> it.getCode().contains("sale")).collect(Collectors.toList()));
-        LocalDateTime now = LocalDateTime.now();
         // 根据款号和年限分组
         smpService.querySaleIntoPage(saleProductIntoDto).stream().collect(Collectors.groupingBy(it-> it.getBulkStyleNo() + COMMA + it.getYear()))
                 .forEach((key,sameKeyList)-> {
                     String[] keyArray = key.split(COMMA);
-                    String year = ArrayUtil.get(keyArray, 1);
                     int saleSum = sameKeyList.stream().flatMapToInt(it -> it.getSizeMap().values().stream().mapToInt(Double::intValue)).sum();
                     useStyleVOList.stream().filter(it-> it.getStyleNo().equals(ArrayUtil.get(keyArray, 0))).findFirst().ifPresent(useStyleVO-> {
-                        if (String.valueOf(now.getYear()).equals(year)) {
-                            useStyleVO.setThisYearSaleNum(saleSum);
-                        }else if (String.valueOf(now.minusYears(1).getYear()).equals(year)) {
-                            useStyleVO.setThisYearSaleNum(saleSum);
-                        }else if (String.valueOf(now.minusYears(2).getYear()).equals(year)) {
-                            useStyleVO.setThisYearSaleNum(saleSum);
-                        }
+                        useStyleVO.setYearSaleNum(ArrayUtil.get(keyArray, 1), saleSum);
                         useStyleVO.setHistorySaleNum(useStyleVO.getHistorySaleNum() + saleSum);
                     });
                 });

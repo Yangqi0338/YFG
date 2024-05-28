@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 使用款记录 VO
@@ -72,4 +73,15 @@ public class UseStyleVO implements Serializable {
      */
     @ApiModelProperty("历史销售件数")
     private Integer historySaleNum = 0;
+
+    public void setYearSaleNum(String year, Integer saleNum){
+        LocalDateTime now = LocalDateTime.now();
+        if (String.valueOf(now.getYear()).equals(year)) {
+            this.setThisYearSaleNum(saleNum);
+        }else if (String.valueOf(now.minusYears(1).getYear()).equals(year)) {
+            this.setLastYearSaleNum(saleNum);
+        }else if (String.valueOf(now.minusYears(2).getYear()).equals(year)) {
+            this.setBeforeLastYearNum(saleNum);
+        }
+    }
 }
