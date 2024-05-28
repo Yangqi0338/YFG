@@ -54,19 +54,19 @@ public class UseStyleVO implements Serializable {
      * 今年销售件数
      */
     @ApiModelProperty("今年销售件数")
-    private Integer thisYearSaleNum;
+    private Integer thisYearSaleNum = 0;
 
     /**
      * 去年销售件数
      */
     @ApiModelProperty("去年销售件数")
-    private Integer lastYearSaleNum;
+    private Integer lastYearSaleNum = 0;
 
     /**
      * 前年销售件数
      */
     @ApiModelProperty("前年销售件数")
-    private Integer beforeLastYearNum;
+    private Integer beforeLastYearNum = 0;
 
     /**
      * 历史销售件数
