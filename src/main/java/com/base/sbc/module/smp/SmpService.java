@@ -51,6 +51,7 @@ import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
+import com.base.sbc.module.formtype.vo.GoodsDynamicFieldVo;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
@@ -320,12 +321,19 @@ public class SmpService {
             smpGoodsDto.setBandName(map.get(styleColor.getBandCode()));
 
             //List<FieldVal> list1 = fieldValService.list(sampleDesign.getId(), FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+            List<GoodsDynamicFieldVo> goodsDynamicFieldVos = new ArrayList<>();
 
             //动态字段
 
             List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
+                    if ("SSLevel".equals(m.getFieldName()) || "StyleFabricCycle".equals(m.getFieldName()) || "StyleProcessingCycle".equals(m.getFieldName())
+                            || "StylePursuit".equals(m.getFieldName()) || "StyleRegion".equals(m.getFieldName())
+                            || "StyleFashion".equals(m.getFieldName()) || "styleScene".equals(m.getFieldName())) {
+                        GoodsDynamicFieldVo goodsDynamicFieldVo = BeanUtil.copyProperties(m, GoodsDynamicFieldVo.class);
+                        goodsDynamicFieldVos.add(goodsDynamicFieldVo);
+                    }
                     if ("衣长分类".equals(m.getFieldName())) {
                         smpGoodsDto.setLengthRangeId(m.getVal());
                         smpGoodsDto.setLengthRangeName(m.getValName());
@@ -381,6 +389,7 @@ public class SmpService {
                     }
                 });
             }
+            smpGoodsDto.setGoodsDynamicFieldVos(goodsDynamicFieldVos);
 
             //查询下单阶段动态字段  取 水洗字段和自主研发版型字段
             List<FieldVal> fvList = fieldValService.list(styleColor.getId(), FieldValDataGroupConstant.STYLE_MARKING_ORDER);

@@ -1,6 +1,7 @@
 package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.config.enums.business.RFIDType;
+import com.base.sbc.module.formtype.vo.GoodsDynamicFieldVo;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
 import com.base.sbc.module.style.entity.StyleSpecFabric;
@@ -327,4 +328,10 @@ public class SmpGoodsDto extends SmpBaseDto {
      */
     @ApiModelProperty(value = "外部颜色名称")
     private String outsideColorName;
+
+    /**
+     * 款式设计动态管理字段 特定字段固定下发给BCS
+     */
+    private List<GoodsDynamicFieldVo> goodsDynamicFieldVos;
+
 }
