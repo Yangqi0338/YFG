@@ -270,12 +270,15 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         if (CollUtil.isNotEmpty(infoVos)){
             throw new OtherException(infoVos.get(0).getDesignNo() + "已添加，请勿重复添加");
         }
-        dto.forEach(item ->{
+        for (FabricSummaryInfoVo item : dto) {
+            if (StringUtils.isBlank(item.getFabricSummaryId())){
+                continue;
+            }
             List<FabricSummaryStyle> list = fabricSummaryStyleService.getByGroupStyle(item.getFabricSummaryId(),groupServiceById.getId(),item.getBomId(),item.getStyleNo());
             if (CollUtil.isNotEmpty(list)){
                 throw new OtherException(item.getDesignNo() + "已添加，请勿重复添加");
             }
-        });
+        }
         List<FabricSummary> fabricSummaries = Lists.newArrayList();
         Map<String, FabricSummary> infoVoMap = Maps.newHashMap();
         List<FabricSummaryStyle> fabricSummaryStyles= Lists.newArrayList();
