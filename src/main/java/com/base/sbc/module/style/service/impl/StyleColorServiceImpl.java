@@ -1433,7 +1433,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
 
 
-        //region 20240527 huangqiang 生成报此款老款图片下载重新上传，上传成功后删除
+        //region 20240527 huangqiang 生成报此款老款图片下载重新上传
         uploadImg(user, styleColor, copyStyleColor);
         //endregion
         return true;
@@ -1456,19 +1456,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                     result = false;
                     log.info(e.getMessage());
 //                throw new RuntimeException(e);
-                }finally {
-                    //上传成功后删除
-                    if (uploadStatus) {
-                        DelStylePicDto delStylePicDto = new DelStylePicDto();
-                        delStylePicDto.setStyleColorId(styleColor.getId());
-                        delStylePicDto.setStyleId(styleColor.getStyleId());
-                        uploadFileService.delStyleColorImage(delStylePicDto, user,styleColorPic,"0");
-                        uploadFileService.delStyleColorImage(delStylePicDto, user,styleColorPic,"1");
-                    }
                 }
-            }
-            if (!result) {
-                throw new OtherException("图片上传失败！");
             }
         }
     }
