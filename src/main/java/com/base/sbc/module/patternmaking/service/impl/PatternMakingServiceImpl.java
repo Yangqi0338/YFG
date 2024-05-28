@@ -212,6 +212,14 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return patternMaking;
     }
 
+    private void checkRequiredParam(PatternMakingDto dto) {
+        if (!StrUtil.equals("拍照样", dto.getSampleType()) && !StrUtil.equals("产前样", dto.getSampleType())) {
+            if (StrUtil.isEmpty(dto.getIngredient())) {
+                throw new OtherException("面料成分为空");
+            }
+        }
+    }
+
     @Override
     public void checkPatSeqRepeat(String styleId, String patternMakingId, String patSeq) {
         //校验打样顺序重复  patSeq
