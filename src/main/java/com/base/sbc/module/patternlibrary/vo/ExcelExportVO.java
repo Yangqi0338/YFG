@@ -27,7 +27,7 @@ import java.net.URL;
 @ContentRowHeight(60)
 @ContentStyle(
         wrapped = BooleanEnum.TRUE,
-        horizontalAlignment =  HorizontalAlignmentEnum.CENTER,
+        horizontalAlignment = HorizontalAlignmentEnum.CENTER,
         verticalAlignment = VerticalAlignmentEnum.CENTER,
         shrinkToFit = BooleanEnum.TRUE
 )
@@ -135,6 +135,20 @@ public class ExcelExportVO implements Serializable {
     @ApiModelProperty("部件库-子表部件数据")
     @ExcelProperty(value = "涉及部件")
     private String patternLibraryItemParts;
+
+    /**
+     * 版型使用率
+     */
+    @ApiModelProperty("版型使用率")
+    @ExcelProperty(value = "版型使用率")
+    private String patternLibraryUtilization;
+
+    /**
+     * 使用款记录数量
+     */
+    @ApiModelProperty("使用款记录数量")
+    @ExcelProperty(value = "使用款记录数量")
+    private String useStyleNum;
 
     /**
      * 状态（1-待补齐 2-待提交 3-待审核 4-已审核 5-已驳回）

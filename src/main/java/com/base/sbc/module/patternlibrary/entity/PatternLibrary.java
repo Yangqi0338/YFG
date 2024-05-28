@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -207,7 +206,7 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
      */
     @ApiModelProperty("版型使用率")
     @TableField(exist = false)
-    private BigDecimal patternLibraryUtilization;
+    private String patternLibraryUtilization;
 
     /**
      * 使用款记录数量

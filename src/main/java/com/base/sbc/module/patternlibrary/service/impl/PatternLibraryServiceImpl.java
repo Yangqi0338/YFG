@@ -2,8 +2,6 @@ package com.base.sbc.module.patternlibrary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -32,7 +30,6 @@ import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
-import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.*;
@@ -56,7 +53,6 @@ import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.task.vo.FlowTaskDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.google.common.base.Functions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -69,7 +65,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -210,7 +205,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             }
 
             for (PatternLibrary patternLibrary : patternLibraryList) {
-                setPatternLibrary(patternLibrary, patternLibraryTemplateMap, patternLibraryBrandMap, patternLibraryItemMap);
+                setPatternLibrary(patternLibraryPageDTO.getIsExcel(), patternLibrary, patternLibraryTemplateMap, patternLibraryBrandMap, patternLibraryItemMap);
             }
         }
         return new PageInfo<>(patternLibraryList);
@@ -544,16 +539,16 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         queryWrapper.eq("ts.registering_id", useStyleDTO.getPatternLibraryId());
         queryWrapper.orderByDesc("ts.create_date");
         List<UseStyleVO> useStyleVOList = baseMapper.listUseStyle(queryWrapper);
-        
+
         /* ----------------------------获取多数据源的销售数据---------------------------- */
-        
+
         SaleProductIntoDto saleProductIntoDto = new SaleProductIntoDto();
         saleProductIntoDto.setBulkStyleNoList(useStyleVOList.stream().map(UseStyleVO::getStyleNo).collect(Collectors.toList()));
         // 只要销售
         saleProductIntoDto.setResultTypeList(Arrays.stream(StyleSaleIntoResultType.values()).filter(it-> it.getCode().contains("sale")).collect(Collectors.toList()));
         // 根据款号和年限分组
-        smpService.querySaleIntoPage(saleProductIntoDto).stream().collect(Collectors.groupingBy(it-> it.getBulkStyleNo() + COMMA + it.getYear()))
-                .forEach((key,sameKeyList)-> {
+        smpService.querySaleIntoPage(saleProductIntoDto).stream().collect(Collectors.groupingBy(it -> it.getBulkStyleNo() + COMMA + it.getYear()))
+                .forEach((key, sameKeyList) -> {
                     String[] keyArray = key.split(COMMA);
                     int saleSum = sameKeyList.stream().flatMapToInt(it -> it.getSizeMap().values().stream().mapToInt(Double::intValue)).sum();
                     useStyleVOList.stream().filter(it-> it.getStyleNo().equals(ArrayUtil.get(keyArray, 0))).findFirst().ifPresent(useStyleVO-> {
@@ -1048,15 +1043,18 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     /**
      * 设置返回值
      *
+     * @param isExcel                   是否是导出
      * @param patternLibrary            主表返回对象
      * @param patternLibraryTemplateMap 模板表 map
      * @param patternLibraryBrandMap    品类表 map
      * @param patternLibraryItemMap     子表 map
      */
-    private static void setPatternLibrary(PatternLibrary patternLibrary,
+    private static void setPatternLibrary(Integer isExcel,
+                                          PatternLibrary patternLibrary,
                                           Map<String, PatternLibraryTemplate> patternLibraryTemplateMap,
                                           Map<String, List<PatternLibraryBrand>> patternLibraryBrandMap,
                                           Map<String, List<PatternLibraryItem>> patternLibraryItemMap) {
+        patternLibrary.setPatternLibraryUtilization(patternLibrary.getPatternLibraryUtilization() + "%");
         // 设置所属版型库数据
         patternLibrary.setPatternLibraryTemplate(
                 patternLibraryTemplateMap.get(patternLibrary.getTemplateCode())
@@ -1114,15 +1112,24 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                             .map(item -> item.getName() + "：纸样实际尺寸 " + item.getPatternSize() + "\n")
                             .collect(Collectors.joining("")).trim()
             );
-            // 部件
-            patternLibrary.setPatternLibraryItemParts(
-                    patternLibraryItemLists.stream()
-                            .filter(item -> item.getType().equals(4))
-                            .map(PatternLibraryItem::getName)
-                            .distinct()
-                            .collect(Collectors.joining("/")).trim()
+            List<PatternLibraryItem> patternLibraryItemList = patternLibraryItemLists.stream()
+                    .filter(item -> item.getType().equals(4)).collect(Collectors.toList());
 
-            );
+
+            String patternLibraryItemParts = "";
+            if (isExcel.equals(0) && patternLibraryItemList.size() > 3) {
+                patternLibraryItemParts = patternLibraryItemList
+                        .stream().map(item -> item.getName() + ":" + item.getCode() + "\n")
+                        .limit(3)
+                        .collect(Collectors.joining("")).trim();
+                patternLibraryItemParts += "\n" + "……";
+            } else {
+                patternLibraryItemParts = patternLibraryItemList
+                        .stream().map(item -> item.getName() + ":" + item.getCode() + "\n")
+                        .collect(Collectors.joining("")).trim();
+            }
+            // 部件
+            patternLibrary.setPatternLibraryItemParts(patternLibraryItemParts);
         }
     }
 
