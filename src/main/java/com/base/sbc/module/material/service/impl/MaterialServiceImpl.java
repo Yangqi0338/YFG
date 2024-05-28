@@ -364,6 +364,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
                 result.put(key,r);
             }
             materialList.add(BeanUtil.copyProperties(material,MaterialVo.class));
+            minioUtils.setObjectUrlToList(materialList, "picUrl");
         }
         List<AssociationMaterialVo> collect = result.values().stream().collect(Collectors.toList());
 
