@@ -23,17 +23,11 @@ public class CountryQueryDto extends Page {
     @ApiModelProperty(value = "编码")
     private CountryLanguageType type;
 
-    @ApiModelProperty(value = "国家编码")
-    private String countryCode;
-
-    @ApiModelProperty(value = "国家名")
-    private String countryName;
+    @ApiModelProperty(value = "名称")
+    private String name;
 
     @ApiModelProperty(value = "语种编码")
     private String languageCode;
-
-    @ApiModelProperty(value = "语种名")
-    private String languageName;
 
     @ApiModelProperty(value = "停用标识")
     private YesOrNoEnum enableFlag;
@@ -46,6 +40,9 @@ public class CountryQueryDto extends Page {
 
     @ApiModelProperty(value = "是否缓存")
     private String cache;
+
+    @ApiModelProperty(value = "是否缓存")
+    private boolean decorateLanguageName;
 
     public boolean isCache() {
         return StrUtil.equals(YesOrNoEnum.YES.getValueStr(), cache);

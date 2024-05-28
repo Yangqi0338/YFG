@@ -121,4 +121,77 @@ public class TaskController {
         apiResult.setData(data1);
         return apiResult;
     }
+
+    @ApiOperation(value = "获取已办列表", response = FlowTaskDto.class)
+    @GetMapping(value = "/finishedList")
+    public ApiResult finishedList(FlowQueryVo queryVo){
+         //queryVo转map
+        Map<String,Object> map=new HashMap<>();
+        map.put("category",queryVo.getCategory());
+        map.put("taskName",queryVo.getTaskName());
+        map.put("startUserId",queryVo.getStartUserId());
+        map.put("createTime",queryVo.getCreateTime());
+        map.put("contentApproval",queryVo.getContentApproval());
+        map.put("isAdmin",queryVo.getIsAdmin());
+        map.put("pageNum",queryVo.getPageNum());
+        map.put("pageSize",queryVo.getPageSize());
+        map.put("startTime",queryVo.getStartTime());
+        map.put("endTime",queryVo.getEndTime());
+        map.put("procDefName",queryVo.getProcDefName());
+        map.put("search",queryVo.getSearch());
+        ApiResult apiResult = flowableFeignService.finishedList(map);
+        Map<String,Object> data1 = (Map<String, Object>) apiResult.getData();
+        String jsonString = JSON.toJSONString(data1);
+        JSONObject jsonObject = JSON.parseObject(jsonString);
+        JSONArray jsonArray= jsonObject.getJSONArray("list");
+        List<FlowTaskDto> data = jsonArray.toJavaList(FlowTaskDto.class);
+
+        if (data!=null&& !data.isEmpty()) {
+            for (FlowTaskDto flowTaskDto : data) {
+                String contentApproval = flowTaskDto.getContentApproval();
+                String procDefName = flowTaskDto.getProcDefName();
+                /*判断是否是款式设计的审批*/
+                if (StrUtil.isNotBlank(contentApproval) && StrUtil.equals(procDefName, "款式设计审批")) {
+                    /*获取[]中的元素*/
+                    Pattern pattern = Pattern.compile("\\[(.*?)\\]");
+                    Matcher matcher = pattern.matcher(contentApproval);
+                    if (matcher.find()) {
+                        /*设计款号*/
+                        String designNo = matcher.group(1);
+                        if (StrUtil.isNotBlank(designNo)) {
+                            Style style = styleService.getOne(new BaseQueryWrapper<Style>().eq("design_no", designNo));
+                            if (ObjectUtil.isEmpty(style)) {
+                                continue;
+                            }
+                            List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(style.getId(), AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
+                            if (attachmentVoList1 != null && !attachmentVoList1.isEmpty()) {
+                                flowTaskDto.setPic(attachmentVoList1.get(0).getUrl());
+                            }
+                            flowTaskDto.setStylePic(stylePicUtils.getStyleUrl(style.getStylePic()));
+                        }
+                    }
+
+                }
+
+
+                // List<String> ids = data.stream().map(FlowTaskDto::getPic).filter(res -> !StringUtils.isEmpty(res) ).collect(Collectors.toList());
+                // if (!ids.isEmpty()){
+                //     List<Attachment> attachments = attachmentService.listByIds(ids);
+                //     List<String> fileIds = attachments.stream().map(Attachment::getFileId).collect(Collectors.toList());
+                //     Map<String,String > collect1 = attachments.stream().collect(Collectors.toMap(Attachment::getId, Attachment::getFileId));
+                //     List<UploadFile> uploadFiles = uploadFileService.listByIds(fileIds);
+                //     Map<String, String> collect = uploadFiles.stream().collect(Collectors.toMap(UploadFile::getId, UploadFile::getUrl));
+                //     for (FlowTaskDto flowTaskDto : data) {
+                //         String s = collect1.get(flowTaskDto.getPic());
+                //         if (!StringUtils.isEmpty(s)){
+                //             flowTaskDto.setPic(minioUtils.getObjectUrl(collect.get(s)));
+                //         }
+                //     }
+            }
+
+        }
+        data1.put("list",data);
+        apiResult.setData(data1);
+        return apiResult;
+    }
 }

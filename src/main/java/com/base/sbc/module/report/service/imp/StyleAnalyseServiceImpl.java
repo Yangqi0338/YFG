@@ -3,6 +3,8 @@ package com.base.sbc.module.style.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.QueryGenerator;
@@ -38,6 +40,8 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
     private StylePicUtils stylePicUtils;
     @Autowired
     private FieldValService fieldValService;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
     public PageInfo<StyleAnalyseVo> findDesignPage(StyleAnalyseQueryDto dto) {
@@ -50,6 +54,8 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
             if (StrUtil.isNotEmpty(dto.getColumnHeard()) && dto.getQueryFieldColumn().equals(dto.getColumnHeard())) {
                 qw.like("tfv.val_name", dto.getFieldQueryMap().get(dto.getQueryFieldColumn()));
             }
+            // 数据权限
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleAnalyseDesign.getK());
             List<StyleAnalyseVo> list = styleAnalyseMapper.findPageField(qw, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY, s);
 
             for (StyleAnalyseVo styleAnalyseVo : list) {
@@ -110,7 +116,8 @@ public class StyleAnalyseServiceImpl implements StyleAnalyseService {
         qw.notEmptyEq("t.year", yearParam);
         qw.notEmptyEq("t.season", seasonParam);
         QueryGenerator.reportParamBulkStyleNosCheck(designNos, yearParam, seasonParam);
-
+        // 数据权限
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.styleAnalyseStyle.getK());
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qw, dto);
         if (isColumnHeard && StrUtil.isNotEmpty(dto.getQueryFieldColumn())) {
             String s = dto.getQueryFieldColumn().split("\\.")[1];

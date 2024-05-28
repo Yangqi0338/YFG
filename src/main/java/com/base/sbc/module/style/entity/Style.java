@@ -603,6 +603,13 @@ public class Style extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "销售类型名称"  )
     private String salesTypeName;
+
+    /** 发送部门 */
+    @ApiModelProperty(value = "发送部门"  )
+    private String sendDeptId;
+    /** 接收部门 */
+    @ApiModelProperty(value = "接收部门"  )
+    private String receiveDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

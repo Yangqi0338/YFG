@@ -58,6 +58,8 @@ public class QueryDto extends Page {
     private String careLabel;
     @ApiModelProperty(value = "描述 "  )
     private String description;
+    @ApiModelProperty(value = "洗标类型 "  )
+    private String washType;
 
     private String  dimensionType;
 

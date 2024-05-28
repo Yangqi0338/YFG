@@ -87,6 +87,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
         BaseQueryWrapper queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("company_code", baseController.getUserCompany());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getYearName()), "year_name", queryFabricInformationDto.getYearName());
+        queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getSupplierCode()), "supplier_code", queryFabricInformationDto.getSupplierCode());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getSeasonName()), "season", queryFabricInformationDto.getSeasonName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getBrandName()), "brand", queryFabricInformationDto.getBrandName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricInformationDto.getIsNewFabric()), "is_new_fabric", queryFabricInformationDto.getIsNewFabric());
@@ -99,7 +100,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
           /*  queryWrapper.apply("and ( supplier_material_code like concat('%','" + queryFabricInformationDto.getSearch() + "','%') " +
                     " or  supplier_name like concat('%','" + queryFabricInformationDto.getSearch() + "','%')");*/
         }
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"brand:brand"},true);
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"",new String[]{"brand:brand","create_dept_id:create_dept_id"},true);
         Page<FabricBasicInformation>  objects = PageHelper.startPage(queryFabricInformationDto);
         baseMapper.selectList(queryWrapper);
         PageInfo<FabricInformationVo> copy = CopyUtil.copy(objects.toPageInfo(), FabricInformationVo.class);
@@ -142,6 +143,7 @@ public class FabricBasicInformationServiceImpl extends BaseServiceImpl<FabricBas
             //fabricBasicInformation.setCompanyCode(baseController.getUserCompany());
             saveUpdateFabricBasicDto.setId(null);
             saveUpdateFabricBasicDto.setRegisterDate(new Date());
+            saveUpdateFabricBasicDto.setCreateDeptId(getVirtualDetpIds());
             this.save(saveUpdateFabricBasicDto);
             FabricBasicInformation f = this.getById(saveUpdateFabricBasicDto.getId());
             this.saveOperaLog("新增","面料调样单",null,f.getCodeName(),saveUpdateFabricBasicDto,null);

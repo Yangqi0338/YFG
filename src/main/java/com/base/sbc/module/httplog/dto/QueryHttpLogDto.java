@@ -8,4 +8,8 @@ public class QueryHttpLogDto {
     private  String  threadId;
     private String startTime;
     private String url;
+    /** 文档名称 */
+    private String reqName;
+
+    private String userName;
 }

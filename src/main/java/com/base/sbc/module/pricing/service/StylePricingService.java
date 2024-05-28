@@ -61,6 +61,8 @@ public interface StylePricingService extends BaseService<StylePricing> {
      */
     void insertOrUpdateBatch(List<StylePricingSaveDTO> stylePricingSaves, String companyCode);
 
+    void unAuditStatus(List<String> ids);
+
 
 // 自定义方法区 不替换的区域【other_end】
 

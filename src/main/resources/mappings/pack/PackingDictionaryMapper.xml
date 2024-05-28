@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.pack.mapper.PackingDictionaryMapper">
+    <insert id="addPacking">
+        INSERT INTO t_packaging_dictionary
+        ( packaging_form ,packaging_form_name,parent_id, name, volume_length, volume_width, volume_height, del_flag, create_id, create_name, create_date, update_name, update_date, update_id)
+        VALUES
+        ( #{dto.packagingForm},#{dto.packagingFormName}, #{dto.parentId}, #{dto.name}, #{dto.volumeLength}, #{dto.volumeWidth}, #{dto.volumeHeight}, #{dto.delFlag}, #{dto.createId}, #{dto.createName}, #{dto.createDate}, #{dto.updateName}, #{dto.updateDate},#{dto.updateId})
+    </insert>
+    <update id="updatePacking">
+        UPDATE t_packaging_dictionary
+        <set>
+            <trim suffixOverrides=",">
+                <if test="dto.packagingForm != null">
+                    packaging_form = #{dto.packagingForm},
+                </if>
+                <if test="dto.packagingFormName != null">
+                    packaging_form_name = #{dto.packagingFormName},
+                </if>
+                <if test="dto.parentId != null">
+                    parent_id = #{dto.parentId},
+                </if>
+                <if test="dto.name != null">
+                    name = #{dto.name},
+                </if>
+                <if test="dto.volumeLength != null">
+                    volume_length = #{dto.volumeLength},
+                </if>
+                <if test="dto.volumeWidth != null">
+                    volume_width = #{dto.volumeWidth},
+                </if>
+                <if test="dto.volumeHeight != null">
+                    volume_height = #{dto.volumeHeight},
+                </if>
+                <if test="dto.delFlag != null">
+                    del_flag = #{dto.delFlag},
+                </if>
+                <if test="dto.createId != null">
+                    create_id = #{dto.createId},
+                </if>
+                <if test="dto.createName != null">
+                    create_name = #{dto.createName},
+                </if>
+                <if test="dto.createDate != null">
+                    create_date = #{dto.createDate},
+                </if>
+                <if test="dto.updateName != null">
+                    update_name = #{dto.updateName},
+                </if>
+                <if test="dto.updateDate != null">
+                    update_date = #{dto.updateDate},
+                </if>
+                <if test="dto.updateId != null">
+                    update_id = #{dto.updateId}
+                </if>
+            </trim>
+        </set>
+        WHERE id = #{dto.id}
+    </update>
+
+    <select id="listPackingDictionary" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
+        SELECT
+        id,
+        packaging_form as packagingForm,
+        packaging_form_name as packagingFormName,
+        parent_id as parentId,
+        name,
+        volume_length as volumeLength,
+        volume_width as volumeWidth,
+        volume_height as volumeHeight,
+        del_flag as delFlag,
+        create_id as createId,
+        create_name as createName,
+        create_date as createDate,
+        update_name as updateName,
+        update_date as updateDate,
+        update_id as updateId
+        FROM t_packaging_dictionary
+        WHERE del_flag='0'
+    </select>
+    <select id="queryPackingDictionary" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
+        SELECT
+        id, packaging_form AS packagingForm, packaging_form_name AS packagingFormName, parent_id AS parentId, name,
+        volume_length AS volumeLength, volume_width AS volumeWidth, volume_height AS volumeHeight,
+        del_flag AS delFlag, create_id AS createId, create_name AS createName, create_date AS createDate,
+        update_name AS updateName, update_date AS updateDate, update_id AS updateId
+        FROM t_packaging_dictionary AS pd
+        WHERE 1=1
+        <if test="dto.id != null">
+            AND pd.id &lt;&gt; #{dto.id}
+        </if>
+        <if test="dto.parentId != null">
+            AND pd.parent_id = #{dto.parentId}
+        </if>
+        <if test="dto.name != null">
+            AND pd.name = #{dto.name}
+        </if>
+        AND pd.del_flag='0'
+    </select>
+    <select id="queryPacking" resultType="com.base.sbc.module.pack.entity.PackingDictionary">
+        SELECT
+        id, packaging_form AS packagingForm, packaging_form_name AS packagingFormName, parent_id AS parentId, name,
+        volume_length AS volumeLength, volume_width AS volumeWidth, volume_height AS volumeHeight,
+        del_flag AS delFlag, create_id AS createId, create_name AS createName, create_date AS createDate,
+        update_name AS updateName, update_date AS updateDate, update_id AS updateId
+        FROM t_packaging_dictionary AS pd
+        WHERE
+         pd.parent_id = #{parentId}
+        AND pd.name = #{name}
+        AND pd.del_flag = '0'
+    </select>
+</mapper>
+

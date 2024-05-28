@@ -6,9 +6,12 @@
  *****************************************************************************/
 package com.base.sbc.module.hangtag.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.module.hangtag.dto.HangTagSearchDTO;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.entity.HangTagInspectCompany;
 import com.base.sbc.module.hangtag.vo.HangTagListVO;
 import com.base.sbc.module.hangtag.vo.HangTagVO;
 import com.base.sbc.module.smp.entity.TagPrinting;
@@ -36,7 +39,7 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
      * @param dto
      * @return
      */
-    List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto, @Param("authSql") String authSql);
+    List<HangTagListVO> queryList(@Param("dto") HangTagSearchDTO dto, @Param(Constants.WRAPPER) QueryWrapper<HangTagListVO> qw);
 
 
     List<TagPrinting> hangTagPrinting(@Param("companyCode") String companyCode, @Param("styleNo") String styleNo,@Param("likeQueryFlag") String likeQueryFlag);
@@ -53,5 +56,9 @@ public interface HangTagMapper extends BaseMapper<HangTag> {
                                       @Param("selectType") String selectType);
 
 // 自定义方法区 不替换的区域【other_end】
+    int addHangTagInspectCompany(@Param("htc")HangTagInspectCompany htc);
+
+    HangTagInspectCompany listHangTagInspectCompany(@Param("inspectCompanyId")String inspectCompanyId,@Param("hangTagId")String hangTagId);
+
 }
 

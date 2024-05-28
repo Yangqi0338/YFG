@@ -5,18 +5,19 @@
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
 package com.base.sbc.module.sample.entity;
-import java.math.BigDecimal;
-import java.util.Date;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.Date;
+
 /**
  * 类描述：调样-辅料信息 实体类
  * @address com.base.sbc.module.sample.entity.FabricIngredientsInfo
@@ -49,6 +50,14 @@ public class FabricIngredientsInfo extends BaseDataEntity<String> {
     /** 品类名称 */
     @ApiModelProperty(value = "品类名称"  )
     private String categoryName;
+//    /** 品牌 */
+//    @NotBlank(message = "品牌字段不能为空")
+//    @ApiModelProperty(value = "品牌"  )
+//    private String brand;
+//    /** 品牌名称 */
+//    @NotBlank(message = "品牌名称字段不能为空")
+//    @ApiModelProperty(value = "品牌名称"  )
+//    private String brandName;
     /** 开发类型 */
     @ApiModelProperty(value = "开发类型"  )
     private String devType;
@@ -148,6 +157,9 @@ public class FabricIngredientsInfo extends BaseDataEntity<String> {
     @ApiModelProperty(value = "完成状态"  )
     private String completionStatus;
 
+    /** 创建部门 */
+    @ApiModelProperty(value = "创建部门"  )
+    private String createDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

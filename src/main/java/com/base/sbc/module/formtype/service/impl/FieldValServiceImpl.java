@@ -16,6 +16,7 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +38,7 @@ public class FieldValServiceImpl extends BaseServiceImpl<FieldValMapper, FieldVa
     @Override
     public List<FieldVal> list(String foreignId, String dataGroup) {
         if (StrUtil.hasBlank(foreignId, dataGroup)) {
-            return null;
+            return new ArrayList<>();
         }
         QueryWrapper<FieldVal> fvQw = new QueryWrapper<>();
         fvQw.eq("foreign_id", foreignId);

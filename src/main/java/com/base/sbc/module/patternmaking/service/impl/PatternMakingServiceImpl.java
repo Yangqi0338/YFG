@@ -23,6 +23,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -35,6 +36,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
@@ -80,6 +82,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -135,9 +138,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Autowired
     private BasicsdatumResearchProcessNodeService basicsdatumResearchProcessNodeService;
-
-    @Autowired
-    private PatternMakingService patternMakingService;
 
 
     private final ReentrantLock lock = new ReentrantLock();
@@ -503,7 +503,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
 
     @Override
     public PageInfo technologyCenterTaskList(TechnologyCenterTaskSearchDto dto) {
-        QueryWrapper qw = new QueryWrapper();
+        BaseQueryWrapper qw = new BaseQueryWrapper();
+
+        QueryGenerator.initQueryWrapperByMap(qw,dto);
+
+        //不要注释，滞留款查询正在使用这些条件
         qw.like(StrUtil.isNotBlank(dto.getSearch()), "s.design_no", dto.getSearch());
         qw.like(StrUtil.isNotBlank(dto.getSampleType()), "p.sample_type_name", dto.getSampleType());
         qw.eq(StrUtil.isNotBlank(dto.getUrgencyName()), "p.urgency_name", dto.getUrgencyName());
@@ -514,7 +518,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         qw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "p.planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), CharUtil.COMMA));
         qw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "s.designer_id", StrUtil.split(dto.getDesignerIds(), CharUtil.COMMA));
         qw.eq(StrUtil.isNotBlank(dto.getProdCategory()), "s.prod_category", dto.getProdCategory());
-        qw.eq( "p.disable_flag", BaseGlobal.NO);
+
         if (StrUtil.isNotBlank(dto.getDesignSendDate())) {
             String[] split = dto.getDesignSendDate().split(",");
             qw.ge("p.design_send_date", split[0]);
@@ -526,6 +530,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
             qw.le("p.prm_send_date", split[1]);
         }
 
+        qw.eq( "p.disable_flag", BaseGlobal.NO);
         qw.eq("design_send_status", BaseGlobal.YES);
         qw.eq("s.del_flag", BaseGlobal.NO);
         qw.eq("p.del_flag", BaseGlobal.NO);
@@ -552,8 +557,10 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 qw.ge("p.receive_sample_date", split[0]);
                 qw.le("p.receive_sample_date", split[1]);
             }
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.retentionStyle.getK());
+        }else{
+            dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         }
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.technologyCenter.getK());
         Page<TechnologyCenterTaskVo> page = null;
         if (dto.getPageNum() != 0 && dto.getPageSize() != 0) {
             page = PageHelper.startPage(dto);
@@ -769,8 +776,12 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         // 版房主管和设计师 看到全部，版师、裁剪工、车缝工、样衣组长看到自己,
 //        amcFeignService.teamAuth(qw, "s.planning_season_id", getUserId());
 
-        // 数据权限
-        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType(), "s.");
+        // 数据权限 -- 这里 打版任务、样衣任务都走这里查询，所以数据权限根据前端传值查询
+        //打版任务  patternMakingTask
+        //样衣任务  sampleTask
+        //黑单打版任务    blackPatternMakingTask
+        //黑单样衣任务    blackSampleTask
+        dataPermissionsService.getDataPermissionsForQw(qw, dto.getBusinessType());
         if (StrUtil.isBlank(dto.getOrderBy())) {
             qw.orderByDesc("p.create_date");
             qw.orderByAsc("p.sort");
@@ -819,6 +830,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("suspend_remarks", dto.getSuspendRemarks());
         uw.eq("id", dto.getId());
         setUpdateInfo(uw);
+        setSuspendDateRecord(uw, dto.getId(), BaseGlobal.YES);
         return update(uw);
     }
 
@@ -828,6 +840,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         uw.set("suspend", BaseGlobal.NO);
         uw.eq("id", id);
         setUpdateInfo(uw);
+        setSuspendDateRecord(uw, id, BaseGlobal.NO);
         return update(uw);
     }
 
@@ -946,11 +959,18 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         sdQw.eq(StrUtil.isNotBlank(dto.getDesignerId()), "designer_id", dto.getDesignerId());
         sdQw.in(StrUtil.isNotBlank(dto.getDesignerIds()), "designer_id", StrUtil.split(dto.getDesignerIds(), StrUtil.COMMA));
         sdQw.in(StrUtil.isNotBlank(dto.getPlanningSeasonId()), "planning_season_id", StrUtil.split(dto.getPlanningSeasonId(), StrUtil.COMMA));
-        dataPermissionsService.getDataPermissionsForQw(sdQw, DataPermissionsBusinessTypeEnum.patternMakingSteps.getK());
         sdQw.eq(COMPANY_CODE, getCompanyCode());
         sdQw.eq("del_flag", BaseGlobal.NO);
         sdQw.eq("status", BasicNumber.TWO.getNumber());
-        sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0'");
+
+        BaseQueryWrapper<Style> permissionSql = new BaseQueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(permissionSql, DataPermissionsBusinessTypeEnum.patternMakingSteps.getK());
+        String sqlSegment = permissionSql.getSqlSegment();
+        if(StrUtil.isNotBlank(sqlSegment)) {
+            sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0' and " + sqlSegment);
+        }else{
+            sdQw.exists("select id from t_pattern_making where style_id=t_style.id and del_flag='0'");
+        }
 //        if (StrUtil.isNotBlank(dto.getOrderBy())) {
 //        }
         dto.setOrderBy("create_date desc");
@@ -1025,7 +1045,11 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                 return new PageInfo<>(null);
             }
         }
-        List<StyleResearchProcessVo> list = this.getBaseMapper().getResearchProcessList(dto);
+
+        BaseQueryWrapper<StyleResearchProcessVo> qw = new BaseQueryWrapper();
+        dataPermissionsService.getDataPermissionsForQw(qw,DataPermissionsBusinessTypeEnum.style_research_node.getK());
+
+        List<StyleResearchProcessVo> list = this.getBaseMapper().getResearchProcessList(dto,qw);
 
         //region 节点明细数据
         StyleResearchNodeVo styleResearchNodeVo = null;
@@ -1208,7 +1232,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         patternMakingQueryWrapper.eq("style_id",stylelId);
         patternMakingQueryWrapper.last(" limit 1 ");
         patternMakingQueryWrapper.orderByAsc("create_date");
-        PatternMaking patternMaking = patternMakingService.getOne(patternMakingQueryWrapper);
+        PatternMaking patternMaking = this.getOne(patternMakingQueryWrapper);
         if (patternMaking != null) {
             patternMakeId = patternMaking.getId();
         }
@@ -1382,7 +1406,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         }*/
 
         Page<SampleBoardVo> objects = PageHelper.startPage(dto);
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
+        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK());
         if(!StringUtils.isBlank(dto.getDeriveflag())){
             qw.groupBy("p.id");
             baseMapper.deriveList(qw);
@@ -1428,14 +1452,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         dto.setDeriveflag(BaseGlobal.YES);
         PageInfo<SampleBoardExcel> sampleBoardVoPageInfo = sampleBoardList(dto);
         List<SampleBoardExcel> excelList = sampleBoardVoPageInfo.getList();
-
-        //region 导出去掉设计师编码
-        excelList.forEach(item->{
-            if (StrUtil.isNotEmpty(item.getDesigner())) {
-                item.setDesigner(StrUtil.subBefore(item.getDesigner(),",",true));
-            }
-        });
-        //endregion
 
         /*开启一个线程池*/
         ExecutorService executor = ExecutorBuilder.create()
@@ -1489,16 +1505,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     public List<SampleUserVo> getAllPatternDesignList(PatternUserSearchVo vo) {
 
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.select("DISTINCT pattern_design_id as user_id, pattern_design_name as name");
-        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
-                .isNotNull(PatternMaking::getPatternDesignId)
-                .isNotNull(PatternMaking::getPatternDesignName)
-                .ne(PatternMaking::getPatternDesignName, "")
-                .ne(PatternMaking::getPatternDesignId, "")
+        qw.select("DISTINCT p.pattern_design_id as user_id, p.pattern_design_name as name");
+        qw.isNotNull("p.pattern_design_id")
+                .isNotNull("p.pattern_design_name")
+                .ne("p.pattern_design_id", "")
+                .ne("p.pattern_design_name", "")
                 // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
-        List<Map<String, Object>> maps = listMaps(qw);
-        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+        List<PatternMakingTaskListVo> list1 = getBaseMapper().patternMakingTaskList(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(list1, SampleUserVo.class);
         amcFeignService.setUserAvatarToList(list);
         return list;
     }
@@ -1506,16 +1522,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public List<SampleUserVo> getAllCutterList(PatternUserSearchVo vo) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.select("DISTINCT cutter_id as user_id, cutter_name as name");
-        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
-                .isNotNull(PatternMaking::getCutterName)
-                .isNotNull(PatternMaking::getCutterId)
-                .ne(PatternMaking::getCutterName, "")
-                .ne(PatternMaking::getCutterId, "")
+        qw.select("DISTINCT p.cutter_id as user_id, p.cutter_name as name");
+        qw.isNotNull("p.cutter_id")
+                .isNotNull("p.cutter_name")
+                .ne("p.cutter_id", "")
+                .ne("p.cutter_name", "")
                 // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
-        List<Map<String, Object>> maps = listMaps(qw);
-        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+        List<PatternMakingTaskListVo> list1 = getBaseMapper().patternMakingTaskList(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(list1, SampleUserVo.class);
         amcFeignService.setUserAvatarToList(list);
         return list;
     }
@@ -1523,17 +1539,16 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     public List<SampleUserVo> getAllStitcherList(PatternUserSearchVo vo) {
         QueryWrapper<PatternMaking> qw = new QueryWrapper<>();
-        qw.select("DISTINCT stitcher_id as user_id,  stitcher as name");
-        qw.lambda().eq(PatternMaking::getCompanyCode, getCompanyCode())
-                .isNotNull(PatternMaking::getStitcher)
-                .isNotNull(PatternMaking::getStitcherId)
-                .ne(PatternMaking::getStitcher, "")
-                .ne(PatternMaking::getStitcherId, "")
+        qw.select("DISTINCT p.stitcher_id as user_id,  p.stitcher as name");
+        qw.isNotNull("p.stitcher_id")
+                .isNotNull("p.stitcher")
+                .ne("p.stitcher_id", "")
+                .ne("p.stitcher", "")
                 // .eq(StrUtil.isNotBlank(vo.getFinishFlag()), PatternMaking::getFinishFlag, vo.getFinishFlag())
         ;
-
-        List<Map<String, Object>> maps = listMaps(qw);
-        List<SampleUserVo> list = BeanUtil.copyToList(maps, SampleUserVo.class);
+        dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+        List<PatternMakingTaskListVo> list1 = getBaseMapper().patternMakingTaskList(qw);
+        List<SampleUserVo> list = BeanUtil.copyToList(list1, SampleUserVo.class);
         amcFeignService.setUserAvatarToList(list);
         return list;
     }
@@ -1622,6 +1637,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         ) {
             throw new OtherException("节点不匹配");
         }
+        if (StrUtil.isNotEmpty(dto.getSampleBarCode())) {
+            /*查询样衣码是否重复*/
+            checkSampleBarcodeRepeat(new SetSampleBarCodeDto(dto.getId(),dto.getSampleBarCode()));
+        }
+
+
+        //endregion
         sort(byId, true);
         byId.setStitcher(dto.getStitcher());
         byId.setStitcherId(dto.getStitcherId());
@@ -1629,6 +1651,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         byId.setSampleBarCode(dto.getSampleBarCode());
         byId.setSglKittingDate(new Date());
         byId.setStitcherRemark(dto.getStitcherRemark());
+        byId.setKittingReason(dto.getKittingReason());
         // 分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
         updateById(byId);
@@ -1949,6 +1972,22 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Transactional(rollbackFor = {Exception.class})
     public boolean setSampleBarCode(SetSampleBarCodeDto dto) {
         /*查询样衣码是否重复*/
+        checkSampleBarcodeRepeat(dto);
+        PatternMaking update = new PatternMaking();
+        update.setSampleBarCode(dto.getSampleBarCode());
+        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PatternMaking::getId, dto.getId());
+        return update(update, uw);
+    }
+
+    /**
+     * 查询样衣码是否重复
+     * @param dto
+     */
+    private void checkSampleBarcodeRepeat(SetSampleBarCodeDto dto) {
+        if (StrUtil.isEmpty(dto.getId())) {
+            throw new OtherException("id不能为空！");
+        }
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("sample_bar_code", dto.getSampleBarCode());
         queryWrapper.ne("id", dto.getId());
@@ -1957,11 +1996,6 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         if (CollUtil.isNotEmpty(patternMakingList)) {
             throw new OtherException("样衣条码重复");
         }
-        PatternMaking update = new PatternMaking();
-        update.setSampleBarCode(dto.getSampleBarCode());
-        UpdateWrapper<PatternMaking> uw = new UpdateWrapper<>();
-        uw.lambda().eq(PatternMaking::getId, dto.getId());
-        return update(update, uw);
     }
 
     @Override
@@ -2570,6 +2604,40 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         redisUtils.set(key, dataMap);
         // 9、解除缓存锁
         redisUtils.del(lockKey);
+    }
+
+    /**
+     * 记录挂起时间
+     * @param uw uw
+     * @param id 打版管理 id
+     * @param suspend 挂起状态
+     */
+    private void setSuspendDateRecord(UpdateWrapper uw, String id, String suspend){
+        //获取打版管理
+        PatternMaking byId = getById(id);
+        if (byId == null){
+            return;
+        }
+        SuspendDateRecordVo suspendDateRecordVo;
+        if (StringUtils.isNotBlank(byId.getSuspendDateRecord())){
+            suspendDateRecordVo = JSONObject.parseObject(byId.getSuspendDateRecord(), SuspendDateRecordVo.class);
+        }else {
+            suspendDateRecordVo = new SuspendDateRecordVo();
+        }
+
+        String currentFlag = StringUtils.isNotBlank(suspendDateRecordVo.getCurrentFlag()) ? suspendDateRecordVo.getCurrentFlag() : new IdGen().nextIdStr();
+        Map<String, SuspendDateRecordVo.SuspendDate> suspendDateMap = CollectionUtils.isEmpty(suspendDateRecordVo.getSuspendDateMap()) ? Maps.newHashMap() : suspendDateRecordVo.getSuspendDateMap();
+        SuspendDateRecordVo.SuspendDate suspendDate = null == suspendDateMap.get(currentFlag) ? new SuspendDateRecordVo.SuspendDate(byId.getStatus(),byId.getNode()) : suspendDateMap.get(currentFlag);
+        if (BaseGlobal.YES.equals(suspend)){
+            suspendDate.setStartTime(new Date());
+            suspendDateRecordVo.setCurrentFlag(currentFlag);
+        }else {
+            suspendDate.setEndTime(new Date());
+            suspendDateRecordVo.setCurrentFlag(null);
+        }
+        suspendDateMap.put(currentFlag, suspendDate);
+        suspendDateRecordVo.setSuspendDateMap(suspendDateMap);
+        uw.set("suspend_date_record", JSON.toJSONString(suspendDateRecordVo));
     }
 
     // 自定义方法区 不替换的区域【other_end】

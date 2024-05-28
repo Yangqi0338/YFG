@@ -6,9 +6,11 @@
  *****************************************************************************/
 package com.base.sbc.module.planning.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.module.common.vo.CountVo;
 import com.base.sbc.module.common.vo.SelectOptionsVo;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.vo.PlanningChannelVo;
@@ -45,6 +47,8 @@ public interface PlanningChannelMapper extends BaseMapper<PlanningChannel> {
      * @return
      */
     List<SelectOptionsVo> channelClassifSelection(@Param("planningSeasonId") String planningSeasonId);
+
+    List<CountVo> selectIdCount(@Param(Constants.WRAPPER) QueryWrapper qw);
 
 
 // 自定义方法区 不替换的区域【other_end】

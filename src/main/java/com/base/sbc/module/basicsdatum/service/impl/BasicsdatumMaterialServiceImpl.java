@@ -49,6 +49,7 @@ import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
+import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.purchase.entity.MaterialStock;
 import com.base.sbc.module.purchase.service.MaterialStockService;
@@ -205,10 +206,17 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         } else {
             qc.eq("tbm.confirm_status", "2");
         }
+        qc.notEmptyIn("brand",dto.getBrandList());
         qc.orderByDesc("tbm.create_date");
         qc.eq("tbm.del_flag", "0");
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
-        List<BasicsdatumMaterialPageVo> list = baseMapper.listSku(qc);
+        List<BasicsdatumMaterialPageVo> list;
+        if ("1".equals(dto.getMergeMaterialColor())){
+            list = baseMapper.listMaterialPage(qc);
+        }else{
+            list = baseMapper.listSku(qc);
+        }
+
         // PageInfo<BasicsdatumMaterialPageVo> copy = CopyUtil.copy(new PageInfo<>(list), BasicsdatumMaterialPageVo.class);
         List<String> stringList = IdGen.getIds(list.size());
         int index = 0;
@@ -217,7 +225,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
             index++;
             String materialCode = basicsdatumMaterialPageVo.getMaterialCode();
             /*查询物料的最新检测报告*/
-           List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode));
+           List<EscmMaterialCompnentInspectCompanyDto>  escmMaterialCompnentInspectCompanyDto = escmMaterialCompnentInspectCompanyService.getListByMaterialsNo(new QueryWrapper<EscmMaterialCompnentInspectCompanyDto>().eq("materials_no", materialCode), new ArrayList<>());
             List<BasicsdatumMaterialWidth> basicsdatumMaterialWidths = materialWidthService.list(new QueryWrapper<BasicsdatumMaterialWidth>().eq("material_code", materialCode));
             List<String> collect = basicsdatumMaterialWidths.stream().map(BasicsdatumMaterialWidth::getName).collect(Collectors.toList());
             basicsdatumMaterialPageVo.setWidthName(String.join(",", collect));
@@ -233,6 +241,10 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 basicsdatumMaterialPageVo.setCheckItems(escmMaterialCompnentInspectCompanyDto.get(0).getSendInspectContent());
                 basicsdatumMaterialPageVo.setCheckOrderUserName(escmMaterialCompnentInspectCompanyDto.get(0).getMakerByName());
                 basicsdatumMaterialPageVo.setCheckFileUrl(escmMaterialCompnentInspectCompanyDto.get(0).getFileUrl());
+            }
+            if ("1".equals(dto.getMergeMaterialColor())){
+                // 补充合并颜色信息
+                fullMaterialColor(basicsdatumMaterialPageVo);
             }
 
         }
@@ -476,6 +488,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         qw.eq("bm.company_code", this.getCompanyCode());
         qw.notEmptyLike("bm.material_code_name", dto.getMaterialCodeName());
         qw.notEmptyLike("bm.material_code", dto.getMaterialCode());
+        qw.eq(StringUtils.isNotEmpty(dto.getMaterialCodeNoLike()),"bm.material_code", dto.getMaterialCodeNoLike());
         qw.notEmptyLike("bm.material_name", dto.getMaterialName());
         qw.notEmptyIn("bm.status", dto.getStatus());
         qw.notEmptyLike("bm.supplier_fabric_code", dto.getSupplierMaterialCode());
@@ -606,8 +619,21 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                 .eq("company_code", this.getCompanyCode()).eq("Material_Code", dto.getMaterialCode())
                 .and(qw -> qw.eq("Width_Code", dto.getWidthCode()).or().eq("name", dto.getName())));
         if (count > 0) {
-            throw new OtherException("当前规格已存在");
+            throw new OtherException("当前规格已存在!");
         }
+
+        if (StrUtil.isNotEmpty(dto.getMaterialCode())) {
+            BaseQueryWrapper<BasicsdatumMaterialPageAndStyleDto> qc = new BaseQueryWrapper<>();
+            qc.notEmptyEq("t.materialsCode", dto.getMaterialCode());
+            List<BasicsdatumMaterialPageAndStyleVo> list = this.getBaseMapper().getBasicsdatumMaterialAndStyleList(qc);
+            if (CollUtil.isNotEmpty(list)) {
+                throw new OtherException("该物料规格已被BOM使用，无法修改。详情查看物料报表!");
+            }
+        }
+
+
+
+
         BasicsdatumMaterialWidth entity = CopyUtil.copy(dto, BasicsdatumMaterialWidth.class);
         BasicsdatumMaterialWidth oldEntity = null;
         String type = null;
@@ -873,6 +899,11 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         }
         minioUtils.setObjectUrlToList(list, "materialsImageUrl");
         return new PageInfo<>(list);
+    }
+
+    @Override
+    public List<String> getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo) {
+        return materialPriceService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
     }
 
     /**
@@ -1318,13 +1349,46 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         LambdaQueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<BasicsdatumMaterial>().lambda()
                 .in(BasicsdatumMaterial::getMaterialCode, materialCodes)
                 .eq(BasicsdatumMaterial::getDelFlag, "0")
-                .select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, BasicsdatumMaterial::getIngredient);
+                .select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, BasicsdatumMaterial::getIngredient,BasicsdatumMaterial::getSupplierFabricCode);
         List<BasicsdatumMaterial> list = super.list(qw);
         if (CollectionUtils.isEmpty(list)) {
             return new HashMap<>();
         }
         return list.stream()
                 .collect(Collectors.toMap(BasicsdatumMaterial::getMaterialCode, v -> v, (k1, k2) -> k2));
+    }
+
+
+    private void fullMaterialColor(BasicsdatumMaterialPageVo basicsdatumMaterialPageVo) {
+
+        QueryWrapper<BasicsdatumMaterialColor> qw = new QueryWrapper<>();
+        qw.lambda().eq(BasicsdatumMaterialColor::getMaterialCode,basicsdatumMaterialPageVo.getMaterialCode());
+        qw.lambda().eq(BasicsdatumMaterialColor::getDelFlag,"0");
+        List<BasicsdatumMaterialColor> list = materialColorService.list(qw);
+        if (CollectionUtils.isEmpty(list)){
+            return;
+        }
+        StringBuilder colorCode = new StringBuilder();
+        StringBuilder colorName = new StringBuilder();
+        StringBuilder supplierColorCode = new StringBuilder();
+
+        for (BasicsdatumMaterialColor materialColor : list) {
+            colorCode.append(Opt.ofBlankAble(materialColor.getColorCode()).orElse("")).append(",");
+            colorName.append(Opt.ofBlankAble(materialColor.getColorName()).orElse("")).append(",");
+            supplierColorCode.append(Opt.ofBlankAble(materialColor.getSupplierColorCode()).orElse("")).append(",");
+        }
+        if(colorCode.length() > 0) {
+            colorCode.deleteCharAt(colorCode.length() - 1);
+        }
+        if(colorName.length() > 0) {
+            colorName.deleteCharAt(colorName.length() - 1);
+        }
+        if(supplierColorCode.length() > 0) {
+            supplierColorCode.deleteCharAt(supplierColorCode.length() - 1);
+        }
+        basicsdatumMaterialPageVo.setColorCode(colorCode.toString());
+        basicsdatumMaterialPageVo.setColorName(colorName.toString());
+        basicsdatumMaterialPageVo.setSupplierColorCode(supplierColorCode.toString());
     }
 
 }

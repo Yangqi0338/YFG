@@ -71,7 +71,7 @@ public class PackPricingController {
     @ApiOperation(value = "保存")
     @PostMapping()
     @DuplicationCheck
-    public PackPricingVo savePackPricing(@Valid @RequestBody PackPricingDto dto) {
+    public PackPricingVo    savePackPricing(@Valid @RequestBody PackPricingDto dto) {
         return packPricingService.saveByDto(dto);
     }
 

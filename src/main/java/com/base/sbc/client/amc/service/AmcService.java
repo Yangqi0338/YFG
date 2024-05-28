@@ -5,6 +5,7 @@ import com.base.sbc.client.amc.entity.Team;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.module.common.dto.AdTree;
+import com.base.sbc.module.common.dto.VirtualDept;
 import com.base.sbc.open.dto.DesignerDto;
 import com.base.sbc.open.entity.SmpDept;
 import com.base.sbc.open.entity.SmpPost;
@@ -123,14 +124,14 @@ public interface AmcService {
     /**
      * hr-部门
      */
-    @PostMapping("/amc/api/open/smp/hrUserSave")
-    String hrDeptSave(@RequestBody SmpDept smpUser);
+    @PostMapping("/amc/api/open/smp/hrDeptSave")
+    String hrDeptSave(@RequestBody SmpDept smpDept);
 
     /**
      * hr-岗位
      */
-    @PostMapping("/amc/api/open/smp/hrUserSave")
-    String hrPostSave(@RequestBody SmpPost smpUser);
+    @PostMapping("/amc/api/open/smp/hrPostSave")
+    String hrPostSave(@RequestBody SmpPost smpPost);
 
 
     @PostMapping(value = "/amc/api/open/initData/dept",headers = {"Content-type=application/json"})
@@ -220,6 +221,14 @@ public interface AmcService {
     @GetMapping("/amc/api/token/user/getUserByUserId")
     public String getUserByUserId( @RequestParam("userId") String userId);
 
+    /**
+     * 查询用户
+     * @param userId
+     * @return
+     */
+    @GetMapping("/amc/api/token/user/getUserByUserIds")
+    public String getUserByUserIds( @RequestParam("userIds") String userIds);
+
 
     /**
      * 根据用户Id查询用户组id集合
@@ -232,5 +241,23 @@ public interface AmcService {
      */
     @GetMapping("/amc/api/token/group/list")
     ApiResult getUserGroupByUserId(@RequestParam("userId") String userId);
+
+    /**
+     * 查询用户-企业 user_code 不为空的数据
+     */
+    @GetMapping("/amc/api/open/user/getUserCodeNotNullUserList")
+    String getUserCodeNotNullUserList();
+
+    /**
+     * 获取用户所在部门关系
+     */
+    @GetMapping("/amc/api/token/virtualDeptRelationships/getByUserId")
+    ApiResult getDeptRelationByUserId(@RequestParam("userId") String userId,@RequestParam("type") String type);
+
+    /**
+     * 获取用户所在部门
+     */
+    @GetMapping("/amc/api/token/virtualDept/getVirtualDeptByUserId")
+    ApiResult<List<VirtualDept>> getVirtualDeptByUserId(@RequestParam("userId") String userId);
 
 }

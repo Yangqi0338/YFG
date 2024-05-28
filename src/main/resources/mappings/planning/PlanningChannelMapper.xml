@@ -38,6 +38,12 @@
         </where>
     </select>
 
+    <select id="selectIdCount" resultType="com.base.sbc.module.common.vo.CountVo">
+        select planning_season_id as label, count(1) as `count`
+        from t_planning_channel c
+            ${ ew.customSqlSegment}
+    </select>
+
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
 </mapper>
 

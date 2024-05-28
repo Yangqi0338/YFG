@@ -141,7 +141,24 @@ public class PlanningDemandController {
 	@ApiOperation(value = "保存/编辑维度标签")
 	@PostMapping("/saveDimensionality")
 	public ApiResult saveDimensionality(@Valid @RequestBody UpdateDimensionalityDto updateDimensionalityDto) {
+		CheckMutexDto checkMutexDto = new CheckMutexDto();
+		checkMutexDto.setChannel(updateDimensionalityDto.getChannel());
+		checkMutexDto.setPlanningSeasonId(updateDimensionalityDto.getPlanningSeasonId());
+		checkMutexDto.setPlanningChannelId(updateDimensionalityDto.getPlanningChannelId());
+		checkMutexDto.setProdCategory(updateDimensionalityDto.getProdCategory());
+		checkMutexDto.setProdCategory2nd(updateDimensionalityDto.getProdCategory2nd());
+		planningDemandService.checkMutex(checkMutexDto);
 		return planningDimensionalityService.saveDimensionality(updateDimensionalityDto);
+	}
+
+
+	/**
+	 *  复制,引用维度标签
+	 */
+	@ApiOperation(value = "复制,引用维度标签")
+	@PostMapping("/copyDimensionality")
+	public List<PlanningDimensionality> copyDimensionality(@Valid @RequestBody DimensionLabelsSearchDto dto) {
+		return  planningDimensionalityService.copyDimensionality(dto);
 	}
 
 
@@ -167,8 +184,7 @@ public class PlanningDemandController {
 	/**
 	 * 设置重点维度
 	 *
-	 * @param id
-	 * @param importantFlag
+	 * @param planningDemand
 	 * @return
 	 */
 	@PostMapping("/setImportantFlag")

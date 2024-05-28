@@ -3,6 +3,7 @@ package com.base.sbc.module.moreLanguage.dto;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.enums.business.StyleCountryStatusEnum;
@@ -27,12 +28,12 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MoreLanguageStatusQueryDto extends Page {
+public class MoreLanguageStatusQueryDto extends QueryFieldDto {
 
     @ApiModelProperty(value = "款号列表")
     private String bulkStyleNo;
 
-    @ApiModelProperty(value = "国家编码列表")
+    @ApiModelProperty(value = "编码列表")
     private String countryCode;
 
     @ApiModelProperty(value = "品控确认时间")

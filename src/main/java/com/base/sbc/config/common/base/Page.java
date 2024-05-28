@@ -73,6 +73,11 @@ public class Page implements Serializable {
         this.setPageSize(Integer.MAX_VALUE);
     }
 
+    public void reset2QueryFirst() {
+        this.setPageNum(1);
+        this.setPageSize(1);
+    }
+
     public <T> com.baomidou.mybatisplus.extension.plugins.pagination.Page<T> toMPPage(Class<T> clazz){
         return new com.baomidou.mybatisplus.extension.plugins.pagination.Page<T>(this.getPageNum(), this.getPageSize());
     }
@@ -83,5 +88,4 @@ public class Page implements Serializable {
     public <E> com.github.pagehelper.Page<E> startPage(){
         return PageHelper.startPage(this.getPageNum(), this.getPageSize());
     }
-
 }

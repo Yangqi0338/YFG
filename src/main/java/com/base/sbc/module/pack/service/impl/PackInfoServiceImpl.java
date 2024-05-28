@@ -18,6 +18,8 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -100,10 +102,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
 
 /**
  * 类描述：资料包 service类
@@ -252,7 +255,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             stylePicUtils.setStylePic(sdpList, "stylePic");
             List<String> sdIds = sdpList.stream().map(StylePackInfoListVo::getId).collect(Collectors.toList());
 
-            Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds, PackUtils.PACK_TYPE_DESIGN);
+            Map<String, List<PackInfoListVo>> piMaps = queryListToMapGroupByForeignId(sdIds, PACK_TYPE_DESIGN);
             for (StylePackInfoListVo sd : sdpList) {
                 List<PackInfoListVo> packInfoListVos = piMaps.get(sd.getId());
                 sd.setPackInfoList(packInfoListVos);
@@ -270,7 +273,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     public PageInfo<PackInfoListVo> pageInfo(PackInfoSearchPageDto pageDto) {
         BaseQueryWrapper<PackInfo> qw = new BaseQueryWrapper<>();
         qw.notEmptyEq("foreign_id", pageDto.getStyleId());
-        qw.notEmptyEq("pack_type", PackUtils.PACK_TYPE_DESIGN);
+        qw.notEmptyEq("pack_type", PACK_TYPE_DESIGN);
         qw.andLike(pageDto.getSearch(), "style_no", "code", "name", "color");
         qw.orderByDesc("id");
         Page<PackInfoListVo> objects = PageHelper.startPage(pageDto);
@@ -327,18 +330,18 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         save(packInfo);
         //新建bom版本
         PackBomVersionDto versionDto = BeanUtil.copyProperties(packInfo, PackBomVersionDto.class, "id");
-        versionDto.setPackType(PackUtils.PACK_TYPE_DESIGN);
+        versionDto.setPackType(PACK_TYPE_DESIGN);
         versionDto.setForeignId(newId);
         // 新建资料包状态表
-        packInfoStatusService.newStatus(newId, PackUtils.PACK_TYPE_DESIGN);
+        packInfoStatusService.newStatus(newId, PACK_TYPE_DESIGN);
         PackBomVersionVo packBomVersionVo = packBomVersionService.saveVersion(versionDto);
         packBomVersionService.enable(BeanUtil.copyProperties(packBomVersionVo, PackBomVersion.class));
         //新建尺码表配置
-        packSizeConfigService.createByStyle(newId, PackUtils.PACK_TYPE_DESIGN, style);
+        packSizeConfigService.createByStyle(newId, PACK_TYPE_DESIGN, style);
         /*复制不进来*/
         if(!StrUtil.equals(dto.getCopyFlag(),BaseGlobal.YES)){
             /*新建初始化核价消息的数据*/
-            packPricingOtherCostsService.createCostDetail("costOtherPrice,outsource", packInfo.getId(), PackUtils.PACK_TYPE_DESIGN);
+            packPricingOtherCostsService.createCostDetail("costOtherPrice,outsource", packInfo.getId(), PACK_TYPE_DESIGN);
             /*初始话核价信息*/
             packPricingService.createPackPricing(style.getId(), packInfo.getId());
         }
@@ -348,7 +351,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             PackInfoDto packInfoDto = new PackInfoDto();
             packInfoDto.setId(style.getId());
             packInfoDto.setSourcePackType(PackUtils.PACK_TYPE_STYLE);
-            packInfoDto.setTargetPackType(PackUtils.PACK_TYPE_DESIGN);
+            packInfoDto.setTargetPackType(PACK_TYPE_DESIGN);
             packInfoDto.setTargetForeignId(packInfo.getId());
             styleInfoColorService.insertStyleInfoColorList(packInfoDto);
         } catch (Exception e) {
@@ -356,7 +359,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             System.out.println("保存款式设计详情颜色错误信息如下：{}" + e);
         }
         PackInfoListVo packInfoListVo = BeanUtil.copyProperties(getById(packInfo.getId()), PackInfoListVo.class);
-        packInfoListVo.setPackType(PackUtils.PACK_TYPE_DESIGN);
+        packInfoListVo.setPackType(PACK_TYPE_DESIGN);
         if (null == dto.getIsWithBom() || !dto.getIsWithBom()) {
             return packInfoListVo;
         }
@@ -387,7 +390,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     for (PackBomSize bomSize : bomSizes) {
                         bomSize.setId(null);
                         bomSize.setBomId(bomId);
-                        bomSize.setPackType(PackUtils.PACK_TYPE_DESIGN);
+                        bomSize.setPackType(PACK_TYPE_DESIGN);
                         bomSize.setForeignId(newId);
                         bomSize.setBomVersionId(packBomVersionVo.getId());
                         bomSize.updateInit();
@@ -398,7 +401,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     for (PackBomColor bomColor : bomColors) {
                         bomColor.setId(null);
                         bomColor.setBomId(bomId);
-                        bomColor.setPackType(PackUtils.PACK_TYPE_DESIGN);
+                        bomColor.setPackType(PACK_TYPE_DESIGN);
                         bomColor.setForeignId(newId);
                         bomColor.setBomVersionId(packBomVersionVo.getId());
                         bomColor.updateInit();
@@ -407,8 +410,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 bom.setId(bomId);
                 bom.setBomVersionId(packBomVersionVo.getId());
                 bom.setForeignId(packInfo.getId());
-                bom.setPackType(PackUtils.PACK_TYPE_DESIGN);
-                bom.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                bom.setPackType(PACK_TYPE_DESIGN);
+                bom.setStageFlag(PACK_TYPE_DESIGN);
                 bom.setMainFlag(mainFlag);
                 bom.setCode(null);
                 bom.updateInit();
@@ -459,7 +462,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 throw new OtherException("资料包信息不存在");
             }
             //查看是否在设计阶段
-            PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_DESIGN);
+            PackInfoStatus packDesignStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_DESIGN);
             if (!StrUtil.equals(packDesignStatus.getBomStatus(), BasicNumber.ZERO.getNumber())) {
                 throw new OtherException("只有在设计阶段才能转大货");
             }
@@ -479,7 +482,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             Boolean issuedToExternalSmpSystemSwitch = ccmFeignService.getSwitchByCode(ISSUED_TO_EXTERNAL_SMP_SYSTEM_SWITCH.getKeyCode());
             if (issuedToExternalSmpSystemSwitch) {
                 /*查询物料*/
-                List<PackBomVo> packBomVoList = packBomService.list(version.getForeignId(), PackUtils.PACK_TYPE_DESIGN, version.getId());
+                List<PackBomVo> packBomVoList = packBomService.list(version.getForeignId(), PACK_TYPE_DESIGN, version.getId());
                 StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
                 /*判断是否使用rfid*/
                 if (StrUtil.equals(styleColor.getRfidFlag(), YesOrNoEnum.YES.getValueStr())) {
@@ -508,7 +511,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     }
                 }
                 List<String> scmSendFlagList = StringUtils.convertList("0,2,3");
-                List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag()) && StringUtils.equals(p.getStageFlag(), PackUtils.PACK_TYPE_DESIGN)).collect(Collectors.toList());
+                List<PackBomVo> packBomVoList1 = packBomVoList.stream().filter(p -> scmSendFlagList.contains(p.getScmSendFlag()) && StringUtils.equals(p.getStageFlag(), PACK_TYPE_DESIGN)).collect(Collectors.toList());
                 if (CollUtil.isNotEmpty(packBomVoList1)) {
                     throw new OtherException("物料清单存在未下发数据");
                 }
@@ -519,13 +522,13 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 throw new OtherException("已转大货，不可重复转入");
             }
             Date nowDate = new Date();
-            copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
+            copyPack(dto.getForeignId(), dto.getPackType(), dto.getForeignId(), PACK_TYPE_BIG_GOODS, BaseGlobal.YES, BasicNumber.ONE.getNumber(),null);
             //设置为已转大货
             packDesignStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packDesignStatus.setToBigGoodsDate(nowDate);
             packInfoStatusService.updateById(packDesignStatus);
 
-            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
             //设置为已转大货
             packInfoStatus.setBomStatus(BasicNumber.ONE.getNumber());
             packInfoStatus.setDesignTechConfirm(BasicNumber.ONE.getNumber());
@@ -538,14 +541,21 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             /*配饰款会下发大货阶段的物料*/
             StyleColor styleColor = styleColorMapper.selectById(packInfo.getStyleColorId());
             if (StrUtil.equals(styleColor.getIsDefective(), BaseGlobal.YES)) {
-                List<PackBom> packBomList = packBomService.list(dto.getForeignId(), PackUtils.PACK_TYPE_BIG_GOODS);
+                List<PackBom> packBomList = packBomService.list(dto.getForeignId(), PACK_TYPE_BIG_GOODS);
                 if(CollUtil.isNotEmpty(packBomList)){
                     String collect = packBomList.stream().map(PackBom::getId).collect(Collectors.joining(","));
                     smpService.bom(collect.split(","));
                 }
             }
 
-
+            // 检查是否存在两个状态的核价信息
+            long designPricingCount = packPricingService.count(packInfo.getId(), PACK_TYPE_DESIGN);
+            long bigGoodsPricingCount = packPricingService.count(packInfo.getId(), PACK_TYPE_BIG_GOODS);
+            if (designPricingCount + bigGoodsPricingCount < 2) {
+                throw new OtherException("转大货失败，请检查核价信息");
+            }
+            //核价信息更新--防止未更新核价信息
+            UpdateCheckPackPricing(dto);
             //手动提交事务,防止下发配色的时候获取的数据不是修改后的数据
             platformTransactionManager.commit(transactionStatus);
             /*配色下发*/
@@ -620,7 +630,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (pack == null) {
             throw new OtherException("资料包数据不存在,请先保存");
         }
-        PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PACK_TYPE_BIG_GOODS);
 //        if (StrUtil.equals(packInfoStatus.getReverseConfirmStatus(), BaseGlobal.STOCK_STATUS_WAIT_CHECK)) {
 //            throw new OtherException("不能重复反审");
 //        }
@@ -647,7 +657,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         if (pack == null) {
             throw new OtherException("资料包数据不存在,请先保存");
         }
-        PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PackUtils.PACK_TYPE_BIG_GOODS);
+        PackInfoStatus packInfoStatus = packInfoStatusService.get(id, PACK_TYPE_BIG_GOODS);
         packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_WAIT_CHECK);
         packInfoStatusService.updateById(packInfoStatus);
         Map<String, Object> variables = BeanUtil.beanToMap(pack);
@@ -666,7 +676,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     public boolean approval(AnswerDto dto) {
         PackInfo packInfo = getById(dto.getBusinessKey());
         if (packInfo != null) {
-            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS);
+            PackInfoStatus packInfoStatus = packInfoStatusService.get(dto.getBusinessKey(), PACK_TYPE_BIG_GOODS);
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 packInfoStatus.setConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
@@ -840,7 +850,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         /*目标原版本*/
         PackBomVersion packBomVersion1 = packBomVersionService.getEnableVersion(dto.getTargetForeignId(), dto.getTargetPackType());
         PackInfoStatus targetStatus = packInfoStatusService.get(dto.getTargetForeignId(), dto.getTargetPackType());
-        PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), PackUtils.PACK_TYPE_DESIGN);
+        PackInfoStatus sourceStatus = packInfoStatusService.get(dto.getSourceForeignId(), PACK_TYPE_DESIGN);
         /*区分是不是迁移数据*/
         boolean isRhd = StringUtils.equals(packInfo.getHistoricalData(), BaseGlobal.YES);
         if (StrUtil.contains(dto.getItem(), "物料清单")) {
@@ -863,7 +873,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                 /*查询引用的版本*/
                 PackBomVersion packBomVersion = packBomVersionService.getEnableVersion(dto.getSourceForeignId(), dto.getSourcePackType());
                 if (packBomVersion == null) {
-                    packBomVersion = packBomVersionService.getEnableVersion(dto.getSourceForeignId(), PackUtils.PACK_TYPE_DESIGN);
+                    packBomVersion = packBomVersionService.getEnableVersion(dto.getSourceForeignId(), PACK_TYPE_DESIGN);
                 }
                 if (packBomVersion == null) {
                     throw new OtherException("无物料数据");
@@ -879,9 +889,9 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                     packBomSizeService.remove(delQw);
                 }
                 /*如果是迁移数据先查询大货的物料清单，如何大货物料不存在再过滤样品*/
-                List<PackBomVo> goodsPackBomVoList = packBomService.list(null, PackUtils.PACK_TYPE_BIG_GOODS, packBomVersion.getId());
+                List<PackBomVo> goodsPackBomVoList = packBomService.list(null, PACK_TYPE_BIG_GOODS, packBomVersion.getId());
                 if (CollUtil.isEmpty(goodsPackBomVoList)){
-                    goodsPackBomVoList = packBomService.list(null, PackUtils.PACK_TYPE_DESIGN, packBomVersion.getId());
+                    goodsPackBomVoList = packBomService.list(null, PACK_TYPE_DESIGN, packBomVersion.getId());
                 }
                 if (CollUtil.isEmpty(goodsPackBomVoList)) {
                     throw new OtherException("无物料清单");
@@ -956,14 +966,14 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
                                     packBomSize.setWidthCode(bom.getTranslateCode());
                                     packBomSize.setBomId(newId);
                                     packBomSize.setBomVersionId(packBomVersion1.getId());
-                                    packBomSize.setQuantity(StrUtil.equals(bom.getStageFlag(), PackUtils.PACK_TYPE_DESIGN) ? bom.getDesignUnitUse() : bom.getBulkUnitUse());
+                                    packBomSize.setQuantity(StrUtil.equals(bom.getStageFlag(), PACK_TYPE_DESIGN) ? bom.getDesignUnitUse() : bom.getBulkUnitUse());
                                     packBomSize.setPackType(dto.getTargetPackType());
                                     bomSizeList.add(packBomSize);
                                 }
                             }
                         }
                         bom.setId(newId);
-                        bom.setStageFlag(PackUtils.PACK_TYPE_DESIGN);
+                        bom.setStageFlag(PACK_TYPE_DESIGN);
                     }
                     /*新增的物料*/
                     packBomService.saveBatch(bomList);
@@ -1280,12 +1290,12 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     public boolean reverseApproval(AnswerDto dto) {
         PackInfo packInfo = getById(dto.getBusinessKey());
         if (packInfo != null) {
-            PackInfoStatus bigGoodsPs = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS);
-            PackInfoStatus designPs = packInfoStatusService.get(dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN);
+            PackInfoStatus bigGoodsPs = packInfoStatusService.get(dto.getBusinessKey(), PACK_TYPE_BIG_GOODS);
+            PackInfoStatus designPs = packInfoStatusService.get(dto.getBusinessKey(), PACK_TYPE_DESIGN);
             //通过
             if (StrUtil.equals(dto.getApprovalType(), BaseConstant.APPROVAL_PASS)) {
                 Date nowDate = new Date();
-                copyPack(dto.getBusinessKey(), PackUtils.PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PackUtils.PACK_TYPE_DESIGN, BaseGlobal.YES, BasicNumber.TWO.getNumber(),null);
+                copyPack(dto.getBusinessKey(), PACK_TYPE_BIG_GOODS, dto.getBusinessKey(), PACK_TYPE_DESIGN, BaseGlobal.YES, BasicNumber.TWO.getNumber(),null);
                 bigGoodsPs.setReverseConfirmStatus(BaseGlobal.STOCK_STATUS_CHECKED);
                 bigGoodsPs.setScmSendFlag(BaseGlobal.NO);
                 // bom阶段设置为样衣阶段
@@ -1519,6 +1529,29 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
         return styleDtoList;
     }
+
+
+    private void UpdateCheckPackPricing(PackCommonSearchDto dto) {
+        PackPricing packPricing = packPricingService.getByForeignIdOne(dto.getForeignId(), dto.getPackType());
+        if (Objects.isNull(packPricing)){
+            return;
+        }
+        Map<String, BigDecimal> stringBigDecimalMap = packPricingService.calculateCosts(dto);
+
+        String calcItemVal = packPricing.getCalcItemVal();
+        if (StringUtils.isEmpty(calcItemVal)){
+            return;
+        }
+        JSONObject jsonObject = JSON.parseObject(calcItemVal);
+        for (String key : stringBigDecimalMap.keySet()) {
+            if (null != jsonObject.get(key)){
+                jsonObject.put(key, stringBigDecimalMap.get(key));
+            }
+        }
+        packPricing.setCalcItemVal(JSON.toJSONString(jsonObject));
+        packPricingService.updateById(packPricing);
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }

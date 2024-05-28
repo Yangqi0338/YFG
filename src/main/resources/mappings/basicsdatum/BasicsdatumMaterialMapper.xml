@@ -223,7 +223,9 @@
 					 tbm.category1_code,
 					 tbm.category2_code,
 					 tbm.category3_code,
-					 IF(tsc.bom_status = 0, '样品', '大货')         	as bomPhase
+					 IF(tsc.bom_status = 0, '样品', '大货')         	as bomPhase,
+					 tpi.historical_data							as historicalData,
+					 tpi.id											as packId
 			  FROM t_style_color tsc
 					   INNER JOIN t_style ts ON tsc.style_id = ts.id and ts.del_flag = 0
 					   INNER JOIN t_pack_info tpi
@@ -236,6 +238,19 @@
 									 IF(tsc.bom_status = 0, 'packDesign', 'packBigGoods') = tpbv.pack_type
 					   LEFT JOIN t_basicsdatum_supplier tbs ON tpb.supplier_id = tbs.supplier_code) t
 			${ew.customSqlSegment}
+	</select>
+
+
+	<select id="listMaterialPage" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
+		SELECT
+			tbm.*,
+			tbmp.quotation_price,
+			tbmp.supplier_material_code
+		FROM
+			t_basicsdatum_material tbm
+				LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code and select_flag ='1'   and tbmp.del_flag='0'
+			${ew.customSqlSegment}
+
 	</select>
 
     <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->

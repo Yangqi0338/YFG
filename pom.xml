@@ -395,6 +395,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-spring-ui</artifactId>
+            <version>1.9.6</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>1.5.5.Final</version>
@@ -417,6 +423,12 @@
 <!--            <groupId>org.flywaydb</groupId>-->
 <!--            <artifactId>flyway-mysql</artifactId>-->
 <!--        </dependency>-->
+
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+            <version>4.3.0</version>
+        </dependency>
     </dependencies>
 
     <profiles>
@@ -426,6 +438,9 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
+            <properties>
+                <env>dev</env>
+            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -480,6 +495,30 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>local</id>
+            <properties>
+                <env>local</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <properties>
+                <env>dev</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>uat</id>
+            <properties>
+                <env>uat</env>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <env>prod</env>
+            </properties>
+        </profile>
     </profiles>
     <build>
         <plugins>
@@ -531,16 +570,27 @@
                 <configuration>
                     <annotationProcessorPaths>
                         <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>1.5.5.Final</version>
+                        </path>
+                        <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
                         </path>
                         <path>
-                            <groupId>org.mapstruct</groupId>
-                            <artifactId>mapstruct-processor</artifactId>
-                            <version>1.5.5.Final</version>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
                         </path>
+                        <!-- <path> -->
+                        <!--     <groupId>org.projectlombok</groupId> -->
+                        <!--     <artifactId>lombok-mapstruct-binding</artifactId> -->
+                        <!--     <version>0.2.0</version> -->
+                        <!-- </path> -->
                     </annotationProcessorPaths>
+                    <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
             <plugin>
@@ -597,7 +647,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.2.0</version>
+                <configuration>
+                    <delimiters>
+                        <delimiter>@</delimiter>
+                    </delimiters>
+                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                </configuration>
                 <executions>
                     <execution>
                         <id>copy-file</id>
@@ -620,6 +675,21 @@
                 </executions>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.yml</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
     </build>
 
 

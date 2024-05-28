@@ -24,4 +24,16 @@
             </foreach>
         </where>
     </select>
+
+    <select id="queryList" resultType="com.base.sbc.module.moreLanguage.entity.StyleCountryStatus">
+        select tscs.*, ts.brand as brand, ts.receive_dept_id as receiveDeptId
+        from t_style_country_status tscs
+        left join t_style_color tsc on tsc.style_no = tscs.bulk_style_no and tsc.del_flag = '0'
+        left join t_style ts on ts.id = tsc.style_id and ts.del_flag = '0'
+        where
+            tscs.del_flag = '0'
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+    </select>
 </mapper>

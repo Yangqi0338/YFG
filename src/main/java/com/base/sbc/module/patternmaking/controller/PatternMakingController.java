@@ -43,6 +43,7 @@ import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -78,6 +79,9 @@ public class PatternMakingController {
     private PatternMakingService patternMakingService;
     @Autowired
     private UserUtils userUtils;
+
+    @Lazy
+    @Autowired
     private final SmpService smpService;
 
     @Autowired

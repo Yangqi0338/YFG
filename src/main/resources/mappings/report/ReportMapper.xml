@@ -213,4 +213,59 @@
         LEFT JOIN t_order_book_detail tobd ON tsc.id = tobd.style_color_id and tobd.del_flag = 0
         ${ew.customSqlSegment}
     </select>
+
+    <select id="seasonPlanPercentage" resultType="com.base.sbc.module.report.vo.SeasonPlanPercentageVo">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            *
+        </if>
+        from (SELECT season.brand brand,
+        season.brand_name brandName,
+        season.`year` yearName,
+        season.season_name seasonName,
+        CONCAT(season.`year`,' ',season.season_name) season,
+        item.prod_category_name prodCategoryName,
+        item.prod_category2nd_name prodCategory2ndName,
+        item.band_name bandName,
+        SUM(IFNULL(item.skc_count, 0)) skcCount,
+        COUNT(ts.design_no) completeCount,
+        (SUM(IFNULL(item.skc_count, 0)) - COUNT(ts.design_no)) residueCount,
+        (COUNT(ts.design_no) / SUM(IFNULL(item.skc_count, 0))) completePercentage,
+        dm.designer designer,
+        ts.receive_dept_id
+        FROM t_seasonal_planning_details item
+        LEFT JOIN t_seasonal_planning head on head.id = item.seasonal_planning_id
+        LEFT JOIN t_planning_season season on head.season_id = season.id
+        LEFT JOIN t_principal_designer_manage dm
+        on dm.brand_name = season.brand_name and dm.del_flag = '0'
+        and item.prod_category_name = dm.prod_category_name
+        and item.prod_category2nd_name = dm.prod_category2nd_name
+        LEFT JOIN t_style ts on ts.planning_season_id = head.season_id
+        and ts.prod_category_name = item.prod_category_name
+        and ts.prod_category2nd_name = item.prod_category2nd_name
+        and ts.band_name = item.band_name
+        and ts.del_flag = '0'
+        AND ts.id IN (SELECT style_id
+        FROM t_style_color
+        WHERE id IN (SELECT style_color_id
+        FROM t_order_book_detail
+        WHERE `status` = '2'
+        AND del_flag = '0'
+        AND order_book_id IN (SELECT id FROM t_order_book WHERE del_flag = '0')
+        and del_flag = '0')
+        and del_flag = '0')
+        WHERE head.STATUS = '0'
+        AND head.del_flag = '0'
+        GROUP BY season.brand_name,
+        season.`year`,
+        season.season_name,
+        item.prod_category_name,
+        item.prod_category2nd_name,
+        item.band_name,
+        dm.designer) temp
+        ${ew.customSqlSegment}
+    </select>
 </mapper>

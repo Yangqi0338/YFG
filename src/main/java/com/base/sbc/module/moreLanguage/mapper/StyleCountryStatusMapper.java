@@ -6,9 +6,10 @@
  *****************************************************************************/
 package com.base.sbc.module.moreLanguage.mapper;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
-import com.base.sbc.module.moreLanguage.entity.StyleCountryPrintRecord;
 import com.base.sbc.module.moreLanguage.entity.StyleCountryStatus;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -28,6 +29,8 @@ public interface StyleCountryStatusMapper extends BaseEnhanceMapper<StyleCountry
 // 自定义方法区 不替换的区域【other_start】
 
     long countByBulkStyleNo(@Param("bulkStyleNoList") List<String> bulkStyleNoList);
+
+    List<StyleCountryStatus> queryList(@Param(Constants.WRAPPER) QueryWrapper<StyleCountryStatus> qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }

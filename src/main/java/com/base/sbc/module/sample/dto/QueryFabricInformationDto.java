@@ -32,6 +32,9 @@ public class QueryFabricInformationDto extends Page {
     @ApiModelProperty(value = "供应商")
     private String supplierName;
 
+    @ApiModelProperty(value = "供应商编号")
+    private String supplierCode;
+
     /** 厂家色号 */
     @ApiModelProperty(value = "供应商色号")
     private String supplierColor;

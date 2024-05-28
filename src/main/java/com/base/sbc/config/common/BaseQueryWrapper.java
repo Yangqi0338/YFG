@@ -3,15 +3,22 @@ package com.base.sbc.config.common;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.SharedString;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
+import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.config.common.base.BaseGlobal;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author 卞康
@@ -19,11 +26,30 @@ import java.util.List;
  * @mail 247967116@qq.com
  */
 @Data
+@NoArgsConstructor
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
+    public BaseQueryWrapper(T entity, Class<T> entityClass, AtomicInteger paramNameSeq,
+                         Map<String, Object> paramNameValuePairs, MergeSegments mergeSegments, SharedString paramAlias,
+                         SharedString lastSql, SharedString sqlComment, SharedString sqlFirst) {
+        super.setEntity(entity);
+        super.setEntityClass(entityClass);
+        this.paramNameSeq = paramNameSeq;
+        this.paramNameValuePairs = paramNameValuePairs;
+        this.expression = mergeSegments;
+        this.paramAlias = paramAlias;
+        this.lastSql = lastSql;
+        this.sqlComment = sqlComment;
+        this.sqlFirst = sqlFirst;
+    }
+
     public QueryWrapper<T> notEmptyEq(String column, Object val) {
         return this.eq(!StringUtils.isEmpty(val), column, val);
     }
 
+    public QueryWrapper<T> notNullEq(String column, Object val) {
+        this.eq(ObjectUtil.isNotEmpty(val), column, val);
+        return this;
+    }
 
     public QueryWrapper<T> notEmptyIn(String column, Collection<?> coll) {
         if (coll == null) {
@@ -64,6 +90,8 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             this.ge(!StringUtils.isEmpty(strings[0]), column, strings[0]);
             if (strings.length > 1) {
                 return this.and(i -> i.le(!StringUtils.isEmpty(strings[1]), column, strings[1]));
+            }else {
+                return this.and(i -> i.le(!StringUtils.isEmpty(strings[0]), column, strings[0]));
             }
         }
         return this;
@@ -147,6 +175,19 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             });
         });
         return this;
+    }
+
+    /**
+     * 模糊搜索一个字段为集合
+     * @param columns
+     * @param val
+     * @return
+     */
+    public QueryWrapper<T> likeList(String columns, String val) {
+       if (StringUtils.isEmpty(val)){
+           return this;
+       }
+       return this.likeList(columns, StrUtil.split(val, CharUtil.COMMA));
     }
 
     /**

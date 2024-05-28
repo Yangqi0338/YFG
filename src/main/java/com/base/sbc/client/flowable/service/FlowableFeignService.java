@@ -64,5 +64,8 @@ public interface FlowableFeignService {
     ApiResult reject(@RequestParam("taskId") String taskId,
                      @RequestParam("comment") String comment);
 
+    @GetMapping(value = "/flowable/api/saas/task/finishedList")
+    public ApiResult finishedList(@RequestParam Map<String, Object> queryVo);
+
 
 }

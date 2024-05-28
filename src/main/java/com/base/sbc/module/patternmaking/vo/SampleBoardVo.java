@@ -334,7 +334,12 @@ public class SampleBoardVo extends Style {
     /**
      * 是否参考样衣
      */
+    @ApiModelProperty(value = "是否参考样衣")
     private String referSample;
+    /**
+     * 齐套否 原因
+     */
+    private String kittingReason;
 
     public String getId() {
         return patternMakingId;

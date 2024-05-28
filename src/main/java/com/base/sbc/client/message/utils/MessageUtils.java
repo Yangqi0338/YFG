@@ -14,9 +14,13 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.SmpProperties;
+import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
+import com.base.sbc.module.pushrecords.entity.PushRecords;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -444,5 +448,52 @@ public class MessageUtils {
             modelMessage.setParams(map);
             String s = messagesService.sendNoticeByModel(modelMessage);
         }
+    }
+
+    /**
+     * 发送普通消息
+     *
+     * @param userId    用户id
+     * @param title     标题
+     * @param address   地址
+     * @param groupUser 用户信息
+     */
+    public void sendCommonMessage(String userId, String title, String address, GroupUser groupUser) {
+        if (StringUtils.isNotBlank(userId)) {
+            log.info("————————————————————————发送消息消息提醒发送提醒消息用户" + userId);
+            Map<String, String> map = new HashMap<>();
+            map.put("title", title);
+            map.put("userId", groupUser.getId());
+            map.put("userName", groupUser.getName());
+            map.put("avatar", groupUser.getAvatar());
+            map.put("address", address);
+            ModelMessage modelMessage = new ModelMessage();
+            modelMessage.setUserIds(userId);
+            //通用模板
+            modelMessage.setModelCode("SJ9113");
+            modelMessage.setParams(map);
+            String s = messagesService.sendNoticeByModel(modelMessage);
+        }
+    }
+
+    /**
+     * 订货本发送信息
+     *
+     * @param pushRecord
+     */
+    @Async
+    public void orderBookSendMessage(PushRecords pushRecord, boolean isProductionIn) {
+        log.info("————————————————————————订货本发送信息" + pushRecord.getCreateId());
+        Map<String, String> map = new HashMap<>();
+        BeanUtil.beanToMap(pushRecord, false, true).forEach((key,value)-> {
+            map.put(key,value.toString());
+        });
+        map.put("action",isProductionIn ? "投产" : "取消投产");
+        map.put("pushStatus",pushRecord.getPushStatus().getText());
+        ModelMessage modelMessage = new ModelMessage();
+        modelMessage.setUserIds(pushRecord.getCreateId());
+        modelMessage.setModelCode("YFG011");
+        modelMessage.setParams(map);
+        String s = messagesService.sendNoticeByModel(modelMessage);
     }
 }

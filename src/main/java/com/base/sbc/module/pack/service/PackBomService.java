@@ -8,6 +8,7 @@ package com.base.sbc.module.pack.service;
 
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.module.common.dto.IdDto;
+import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.vo.PackBomCalculateBaseVo;
@@ -173,4 +174,25 @@ public interface PackBomService extends PackBaseService<PackBom> {
      * @param cost
      */
     void costUpdate(String packInfoId, BigDecimal cost);
+
+    /**
+     * 获取backPom更新详情
+     * @param id
+     * @return
+     */
+    ApiResult getRenovatePackBomInfo(String id);
+
+    /**
+     * 更新backPom
+     * @param id
+     * @return
+     */
+    boolean renovatePackBom(String id);
+
+    /**
+     * 更新物料信息
+     * @param dto
+     * @return
+     */
+    List<MaterialSupplierInfo> updateMaterial(MaterialUpdateDto dto);
 }

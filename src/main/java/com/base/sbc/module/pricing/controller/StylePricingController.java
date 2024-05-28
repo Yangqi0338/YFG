@@ -8,11 +8,14 @@ package com.base.sbc.module.pricing.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
@@ -26,6 +29,8 @@ import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.style.entity.Style;
+import com.base.sbc.module.style.service.StyleService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -81,7 +86,8 @@ public class StylePricingController extends BaseController {
 
     @Autowired
     private PackPricingService packPricingService;
-
+    @Autowired
+    private StyleService styleService;
 
     @ApiOperation(value = "获取款式定价列表")
     @PostMapping("/getStylePricingList")
@@ -168,10 +174,20 @@ public class StylePricingController extends BaseController {
             list.add(s);
         }
         List<StylePricing> stylePricings = stylePricingService.listByIds(list);
+        /*获取款式下的关联的款*/
+        List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
+        List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         for (StylePricing stylePricing : stylePricings) {
-
-            if ("1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
+            // 非CMT可以直接略过工时部确认工价
+            PackInfo packInfo = packInfoList.stream().filter(it -> it.getId().equals(stylePricing.getPackId()))
+                    .findFirst().orElseThrow(() -> new OtherException("不存在资料包"));
+            String devtType = styleService.findByIds2OneField(packInfo.getForeignId(), Style::getDevtType);
+            boolean isCmt = ProductionType.CMT.getCode().equals(devtType);
+            if ("1".equals(dto.getWagesConfirm()) &&"1".equals(dto.getControlConfirm()) && "1".equals(stylePricing.getProductHangtagConfirm()) && "1".equals(stylePricing.getControlHangtagConfirm())) {
                 throw new OtherException("存在已经提交审核");
+            }
+            if (isCmt && "1".equals(dto.getControlConfirm()) && "0".equals(stylePricing.getWagesConfirm())){
+                throw new OtherException("工时部确认后计控才能确认成本");
             }
             if ("1".equals(dto.getProductHangtagConfirm()) && "0".equals(stylePricing.getControlConfirm())){
                 throw new OtherException("请先计控确认");
@@ -179,35 +195,39 @@ public class StylePricingController extends BaseController {
             if ("1".equals(dto.getControlHangtagConfirm()) && ("0".equals(stylePricing.getProductHangtagConfirm())  || "0".equals(stylePricing.getControlConfirm()))){
                 throw new OtherException("请先商品吊牌确认");
             }
+            if (!StringUtils.isEmpty(dto.getWagesConfirm())){
+                if (!isCmt || dto.getWagesConfirm().equals(stylePricing.getWagesConfirm())){
+                    throw new OtherException("工时部已确认");
+                }
+                stylePricing.setWagesConfirm(dto.getWagesConfirm());
+                stylePricing.setWagesConfirmTime(new Date());
+            }
             if (!StringUtils.isEmpty(dto.getControlConfirm())){
                 if (dto.getControlConfirm().equals(stylePricing.getControlConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("计控已确认");
                 }
                 stylePricing.setControlConfirm(dto.getControlConfirm());
                 stylePricing.setControlConfirmTime(new Date());
             }
             if (!StringUtils.isEmpty(dto.getProductHangtagConfirm())){
                 if (dto.getProductHangtagConfirm().equals(stylePricing.getProductHangtagConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("商品吊牌已确认");
                 }
                 stylePricing.setProductHangtagConfirm(dto.getProductHangtagConfirm());
-                stylePricing.setControlConfirmTime(new Date());
+                stylePricing.setProductHangtagConfirmTime(new Date());
             }
             if (!StringUtils.isEmpty(dto.getControlHangtagConfirm())){
                 if (dto.getControlHangtagConfirm().equals(stylePricing.getControlHangtagConfirm())){
-                    throw new OtherException("请勿重复提交");
+                    throw new OtherException("计控吊牌已确认");
                 }
                 stylePricing.setControlHangtagConfirm(dto.getControlHangtagConfirm());
-                stylePricing.setControlConfirmTime(new Date());
+                stylePricing.setControlHangtagConfirmTime(new Date());
             }
 //            计控确认时设置计控成本价等于总成本
             if (StrUtil.equals(stylePricing.getControlConfirm(),BaseGlobal.YES)){
                 stylePricing.setControlPlanCost(packPricingService.countTotalPrice(stylePricing.getPackId(), BaseGlobal.STOCK_STATUS_CHECKED,3));
             }
         }
-        /*获取款式下的关联的款*/
-        List<String> packIdList = stylePricings.stream().map(StylePricing::getPackId).collect(Collectors.toList());
-        List<PackInfo> packInfoList = packInfoService.listByIds(packIdList);
         /*迁移数据不能操作*/
 //        long count = packInfoList.stream().filter(o -> StrUtil.equals(o.getHistoricalData(), BaseGlobal.YES)).count();
 //        if(count > 0){
@@ -246,6 +266,14 @@ public class StylePricingController extends BaseController {
             }
         }
         return updateSuccess("提交成功");
+    }
+
+    @ApiOperation(value = "反审核")
+    @PostMapping("/unAuditStatus")
+    @DuplicationCheck
+    public ApiResult unAuditStatus( @RequestBody List<String> ids) {
+        stylePricingService.unAuditStatus(ids);
+        return updateSuccess("反审核成功");
     }
 
 

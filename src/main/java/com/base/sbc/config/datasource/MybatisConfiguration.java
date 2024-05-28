@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.toolkit.GlobalConfigUtils;
 import com.baomidou.mybatisplus.extension.injector.methods.InsertBatchSomeColumn;
+import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean;
 import com.base.sbc.config.AutoFillFieldValueConfig;
 import com.github.pagehelper.PageHelper;
@@ -18,7 +19,6 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,7 +27,6 @@ import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
@@ -43,7 +42,7 @@ import java.util.Properties;
  * @author Jfei
  */
 @Configuration
-@AutoConfigureAfter(DatasourceConfig.class)
+//@AutoConfigureAfter(DatasourceConfig.class)
 @EnableTransactionManagement
 public class MybatisConfiguration implements TransactionManagementConfigurer {
 
@@ -103,7 +102,7 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
             sessionFactoryBean.setGlobalConfig(globalConfig);
 
             //添加分页插件、打印sql插件
-            Interceptor[] plugins = new Interceptor[]{pageHelper(), sqlPrintInterceptor()};
+            Interceptor[] plugins = new Interceptor[]{pageHelper(), sqlPrintInterceptor(), sqlVersionInterceptor()};
             sessionFactoryBean.setPlugins(plugins);
 
             return sessionFactoryBean.getObject();
@@ -176,5 +175,16 @@ public class MybatisConfiguration implements TransactionManagementConfigurer {
                 return methodList;
             }
         };
+    }
+
+    /**
+     * version 乐观锁插件
+     * @return
+     */
+    @Bean
+    public SqlVersionInterceptor sqlVersionInterceptor () {
+        SqlVersionInterceptor interceptor = new SqlVersionInterceptor();
+        interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
+        return interceptor;
     }
 }

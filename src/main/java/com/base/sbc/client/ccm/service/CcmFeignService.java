@@ -9,6 +9,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.entity.*;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
@@ -327,6 +328,24 @@ public class CcmFeignService {
     }
 
     /**
+     * 通过编码获取开关是否开启或关闭
+     * @param code
+     * @return
+     */
+    public YesOrNoEnum inSettingOptions(String code, String... value) {
+        List<String> valueList = Arrays.stream(value).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+        if (CollUtil.isEmpty(valueList)) return YesOrNoEnum.NO;
+        String resultStr = ccmService.getCompanySettingData(code);
+        JSONObject jsonObject = JSON.parseObject(resultStr);
+        JSONObject data = jsonObject.getJSONObject("data");
+        if (Objects.isNull(data) || !jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            return YesOrNoEnum.NO;
+        }
+        String settingValue = data.getString("value");
+        return YesOrNoEnum.findByValue(Arrays.stream(value).allMatch(settingValue::contains));
+    }
+
+    /**
      * 查询所有单位列表，可根据类型筛选
      * @param type 类型
      *
@@ -372,6 +391,20 @@ public class CcmFeignService {
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             list = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+        }
+        return list;
+    }
+
+    /**
+     * ccm 查询字典依赖
+     *
+     */
+    public List<BasicDictDepend> getDictDependsList( BasicDictDependsQueryDto basicDictDependsQueryDto) {
+        List<BasicDictDepend> list = new ArrayList<>();
+        String dictDependsList = ccmService.getDictDependsList(basicDictDependsQueryDto.getDictTypeName(), basicDictDependsQueryDto.getPageNum(), basicDictDependsQueryDto.getPageSize());
+        JSONObject jsonObject = JSON.parseObject(dictDependsList);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            list = jsonObject.getJSONObject("data").getJSONArray("list").toJavaList(BasicDictDepend.class);
         }
         return list;
     }

@@ -6,25 +6,23 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -32,7 +30,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
-import com.base.sbc.module.common.service.AttachmentService;
+import com.base.sbc.module.common.dto.VirtualDept;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
@@ -54,6 +52,8 @@ import com.base.sbc.module.sample.service.PreProductionSampleTaskService;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskDetailVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVo;
 import com.base.sbc.module.sample.vo.PreProductionSampleTaskVoExcel;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.TagConfirmDateDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -65,6 +65,7 @@ import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,9 +77,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 /**
@@ -99,8 +97,6 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Autowired
     private NodeStatusService nodeStatusService;
     @Autowired
-    private AttachmentService attachmentService;
-    @Autowired
     private StyleService styleService;
 
     @Autowired
@@ -117,6 +113,11 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     private StylePicUtils stylePicUtils;
     @Autowired
     private StyleColorService styleColorService;
+    @Lazy
+    @Autowired
+    private SmpService smpService;
+    @Autowired
+    private AmcService amcService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -231,6 +232,9 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         } else {
             dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.pre_production_sample_board.getK(), "s.");
         }
+        if(StrUtil.isEmpty(dto.getOrderBy())){
+            qw.orderByDesc("t.create_date");
+        }
         List<PreProductionSampleTaskVo> list = getBaseMapper().taskList(qw);
         // 设置头像
         amcFeignService.setUserAvatarToList(list);
@@ -265,19 +269,19 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
 
         List<PreProductionSampleTaskVoExcel> list = CopyUtil.copy(sampleTaskVoList, PreProductionSampleTaskVoExcel.class);
 
-
+        ExcelUtils.exportExcelByTableCode(list, "产前样看板", response, dto);
         /*开启一个线程池*/
-        ExecutorService executor = ExecutorBuilder.create()
+        /*ExecutorService executor = ExecutorBuilder.create()
                 .setCorePoolSize(8)
                 .setMaxPoolSize(10)
                 .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
                 .build();
         try {
             if (StrUtil.equals(dto.getImgFlag(), BaseGlobal.YES)) {
-                /*获取图片链接*/
+                *//*获取图片链接*//*
                 stylePicUtils.setStylePic(list, "stylePic",30);
                 minioUtils.setObjectUrlToList(list, "samplePic");
-                /*计时器*/
+                *//*计时器*//*
                 CountDownLatch countDownLatch = new CountDownLatch(list.size());
                 for (PreProductionSampleTaskVoExcel preProductionSampleTaskVoExcel : list) {
                     executor.submit(() -> {
@@ -300,7 +304,7 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
             log.info(e.getMessage());
         } finally {
             executor.shutdown();
-        }
+        }*/
     }
 
     @Override
@@ -412,6 +416,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         StyleColor styleColor = styleColorService.getById(styleColorId);
         task.setTechReceiveTime(styleColor.getTechReceiveTime());
 
+        //保存创建人的虚拟部门
+        ApiResult<List<VirtualDept>> virtualDeptByUserId = amcService.getVirtualDeptByUserId(getUserId());
+        List<VirtualDept> data = virtualDeptByUserId.getData();
+        String ids = data.stream().map(VirtualDept::getId).collect(Collectors.joining());
+        task.setCreateDeptId(ids);
+
         return save(task, "产前样看板");
     }
 
@@ -454,7 +464,15 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         }
         UpdateWrapper<PreProductionSampleTask> uw = new UpdateWrapper<>();
         uw.eq("id", dto.getId());
-        update(dto, uw);
+        //是否齐套
+        uw.set("kitting", dto.getKitting());
+        //放码日期
+        uw.set("grading_date", dto.getGradingDate());
+        //面辅料信息
+        uw.set("material_info", dto.getMaterialInfo());
+        //技术接收时间
+        uw.set("tech_receive_time", dto.getTechReceiveTime());
+        update(uw);
 
         // 修改裁剪时间和车缝时间
         QueryWrapper<NodeStatus> queryWrapper1 = new BaseQueryWrapper<>();
@@ -566,6 +584,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
                     this.saveOperaLog("修改", "产前样看板", preProductionSampleTask1, preProductionSampleTask);
                 }
             }
+
+            TagConfirmDateDto confirmDateDto = new TagConfirmDateDto();
+            confirmDateDto.setStyleNo(old.getStyleNo());
+            confirmDateDto.setTechnicsDate(dto.getTechReceiveTime());
+            confirmDateDto.setType("technics_date");
+            smpService.styleColorCorrectInfoDate(confirmDateDto);
         }
 
         // 记录日志
