@@ -82,7 +82,7 @@ public class OrderBookDetailController extends BaseController {
      * 订货本批量编辑
      */
     @ApiOperation(value = "订货本批量编辑")
-    @PostMapping("/updateBatch")
+    @PostMapping("/updateBatchOrderBookDetail")
     public ApiResult<String> updateBatchOrderBookDetail(@RequestBody List<OrderBookDetail> orderBookDetailList) {
         orderBookDetailService.updateBatchOrderBookDetail(orderBookDetailList);
         return ApiResult.success();

@@ -181,14 +181,14 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         }
         // 看拿到的id是否是空值 都是空的 则有问题，部分为空放到下面查询订货本详情的时候判断数量即可
         List<String> orderBookDetailIdList = orderBookDetailList
-                .stream().map(OrderBookDetail::getId).filter(ObjectUtil::isEmpty).collect(Collectors.toList());
+                .stream().map(OrderBookDetail::getId).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
         if (ObjectUtil.isEmpty(orderBookDetailIdList)) {
-            throw new OtherException("数据不能存在，请刷新后重试！");
+            throw new OtherException("数据不存在，请刷新后重试！");
         }
         // 根据过滤后的id查询订货本详情信息 如果查到的订货本详情数据集合的长度和传入的集合长度不一致 说明详情不存在
         List<OrderBookDetail> oldOrderBookDetailList = listByIds(orderBookDetailIdList);
         if (ObjectUtil.isEmpty(oldOrderBookDetailList) || oldOrderBookDetailList.size() != orderBookDetailList.size()) {
-            throw new OtherException("数据不能存在，请刷新后重试！");
+            throw new OtherException("数据不存在，请刷新后重试！");
         }
         // 最新进行批量更新
         updateBatchById(orderBookDetailList);
