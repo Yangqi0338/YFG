@@ -155,6 +155,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
     @Override
     @Transactional(rollbackFor = {Exception.class, OtherException.class})
     public PatternMaking savePatternMaking(PatternMakingDto dto) {
+        checkRequiredParam(dto);
         Style style = styleService.getById(dto.getStyleId());
         if (style == null) {
             throw new OtherException("款式设计不存在");
