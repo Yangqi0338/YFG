@@ -64,10 +64,11 @@ import com.base.sbc.module.formtype.service.FormTypeService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.FieldOptionConfigVo;
+import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
-import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.PackBom;
@@ -235,7 +236,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     private FieldManagementMapper fieldManagementMapper;
 
     @Autowired
+    @Lazy
     private OrderBookDetailService orderBookDetailService;
+
+    @Autowired
+    @Lazy
+    private OrderBookService orderBookService;
 
     @Autowired
     @Lazy
@@ -568,7 +574,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         if (StrUtil.isBlank(dto.getStyleUnit()) || StrUtil.isBlank(dto.getStyleUnitCode())) {
             throw new OtherException("款式单位不能为空");
         }
-        //查询产品季
+        // 查询产品季
         PlanningSeason planningSeason = planningSeasonService.getById(dto.getPlanningSeasonId());
 
         if (ObjectUtil.isEmpty(planningSeason)) {
@@ -1645,8 +1651,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         vo.setScriptedNum(scriptedNum);
         // 打版完成 样衣看板初版样 纸样需求日期不为空的款式数量
         BaseQueryWrapper<Style> pmicnQueryWrapper = new BaseQueryWrapper<>();
-        dataPermissionsService.getDataPermissionsForQw(pmicnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         pmicnQueryWrapper.isNotNull("p.pattern_req_date");
+        dataPermissionsService.getDataPermissionsForQw(pmicnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(pmicnQueryWrapper, dto);
         Long patternMakingIsCompleteNum = getBaseMapper().colorCount(pmicnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setPatternMakingIsCompleteNum(patternMakingIsCompleteNum);
@@ -1658,17 +1664,26 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         Long sampleMakingNum = getBaseMapper().colorCount(smnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setSampleMakingNum(sampleMakingNum);
         // 订货本制作
-        // 根据已有订货本查询对应的款式ID集合 TODO：订货本没上生产 ——XHTE
-        QueryWrapper<OrderBookDetail> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("tob.season_id", dto.getPlanningSeasonId());
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "",
-                new String[]{"tobl.brand","ts.prod_category","tobl.business_id","ts.receive_dept_id","ts.send_dept_id","tobl.department"},true);
-        List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(queryWrapper, 1);
-        if (ObjectUtil.isNotEmpty(querylist)) {
-            long count = querylist.stream().map(OrderBookDetailVo::getStyle).filter(ObjectUtil::isNotEmpty).distinct().count();
-            vo.setOrderBookProductionNum(count);
-        } else {
-            vo.setOrderBookProductionNum(0L);
+        // 根据已有订货本查询对应的款式ID集合
+        vo.setOrderBookProductionNum(0L);
+        List<OrderBook> orderBookList = orderBookService.list(
+                new LambdaQueryWrapper<OrderBook>()
+                        .eq(OrderBook::getSeasonId, dto.getPlanningSeasonId())
+        );
+        if (ObjectUtil.isNotEmpty(orderBookList)) {
+            List<String> orderBookIdList = orderBookList.stream().map(OrderBook::getId).collect(Collectors.toList());
+            List<OrderBookDetail> orderBookDetailList = orderBookDetailService.list(
+                    new LambdaQueryWrapper<OrderBookDetail>()
+                            .in(OrderBookDetail::getOrderBookId, orderBookIdList)
+            );
+            if (ObjectUtil.isNotEmpty(orderBookDetailList)) {
+                List<String> styleColorIdList = orderBookDetailList.stream().map(OrderBookDetail::getStyleColorId).collect(Collectors.toList());
+                List<StyleColor> styleColorList = styleColorService.listByIds(styleColorIdList);
+                if (ObjectUtil.isNotEmpty(styleColorList)) {
+                    List<String> styleIdList = styleColorList.stream().map(StyleColor::getStyleId).distinct().collect(Collectors.toList());
+                    vo.setOrderBookProductionNum(Long.valueOf(styleIdList.size()));
+                }
+            }
         }
         return vo;
     }
@@ -2690,9 +2705,8 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 查询季节企划
         BaseQueryWrapper<SeasonalPlanning> queryWrapper = new BaseQueryWrapper<>();
         queryWrapper.eq("season_id", dto.getPlanningSeasonId());
-        queryWrapper.notEmptyEq("channel_code", dto.getChannel());
         queryWrapper.notEmptyEq("status", "0");
-        SeasonalPlanning seasonalPlanning = seasonalPlanningService.getOne(queryWrapper);
+        List<SeasonalPlanning> seasonalPlanningList = seasonalPlanningService.list(queryWrapper);
 
         StyleSummaryVo vo = new StyleSummaryVo();
         // 查询波段统计
@@ -2703,7 +2717,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         stylePlanningCommonQw(brandTotalQw, dto);
         List<DimensionTotalVo> bandTotal = getBaseMapper().dimensionTotal(brandTotalQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         List<DimensionTotalVo> dimensionTotalVos = PlanningUtils.removeEmptyAndSort(bandTotal);
-        Map<String, Long> bandCount = getBandCount(dimensionTotalVos, seasonalPlanning, dto.getProdCategory());
+        Map<String, Long> bandCount = getBandCount(dimensionTotalVos, seasonalPlanningList, dto.getProdCategory());
         for (DimensionTotalVo dimensionTotalVo : dimensionTotalVos) {
             Long l = bandCount.get(dimensionTotalVo.getName());
             dimensionTotalVo.setTotal2(ObjectUtil.isEmpty(l) ? 0L : l);
@@ -2718,7 +2732,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(categoryQw, dto);
         List<DimensionTotalVo> categoryTotal = getBaseMapper().dimensionTotal(categoryQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
-        Map<String, Long> categoryCount = getCategoryCount(categoryTotal, seasonalPlanning, dto.getProdCategory());
+        Map<String, Long> categoryCount = getCategoryCount(categoryTotal, seasonalPlanningList, dto.getProdCategory());
         for (DimensionTotalVo dimensionTotalVo : categoryTotal) {
             Long l = categoryCount.get(dimensionTotalVo.getName());
             dimensionTotalVo.setTotal2(ObjectUtil.isEmpty(l) ? 0L : l);
@@ -2726,7 +2740,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         vo.setYList(PlanningUtils.removeEmptyAndSort(categoryTotal));
         // 查询明细
         BaseQueryWrapper detailQw = new BaseQueryWrapper();
-        dataPermissionsService.getDataPermissionsForQw(categoryQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
+        dataPermissionsService.getDataPermissionsForQw(detailQw, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(detailQw, dto);
         List<PlanningSummaryDetailVo> detailVoList = getBaseMapper().categoryBandSummary(detailQw, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         List<String> ids = detailVoList.stream().map(PlanningSummaryDetailVo::getId).collect(Collectors.toList());
@@ -2853,12 +2867,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     /**
      * 根据品类名称获取数量
      */
-    private Map<String, Long> getCategoryCount(List<DimensionTotalVo> dimensionTotalVos, SeasonalPlanning seasonalPlanning, String bandCode) {
-        if (ObjectUtil.isNotEmpty(seasonalPlanning) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
+    private Map<String, Long> getCategoryCount(List<DimensionTotalVo> dimensionTotalVos, List<SeasonalPlanning> seasonalPlanningList, String bandCode) {
+        if (ObjectUtil.isNotEmpty(seasonalPlanningList) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
             List<String> categoryList = dimensionTotalVos.stream()
                     .map(DimensionTotalVo::getName).distinct().collect(Collectors.toList());
             LambdaQueryWrapper<SeasonalPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId());
+            queryWrapper.in(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanningList.stream().map(SeasonalPlanning::getId).collect(Collectors.toList()));
             queryWrapper.in(SeasonalPlanningDetails::getProdCategoryName, categoryList);
             if (ObjectUtil.isNotEmpty(bandCode)) {
                 queryWrapper.in(SeasonalPlanningDetails::getBandCode, CollUtil.newArrayList(bandCode.split(",")));
@@ -2886,12 +2900,12 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     /**
      * 根据波段获取数量
      */
-    private Map<String, Long> getBandCount(List<DimensionTotalVo> dimensionTotalVos, SeasonalPlanning seasonalPlanning, String prodCategory) {
-        if (ObjectUtil.isNotEmpty(seasonalPlanning) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
+    private Map<String, Long> getBandCount(List<DimensionTotalVo> dimensionTotalVos, List<SeasonalPlanning> seasonalPlanningList, String prodCategory) {
+        if (ObjectUtil.isNotEmpty(seasonalPlanningList) && ObjectUtil.isNotEmpty(dimensionTotalVos)) {
             List<String> bandNameList = dimensionTotalVos.stream()
                     .map(DimensionTotalVo::getName).distinct().collect(Collectors.toList());
             LambdaQueryWrapper<SeasonalPlanningDetails> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanning.getId());
+            queryWrapper.in(SeasonalPlanningDetails::getSeasonalPlanningId, seasonalPlanningList.stream().map(SeasonalPlanning::getId).collect(Collectors.toList()));
             queryWrapper.in(SeasonalPlanningDetails::getBandName, bandNameList);
             if (ObjectUtil.isNotEmpty(prodCategory)) {
                 queryWrapper.in(SeasonalPlanningDetails::getProdCategoryCode, CollUtil.newArrayList(prodCategory.split(",")));
