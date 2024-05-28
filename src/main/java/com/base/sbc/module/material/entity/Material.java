@@ -152,4 +152,7 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "运用手法")
     private String useSkill;
 
+    @ApiModelProperty(value = "购买人")
+    private String purchaser;
+
 }
