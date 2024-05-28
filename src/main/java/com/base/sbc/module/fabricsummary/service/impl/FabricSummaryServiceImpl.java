@@ -232,6 +232,12 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         if (Objects.isNull(groupServiceById)){
             throw new OtherException("上级盒子不存在！");
         }
+        if (StringUtils.isNotEmpty(dto.getId())){
+            FabricSummary fabricSummary = getById(dto.getId());
+            if (!Objects.isNull(fabricSummary)){
+                dto.setSupplierFabricCode(fabricSummary.getSupplierFabricCode());
+            }
+        }
         dto.setPlanningSeasonId(groupServiceById.getPlanningSeasonId());
         PageInfo<FabricSummaryInfoVo> pageInfo = packetInfoService.selectFabricSummaryStyle(dto);
 
