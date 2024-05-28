@@ -71,5 +71,5 @@ public class UseStyleVO implements Serializable {
      * 历史销售件数
      */
     @ApiModelProperty("历史销售件数")
-    private Integer historySaleNum;
+    private Integer historySaleNum = 0;
 }

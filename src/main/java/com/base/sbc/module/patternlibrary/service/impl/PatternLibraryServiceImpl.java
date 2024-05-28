@@ -2,6 +2,9 @@ package com.base.sbc.module.patternlibrary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.Opt;
+import cn.hutool.core.text.StrJoiner;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
@@ -28,6 +31,8 @@ import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
 import com.base.sbc.module.patternlibrary.constants.GeneralConstant;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.*;
@@ -42,6 +47,8 @@ import com.base.sbc.module.patternlibrary.vo.ExcelExportVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
+import com.base.sbc.module.smp.SmpService;
+import com.base.sbc.module.smp.dto.SaleProductIntoDto;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
@@ -49,8 +56,10 @@ import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.task.vo.FlowTaskDto;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.base.Functions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,8 +69,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.base.sbc.config.constant.Constants.COMMA;
 
 /**
  * 版型库-主表 服务实现类
@@ -122,6 +134,10 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
     @Value("${brand.bottoms:A04}")
     private String brandBottoms;
+
+    @Autowired
+    @Lazy
+    private SmpService smpService;
 
     @Override
     public PageInfo<PatternLibrary> listPages(PatternLibraryPageDTO patternLibraryPageDTO) {
@@ -528,6 +544,31 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         queryWrapper.eq("ts.registering_id", useStyleDTO.getPatternLibraryId());
         queryWrapper.orderByDesc("ts.create_date");
         List<UseStyleVO> useStyleVOList = baseMapper.listUseStyle(queryWrapper);
+        
+        /* ----------------------------获取多数据源的销售数据---------------------------- */
+        
+        SaleProductIntoDto saleProductIntoDto = new SaleProductIntoDto();
+        saleProductIntoDto.setBulkStyleNoList(useStyleVOList.stream().map(UseStyleVO::getStyleNo).collect(Collectors.toList()));
+        // 只要销售
+        saleProductIntoDto.setResultTypeList(Arrays.stream(StyleSaleIntoResultType.values()).filter(it-> it.getCode().contains("sale")).collect(Collectors.toList()));
+        LocalDateTime now = LocalDateTime.now();
+        // 根据款号和年限分组
+        smpService.querySaleIntoPage(saleProductIntoDto).stream().collect(Collectors.groupingBy(it-> it.getBulkStyleNo() + COMMA + it.getYear()))
+                .forEach((key,sameKeyList)-> {
+                    String[] keyArray = key.split(COMMA);
+                    String year = ArrayUtil.get(keyArray, 1);
+                    int saleSum = sameKeyList.stream().flatMapToInt(it -> it.getSizeMap().values().stream().mapToInt(Double::intValue)).sum();
+                    useStyleVOList.stream().filter(it-> it.getStyleNo().equals(ArrayUtil.get(keyArray, 0))).findFirst().ifPresent(useStyleVO-> {
+                        if (String.valueOf(now.getYear()).equals(year)) {
+                            useStyleVO.setThisYearSaleNum(saleSum);
+                        }else if (String.valueOf(now.minusYears(1).getYear()).equals(year)) {
+                            useStyleVO.setThisYearSaleNum(saleSum);
+                        }else if (String.valueOf(now.minusYears(2).getYear()).equals(year)) {
+                            useStyleVO.setThisYearSaleNum(saleSum);
+                        }
+                        useStyleVO.setHistorySaleNum(useStyleVO.getHistorySaleNum() + saleSum);
+                    });
+                });
         return useStyleVOList;
     }
 
