@@ -287,17 +287,23 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
             if (!Constants.ONE_STR.equals(fabricSummaryInfoVo.getDesignVerify())){
                 throw new OtherException("设计师未确认的详单不允许添加！"+"未确认的款号："+fabricSummaryInfoVo.getStyleNo());
             }
+            //补充款式信息
+            fullFabricSummaryStyle(fabricSummaryInfoVo);
+
             FabricSummaryStyle fabricSummaryStyle = new FabricSummaryStyle();
             BeanUtil.copyProperties(fabricSummaryInfoVo, fabricSummaryStyle);
             fabricSummaryStyle.insertInit();
             fabricSummaryStyle.setId(new IdGen().nextIdStr());
-            //补充款式信息
-            fullFabricSummaryStyle(fabricSummaryInfoVo);
-            FabricSummary fabricSummary = infoVoMap.get(fabricSummaryInfoVo.getMaterialCode());
+
+            if (StringUtils.isNotBlank(fabricSummaryStyle.getFabricSummaryId())){
+                fabricSummaryStyles.add(fabricSummaryStyle);
+                continue;
+            }
+
+            FabricSummary fabricSummary = infoVoMap.get(fabricSummaryInfoVo.getMaterialCode()+fabricSummaryInfoVo.getSupplierFabricCode());
             if (null == fabricSummary){
                 fabricSummary =  basicsdatumMaterialService.getMaterialSummaryInfo(fabricSummaryInfoVo.getMaterialCode());
                 fabricSummary.setGroupId(groupServiceById.getId());
-                infoVoMap.put(fabricSummaryInfoVo.getMaterialCode(),fabricSummary);
             }
             //补充信息
             fullFabricSummary(fabricSummary,fabricSummaryInfoVo, ++index);
@@ -305,6 +311,7 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
 
             fabricSummaryStyle.setFabricSummaryId(fabricSummary.getId());
             fabricSummaryStyles.add(fabricSummaryStyle);
+            infoVoMap.put(fabricSummaryInfoVo.getMaterialCode()+fabricSummaryInfoVo.getSupplierFabricCode(),fabricSummary);
 
         }
         if (CollUtil.isNotEmpty(fabricSummaries)){
