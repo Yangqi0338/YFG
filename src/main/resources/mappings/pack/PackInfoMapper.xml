@@ -214,6 +214,7 @@
             ts.season_name,
             ts.year_name,
             tpb.design_verify,
+            tpb.design_verify_date,
             tpb.color as material_color,
             tpb.color_code as material_colorCode,
             tpb.part_code,

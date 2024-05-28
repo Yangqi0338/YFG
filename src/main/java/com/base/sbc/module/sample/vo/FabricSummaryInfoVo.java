@@ -2,10 +2,12 @@ package com.base.sbc.module.sample.vo;
 
 
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 public class FabricSummaryInfoVo extends FabricSummary {
@@ -146,6 +148,10 @@ public class FabricSummaryInfoVo extends FabricSummary {
 
     @ApiModelProperty(value = "设计师核实情况，1：确认，0：未确认")
     private String designVerify;
+
+    @ApiModelProperty(value = "设计师确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designVerifyDate ;
 
     @ApiModelProperty(value = "bomId")
     private String bomId;

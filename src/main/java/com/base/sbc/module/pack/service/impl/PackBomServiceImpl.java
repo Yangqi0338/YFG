@@ -865,13 +865,13 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
             throw new OtherException("确认状态不能为空");
         }
         PackBom packBom = getById(dto.getId());
-        if (StringUtils.isBlank(packBom.getDesignVerify())){
-            packBom.setDesignVerify(dto.getDesignVerify());
-            return updateById(packBom);
-        }
         if (dto.getDesignVerify().equals(packBom.getDesignVerify())){
             return true;
         }
+        UpdateWrapper<PackBom> uw = new UpdateWrapper<>();
+        uw.lambda().eq(PackBom::getId, dto.getId());
+        uw.lambda().set(PackBom::getDesignVerify, dto.getDesignVerify());
+        uw.lambda().set(PackBom::getDesignVerifyDate, BaseGlobal.YES.equals(dto.getDesignVerify()) ? new Date() : null);
         packBom.setDesignVerify(dto.getDesignVerify());
         return updateById(packBom);
     }

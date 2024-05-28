@@ -12,6 +12,7 @@ import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpBomDto;
 import com.base.sbc.module.smp.entity.BomMaterial;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -19,6 +20,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -456,6 +458,10 @@ public class PackBom extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "设计师核查，1：确认，0：未确认")
     private String designVerify;
+
+    @ApiModelProperty(value = "设计师核确认时间")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private Date designVerifyDate;
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 
