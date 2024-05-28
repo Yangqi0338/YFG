@@ -10,6 +10,9 @@ import lombok.Data;
  */
 @Data
 public class RemoveDto {
+    @ApiModelProperty(value = "物料编码")
+    private String materialCode;
+
     @ApiModelProperty(value = "id集合")
     private String ids;
 
