@@ -244,10 +244,10 @@ public class FabricSummaryServiceImpl extends BaseServiceImpl<FabricSummaryMappe
         //是否引用关联
         pageInfo.getList().forEach(item ->{
             item.setGroupId(groupServiceById.getId());
+            item.setFabricSummaryId(dto.getId());
             List<FabricSummaryStyle> list = fabricSummaryStyleService.getByGroupStyle(dto.getId(), groupServiceById.getId(),item.getBomId(),item.getStyleNo());
             if (CollUtil.isNotEmpty(list)){
                 item.setCiteStatus("1");
-                item.setFabricSummaryStyleId(StringUtils.isBlank(dto.getId()) ? null : list.get(0).getId());
                 item.setAddStatus(StringUtils.isBlank(dto.getId()) ? "0":"1");
             }
         });
