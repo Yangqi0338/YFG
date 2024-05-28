@@ -186,7 +186,7 @@
             <if test="ew.hasAlias('tsp')">
                 and EXISTS(select tsc.id from t_style_color tsc
                 left join t_pack_info tpi on tpi.style_no = tsc.style_no
-                left join t_style_pricing tpi on tsp.pack_id = tpi.id
+                left join t_style_pricing tsp on tsp.pack_id = tpi.id
                 where
                 ts.id = tsc.style_id  AND tsc.del_flag = '0'
                 and ${ ew.getSqlByAlias('tsc')}
@@ -274,7 +274,7 @@
         select count(0) FROM t_style_color tsc
         <where>
             <if test="ew.hasAlias('ts')">
-                and EXISTS(select id from t_style tsc where
+                and EXISTS(select id from t_style ts where
                 ts.id = tsc.style_id
                 and ${ ew.getSqlByAlias('ts')})
             </if>
@@ -285,7 +285,7 @@
             </if>
             <if test="ew.hasAlias('tsp')">
                 and EXISTS(select tpi.id from t_pack_info tpi
-                left join t_style_pricing tpi on tsp.pack_id = tpi.id
+                left join t_style_pricing tsp on tsp.pack_id = tpi.id
                 where
                 tpi.style_no = tsc.style_no
                 and ${ ew.getSqlByAlias('tpi')}
