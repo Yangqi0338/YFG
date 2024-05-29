@@ -301,8 +301,8 @@
                 FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
                 and ${ ew.getSqlByAlias('tbs')})
             </if>
-            <if test="ew.hasAlias('ts')">
-                and ${ ew.getSqlByAlias('ts')}
+            <if test="ew.hasAlias('tsc')">
+                and ${ ew.getSqlByAlias('tsc')}
             </if>
         </where>
     </select>
