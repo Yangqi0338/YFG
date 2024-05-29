@@ -103,8 +103,7 @@ public class VideoUtil {
 //                attr.setPreset(PresetUtil.VERYFAST);
 //                attr.setCrf(27);
 //                // 设置线程数
-//                attr.setEncodingThreads(Runtime.getRuntime().availableProcessors()/2);
-                attr.setEncodingThreads(4);
+                attr.setEncodingThreads(Runtime.getRuntime().availableProcessors()/2);
                 Encoder encoder = new Encoder();
                 encoder.encode(new MultimediaObject(source), target, attr);
                 log.info("压缩总耗时：" + (System.currentTimeMillis() - time)/1000);
