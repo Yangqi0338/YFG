@@ -336,7 +336,7 @@
             </if>
             <if test="ew.hasAlias('ht') or (dto.confirmDate != null and dto.confirmDate != '') or dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
             and EXISTS(
-                select id from t_hang_tag ht where tssc.style_no = tpi.style_no
+                select id from t_hang_tag ht where tssc.style_no = ht.bulk_style_no
                 and ${ ew.getSqlByAlias('ht')}
                 <if test="dto.confirmDate != null and dto.confirmDate != ''">
                     AND  DATE_FORMAT(ht.confirm_date,'%Y-%m-%d')  = #{dto.confirmDate}
