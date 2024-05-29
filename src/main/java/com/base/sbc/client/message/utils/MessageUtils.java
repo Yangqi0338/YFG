@@ -14,9 +14,13 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.common.base.UserCompany;
+import com.base.sbc.config.constant.SmpProperties;
+import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.planning.entity.PlanningCategoryItem;
 import com.base.sbc.module.planning.mapper.PlanningCategoryItemMapper;
+import com.base.sbc.module.pushrecords.entity.PushRecords;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -472,4 +476,24 @@ public class MessageUtils {
         }
     }
 
+    /**
+     * 订货本发送信息
+     *
+     * @param pushRecord
+     */
+    @Async
+    public void orderBookSendMessage(PushRecords pushRecord, boolean isProductionIn) {
+        log.info("————————————————————————订货本发送信息" + pushRecord.getCreateId());
+        Map<String, String> map = new HashMap<>();
+        BeanUtil.beanToMap(pushRecord, false, true).forEach((key,value)-> {
+            map.put(key,value.toString());
+        });
+        map.put("action",isProductionIn ? "投产" : "取消投产");
+        map.put("pushStatus",pushRecord.getPushStatus().getText());
+        ModelMessage modelMessage = new ModelMessage();
+        modelMessage.setUserIds(pushRecord.getCreateId());
+        modelMessage.setModelCode("YFG011");
+        modelMessage.setParams(map);
+        String s = messagesService.sendNoticeByModel(modelMessage);
+    }
 }

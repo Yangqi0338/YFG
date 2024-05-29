@@ -43,4 +43,7 @@ public class AssignmentUserDto {
 
     @ApiModelProperty(value = "分配车缝工备注")
     private String stitcherRemark;
+
+    @ApiModelProperty(value = "齐套原因")
+    private String kittingReason;
 }

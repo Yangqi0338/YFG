@@ -167,7 +167,8 @@
                   ps.tech_rhd_user,
 
                   ps.foreign_id as pack_foreign_id,
-                  ps.tech_spec_video_file_id
+                  ps.tech_spec_video_file_id,
+                  sd.receive_dept_id
               FROM t_pack_info p
                        left join t_style sd on (sd.id = p.foreign_id)
                        left join t_style_color sc on (sc.id = p.style_color_id and sc.del_flag = '0')

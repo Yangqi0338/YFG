@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.pushrecords.dto.PushRecordsDto;
@@ -60,21 +61,13 @@ public class PushRecordsController extends BaseController {
      */
     @PostMapping("/rePush")
     public ApiResult rePush(String id){
-        PushRecords pushRecords = pushRecordsService.getById(id);
-        HttpResp httpResp = restTemplateService.spmPost(pushRecords.getPushAddress(), pushRecords.getPushContent());
-        pushRecords.setPushStatus(httpResp.isSuccess() ? "成功" : "失败");
-        pushRecords.setResponseMessage(httpResp.getMessage());
-        pushRecords.setResponseStatusCode(httpResp.getCode());
-        pushRecordsService.updateById(pushRecords);
-        ApiResult apiResult = new ApiResult();
-        if (httpResp.isSuccess()){
-            apiResult.setMessage("重推成功");
-            apiResult.setSuccess(true);
-        }else {
-            apiResult.setMessage("重推失败");
-            apiResult.setSuccess(false);
+        boolean rePush = pushRecordsService.rePush(id);
+        ApiResult<Object> result = ApiResult.success("重推成功");
+        result.setSuccess(rePush);
+        if (!rePush){
+            result.setMessage("重推失败");
         }
-        return apiResult;
+        return result;
     }
 
     /**

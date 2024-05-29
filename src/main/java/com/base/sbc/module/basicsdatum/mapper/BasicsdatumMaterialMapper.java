@@ -6,18 +6,17 @@
  *****************************************************************************/
 package com.base.sbc.module.basicsdatum.mapper;
 
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.base.sbc.module.basicsdatum.vo.*;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
+import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 /** 
  * 类描述：基础资料-物料档案 dao类
  * @address com.base.sbc.module.basicsdatum.dao.BasicsdatumMaterialDao
@@ -66,6 +65,10 @@ public interface BasicsdatumMaterialMapper extends BaseMapper<BasicsdatumMateria
 	 * @return
 	 */
 	List<BasicsdatumMaterialPageAndStyleVo> getBasicsdatumMaterialAndStyleList(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
+
+
+
+	List<BasicsdatumMaterialPageVo> listMaterialPage(@Param(Constants.WRAPPER) BaseQueryWrapper<BasicsdatumMaterial> qw);
 // 自定义方法区 不替换的区域【other_end】
 }
 

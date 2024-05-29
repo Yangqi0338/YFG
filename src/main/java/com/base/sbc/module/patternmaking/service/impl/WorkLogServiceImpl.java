@@ -11,6 +11,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.redis.RedisUtils;
@@ -54,6 +55,8 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
     RedisUtils redisUtils;
     @Autowired
     private DataPermissionsService dataPermissionsService;
+    @Autowired
+    private AmcService amcService;
 
 
     @Override
@@ -85,6 +88,10 @@ public class WorkLogServiceImpl extends BaseServiceImpl<WorkLogMapper, WorkLog> 
         long maxNo = NumberUtil.max(dbMaxNo, defMaxNo);
         String code = String.format("LS%010d", ++maxNo);
         bean.setCode(code);
+
+        //保存创建人的虚拟部门
+        bean.setCreateDeptId(getVirtualDetpIds());
+
         this.save(bean, "工作小账");
         return BeanUtil.copyProperties(workLog, WorkLogVo.class);
     }

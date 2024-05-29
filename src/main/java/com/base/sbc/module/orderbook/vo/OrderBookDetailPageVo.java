@@ -13,10 +13,10 @@ import java.util.Map;
 @Data
 public class OrderBookDetailPageVo extends PageInfo<OrderBookDetailVo> {
 
-    private Map<String,Object> totalMap;
+    private Map<String, BigDecimal> totalMap;
 
     @JsonAnyGetter
-    public Map<String,Object> getTotalMap(){
+    public Map<String, BigDecimal> getTotalMap(){
         return totalMap;
     }
 

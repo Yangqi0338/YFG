@@ -218,5 +218,10 @@ public class PricingListVO extends BaseDataEntity<String> {
      */
     @ApiModelProperty(value = "审核原因")
     private String confirmReason;
+    /**
+     * 编辑
+     */
+    @ApiModelProperty(value = "编辑")
+    private Integer isEdit = 0;
 }
 

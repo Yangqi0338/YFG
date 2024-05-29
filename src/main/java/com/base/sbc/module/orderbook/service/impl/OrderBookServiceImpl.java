@@ -2,39 +2,35 @@ package com.base.sbc.module.orderbook.service.impl;
 
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.config.common.BaseQueryWrapper;
-import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
-import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookSaveDto;
 import com.base.sbc.module.orderbook.entity.OrderBook;
-import com.base.sbc.module.orderbook.entity.OrderBookDetail;
-import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.mapper.OrderBookMapper;
-import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
 import com.base.sbc.module.orderbook.vo.OrderBookExportVo;
 import com.base.sbc.module.orderbook.vo.OrderBookVo;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
+import com.base.sbc.module.planning.vo.YearSeasonBandVo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -47,9 +43,9 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
 
     @Autowired
     private PlanningSeasonService planningSeasonService;
-//
-//    @Autowired
-//    private DataPermissionsService dataPermissionsService;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 //    @Autowired
 //    private OrderBookDetailMapper orderBookDetailMapper;
@@ -69,6 +65,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
 
     @Override
     public List<OrderBookVo> queryList(QueryWrapper<OrderBook> queryWrapper, OrderBookQueryDto dto) {
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.order_book_follow.getK());
         List<OrderBookVo> voList = this.baseMapper.queryList(queryWrapper, dto);
 //        if (CollectionUtil.isNotEmpty(voList)) {
 //            BaseQueryWrapper<OrderBookDetail> baseCountQuery = new BaseQueryWrapper<>();
@@ -100,6 +97,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
     @Override
     public List<Map<String,String>>  countByStatus(OrderBookQueryDto dto) {
         BaseQueryWrapper<OrderBook> orderBookBaseQueryWrapper = this.buildQueryWrapper(dto);
+        dataPermissionsService.getDataPermissionsForQw(orderBookBaseQueryWrapper, DataPermissionsBusinessTypeEnum.order_book_follow.getK());
         return this.baseMapper.countByStatus(orderBookBaseQueryWrapper);
     }
 
@@ -143,6 +141,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         if (StrUtil.isNotBlank(dto.getId())){
             this.updateById(dto);
         }else {
+            dto.setCreateDeptId(getVirtualDetpIds());
             this.save(dto);
         }
         return this.getById(dto.getId());
@@ -154,12 +153,51 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         // return orderBook;
     }
 
+    @Override
+    public List<YearSeasonBandVo> queryYearBrandTreeOrderBook(List<YearSeasonBandVo> yearSeasonBandVos) {
+        List<String> seasonIds = Lists.newArrayList();
+        for (YearSeasonBandVo yearSeasonBandVo : yearSeasonBandVos) {
+            if (Objects.isNull(yearSeasonBandVo.getChildren())){
+                continue;
+            }
+            List<YearSeasonBandVo> list = Objects.isNull(yearSeasonBandVo.getChildren())? Lists.newArrayList():
+                    (List<YearSeasonBandVo>) yearSeasonBandVo.getChildren();
+            for (YearSeasonBandVo seasonBandVo : list) {
+                seasonIds.add(seasonBandVo.getPlanningSeasonId());
+            }
+        }
+        Map<String, List<OrderBookVo>> collect = new HashMap<>();
+        if(!seasonIds.isEmpty()){
+            OrderBookQueryDto dto = new OrderBookQueryDto();
+            if(seasonIds.size() < 1000){
+                //小于1000时查询，否则全查
+                dto.setSeasonIds(seasonIds);
+            }
+            PageInfo<OrderBookVo> orderBookVoPageInfo = this.queryPage(dto);
+            collect = orderBookVoPageInfo.getList().stream().collect(Collectors.groupingBy(OrderBook::getSeasonId));
+        }
+
+        Map<String, List<OrderBookVo>> finalCollect = collect;
+        yearSeasonBandVos.parallelStream().forEach(yearSeasonBandVo ->{
+            List<YearSeasonBandVo> list = Objects.isNull(yearSeasonBandVo.getChildren())? Lists.newArrayList():
+                    (List<YearSeasonBandVo>) yearSeasonBandVo.getChildren();
+
+            list.forEach(item ->{
+                List<OrderBookVo> orderBookVoPage = finalCollect.getOrDefault(item.getPlanningSeasonId(),new ArrayList<>());
+                orderBookVoPage.forEach(orderBookVo ->orderBookVo.setYearName(yearSeasonBandVo.getYearName()));
+                item.setSupplementInfo(orderBookVoPage);
+            });
+        });
+        return yearSeasonBandVos;
+    }
+
     /**
      * 构造查询条件
      */
     private BaseQueryWrapper<OrderBook> buildQueryWrapper(OrderBookQueryDto dto) {
         BaseQueryWrapper<OrderBook> queryWrapper=new BaseQueryWrapper<>();
         queryWrapper.notEmptyEq("tob.season_id",dto.getSeasonId());
+        queryWrapper.notEmptyIn("tob.season_id",dto.getSeasonIds());
         queryWrapper.notEmptyEq("tob.status",dto.getStatus());
         queryWrapper.likeList("tob.name",dto.getName());
         queryWrapper.notNullEq("tob.order_status", dto.getOrderStatus());

@@ -279,6 +279,11 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         return false;
     }
 
+    @Override
+    public PackPricing getByForeignIdOne(String foreignId, String packType) {
+        return get(foreignId,packType);
+    }
+
 
     @Override
     public Map<String, BigDecimal>  calculateCosts(PackCommonSearchDto dto) {

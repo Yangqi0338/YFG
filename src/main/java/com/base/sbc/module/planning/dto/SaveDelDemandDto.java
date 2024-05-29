@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 /*新增删除需求维度*/
 @Data
 @ApiModel("企划需求-新增删除需求 SaveDelDemandDto")
-public class SaveDelDemandDto {
+public class SaveDelDemandDto extends CheckMutexDto{
 
     /*产品季id*/
     @ApiModelProperty(value = "产品季id", required = true, example = "111")

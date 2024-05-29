@@ -59,6 +59,14 @@ public class PricingTemplate extends BaseDataEntity<String> {
     /** 是否默认0.否,1.是 */
     @ApiModelProperty(value = "是否默认0.否,1.是"  )
     private String defaultFlag;
+
+    /** 品牌 */
+    @ApiModelProperty(value = "品牌"  )
+    private String brand;
+
+    /** 品牌名 */
+    @ApiModelProperty(value = "品牌名"  )
+    private String brandName;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 
