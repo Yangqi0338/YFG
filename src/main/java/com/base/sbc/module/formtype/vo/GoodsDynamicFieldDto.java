@@ -9,7 +9,7 @@ import lombok.Data;
  */
 @Data
 @JsonIgnoreProperties(value = {"handler"})
-public class GoodsDynamicFieldVo {
+public class GoodsDynamicFieldDto {
     /**
      * fieldName = patternClass,
      * fieldType = String,
