@@ -303,7 +303,7 @@
                 </if>
             )
             <if test="ew.hasAlias('ht') or (dto.confirmDate != null and dto.confirmDate != '') or dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
-                EXISTS(
+            and EXISTS(
                 select id from t_hang_tag ht where tpi.design_no = ht.bulk_style_no
                 and ${ ew.getSqlByAlias('ht')}
                 <if test="dto.confirmDate != null and dto.confirmDate != ''">
@@ -329,14 +329,13 @@
             tssc.del_flag = 0
             AND tssc.company_code = #{dto.companyCode}
             <if test="ew.hasAlias('tsd')">
-                and
-                EXISTS(
+            and EXISTS(
                 select id from t_style tsd where tssc.style_id = tsd.id is not null
                 and ${ ew.getSqlByAlias('tsd')}
                 )
             </if>
             <if test="ew.hasAlias('ht') or (dto.confirmDate != null and dto.confirmDate != '') or dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
-                EXISTS(
+            and EXISTS(
                 select id from t_hang_tag ht where tssc.style_no = tpi.style_no
                 and ${ ew.getSqlByAlias('ht')}
                 <if test="dto.confirmDate != null and dto.confirmDate != ''">
