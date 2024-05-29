@@ -120,9 +120,7 @@ public class PackPricingServiceImpl extends AbstractPackBaseServiceImpl<PackPric
         if (org.apache.commons.lang.StringUtils.equals("成功", httpResp.getMessage())) {
             return ApiResult.success("查询成功");
         } else {
-            ApiResult result = new ApiResult();
-            result.setData(httpResp.getMessage());
-            return result;
+            return ApiResult.success("查询成功", httpResp.getMessage());
         }
     }
 
