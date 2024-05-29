@@ -9,6 +9,7 @@ import cn.afterturn.easypoi.excel.annotation.ExcelEntity;
 import cn.afterturn.easypoi.excel.annotation.ExcelTarget;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.afterturn.easypoi.excel.export.ExcelExportService;
@@ -151,6 +152,21 @@ public class ExcelUtils {
      */
     public static void exportExcel(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response) throws IOException {
         defaultExport(list, pojoClass, fileName, response, exportParams);
+    }
+
+
+    /**
+     * excel 模版导出
+     * @param path 模版路径
+     * @param map 数据
+     * @param fileName 文件名称
+     * @param response 响应
+     * @throws IOException
+     */
+    public static void exportExcel(String path, Map<Integer, List<Map<String, Object>>> map, String fileName,HttpServletResponse response) throws IOException {
+        TemplateExportParams params = new TemplateExportParams(path);
+        Workbook workbook = ExcelExportUtil.exportExcelClone(map,params);
+        downLoadExcel(fileName, response, workbook);
     }
 
     public static void exportExcelByTableCode(List<?> list, Class<?> pojoClass, String fileName, ExportParams exportParams, HttpServletResponse response,String tableCode,String imgFlag,Integer maxNumber,String... columns)  throws IOException {

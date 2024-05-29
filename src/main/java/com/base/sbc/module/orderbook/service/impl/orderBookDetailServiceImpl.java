@@ -26,11 +26,16 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
@@ -466,7 +471,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.braiding", dto.getBraiding());
         queryWrapper.notEmptyLike("tobl.dimension_info", dto.getDimensionInfo());
         queryWrapper.notEmptyLike("tobl.gram_weight", dto.getGramWeight());
-
+        if (StringUtils.isNotBlank(dto.getBulkStyleNoFull())){
+            queryWrapper.eq("tsc.style_no", dto.getBulkStyleNoFull());
+        }
         // //有权限则查询全部数据
         // if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
         //     queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
@@ -1320,6 +1327,19 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto) {
         return this.getBaseMapper().querySeasonalPlanningOrder(dto);
+    }
+
+    @Override
+    public List<OrderBookDetailVo> queryList(OrderBookDetailQueryDto dto) {
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
+        return this.querylist(queryWrapper,1);
+    }
+
+    @Override
+    public String getByStyleNoTotalProduction(String styleNo) {
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        queryWrapper.eq("tsc.style_no",styleNo);
+        return baseMapper.getByStyleNoTotalProductionList(queryWrapper);
     }
 
     /**
