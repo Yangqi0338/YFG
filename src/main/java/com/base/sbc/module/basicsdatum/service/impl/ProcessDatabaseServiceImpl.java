@@ -3,6 +3,7 @@ package com.base.sbc.module.basicsdatum.service.impl;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.thread.ExecutorBuilder;
@@ -263,7 +264,9 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
                         });
                     }
                     countDownLatch.await();
-                    ExcelUtils.exportExcel(list, FormworkComponentExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+                    ExportParams exportParams = new ExportParams();
+                    exportParams.setType(ExcelType.HSSF);
+                    ExcelUtils.exportExcel(list, FormworkComponentExcelDto.class, "基础资料.xlsx",exportParams , response);
                 } catch (Exception e) {
                     throw new OtherException(e.getMessage());
                 } finally {
