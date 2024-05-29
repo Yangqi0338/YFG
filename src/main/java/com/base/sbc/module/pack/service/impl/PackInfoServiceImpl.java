@@ -103,11 +103,14 @@ import org.springframework.util.ObjectUtils;
 import javax.annotation.Resource;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
+import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
 
 /**
  * 类描述：资料包 service类

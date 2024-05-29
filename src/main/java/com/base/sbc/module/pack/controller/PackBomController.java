@@ -309,38 +309,6 @@ public class PackBomController extends BaseController{
         return packBomService.designAffirm(dto);
     }
 
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     @GetMapping("/getRenovatePackBomInfo/{id}")
     @ApiOperation(value = "查询物料更新详情")
     public ApiResult getRenovatePackBomInfo(@PathVariable("id") String id){

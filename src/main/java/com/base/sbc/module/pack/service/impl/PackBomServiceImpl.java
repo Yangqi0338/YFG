@@ -16,13 +16,13 @@ import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSON;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
@@ -34,6 +34,7 @@ import com.base.sbc.client.message.utils.MessageUtils;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.Constants;
@@ -44,6 +45,7 @@ import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
+import com.base.sbc.module.basicsdatum.dto.BasicsdatumMaterialQueryDto;
 import com.base.sbc.module.basicsdatum.entity.*;
 import com.base.sbc.module.basicsdatum.mapper.BasicsdatumBomTemplateMaterialMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
@@ -63,12 +65,16 @@ import com.base.sbc.module.fabricsummary.service.FabricSummaryStyleService;
 import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
+import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
+import com.base.sbc.module.orderbook.service.OrderBookDetailService;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.pack.dto.*;
 import com.base.sbc.module.pack.entity.*;
 import com.base.sbc.module.pack.mapper.PackBomMapper;
 import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
+import com.base.sbc.module.planning.service.PlanningSeasonService;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.PricingMaterialCostsVO;
@@ -84,6 +90,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -176,9 +183,6 @@ public class PackBomServiceImpl extends AbstractPackBaseServiceImpl<PackBomMappe
 
     @Autowired
     private EscmMaterialCompnentInspectCompanyService escmMaterialCompnentInspectCompanyService;
-
-    @Resource
-    private BasicsdatumSupplierService basicsdatumSupplierService;
 
     @Autowired
     private BasicsdatumMaterialColorService basicsdatumMaterialColorService;

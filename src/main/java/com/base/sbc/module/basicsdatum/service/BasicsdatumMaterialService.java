@@ -13,6 +13,7 @@ import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
