@@ -60,6 +60,10 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
      * 大货款号
      */
     private String bulkStyleNo;
+    /**
+     * 大货款号 非模糊
+     */
+    private String bulkStyleNoFull;
     @ApiModelProperty(value = "品类")
     private String categoryCode;
     /**

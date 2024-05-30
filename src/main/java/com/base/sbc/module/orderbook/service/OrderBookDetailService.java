@@ -99,4 +99,14 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     boolean similarStyleBinding(OrderBookDetailSaveDto dto);
 
     List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto);
+
+    List<OrderBookDetailVo> queryList(OrderBookDetailQueryDto dto);
+
+    /**
+     * 根据款式号获取，改款式的总投产
+     * @return
+     */
+    String getByStyleNoTotalProduction(String styleNo);
+
+
 }

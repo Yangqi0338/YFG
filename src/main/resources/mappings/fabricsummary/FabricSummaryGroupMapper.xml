@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.fabricsummary.mapper.FabricSummaryGroupMapper">
+    <!--
+        款式管理-面料汇总-组管理
+        创建人：your name
+        邮箱：your email
+        创建时间：2024-4-26 15:06:06
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+    <select id="getGroupIds" resultType="java.lang.String">
+        select
+            *
+        from t_fabric_summary_group  tfsg
+            left join t_fabric_summary tfs on tfs.group_id = tfsg.id
+            left join t_fabric_summary_style tfss on   tfs.id = tfss.fabric_summary_id
+        where tfsg.del_flag = '0' and tfs.del_flag = '0' and  tfss.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
+

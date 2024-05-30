@@ -9,11 +9,14 @@ package com.base.sbc.module.pack.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.pack.dto.PricingSelectSearchDTO;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pack.vo.PricingSelectListVO;
 import com.base.sbc.module.pricing.vo.PricingVO;
+import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
+import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -53,6 +56,8 @@ public interface PackInfoMapper extends BaseMapper<PackInfo> {
     PricingVO getPricingVoById(@Param("id") String id);
 
     long countByQw(@Param(Constants.WRAPPER) QueryWrapper codeQw);
+
+    List<FabricSummaryInfoVo> selectFabricSummaryStyle(@Param("dto") FabricSummaryV2Dto dto,@Param(Constants.WRAPPER)  BaseQueryWrapper qw);
 
 // 自定义方法区 不替换的区域【other_end】
 }

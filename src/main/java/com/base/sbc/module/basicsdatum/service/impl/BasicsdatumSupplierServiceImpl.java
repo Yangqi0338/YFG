@@ -14,7 +14,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.ApiResult;
-import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -41,9 +40,7 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,7 +48,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -416,6 +412,15 @@ public class BasicsdatumSupplierServiceImpl extends BaseServiceImpl<BasicsdatumS
         ApiResult result = ApiResult.success("新增成功");
         result.setStatus(200);
         return result;
+    }
+
+    @Override
+    public List<BasicsdatumSupplier> getBySupplierId(String supplierCode) {
+        QueryWrapper<BasicsdatumSupplier> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BasicsdatumSupplier::getSupplierCode, supplierCode);
+        queryWrapper.lambda().eq(BasicsdatumSupplier::getStatus,"0");
+        queryWrapper.lambda().eq(BasicsdatumSupplier::getDelFlag,"0");
+        return this.list(queryWrapper);
     }
 
     /** 自定义方法区 不替换的区域【other_end】 **/

@@ -9,6 +9,7 @@ package com.base.sbc.config.common.base;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.config.common.IdGen;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -53,6 +54,7 @@ public abstract class BaseDataEntity<T> extends BaseEntity {
     /** 创建者id */
     @TableField(fill = FieldFill.INSERT)
     private String createId;
+
 
     /**  删除标记（0：正常；1：删除；） */
     @Length(min = 1, max = 1)

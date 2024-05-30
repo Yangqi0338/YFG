@@ -13,6 +13,7 @@ import com.base.sbc.module.basicsdatum.vo.*;
 import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.github.pagehelper.PageInfo;
@@ -167,5 +168,21 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	 * @return
 	 */
 	List<String> getMaterialCodeBySupplierInfo(MaterialSupplierInfo materialSupplierInfo);
+	/**
+	 * 通过物料编码获取来源 和成分
+	 *
+	 * @param materialCode
+	 * @return
+	 */
+	BasicsdatumMaterial getMaterialByCode(String materialCode);
+
+	/**
+	 * 获取物料颜色
+	 * @param materialCode
+	 * @return
+	 */
+	List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode);
+
+	FabricSummary getMaterialSummaryInfo(String materialCode);
 }
 

@@ -1,8 +1,6 @@
 package com.base.sbc.module.orderbook.mapper;
 
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.module.common.mapper.BaseEnhanceMapper;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
@@ -23,4 +21,6 @@ public interface OrderBookDetailMapper extends BaseEnhanceMapper<OrderBookDetail
      List<Map<String, Object>> queryCountByOrderBookId(@Param("ew") QueryWrapper<OrderBookDetail> queryWrapper);
 
      List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(@Param("dto") QueryOrderDetailDTO dto);
+
+    String getByStyleNoTotalProductionList(@Param("ew")BaseQueryWrapper queryWrapper);
 }

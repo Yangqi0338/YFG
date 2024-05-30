@@ -214,6 +214,22 @@ public class RedisFunUtils {
 	}
 
 	/**
+	 * 递增
+	 * @param key 键
+	 * @param delta 要增加几(大于0)
+	 * @return
+	 */
+	public long incr(String key, long delta, long timeout, TimeUnit unit){
+		if(delta<0){
+			throw new RuntimeException("递增因子必须大于0");
+		}
+		setRedisTemplateInit(redisFlag);
+		Long increment = redisTemplate.opsForValue().increment(key, delta);
+		redisTemplate.expire(key,timeout,unit);
+		return increment;
+	}
+
+	/**
 	 * 递减
 	 * @param key 键
 	 * @param by 要减少几(小于0)

@@ -733,7 +733,7 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
 
     @Override
     public <R> List<R> listByIds2OneField(List<String> ids, SFunction<T, R> function) {
-        return this.list(new LambdaQueryWrapper<T>().select(function).in(T::getId, ids)).stream().filter(Objects::nonNull).map(function).collect(Collectors.toList());
+        return listOneField(new LambdaQueryWrapper<T>().in(T::getId, ids), function);
     }
 
 
@@ -773,6 +773,11 @@ public class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEntity> exte
         // https://blog.csdn.net/qq_42696265/article/details/131944397
         SqlUtil.clearLocalPage();
         return this.list(wrapper.select(function).last("limit 1")).stream().findFirst().map(function).orElse(null);
+    }
+
+    @Override
+    public <R> R findByIds2OneField(String id, SFunction<T, R> function) {
+        return findOneField(new LambdaQueryWrapper<T>().eq(T::getId, id), function);
     }
 
     @Override
