@@ -594,11 +594,11 @@ public class ExcelUtils {
             excelEntity.setName(columnDefine.getColumnName());
             excelEntity.setWidth((double) columnDefine.getColumnWidth() / 6.8);
             //excelEntity.setHeight(excel.height());
-            /*if("1".equals(columnDefine.getColumnMerge())){
+            if("1".equals(columnDefine.getColumnMerge())){
                 excelEntity.setNeedMerge(true);
                 excelEntity.setMergeVertical(true);
                 //excelEntity.setMergeRely(excel.mergeRely());
-            }*/
+            }
             if (StrUtil.isNotEmpty(columnDefine.getDictType())) {
                 JSONArray jsonArray = JSONArray.parseArray(columnDefine.getDictType());
                 String[] replace = new String[jsonArray.size() + 1];
