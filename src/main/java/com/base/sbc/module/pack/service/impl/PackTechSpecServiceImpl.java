@@ -9,8 +9,10 @@ package com.base.sbc.module.pack.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.exception.OtherException;
@@ -18,6 +20,7 @@ import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.MdUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.common.dto.IdsDto;
+import com.base.sbc.module.common.entity.Attachment;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.vo.AttachmentVo;
@@ -326,6 +329,18 @@ public class PackTechSpecServiceImpl extends AbstractPackBaseServiceImpl<PackTec
         }
         List<PackTechAttachmentVo> packTechAttachmentVos = BeanUtil.copyToList(attachmentVos, PackTechAttachmentVo.class);
         return packTechAttachmentVos;
+    }
+
+    /**
+     * @param attachmentList
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void picListSort(List<Attachment> attachmentList) {
+        if (ObjectUtil.isNotEmpty(attachmentList)) {
+            attachmentService.updateBatchById(attachmentList);
+        }
     }
 
     @Override

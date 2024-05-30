@@ -4,7 +4,7 @@
  * 本软件为公司：广州尚捷科技有限责任公司   开发研制。未经本站正式书面同意，其他任何个人、团体
  * 不得使用、复制、修改或发布本软件.
  *****************************************************************************/
-package com.base.sbc.module.common.entity;
+package com.base.sbc.module.esorderbook.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
@@ -14,19 +14,19 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 类描述：附件 实体类
+ * 类描述：ES订货本 实体类
  *
- * @author lxl
+ * @author your name
  * @version 1.0
- * @address com.base.sbc.module.common.entity.Attachment
- * @email lxl.fml@gmail.com
- * @date 创建时间：2023-7-4 17:14:15
+ * @address com.base.sbc.module.esorderbook.entity.EsOrderBook
+ * @email your email
+ * @date 创建时间：2024-3-28 16:21:15
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("t_attachment")
-@ApiModel("附件 Attachment")
-public class Attachment extends BaseDataEntity<String> {
+@TableName("t_es_order_book")
+@ApiModel("ES订货本 EsOrderBook")
+public class EsOrderBook extends BaseDataEntity<String> {
 
     private static final long serialVersionUID = 1L;
     /**********************************实体存放的其他字段区  不替换的区域 【other_start】******************************************/
@@ -36,35 +36,39 @@ public class Attachment extends BaseDataEntity<String> {
 
     /*****************************数据库字段区 不包含父类公共字段(属性) 【start】***********************************/
     /**
-     * 上传文件id
+     * 组名
      */
-    @ApiModelProperty(value = "上传文件id")
-    private String fileId;
+    @ApiModelProperty(value = "组名")
+    private String name;
     /**
-     * 外键
+     * 搭配图片
      */
-    @ApiModelProperty(value = "外键")
-    private String foreignId;
+    @ApiModelProperty(value = "搭配图片")
+    private String img;
     /**
-     * 类型:样衣/制版/等
+     * 产品季节id
      */
-    @ApiModelProperty(value = "类型:样衣/制版/等")
-    private String type;
+    @ApiModelProperty(value = "产品季节id")
+    private String seasonId;
     /**
-     * 状态:(0正常,1停用)
+     * 产品季节名称
      */
-    @ApiModelProperty(value = "状态:(0正常,1停用)")
+    @ApiModelProperty(value = "产品季节名称")
+    private String seasonName;
+    /**
+     * 渠道
+     */
+    @ApiModelProperty(value = "渠道")
+    private String channel;
+    /**
+     * 渠道名称
+     */
+    @ApiModelProperty(value = "渠道名称")
+    private String channelName;
+    /**
+     * 状态:0:未提交,1:待确认,2:已确认,3:已下单,4:已驳回
+     */
+    @ApiModelProperty(value = "状态:0:未提交,1:待确认,2:已确认,3:已下单,4:已驳回")
     private String status;
-    /**
-     * 备注
-     */
-    @ApiModelProperty(value = "备注")
-    private String remarks;
-    /**
-     * 排序
-     */
-    @ApiModelProperty(value = "排序")
-    private Integer sort;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
-
