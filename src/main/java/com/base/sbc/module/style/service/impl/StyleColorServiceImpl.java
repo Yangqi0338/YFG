@@ -609,6 +609,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         PlanningSeason planningSeason = planningSeasonService.getById(StrUtil.isNotBlank(style.getOldPlanningSeasonId()) ? style.getOldPlanningSeasonId() : style.getPlanningSeasonId());
         String brand = planningSeason.getBrand();
         String year = planningSeason.getYearName();
+
+        PlanningSeason newPlanningSeason = planningSeasonService.getById(style.getPlanningSeasonId());
         // 240429 存在修改季节但不修改产品季的操作, 这里用产品季季节会导致匹配不上
         String season = style.getSeason();
         if (StringUtils.isNotBlank(style.getProdCategory())) {
@@ -617,26 +619,26 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (StringUtils.isBlank(bandName)) {
             throw new OtherException("款式波段为空");
         }
-        if (StringUtils.isBlank(brand)) {
+        if (StringUtils.isBlank(brand) || StringUtils.isBlank(newPlanningSeason.getBrand())) {
             throw new OtherException("款式品牌为空");
         }
-        if (StringUtils.isBlank(year)) {
+        if (StringUtils.isBlank(year) || StringUtils.isBlank(newPlanningSeason.getYear())) {
             throw new OtherException("款式年份为空");
         }
 
         String yearOn = "";
         try {
 //        获取年份
-            yearOn = getYearOn(year);
+//            yearOn = getYearOn(year);
 //            波段
-            bandName = getBandName(bandName);
+//            bandName = getBandName(bandName);
             /*获取款号流水号*/
             /**
              * 款号流水号：拼接品牌 年份 季节 品类 成为设计款号前几位 去掉设计编码
              */
             String years = year.substring(year.length() - 2);
             /*拼接的设计款号（用于获取流水号）*/
-            String joint = brand + years + season + category;
+            String joint = brand + years + planningSeason.getSeason() + category;
             designNo = designNo.replaceAll(joint, "");
             String regEx = "[^0-9]";
             Pattern p = Pattern.compile(regEx);
@@ -646,7 +648,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException(e.getMessage() + "大货编码生成失败");
         }
 //        获取款式下的配色
-        String styleNoFront = brand + yearOn + bandName + category + designNo;
+        String styleNoFront = newPlanningSeason.getBrand() + getYearOn(newPlanningSeason.getYear()) + getBandName(newPlanningSeason.getBrandName()) + category + designNo;
         String styleNo = "";
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_id", style.getId());
