@@ -19,6 +19,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.nacos.common.utils.MapUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -277,7 +278,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         /*分页*/
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
         QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
-        if(queryDto.getFieldQueryMap().containsKey("styleNo") && "styleNo".equals(queryDto.getFieldQueryMap().get("styleNo"))){
+        if(MapUtils.isNotEmpty(queryDto.getFieldQueryMap()) && queryDto.getFieldQueryMap().containsKey("styleNo") && "styleNo".equals(queryDto.getFieldQueryMap().get("styleNo"))){
             queryWrapper.orderByDesc("CAST(ts.year AS SIGNED)");
             queryWrapper.orderByDesc("ts.season");
             queryWrapper.orderByDesc("ts.brand");
