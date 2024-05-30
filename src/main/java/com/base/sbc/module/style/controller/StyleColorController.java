@@ -130,7 +130,7 @@ public class StyleColorController {
     @ApiOperation(value = "检查-配饰是否关联主款")
     @PostMapping("/checkAccessoryRelatedMainStyle")
     public ApiResult checkAccessoryRelatedMainStyle(@Valid @RequestBody QueryStyleColorDto querySampleStyleColorDto) {
-        return styleColorService.issueScm(querySampleStyleColorDto.getIds());
+        return styleColorService.checkAccessoryRelatedMainStyle(querySampleStyleColorDto.getIds());
     }
 
     @ApiOperation(value = "下发-款式配色")

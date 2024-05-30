@@ -1111,7 +1111,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
 
         if (StrUtil.isNotBlank(result)) {
-            ApiResult.error(result,BaseErrorEnum.ERR_ACCESSORIES_NOT_RELATE_MAIN_STYLE.getErrorCode());
+            return ApiResult.error(result,BaseErrorEnum.ERR_ACCESSORIES_NOT_RELATE_MAIN_STYLE.getErrorCode());
         }
         return ApiResult.success();
     }
