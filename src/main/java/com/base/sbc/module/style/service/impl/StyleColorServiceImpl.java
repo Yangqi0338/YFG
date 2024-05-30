@@ -81,11 +81,7 @@ import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
-import com.base.sbc.module.pack.service.PackBomService;
-import com.base.sbc.module.pack.service.PackBomVersionService;
-import com.base.sbc.module.pack.service.PackInfoService;
-import com.base.sbc.module.pack.service.PackInfoStatusService;
-import com.base.sbc.module.pack.service.PackPricingService;
+import com.base.sbc.module.pack.service.*;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.PackBomVersionVo;
 import com.base.sbc.module.pack.vo.PackBomVo;
@@ -126,12 +122,7 @@ import com.base.sbc.module.style.service.StyleColorAgentService;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleMainAccessoriesService;
 import com.base.sbc.module.style.service.StyleService;
-import com.base.sbc.module.style.vo.StyleColorAgentVo;
-import com.base.sbc.module.style.vo.StyleColorExcel;
-import com.base.sbc.module.style.vo.StyleColorListExcel;
-import com.base.sbc.module.style.vo.StyleColorVo;
-import com.base.sbc.module.style.vo.StyleMarkingCheckVo;
-import com.base.sbc.module.style.vo.StyleNoUserInfoVo;
+import com.base.sbc.module.style.vo.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -285,14 +276,19 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         /*分页*/
         BaseQueryWrapper queryWrapper = getBaseQueryWrapper(queryDto);
+        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
+        if(queryDto.getFieldQueryMap().containsKey("styleNo") && "styleNo".equals(queryDto.getFieldQueryMap().get("styleNo"))){
+            queryWrapper.orderByDesc("CAST(ts.year AS SIGNED)");
+            queryWrapper.orderByDesc("ts.season");
+            queryWrapper.orderByDesc("ts.brand");
+        }
+
         //添加数据权限，根据前端传值
         //打版进度	patternMakingSteps
         //款式配色	styleColor
         //款式列表	stylePage
         //款式库	    styleLibrary
         dataPermissionsService.getDataPermissionsForQw(queryWrapper, queryDto.getBusinessType(), "ts.");
-
-        QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
         Page<Object> objects = PageHelper.startPage(queryDto);
 
         if(StrUtil.equals("colorBatch",queryDto.getBusinessType())){
