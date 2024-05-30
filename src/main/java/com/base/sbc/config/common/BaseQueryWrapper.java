@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.conditions.segments.NormalSegmentList;
 import com.baomidou.mybatisplus.core.enums.SqlKeyword;
 import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.exception.OtherException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
@@ -244,6 +245,24 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
 
     private Map<String, String> groupSqlSegment = new HashMap<>();
 
+    public static void main(String[] args) {
+        String s = "concat(ts.year_name,\" \",ts.season_name,\" \",ts.brand_name)";
+        String[] tokens = s.split("[^a-zA-Z0-9._]");
+
+        for (String token : tokens) {
+            System.out.println(token);
+        }
+        System.out.println();
+    }
+
+    public boolean hasAlias(String alias) {
+        return getGroupSqlSegment().containsKey(alias);
+    }
+
+    public String getSqlByAlias(String alias) {
+        return getGroupSqlSegment().getOrDefault(alias, "1 = 1");
+    }
+
     /** 适配count */
     public Map<String, String> getGroupSqlSegment() {
         if (MapUtil.isNotEmpty(groupSqlSegment)) return groupSqlSegment;
@@ -285,13 +304,19 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                 }
                 // 找 ColumnSegment, 直到下一个为止
                 if (!nonFinish && !lastElement && normal.get(i + 1) instanceof SqlKeyword && !linkKeyword.contains(iSqlSegment)) {
-                    String[] split = sqlSegment.split(Pattern.quote(StringPool.DOT));
-                    String key = " ";
+                    String[] split = sqlSegment.split("[^a-zA-Z0-9._]");
+                    String key = "";
                     // 有前缀
-                    if (split.length > 1) {
-                        key = split[0];
+                    for (String mayKey : split) {
+                        String[] keySplit = mayKey.split(Pattern.quote(StringPool.DOT));
+                        if (split.length > 1) {
+                            String newKey = keySplit[0];
+                            if (StrUtil.isNotBlank(key) && !key.equals(newKey))
+                                throw new OtherException("自定义count查询不支持一个字段存在多个别名");
+                            key = newKey;
+                        }
                     }
-                    joiner = map.getOrDefault(key, new StringJoiner(StringPool.SPACE));
+                    joiner = map.getOrDefault(key.trim(), new StringJoiner(StringPool.SPACE));
                     joiner.add(sqlSegment);
                     map.put(key, joiner);
                     handlerNum.set(1);
@@ -302,21 +327,13 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
             }
 
         }
-        map.remove(" ");
+        map.remove("");
         Map<String, String> result = MapUtil.map(map, (key, value) -> {
             if (value.length() <= 2) return null;
             return value.toString();
         });
         groupSqlSegment.putAll(MapUtil.removeNullValue(result));
         return groupSqlSegment;
-    }
-
-    public boolean hasAlias(String alias) {
-        return getGroupSqlSegment().containsKey(alias);
-    }
-
-    public String getSqlByAlias(String alias) {
-        return getGroupSqlSegment().getOrDefault(alias, "1 = 1");
     }
 
 }
