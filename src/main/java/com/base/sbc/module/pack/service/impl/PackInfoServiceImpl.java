@@ -18,6 +18,8 @@ import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -31,6 +33,7 @@ import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.constant.RFIDProperties;
 import com.base.sbc.config.enums.BaseErrorEnum;
@@ -68,6 +71,8 @@ import com.base.sbc.module.pack.utils.GenTechSpecPdfFile;
 import com.base.sbc.module.pack.utils.PackUtils;
 import com.base.sbc.module.pack.vo.*;
 import com.base.sbc.module.pricing.vo.PricingVO;
+import com.base.sbc.module.sample.dto.FabricSummaryV2Dto;
+import com.base.sbc.module.sample.vo.FabricSummaryInfoVo;
 import com.base.sbc.module.smp.DataUpdateScmService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.style.entity.Style;
@@ -100,10 +105,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.*;
+import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_BIG_GOODS;
 import static com.base.sbc.module.pack.utils.PackUtils.PACK_TYPE_DESIGN;
 
@@ -553,7 +558,8 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
             if (designPricingCount + bigGoodsPricingCount < 2) {
                 throw new OtherException("转大货失败，请检查核价信息");
             }
-
+            //核价信息更新--防止未更新核价信息
+            UpdateCheckPackPricing(dto);
             //手动提交事务,防止下发配色的时候获取的数据不是修改后的数据
             platformTransactionManager.commit(transactionStatus);
             /*配色下发*/
@@ -1179,6 +1185,24 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
     }
 
     @Override
+    public PageInfo<FabricSummaryInfoVo> selectFabricSummaryStyle(FabricSummaryV2Dto dto) {
+        UserCompany userCompany = companyUserInfo.get();
+        BaseQueryWrapper qw = new BaseQueryWrapper<>();
+        qw.eq("tpi.company_code", userCompany.getCompanyCode());
+        qw.eq("ts.planning_season_id", dto.getPlanningSeasonId());
+        qw.in(StringUtils.isNotEmpty(dto.getFormerSupplierCode()),"tpb.supplier_id",StringUtils.convertList(dto.getFormerSupplierCode()));
+        qw.likeRight(StringUtils.isNotEmpty(dto.getSupplierFabricCode()),"tpb.supplier_material_code",dto.getSupplierFabricCode());
+        qw.eq(StringUtils.isNotEmpty(dto.getMaterialCode()),"tpb.material_code", dto.getMaterialCode());
+        qw.in(!CollectionUtils.isEmpty(dto.getBomList()),"tpb.id", dto.getBomList());
+        qw.in(!CollectionUtils.isEmpty(dto.getStyleNos()),"tsc.style_no", dto.getStyleNos());
+        qw.orderByDesc("tpb.design_verify");
+        qw.eq(StringUtils.isNotEmpty(dto.getFabricSummaryCode()),"tpb.supplier_material_code", dto.getFabricSummaryCode());
+        Page<FabricSummaryInfoVo> page = PageHelper.startPage(dto);
+        baseMapper.selectFabricSummaryStyle(dto,qw);
+        return page.toPageInfo();
+    }
+
+    @Override
     public boolean delTechSpecFile(PackCommonSearchDto dto) {
         UpdateWrapper qw = new UpdateWrapper();
         PackUtils.commonQw(qw, dto);
@@ -1527,6 +1551,29 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
 
         return styleDtoList;
     }
+
+
+    private void UpdateCheckPackPricing(PackCommonSearchDto dto) {
+        PackPricing packPricing = packPricingService.getByForeignIdOne(dto.getForeignId(), dto.getPackType());
+        if (Objects.isNull(packPricing)){
+            return;
+        }
+        Map<String, BigDecimal> stringBigDecimalMap = packPricingService.calculateCosts(dto);
+
+        String calcItemVal = packPricing.getCalcItemVal();
+        if (StringUtils.isEmpty(calcItemVal)){
+            return;
+        }
+        JSONObject jsonObject = JSON.parseObject(calcItemVal);
+        for (String key : stringBigDecimalMap.keySet()) {
+            if (null != jsonObject.get(key)){
+                jsonObject.put(key, stringBigDecimalMap.get(key));
+            }
+        }
+        packPricing.setCalcItemVal(JSON.toJSONString(jsonObject));
+        packPricingService.updateById(packPricing);
+    }
+
 // 自定义方法区 不替换的区域【other_end】
 
 }

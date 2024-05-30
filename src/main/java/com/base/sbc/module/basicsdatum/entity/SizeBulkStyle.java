@@ -44,5 +44,6 @@ public class SizeBulkStyle  {
     /** 类型 1:充绒量,2:特殊规格*/
     @ApiModelProperty(value = "类型 1:充绒量,2:特殊规格"  )
     private String type;
+    private String companyCode;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }

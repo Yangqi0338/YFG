@@ -8,6 +8,7 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
+import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.vo.*;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
@@ -27,6 +28,11 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
      * @return  分页结果
      */
     OrderBookDetailPageVo queryPage(OrderBookDetailQueryDto dto);
+
+    /**
+     * 订货本批量编辑
+     */
+    void updateBatchOrderBookDetail(List<OrderBookDetail> orderBookDetailList);
 
     List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper, Integer... judgeGroup);
 
@@ -94,4 +100,16 @@ public interface OrderBookDetailService extends BaseService<OrderBookDetail> {
     boolean removeByIds(RemoveDto removeDto);
 
     boolean similarStyleBinding(OrderBookDetailSaveDto dto);
+
+    List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto);
+
+    List<OrderBookDetailVo> queryList(OrderBookDetailQueryDto dto);
+
+    /**
+     * 根据款式号获取，改款式的总投产
+     * @return
+     */
+    String getByStyleNoTotalProduction(String styleNo);
+
+
 }

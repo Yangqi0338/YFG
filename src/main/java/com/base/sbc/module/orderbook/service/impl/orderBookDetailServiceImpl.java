@@ -20,17 +20,23 @@ import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.message.utils.MessageUtils;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.PutInProductionType;
 import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.StringUtils;
+import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.*;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
@@ -49,6 +55,7 @@ import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.dto.MaterialUpdateDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailQueryDto;
 import com.base.sbc.module.orderbook.dto.OrderBookDetailSaveDto;
+import com.base.sbc.module.orderbook.dto.QueryOrderDetailDTO;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
@@ -130,6 +137,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
     private final BasicsdatumMaterialColorService basicsdatumMaterialColorService;
 
+    @Lazy
     private final StyleColorService styleColorService;
     private final StyleService styleService;
 
@@ -169,6 +177,28 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         return pageVo;
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @DuplicationCheck
+    public void updateBatchOrderBookDetail(List<OrderBookDetail> orderBookDetailList) {
+        if (ObjectUtil.isEmpty(orderBookDetailList)) {
+            throw new OtherException("未勾选编辑数据！");
+        }
+        // 看拿到的id是否是空值 都是空的 则有问题，部分为空放到下面查询订货本详情的时候判断数量即可
+        List<String> orderBookDetailIdList = orderBookDetailList
+                .stream().map(OrderBookDetail::getId).filter(ObjectUtil::isNotEmpty).collect(Collectors.toList());
+        if (ObjectUtil.isEmpty(orderBookDetailIdList)) {
+            throw new OtherException("数据不存在，请刷新后重试！");
+        }
+        // 根据过滤后的id查询订货本详情信息 如果查到的订货本详情数据集合的长度和传入的集合长度不一致 说明详情不存在
+        List<OrderBookDetail> oldOrderBookDetailList = listByIds(orderBookDetailIdList);
+        if (ObjectUtil.isEmpty(oldOrderBookDetailList) || oldOrderBookDetailList.size() != orderBookDetailList.size()) {
+            throw new OtherException("数据不存在，请刷新后重试！");
+        }
+        // 最新进行批量更新
+        updateBatchById(orderBookDetailList);
+    }
+
 
     @Override
     public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response, String tableCode) throws IOException {
@@ -189,7 +219,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         List<Integer> judgeList = ArrayUtil.asMutableList(judgeGroup);
         boolean openDataAuth = CommonUtils.judge(judgeList, 0, 1);
         if (openDataAuth) {
-            dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
+            dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK());
         }
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
         if (CommonUtils.judge(judgeList, 1, 0) || CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
@@ -413,6 +443,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         );
         queryWrapper.likeList("ts.prod_category", dto.getCategoryCode());
         queryWrapper.likeList("tsc.band_name", dto.getBand());
+        queryWrapper.likeList("tsc.band_code", dto.getBandCode());
         queryWrapper.likeList("tobl.designer_id", dto.getDesignerName());
         queryWrapper.likeList("tsc.style_no", dto.getBulkStyleNo());
         queryWrapper.notEmptyEq("tobl.company_code", dto.getCompanyCode());
@@ -448,6 +479,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.fabric_remarks", dto.getFabricRemarks());
         queryWrapper.notEmptyLike("tobl.fabric_drop", dto.getFabricDrop());
         queryWrapper.notEmptyLike("ts.design_no", dto.getStyle());
+        queryWrapper.notEmptyLike("ts.prod_category2nd", dto.getProdCategory2ndCode());
+        queryWrapper.notEmptyLike("ts.prod_category1st", dto.getProdCategory1st());
         queryWrapper.notEmptyLike("ts.old_design_no", dto.getOldDesignNo());
         queryWrapper.notEmptyLike("ts.registering_no", dto.getRegisteringNo());
         queryWrapper.notEmptyLike("tobl.suit_no", dto.getSuitNo());
@@ -461,7 +494,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         queryWrapper.notEmptyLike("tobl.braiding", dto.getBraiding());
         queryWrapper.notEmptyLike("tobl.dimension_info", dto.getDimensionInfo());
         queryWrapper.notEmptyLike("tobl.gram_weight", dto.getGramWeight());
-
+        if (StringUtils.isNotBlank(dto.getBulkStyleNoFull())){
+            queryWrapper.eq("tsc.style_no", dto.getBulkStyleNoFull());
+        }
         // //有权限则查询全部数据
         // if (StringUtil.isEmpty(dto.getIsAll()) || "0".equals(dto.getIsAll())){
         //     queryWrapper.and(qw -> qw.eq("tobl.designer_id", dto.getUserId()).
@@ -620,7 +655,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public Map<String, BigDecimal> queryCount(OrderBookDetailQueryDto dto) {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "style_order_book", "tobl.");
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.style_order_book.getK());
         List<OrderBookDetailVo> querylistAll = this.getBaseMapper().queryPage(queryWrapper);
         HashMap<String, Double> hashMap =new HashMap<>();
         double materialMoneySum = 0;
@@ -1310,6 +1345,24 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public String handlePlaceAnCancelProduction(List<OrderBookDetail> list, List<HttpResp> httpRespList) {
         return handlePlaceAnProduction(list, OrderBookDetail::getOrderNo, httpRespList);
+    }
+
+    @Override
+    public List<OrderBookDetailForSeasonPlanningVO> querySeasonalPlanningOrder(QueryOrderDetailDTO dto) {
+        return this.getBaseMapper().querySeasonalPlanningOrder(dto);
+    }
+
+    @Override
+    public List<OrderBookDetailVo> queryList(OrderBookDetailQueryDto dto) {
+        BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
+        return this.querylist(queryWrapper,1);
+    }
+
+    @Override
+    public String getByStyleNoTotalProduction(String styleNo) {
+        BaseQueryWrapper queryWrapper = new BaseQueryWrapper();
+        queryWrapper.eq("tsc.style_no",styleNo);
+        return baseMapper.getByStyleNoTotalProductionList(queryWrapper);
     }
 
     /**

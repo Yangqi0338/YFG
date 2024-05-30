@@ -60,15 +60,9 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
             if (collect.containsKey(columnDefine.getId())) {
                 ColumnGroupDefineItem userDefineItem = collect.get(columnDefine.getId());
                 columnDefine.setId(userDefineItem.getId());
-                columnDefine.setColumnName(userDefineItem.getColumnName());
-                columnDefine.setColumnNameI18nKey(userDefineItem.getColumnNameI18nKey());
                 columnDefine.setHidden(userDefineItem.getHidden());
-                columnDefine.setAlignType(userDefineItem.getAlignType());
-                columnDefine.setFixType(userDefineItem.getFixType());
                 columnDefine.setIsEdit(userDefineItem.getIsEdit());
-                columnDefine.setColumnWidth(userDefineItem.getColumnWidth());
                 columnDefine.setSortOrder(userDefineItem.getSortOrder());
-                columnDefine.setColumnColor(userDefineItem.getColumnColor());
             } else {
                 columnDefine.setId(null);
             }
@@ -94,15 +88,9 @@ public class ColumnGroupDefineServiceImpl extends BaseServiceImpl<ColumnGroupDef
                     columnDefine.setSysId(columnDefine.getId());
                     ColumnGroupDefineItem groupDefineItem = collect.get(columnDefine.getId());
                     columnDefine.setId(groupDefineItem.getId());
-                    columnDefine.setColumnName(groupDefineItem.getColumnName());
-                    columnDefine.setColumnNameI18nKey(groupDefineItem.getColumnNameI18nKey());
                     columnDefine.setHidden(groupDefineItem.getHidden());
-                    columnDefine.setAlignType(groupDefineItem.getAlignType());
-                    columnDefine.setFixType(groupDefineItem.getFixType());
                     columnDefine.setIsEdit(groupDefineItem.getIsEdit());
-                    columnDefine.setColumnWidth(groupDefineItem.getColumnWidth());
                     columnDefine.setSortOrder(groupDefineItem.getSortOrder());
-                    columnDefine.setColumnColor(groupDefineItem.getColumnColor());
                     byTableCode1.add(columnDefine);
                 }
             }

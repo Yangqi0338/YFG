@@ -48,6 +48,7 @@ import com.base.sbc.module.common.dto.GetMaxCodeRedis;
 import com.base.sbc.module.common.dto.RemoveDto;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.fabric.service.BasicFabricLibraryService;
+import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
@@ -906,6 +907,30 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         return materialPriceService.getMaterialCodeBySupplierInfo(materialSupplierInfo);
     }
 
+    @Override
+    public BasicsdatumMaterial getMaterialByCode(String materialCode) {
+        QueryWrapper<BasicsdatumMaterial> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("material_code", materialCode);
+        List<BasicsdatumMaterial> list = list(queryWrapper);
+        if (CollUtil.isNotEmpty(list)){
+            return null;
+        }
+        return list.get(0);
+    }
+
+    @Override
+    public List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode) {
+        return this.baseMapper.getBasicsdatumMaterialColorSelect(this.getCompanyCode(), materialCode);
+    }
+
+    @Override
+    public FabricSummary getMaterialSummaryInfo(String materialCode) {
+        BaseQueryWrapper baseQueryWrapper = new BaseQueryWrapper<>();
+        baseQueryWrapper.eq("tbm.material_code",materialCode);
+        List<FabricSummary> list = baseMapper.getMaterialSummaryInfo(baseQueryWrapper);
+        return CollectionUtils.isEmpty(list) ? new FabricSummary() : list.get(0);
+    }
+
     /**
      * 得到商品款图片
      * @param vo
@@ -1349,7 +1374,7 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
         LambdaQueryWrapper<BasicsdatumMaterial> qw = new QueryWrapper<BasicsdatumMaterial>().lambda()
                 .in(BasicsdatumMaterial::getMaterialCode, materialCodes)
                 .eq(BasicsdatumMaterial::getDelFlag, "0")
-                .select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, BasicsdatumMaterial::getIngredient);
+                .select(BasicsdatumMaterial::getMaterialCode, BasicsdatumMaterial::getSource, BasicsdatumMaterial::getIngredient,BasicsdatumMaterial::getSupplierFabricCode);
         List<BasicsdatumMaterial> list = super.list(qw);
         if (CollectionUtils.isEmpty(list)) {
             return new HashMap<>();

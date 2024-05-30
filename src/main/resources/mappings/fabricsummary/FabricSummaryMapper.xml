@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.fabricsummary.mapper.FabricSummaryMapper">
+    <!--
+        款式管理-面料汇总
+        创建人：your name
+        邮箱：your email
+        创建时间：2024-3-28 15:25:40
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+    <select id="fabricSummaryIdList" resultType="java.lang.String">
+        select id from (
+        select tfs.id ,tfs.create_date from t_fabric_summary tfs left join t_fabric_summary_style tfss on tfs. id = tfss.fabric_summary_id
+        where tfs.del_flag = '0' and tfs.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+        group by tfs.id order by tfs.create_date desc ) t
+    </select>
+
+    <select id="fabricSummaryInfoVoList" resultType="com.base.sbc.module.sample.vo.FabricSummaryInfoVo">
+        select
+        <if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+            ${ew.sqlSelect}
+        </if>
+        <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+            tfs.id as id,
+            tfss.id as fabric_summary_style_id,
+            tfs.*,
+            tpb.design_unit_use as unit_use,
+            tpb.color as color,
+            tpb.collocation_name as collocation_name,
+            tpb.part_name as collocation_name,
+            tfss.*
+        </if>
+        from t_fabric_summary tfs
+        left join t_fabric_summary_style tfss on tfs. id = tfss.fabric_summary_id and tfss.del_flag = '0'
+        left join t_pack_bom tpb on tfss.bom_id = tpb.id
+        where tfs.del_flag = '0' and (tfss.del_flag is null or tfss.del_flag = '0')
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
+    <select id="getSerialNumberMax" resultType="java.lang.Integer">
+        select count(1) from t_fabric_summary tfs where group_id = #{groupId};
+    </select>
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>

@@ -33,6 +33,7 @@ import com.base.sbc.module.planning.dto.UpdateDimensionalityDto;
 import com.base.sbc.module.planning.entity.PlanningChannel;
 import com.base.sbc.module.planning.entity.PlanningDimensionality;
 import com.base.sbc.module.planning.mapper.PlanningDimensionalityMapper;
+import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningChannelService;
 import com.base.sbc.module.planning.service.PlanningDemandService;
 import com.base.sbc.module.planning.service.PlanningDimensionalityService;
@@ -43,6 +44,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +69,8 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
 
     @Autowired
     private  FormTypeMapper formTypeMapper;
+    @Resource
+    private PlanningDemandService planningDemandService;
 
     @Autowired
     private BasicsdatumDimensionalityService basicsdatumDimensionalityService;
@@ -70,8 +78,6 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
     @Autowired
     private BasicsdatumCoefficientTemplateService basicsdatumCoefficientTemplateService;
 
-    @Autowired
-    private  PlanningDemandService planningDemandService;
 
     @Autowired
     private PlanningChannelService planningChannelService;
@@ -187,7 +193,7 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
      * @return
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = {Exception.class})
     public List<PlanningDimensionality> batchSaveDimensionality(List<UpdateDimensionalityDto> dimensionalityDtoList) {
 
         if (dimensionalityDtoList.isEmpty()) {
@@ -425,6 +431,27 @@ public class PlanningDimensionalityServiceImpl extends BaseServiceImpl<PlanningD
             saveOrUpdateBatch(list);
         }
         return true;
+    }
+
+    @Override
+    public List<PlanningDimensionality> copyDimensionality(DimensionLabelsSearchDto dimensionLabelsSearchDto) {
+        String planningSeasonId = dimensionLabelsSearchDto.getPlanningSeasonId();
+        DimensionalityListVo dimensionalityList = this.getDimensionalityList(dimensionLabelsSearchDto);
+        List<PlanningDimensionality> planningDimensionalities = dimensionalityList.getPlanningDimensionalities();
+        if (!planningDimensionalities.isEmpty()) {
+            List<String> ids = planningDimensionalities.stream().map(PlanningDimensionality::getId).collect(Collectors.toList());
+            this.removeByIds(ids);
+        }
+
+        dimensionLabelsSearchDto.setPlanningSeasonId(dimensionLabelsSearchDto.getRefPlanningSeasonId());
+
+        DimensionalityListVo dimensionalityList1 = this.getDimensionalityList(dimensionLabelsSearchDto);
+        for (PlanningDimensionality planningDimensionality : dimensionalityList1.getPlanningDimensionalities()) {
+            planningDimensionality.setId(null);
+            planningDimensionality.setPlanningSeasonId(planningSeasonId);
+        }
+        List<UpdateDimensionalityDto> updateDimensionalityDtos = BeanUtil.copyToList(dimensionalityList1.getPlanningDimensionalities(), UpdateDimensionalityDto.class);
+        return  this.batchSaveDimensionality(updateDimensionalityDtos);
     }
 
 /** 自定义方法区 不替换的区域【other_start】 **/

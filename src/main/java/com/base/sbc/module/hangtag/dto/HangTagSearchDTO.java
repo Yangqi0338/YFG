@@ -1,6 +1,7 @@
 package com.base.sbc.module.hangtag.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,7 +12,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel(value = "吊牌列表查询")
-public class HangTagSearchDTO extends Page {
+public class HangTagSearchDTO extends QueryFieldDto {
 
     /**
      * 款式

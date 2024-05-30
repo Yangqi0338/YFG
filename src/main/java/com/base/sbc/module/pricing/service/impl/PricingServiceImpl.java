@@ -11,11 +11,16 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
+import com.base.sbc.client.amc.service.DataPermissionsService;
+import com.base.sbc.config.annotation.EditPermission;
+import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.enums.BaseErrorEnum;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.BusinessException;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
@@ -28,6 +33,7 @@ import com.base.sbc.module.pricing.dto.PricingDTO;
 import com.base.sbc.module.pricing.dto.PricingDelDTO;
 import com.base.sbc.module.pricing.dto.PricingSearchDTO;
 import com.base.sbc.module.pricing.entity.Pricing;
+import com.base.sbc.module.pricing.entity.PricingTemplate;
 import com.base.sbc.module.pricing.enums.PricingCountTypeEnum;
 import com.base.sbc.module.pricing.enums.PricingQueryDimensionEnum;
 import com.base.sbc.module.pricing.enums.PricingSourceTypeEnum;
@@ -83,16 +89,21 @@ public class PricingServiceImpl extends BaseServiceImpl<PricingMapper, Pricing> 
     private PackBomService packBomService;
     @Autowired
     private PackProcessPriceService packProcessPriceService;
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
     @Override
+    @EditPermission(type = DataPermissionsBusinessTypeEnum.costPricing)
     public PageInfo<PricingListVO> queryPageInfo(PricingSearchDTO dto, String userCompany) {
+        BaseQueryWrapper<PricingTemplate> qw = new BaseQueryWrapper<>();
+        QueryGenerator.initQueryWrapperByMap(qw,dto);
         dto.setCompanyCode(userCompany);
         com.github.pagehelper.Page<PricingListVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
         if (PricingQueryDimensionEnum.ITEM.getK().equals(dto.getDimension())) {
-            pricingMapper.getItemDimension(dto);
+            pricingMapper.getItemDimension(qw, dto);
             return page.toPageInfo();
         }
-        pricingMapper.getSummaryDimension(dto);
+        pricingMapper.getSummaryDimension(qw, dto);
         return page.toPageInfo();
     }
 

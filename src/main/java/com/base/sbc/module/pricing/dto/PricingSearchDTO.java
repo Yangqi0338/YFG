@@ -1,6 +1,7 @@
 package com.base.sbc.module.pricing.dto;
 
 import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import com.base.sbc.module.pricing.enums.PricingQueryDimensionEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -15,7 +16,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 @Data
 @ApiModel("核价列表查询")
-public class PricingSearchDTO extends Page {
+public class PricingSearchDTO extends QueryFieldDto {
 
     /**
      * 查询维度

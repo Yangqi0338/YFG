@@ -60,7 +60,7 @@ public interface PricingTemplateService extends BaseService<PricingTemplate> {
      * @param pricingDelDTO
      * @param userCompany
      */
-    void delById(PricingDelDTO pricingDelDTO, String userCompany);
+    void delById(PricingDelDTO pricingDelDTO);
 
     /**
      * 默认设置
@@ -76,7 +76,7 @@ public interface PricingTemplateService extends BaseService<PricingTemplate> {
      * @param dto
      * @param userCompany
      */
-    void updateStatus(PricingUpdateStatusDTO dto, String userCompany);
+    void updateStatus(PricingUpdateStatusDTO dto);
 
 
     /**
@@ -94,7 +94,7 @@ public interface PricingTemplateService extends BaseService<PricingTemplate> {
      * @param userCompany
      * @return
      */
-    PricingTemplateVO getDefaultPricingTemplate( String devtType,String userCompany);
+    PricingTemplateVO getDefaultPricingTemplate(String brand, String devtType,String userCompany);
 
     // 自定义方法区 不替换的区域【other_end】
 

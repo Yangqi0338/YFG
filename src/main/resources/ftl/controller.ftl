@@ -9,8 +9,9 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.utils.StringUtils;
 import ${javapackage}.${project}.entity.${className};
+import ${javapackage}.${project}.dto.${className}QueryDto;
+import ${javapackage}.${project}.vo.${className}Vo;
 import ${javapackage}.${project}.service.${className}Service;
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,10 +41,8 @@ public class ${className}Controller{
 
 	@ApiOperation(value = "分页查询")
 	@GetMapping
-	public PageInfo<${className}> page(Page page) {
-		PageHelper.startPage(page);
-		List<${className}> list = ${smallClassName}Service.list();
-		return new PageInfo<>(list);
+	public PageInfo<${className}Vo> page(${className}QueryDto dto) {
+		return ${smallClassName}Service.findPage(dto);
 	}
 
 	@ApiOperation(value = "明细-通过id查询")

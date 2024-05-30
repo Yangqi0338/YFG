@@ -1,9 +1,7 @@
 
 package com.base.sbc.module.planningproject.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -42,13 +40,16 @@ public class PlanningProjectDimension {
     /** 中类名称 */
     @ApiModelProperty(value = "中类名称"  )
     private String prodCategory2ndName;
+    /** 品类维度明细id */
+    @ApiModelProperty(value = "品类维度明细id"  )
+    private String categoryPlanningDetailsId;
     /** 第一维度id */
     @ApiModelProperty(value = "第一维度id"  )
     private String dimensionId;
     /** 第一维度名称 */
     @ApiModelProperty(value = "第一维度名称"  )
     private String dimensionName;
-    /** 第一维度名称 */
+    /** 第一维度编码 */
     @ApiModelProperty(value = "第一维度编码"  )
     private String dimensionCode;
     /** 维度值 */
@@ -64,7 +65,35 @@ public class PlanningProjectDimension {
     @ApiModelProperty(value = "数量"  )
     private String number;
     private String dimensionTypeCode;
+    /**
+     * 维度等级
+     */
+    @ApiModelProperty(value = "维度等级")
+    private String dimensionalityGrade;
+    /**
+     * 维度等级名称
+     */
+    @ApiModelProperty(value = "维度等级名称")
+    private String dimensionalityGradeName;
+    /**
+     * 维度类型（1-品类 2-中类）
+     */
+    @ApiModelProperty(value = "维度类型（1-品类 2-中类）")
+    private Integer dimensionalityType;
     /** 是否开启中类(0:未开启,1:开启) */
     @ApiModelProperty(value = "是否开启中类(0:未开启,1:开启)"  )
     private String isProdCategory2nd;
+    @TableField(fill = FieldFill.INSERT)
+    private String companyCode;
+
+    /**
+     * 虚拟坑位数量
+     */
+    private String virtualNumber;
+
+    /**
+     * 已匹配数量
+     */
+    @TableField(exist = false)
+    private Long matchedNumber;
 }

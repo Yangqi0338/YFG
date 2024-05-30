@@ -23,6 +23,8 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
 
     private String id;
 
+    private String prodCategory1st;
+
     /**
      * 序号
      */
@@ -58,6 +60,10 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
      * 大货款号
      */
     private String bulkStyleNo;
+    /**
+     * 大货款号 非模糊
+     */
+    private String bulkStyleNoFull;
     @ApiModelProperty(value = "品类")
     private String categoryCode;
     /**
@@ -72,10 +78,15 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
     private String designerName;
 
     /**
+     * 波段名称
+     */
+    @ApiModelProperty(value = "波段名称")
+    private String band;
+    /**
      * 波段编码
      */
     @ApiModelProperty(value = "波段编码")
-    private String band;
+    private String bandCode;
     /**
      * 状态
      */
@@ -134,6 +145,7 @@ public class OrderBookDetailQueryDto extends QueryFieldDto {
     private String fabricDrop;
     private String style;
     private String prodCategory2ndName;
+    private String prodCategory2ndCode;
     private String oldDesignNo;
     private String registeringNo;
     private String suitNo;

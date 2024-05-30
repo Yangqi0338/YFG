@@ -28,6 +28,7 @@ import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.client.flowable.vo.FlowRecordVo;
+import com.base.sbc.config.annotation.EditPermission;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -47,6 +48,7 @@ import com.base.sbc.config.redis.RedisStaticFunUtils;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumModelType;
@@ -159,6 +161,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_INGREDIENT_WRAP;
+import static com.base.sbc.client.ccm.enums.CcmBaseSettingEnum.HANG_TAG_WARM_TIPS_WRAP;
 import static com.base.sbc.config.constant.Constants.COMMA;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_COUNTRY_LANGUAGE;
 import static com.base.sbc.config.constant.MoreLanguageProperties.MoreLanguageMsgEnum.HAVEN_T_TAG;
@@ -259,15 +263,17 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 
 	@Value("${hang-tag.packingDefaultType:P1}")
 	private String packingDefaultType;
+    @Autowired
+    private CcmFeignService ccmFeignService;
 
 	@Override
+	@EditPermission(type=DataPermissionsBusinessTypeEnum.hangTagList)
 	public PageInfo<HangTagListVO> queryPageInfo(HangTagSearchDTO hangTagDTO, String userCompany) {
 		hangTagDTO.setCompanyCode(userCompany);
-		if (hangTagDTO.getPageNum() != 0 && hangTagDTO.getPageSize() != 0) {
-			PageHelper.startPage(hangTagDTO.getPageNum(), hangTagDTO.getPageSize());
-		}
-		String authSql = dataPermissionsService
-				.getDataPermissionsSql(DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
+		BaseQueryWrapper<HangTagListVO> qw = new BaseQueryWrapper<>();
+		QueryGenerator.initQueryWrapperByMapNoDataPermission(qw,hangTagDTO);
+		hangTagDTO.startPage();
+		dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), "tsd.", null, false);
 		if (!StringUtils.isEmpty(hangTagDTO.getBulkStyleNo())) {
 			hangTagDTO.setBulkStyleNos(hangTagDTO.getBulkStyleNo().split(","));
 		}
@@ -286,7 +292,7 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
-		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, authSql);
+		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
 				throw new OtherException("带图片导出2000条数据");
@@ -414,6 +420,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTagVO.setStatus(HangTagStatusEnum.NOT_COMMIT);
 		}
 
+		hangTagVO.setIngredientDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_INGREDIENT_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
+		if (hangTagVO.getWarmTipsDefaultWrap() == null) {
+			hangTagVO.setWarmTipsDefaultWrap(ccmFeignService.inSettingOptions(HANG_TAG_WARM_TIPS_WRAP.getKeyCode(), hangTagVO.getBrand()).reverse());
+		}
+
 		PackInfo pack = packInfoService
 				.getOne(new QueryWrapper<PackInfo>().eq("style_no", hangTagVO.getBulkStyleNo()));
 		if (pack != null) {
@@ -446,6 +457,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 				}
 
 			}
+		}
+		String packagingBagStandardCode = hangTagVO.getPackagingBagStandardCode();
+		if (StrUtil.isNotBlank(packagingBagStandardCode) && hangTagVO.getStatus() == HangTagStatusEnum.NOT_INPUT) {
+			hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
+					.findFirst().map(BasicBaseDict::getName).orElse(""));
 		}
 
 		return hangTagVO;
@@ -502,6 +518,11 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 							hangTagMapper.addHangTagInspectCompany(hangTagInspectCompany);
 						}
 					}
+				}
+				String packagingBagStandardCode = hangTagVO.getPackagingBagStandardCode();
+				if (StrUtil.isNotBlank(packagingBagStandardCode) && hangTagVO.getStatus() == HangTagStatusEnum.NOT_INPUT) {
+					hangTagVO.setPackagingBagStandard(ccmFeignService.getAllDictInfoToList("C8_PackageSize").stream().filter(it-> it.getValue().equals(packagingBagStandardCode))
+							.findFirst().map(BasicBaseDict::getName).orElse(""));
 				}
 				return hangTagVO;
 			}
@@ -619,6 +640,41 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			hangTag.setStatus(HangTagStatusEnum.TECH_CHECK);
 			this.updateById(hangTag);
 		}
+
+		// 修正工艺单说明的包装袋标准
+		// 获取大货标准资料包
+		String packagingFormCode = hangTagDTO.getPackagingFormCode();
+		String packagingBagStandardCode = hangTagDTO.getPackagingBagStandardCode();
+
+		if (StrUtil.isNotBlank(packagingFormCode) && StrUtil.isNotBlank(packagingBagStandardCode)) {
+			boolean isDefaultPackingType = packagingFormCode.equals(packingDefaultType);
+			Opt.ofNullable(
+					packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
+			).ifPresent(packInfo-> {
+				LambdaUpdateWrapper<PackTechPackaging> qw = new LambdaUpdateWrapper<PackTechPackaging>()
+						.eq(PackTechPackaging::getForeignId, packInfo.getId())
+						.set(PackTechPackaging::getPackagingForm, packagingFormCode)
+						.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
+						.set(PackTechPackaging::getPackagingBagStandard, packagingBagStandardCode)
+						.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard());
+				Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
+						.eq(PackingDictionary::getPackagingForm, packagingFormCode)
+						.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
+					boolean heightNotBlank = packingDictionary.getVolumeHeight() != null;
+					boolean widthNotBlank = packingDictionary.getVolumeWidth() != null;
+					boolean lengthNotBlank = packingDictionary.getVolumeLength() != null;
+					qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
+							.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
+							.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
+							.set(!isDefaultPackingType && heightNotBlank, PackTechPackaging::getVolumeHeight, packingDictionary.getVolumeHeight())
+							.set(!isDefaultPackingType && widthNotBlank, PackTechPackaging::getVolumeWidth, packingDictionary.getVolumeWidth())
+							.set(!isDefaultPackingType && lengthNotBlank, PackTechPackaging::getVolumeLength, packingDictionary.getVolumeLength())
+					;
+				});
+				packTechPackagingService.update(qw);
+			});
+		}
+
 		try {
 			//下发成分
 			smpService.sendTageComposition(Collections.singletonList(id));
@@ -626,40 +682,6 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 			//region 2023-12-06 吊牌保存需要修改工艺员确认状态
 			smpService.tagConfirmDates(Collections.singletonList(id), HangTagDeliverySCMStatusEnum.TECHNOLOGIST_CONFIRM, 1);
 			//endregion
-
-			// 修正工艺单说明的包装袋标准
-			// 获取大货标准资料包
-			String packagingFormCode = hangTagDTO.getPackagingFormCode();
-			String packagingBagStandardCode = hangTagDTO.getPackagingBagStandardCode();
-
-			if (StrUtil.isNotBlank(packagingFormCode) && StrUtil.isNotBlank(packagingBagStandardCode)) {
-				boolean isDefaultPackingType = packagingFormCode.equals(packingDefaultType);
-				Opt.ofNullable(
-						packInfoService.findOne(new LambdaQueryWrapper<PackInfo>().eq(PackInfo::getStyleNo, hangTag.getBulkStyleNo()))
-				).ifPresent(packInfo-> {
-					LambdaUpdateWrapper<PackTechPackaging> qw = new LambdaUpdateWrapper<PackTechPackaging>()
-							.eq(PackTechPackaging::getForeignId, packInfo.getId())
-							.set(PackTechPackaging::getPackagingForm, packagingFormCode)
-							.set(PackTechPackaging::getPackagingFormName, hangTagDTO.getPackagingForm())
-							.set(PackTechPackaging::getPackagingBagStandard, packagingBagStandardCode)
-							.set(PackTechPackaging::getPackagingBagStandardName, hangTagDTO.getPackagingBagStandard());
-					Opt.ofNullable(packingDictionaryService.findOne(new LambdaQueryWrapper<PackingDictionary>()
-							.eq(PackingDictionary::getPackagingForm, packagingFormCode)
-							.eq(PackingDictionary::getParentId, packagingBagStandardCode))).ifPresent(packingDictionary-> {
-						boolean heightNotBlank = packingDictionary.getVolumeHeight() != null;
-						boolean widthNotBlank = packingDictionary.getVolumeWidth() != null;
-						boolean lengthNotBlank = packingDictionary.getVolumeLength() != null;
-						qw.set(isDefaultPackingType && heightNotBlank, PackTechPackaging::getStackedHeight, packingDictionary.getVolumeHeight())
-								.set(isDefaultPackingType && widthNotBlank, PackTechPackaging::getStackedWidth, packingDictionary.getVolumeWidth())
-								.set(isDefaultPackingType && lengthNotBlank, PackTechPackaging::getStackedLength, packingDictionary.getVolumeLength())
-								.set(!isDefaultPackingType && heightNotBlank, PackTechPackaging::getVolumeHeight, packingDictionary.getVolumeHeight())
-								.set(!isDefaultPackingType && widthNotBlank, PackTechPackaging::getVolumeWidth, packingDictionary.getVolumeWidth())
-								.set(!isDefaultPackingType && lengthNotBlank, PackTechPackaging::getVolumeLength, packingDictionary.getVolumeLength())
-						;
-					});
-					packTechPackagingService.update(qw);
-				});
-			}
 		}catch (Exception ignored){
 		}
         return id;

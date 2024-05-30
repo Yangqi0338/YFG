@@ -81,4 +81,43 @@
         group by tobl.order_book_id
     </select>
 
+    <select id="querySeasonalPlanningOrder" resultType="com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO">
+        SELECT DISTINCT
+               ts.id as styleId,
+               ts.prod_category1st as prodCategory1st,
+               ts.prod_category1st_name as prodCategory1stName,
+               ts.prod_category as prodCategory,
+               ts.prod_category_name as prodCategoryName,
+               ts.prod_category2nd as prodCategory2nd,
+               ts.prod_category2nd_name as prodCategory2ndName,
+               ts.band_code as bandCode,
+               ts.band_name as bandName,
+               tfv.field_id as fieldId,
+               tfv.field_explain as fieldExplain,
+               tfv.val as styleCode,
+               tfv.val_name as styleName
+        FROM t_order_book_detail tobd
+        LEFT JOIN t_order_book tob ON tob.id = tobd.order_book_id AND tob.del_flag='0'
+        LEFT JOIN t_style_color tsc ON tobd.style_color_id = tsc.id AND tsc.del_flag='0'
+        LEFT JOIN t_style ts ON ts.id = tsc.style_id AND ts.del_flag='0'
+        LEFT JOIN t_field_val tfv ON ts.id = tfv.foreign_id AND ts.del_flag='0'
+        WHERE tobd.del_flag='0'
+              AND tobd.order_status in (2,3,4)
+        <if test="dto.seasonId != null and dto.seasonId != ''">
+            AND tob.season_id = #{dto.seasonId}
+        </if>
+        <if test="dto.channel != null and dto.channel != ''">
+              AND tob.channel = #{dto.channel}
+        </if>
+        <if test="dto.styleCategory != null and dto.styleCategory != ''">
+            AND tfv.field_name = #{dto.styleCategory}
+        </if>
+    </select>
+    <select id="getByStyleNoTotalProductionList" resultType="java.lang.String">
+        select sum(total_production)  from t_order_book_detail tobd left join  t_style_color tsc on tobd.style_color_id = tsc.id
+        where tobd.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
 </mapper>
