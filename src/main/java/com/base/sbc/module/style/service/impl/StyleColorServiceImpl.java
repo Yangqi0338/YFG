@@ -69,16 +69,22 @@ import com.base.sbc.module.hangtag.entity.HangTag;
 import com.base.sbc.module.hangtag.service.HangTagService;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
+import com.base.sbc.module.pack.dto.PackBomPageSearchDto;
+import com.base.sbc.module.pack.dto.PackCommonPageSearchDto;
 import com.base.sbc.module.pack.dto.PackCommonSearchDto;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackInfo;
 import com.base.sbc.module.pack.entity.PackInfoStatus;
 import com.base.sbc.module.pack.mapper.PackInfoMapper;
 import com.base.sbc.module.pack.service.PackBomService;
+import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.service.PackInfoStatusService;
 import com.base.sbc.module.pack.service.PackPricingService;
 import com.base.sbc.module.pack.utils.PackUtils;
+import com.base.sbc.module.pack.vo.PackBomVersionVo;
+import com.base.sbc.module.pack.vo.PackBomVo;
+import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.planning.entity.PlanningSeason;
 import com.base.sbc.module.planning.service.PlanningSeasonService;
@@ -163,6 +169,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     private final DataUpdateScmService dataUpdateScmService;
 
     private final StylePricingMapper stylePricingMapper;
+
+    private final PackBomVersionService packBomVersionService;
 
     @Resource
     @Lazy
@@ -1253,6 +1261,41 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         if (ObjectUtils.isEmpty(styleColor)) {
             throw new OtherException(BaseErrorEnum.ERR_SELECT_ATTRIBUTE_NOT_REQUIREMENTS);
         }
+        // 款式配色不能已下发
+        if (StrUtil.equals("1", styleColor.getScmSendFlag())) {
+            throw new OtherException("请解锁配色");
+        }
+        PageInfo<PackInfoListVo> packInfoListVoPageInfo = packInfoService.getInfoListByDesignNo(styleColor.getStyleId());
+        if (CollUtil.isEmpty(packInfoListVoPageInfo.getList())) {
+            throw new OtherException("未找到关联Bom");
+        }
+
+        // BOM阶段不为样品不允许修改
+        PackInfoListVo packInfoListVo = packInfoListVoPageInfo.getList().get(0);
+        if (StrUtil.isNotBlank(packInfoListVo.getBomStatus()) && !StrUtil.equals("0", packInfoListVo.getBomStatus())) {
+            throw new OtherException("BOM阶段为大货阶段，请工艺部和外发部退回样品阶段");
+        }
+        // 物料清单不能有已下发的
+        PackCommonPageSearchDto dto = new PackCommonPageSearchDto();
+        dto.setForeignId(packInfoListVo.getId());
+        dto.setPackType("packDesign");
+        PageInfo<PackBomVersionVo> packBomVersionVoPageInfo = packBomVersionService.pageInfo(dto);
+        if (CollUtil.isNotEmpty(packBomVersionVoPageInfo.getList())) {
+            PackBomVersionVo packBomVersionVo = packBomVersionVoPageInfo.getList().get(0);
+            PackBomPageSearchDto pageSearchDto = new PackBomPageSearchDto();
+            pageSearchDto.setBomVersionId(packBomVersionVo.getId());
+            pageSearchDto.setForeignId(packInfoListVo.getId());
+            pageSearchDto.setPackType("packDesign");
+            PageInfo<PackBomVo> pageInfo = packBomService.pageInfo(pageSearchDto);
+            if (CollUtil.isNotEmpty(pageInfo.getList())) {
+                List<PackBomVo> packBomVos = pageInfo.getList();
+                PackBomVo packBomVo = packBomVos.stream().filter(p -> StrUtil.equals(p.getScmSendFlag(), "1")).findFirst().orElse(null);
+                if (null != packBomVo) {
+                    throw new OtherException("请解锁BOM");
+                }
+            }
+        }
+
         PdmStyleCheckParam pdmStyleCheckParam = new PdmStyleCheckParam();
         pdmStyleCheckParam.setStyleNo(styleColor.getStyleNo());
         pdmStyleCheckParam.setCode(styleColor.getColorCode());
