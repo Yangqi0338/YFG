@@ -233,6 +233,11 @@ public class OrderBookDetail extends BaseDataEntity<String> {
     @ApiModelProperty(value = "货期")
     private String deliveryTime;
     /**
+     * 辅料货期
+     */
+    @ApiModelProperty(value = "辅料货期")
+    private String subDeliveryTime;
+    /**
      * 库存面料米数
      */
     @ApiModelProperty(value = "库存面料米数")
