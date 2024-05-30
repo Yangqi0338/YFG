@@ -47,6 +47,7 @@
         tbcl.colour_code as supplierColor,
         tpi.id as packInfoId,
         tpi.name as bomName,
+        tpbv.id as bomVersionId,
         tob.channel as channel,
         tob.channel_name as channelName,
         (IFNULL(tobl.material,0) + IFNULL(tobl.online_material,0)) * IFNULL(tsc.tag_price,0) as materialMoney,
@@ -61,11 +62,63 @@
         left join t_style ts on ts.id = tsc.style_id and ts.del_flag='0'
         left join t_order_book tob on tob.id = tobl.order_book_id and tob.del_flag='0'
         left join t_basicsdatum_colour_library tbcl on tbcl.colour_code = tsc.color_code and tbcl.del_flag='0'
-        LEFT JOIN t_pack_info tpi ON tsc.id = tpi.style_color_id and tpi.del_flag = '0'
+        LEFT JOIN t_pack_info tpi ON tsc.id = tpi.style_color_id and tpi.code = tsc.bom and tpi.del_flag = '0'
+        LEFT JOIN t_pack_bom_version tpbv ON tpbv.id = (
+        select id from t_pack_bom_version where foreign_id = tpi.id and del_flag = '0' and status = '1' and pack_type =
+        IF(tsc.bom_status = '0', 'packDesign', 'packBigGoods') ORDER BY version DESC limit 1)
         where tobl.del_flag='0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
         </if>
+    </select>
+
+    <select id="queryPage_COUNT" resultType="com.base.sbc.module.orderbook.vo.OrderBookDetailVo">
+        SELECT
+        count(0)
+        FROM
+        t_order_book_detail tobl
+
+        LEFT JOIN t_pack_info tpi ON tsc.id = tpi.style_color_id and tpi.del_flag = '0'
+        where tobl.del_flag='0'
+        <where>
+            <if test="ew.hasAlias('tsc')">
+                and EXISTS(select id from t_style_color tsc where
+                tobl.style_color_id = tsc.id and tsc.del_flag='0'
+                and ${ ew.getSqlByAlias('tsc')})
+            </if>
+            <if test="ew.hasAlias('ts')">
+                and EXISTS(select tsc.id from t_style_color tsc
+                left join t_style ts on ts.id = tsc.style_id and ts.del_flag='0'
+                where
+                tobl.style_color_id = tsc.id and tsc.del_flag='0'
+                and ${ ew.getSqlByAlias('tsc')}
+                and ${ ew.getSqlByAlias('ts')})
+            </if>
+            <if test="ew.hasAlias('tob')">
+                and EXISTS(select id from t_order_book tob where
+                tob.id = tobl.order_book_id and tob.del_flag='0'
+                and ${ ew.getSqlByAlias('tob')})
+            </if>
+            <if test="ew.hasAlias('tbcl')">
+                and EXISTS(select tsc.id from t_style_color tsc
+                left join t_basicsdatum_colour_library tbcl on tbcl.colour_code = tsc.color_code and tbcl.del_flag='0'
+                where
+                tobl.style_color_id = tsc.id and tsc.del_flag='0'
+                and ${ ew.getSqlByAlias('tsc')}
+                and ${ ew.getSqlByAlias('tbcl')})
+            </if>
+            <if test="ew.hasAlias('tpi')">
+                and EXISTS(select tsc.id from t_style_color tsc
+                left join t_pack_info tpi ON tsc.id = tpi.style_color_id and tpi.del_flag = '0'
+                where
+                tobl.style_color_id = tsc.id and tsc.del_flag='0'
+                and ${ ew.getSqlByAlias('tsc')}
+                and ${ ew.getSqlByAlias('tpi')})
+            </if>
+            <if test="ew.hasAlias('tobl')">
+                and ${ ew.getSqlByAlias('tobl')}
+            </if>
+        </where>
     </select>
 
     <select id="queryCountByOrderBookId" resultType="java.util.Map">

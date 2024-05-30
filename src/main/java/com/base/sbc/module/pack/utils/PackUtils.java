@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
 import com.base.sbc.module.pack.entity.PackSize;
@@ -152,5 +153,9 @@ public class PackUtils {
         return items.stream().map(item -> {
             return packType + StrUtil.DASHED + item;
         }).collect(Collectors.toList());
+    }
+
+    public static String getCodeByBomStatus(String bomStatus) {
+        return YesOrNoEnum.NO.getValueStr().equals(bomStatus) ? PackUtils.PACK_TYPE_DESIGN : PackUtils.PACK_TYPE_BIG_GOODS;
     }
 }
