@@ -60,6 +60,7 @@ public interface StyleMapper extends BaseMapper<Style> {
     List<StyleBoardCategorySummaryVo> categorySummary(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
     Long colorCount(@Param(Constants.WRAPPER) QueryWrapper prsQw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
+    Long colorCount2(@Param(Constants.WRAPPER) QueryWrapper prsQw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 
    Long colorCountStyle(@Param(Constants.WRAPPER) QueryWrapper prsQw, @Param("fabricsUnderTheDrafts") List<String> fabricsUnderTheDrafts);
 

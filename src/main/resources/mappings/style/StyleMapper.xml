@@ -168,8 +168,33 @@
         FROM
         t_style sd
         LEFT JOIN t_pattern_making p ON ( sd.id = p.style_id ) and p.del_flag = 0 and p.disable_flag = 0 and p.sample_type = "初版样"
+        LEFT JOIN t_node_status ns1 ON ( ns1.data_id = p.id AND ns1.del_flag = '0' and ns1.node = '打版任务' and ns1.`status` = '打版完成')
         WHERE
         sd.del_flag ='0'
+        and (ns1.start_date is not null or ns1.start_date != '')
+        <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
+            and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
+            <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            )
+        </if>
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+
+    </select>
+
+    <select id="colorCount2" resultType="java.lang.Long">
+        SELECT
+        count(sd.id) num
+        FROM
+        t_style sd
+        LEFT JOIN t_pattern_making p ON ( sd.id = p.style_id ) and p.del_flag = 0 and p.disable_flag = 0 and p.sample_type = "初版样"
+        LEFT JOIN t_node_status ns2 ON ( ns2.data_id = p.id AND ns2.del_flag = '0' and ns2.node = '样衣任务' and ns2.`status` = '样衣完成')
+        WHERE
+        sd.del_flag ='0'
+        and (ns2.start_date is not null or ns2.start_date != '')
         <if test="fabricsUnderTheDrafts != null and fabricsUnderTheDrafts.size() > 0">
             and exists(select 1 from t_field_val tfv where  tfv.foreign_id = sd.id and tfv.del_flag = '0' and tfv.data_group = "SAMPLE_DESIGN_TECHNOLOGY" and tfv.val in
             <foreach item="item" collection="fabricsUnderTheDrafts" open="(" separator="," close=")">
