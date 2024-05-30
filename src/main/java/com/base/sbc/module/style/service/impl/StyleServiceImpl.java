@@ -1621,7 +1621,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         vo.setScriptedNum(scriptedNum);
         // 打版完成 样衣看板初版样 纸样需求日期不为空的款式数量 -> 佳威说改成纸样完成时间不为空的
         BaseQueryWrapper<Style> pmicnQueryWrapper = new BaseQueryWrapper<>();
-        pmicnQueryWrapper.isNotNull("p.pattern_req_date");
         dataPermissionsService.getDataPermissionsForQw(pmicnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
         stylePlanningCommonQw(pmicnQueryWrapper, dto);
         Long patternMakingIsCompleteNum = getBaseMapper().colorCount(pmicnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
@@ -1629,7 +1628,6 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         // 样衣制作 样衣看板初版样 样衣需求日期不为空的款式数量 -> 佳威说改成样衣完成时间不为空的
         BaseQueryWrapper<Style> smnQueryWrapper = new BaseQueryWrapper<>();
         dataPermissionsService.getDataPermissionsForQw(smnQueryWrapper, DataPermissionsBusinessTypeEnum.StyleBoard.getK(), "sd.");
-        smnQueryWrapper.isNotNull("p.demand_finish_date");
         stylePlanningCommonQw(smnQueryWrapper, dto);
         Long sampleMakingNum = getBaseMapper().colorCount2(smnQueryWrapper, ObjectUtil.isNotEmpty(dto.getFabricsUnderTheDrafts()) ? Arrays.asList(dto.getFabricsUnderTheDrafts().split(",")) : new ArrayList<>());
         vo.setSampleMakingNum(sampleMakingNum);
