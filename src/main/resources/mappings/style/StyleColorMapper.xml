@@ -169,7 +169,7 @@
         </select>
 
     <select id="pageBySampleDesign" resultType="com.base.sbc.module.style.entity.Style">
-        select ts.*,tsc.style_no from t_style ts
+        select ts.*,tsc.style_no bulkyCargoNo from t_style ts
         left join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
         <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
             ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}

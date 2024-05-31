@@ -604,5 +604,10 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "接收部门"  )
     private String receiveDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+    /**
+     * 大货款号
+     */
+    @ApiModelProperty(value = "大货款号")
+    private String bulkyCargoNo;
 }
 
