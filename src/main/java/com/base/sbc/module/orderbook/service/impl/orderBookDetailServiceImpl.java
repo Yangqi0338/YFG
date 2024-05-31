@@ -233,8 +233,8 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
         stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
         orderBookDetailVos.forEach((it)-> {
-            StrUtil.replace(it.getStylePic(),"http://img.eifini.com",baseFrontEndAddress + "/third_image");
-            StrUtil.replace(it.getStyleColorPic(),"http://img.eifini.com",baseFrontEndAddress + "/third_image");
+            it.setStylePic(StrUtil.replace(it.getStylePic(),"http://img.eifini.com",baseFrontEndAddress + "/third_image"));
+            it.setStyleColorPic(StrUtil.replace(it.getStyleColorPic(),"http://img.eifini.com",baseFrontEndAddress + "/third_image"));
         });
         OrderBookDetailQueryDto pageConfigQueryDto = new OrderBookDetailQueryDto();
         pageConfigQueryDto.setCompanyCode(orderBookDetailVos.get(0).getCompanyCode());
