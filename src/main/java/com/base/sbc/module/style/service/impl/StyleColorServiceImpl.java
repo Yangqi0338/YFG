@@ -11,6 +11,7 @@ import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.afterturn.easypoi.excel.entity.params.ExcelExportEntity;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.thread.ExecutorBuilder;
@@ -658,6 +659,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
          * 不加流水号查询大货款号的最大流水号
          * */
         styleNo = styleNoFront + (aLong + index) + isLuxury;
+
+
+        //region ED品牌大货款号特殊处理
+        if ("6".equals(brand)) {
+            styleNo = createEDStyleNo(designNo, isLuxury, category, yearOn, styleNo, aLong);
+            return styleNo;
+        }
+        //endregion
+
         int i = baseMapper.isStyleNoExist(styleNo);
         if (i != 0) {
             String maxMark = "0";
@@ -676,6 +686,40 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
         return styleNo;
     }
+    /**
+     * 创建 ED品牌大货款号
+     * @param designNo 设计款号
+     * @param isLuxury  特殊标识
+     * @param category 品类
+     * @param yearOn 年份转义后的字母
+     * @param styleNo 大货款号空字符串（进来设置为空）
+     * @param aLong 该大货款的设计款下有几个大货款
+     * @return
+     */
+    @NotNull
+    private static String createEDStyleNo(String designNo, String isLuxury, String category, String yearOn, String styleNo, Long aLong) {
+        styleNo += yearOn;
+        String monthStr = "";
+        int month = DateUtil.month(new Date());
+        monthStr = String.valueOf(month);
+        if (month == 10) {
+            monthStr ="A";
+        }else if(month == 11){
+            monthStr ="B";
+        }else if(month == 12){
+            monthStr ="C";
+        }
+        styleNo +="9";
+        styleNo += category;
+        //设计款的流水位
+        styleNo += designNo;
+        //统计该大货款设计款下的大货款个数
+        styleNo += aLong;
+        styleNo += StrUtil.equals(isLuxury, BaseGlobal.YES) ? "Q" : "";
+        return styleNo;
+    }
+
+
 
 
     /**
