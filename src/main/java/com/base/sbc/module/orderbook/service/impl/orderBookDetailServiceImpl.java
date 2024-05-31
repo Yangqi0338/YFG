@@ -214,6 +214,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
     }
 
+    @Value("${baseFrontEndAddress}")
+    private String baseFrontEndAddress;
+
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer... judgeGroup) {
         List<Integer> judgeList = ArrayUtil.asMutableList(judgeGroup);
@@ -229,6 +232,10 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         /*设置图片分辨路*/
         stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
         stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
+        orderBookDetailVos.forEach((it)-> {
+            StrUtil.replace(it.getStylePic(),"http://img.eifini.com",baseFrontEndAddress + "/third_image");
+            StrUtil.replace(it.getStyleColorPic(),"http://img.eifini.com",baseFrontEndAddress + "/third_image");
+        });
         OrderBookDetailQueryDto pageConfigQueryDto = new OrderBookDetailQueryDto();
         pageConfigQueryDto.setCompanyCode(orderBookDetailVos.get(0).getCompanyCode());
         Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig = pageConfig(pageConfigQueryDto);
