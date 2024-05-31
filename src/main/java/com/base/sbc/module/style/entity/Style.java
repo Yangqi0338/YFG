@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.module.smp.dto.SmpSampleDto;
@@ -604,5 +605,11 @@ public class Style extends BaseDataEntity<String> {
     @ApiModelProperty(value = "接收部门"  )
     private String receiveDeptId;
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
+    /**
+     * 大货款号
+     */
+    @ApiModelProperty(value = "大货款号")
+    @TableField(exist = false)
+    private String bulkyCargoNo;
 }
 

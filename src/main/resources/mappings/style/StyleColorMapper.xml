@@ -167,6 +167,18 @@
             left join t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
             ${ew.customSqlSegment}
         </select>
+
+    <select id="pageBySampleDesign" resultType="com.base.sbc.module.style.entity.Style">
+        select ts.*,GROUP_CONCAT(tsc.style_no) bulkyCargoNo from t_style ts
+        left join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
+        <where>
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>
+    </select>
+
+
     <select id="colorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
         select
             tsc.*,
