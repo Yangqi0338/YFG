@@ -65,7 +65,6 @@ import com.base.sbc.module.pack.service.PackBomService;
 import com.base.sbc.module.pack.service.PackBomVersionService;
 import com.base.sbc.module.pack.service.PackInfoService;
 import com.base.sbc.module.pack.utils.PackUtils;
-import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.pricing.dto.StylePricingSaveDTO;
 import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.service.StylePricingService;
@@ -87,7 +86,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.eclipse.jetty.util.ArrayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -266,7 +264,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 .eq(FieldVal::getFieldName, "MaterialQuality")
         );
         System.out.println("A---" + (System.currentTimeMillis() - startMillis));
-        Map<String, String> packBomMap = packBomService.mapOneField(new LambdaQueryWrapper<PackBom>()
+        Map<String, String> packBomMap1 = packBomService.mapOneField(new LambdaQueryWrapper<PackBom>()
                 .in(PackBom::getBomVersionId, orderBookDetailVos.stream().map(OrderBookDetailVo::getBomVersionId).filter(Objects::nonNull).collect(Collectors.toList()))
                 .eq(PackBom::getMainFlag, YesOrNoEnum.YES)
                 .orderByAsc(PackBom::getBomVersionId).orderByDesc(PackBom::getId),
@@ -307,7 +305,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //                                .orderByDesc(PackBom::getId)
 //                        );
 //                        for (PackBom packBom : packBomList) {
-                            orderBookDetailVo.setFabricState(packBomMap.getOrDefault(orderBookDetailVo.getBomVersionId(),""));
+                            orderBookDetailVo.setFabricState(packBomMap1.getOrDefault(orderBookDetailVo.getBomVersionId(),""));
 //                        }
 //                    }
 //                }
