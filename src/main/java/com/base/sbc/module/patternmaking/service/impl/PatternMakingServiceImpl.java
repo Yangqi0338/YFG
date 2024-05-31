@@ -294,10 +294,8 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         return true;
     }
 
-    @Override
-    public PatternMakingScoreVo sampleBoardScore(PatternMakingCommonPageSearchDto dto) {
-        BaseQueryWrapper<SampleBoardVo> qw = new BaseQueryWrapper<>();
-        dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.sampleBoard.getK(), "s.");
+
+    private PatternMakingScoreVo sampleBoardScore(BaseQueryWrapper<SampleBoardVo> qw ) {
         return getBaseMapper().sampleBoardScore(qw);
 
     }
@@ -1400,18 +1398,13 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
                     throw new OtherException("带图片最多只能导出3000条");
                 }
             }
-            PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
-            pageVo.setPatternMakingScoreVo( sampleBoardScore(dto));
-
-            return pageVo;
+            return BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         }
         List<SampleBoardVo> list = getBaseMapper().sampleBoardList(qw);
 
         //region 列头漏斗过滤
         if (isColumnHeard) {
-            PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
-            pageVo.setPatternMakingScoreVo( sampleBoardScore(dto));
-            return pageVo;
+            return BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
         }
         //endregion
 
@@ -1427,7 +1420,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         nodeStatusService.setNodeStatusToListBean(list, "patternMakingId", null, "nodeStatus");
         minioUtils.setObjectUrlToList(objects.toPageInfo().getList(), "samplePic");
         PatternMakingCommonPageSearchVo pageVo = BeanUtil.copyProperties(objects.toPageInfo(),PatternMakingCommonPageSearchVo.class);
-        pageVo.setPatternMakingScoreVo(sampleBoardScore(dto));
+        pageVo.setPatternMakingScoreVo(sampleBoardScore(qw));
         return pageVo;
     }
 

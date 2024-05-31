@@ -850,7 +850,8 @@
         SELECT
         sum(p.sample_making_score) as sampleMakingScoreSum,
         sum(p.sample_making_quality_score) as sampleMakingQualityScoreSum,
-        sum(p.pattern_making_score) as patternMakingScoreSum
+        sum(p.pattern_making_score) as patternMakingScoreSum,
+        sum(p.requirement_num) as requirementNum
         FROM
         t_style s
         LEFT JOIN t_pattern_making p ON ( s.id = p.style_id )

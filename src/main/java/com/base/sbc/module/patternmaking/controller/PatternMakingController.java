@@ -529,9 +529,5 @@ public class PatternMakingController {
         return patternMakingService.updateReferSample(dto);
     }
 
-    @ApiOperation(value = "样衣看板评分统计", notes = "")
-    @GetMapping("/sampleBoardScore")
-    public ApiResult sampleBoardScore(PatternMakingCommonPageSearchDto dto) {
-        return ApiResult.success("查询成功", patternMakingService.sampleBoardScore(dto));
-    }
+
 }
