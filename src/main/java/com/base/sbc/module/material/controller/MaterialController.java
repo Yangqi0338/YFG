@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
@@ -11,8 +12,10 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.material.dto.CategoryIdDto;
+import com.base.sbc.module.material.dto.MaterialEnableDto;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.Material;
@@ -21,6 +24,9 @@ import com.base.sbc.module.material.entity.Test;
 import com.base.sbc.module.material.service.MaterialLabelService;
 import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
+import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
+import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +36,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -53,6 +61,8 @@ public class MaterialController extends BaseController {
     private final FlowableService flowableService;
 
     private final RedisTemplate<String,Object> redisTemplate;
+
+    private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
     /**
      * 新增
@@ -154,6 +164,23 @@ public class MaterialController extends BaseController {
     @DeleteMapping("/delByIds")
     @Transactional(rollbackFor = {Exception.class})
     public ApiResult delByIds(String[] ids) {
+        if (ids.length < 1){
+            return deleteSuccess(true);
+        }
+        QueryWrapper<Material> qw = new QueryWrapper<>();
+        qw.lambda().in(Material::getId, Lists.newArrayList(ids));
+        qw.lambda().eq(Material::getStatus,"2");
+        List<Material> list = materialService.list(qw);
+        if (CollUtil.isNotEmpty(list)){
+            //检查是否被引用
+            QueryWrapper<PlanningCategoryItemMaterial> qw1 = new QueryWrapper<>();
+            qw1.lambda().eq(PlanningCategoryItemMaterial::getDelFlag,"0");
+            qw1.lambda().in(PlanningCategoryItemMaterial::getPlanningCategoryItemId, list.stream().map(Material::getId).collect(Collectors.toList()));
+            long count = planningCategoryItemMaterialService.count(qw1);
+            if (count > 0){
+                throw new OtherException("此素材有被引用，不允许删除！");
+            }
+        }
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }
 
@@ -230,4 +257,22 @@ public class MaterialController extends BaseController {
         List<Material> materials = materialService.listByIds(Collections.singletonList(ids));
         return selectSuccess(materials);
     }
+
+    @PostMapping("/agentEnable")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "素材的启用/停用", notes = "素材的启用/停用")
+    public ApiResult agentEnable(@RequestBody @Valid MaterialEnableDto dto) {
+        if (StringUtils.isBlank(dto.getEnableFlag())){
+            throw new OtherException("无启用/停用信息");
+        }
+        if (StringUtils.isBlank(dto.getId())){
+            return ApiResult.success();
+        }
+        UpdateWrapper<Material> uw = new UpdateWrapper<>();
+        uw.lambda().in(Material::getId, StringUtils.convertList(dto.getId()));
+        uw.lambda().set(Material::getEnableFlag,dto.getEnableFlag());
+        boolean b = materialService.update(uw);
+        return b ? ApiResult.success("修改成功") :  ApiResult.success("修改失败",500);
+    }
+
 }
