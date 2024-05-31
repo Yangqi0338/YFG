@@ -628,7 +628,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             throw new OtherException(e.getMessage() + "大货编码生成失败");
         }
 //        获取款式下的配色
-        String styleNoFront = newPlanningSeason.getBrand() + getYearOn(newPlanningSeason.getYear()) + getBandName(newPlanningSeason.getBrandName()) + category + designNo;
+        String styleNoFront = newPlanningSeason.getBrand() + getYearOn(newPlanningSeason.getYear()) + getBandName(bandName) + category + designNo;
         String styleNo = "";
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("style_id", style.getId());
