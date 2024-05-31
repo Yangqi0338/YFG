@@ -200,7 +200,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
      * */
     @Override
     public List<OrderBookDetailVo> querylist(QueryWrapper<OrderBookDetail> queryWrapper,Integer... judgeGroup) {
-        long startMillis = System.currentTimeMillis();
         List<Integer> judgeList = Arrays.asList(judgeGroup);
         // 是否需要数据权限
         boolean openDataAuth = CommonUtils.judge(judgeList, 0, 1);
@@ -210,19 +209,16 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         List<OrderBookDetailVo> orderBookDetailVos = this.getBaseMapper().queryPage(queryWrapper);
         // 若是动态列的total查询或没数据就直接返回
         if (CommonUtils.judge(judgeList, 1, 0) || CollUtil.isEmpty(orderBookDetailVos)) return orderBookDetailVos;
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         /*设置图片分辨路*/
         // 第四个参数决定是否装饰图片路径, 默认是
         if (CommonUtils.judge(judgeList, 3, 1)) {
             stylePicUtils.setStylePic(orderBookDetailVos, "stylePic",30);
             stylePicUtils.setStylePic(orderBookDetailVos, "styleColorPic",30);
         }
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         // 获取页面默认的尺码,用于能否编辑的判断
         OrderBookDetailQueryDto pageConfigQueryDto = new OrderBookDetailQueryDto();
         pageConfigQueryDto.setCompanyCode(orderBookDetailVos.get(0).getCompanyCode());
         Map<OrderBookChannelType, OrderBookDetailPageConfigVo> channelPageConfig = pageConfig(pageConfigQueryDto);
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         //查询BOM版本 xml解决
 //        for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
 //            BaseLambdaQueryWrapper<PackBomVersion> queryWrapper1 =new BaseLambdaQueryWrapper<>();
@@ -235,14 +231,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 
         /*款式定价相关参数*/
         this.queryStylePrice(orderBookDetailVos,openDataAuth);
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         // 根据
         String sizeCodes = orderBookDetailVos.stream().map(OrderBookDetailVo::getSizeCodes).filter(StrUtil::isNotBlank)
                 .flatMap(it-> Stream.of(it.split(COMMA))).distinct().collect(Collectors.joining(COMMA));
         List<BasicsdatumSize> sizeList = sizeService.list(new BaseLambdaQueryWrapper<BasicsdatumSize>()
                 .notEmptyIn(BasicsdatumSize::getCode, sizeCodes)
                 .select(BasicsdatumSize::getModel, BasicsdatumSize::getInternalSize, BasicsdatumSize::getCode));
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         List<String> packBomIds = orderBookDetailVos.stream().map(it ->
                 Opt.ofNullable(it.getUnitFabricDosageIds()).orElse("")
                         + COMMA +
@@ -254,7 +248,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
             packBoms.addAll(packBomService.list(new LambdaQueryWrapper<PackBom>()
                     .in(PackBom::getId, packBomIds)));
         }
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         // 获取维度系数的面料数据
         List<String> styleIdList = orderBookDetailVos.stream().map(OrderBookDetailVo::getStyleId).collect(Collectors.toList());
         List<FieldVal> fvList = fieldValService.list(new LambdaQueryWrapper<FieldVal>()
@@ -263,14 +256,12 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 .eq(FieldVal::getDataGroup, FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY)
                 .eq(FieldVal::getFieldName, "MaterialQuality")
         );
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         Map<String, String> packBomMap1 = packBomService.mapOneField(new LambdaQueryWrapper<PackBom>()
                 .in(PackBom::getBomVersionId, orderBookDetailVos.stream().map(OrderBookDetailVo::getBomVersionId).filter(Objects::nonNull).collect(Collectors.toList()))
                 .eq(PackBom::getMainFlag, YesOrNoEnum.YES)
                 .orderByAsc(PackBom::getBomVersionId).orderByDesc(PackBom::getId),
                 PackBom::getBomVersionId, PackBom::getStatus
         );
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         for (OrderBookDetailVo orderBookDetailVo : orderBookDetailVos) {
             Function<String, String> getDosageName = (String dosageId) -> {
                 if (StrUtil.isBlank(dosageId)) return null;
@@ -326,7 +317,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 orderBookDetailVo.setPlaceOrderType(StylePutIntoType.FIRST);
             }
         }
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         //参考款
         List<String> similarBulkStyleNos = orderBookDetailVos.stream().map(OrderBookDetailVo::getSimilarBulkStyleNo).collect(Collectors.toList());
         if (CommonUtils.judge(judgeList, 2, 0) && !CollectionUtils.isEmpty(similarBulkStyleNos)){
@@ -343,7 +333,6 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 }
             });
         }
-        System.out.println("A---" + (System.currentTimeMillis() - startMillis));
         return orderBookDetailVos;
     }
 
