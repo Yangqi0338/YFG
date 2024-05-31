@@ -1720,6 +1720,115 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      */
     @Override
     public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
+        // 第一级年份
+        if (vo.getLevel() == null) {
+            QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
+            qc.eq("company_code", getCompanyCode());
+            qc.eq("del_flag", BasicNumber.ZERO.getNumber());
+            qc.select("id", "name", "season", "year");
+            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
+            /*查询到的产品季*/
+            List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                Map<String, Long> groupCounts = planningSeasonList.stream()
+                        .collect(Collectors.groupingBy(
+                                PlanningSeason::getYear,
+                                Collectors.counting()
+                        ));
+                List<ProductCategoryTreeVo> result = new ArrayList<>();
+                for (String key : groupCounts.keySet()) {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setChildren(true);
+                    tree.setLevel(0);
+                    tree.setYear(key);
+                    tree.setChildCount(String.valueOf(groupCounts.get(key)));
+                    result.add(tree);
+                }
+                result.sort((s1, s2) -> s2.getYear().compareTo(s1.getYear()));
+                return result;
+            }
+        }
+        // 产品季节
+        if (vo.getLevel() == 0) {
+            QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
+            qc.eq("company_code", getCompanyCode());
+            qc.eq("del_flag", BasicNumber.ZERO.getNumber());
+            qc.eq("year", vo.getYear());
+            qc.select("id", "name", "season");
+            qc.orderByDesc("name");
+            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
+            /*查询到的产品季*/
+            List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
+            if (CollUtil.isNotEmpty(planningSeasonList)) {
+                List<ProductCategoryTreeVo> result = planningSeasonList.stream().map(ps -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setChildren(true);
+                    tree.setLevel(1);
+                    tree.setSeason(ps.getSeason());
+                    tree.setPlanningSeasonId(ps.getId());
+                    tree.setName(ps.getName());
+                    return tree;
+                }).collect(Collectors.toList());
+                return result;
+            }
+        }
+        // 第二级 大类
+        else if (vo.getLevel() == 1) {
+            BaseQueryWrapper qw = new BaseQueryWrapper();
+            getProductCategoryTreeQw(vo, qw);
+            qw.select("prod_category1st_name,prod_category1st");
+            qw.groupBy("prod_category1st_name,prod_category1st");
+            qw.notNull("prod_category1st_name");
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+            List result = null;
+            if (StrUtil.equals(vo.getDataForm(), "seat")) {
+                result = planningCategoryItemService.listMaps(qw);
+            } else {
+                result = listMaps(qw);
+            }
+            List<ProdCategoryVo> list = BeanUtil.copyToList(result, ProdCategoryVo.class);
+            if (CollUtil.isNotEmpty(list)) {
+                return list.stream().map(item -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setProdCategory1stName(item.getProdCategory1stName());
+                    tree.setProdCategory1st(item.getProdCategory1st());
+                    tree.setLevel(1);
+                    tree.setChildren(true);
+                    return tree;
+                }).collect(Collectors.toList());
+            }
+        }
+        // 第3级 品类
+        else if (vo.getLevel() == 2) {
+            BaseQueryWrapper qw = new BaseQueryWrapper<>();
+            getProductCategoryTreeQw(vo, qw);
+            qw.select("prod_category_name,prod_category");
+            qw.groupBy("prod_category_name,prod_category");
+            qw.notNull("prod_category_name");
+            List result = null;
+            dataPermissionsService.getDataPermissionsForQw(qw, vo.getBusinessType());
+            if (StrUtil.equals(vo.getDataForm(), "seat")) {
+                result = planningCategoryItemService.listMaps(qw);
+            } else {
+                result = listMaps(qw);
+            }
+            List<ProdCategoryVo> list = BeanUtil.copyToList(result, ProdCategoryVo.class);
+            if (CollUtil.isNotEmpty(list)) {
+                return list.stream().map(item -> {
+                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
+                    tree.setProdCategoryName(item.getProdCategoryName());
+                    tree.setProdCategory(item.getProdCategory());
+                    tree.setLevel(2);
+                    tree.setChildren(false);
+                    return tree;
+                }).collect(Collectors.toList());
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<ProductCategoryTreeVo> getProductCategoryTreeNew(ProductCategoryTreeVo vo) {
         // 第一级产品季
         if (vo.getLevel() == null) {
             QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
@@ -1797,6 +1906,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         }
         return null;
     }
+
 
     /**
      * 获取产品季全品类

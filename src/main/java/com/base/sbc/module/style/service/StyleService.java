@@ -177,6 +177,16 @@ public interface StyleService extends BaseService<Style> {
     List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo);
 
     /**
+     * 获取产品季品类树（新树）
+     * 年份（count）
+     * --产品季
+     * ----大类....
+     * @param vo
+     * @return
+     */
+    List<ProductCategoryTreeVo> getProductCategoryTreeNew(ProductCategoryTreeVo vo);
+
+    /**
      * 获取产品季全品类
      * @param vo
      * @return

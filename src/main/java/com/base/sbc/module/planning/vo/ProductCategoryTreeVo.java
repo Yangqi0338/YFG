@@ -50,6 +50,11 @@ public class ProductCategoryTreeVo {
     @ApiModelProperty(value = "年")
     private String year;
     /**
+     * 字节点数量
+     */
+    @ApiModelProperty(value = "字节点数量"  )
+    private String childCount;
+    /**
      * 渠道名称
      */
     @ApiModelProperty(value = "品牌名称"  )
