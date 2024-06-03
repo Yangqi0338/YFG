@@ -167,8 +167,13 @@ public class ProductSeasonController extends BaseController {
         return planningCategoryItemService.getPatternTechnician(userCompany);
     }
 
-
     @ApiOperation(value = "获取产品季品类树")
+    @GetMapping("/getProductCategoryTree")
+    public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
+        return styleService.getProductCategoryTree(vo);
+    }
+
+    @ApiOperation(value = "获取产品季品类树(新)")
     @GetMapping("/getProductCategoryTreeNew")
     public List<ProductCategoryTreeVo> getProductCategoryTreeNew(ProductCategoryTreeVo vo) {
         return styleService.getProductCategoryTreeNew(vo);
