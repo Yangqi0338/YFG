@@ -12,6 +12,7 @@ import com.base.sbc.config.utils.FtpUtil;
 import com.base.sbc.module.common.dto.DelStylePicDto;
 import com.base.sbc.module.common.dto.UploadStylePicDto;
 import com.base.sbc.module.common.service.UploadFileService;
+import com.base.sbc.module.common.utils.ImageUtils;
 import com.base.sbc.module.common.utils.VideoUtil;
 import com.base.sbc.module.common.vo.AttachmentVo;
 import io.swagger.annotations.Api;
@@ -44,7 +45,7 @@ public class SaasUploadController extends BaseController {
     /**
      * 视频上传最大值：50 单位M
      */
-    @Value("${upload.video.maxSize:50}")
+    @Value("${upload.video.maxSize:500}")
     private Long videoSMaxSize;
 
 
@@ -109,6 +110,17 @@ public class SaasUploadController extends BaseController {
     }
 
 
+    @ApiOperation(value = "上传文件", notes = "上传文件")
+    @RequestMapping(value = "/testUploadFile", method = RequestMethod.POST)
+    public AttachmentVo testUploadFile(@RequestPart(value = "file", required = false) MultipartFile file,  String type, String code, String isCompact) throws Throwable {
+        if (file == null || file.getSize() == 0) {
+            throw new OtherException("上传文件为空");
+        }
+        MultipartFile multipartFile = ImageUtils.compressImage(file);
+        return uploadFileService.uploadToMinio(multipartFile, type, code);
+    }
+
+
     /**
      * 转换视频
      * @param sourceFile
@@ -124,18 +136,19 @@ public class SaasUploadController extends BaseController {
             return sourceFile;
         }
         File targetFile=null;
+        File newFile = null;
 
         try{
             targetFile= VideoUtil.toFile(sourceFile);
-            File newFile = VideoUtil.compressionVideo(targetFile, UUID.randomUUID().toString().replace("-", "") + ".mp4");
+            newFile = VideoUtil.compressionVideo(targetFile, UUID.randomUUID().toString().replace("-", "") + ".mp4");
 //            minioUtils.convertFileToMultipartFile(newFile);
             return VideoUtil.toMultipartFile(newFile,contentType);
         }catch (Exception e){
             e.printStackTrace();
             throw new OtherException(e.getMessage());
         }finally{
-            if (targetFile != null){
-                VideoUtil.delteTempFile(targetFile);
+            if (newFile != null){
+                newFile.delete();
             }
         }
     }
