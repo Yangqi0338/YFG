@@ -7,10 +7,11 @@
 package com.base.sbc.module.formtype.service;
 
 import com.base.sbc.module.common.service.BaseService;
-import com.base.sbc.module.formtype.entity.FieldBusinessSystem;
 import com.base.sbc.module.formtype.dto.FieldBusinessSystemQueryDto;
+import com.base.sbc.module.formtype.entity.FieldBusinessSystem;
 import com.base.sbc.module.formtype.vo.FieldBusinessSystemVo;
-import com.github.pagehelper.PageInfo;
+
+import java.util.List;
 
 /**
  * 类描述：字段对应下游系统关系 service类
@@ -23,6 +24,6 @@ import com.github.pagehelper.PageInfo;
  */
 public interface FieldBusinessSystemService extends BaseService<FieldBusinessSystem> {
 
-    PageInfo<FieldBusinessSystemVo> findPage(FieldBusinessSystemQueryDto dto);
+    List<FieldBusinessSystemVo> findList(FieldBusinessSystemQueryDto dto);
 
 }

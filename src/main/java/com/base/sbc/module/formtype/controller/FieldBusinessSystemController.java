@@ -12,7 +12,6 @@ import com.base.sbc.module.formtype.dto.FieldBusinessSystemQueryDto;
 import com.base.sbc.module.formtype.entity.FieldBusinessSystem;
 import com.base.sbc.module.formtype.service.FieldBusinessSystemService;
 import com.base.sbc.module.formtype.vo.FieldBusinessSystemVo;
-import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +39,10 @@ public class FieldBusinessSystemController {
     @Autowired
     private FieldBusinessSystemService fieldBusinessSystemService;
 
-    @ApiOperation(value = "分页查询")
+    @ApiOperation(value = "查询")
     @GetMapping
-    public PageInfo<FieldBusinessSystemVo> page(FieldBusinessSystemQueryDto dto) {
-        return fieldBusinessSystemService.findPage(dto);
+    public List<FieldBusinessSystemVo> list(FieldBusinessSystemQueryDto dto) {
+        return fieldBusinessSystemService.findList(dto);
     }
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")

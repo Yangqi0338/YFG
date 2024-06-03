@@ -13,6 +13,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -330,10 +331,18 @@ public class SmpGoodsDto extends SmpBaseDto {
     @ApiModelProperty(value = "外部颜色名称")
     private String outsideColorName;
 
+    @ApiModelProperty(value = "目标业务系统")
+    private String targetBusinessSystem;
+
     /**
      * 款式设计动态管理字段 特定字段固定下发给BCS
      */
     private List<GoodsDynamicFieldDto> goodsDynamicFieldList;
+
+    /**
+     * 款式设计动态管理字段 key = 目标业务系统
+     */
+    private Map<String,List<GoodsDynamicFieldDto>>  goodsDynamicFieldMap;
 
     /**
      * 用于易尚货成分信息拆分

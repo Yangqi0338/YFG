@@ -47,9 +47,12 @@ import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formtype.dto.FieldBusinessSystemQueryDto;
 import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldBusinessSystemService;
 import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
+import com.base.sbc.module.formtype.vo.FieldBusinessSystemVo;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.GoodsDynamicFieldDto;
 import com.base.sbc.module.hangtag.dto.SmpHangTagIngredientDTO;
@@ -84,6 +87,7 @@ import com.base.sbc.module.style.service.*;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -207,10 +211,17 @@ public class SmpService {
     @Value("${interface.oaUrl:http://10.8.240.161:40002/mps-interfaces/sample}")
     private String OA_URL;
 
+    @Autowired
+    private FieldBusinessSystemService fieldBusinessSystemService;
+
+    public Integer goods(String[] ids) {
+        return goods(ids,null);
+    }
+
     /**
      * 商品主数据下发
      */
-    public Integer goods(String[] ids) {
+    public Integer goods(String[] ids,String targetBusinessSystem) {
         int i = 0;
 
         List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
@@ -330,7 +341,30 @@ public class SmpService {
 
             //动态字段
 
+            //目标系统
+            smpGoodsDto.setTargetBusinessSystem(targetBusinessSystem);
+            //这里读取各个系统的动态字段配置
+            List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(new FieldBusinessSystemQueryDto());
+            Map<String, List<FieldBusinessSystemVo>> collect = businessSystemList.stream().collect(Collectors.groupingBy(FieldBusinessSystemVo::getBusinessType));
+
             List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
+            Map<String, FieldManagementVo> collect1 = fieldManagementVoList.stream().collect(Collectors.toMap(FieldManagementVo::getFieldName, o -> o, (v1, v2) -> v1));
+
+            Map<String,List<GoodsDynamicFieldDto>>  goodsDynamicFieldMap = new HashMap<>();
+            for (Map.Entry<String, List<FieldBusinessSystemVo>> entry : collect.entrySet()) {
+                List<FieldBusinessSystemVo> value = entry.getValue();
+                List<GoodsDynamicFieldDto> goodsDynamicFieldDtos1 = new ArrayList<>();
+                for (FieldBusinessSystemVo fieldBusinessSystemVo : value) {
+                    if(collect1.containsKey(fieldBusinessSystemVo.getFieldName())){
+                        FieldManagementVo fieldManagementVo = collect1.get(fieldBusinessSystemVo.getFieldName());
+                        GoodsDynamicFieldDto goodsDynamicFieldDto = BeanUtil.copyProperties(fieldManagementVo, GoodsDynamicFieldDto.class);
+                        goodsDynamicFieldDtos1.add(goodsDynamicFieldDto);
+                    }
+                }
+                goodsDynamicFieldMap.put(entry.getKey(),goodsDynamicFieldDtos1);
+            }
+            smpGoodsDto.setGoodsDynamicFieldMap(goodsDynamicFieldMap);
+
             if (!CollectionUtils.isEmpty(fieldManagementVoList)) {
                 fieldManagementVoList.forEach(m -> {
                     if ("SSLevel".equals(m.getFieldName()) || "StyleFabricCycle".equals(m.getFieldName()) || "StyleProcessingCycle".equals(m.getFieldName())

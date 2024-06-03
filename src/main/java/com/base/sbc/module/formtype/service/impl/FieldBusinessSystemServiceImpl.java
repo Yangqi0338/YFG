@@ -15,7 +15,6 @@ import com.base.sbc.module.formtype.service.FieldBusinessSystemService;
 import com.base.sbc.module.formtype.vo.FieldBusinessSystemVo;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,12 +33,12 @@ public class FieldBusinessSystemServiceImpl extends BaseServiceImpl<FieldBusines
 
 
     @Override
-    public PageInfo<FieldBusinessSystemVo> findPage(FieldBusinessSystemQueryDto dto) {
+    public List<FieldBusinessSystemVo> findList(FieldBusinessSystemQueryDto dto) {
         Page<Object> objects = PageHelper.startPage(dto);
         BaseQueryWrapper<FieldBusinessSystem> qw = new BaseQueryWrapper<>();
         qw.notEmptyEq("tfbs.business_type", dto.getBusinessType());
         List<FieldBusinessSystemVo> list = baseMapper.findPage(qw);
-        return new PageInfo<>(list);
+        return list;
     }
 
 
