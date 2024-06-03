@@ -26,6 +26,7 @@ public class ImageUtils {
     public static MultipartFile compressImage(MultipartFile file) {
         long time = System.currentTimeMillis();
         File targetFile = null;
+        File newFile = null;
         try{
             String contentType = file.getContentType();
             String imageName = file.getOriginalFilename();
@@ -38,7 +39,8 @@ public class ImageUtils {
                     .toOutputStream(outputStream);
             outputStream.close();
             //file转MultipartFile
-            FileInputStream inputStream = new FileInputStream(path);
+            newFile = new File(path);
+            FileInputStream inputStream = new FileInputStream(newFile);
             MultipartFile multipartFile = new MockMultipartFile(imageName, imageName, StringUtils.isNotBlank(contentType) ? contentType :
                     ContentType.APPLICATION_OCTET_STREAM.toString(), inputStream);
             log.info("图片压缩总耗时：" + (System.currentTimeMillis() - time)/1000);
@@ -48,6 +50,9 @@ public class ImageUtils {
         }finally{
             if (targetFile != null){
                 targetFile.delete();
+            }
+            if (newFile != null){
+                newFile.delete();
             }
         }
         return file;
