@@ -3,21 +3,16 @@ package com.base.sbc.module.smp;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
 import com.base.sbc.module.smp.dto.ScmProductionBudgetQueryDto;
 import com.base.sbc.module.smp.dto.SmpProcessSheetDto;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -43,6 +38,30 @@ public class SmpController extends BaseController {
             return insertSuccess("下发：" + ids.length + "条，成功：" + i + "条");
         } else {
             return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
+    }
+
+    /**
+     * 商品主数据下发（款式配色）,指定下游系统
+     */
+    @PutMapping("/goodsTargetBusinessSystem")
+    @DuplicationCheck
+    public ApiResult goods(String[] ids,List<String> targetBusinessSystemList){
+        Map<String,Integer> iMap = new HashMap<>();
+        for (String targetBusinessSystem : targetBusinessSystemList) {
+            Integer i = smpService.goods(ids,targetBusinessSystem);
+            iMap.put(targetBusinessSystem,i);
+        }
+        long count = iMap.values().stream().filter(o -> ids.length != o).count();
+
+        if (count == 0) {
+            return insertSuccess("下发：" + ids.length + "条，成功：" + ids.length + "条");
+        } else {
+            StringBuffer sb = new StringBuffer();
+            for (Map.Entry<String, Integer> stringIntegerEntry : iMap.entrySet()) {
+                sb.append("下发给"+stringIntegerEntry.getKey()+"：" + ids.length + "条，成功：" + stringIntegerEntry.getValue() + "条,失败：" + (ids.length - stringIntegerEntry.getValue()) + "条");
+            }
+            return ApiResult.error(sb.toString(), 200);
         }
     }
 
