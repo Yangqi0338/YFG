@@ -10,6 +10,7 @@ import ws.schild.jave.encode.AudioAttributes;
 import ws.schild.jave.encode.EncodingAttributes;
 import ws.schild.jave.encode.VideoAttributes;
 import ws.schild.jave.info.AudioInfo;
+import ws.schild.jave.info.MultimediaInfo;
 import ws.schild.jave.info.VideoInfo;
 
 import java.io.*;
@@ -22,8 +23,10 @@ import java.math.BigDecimal;
 public class VideoUtil {
     public static void main(String[] args) {
         System.out.println(Runtime.getRuntime().availableProcessors());
-        File tag = compressionVideo(new File("C:\\Users\\29117\\Desktop\\视频\\31.5.mp4"), "1080测试.mp4");
-       System.err.println();
+        File file = new File("C:\\Users\\29117\\Desktop\\视频\\31.5.mp4");
+        int i = readVideoTime(file);
+        File tag = compressionVideo(file, "1080测试.mp4");
+        System.err.println();
     }
 
     public static File compressionVideo(File source,String picName) {
@@ -185,5 +188,62 @@ public class VideoUtil {
             del.delete();
         }
     }
+
+    /** 前端上传视频之后，根据上传的视频文件获取视频的大小和时长 1、获取视频时长 */
+    public static int readVideoTime(File source) {
+        int vedioSecond = Integer.parseInt(parseDuration(source.getAbsolutePath()));
+        return vedioSecond;
+    }
+
+    /**
+     * 视频时长
+     *
+     * @param fileUrl
+     * @return String[] 0=秒时长，1=展示时长（格式如 01:00:00）
+     */
+    public static String parseDuration(String fileUrl) {
+        long ls = 0L;
+        String[] length = new String[2];
+        try {
+            //
+//            URL source = new URL(fileUrl);
+            // 构造方法 接受URL对象
+//            MultimediaObject instance = new MultimediaObject(source);
+            // 构造方法 接受File对象
+            MultimediaObject instance = new MultimediaObject(new File(fileUrl));
+            MultimediaInfo result = instance.getInfo();
+            ls = result.getDuration() / 1000;
+            length[0] = String.valueOf(ls);
+            Integer hour = (int) (ls / 3600);
+            Integer minute = (int) (ls % 3600) / 60;
+            Integer second = (int) (ls - hour * 3600 - minute * 60);
+            String hr = hour.toString();
+            String mi = minute.toString();
+            String se = second.toString();
+            if (hr.length() < 2) {
+                hr = "0" + hr;
+            }
+            if (mi.length() < 2) {
+                mi = "0" + mi;
+            }
+            if (se.length() < 2) {
+                se = "0" + se;
+            }
+
+            String noHour = "00";
+            if (noHour.equals(hr)) {
+                length[1] = mi + ":" + se;
+            } else {
+                length[1] = hr + ":" + mi + ":" + se;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println(length);//{"20","00:20"}
+        return String.valueOf(ls);
+    }
+
+
 }
 
