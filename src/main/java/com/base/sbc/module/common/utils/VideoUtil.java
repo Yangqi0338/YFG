@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 public class VideoUtil {
     public static void main(String[] args) {
         System.out.println(Runtime.getRuntime().availableProcessors());
-        File tag = compressionVideo(new File("C:\\Users\\29117\\Desktop\\视频\\50.3.mp4"), "1080测试.mp4");
+        File tag = compressionVideo(new File("C:\\Users\\29117\\Desktop\\视频\\31.5.mp4"), "1080测试.mp4");
        System.err.println();
     }
 
@@ -55,37 +55,42 @@ public class VideoUtil {
                 AudioAttributes audio = new AudioAttributes();
                 // 设置通用编码格式
                 audio.setCodec("aac");
-                // 设置最大值：比特率越高，清晰度/音质越好
-                // 设置音频比特率,单位:b (比特率越高，清晰度/音质越好，当然文件也就越大 128000 = 182kb)
-                if(audioInfo.getBitRate() > maxBitRate){
-                    audio.setBitRate(maxBitRate);
+                if (audioInfo != null){
+                    // 设置最大值：比特率越高，清晰度/音质越好
+                    // 设置音频比特率,单位:b (比特率越高，清晰度/音质越好，当然文件也就越大 128000 = 182kb)
+                    if(audioInfo.getBitRate() > maxBitRate){
+                        audio.setBitRate(maxBitRate);
+                    }
+
+                    // 设置重新编码的音频流中使用的声道数（1 =单声道，2 = 双声道（立体声））。如果未设置任何声道值，则编码器将选择默认值 0。
+                    audio.setChannels(audioInfo.getChannels());
+                    // 采样率越高声音的还原度越好，文件越大
+                    // 设置音频采样率，单位：赫兹 hz
+                    // 设置编码时候的音量值，未设置为0,如果256，则音量值不会改变
+                    // audio.setVolume(256);
+                    if(audioInfo.getSamplingRate() > maxSamplingRate){
+                        audio.setSamplingRate(maxSamplingRate);
+                    }
                 }
 
-                // 设置重新编码的音频流中使用的声道数（1 =单声道，2 = 双声道（立体声））。如果未设置任何声道值，则编码器将选择默认值 0。
-                audio.setChannels(audioInfo.getChannels());
-                // 采样率越高声音的还原度越好，文件越大
-                // 设置音频采样率，单位：赫兹 hz
-                // 设置编码时候的音量值，未设置为0,如果256，则音量值不会改变
-                // audio.setVolume(256);
-                if(audioInfo.getSamplingRate() > maxSamplingRate){
-                    audio.setSamplingRate(maxSamplingRate);
-                }
 
                 //TODO 视频编码属性配置
                 VideoInfo videoInfo = object.getInfo().getVideo();
                 VideoAttributes video = new VideoAttributes();
                 video.setCodec("h264");
-                //设置音频比特率,单位:b (比特率越高，清晰度/音质越好，当然文件也就越大 800000 = 800kb)
-                if(videoInfo.getBitRate() > bitRate){
-                    video.setBitRate(bitRate);
-                }
+                if (videoInfo != null){
+                    //设置音频比特率,单位:b (比特率越高，清晰度/音质越好，当然文件也就越大 800000 = 800kb)
+                    if(videoInfo.getBitRate() > bitRate){
+                        video.setBitRate(bitRate);
+                    }
 
-                // 视频帧率：15 f / s  帧率越低，效果越差
-                // 设置视频帧率（帧率越低，视频会出现断层，越高让人感觉越连续），视频帧率（Frame rate）是用于测量显示帧数的量度。所谓的测量单位为每秒显示帧数(Frames per Second，简：FPS）或“赫兹”（Hz）。
-                if(videoInfo.getFrameRate() > maxFrameRate){
-                    video.setFrameRate(maxFrameRate);
-                }
+                    // 视频帧率：15 f / s  帧率越低，效果越差
+                    // 设置视频帧率（帧率越低，视频会出现断层，越高让人感觉越连续），视频帧率（Frame rate）是用于测量显示帧数的量度。所谓的测量单位为每秒显示帧数(Frames per Second，简：FPS）或“赫兹”（Hz）。
+                    if(videoInfo.getFrameRate() > maxFrameRate){
+                        video.setFrameRate(maxFrameRate);
+                    }
 
+                }
                 // 限制视频宽高
 //                int width = videoInfo.getSize().getWidth();
 //                int height = videoInfo.getSize().getHeight();
