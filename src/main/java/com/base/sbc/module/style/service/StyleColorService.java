@@ -274,10 +274,9 @@ public interface StyleColorService extends BaseService<StyleColor> {
     /**
      * Mango吊牌信息Execl导入模板下载
      * @param list
-     * @param isUpdate
      * @return
      */
-    ApiResult mangoHangTagExeclImport(List<MangoHangTagExeclDto> list,Boolean isUpdate);
+    ApiResult mangoHangTagExeclImport(List<MangoHangTagExeclDto> list);
 
     /**
      * 根据大货款获取设计师，版师，样衣工信息

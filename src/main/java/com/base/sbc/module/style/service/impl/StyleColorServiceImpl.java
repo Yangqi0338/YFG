@@ -3040,7 +3040,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
     @Transactional
     @Override
-    public ApiResult mangoHangTagExeclImport(List<MangoHangTagExeclDto> list, Boolean isUpdate) {
+    public ApiResult mangoHangTagExeclImport(List<MangoHangTagExeclDto> list) {
 
         String errorInfo = "";
         for (int i = 0; i < list.size(); i++) {
