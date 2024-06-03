@@ -204,6 +204,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Autowired
     private StyleMainAccessoriesService styleMainAccessoriesService;
 
+    @Lazy
     @Autowired
     private HangTagService hangTagService;
 
