@@ -663,7 +663,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         //region ED品牌大货款号特殊处理
         if ("6".equals(brand)) {
-            styleNo = createEDStyleNo(designNo, isLuxury, category, yearOn, styleNo, aLong);
+            styleNo = createEDStyleNo(designNo, isLuxury, category, yearOn, styleNo, aLong + index);
             return styleNo;
         }
         //endregion
@@ -698,6 +698,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      */
     @NotNull
     private static String createEDStyleNo(String designNo, String isLuxury, String category, String yearOn, String styleNo, Long aLong) {
+        styleNo = "1";
         styleNo += yearOn;
         String monthStr = "";
         int month = DateUtil.month(new Date());
@@ -709,10 +710,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }else if(month == 12){
             monthStr ="C";
         }
+        styleNo+=monthStr;
         styleNo +="9";
         styleNo += category;
         //设计款的流水位
-        styleNo += designNo;
+        styleNo += designNo.substring(designNo.length()-3);
         //统计该大货款设计款下的大货款个数
         styleNo += aLong;
         styleNo += StrUtil.equals(isLuxury, BaseGlobal.YES) ? "Q" : "";
