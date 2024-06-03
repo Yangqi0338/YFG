@@ -358,6 +358,16 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
                             }
                             stylePricing.setControlConfirmTime(new Date());
                         }
+                        /*取消工时部确认工价*/
+                        if (StrUtil.equals(stylePricingSaveDTO.getWagesConfirm(), BaseGlobal.NO)) {
+                            /*校验计控确定成本、商品吊牌和计控吊牌确定*/
+                            if (StrUtil.equals(stylePricing1.getControlHangtagConfirm(), BaseGlobal.YES) ||
+                                    StrUtil.equals(stylePricing1.getProductHangtagConfirm(), BaseGlobal.YES) ||
+                                    StrUtil.equals(stylePricing1.getControlConfirm(), BaseGlobal.YES)
+                            ) {
+                                throw new OtherException("计控确定成本、商品吊牌、计控吊牌未取消");
+                            }
+                        }
                         /*取消计控确定成本*/
                         if (StrUtil.equals(stylePricingSaveDTO.getControlConfirm(), BaseGlobal.IN)) {
                             /*校验商品吊牌和计控吊牌确定*/
