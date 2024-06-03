@@ -3,18 +3,29 @@ package com.base.sbc.config;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.core.FormatSchema;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonLocation;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonStreamContext;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
 import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.DeserializerFactory;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
@@ -24,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConverter {
@@ -193,36 +205,39 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
 
 
         @Override
-        public Enum<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
-            String text = p.getText();
-            Class<?> rawClass = ctxt.getContextualType().getRawClass();
-            if (!rawClass.isEnum()) return null;
-            Class<Enum<?>> clazz = (Class<Enum<?>>) rawClass;
-            if (StrUtil.isBlank(text)) return null;
+        public Enum<?> deserialize(JsonParser p, DeserializationContext ctxt) {
+            try {
+                String text = p.getText();
+                Class<?> rawClass = p.getCurrentValue().getClass().getDeclaredField(p.getCurrentName()).getType();
+                if (!rawClass.isEnum()) return null;
+                Class<Enum<?>> clazz = (Class<Enum<?>>) rawClass;
+                if (StrUtil.isBlank(text)) return null;
 
-            Enum<?>[] constants = clazz.getEnumConstants();
-            for (Enum<?> constant : constants) {
-                if (constant.name().equals(text)) {
-                    return constant;
-                }
-            }
-
-            // 若未使用@JsonCreator, 则匹配所有字段是否一致, 速度较慢
-            if (Arrays.stream(clazz.getDeclaredMethods()).noneMatch(it-> it.isAnnotationPresent(JsonCreator.class))) {
-                Field[] declaredFields = clazz.getDeclaredFields();
-                for (Field declaredField : declaredFields) {
-                    declaredField.setAccessible(true);
-                    for (Enum<?> constant : constants) {
-                        try {
-                            Object obj = declaredField.get(constant);
-                            if (text.equals(obj.toString())) {
-                                return constant;
-                            }
-                        } catch (IllegalAccessException ignored) {}
+                Enum<?>[] constants = clazz.getEnumConstants();
+                for (Enum<?> constant : constants) {
+                    if (constant.name().equals(text)) {
+                        return constant;
                     }
                 }
-            }
 
+                // 若未使用@JsonCreator, 则匹配所有字段是否一致, 速度较慢
+                if (Arrays.stream(clazz.getDeclaredMethods()).noneMatch(it-> it.isAnnotationPresent(JsonCreator.class))) {
+                    Field[] declaredFields = clazz.getDeclaredFields();
+                    for (Field declaredField : declaredFields) {
+                        declaredField.setAccessible(true);
+                        for (Enum<?> constant : constants) {
+                            try {
+                                Object obj = declaredField.get(constant);
+                                if (text.equals(obj.toString())) {
+                                    return constant;
+                                }
+                            } catch (IllegalAccessException ignored) {}
+                        }
+                    }
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
             return null;
         }
     }
