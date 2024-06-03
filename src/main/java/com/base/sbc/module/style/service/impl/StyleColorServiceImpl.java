@@ -2166,9 +2166,44 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 size.setSORTCODE(styleColorAgentVo.getOutsideSizeCode());
                 size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
                 size.setEXTSIZECODE(styleColorAgentVo.getHangtags());
+                size.setSIZECODE(styleColorAgentVo.getSizeCode());
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
+            //品名
+            tagPrinting.setProductName(styleColorAgentVo1.getProductName());
+            //质量等级
+            tagPrinting.setQualityClass(styleColorAgentVo1.getQualityGrade());
+            //执行标准
+            tagPrinting.setOPStandard(styleColorAgentVo1.getExecuteStandard());
+            //安全技术类别
+            tagPrinting.setSaftyType(styleColorAgentVo1.getSaftyType());
+            //成分
+            tagPrinting.setSaftyType(styleColorAgentVo1.getIngredient());
+            //产地
+            tagPrinting.setC8_APPBOM_MadeIn(styleColorAgentVo1.getProducer());
+            //水洗标路径
+            tagPrinting.setCareSymbols(styleColorAgentVo1.getWashingLabel());
+            //吊牌价
+            tagPrinting.setC8_Colorway_SalesPrice(StrUtil.isNotEmpty(styleColorAgentVo1.getTagPrice()) ? new BigDecimal(styleColorAgentVo1.getTagPrice()) : null);
+            //region 20240603 增加得吊牌字段
+//            质量等级：取PDM      QualityClass
+//            品牌：MANGO 【取PDM转大写】 c8_Season_Brand
+//            货号：67017137-19-36 【款号-尺码-颜色】 已存在
+//            规格：S-155/80A(XS)  【拼接】  待定
+//            品名：上衣 CHANTI  【中文+翻译】 ProductName
+//            品名翻译：CHANTI
+//            执行标准：GB 18401-2010 B类  OPStandard
+//            材料成分：取PDM  Composition
+//            原产地：取PDM   C8_APPBOM_MadeIn
+//            颜色代码【新增字段】:取PDM B64F ColorCode
+//            洗标：取PDM CareSymbols
+//            经销商/委托加工厂：打印系统固定
+//            tel:打印系统固定
+//            吊牌价：取PDM  C8_Colorway_SalesPrice
+//            国标码：外部条形码"
+            //endregion
+
             tagPrintings.add(tagPrinting);
         }
 

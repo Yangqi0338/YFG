@@ -141,7 +141,7 @@ public class TagPrinting {
     private String CareSymbols;
 
     /**
-     * 质量登记
+     * 质量等级
      */
     private String QualityClass;
 

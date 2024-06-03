@@ -376,6 +376,13 @@
                SUBSTRING_INDEX(tsca.style_color_no, "-", 1) outsideStyleNo,
                tha.packaging_form,
                tha.packaging_form_code,
+               tha.quality_grade,
+               tha.product_name,
+               tha.execute_standard,
+               tha.safty_type,
+               tha.ingredient,
+               tha.producer,
+               tha.washing_label,
                tha.id                                       hangTagId
         FROM t_style_color_agent tsca
                  LEFT JOIN t_style_color tsc ON tsca.style_color_id = tsc.id AND tsc.del_flag = '0'
