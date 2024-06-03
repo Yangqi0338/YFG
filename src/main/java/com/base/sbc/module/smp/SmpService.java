@@ -344,11 +344,7 @@ public class SmpService {
             //目标系统
             smpGoodsDto.setTargetBusinessSystem(targetBusinessSystem);
             //这里读取各个系统的动态字段配置
-            FieldBusinessSystemQueryDto fieldBusinessSystemQueryDto = new FieldBusinessSystemQueryDto();
-            if(StrUtil.isNotEmpty(targetBusinessSystem)){
-                fieldBusinessSystemQueryDto.setBusinessType(targetBusinessSystem);
-            }
-            List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(fieldBusinessSystemQueryDto);
+            List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(new FieldBusinessSystemQueryDto());
             Map<String, List<FieldBusinessSystemVo>> collect = businessSystemList.stream().collect(Collectors.groupingBy(FieldBusinessSystemVo::getBusinessType));
 
             List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());

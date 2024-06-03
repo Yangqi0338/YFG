@@ -10,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author 卞康
@@ -46,22 +44,13 @@ public class SmpController extends BaseController {
      */
     @PutMapping("/goodsTargetBusinessSystem")
     @DuplicationCheck
-    public ApiResult goods(String[] ids,List<String> targetBusinessSystemList){
-        Map<String,Integer> iMap = new HashMap<>();
-        for (String targetBusinessSystem : targetBusinessSystemList) {
-            Integer i = smpService.goods(ids,targetBusinessSystem);
-            iMap.put(targetBusinessSystem,i);
-        }
-        long count = iMap.values().stream().filter(o -> ids.length != o).count();
+    public ApiResult goods(String[] ids,String targetBusinessSystem){
+        Integer i = smpService.goods(ids,targetBusinessSystem);
 
-        if (count == 0) {
-            return insertSuccess("下发：" + ids.length + "条，成功：" + ids.length + "条");
+        if (ids.length== i) {
+            return insertSuccess("下发：" + ids.length + "条，成功：" + i + "条");
         } else {
-            StringBuffer sb = new StringBuffer();
-            for (Map.Entry<String, Integer> stringIntegerEntry : iMap.entrySet()) {
-                sb.append("下发给"+stringIntegerEntry.getKey()+"：" + ids.length + "条，成功：" + stringIntegerEntry.getValue() + "条,失败：" + (ids.length - stringIntegerEntry.getValue()) + "条");
-            }
-            return ApiResult.error(sb.toString(), 200);
+            return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
         }
     }
 
