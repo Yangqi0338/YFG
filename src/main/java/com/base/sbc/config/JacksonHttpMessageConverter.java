@@ -1,17 +1,26 @@
 package com.base.sbc.config;
 
+import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -177,7 +186,51 @@ public class JacksonHttpMessageConverter extends MappingJackson2HttpMessageConve
 
     }
 
+    /**
+     * 处理枚举等类型的null值
+     */
+    public class EnumJsonDeserializer extends JsonDeserializer<Enum<?>> {
+
+
+        @Override
+        public Enum<?> deserialize(JsonParser p, DeserializationContext ctxt) throws IOException, JsonProcessingException {
+            String text = p.getText();
+            Class<?> rawClass = ctxt.getContextualType().getRawClass();
+            if (!rawClass.isEnum()) return null;
+            Class<Enum<?>> clazz = (Class<Enum<?>>) rawClass;
+            if (StrUtil.isBlank(text)) return null;
+
+            Enum<?>[] constants = clazz.getEnumConstants();
+            for (Enum<?> constant : constants) {
+                if (constant.name().equals(text)) {
+                    return constant;
+                }
+            }
+
+            // 若未使用@JsonCreator, 则匹配所有字段是否一致, 速度较慢
+            if (Arrays.stream(clazz.getDeclaredMethods()).noneMatch(it-> it.isAnnotationPresent(JsonCreator.class))) {
+                Field[] declaredFields = clazz.getDeclaredFields();
+                for (Field declaredField : declaredFields) {
+                    declaredField.setAccessible(true);
+                    for (Enum<?> constant : constants) {
+                        try {
+                            Object obj = declaredField.get(constant);
+                            if (text.equals(obj.toString())) {
+                                return constant;
+                            }
+                        } catch (IllegalAccessException ignored) {}
+                    }
+                }
+            }
+
+            return null;
+        }
+    }
+
     public JacksonHttpMessageConverter() {
         getObjectMapper().setSerializerFactory(getObjectMapper().getSerializerFactory().withSerializerModifier(new MyBeanSerializerModifier()));
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addDeserializer(Enum.class, new EnumJsonDeserializer());
+        getObjectMapper().registerModule(simpleModule);
     }
 }
