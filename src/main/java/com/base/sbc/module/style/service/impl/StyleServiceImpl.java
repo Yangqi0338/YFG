@@ -1725,7 +1725,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
             qc.eq("company_code", getCompanyCode());
             qc.eq("del_flag", BasicNumber.ZERO.getNumber());
-            qc.select("id", "name", "season", "year");
+            qc.select("id", "name", "season", "year_name");
             dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
