@@ -1732,7 +1732,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             if (CollUtil.isNotEmpty(planningSeasonList)) {
                 Map<String, List<PlanningSeason>> groupCounts = planningSeasonList.stream()
                         .collect(Collectors.groupingBy(
-                                PlanningSeason::getYear
+                                PlanningSeason::getYearName
                         ));
                 List<ProductCategoryTreeVo> result = new ArrayList<>();
                 for (String key : groupCounts.keySet()) {
