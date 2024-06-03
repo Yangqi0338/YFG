@@ -289,9 +289,9 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
         BasicsdatumLavationReminder lavationReminder = getById(id);
         if (lavationReminder == null) throw new OtherException("无效的复制来源");
         // 获取最大code
-        String code = findOneField(new QueryWrapper<BasicsdatumLavationReminder>().orderByDesc("CAST(REPLACE(code,'XB','') AS SIGNED)").lambda(), BasicsdatumLavationReminder::getCode);
+        String code = findOneField(new QueryWrapper<BasicsdatumLavationReminder>().orderByDesc("CONVERT(REPLACE(code,\"XB\",\"\"), SIGNED INTEGER)").lambda(), BasicsdatumLavationReminder::getCode);
         int newCode = NumberUtil.parseInt(StrUtil.replace(code, "XB", "")) + 1;
-        lavationReminder.setCode(String.valueOf(newCode));
+        lavationReminder.setCode("XB" + newCode);
         lavationReminder.setId(null);
         lavationReminder.setStatus(YesOrNoEnum.NO.getValueStr());
         addRevampBasicsdatumLavationReminder(BeanUtil.copyProperties(lavationReminder, AddRevampBasicsdatumLavationReminderDto.class));
