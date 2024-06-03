@@ -2166,7 +2166,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 size.setSORTCODE(styleColorAgentVo.getOutsideSizeCode());
                 size.setOutsideBarcode(styleColorAgentVo.getOutsideBarcode());
                 size.setEXTSIZECODE(styleColorAgentVo.getHangtags());
-                size.setSIZECODE(styleColorAgentVo.getSizeCode());
+                size.setSIZECODE(styleColorAgentVo.getInternalSize());
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
@@ -2179,11 +2179,11 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             //安全技术类别
             tagPrinting.setSaftyType(styleColorAgentVo1.getSaftyType());
             //成分
-            tagPrinting.setSaftyType(styleColorAgentVo1.getIngredient());
+            tagPrinting.setComposition(styleColorAgentVo1.getIngredient());
             //产地
             tagPrinting.setC8_APPBOM_MadeIn(styleColorAgentVo1.getProducer());
             //水洗标路径
-            tagPrinting.setCareSymbols(styleColorAgentVo1.getWashingLabel());
+            tagPrinting.setCareSymbols(styleColorAgentVo1.getWashingCode());
             //吊牌价
             tagPrinting.setC8_Colorway_SalesPrice(StrUtil.isNotEmpty(styleColorAgentVo1.getTagPrice()) ? new BigDecimal(styleColorAgentVo1.getTagPrice()) : null);
             //region 20240603 增加得吊牌字段

@@ -567,6 +567,6 @@ public class StyleColorAgentVo {
     /**
      * 水洗标路径
      */
-    private String washingLabel;
+    private String washingCode;
 
 }
