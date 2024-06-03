@@ -52,9 +52,12 @@ import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.formtype.utils.FieldValDataGroupConstant;
 import com.base.sbc.module.formtype.vo.FieldManagementVo;
 import com.base.sbc.module.formtype.vo.GoodsDynamicFieldDto;
+import com.base.sbc.module.hangtag.dto.SmpHangTagIngredientDTO;
 import com.base.sbc.module.hangtag.dto.UpdatePriceDto;
 import com.base.sbc.module.hangtag.entity.HangTag;
+import com.base.sbc.module.hangtag.entity.HangTagIngredient;
 import com.base.sbc.module.hangtag.enums.HangTagDeliverySCMStatusEnum;
+import com.base.sbc.module.hangtag.service.HangTagIngredientService;
 import com.base.sbc.module.hangtag.service.impl.HangTagServiceImpl;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
@@ -187,6 +190,8 @@ public class SmpService {
     private final FieldValService fieldValService;
     private final SaleProductIntoService saleProductIntoService;
     private final DataPermissionsService dataPermissionsService;
+    @Lazy
+    private final HangTagIngredientService hangTagIngredientService;
 
     @Resource
     @Lazy
@@ -511,8 +516,6 @@ public class SmpService {
                     smpGoodsDto.setIntegrityProduct("1".equals(packInfoStatus.getBulkOrderClerkConfirm()) && b);
                     smpGoodsDto.setIntegritySample(b);
                 }
-
-
             }
 
             //废弃
@@ -564,6 +567,23 @@ public class SmpService {
 
                 smpGoodsDto.setPackageType(hangTag.getPackagingFormCode());
                 smpGoodsDto.setPackageSize(hangTag.getPackagingBagStandardCode());
+
+                //增加吊牌成分明细数据，用于易尚货
+                String hangTagId = hangTag.getId();
+                QueryWrapper<HangTagIngredient> hangTagIngredientQueryWrapper = new QueryWrapper<>();
+                hangTagIngredientQueryWrapper.eq("hang_tag_id",hangTagId);
+                hangTagIngredientQueryWrapper.eq("del_flag","0");
+                hangTagIngredientQueryWrapper.select("type, ingredient_second_name, percentage_str, ingredient_name, ingredient_description");
+                List<HangTagIngredient> hangTagIngredients = hangTagIngredientService.list(hangTagIngredientQueryWrapper);
+                List<SmpHangTagIngredientDTO> smpHangTagIngredientDTOList = new ArrayList();
+                if (CollUtil.isNotEmpty(hangTagIngredients)) {
+                    for (SmpHangTagIngredientDTO smpHangTagIngredientDTO : smpHangTagIngredientDTOList) {
+                        SmpHangTagIngredientDTO hangTagIngredientDTO = BeanUtil.copyProperties(smpHangTagIngredientDTO, SmpHangTagIngredientDTO.class);
+                        smpHangTagIngredientDTOList.add(hangTagIngredientDTO);
+                    }
+                }
+                smpGoodsDto.setHangTagIngredientList(smpHangTagIngredientDTOList);
+
             }
             //endregion
 

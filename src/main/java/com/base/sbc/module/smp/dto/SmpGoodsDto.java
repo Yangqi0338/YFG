@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.config.enums.business.RFIDType;
 import com.base.sbc.module.formtype.vo.GoodsDynamicFieldDto;
+import com.base.sbc.module.hangtag.dto.SmpHangTagIngredientDTO;
 import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpSize;
 import com.base.sbc.module.style.entity.StyleSpecFabric;
@@ -333,5 +334,10 @@ public class SmpGoodsDto extends SmpBaseDto {
      * 款式设计动态管理字段 特定字段固定下发给BCS
      */
     private List<GoodsDynamicFieldDto> goodsDynamicFieldList;
+
+    /**
+     * 用于易尚货成分信息拆分
+     */
+    private List<SmpHangTagIngredientDTO> hangTagIngredientList;
 
 }
