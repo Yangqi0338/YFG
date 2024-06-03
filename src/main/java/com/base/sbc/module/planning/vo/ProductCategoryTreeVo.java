@@ -109,4 +109,6 @@ public class ProductCategoryTreeVo {
 
     @ApiModelProperty(value = "是否展示未来款2099：1:展示，0：不展示")
     private String futureStyleStatus = "0";
+    @ApiModelProperty(value = "产品季")
+    private Object childrens;
 }

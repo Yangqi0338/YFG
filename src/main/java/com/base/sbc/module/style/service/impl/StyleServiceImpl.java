@@ -1719,7 +1719,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
      * @param vo
      */
     @Override
-    public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
+    public List<ProductCategoryTreeVo> getProductCategoryTreeNew(ProductCategoryTreeVo vo) {
         // 第一级年份
         if (vo.getLevel() == null) {
             QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
@@ -1730,10 +1730,9 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             /*查询到的产品季*/
             List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
             if (CollUtil.isNotEmpty(planningSeasonList)) {
-                Map<String, Long> groupCounts = planningSeasonList.stream()
+                Map<String, List<PlanningSeason>> groupCounts = planningSeasonList.stream()
                         .collect(Collectors.groupingBy(
-                                PlanningSeason::getYear,
-                                Collectors.counting()
+                                PlanningSeason::getYear
                         ));
                 List<ProductCategoryTreeVo> result = new ArrayList<>();
                 for (String key : groupCounts.keySet()) {
@@ -1741,39 +1740,16 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                     tree.setChildren(true);
                     tree.setLevel(0);
                     tree.setYear(key);
-                    tree.setChildCount(String.valueOf(groupCounts.get(key)));
+                    tree.setChildCount(String.valueOf(groupCounts.get(key).size()));
+                    tree.setChildrens(groupCounts.get(key));
                     result.add(tree);
                 }
                 result.sort((s1, s2) -> s2.getYear().compareTo(s1.getYear()));
                 return result;
             }
         }
-        // 产品季节
-        if (vo.getLevel() == 0) {
-            QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
-            qc.eq("company_code", getCompanyCode());
-            qc.eq("del_flag", BasicNumber.ZERO.getNumber());
-            qc.eq("year", vo.getYear());
-            qc.select("id", "name", "season");
-            qc.orderByDesc("name");
-            dataPermissionsService.getDataPermissionsForQw(qc, vo.getBusinessType(), "", new String[]{"brand"}, true);
-            /*查询到的产品季*/
-            List<PlanningSeason> planningSeasonList = planningSeasonService.list(qc);
-            if (CollUtil.isNotEmpty(planningSeasonList)) {
-                List<ProductCategoryTreeVo> result = planningSeasonList.stream().map(ps -> {
-                    ProductCategoryTreeVo tree = BeanUtil.copyProperties(vo, ProductCategoryTreeVo.class);
-                    tree.setChildren(true);
-                    tree.setLevel(1);
-                    tree.setSeason(ps.getSeason());
-                    tree.setPlanningSeasonId(ps.getId());
-                    tree.setName(ps.getName());
-                    return tree;
-                }).collect(Collectors.toList());
-                return result;
-            }
-        }
         // 第二级 大类
-        else if (vo.getLevel() == 1) {
+        else if (vo.getLevel() == 0) {
             BaseQueryWrapper qw = new BaseQueryWrapper();
             getProductCategoryTreeQw(vo, qw);
             qw.select("prod_category1st_name,prod_category1st");
@@ -1799,7 +1775,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
             }
         }
         // 第3级 品类
-        else if (vo.getLevel() == 2) {
+        else if (vo.getLevel() == 1) {
             BaseQueryWrapper qw = new BaseQueryWrapper<>();
             getProductCategoryTreeQw(vo, qw);
             qw.select("prod_category_name,prod_category");
@@ -1828,7 +1804,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
     }
 
     @Override
-    public List<ProductCategoryTreeVo> getProductCategoryTreeNew(ProductCategoryTreeVo vo) {
+    public List<ProductCategoryTreeVo> getProductCategoryTree(ProductCategoryTreeVo vo) {
         // 第一级产品季
         if (vo.getLevel() == null) {
             QueryWrapper<PlanningSeason> qc = new QueryWrapper<>();
