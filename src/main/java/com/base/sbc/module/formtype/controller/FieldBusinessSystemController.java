@@ -19,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -47,8 +49,8 @@ public class FieldBusinessSystemController {
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
     @DeleteMapping("/del}")
-    public ApiResult removeById(@RequestBody List<String> list) {
-        fieldBusinessSystemService.removeByIds(list);
+    public ApiResult removeById(String[] ids) {
+        fieldBusinessSystemService.removeByIds(new ArrayList<>(Arrays.asList(ids)));
         return ApiResult.success("删除成功");
     }
 
