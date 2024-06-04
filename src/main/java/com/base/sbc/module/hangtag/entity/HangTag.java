@@ -237,6 +237,15 @@ public class HangTag extends BaseDataEntity<String> {
     @ApiModelProperty(value = "温馨提示是否换行")
     private YesOrNoEnum warmTipsDefaultWrap;
 
+    /**
+     * 品名翻译
+     */
+    private String productNameTranslate;
+    /**
+     * 颜色编码翻译
+     */
+    private String colorCodeTranslate;
+
     /*****************************数据库字段区 不包含父类公共字段(属性) 【end】 ***********************************/
 }
 

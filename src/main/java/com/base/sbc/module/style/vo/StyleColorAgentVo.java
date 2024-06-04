@@ -568,5 +568,13 @@ public class StyleColorAgentVo {
      * 水洗标路径
      */
     private String washingCode;
+    /**
+     * 品名翻译
+     */
+    private String productNameTranslate;
+    /**
+     * 颜色翻译
+     */
+    private String colorCodeTranslate;
 
 }
