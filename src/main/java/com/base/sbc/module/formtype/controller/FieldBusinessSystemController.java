@@ -48,7 +48,7 @@ public class FieldBusinessSystemController {
     }
 
     @ApiOperation(value = "删除-通过id查询,多个逗号分开")
-    @DeleteMapping("/del}")
+    @DeleteMapping("/del")
     public ApiResult removeById(String[] ids) {
         fieldBusinessSystemService.removeByIds(new ArrayList<>(Arrays.asList(ids)));
         return ApiResult.success("删除成功");
