@@ -301,7 +301,7 @@ public class BaseQueryWrapper<T> extends QueryWrapper<T> {
                     // 有前缀
                     for (String mayKey : split) {
                         String[] keySplit = mayKey.split(Pattern.quote(StringPool.DOT));
-                        if (split.length > 1) {
+                        if (keySplit.length > 1) {
                             String newKey = keySplit[0];
                             if (StrUtil.isNotBlank(key) && !key.equals(newKey)) 
                                 throw new OtherException("自定义count查询不支持一个字段存在多个别名");
