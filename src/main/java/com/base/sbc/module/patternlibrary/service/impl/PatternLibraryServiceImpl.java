@@ -51,6 +51,7 @@ import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.service.StyleColorService;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.task.vo.FlowTaskDto;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -534,7 +535,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             throw new OtherException("版型库数据不存在，请刷新后重试！");
         }
         // 列表分页
-        PageHelper.startPage(useStyleDTO.getPageNum(), useStyleDTO.getPageSize());
         QueryWrapper<UseStyleVO> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ts.registering_id", useStyleDTO.getPatternLibraryId());
         queryWrapper.orderByDesc("ts.create_date");
@@ -784,7 +784,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         patternLibraryPageDTO.setIsExcel(1);
         PageInfo<PatternLibrary> patternLibraryPageInfo = listPages(patternLibraryPageDTO);
         List<PatternLibrary> list = patternLibraryPageInfo.getList();
-        System.out.println(JSONUtil.toJsonStr(list));
         if (ObjectUtil.isEmpty(list)) {
             throw new OtherException(ResultConstant.NO_DATA_EXPORT);
         }
@@ -806,7 +805,6 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                                 ? "禁用" : patternLibrary.getEnableFlag().equals(1) ? "启用" : "未知");
                 excelExportVOList.add(excelExportVO);
             }
-            System.out.println(JSONUtil.toJsonStr(excelExportVOList));
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setCharacterEncoding("utf-8");
             String fileName = URLEncoder.encode("版型库数据", "utf-8");
@@ -898,6 +896,39 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
             patternLibrary.setStylePicUrl(style.getStylePic());
         }
         return patternLibrary;
+    }
+
+    @Override
+    public PageInfo<PatternLibrary> listStyleToPatternLibrary(PatternLibraryDTO patternLibraryDTO) {
+        QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
+                .eq("s.enable_status", BaseGlobal.NO)
+                .in("s.status", "1", "2")
+                .like(ObjectUtil.isNotEmpty(patternLibraryDTO.getCode()), "s.design_no", patternLibraryDTO.getCode())
+                .orderByDesc("s.create_date");
+        // 获取还没有生成版型库的数据
+        PageHelper.startPage(patternLibraryDTO.getPageNum(), patternLibraryDTO.getPageSize());
+        List<Style> styleList = baseMapper.listStyleToPatternLibrary(queryWrapper);
+        // 初始化返回的封装数据
+        List<PatternLibrary> patternLibraryList = new ArrayList<>(styleList.size());
+        if (ObjectUtil.isNotEmpty(styleList)) {
+            for (Style style : styleList) {
+                PatternLibrary patternLibrary = new PatternLibrary();
+                patternLibrary.setCode(style.getDesignNo());
+                PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
+                patternLibraryBrand.setBrandName(style.getBrandName());
+                patternLibrary.setPatternLibraryBrandList(CollUtil.newArrayList(patternLibraryBrand));
+                patternLibrary.setPicUrl(style.getStylePic());
+                patternLibrary.setProdCategory1stName(style.getProdCategory1stName());
+                patternLibrary.setProdCategoryName(style.getProdCategoryName());
+                patternLibrary.setProdCategory2ndName(style.getProdCategory2ndName());
+                patternLibrary.setProdCategory3rdName(style.getProdCategory3rdName());
+                patternLibrary.setSilhouetteName(style.getSilhouetteName());
+                patternLibraryList.add(patternLibrary);
+            }
+            stylePicUtils.setStylePic(patternLibraryList, "PicUrl");
+        }
+        return new PageInfo<>(patternLibraryList);
     }
 
     @Override

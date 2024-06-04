@@ -177,6 +177,13 @@ public class PatternLibraryController {
         return ApiResult.success(ResultConstant.OPERATION_SUCCESS, patternLibrary);
     }
 
+    @ApiOperation(value = "查询已开款的设计款号数据信息（转版型库数据）")
+    @PostMapping("/listStyleToPatternLibrary")
+    public ApiResult<PageInfo<PatternLibrary>> listStyleToPatternLibrary(@RequestBody PatternLibraryDTO patternLibraryDTO) {
+        PageInfo<PatternLibrary> patternLibraryPageInfo = patternLibraryService.listStyleToPatternLibrary(patternLibraryDTO);
+        return ApiResult.success("操作成功", patternLibraryPageInfo);
+    }
+
     @ApiOperation(value = "获取大类的类型")
     @GetMapping("/getCategoriesType")
     public ApiResult<CategoriesTypeVO> getCategoriesType() {

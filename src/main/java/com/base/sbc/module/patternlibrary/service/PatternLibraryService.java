@@ -128,6 +128,14 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
     PatternLibrary getInfoByDesignNo(String designNo);
 
     /**
+     * 查询已开款的设计款号数据信息（转版型库数据）
+     *
+     * @param patternLibraryDTO 筛选条件
+     * @return 相关数据
+     */
+    PageInfo<PatternLibrary> listStyleToPatternLibrary(PatternLibraryDTO patternLibraryDTO);
+
+    /**
      * 判断大类的类型
      *
      * @return 大类类型 map

@@ -24,7 +24,8 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
 
     /**
      * 版型库列表
-     * @param queryWrapper 筛选条件
+     *
+     * @param queryWrapper          筛选条件
      * @param patternLibraryPageDTO 其他条件
      * @return 分页列表
      */
@@ -44,8 +45,9 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
 
     /**
      * 版型库筛选条件查询
+     *
      * @param queryWrapper 筛选条件
-     * @param type 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-涉及部件 7-审核状态 8-是否启用）
+     * @param type         筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-涉及部件 7-审核状态 8-是否启用）
      * @return 分页列表
      */
     List<FilterCriteriaVO> getAllFilterCriteria(
@@ -56,10 +58,21 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
 
     /**
      * 查询已开款的设计款号数据信息
+     *
      * @param queryWrapper 筛选条件
      * @return 款号列表
      */
     List<Style> listStyle(
+            @Param(Constants.WRAPPER) QueryWrapper<Style> queryWrapper
+    );
+
+    /**
+     * 查询已开款的设计款号数据信息（转版型库数据）
+     *
+     * @param queryWrapper 筛选条件
+     * @return 相关数据
+     */
+    List<Style> listStyleToPatternLibrary(
             @Param(Constants.WRAPPER) QueryWrapper<Style> queryWrapper
     );
 

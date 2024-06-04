@@ -240,5 +240,18 @@
         </where>
         limit 200
     </select>
-
+    <select id="listStyleToPatternLibrary" resultType="com.base.sbc.module.style.entity.Style">
+        SELECT
+        s.design_no, s.brand_name, s.style_pic, s.prod_category1st_name, s.prod_category_name, s.prod_category2nd_name, s.prod_category3rd_name,
+        s.silhouette_name
+        FROM t_style s
+        <where>
+            not EXISTS(select 1 from t_pattern_library tpl where tpl.style_id = s.id
+            AND tpl.del_flag = '0')
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>
+        limit 200
+    </select>
 </mapper>
