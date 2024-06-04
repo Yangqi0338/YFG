@@ -256,4 +256,7 @@ public class QueryStyleColorDto extends QueryFieldDto {
 
     @ApiModelProperty(value = "数据权限类型")
     private String businessType;
+
+    @ApiModelProperty(value = "目标下游系统")
+    private String targetBusinessSystem;
 }

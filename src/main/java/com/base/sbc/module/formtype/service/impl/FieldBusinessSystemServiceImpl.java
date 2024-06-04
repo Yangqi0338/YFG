@@ -7,6 +7,7 @@
 package com.base.sbc.module.formtype.service.impl;
 
 import com.base.sbc.config.common.BaseQueryWrapper;
+import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.formtype.dto.FieldBusinessSystemQueryDto;
 import com.base.sbc.module.formtype.entity.FieldBusinessSystem;
@@ -37,6 +38,7 @@ public class FieldBusinessSystemServiceImpl extends BaseServiceImpl<FieldBusines
         Page<Object> objects = PageHelper.startPage(dto);
         BaseQueryWrapper<FieldBusinessSystem> qw = new BaseQueryWrapper<>();
         qw.notEmptyEq("tfbs.business_type", dto.getBusinessType());
+        qw.eq("tfbs.del_flag", BaseGlobal.DEL_FLAG_NORMAL);
         List<FieldBusinessSystemVo> list = baseMapper.findPage(qw);
         return list;
     }

@@ -124,7 +124,7 @@ public interface StyleColorService extends BaseService<StyleColor> {
      * @param ids
      * @return
      */
-    ApiResult issueScm(String ids);
+    ApiResult issueScm(QueryStyleColorDto ids);
 
         /**
          * 方法描述 获取款式下的颜色

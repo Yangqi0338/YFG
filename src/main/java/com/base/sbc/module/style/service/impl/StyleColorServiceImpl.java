@@ -1060,11 +1060,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * 核价里面总成本为0的不能下发
      * 吊牌价为0不能下发
      *
-     * @param ids
+     * @param queryStyleColorDto
      * @return
      */
     @Override
-    public ApiResult issueScm(String ids) {
+    public ApiResult issueScm(QueryStyleColorDto queryStyleColorDto) {
+        String ids = queryStyleColorDto.getIds();
         if (StringUtils.isBlank(ids)) {
             throw new OtherException("ids为空");
         }
@@ -1106,7 +1107,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
             }
         }
-        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
+        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","),queryStyleColorDto.getTargetBusinessSystem());
         if (stringList.size() == i) {
             return ApiResult.success("下发：" + stringList.size() + "条，成功：" + i + "条");
         } else {
