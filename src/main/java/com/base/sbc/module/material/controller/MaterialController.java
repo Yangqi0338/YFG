@@ -178,7 +178,7 @@ public class MaterialController extends BaseController {
             qw1.lambda().in(PlanningCategoryItemMaterial::getMaterialId, list.stream().map(Material::getId).collect(Collectors.toList()));
             long count = planningCategoryItemMaterialService.count(qw1);
             if (count > 0){
-                throw new OtherException("此素材有被引用，不允许删除！");
+                return ApiResult.error("此素材有被引用，不允许删除！",500);
             }
         }
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
