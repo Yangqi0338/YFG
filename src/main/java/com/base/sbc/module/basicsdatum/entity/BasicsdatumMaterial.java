@@ -51,12 +51,18 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setStockUnit(stockUnitCode);
 		smpMaterialDto.setMaterialSource(materialSourceName);
 		smpMaterialDto.setSecondLevelCategory(category2Code);
+		smpMaterialDto.setSecondLevelCategoryName(category2Name);
 		smpMaterialDto.setThirdLevelCategory(category3Code);
+		smpMaterialDto.setThirdLevelCategoryName(category3Name);
 		smpMaterialDto.setSeasonYear(year);
 		smpMaterialDto.setSeasonQuarter(seasonName);
 		smpMaterialDto.setSeasonQuarterId(season);
 		smpMaterialDto.setSeasonBrand(brandName);
 		smpMaterialDto.setSeasonBrandId(brand);
+		smpMaterialDto.setMaterialCategory(materialCategory);
+		smpMaterialDto.setMaterialCategoryName(materialCategoryName);
+		smpMaterialDto.setWidthGroup(widthGroup);
+		smpMaterialDto.setWidthGroupName(widthGroupName);
 		smpMaterialDto.setKilogramsAndMeters(kgMNum==null ? BigDecimal.valueOf(0) : kgMNum);
 		smpMaterialDto.setDeveloper(devName);
 		smpMaterialDto.setBuyer(purchaseName);

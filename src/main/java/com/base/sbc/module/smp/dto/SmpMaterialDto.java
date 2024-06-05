@@ -29,10 +29,14 @@ public class  SmpMaterialDto extends SmpBaseDto {
     private String stockUnit;
     /** 三级分类 */
     private String thirdLevelCategory;
+    /** 三级分类名称 */
+    private String thirdLevelCategoryName;
     /** 物料来源 */
     private String materialSource;
     /** 二级分类 */
     private String secondLevelCategory;
+    /** 二级分类名称 */
+    private String secondLevelCategoryName;
     /** 开发年份 */
     private String seasonYear;
     /** 开发季节 */
@@ -41,6 +45,14 @@ public class  SmpMaterialDto extends SmpBaseDto {
     private String seasonQuarterId;
     /** 开发品牌 */
     private String seasonBrand;
+    /** 材料类型 */
+    private String materialCategory;
+    /** 材料类型名称 */
+    private String materialCategoryName;
+    /** 门幅/规格组 */
+    private String widthGroup;
+    /** 门幅/规格组名称 */
+    private String widthGroupName;
     /** 开发品牌ID */
     private String seasonBrandId;
     /** 公斤米数 */
