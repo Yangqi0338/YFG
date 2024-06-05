@@ -137,6 +137,20 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 辅料材质 */
     @ApiModelProperty(value = "辅料材质")
     private String auxiliaryMaterial;
+
+    /** 总库存 */
+    @ApiModelProperty(value = "总库存")
+    private BigDecimal totalInventory;
+    /** 自由库存 */
+    @ApiModelProperty(value = "自由库存")
+    private BigDecimal inventoryAvailability;
+    /** 面料难度名称 */
+    @ApiModelProperty(value = "面料难度名称")
+    private String fabricDifficultyName;
+    /** 备注 */
+    @ApiModelProperty(value = "备注")
+    private String remarks;
+
     @ApiModelProperty(value = "送检单号")
     private String checkBillCode;
     /** 送检单位 */

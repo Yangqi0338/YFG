@@ -104,7 +104,10 @@ public class BasicsdatumMaterial extends BaseDataEntity<String> {
 		smpMaterialDto.setFabricDifficultyScoreName(fabricDifficultyScoreName);
 		smpMaterialDto.setFabricEvaluation(fabricEvaluation);
 		smpMaterialDto.setRiskDescription(riskDescription);
-
+		smpMaterialDto.setTotalInventory(totalInventory);
+		smpMaterialDto.setInventoryAvailability(inventoryAvailability);
+		smpMaterialDto.setFabricDifficultyName(fabricDifficultyName);
+		smpMaterialDto.setRemarks(remarks);
 		try {
 			smpMaterialDto.setImgList(Arrays.asList(imageUrl.split(",")));
 		}catch (Exception ignored){}
