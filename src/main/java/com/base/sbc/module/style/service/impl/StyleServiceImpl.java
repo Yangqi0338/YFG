@@ -392,7 +392,7 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
                 for (String styleColorId : styleColorIds) {
                     String[] stringArray = new String[]{styleColorId};
                     PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
-                    publicStyleColorDto.setId(styleColorId);
+                    publicStyleColorDto.setId(style.getId());
                     publicStyleColorDto.setSizeRange(style.getSizeRange());
                     //检查配色数据是否投产，投产了就报错
                     checkColorSize(publicStyleColorDto);
