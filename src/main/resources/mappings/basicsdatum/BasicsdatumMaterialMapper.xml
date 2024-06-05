@@ -278,6 +278,7 @@
 			tbm.check_result,
 			tbm.check_date,
 			tbm.check_valid_date,
+			tbm.check_items,
 			tbm.fabric_difficulty_score_name,
 			tbm.fabric_evaluation,
 			tbm.risk_description,
