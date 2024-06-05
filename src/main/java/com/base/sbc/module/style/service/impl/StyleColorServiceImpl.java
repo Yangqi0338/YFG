@@ -2167,6 +2167,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
+            tagPrinting.setC8_Season_Brand(styleColorAgentVo1.getBrand());
             //品名
             tagPrinting.setProductName(styleColorAgentVo1.getProductName());
             //质量等级
