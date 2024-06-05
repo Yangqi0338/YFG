@@ -627,7 +627,11 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
                     Pair.of("moduleName","smp"),
-                    Pair.of("functionName","商品主数据下发")
+                    Pair.of("functionName","商品主数据下发"),
+                    Pair.of("code",smpGoodsDto.getCode()),
+                    Pair.of("name",smpGoodsDto.getColorName()),
+                    Pair.of("businessId",smpGoodsDto.getId()),
+                    Pair.of("businessCode",smpGoodsDto.getTargetBusinessSystem())
             );
             if (httpResp.isSuccess()) {
                 i++;
@@ -1886,7 +1890,7 @@ public class SmpService {
             String jsonString = JsonStringUtils.toJSONString(smpGoodsDto);
             HttpResp httpResp = restTemplateService.spmPost(SMP_URL + "/goods", jsonString,
                     Pair.of("moduleName","smp"),
-                    Pair.of("functionName","商品主数据下发")
+                    Pair.of("functionName","商品主数据下发-MANGO")
             );
             if (httpResp.isSuccess()) {
                 i++;

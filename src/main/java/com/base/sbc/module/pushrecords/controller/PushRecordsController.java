@@ -5,13 +5,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.pushrecords.dto.PushRecordsDto;
 import com.base.sbc.module.pushrecords.entity.PushRecords;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
-import com.base.sbc.module.smp.dto.HttpResp;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
@@ -43,11 +41,13 @@ public class PushRecordsController extends BaseController {
     @GetMapping("/queryPage")
     public ApiResult queryPage(PushRecordsDto pushRecordsDto) {
         BaseQueryWrapper<PushRecords> queryWrapper = new BaseQueryWrapper<>();
+        queryWrapper.notEmptyEq("response_status_code",pushRecordsDto.getResponseStatusCode());
         queryWrapper.notEmptyIn("module_name",pushRecordsDto.getModuleName());
         queryWrapper.notEmptyIn("function_name",pushRecordsDto.getFunctionName());
         queryWrapper.notEmptyIn("related_id",pushRecordsDto.getRelatedId());
         queryWrapper.notEmptyIn("related_name",pushRecordsDto.getRelatedName());
-        queryWrapper.notEmptyIn("create_name",pushRecordsDto.getCreateName());
+        queryWrapper.notEmptyLike("create_name",pushRecordsDto.getCreateName());
+        queryWrapper.notEmptyLike("businessCode",pushRecordsDto.getBusinessCode());
         queryWrapper.between("create_date",pushRecordsDto.getCreateDate());
         queryWrapper.orderByDesc("create_date");
         PageHelper.startPage(pushRecordsDto);

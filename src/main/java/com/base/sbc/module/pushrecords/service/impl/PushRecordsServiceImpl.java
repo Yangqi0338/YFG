@@ -13,15 +13,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.resttemplate.RestTemplateService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.pushrecords.dto.PushRecordsDto;
-import com.base.sbc.module.pushrecords.mapper.PushRecordsMapper;
 import com.base.sbc.module.pushrecords.entity.PushRecords;
+import com.base.sbc.module.pushrecords.mapper.PushRecordsMapper;
 import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.dto.HttpReq;
 import com.base.sbc.module.smp.dto.HttpResp;
@@ -119,6 +118,8 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
 
         pushRecords.setRelatedId(httpReq.getCode());
         pushRecords.setRelatedName(httpReq.getName());
+        pushRecords.setBusinessId(httpReq.getBusinessId());
+        pushRecords.setBusinessCode(httpReq.getBusinessCode());
         pushRecords.setModuleName(httpReq.getModuleName());
         pushRecords.setFunctionName(httpReq.getFunctionName());
         pushRecords.setPushAddress(url);
