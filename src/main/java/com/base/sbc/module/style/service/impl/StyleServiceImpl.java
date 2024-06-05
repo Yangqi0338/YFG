@@ -389,12 +389,19 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
 
             List<String> styleColorIds = scmSendStyleColorList.stream().map(StyleColor::getId).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(styleColorIds)) {
-                String[] stringArray = styleColorIds.toArray(new String[0]);
-                try {
-                    smpService.goods(stringArray);
-                } catch (Exception e) {
-                    log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
-                    throw new OtherException("同步SCM失败：" + e.getMessage());
+                for (String styleColorId : styleColorIds) {
+                    String[] stringArray = new String[]{styleColorId};
+                    PublicStyleColorDto publicStyleColorDto = new PublicStyleColorDto();
+                    publicStyleColorDto.setId(styleColorId);
+                    publicStyleColorDto.setSizeRange(style.getSizeRange());
+                    //检查配色数据是否投产，投产了就报错
+                    checkColorSize(publicStyleColorDto);
+                    try {
+                        smpService.goods(stringArray);
+                    } catch (Exception e) {
+                        log.error(">>>StyleServiceImpl>>>saveStyle>>>同步SCM失败", e);
+                        throw new OtherException("同步SCM失败：" + e.getMessage());
+                    }
                 }
             }
 
