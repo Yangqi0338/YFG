@@ -175,7 +175,7 @@ public class MaterialController extends BaseController {
             //检查是否被引用
             QueryWrapper<PlanningCategoryItemMaterial> qw1 = new QueryWrapper<>();
             qw1.lambda().eq(PlanningCategoryItemMaterial::getDelFlag,"0");
-            qw1.lambda().in(PlanningCategoryItemMaterial::getPlanningCategoryItemId, list.stream().map(Material::getId).collect(Collectors.toList()));
+            qw1.lambda().in(PlanningCategoryItemMaterial::getMaterialId, list.stream().map(Material::getId).collect(Collectors.toList()));
             long count = planningCategoryItemMaterialService.count(qw1);
             if (count > 0){
                 throw new OtherException("此素材有被引用，不允许删除！");
