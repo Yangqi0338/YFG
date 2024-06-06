@@ -81,6 +81,9 @@
         <if test="remarks != null and remarks != ''">
             and remarks like concat('%',#{remarks},'%')
         </if>
+        <if test="enableFlag != null and enableFlag != ''">
+            and enable_flag = #{enableFlag}
+        </if>
         order by create_date desc
     </select>
 
