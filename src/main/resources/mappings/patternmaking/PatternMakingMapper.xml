@@ -201,6 +201,7 @@
             p.cutter_finish_num,
             p.sgl_kitting,
             p.kitting_reason,
+            p.kitting_reason_name,
             p.stitcher_remark,
             p.stitcher,
             s.technician_name,

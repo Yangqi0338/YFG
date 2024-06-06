@@ -1652,6 +1652,7 @@ public class PatternMakingServiceImpl extends BaseServiceImpl<PatternMakingMappe
         byId.setSglKittingDate(new Date());
         byId.setStitcherRemark(dto.getStitcherRemark());
         byId.setKittingReason(dto.getKittingReason());
+        byId.setKittingReasonName(dto.getKittingReasonName());
         // 分配后进入下一节点
         nodeStatusService.nextOrPrev(groupUser, byId, NodeStatusConfigService.PATTERN_MAKING_NODE_STATUS, NodeStatusConfigService.NEXT);
         updateById(byId);
