@@ -186,6 +186,12 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         }
 
         com.github.pagehelper.Page<StylePricingVO> page = PageHelper.startPage(dto.getPageNum(), dto.getPageSize());
+        if (null == dto.getPageNum() || 0 == dto.getPageNum()) {
+            dto.setPageNum(1);
+        }
+        if (null == dto.getPageSize() || 0 == dto.getPageSize()) {
+            dto.setPageNum(20);
+        }
         dto.setStartNum((dto.getPageNum()-1)*dto.getPageSize());
         Map<String, String> columnMap = new HashMap<>();
         Map<String,String> queryMap = dto.getFieldQueryMap();
