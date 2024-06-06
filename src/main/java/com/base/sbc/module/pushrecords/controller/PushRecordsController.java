@@ -1,6 +1,7 @@
 package com.base.sbc.module.pushrecords.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -47,7 +48,11 @@ public class PushRecordsController extends BaseController {
         queryWrapper.notEmptyIn("related_id",pushRecordsDto.getRelatedId());
         queryWrapper.notEmptyIn("related_name",pushRecordsDto.getRelatedName());
         queryWrapper.notEmptyLike("create_name",pushRecordsDto.getCreateName());
-        queryWrapper.notEmptyLike("businessCode",pushRecordsDto.getBusinessCode());
+        queryWrapper.notEmptyLike("business_code",pushRecordsDto.getBusinessCode());
+        if(StrUtil.isNotEmpty(pushRecordsDto.getType())){
+            queryWrapper.isNotNullStr("business_code");
+        }
+        queryWrapper.notEmptyLike("business_code",pushRecordsDto.getBusinessCode());
         queryWrapper.between("create_date",pushRecordsDto.getCreateDate());
         queryWrapper.orderByDesc("create_date");
         PageHelper.startPage(pushRecordsDto);
