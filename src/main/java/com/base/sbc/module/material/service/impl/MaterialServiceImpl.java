@@ -392,7 +392,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (CollUtil.isNotEmpty(labelList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(labelList);
-            materialLinkageVo.setGroup("素材名称");
+            materialLinkageVo.setGroup("标签名称");
             list.add(materialLinkageVo);
         }
         // 素材名称相关

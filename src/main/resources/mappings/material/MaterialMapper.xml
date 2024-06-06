@@ -78,6 +78,9 @@
         <if test="companyFlag != null and companyFlag != ''">
             and company_flag = #{companyFlag}
         </if>
+        <if test="remarks != null and remarks != ''">
+            and remarks like concat('%',#{remarks},'%')
+        </if>
         order by create_date desc
     </select>
 
