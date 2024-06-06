@@ -222,9 +222,21 @@ public class SmpService {
      * 商品主数据下发
      */
     public Integer goods(String[] ids,String targetBusinessSystem) {
+        Map<String,String> idsMap = new HashMap<>();
+        for (String id : ids) {
+            idsMap.put(id,targetBusinessSystem);
+        }
+        return goods(idsMap);
+    }
+
+    /**
+     * 商品主数据下发
+     */
+    public Integer goods(Map<String,String> idsMap) {
+        Set<String> ids = idsMap.keySet();
         int i = 0;
 
-        List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
+        List<StyleColor> styleColors = styleColorService.listByIds(ids);
         if (CollUtil.isEmpty(styleColors)) {
             return i;
         }

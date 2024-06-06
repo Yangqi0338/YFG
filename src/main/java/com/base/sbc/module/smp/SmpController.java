@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 卞康
@@ -44,13 +45,28 @@ public class SmpController extends BaseController {
      */
     @PutMapping("/goodsTargetBusinessSystem")
     @DuplicationCheck
-    public ApiResult goods(String[] ids,String targetBusinessSystem){
+    public ApiResult goodsTargetBusinessSystem(String[] ids,String targetBusinessSystem){
         Integer i = smpService.goods(ids,targetBusinessSystem);
 
         if (ids.length== i) {
             return insertSuccess("下发：" + ids.length + "条，成功：" + i + "条");
         } else {
             return ApiResult.error("下发：" + ids.length + "条，成功：" + i + "条,失败：" + (ids.length - i) + "条", 200);
+        }
+    }
+
+    /**
+     * 商品主数据下发（款式配色）,指定下游系统
+     */
+    @PutMapping("/goodsTargetBusinessSystemRePush")
+    @DuplicationCheck
+    public ApiResult goodsTargetBusinessSystemRePush(Map<String,String> idsMap){
+        Integer i = smpService.goods(idsMap);
+
+        if (idsMap.size()== i) {
+            return insertSuccess("下发：" + idsMap.size() + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("下发：" + idsMap.size() + "条，成功：" + i + "条,失败：" + (idsMap.size() - i) + "条", 200);
         }
     }
 
