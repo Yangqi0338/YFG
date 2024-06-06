@@ -99,6 +99,15 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             }
         }
 
+        //标签名称筛选条件
+        if (CollUtil.isNotEmpty(materialQueryDto.getMaterialNames())) {
+            labelSet = new HashSet<>();
+            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(materialQueryDto.getMaterialNames());
+            for (MaterialLabel materialLabel : materialLabels) {
+                labelSet.add(materialLabel.getMaterialId());
+            }
+        }
+
         //尺码筛选条件
         if (!StringUtils.isEmpty(materialQueryDto.getSizeId())) {
             sizeSet = new HashSet<>();
@@ -383,7 +392,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (CollUtil.isNotEmpty(labelList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(labelList);
-            materialLinkageVo.setGroup("labelId");
+            materialLinkageVo.setGroup("素材名称");
             list.add(materialLinkageVo);
         }
         // 素材名称相关
@@ -391,7 +400,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (CollUtil.isNotEmpty(materialNameList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(materialNameList);
-            materialLinkageVo.setGroup("materialName");
+            materialLinkageVo.setGroup("标签名称");
             list.add(materialLinkageVo);
         }
         return list;

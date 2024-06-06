@@ -82,6 +82,9 @@ public class MaterialQueryDto extends Page {
     @ApiModelProperty(value = "素材名称集合")
     private List<String> materialNames;
 
+    @ApiModelProperty(value = "标签名称集合")
+    private List<String> labelNames;
+
     @ApiModelProperty(value = "公司标识：0：个人素材上传，1：公司素材上传")
     private String companyFlag;
 }

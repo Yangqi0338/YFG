@@ -12,6 +12,7 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.Pinyin4jUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.material.dto.CategoryIdDto;
@@ -40,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 /**
@@ -120,17 +122,27 @@ public class MaterialController extends BaseController {
 
         //如果仅仅是保存则不提交审核
         if (!materialSaveDto.isSave()){
-            // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
-            Material material = materialService.getById(materialSaveDto.getId());
-            MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
-            BeanUtil.copyProperties(materialSaveDto,materialSaveDto1);
-            BeanUtil.copyProperties(material,materialSaveDto1);
-            if ("2".equals(material.getStatus())) {
-                redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
-            }
-            flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
-                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, BeanUtil.beanToMap(materialSaveDto));
 
+            //从公司素材管理提交审批，静默审批，不用走审批流
+            if ("1".equals(materialSaveDto.getCompanyFlag()) && "0".equals(materialSaveDto.getStatus())){
+                materialSaveDto.setStatus("2");
+                String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getBrandName()).split(",");
+                String time = String.valueOf(System.currentTimeMillis());
+                String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
+                materialSaveDto.setMaterialCode(materialCode);
+            }else {
+                // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
+                Material material = materialService.getById(materialSaveDto.getId());
+                MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
+                BeanUtil.copyProperties(materialSaveDto,materialSaveDto1);
+                BeanUtil.copyProperties(material,materialSaveDto1);
+                if ("2".equals(material.getStatus())) {
+                    redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
+                }
+                flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
+                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, BeanUtil.beanToMap(materialSaveDto));
+
+            }
         }
 
         ////修改关联尺码

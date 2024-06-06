@@ -44,4 +44,11 @@ public class MaterialLabelServiceImpl extends BaseServiceImpl<MaterialLabelMappe
     public List<MaterialChildren> linkageQuery(String search,  List<String> materialCategoryIds) {
         return this.getBaseMapper().linkageQuery(search, materialCategoryIds);
     }
+
+    @Override
+    public List<MaterialLabel> getByLabelNames(List<String> labelNames) {
+        QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
+        queryWrapper.in("label_name",labelNames);
+        return materialLabelMapper.selectList(queryWrapper);
+    }
 }

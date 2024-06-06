@@ -4,7 +4,7 @@
 
     <select id="linkageQuery" resultType="com.base.sbc.module.material.vo.MaterialChildren">
         select
-            label_name as label , label_id as 'value'
+            label_name as label , label_name as 'value'
         from t_material_label tml
         where
         del_flag = '0'
@@ -17,6 +17,6 @@
             </foreach>
             )
         </if>
-        group by label_id , label_name
+        group by  label_name
     </select>
 </mapper>
