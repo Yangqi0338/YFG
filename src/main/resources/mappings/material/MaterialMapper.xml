@@ -69,9 +69,9 @@
             </foreach>
 
         </if>
-        <if test="materialNames != null and materialNames.size > 0">
+        <if test="materialNameList != null and materialNameList.size > 0">
             and tm.material_name in
-            <foreach collection="materialNames" item="materialName" separator="," open="(" close=")">
+            <foreach collection="materialNameList" item="materialName" separator="," open="(" close=")">
                 #{materialName}
             </foreach>
         </if>

@@ -100,9 +100,9 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         }
 
         //标签名称筛选条件
-        if (CollUtil.isNotEmpty(materialQueryDto.getMaterialNames())) {
+        if (StringUtils.isNotEmpty(materialQueryDto.getLabelNames())) {
             labelSet = new HashSet<>();
-            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(materialQueryDto.getMaterialNames());
+            List<MaterialLabel> materialLabels = materialLabelService.getByLabelNames(StringUtils.convertList(materialQueryDto.getLabelNames()));
             for (MaterialLabel materialLabel : materialLabels) {
                 labelSet.add(materialLabel.getMaterialId());
             }
@@ -140,6 +140,10 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
 
         if (StringUtils.isNotEmpty(materialQueryDto.getPatternTypes())){
             materialQueryDto.setPatternTypeList(StringUtils.convertList(materialQueryDto.getPatternTypes()));
+        }
+
+        if (StringUtils.isNotEmpty(materialQueryDto.getMaterialNames())){
+            materialQueryDto.setMaterialNameList(StringUtils.convertList(materialQueryDto.getMaterialNames()));
         }
 
     }
@@ -400,7 +404,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (CollUtil.isNotEmpty(materialNameList)){
             MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
             materialLinkageVo.setChildren(materialNameList);
-            materialLinkageVo.setGroup("标签名称");
+            materialLinkageVo.setGroup("素材名称");
             list.add(materialLinkageVo);
         }
         return list;
