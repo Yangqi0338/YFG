@@ -117,8 +117,8 @@ public class EsOrderBookServiceImpl extends BaseServiceImpl<EsOrderBookMapper, E
         StylePricingSearchDTO stylePricingSearchDTO = new StylePricingSearchDTO();
         stylePricingSearchDTO.setCompanyCode(getCompanyCode());
         QueryWrapper<Object> queryWrapper = new QueryWrapper<>().in("p.id", packId);
-        List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingList(stylePricingSearchDTO, queryWrapper);
-        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true);
+        List<StylePricingVO> stylePricingList = stylePricingService.getBaseMapper().getStylePricingByLine(stylePricingSearchDTO, queryWrapper);
+        stylePricingService.dataProcessing(stylePricingList, getCompanyCode(), true, true);
         Map<String, StylePricingVO> collect = stylePricingList.stream().collect(Collectors.toMap(StylePricingVO::getId, o -> o, (v1, v2) -> v1));
         for (EsOrderBookItemVo esOrderBookItemVo : list) {
             if (collect.containsKey(esOrderBookItemVo.getPackId())) {
