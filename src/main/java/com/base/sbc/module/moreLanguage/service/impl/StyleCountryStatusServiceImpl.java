@@ -160,7 +160,7 @@ public class StyleCountryStatusServiceImpl extends BaseServiceImpl<StyleCountryS
         dataPermissionsService.getDataPermissionsForQw(qw, DataPermissionsBusinessTypeEnum.hangTagList.getK(), MoreLanguageProperties.hangTagMainDbAlias, null, false);
 
         searchDTO.setCompanyCode(userUtils.getCompanyCode());
-        return hangTagMapper.queryList(searchDTO, qw);
+        return hangTagMapper.queryList1(searchDTO, qw);
     }
 
     @Override

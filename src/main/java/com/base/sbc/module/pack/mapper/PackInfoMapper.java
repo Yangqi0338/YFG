@@ -39,6 +39,7 @@ public interface PackInfoMapper extends BaseMapper<PackInfo> {
 
 
     List<PackInfoListVo> queryByListQw(@Param(Constants.WRAPPER) QueryWrapper<PackInfo> qw);
+    List<PackInfoListVo> queryByListQw_COUNT(@Param(Constants.WRAPPER) QueryWrapper<PackInfo> qw);
 
     /**
      * 核价管理选择制版单列表

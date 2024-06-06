@@ -1,6 +1,7 @@
 package com.base.sbc.module.orderbook.vo;
 
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.pack.utils.PackUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -231,7 +232,9 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     private String bomVersionId;
 
-    private String packType;
+    public String getPackType(){
+        return PackUtils.getCodeByBomStatus(this.getBomStatus());
+    }
     private String foreignId;
 
 

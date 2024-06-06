@@ -179,6 +179,7 @@
 		select max(material_code)
 		from t_basicsdatum_material ${ ew.customSqlSegment}
     </select>
+
     <select id="listSku" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
 		SELECT
 			tbm.*,
@@ -189,10 +190,145 @@
 			tbmc.supplier_color_code
 		FROM
 			t_basicsdatum_material tbm
-			LEFT JOIN t_basicsdatum_material_color tbmc on  tbmc.material_code = tbm.material_code and tbmc.del_flag='0'
-			LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code and select_flag ='1'   and tbmp.del_flag='0'
-			    ${ew.customSqlSegment}
+				LEFT JOIN t_basicsdatum_material_color tbmc on  tbmc.material_code = tbm.material_code and tbmc.del_flag='0'
+				LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code and select_flag ='1'   and tbmp.del_flag='0'
+			${ew.customSqlSegment}
+	</select>
 
+
+	<select id="getMaterialSkuList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
+		SELECT
+		<if test="ew.sqlSelect != null and ew.sqlSelect != ''">
+			${ew.sqlSelect}
+		</if>
+		<if test="ew.sqlSelect == null or ew.sqlSelect == ''">
+			md5(uuid()) as ids,
+		    tbm.id,
+			tbm.distribute,
+			tbm.category1_code,
+			tbm.category1_name,
+			tbm.category2_code,
+			tbm.category2_name,
+			tbm.category3_code,
+			tbm.category3_name,
+			tbm.category_id,
+			tbm.category_name,
+			tbm.material_code_name,
+			tbm.supplier_name,
+			tbm.supplier_fabric_code,
+			tbm.factory_composition,
+			tbm.stock_unit_code,
+			tbm.stock_unit_name,
+			tbmp.order_day,
+			tbm.specification,
+			tbm.gram_weight,
+			tbm.is_protection,
+			tbmp.width_name,
+			tbm.supplier_color_say,
+			tbm.image_url,
+			tbm.material_code,
+			tbm.status,
+			tbm.confirm_status,
+			tbm.material_name,
+			tbm.brand,
+			tbm.brand_name,
+			tbm.year,
+			tbm.year_name,
+			tbm.season,
+			tbm.season_name,
+			tbm.material_category_name,
+			tbm.ingredient,
+			tbm.proc_mode_name,
+			tbm.picking_method,
+			tbm.picking_method_name,
+			tbm.material_source,
+			tbm.material_source_name,
+			tbm.dev_name,
+			tbm.purchase_dept,
+			tbm.purchase_dept_name,
+			tbm.purchase_id,
+			tbm.purchase_name,
+			tbm.total_inventory,
+			tbm.inventory_availability,
+			tbm.fabric_difficulty,
+			tbm.fabric_difficulty_name,
+			tbm.remarks,
+			tbm.quality_level_name,
+			tbm.purchase_unit_code,
+			tbm.purchase_unit_name,
+			tbm.purchase_convert_stock,
+			tbm.ingredient_say,
+			tbm.fabric_sale_point,
+			tbm.embryonic_cycle,
+			tbm.embryonic_free_cycle,
+			tbm.replenishment_production_cycle,
+			tbm.density,
+			tbm.weave_type_name,
+			tbm.embryo_type_name,
+			tbm.fabric_property_type_name,
+			tbm.auxiliary_material,
+			tbm.check_bill_code,
+			tbm.check_company_name,
+			tbm.check_result,
+			tbm.check_date,
+			tbm.check_valid_date,
+			tbm.fabric_difficulty_score_name,
+			tbm.fabric_evaluation,
+			tbm.risk_description,
+			tbm.create_name,
+			tbm.create_date,
+			tbm.update_name,
+			tbm.update_date,
+			tbm.width_group,
+			tbm.width_group_name,
+			tbmc.color_code,
+			tbmc.color_name,
+			tbmp.quotation_price,
+			tbmp.supplier_material_code,
+			tbmc.supplier_color_code,
+			(SELECT GROUP_CONCAT(tbmw.NAME) FROM t_basicsdatum_material_width tbmw WHERE tbmw.del_flag = 0 and tbmw.material_code = tbm.material_code GROUP BY tbmw.material_code) as widthName,
+			temcic.remark as fabricEvaluation,
+			temcic.company_full_name as checkCompanyName,
+			temcic.check_date as checkDate,
+			temcic.validity_time as checkValidDate,
+			temcic.send_inspect_content as checkItems,
+			temcic.maker_by_name as checkOrderUserName,
+			temcic.file_url as checkFileUrl
+		</if>
+		FROM
+		t_basicsdatum_material tbm
+		LEFT JOIN t_basicsdatum_material_color tbmc on tbmc.material_code = tbm.material_code AND tbmc.company_code = tbm.company_code AND tbmc.del_flag='0'
+		LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'
+		LEFT JOIN t_escm_material_component_inspect_company temcic ON temcic.id = (
+		select id from t_escm_material_component_inspect_company  where materials_no = tbm.material_code ORDER BY YEAR DESC, validity_time DESC limit 1)
+		${ew.customSqlSegment}
+	</select>
+
+	<select id="getMaterialSkuList_COUNT" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageVo">
+		SELECT
+		count(*)
+		FROM
+		t_basicsdatum_material tbm
+		<where>
+			<if test="ew.hasAlias('tbmc')">
+				and EXISTS(select id from t_basicsdatum_material_color tbmc where
+				tbmc.material_code = tbm.material_code AND tbmc.company_code = tbm.company_code AND tbmc.del_flag='0'
+				and ${ ew.getSqlByAlias('tbmc')})
+			</if>
+			<if test="ew.hasAlias('tbmp')">
+				and EXISTS(select id from t_basicsdatum_material_price tbmp where
+				tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'
+				and ${ ew.getSqlByAlias('tbmp')})
+			</if>
+			<if test="ew.hasAlias('temcic')">
+				and EXISTS(select id from t_escm_material_component_inspect_company temcic where
+				temcic.materials_no = tbm.material_code AND temcic.del_flag='0'
+				and ${ ew.getSqlByAlias('temcic')})
+			</if>
+			<if test="ew.hasAlias('tbm')">
+				and ${ ew.getSqlByAlias('tbm')}
+			</if>
+		</where>
 	</select>
 
 	<select id="getBasicsdatumMaterialAndStyleList" resultType="com.base.sbc.module.basicsdatum.vo.BasicsdatumMaterialPageAndStyleVo">
@@ -238,6 +374,18 @@
 									 IF(tsc.bom_status = 0, 'packDesign', 'packBigGoods') = tpbv.pack_type
 					   LEFT JOIN t_basicsdatum_supplier tbs ON tpb.supplier_id = tbs.supplier_code) t
 			${ew.customSqlSegment}
+	</select>
+
+	<select id="getCategoryMaxCode" resultType="java.lang.String">
+		SELECT LPAD(t.suffix + 1, 5, '0')
+			FROM
+		    (SELECT REPLACE(material_code, #{category3Code}, '') AS suffix FROM t_basicsdatum_material WHERE material_code LIKE concat(#{category3Code},'%') AND material_code NOT LIKE '%-%' AND length(REPLACE(material_code, #{category3Code}, '')) = 5) t
+		LEFT JOIN
+			(SELECT REPLACE(material_code, #{category3Code}, '') AS suffix FROM t_basicsdatum_material WHERE material_code LIKE concat(#{category3Code},'%') AND material_code NOT LIKE '%-%' AND length(REPLACE(material_code, #{category3Code}, '')) = 5) t1
+		ON t.suffix + 1 = t1.suffix
+		WHERE t1.suffix is null  and t.suffix >= 0
+		ORDER BY t.suffix
+		limit 1
 	</select>
 
 
