@@ -19,6 +19,11 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @TableName("t_material")
 public class Material extends BaseDataEntity<String> {
+
+
+    @ApiModelProperty(value = "素材名称")
+    private String materialName;
+
     @ApiModelProperty(value = "素材编码")
     private String materialCode;
 
@@ -95,7 +100,7 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "风险评估")
     private String riskAssessment;
 
-    @ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
+    @ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过, 4：待提交）")
     private String status;
 
     @ApiModelProperty(value = "图片地址")

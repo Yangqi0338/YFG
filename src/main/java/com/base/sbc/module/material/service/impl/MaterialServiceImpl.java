@@ -20,10 +20,13 @@ import com.base.sbc.module.material.entity.*;
 import com.base.sbc.module.material.mapper.MaterialMapper;
 import com.base.sbc.module.material.service.*;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
+import com.base.sbc.module.material.vo.MaterialChildren;
+import com.base.sbc.module.material.vo.MaterialLinkageVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -369,5 +372,28 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         List<AssociationMaterialVo> collect = result.values().stream().collect(Collectors.toList());
 
         return collect;
+    }
+
+    @Override
+    public List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds) {
+        List<MaterialLinkageVo> list = Lists.newArrayList();
+        //素材标签相关
+        List<String> materialCategoryIdList = StringUtils.convertList(materialCategoryIds);
+        List<MaterialChildren> labelList = materialLabelService.linkageQuery(search,materialCategoryIdList);
+        if (CollUtil.isNotEmpty(labelList)){
+            MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
+            materialLinkageVo.setChildren(labelList);
+            materialLinkageVo.setGroup("labelId");
+            list.add(materialLinkageVo);
+        }
+        // 素材名称相关
+        List<MaterialChildren> materialNameList = this.getBaseMapper().linkageQueryName(search,materialCategoryIdList);
+        if (CollUtil.isNotEmpty(materialNameList)){
+            MaterialLinkageVo materialLinkageVo = new MaterialLinkageVo();
+            materialLinkageVo.setChildren(materialNameList);
+            materialLinkageVo.setGroup("materialName");
+            list.add(materialLinkageVo);
+        }
+        return list;
     }
 }

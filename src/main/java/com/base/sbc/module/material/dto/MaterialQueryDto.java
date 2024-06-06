@@ -78,4 +78,7 @@ public class MaterialQueryDto extends Page {
 
     @ApiModelProperty(value = "运用手法")
     private String useSkill;
+
+    @ApiModelProperty(value = "素材名称集合")
+    private List<String> materialNames;
 }

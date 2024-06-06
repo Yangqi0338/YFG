@@ -2,6 +2,7 @@ package com.base.sbc.module.material.service;
 
 import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.material.entity.MaterialLabel;
+import com.base.sbc.module.material.vo.MaterialChildren;
 
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface MaterialLabelService extends BaseService<MaterialLabel> {
      * 根据label_id集合查询列表
      */
     List<MaterialLabel> getByLabelIds(List<String> labelId);
+
+    List<MaterialChildren> linkageQuery(String search,  List<String> materialCategoryIds);
 }

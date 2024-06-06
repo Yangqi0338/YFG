@@ -24,6 +24,7 @@ import com.base.sbc.module.material.entity.Test;
 import com.base.sbc.module.material.service.MaterialLabelService;
 import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
+import com.base.sbc.module.material.vo.MaterialLinkageVo;
 import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
 import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
 import com.google.common.collect.Lists;
@@ -273,6 +274,20 @@ public class MaterialController extends BaseController {
         uw.lambda().set(Material::getEnableFlag,dto.getEnableFlag());
         boolean b = materialService.update(uw);
         return b ? ApiResult.success("修改成功") :  ApiResult.success("修改失败",500);
+    }
+
+
+    /**
+     * 模糊联动查询
+     */
+    @GetMapping("/linkageQuery")
+    @ApiOperation(value = "模糊联动查询", notes = "模糊联动查询")
+    public ApiResult linkageQuery(String search, String materialCategoryIds) {
+        if (StringUtils.isEmpty(search)){
+            return ApiResult.success();
+        }
+        List<MaterialLinkageVo> list = materialService.linkageQuery(search,materialCategoryIds);
+        return updateSuccess(list);
     }
 
 }
