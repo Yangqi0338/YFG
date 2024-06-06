@@ -21,4 +21,5 @@ public class BasicsdatumMaterialWidthSaveDto extends BasicsdatumMaterialWidth {
 	@ApiModelProperty(value = "id", required = true)
 	private String id;
 	private String parentId;
+	private String oldWidthCode;
 }

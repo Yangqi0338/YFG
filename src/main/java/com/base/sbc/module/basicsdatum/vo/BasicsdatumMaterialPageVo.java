@@ -386,4 +386,9 @@ public class BasicsdatumMaterialPageVo extends BaseDataEntity<String> {
 	private String orderDay;
 
 	private String widthName;
+
+	/**
+	 * 列头筛选数量
+	 */
+	private Integer groupCount;
 }

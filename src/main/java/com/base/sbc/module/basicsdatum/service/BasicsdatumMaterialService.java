@@ -16,6 +16,7 @@ import com.base.sbc.module.common.service.BaseService;
 import com.base.sbc.module.fabricsummary.entity.FabricSummary;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.vo.BomSelMaterialVo;
+import com.base.sbc.module.report.dto.MaterialColumnHeadDto;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +37,7 @@ import java.util.Map;
 public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMaterial> {
 
 	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialList(BasicsdatumMaterialQueryDto dto);
+	PageInfo<BasicsdatumMaterialPageVo> getBasicsdatumMaterialNewList(MaterialColumnHeadDto dto);
 
 	BasicsdatumMaterialVo saveBasicsdatumMaterial(BasicsdatumMaterialSaveDto dto);
 
@@ -184,5 +186,21 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	List<BasicsdatumMaterialColorSelectVo> getMaterialCodes(String materialCode);
 
 	FabricSummary getMaterialSummaryInfo(String materialCode);
+
+	/**
+	 * 修改
+	 * 物料编码 改变材料名称
+	 * 物料名称 改变材料名称
+	 * 材料三级分类 修改物料编码前缀和材料
+	 * @param basicsdatumMaterialUpdateDto
+	 */
+	BasicsdatumMaterialUpdateVo updateMaterialProperties(BasicsdatumMaterialUpdateDto basicsdatumMaterialUpdateDto);
+
+	/**
+	 * 检查物料是否被BOM引用
+	 * @param materialCode
+	 * @return
+	 */
+	Integer materialRelyOnBom(String materialCode);
 }
 
