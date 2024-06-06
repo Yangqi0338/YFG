@@ -1614,6 +1614,27 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         return styleService.queryDimensionLabels(dto);
     }
 
+    /**
+     * 查询款式配色设计维度数据
+     *
+     * @param id 配色id
+     * @return
+     */
+    @Override
+    public List<FieldManagementVo> getStyleDynamicDataById(String id) {
+        if (StringUtils.isBlank(id)) {
+            throw new OtherException("配色id不能为空");
+        }
+        StyleColor styleColor = baseMapper.selectById(id);
+        Style style = styleService.getById(styleColor.getStyleId());
+        DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
+        BeanUtil.copyProperties(style, dto);
+        dto.setId(styleColor.getStyleId());
+        dto.setForeignId(id);
+        dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+        return styleService.queryDimensionLabels(dto);
+    }
+
     @Override
     public List<FieldVal> ListDynamicDataByIds(List<String> ids) {
         if (ids==null || ids.isEmpty()){

@@ -73,6 +73,7 @@ import com.base.sbc.module.pack.vo.BomSelMaterialVo;
 import com.base.sbc.module.pack.vo.PackInfoListVo;
 import com.base.sbc.module.patternmaking.entity.PatternMaking;
 import com.base.sbc.module.patternmaking.service.PatternMakingService;
+import com.base.sbc.module.planning.dto.DimensionLabelsSearchDto;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.service.StylePricingService;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
@@ -359,7 +360,13 @@ public class SmpService {
             List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(new FieldBusinessSystemQueryDto());
             Map<String, List<FieldBusinessSystemVo>> collect = businessSystemList.stream().collect(Collectors.groupingBy(FieldBusinessSystemVo::getBusinessType));
 
-            List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
+            DimensionLabelsSearchDto dto = new DimensionLabelsSearchDto();
+            BeanUtil.copyProperties(style, dto);
+            dto.setId(style.getId());
+            dto.setForeignId(style.getId());
+            dto.setDataGroup(FieldValDataGroupConstant.SAMPLE_DESIGN_TECHNOLOGY);
+            List<FieldManagementVo> fieldManagementVoList = styleService.queryDimensionLabels(dto);
+            //List<FieldManagementVo> fieldManagementVoList = styleColorService.getStyleColorDynamicDataById(styleColor.getId());
             Map<String, FieldManagementVo> collect1 = fieldManagementVoList.stream().collect(Collectors.toMap(FieldManagementVo::getFieldName, o -> o, (v1, v2) -> v1));
 
             Map<String,List<GoodsDynamicFieldDto>>  goodsDynamicFieldMap = new HashMap<>();
