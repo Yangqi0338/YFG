@@ -10,10 +10,13 @@ import com.base.sbc.client.flowable.vo.FlowQueryVo;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseController;
+import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.StylePicUtils;
 import com.base.sbc.module.common.service.AttachmentService;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.material.entity.Material;
+import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.style.entity.Style;
 import com.base.sbc.module.style.service.StyleService;
 import com.base.sbc.module.task.vo.FlowTaskDto;
@@ -27,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +51,10 @@ public class TaskController {
     private final StyleService styleService;
 
     private final StylePicUtils stylePicUtils;
+
+    private final MaterialService materialService;
+
+    private final MinioUtils minioUtils;
 
     @ApiOperation(value = "获取待办列表", response = FlowTaskDto.class)
     @GetMapping(value = "/todoList")
@@ -98,7 +106,13 @@ public class TaskController {
                     }
 
                 }
-
+                if (StrUtil.isNotBlank(contentApproval) &&  procDefName.contains("素材审批")){
+                    Material material = materialService.getById(flowTaskDto.getBusinessKey());
+                    if (!Objects.isNull(material)){
+                        minioUtils.setObjectUrlToObject(material, "picUrl");
+                        flowTaskDto.setPic(material.getPicUrl());
+                    }
+                }
 
                 // List<String> ids = data.stream().map(FlowTaskDto::getPic).filter(res -> !StringUtils.isEmpty(res) ).collect(Collectors.toList());
                 // if (!ids.isEmpty()){

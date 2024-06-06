@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.client.flowable.service.FlowableService;
 import com.base.sbc.config.common.ApiResult;
@@ -11,8 +12,11 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.utils.CommonUtils;
+import com.base.sbc.config.utils.Pinyin4jUtil;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.UserUtils;
 import com.base.sbc.module.material.dto.CategoryIdDto;
+import com.base.sbc.module.material.dto.MaterialEnableDto;
 import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.Material;
@@ -21,6 +25,10 @@ import com.base.sbc.module.material.entity.Test;
 import com.base.sbc.module.material.service.MaterialLabelService;
 import com.base.sbc.module.material.service.MaterialService;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
+import com.base.sbc.module.material.vo.MaterialLinkageVo;
+import com.base.sbc.module.planning.entity.PlanningCategoryItemMaterial;
+import com.base.sbc.module.planning.service.PlanningCategoryItemMaterialService;
+import com.google.common.collect.Lists;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +38,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * @author 卞康
@@ -53,6 +64,8 @@ public class MaterialController extends BaseController {
     private final FlowableService flowableService;
 
     private final RedisTemplate<String,Object> redisTemplate;
+
+    private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
     /**
      * 新增
@@ -93,7 +106,7 @@ public class MaterialController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改素材", notes = "修改素材")
     public ApiResult update(@RequestBody MaterialSaveDto materialSaveDto) {
-        if (!userUtils.getUserId().equals(materialSaveDto.getCreateId())) {
+        if (!userUtils.getUserId().equals(materialSaveDto.getCreateId()) && !"1".equals(materialSaveDto.getMaterialManagerStaff())) {
             throw new OtherException("只有创建人才能修改");
         }
         //if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
@@ -109,17 +122,26 @@ public class MaterialController extends BaseController {
 
         //如果仅仅是保存则不提交审核
         if (!materialSaveDto.isSave()){
-            // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
-            Material material = materialService.getById(materialSaveDto.getId());
-            MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
-            BeanUtil.copyProperties(materialSaveDto,materialSaveDto1);
-            BeanUtil.copyProperties(material,materialSaveDto1);
-            if ("2".equals(material.getStatus())) {
-                redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
-            }
-            flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
-                    "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, BeanUtil.beanToMap(materialSaveDto));
+            //从公司素材管理提交审批，静默审批，不用走审批流
+            if ("1".equals(materialSaveDto.getCompanyFlag()) && "1".equals(materialSaveDto.getStatus())){
+                materialSaveDto.setStatus("2");
+                String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getBrandName()).split(",");
+                String time = String.valueOf(System.currentTimeMillis());
+                String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
+                materialSaveDto.setMaterialCode(materialCode);
+            }else {
+                // TODO: 2023/5/20 临时修改，保留之前的素材状态信息，驳回则恢复
+                Material material = materialService.getById(materialSaveDto.getId());
+                MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
+                BeanUtil.copyProperties(materialSaveDto,materialSaveDto1);
+                BeanUtil.copyProperties(material,materialSaveDto1);
+                if ("2".equals(material.getStatus())) {
+                    redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
+                }
+                flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",
+                        "/pdm/api/saas/material/toExamine", "/pdm/api/saas/material/getById?id=" + materialSaveDto.getId(), null, BeanUtil.beanToMap(materialSaveDto));
 
+            }
         }
 
         ////修改关联尺码
@@ -154,6 +176,23 @@ public class MaterialController extends BaseController {
     @DeleteMapping("/delByIds")
     @Transactional(rollbackFor = {Exception.class})
     public ApiResult delByIds(String[] ids) {
+        if (ids.length < 1){
+            return deleteSuccess(true);
+        }
+        QueryWrapper<Material> qw = new QueryWrapper<>();
+        qw.lambda().in(Material::getId, Lists.newArrayList(ids));
+        qw.lambda().eq(Material::getStatus,"2");
+        List<Material> list = materialService.list(qw);
+        if (CollUtil.isNotEmpty(list)){
+            //检查是否被引用
+            QueryWrapper<PlanningCategoryItemMaterial> qw1 = new QueryWrapper<>();
+            qw1.lambda().eq(PlanningCategoryItemMaterial::getDelFlag,"0");
+            qw1.lambda().in(PlanningCategoryItemMaterial::getMaterialId, list.stream().map(Material::getId).collect(Collectors.toList()));
+            long count = planningCategoryItemMaterialService.count(qw1);
+            if (count > 0){
+                return ApiResult.error("此素材有被引用，不允许删除！",500);
+            }
+        }
         return deleteSuccess(materialService.removeBatchByIds(Arrays.asList(ids)));
     }
 
@@ -230,4 +269,36 @@ public class MaterialController extends BaseController {
         List<Material> materials = materialService.listByIds(Collections.singletonList(ids));
         return selectSuccess(materials);
     }
+
+    @PostMapping("/agentEnable")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "素材的启用/停用", notes = "素材的启用/停用")
+    public ApiResult agentEnable(@RequestBody @Valid MaterialEnableDto dto) {
+        if (StringUtils.isBlank(dto.getEnableFlag())){
+            throw new OtherException("无启用/停用信息");
+        }
+        if (StringUtils.isBlank(dto.getId())){
+            return ApiResult.success();
+        }
+        UpdateWrapper<Material> uw = new UpdateWrapper<>();
+        uw.lambda().in(Material::getId, StringUtils.convertList(dto.getId()));
+        uw.lambda().set(Material::getEnableFlag,dto.getEnableFlag());
+        boolean b = materialService.update(uw);
+        return b ? ApiResult.success("修改成功") :  ApiResult.success("修改失败",500);
+    }
+
+
+    /**
+     * 模糊联动查询
+     */
+    @GetMapping("/linkageQuery")
+    @ApiOperation(value = "模糊联动查询", notes = "模糊联动查询")
+    public ApiResult linkageQuery(String search, String materialCategoryIds) {
+        if (StringUtils.isEmpty(search)){
+            return ApiResult.success();
+        }
+        List<MaterialLinkageVo> list = materialService.linkageQuery(search,materialCategoryIds);
+        return updateSuccess(list);
+    }
+
 }
