@@ -258,6 +258,10 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
         Page<Object> objects = PageHelper.startPage(queryDto);
 
+        if(StrUtil.equals("colorBatch",queryDto.getBusinessType())){
+            queryWrapper.ne("scm_send_flag","0");
+        }
+
 
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
@@ -1077,9 +1081,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.ne("scm_send_flag", BaseGlobal.YES);*/
         List<StyleColor> styleColorList = baseMapper.getStyleMainAccessories(StringUtils.convertList(ids));
         /*查询配色是否下发*/
-        if (CollectionUtils.isEmpty(styleColorList)) {
-            throw new OtherException("存在已下发数据");
+        if(!StrUtil.equals("1",queryStyleColorDto.getRePushFlag()) || StrUtil.isEmpty(queryStyleColorDto.getTargetBusinessSystem())){
+            //不是从下发界面推送时判断，是否解锁
+            if (CollectionUtils.isEmpty(styleColorList)) {
+                throw new OtherException("存在已下发数据");
+            }
         }
+
         List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getId).collect(Collectors.toList());
 
         /*禁止下发未关联bom数据*/
