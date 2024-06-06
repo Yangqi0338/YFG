@@ -220,7 +220,6 @@ public class SmpService {
         }
 
         for (StyleColor styleColor : styleColors) {
-
             List<StyleMainAccessories> mainAccessoriesList = styleMainAccessoriesService.styleMainAccessoriesList(styleColor.getId(), null);
             if (CollUtil.isNotEmpty(mainAccessoriesList)) {
                 String styleNos = mainAccessoriesList.stream().map(StyleMainAccessories::getStyleNo).collect(Collectors.joining(","));
@@ -233,6 +232,8 @@ public class SmpService {
                     styleColor.setPrincipalStyleNo(styleNos);
                 }
             }
+
+
             SmpGoodsDto smpGoodsDto = styleColor.toSmpGoodsDto();
             //吊牌价为空或者等于0
             if (styleColor.getTagPrice()==null || styleColor.getTagPrice().compareTo(BigDecimal.ZERO)==0){
@@ -254,6 +255,7 @@ public class SmpService {
                 }
             }
 
+            smpGoodsDto.setSendMainFabricDate(styleColor.getSendMainFabricDate());
             smpGoodsDto.setColorCrash(styleColor.getColorCrash());
             smpGoodsDto.setMaxClassName(style.getProdCategory1stName());
             smpGoodsDto.setStyleBigClass(style.getProdCategory1st());

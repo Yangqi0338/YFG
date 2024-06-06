@@ -1145,6 +1145,41 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         }
     }
 
+    @Override
+    public ApiResult checkAccessoryRelatedMainStyle(String ids) {
+        if (StringUtils.isBlank(ids)) {
+            throw new OtherException("ids为空");
+        }
+        List<StyleColor> styleColorList = baseMapper.getStyleMainAccessories(StringUtils.convertList(ids));
+        String result = "";
+        for (StyleColor styleColor : styleColorList) {
+            //验证配饰款是否绑定主款号
+            result = result + checkAccessoriesMainStyleNo(styleColor);
+        }
+
+        if (StrUtil.isNotBlank(result)) {
+            return ApiResult.error(result,BaseErrorEnum.ERR_ACCESSORIES_NOT_RELATE_MAIN_STYLE.getErrorCode());
+        }
+        return ApiResult.success();
+    }
+
+
+    /**
+     * 判断配饰款是否绑定主款号
+     * @param styleColor
+     */
+    private static String checkAccessoriesMainStyleNo(StyleColor styleColor) {
+        //region 1.检查款号最后一位是不是P结尾的，2。 判断是否有主款号，没有就报错
+        String styleColorNo = styleColor.getStyleNo();
+        if (StrUtil.isNotBlank(styleColorNo) && styleColorNo.contains("P")) {
+            String lastStr = styleColorNo.substring(styleColorNo.length() - 1);
+            if ("P".equals(lastStr) && StrUtil.isEmpty(styleColor.getPrincipalStyleNo())) {
+                return "该配饰款：【" + styleColorNo + "】没有绑定主款号！";
+            }
+        }
+        return null;
+        //endregion
+    }
     /**
      * 方法描述 获取款式下的颜色
      *
