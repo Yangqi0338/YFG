@@ -623,8 +623,8 @@ public class SmpService {
                 List<HangTagIngredient> hangTagIngredients = hangTagIngredientService.list(hangTagIngredientQueryWrapper);
                 List<SmpHangTagIngredientDTO> smpHangTagIngredientDTOList = new ArrayList();
                 if (CollUtil.isNotEmpty(hangTagIngredients)) {
-                    for (SmpHangTagIngredientDTO smpHangTagIngredientDTO : smpHangTagIngredientDTOList) {
-                        SmpHangTagIngredientDTO hangTagIngredientDTO = BeanUtil.copyProperties(smpHangTagIngredientDTO, SmpHangTagIngredientDTO.class);
+                    for (HangTagIngredient hangTagIngredient : hangTagIngredients) {
+                        SmpHangTagIngredientDTO hangTagIngredientDTO = BeanUtil.copyProperties(hangTagIngredient, SmpHangTagIngredientDTO.class);
                         smpHangTagIngredientDTOList.add(hangTagIngredientDTO);
                     }
                 }

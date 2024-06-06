@@ -21,7 +21,7 @@ import java.math.BigDecimal;
  */
 @Data
 @ApiModel(value = "吊牌成分信息详情")
-public class SmpHangTagIngredientDTO extends BaseDto {
+public class SmpHangTagIngredientDTO {
     /**
      * 类型
      */
