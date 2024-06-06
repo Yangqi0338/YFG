@@ -122,9 +122,8 @@ public class MaterialController extends BaseController {
 
         //如果仅仅是保存则不提交审核
         if (!materialSaveDto.isSave()){
-
             //从公司素材管理提交审批，静默审批，不用走审批流
-            if ("1".equals(materialSaveDto.getCompanyFlag()) && "0".equals(materialSaveDto.getStatus())){
+            if ("1".equals(materialSaveDto.getCompanyFlag()) && "1".equals(materialSaveDto.getStatus())){
                 materialSaveDto.setStatus("2");
                 String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getBrandName()).split(",");
                 String time = String.valueOf(System.currentTimeMillis());
