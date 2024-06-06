@@ -106,7 +106,7 @@ public class MaterialController extends BaseController {
     @Transactional(rollbackFor = {Exception.class})
     @ApiOperation(value = "修改素材", notes = "修改素材")
     public ApiResult update(@RequestBody MaterialSaveDto materialSaveDto) {
-        if (!userUtils.getUserId().equals(materialSaveDto.getCreateId())) {
+        if (!userUtils.getUserId().equals(materialSaveDto.getCreateId()) && !"1".equals(materialSaveDto.getMaterialManagerStaff())) {
             throw new OtherException("只有创建人才能修改");
         }
         //if (BasicNumber.ZERO.getNumber().equals(materialSaveDto.getStatus())){
