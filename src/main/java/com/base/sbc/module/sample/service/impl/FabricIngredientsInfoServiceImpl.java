@@ -147,7 +147,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
             fabricIngredientsInfo.setCompanyCode(baseController.getUserCompany());
             fabricIngredientsInfo.insertInit();
             CommonUtils.removeQuery(fabricIngredientsInfo,"imageUrl");
-            fabricIngredientsInfo.setCreateDeptId(getVirtualDetpIds());
+            fabricIngredientsInfo.setCreateDeptId(getVirtualDeptIds());
             this.save(fabricIngredientsInfo);
             if(CollUtil.isNotEmpty(list)){
                 list.forEach(l -> {

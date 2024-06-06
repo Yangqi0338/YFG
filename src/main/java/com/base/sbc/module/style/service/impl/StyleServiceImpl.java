@@ -759,6 +759,11 @@ public class StyleServiceImpl extends BaseServiceImpl<StyleMapper, Style> implem
         style.setCheckStartTime(new Date());
         updateById(style);
         Map<String, Object> variables = BeanUtil.beanToMap(style);
+        // 获取当前人所在的虚拟部门
+        String virtualDeptIds = super.getVirtualDeptIds();
+        if (StrUtil.isNotBlank(virtualDeptIds)) {
+            variables.put("sendDeptId", virtualDeptIds);
+        }
         // 查询附件
         // List<AttachmentVo> attachmentVoList1 = attachmentService.findByforeignId(id, AttachmentTypeConstant.SAMPLE_DESIGN_FILE_APPROVE_PIC);
         // String url = "";

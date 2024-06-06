@@ -141,7 +141,7 @@ public class OrderBookServiceImpl extends BaseServiceImpl<OrderBookMapper,OrderB
         if (StrUtil.isNotBlank(dto.getId())){
             this.updateById(dto);
         }else {
-            dto.setCreateDeptId(getVirtualDetpIds());
+            dto.setCreateDeptId(getVirtualDeptIds());
             this.save(dto);
         }
         return this.getById(dto.getId());
