@@ -1066,6 +1066,9 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public ApiResult issueScm(QueryStyleColorDto queryStyleColorDto) {
         String ids = queryStyleColorDto.getIds();
+        if(StrUtil.equals("1",queryStyleColorDto.getRePushFlag())){
+            ids = String.join(",", queryStyleColorDto.getIdsMap().keySet());
+        }
         if (StringUtils.isBlank(ids)) {
             throw new OtherException("ids为空");
         }
@@ -1107,7 +1110,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
             }
         }
-        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","),queryStyleColorDto.getTargetBusinessSystem());
+        int i = 0;
+        if(StrUtil.equals("1",queryStyleColorDto.getRePushFlag())){
+            i = smpService.goods(queryStyleColorDto.getIdsMap());
+        }else{
+            i = smpService.goods(StringUtils.convertListToString(stringList).split(","),queryStyleColorDto.getTargetBusinessSystem());
+        }
         if (stringList.size() == i) {
             return ApiResult.success("下发：" + stringList.size() + "条，成功：" + i + "条");
         } else {
