@@ -230,7 +230,7 @@ public class StylePricingServiceImpl extends BaseServiceImpl<StylePricingMapper,
         if (isColumnHeard) {
             return new PageInfo<>(stylePricingList);
         }
-        this.dataProcessing(stylePricingList, dto.getCompanyCode(),true);
+        this.dataProcessing(stylePricingList, dto.getCompanyCode(),true, true);
         PageInfo<StylePricingVO> packInfo = new PageInfo<>(stylePricingList);
         return packInfo;
     }
