@@ -20,7 +20,6 @@ import java.util.Date;
 @TableName("t_material")
 public class Material extends BaseDataEntity<String> {
 
-
     @ApiModelProperty(value = "素材名称")
     private String materialName;
 
@@ -100,7 +99,7 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "风险评估")
     private String riskAssessment;
 
-    @ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过, 4：待提交）")
+    @ApiModelProperty(value = "审核状态（0：未提交，1：待审核，2：审核通过，3：审核不通过）")
     private String status;
 
     @ApiModelProperty(value = "图片地址")
@@ -168,5 +167,8 @@ public class Material extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "元素分类")
     private String elementType;
+
+    @ApiModelProperty(value = "公司标识：0：个人素材上传，1：公司素材上传")
+    private String companyFlag;
 
 }

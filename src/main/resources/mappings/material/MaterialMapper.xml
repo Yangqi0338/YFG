@@ -75,6 +75,9 @@
                 #{materialName}
             </foreach>
         </if>
+        <if test="companyFlag != null and companyFlag != ''">
+            and company_flag = #{companyFlag}
+        </if>
         order by create_date desc
     </select>
 
