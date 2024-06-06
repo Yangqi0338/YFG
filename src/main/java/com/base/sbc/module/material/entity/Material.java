@@ -171,4 +171,7 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "公司标识：0：个人素材上传，1：公司素材上传")
     private String companyFlag;
 
+    @ApiModelProperty(value = "素材描述")
+    private String materialRemarks;
+
 }

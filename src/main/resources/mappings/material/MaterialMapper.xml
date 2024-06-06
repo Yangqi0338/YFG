@@ -78,8 +78,8 @@
         <if test="companyFlag != null and companyFlag != ''">
             and company_flag = #{companyFlag}
         </if>
-        <if test="remarks != null and remarks != ''">
-            and remarks like concat('%',#{remarks},'%')
+        <if test="materialRemarks != null and materialRemarks != ''">
+            and material_remarks like concat('%',#{materialRemarks},'%')
         </if>
         <if test="enableFlag != null and enableFlag != ''">
             and enable_flag = #{enableFlag}
