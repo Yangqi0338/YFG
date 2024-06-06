@@ -1192,7 +1192,7 @@ public class PackInfoServiceImpl extends AbstractPackBaseServiceImpl<PackInfoMap
         qw.eq("tpi.company_code", userCompany.getCompanyCode());
         qw.eq("ts.planning_season_id", dto.getPlanningSeasonId());
         qw.in(StringUtils.isNotEmpty(dto.getFormerSupplierCode()),"tpb.supplier_id",StringUtils.convertList(dto.getFormerSupplierCode()));
-        qw.likeRight(StringUtils.isNotEmpty(dto.getSupplierFabricCode()),"tpb.supplier_material_code",dto.getSupplierFabricCode());
+        qw.like(StringUtils.isNotEmpty(dto.getSupplierFabricCode()),"tpb.supplier_material_code",dto.getSupplierFabricCode());
         qw.eq(StringUtils.isNotEmpty(dto.getMaterialCode()),"tpb.material_code", dto.getMaterialCode());
         qw.in(!CollectionUtils.isEmpty(dto.getBomList()),"tpb.id", dto.getBomList());
         qw.in(!CollectionUtils.isEmpty(dto.getStyleNos()),"tsc.style_no", dto.getStyleNos());
