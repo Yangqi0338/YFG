@@ -1,7 +1,6 @@
 package com.base.sbc.module.pushrecords.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -42,12 +41,7 @@ public class PushRecordsController extends BaseController {
     @GetMapping("/queryPage")
     public ApiResult queryPage(PushRecordsDto pushRecordsDto) {
         BaseQueryWrapper<PushRecords> queryWrapper = new BaseQueryWrapper<>();
-        if(StrUtil.equals("0",pushRecordsDto.getResponseStatusCode())){
-            queryWrapper.eq("response_status_code",pushRecordsDto.getResponseStatusCode());
-        }else if(StrUtil.equals("1",pushRecordsDto.getResponseStatusCode())){
-            queryWrapper.ne("response_status_code","0");
-        }
-
+        queryWrapper.notEmptyEq("push_status",pushRecordsDto.getPushStatus());
         queryWrapper.notEmptyIn("module_name",pushRecordsDto.getModuleName());
         queryWrapper.notEmptyIn("function_name",pushRecordsDto.getFunctionName());
         queryWrapper.notEmptyIn("related_id",pushRecordsDto.getRelatedId());
