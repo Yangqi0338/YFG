@@ -16,10 +16,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +76,7 @@ public class PushRecordsController extends BaseController {
      * 重推
      */
     @PostMapping("/batchRePushNewLog")
-    public ApiResult batchRePushNewLog(List<String> ids){
+    public ApiResult batchRePushNewLog(@RequestBody List<String> ids){
         int i = pushRecordsService.batchRePushNewLog(ids);
         if (ids.size() == i) {
             return ApiResult.success("重推：" + ids.size() + "条，成功：" + i + "条");
