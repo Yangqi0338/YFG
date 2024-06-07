@@ -284,12 +284,12 @@ public class BasicsdatumMaterialServiceImpl extends BaseServiceImpl<BasicsdatumM
                     .eq("tbm.category3_code", dto.getCategoryId()));
         }
 
-        PageHelper.startPage(dto);
+
 
         dataPermissionsService.getDataPermissionsForQw(qc, DataPermissionsBusinessTypeEnum.material.getK());
 
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(qc, dto);
-
+        PageHelper.startPage(dto);
         List<BasicsdatumMaterialPageVo> list = baseMapper.getMaterialSkuList(qc);
 
         if (CollUtil.isEmpty(list)) {
