@@ -216,28 +216,16 @@ public class SmpService {
     private FieldBusinessSystemService fieldBusinessSystemService;
 
     public Integer goods(String[] ids) {
-        return goods(ids,null);
+        return goods(ids,null,null);
     }
 
     /**
      * 商品主数据下发
      */
-    public Integer goods(String[] ids,String targetBusinessSystem) {
-        Map<String,String> idsMap = new HashMap<>();
-        for (String id : ids) {
-            idsMap.put(id,targetBusinessSystem);
-        }
-        return goods(idsMap);
-    }
-
-    /**
-     * 商品主数据下发
-     */
-    public Integer goods(Map<String,String> idsMap) {
-        Set<String> ids = idsMap.keySet();
+    public Integer goods(String[] ids,String targetBusinessSystem,String yshBusinessSystem) {
         int i = 0;
 
-        List<StyleColor> styleColors = styleColorService.listByIds(ids);
+        List<StyleColor> styleColors = styleColorService.listByIds(Arrays.asList(ids));
         if (CollUtil.isEmpty(styleColors)) {
             return i;
         }
@@ -355,7 +343,9 @@ public class SmpService {
             //动态字段
 
             //目标系统
-            smpGoodsDto.setTargetBusinessSystem(idsMap.get(styleColor.getId()));
+            smpGoodsDto.setTargetBusinessSystem(targetBusinessSystem);
+            //目标系统
+            smpGoodsDto.setYshBusinessSystem(yshBusinessSystem);
             //这里读取各个系统的动态字段配置
             List<FieldBusinessSystemVo> businessSystemList = fieldBusinessSystemService.findList(new FieldBusinessSystemQueryDto());
             Map<String, List<FieldBusinessSystemVo>> collect = businessSystemList.stream().collect(Collectors.groupingBy(FieldBusinessSystemVo::getBusinessType));

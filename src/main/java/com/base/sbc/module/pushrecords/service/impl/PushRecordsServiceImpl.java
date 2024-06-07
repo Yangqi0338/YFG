@@ -177,6 +177,26 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         return httpResp.isSuccess();
     }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int batchRePushNewLog(List<String> ids) {
+        List<PushRecords> pushRecordsList = this.listByIds(ids);
+        int count = 0;
+        for (PushRecords pushRecords : pushRecordsList) {
+            HttpResp httpResp = restTemplateService.spmPost(pushRecords.getPushAddress(), pushRecords.getPushContent());
+            pushRecords.setPushStatus(httpResp.isSuccess() ? PushRespStatus.SUCCESS : PushRespStatus.FAILURE);
+            pushRecords.setResponseMessage(httpResp.getMessage());
+            pushRecords.setResponseStatusCode(httpResp.getCode());
+            pushRecords.setPushCount(0);
+            pushRecords.setId(null);
+            if(httpResp.isSuccess()){
+                count++;
+            }
+        }
+        this.saveBatch(pushRecordsList);
+        return count;
+    }
+
 
 // 自定义方法区 不替换的区域【other_end】
 

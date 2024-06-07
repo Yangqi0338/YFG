@@ -1070,9 +1070,6 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
     @Override
     public ApiResult issueScm(QueryStyleColorDto queryStyleColorDto) {
         String ids = queryStyleColorDto.getIds();
-        if(StrUtil.equals("1",queryStyleColorDto.getRePushFlag())){
-            ids = String.join(",", queryStyleColorDto.getIdsMap().keySet());
-        }
         if (StringUtils.isBlank(ids)) {
             throw new OtherException("ids为空");
         }
@@ -1081,7 +1078,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.ne("scm_send_flag", BaseGlobal.YES);*/
         List<StyleColor> styleColorList = baseMapper.getStyleMainAccessories(StringUtils.convertList(ids));
         /*查询配色是否下发*/
-        if(!StrUtil.equals("1",queryStyleColorDto.getRePushFlag()) || StrUtil.isEmpty(queryStyleColorDto.getTargetBusinessSystem())){
+        if(StrUtil.isEmpty(queryStyleColorDto.getTargetBusinessSystem())){
             //不是从下发界面推送时判断，是否解锁
             if (CollectionUtils.isEmpty(styleColorList)) {
                 throw new OtherException("存在已下发数据");
@@ -1118,12 +1115,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
             }
         }
-        int i = 0;
-        if(StrUtil.equals("1",queryStyleColorDto.getRePushFlag())){
-            i = smpService.goods(queryStyleColorDto.getIdsMap());
-        }else{
-            i = smpService.goods(StringUtils.convertListToString(stringList).split(","),queryStyleColorDto.getTargetBusinessSystem());
-        }
+        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","),queryStyleColorDto.getTargetBusinessSystem(),queryStyleColorDto.getYshBusinessSystem());
         if (stringList.size() == i) {
             return ApiResult.success("下发：" + stringList.size() + "条，成功：" + i + "条");
         } else {

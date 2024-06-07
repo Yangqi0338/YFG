@@ -262,6 +262,8 @@ public class QueryStyleColorDto extends QueryFieldDto {
     @ApiModelProperty(value = "目标下游系统")
     private String targetBusinessSystem;
 
+    private String yshBusinessSystem;
+
     private String rePushFlag;
 
     private Map<String,String> idsMap;

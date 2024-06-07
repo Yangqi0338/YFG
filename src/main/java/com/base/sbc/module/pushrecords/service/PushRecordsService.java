@@ -42,6 +42,8 @@ public interface PushRecordsService extends BaseService<PushRecords> {
     List<PushRecords> existHandlePushRecord();
     boolean rePush(String id);
 
+    int batchRePushNewLog(List<String> ids);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

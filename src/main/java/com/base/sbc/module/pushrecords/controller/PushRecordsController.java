@@ -76,6 +76,19 @@ public class PushRecordsController extends BaseController {
     }
 
     /**
+     * 重推
+     */
+    @PostMapping("/batchRePushNewLog")
+    public ApiResult batchRePushNewLog(List<String> ids){
+        int i = pushRecordsService.batchRePushNewLog(ids);
+        if (ids.size() == i) {
+            return ApiResult.success("重推：" + ids.size() + "条，成功：" + i + "条");
+        } else {
+            return ApiResult.error("重推：" + ids.size() + "条，成功：" + i + "条,失败：" + (ids.size() - i) + "条", 200);
+        }
+    }
+
+    /**
      * 获取查询条件列表
      */
     @GetMapping("/getColumnList")

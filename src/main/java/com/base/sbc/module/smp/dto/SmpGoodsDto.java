@@ -334,6 +334,8 @@ public class SmpGoodsDto extends SmpBaseDto {
     @ApiModelProperty(value = "目标业务系统")
     private String targetBusinessSystem;
 
+    private String yshBusinessSystem;
+
     /**
      * 款式设计动态管理字段 特定字段固定下发给BCS
      */
