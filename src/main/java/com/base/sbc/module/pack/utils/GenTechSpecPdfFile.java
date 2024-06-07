@@ -415,6 +415,8 @@ public class GenTechSpecPdfFile {
         dataModel.put("xbjShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("xbjDataList")));
         //注意事项是否显示
         dataModel.put("zysxShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("zysxImgList")));
+        //注意事项文本是否显示
+        dataModel.put("zysxTextShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("zysxDataList")));
         // 基础工艺是否显示
         dataModel.put("jcgyShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("jcgyDataList")));
         // 整烫包装 是否显示
