@@ -2167,6 +2167,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 sizes.add(size);
             }
             tagPrinting.setSize(sizes);
+            //品牌
             tagPrinting.setC8_Season_Brand(styleColorAgentVo1.getBrand());
             //品名
             tagPrinting.setProductName(styleColorAgentVo1.getProductName());
@@ -3146,7 +3147,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             String saftyType = mangoHangTagExeclDto.getSaftyType();
             //水洗唛编码
             String washingCode = mangoHangTagExeclDto.getWashingCode();
-
+            //产地
+            String producer = mangoHangTagExeclDto.getProducer();
             //品名翻译
             String productNameTranslate = mangoHangTagExeclDto.getProductNameTranslate();
             //材料成分
@@ -3230,6 +3232,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             updateHangTag.setIngredient(ingredient);
             updateHangTag.setProductNameTranslate(productNameTranslate);
             updateHangTag.setColorCodeTranslate(colorCodeTranslate);
+            updateHangTag.setProducer(producer);
             //添加吊牌需要修改的信息
             updateHangTagList.add(updateHangTag);
 
