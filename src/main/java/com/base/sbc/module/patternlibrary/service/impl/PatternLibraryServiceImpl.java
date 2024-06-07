@@ -27,6 +27,8 @@ import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.common.utils.AttachmentTypeConstant;
 import com.base.sbc.module.common.vo.AttachmentVo;
+import com.base.sbc.module.formtype.entity.FieldVal;
+import com.base.sbc.module.formtype.service.FieldValService;
 import com.base.sbc.module.operalog.entity.OperaLogEntity;
 import com.base.sbc.module.operalog.service.OperaLogService;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
@@ -43,6 +45,9 @@ import com.base.sbc.module.patternlibrary.vo.CategoriesTypeVO;
 import com.base.sbc.module.patternlibrary.vo.ExcelExportVO;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
 import com.base.sbc.module.patternlibrary.vo.UseStyleVO;
+import com.base.sbc.module.planning.entity.PlanningDimensionality;
+import com.base.sbc.module.planning.service.PlanningDimensionalityService;
+import com.base.sbc.module.planning.vo.DimensionalityListVo;
 import com.base.sbc.module.sample.dto.SampleAttachmentDto;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
@@ -56,6 +61,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -124,6 +130,12 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
 
     @Autowired
     private OperaLogService operaLogService;
+
+    @Autowired
+    private FieldValService fieldValService;
+
+    @Autowired
+    private PlanningDimensionalityService planningDimensionalityService;
 
     @Value("${brand.puts:A01,A02,A03}")
     private String brandPuts;
@@ -545,13 +557,13 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         SaleProductIntoDto saleProductIntoDto = new SaleProductIntoDto();
         saleProductIntoDto.setBulkStyleNoList(useStyleVOList.stream().map(UseStyleVO::getStyleNo).collect(Collectors.toList()));
         // 只要销售
-        saleProductIntoDto.setResultTypeList(Arrays.stream(StyleSaleIntoResultType.values()).filter(it-> it.getCode().contains("sale")).collect(Collectors.toList()));
+        saleProductIntoDto.setResultTypeList(Arrays.stream(StyleSaleIntoResultType.values()).filter(it -> it.getCode().contains("sale")).collect(Collectors.toList()));
         // 根据款号和年限分组
         smpService.querySaleIntoPage(saleProductIntoDto).stream().collect(Collectors.groupingBy(it -> it.getBulkStyleNo() + COMMA + it.getYear()))
                 .forEach((key, sameKeyList) -> {
                     String[] keyArray = key.split(COMMA);
                     int saleSum = sameKeyList.stream().flatMapToInt(it -> it.getSizeMap().values().stream().mapToInt(Double::intValue)).sum();
-                    useStyleVOList.stream().filter(it-> it.getStyleNo().equals(ArrayUtil.get(keyArray, 0))).findFirst().ifPresent(useStyleVO-> {
+                    useStyleVOList.stream().filter(it -> it.getStyleNo().equals(ArrayUtil.get(keyArray, 0))).findFirst().ifPresent(useStyleVO -> {
                         useStyleVO.setYearSaleNum(ArrayUtil.get(keyArray, 1), saleSum);
                         useStyleVO.setHistorySaleNum(useStyleVO.getHistorySaleNum() + saleSum);
                     });
@@ -841,6 +853,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         return styleList;
     }
 
+
     @Override
     public PatternLibrary getInfoByDesignNo(String designNo) {
         // 初始化返回的封装数据
@@ -899,36 +912,71 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     }
 
     @Override
+    public List<FieldVal> listStyleToPatternLibrarySilhouette() {
+        List<FieldVal> fieldValList = fieldValService.list(new LambdaQueryWrapper<FieldVal>()
+                .eq(FieldVal::getFieldExplain, "廓形及代码")
+                .eq(FieldVal::getDataGroup, "SAMPLE_DESIGN_TECHNOLOGY")
+                .isNotNull(FieldVal::getVal)
+                .ne(FieldVal::getVal, "")
+                .groupBy(FieldVal::getValName)
+        );
+        return fieldValList;
+    }
+
+    @Override
     public PageInfo<PatternLibrary> listStyleToPatternLibrary(PatternLibraryDTO patternLibraryDTO) {
         QueryWrapper<Style> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("s.del_flag", BaseGlobal.DEL_FLAG_NORMAL)
                 .eq("s.enable_status", BaseGlobal.NO)
+                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory1st()), "s.prod_category1st", patternLibraryDTO.getProdCategory1st())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory()), "s.prod_category", patternLibraryDTO.getProdCategory())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory2nd()), "s.prod_category2nd", patternLibraryDTO.getProdCategory2nd())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory3rd()), "s.prod_category3rd", patternLibraryDTO.getProdCategory3rd())
                 .in("s.status", "1", "2")
-                .like(ObjectUtil.isNotEmpty(patternLibraryDTO.getCode()), "s.design_no", patternLibraryDTO.getCode())
-                .orderByDesc("s.create_date");
+                .like(ObjectUtil.isNotEmpty(patternLibraryDTO.getDesignNo()), "s.design_no", patternLibraryDTO.getDesignNo())
+                .orderByDesc("s.create_date")
+                .groupBy("s.id");
         // 获取还没有生成版型库的数据
         PageHelper.startPage(patternLibraryDTO.getPageNum(), patternLibraryDTO.getPageSize());
-        List<Style> styleList = baseMapper.listStyleToPatternLibrary(queryWrapper);
+        List<Style> styleList = baseMapper.listStyleToPatternLibrary(queryWrapper, patternLibraryDTO);
         // 初始化返回的封装数据
         List<PatternLibrary> patternLibraryList = new ArrayList<>(styleList.size());
         if (ObjectUtil.isNotEmpty(styleList)) {
             for (Style style : styleList) {
+                String prodCategory1stName = style.getProdCategory1stName();
+                String prodCategoryName = style.getProdCategoryName();
+                String prodCategory2ndName = style.getProdCategory2ndName();
+                String prodCategory3rdName = style.getProdCategory3rdName();
                 PatternLibrary patternLibrary = new PatternLibrary();
-                patternLibrary.setCode(style.getDesignNo());
+                patternLibrary.setDesignNo(style.getDesignNo());
+                patternLibrary.setStyleId(style.getId());
                 PatternLibraryBrand patternLibraryBrand = new PatternLibraryBrand();
                 patternLibraryBrand.setBrandName(style.getBrandName());
                 patternLibrary.setPatternLibraryBrandList(CollUtil.newArrayList(patternLibraryBrand));
                 patternLibrary.setPicUrl(style.getStylePic());
-                patternLibrary.setProdCategory1stName(style.getProdCategory1stName());
-                patternLibrary.setProdCategoryName(style.getProdCategoryName());
-                patternLibrary.setProdCategory2ndName(style.getProdCategory2ndName());
-                patternLibrary.setProdCategory3rdName(style.getProdCategory3rdName());
+                patternLibrary.setProdCategory1stName(prodCategory1stName);
+                patternLibrary.setProdCategoryName(prodCategoryName);
+                patternLibrary.setProdCategory2ndName(prodCategory2ndName);
+                patternLibrary.setProdCategory3rdName(prodCategory3rdName);
+                patternLibrary.setUseStyleNum(style.getUseStyleNum());
+                patternLibrary.setPatternLibraryUtilization(style.getPatternLibraryUtilization());
                 patternLibrary.setSilhouetteName(style.getSilhouetteName());
+                patternLibrary.setPatternLibraryItemParts(style.getPatternParts());
+                patternLibrary.setAllProdCategoryNames(
+                        (ObjectUtil.isNotEmpty(prodCategory1stName) ? prodCategory1stName : "无") + "/"
+                                + (ObjectUtil.isNotEmpty(prodCategoryName) ? prodCategoryName : "无") + "/"
+                                + (ObjectUtil.isNotEmpty(prodCategory2ndName) ? prodCategory2ndName : "无") + "/"
+                                + (ObjectUtil.isNotEmpty(prodCategory3rdName) ? prodCategory3rdName : "无")
+                );
                 patternLibraryList.add(patternLibrary);
             }
-            stylePicUtils.setStylePic(patternLibraryList, "PicUrl");
+            stylePicUtils.setStylePic(patternLibraryList, "picUrl");
         }
-        return new PageInfo<>(patternLibraryList);
+        PageInfo<Style> stylePageInfo = new PageInfo<>(styleList);
+        PageInfo<PatternLibrary> patternLibraryPageInfo = new PageInfo<>();
+        BeanUtil.copyProperties(stylePageInfo, patternLibraryPageInfo);
+        patternLibraryPageInfo.setList(patternLibraryList);
+        return patternLibraryPageInfo;
     }
 
     @Override

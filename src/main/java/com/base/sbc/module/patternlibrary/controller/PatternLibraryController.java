@@ -6,6 +6,7 @@ import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.patternlibrary.constants.ResultConstant;
 import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
@@ -182,6 +183,13 @@ public class PatternLibraryController {
     public ApiResult<PageInfo<PatternLibrary>> listStyleToPatternLibrary(@RequestBody PatternLibraryDTO patternLibraryDTO) {
         PageInfo<PatternLibrary> patternLibraryPageInfo = patternLibraryService.listStyleToPatternLibrary(patternLibraryDTO);
         return ApiResult.success("操作成功", patternLibraryPageInfo);
+    }
+
+    @ApiOperation(value = "查询已开款的设计款号数据信息（转版型库数据）-廓形及代码")
+    @GetMapping("/listStyleToPatternLibrarySilhouette")
+    public ApiResult<List<FieldVal>> listStyleToPatternLibrarySilhouette() {
+        List<FieldVal> fieldValList = patternLibraryService.listStyleToPatternLibrarySilhouette();
+        return ApiResult.success("操作成功", fieldValList);
     }
 
     @ApiOperation(value = "获取大类的类型")

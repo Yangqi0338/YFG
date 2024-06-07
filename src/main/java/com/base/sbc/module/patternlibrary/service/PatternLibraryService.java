@@ -1,6 +1,7 @@
 package com.base.sbc.module.patternlibrary.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.base.sbc.module.formtype.entity.FieldVal;
 import com.base.sbc.module.patternlibrary.dto.AuditsDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
@@ -134,6 +135,13 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 相关数据
      */
     PageInfo<PatternLibrary> listStyleToPatternLibrary(PatternLibraryDTO patternLibraryDTO);
+
+    /**
+     * 查询已开款的设计款号数据信息（转版型库数据）-廓形及代码
+     *
+     * @return 相关数据
+     */
+    List<FieldVal> listStyleToPatternLibrarySilhouette();
 
     /**
      * 判断大类的类型

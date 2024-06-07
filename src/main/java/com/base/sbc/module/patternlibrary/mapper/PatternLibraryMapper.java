@@ -3,6 +3,7 @@ package com.base.sbc.module.patternlibrary.mapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.base.sbc.module.patternlibrary.dto.PatternLibraryDTO;
 import com.base.sbc.module.patternlibrary.dto.PatternLibraryPageDTO;
 import com.base.sbc.module.patternlibrary.entity.PatternLibrary;
 import com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO;
@@ -73,7 +74,8 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
      * @return 相关数据
      */
     List<Style> listStyleToPatternLibrary(
-            @Param(Constants.WRAPPER) QueryWrapper<Style> queryWrapper
+            @Param(Constants.WRAPPER) QueryWrapper<Style> queryWrapper,
+            @Param("patternLibraryDTO") PatternLibraryDTO patternLibraryDTO
     );
 
 }
