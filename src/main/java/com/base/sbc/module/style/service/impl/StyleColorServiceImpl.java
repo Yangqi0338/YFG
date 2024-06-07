@@ -259,7 +259,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         Page<Object> objects = PageHelper.startPage(queryDto);
 
         if(StrUtil.equals("colorBatch",queryDto.getBusinessType())){
-            queryWrapper.ne("scm_send_flag","0");
+            queryWrapper.ne("tsc.scm_send_flag","0");
         }
 
 
