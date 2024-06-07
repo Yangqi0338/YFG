@@ -1272,7 +1272,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         // BOM阶段不为样品不允许修改
         PackInfoListVo packInfoListVo = packInfoListVoPageInfo.getList().get(0);
-        if (StrUtil.isNotBlank(packInfoListVo.getBomStatus()) && !StrUtil.equals("0", packInfoListVo.getBomStatus())) {
+        if (StrUtil.isNotBlank(styleColor.getBomStatus()) && StrUtil.equals("1", styleColor.getBomStatus())) {
             throw new OtherException("BOM阶段为大货阶段，请工艺部和外发部退回样品阶段");
         }
         // 物料清单不能有已下发的
