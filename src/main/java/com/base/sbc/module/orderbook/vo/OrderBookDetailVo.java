@@ -1,6 +1,7 @@
 package com.base.sbc.module.orderbook.vo;
 
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -8,6 +9,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Data
 public class OrderBookDetailVo extends OrderBookDetail {
@@ -345,4 +347,7 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     @ApiModelProperty(value = "线上投产占比")
     private Double onLinkSizeProportion;
+
+    @ApiModelProperty(value = "预算号查询")
+    private List<ScmProductionBudgetDto> productionBudgetNoList;
 }

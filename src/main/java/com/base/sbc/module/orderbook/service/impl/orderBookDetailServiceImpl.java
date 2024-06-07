@@ -99,6 +99,8 @@ import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetQueryDto;
 import com.base.sbc.module.smp.dto.ScmProductionDto;
 import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
@@ -196,7 +198,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
         Page<OrderBookDetailVo> page = dto.startPage();
-        this.querylist(queryWrapper,1, isColumnHeard ? 1 : 0, 1);
+        this.querylist(queryWrapper, 1, isColumnHeard ? 1 : 0, 1, 1, 1);
         OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(page.toPageInfo(),OrderBookDetailPageVo.class);
         if (!isColumnHeard) {
             pageVo.setTotalMap(this.queryCount(dto));
@@ -439,6 +441,22 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 if (StringUtils.isNotBlank(item.getSimilarBulkStyleNo()) && !CollectionUtils.isEmpty(map.get(item.getSimilarBulkStyleNo()))){
                     item.setSimilarStyle(map.get(item.getSimilarBulkStyleNo()).get(0));
                 }
+            });
+        }
+
+        //预算号
+        if (CommonUtils.judge(judgeList, 4, 0)) {
+            ScmProductionBudgetQueryDto scmProductionBudgetQueryDto = new ScmProductionBudgetQueryDto();
+            scmProductionBudgetQueryDto.setBrandList(orderBookDetailVos.stream().map(OrderBookDetailVo::getBrandName).collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setYearList(orderBookDetailVos.stream().map(OrderBookDetailVo::getYearName).collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setSeasonList(orderBookDetailVos.stream().map(OrderBookDetailVo::getSeasonName).collect(Collectors.toList()));
+            List<ScmProductionBudgetDto> productionBudgetList = smpService.productionBudgetList(scmProductionBudgetQueryDto).getData();
+            orderBookDetailVos.forEach(orderBookDetail -> {
+                orderBookDetail.setProductionBudgetNoList(productionBudgetList.stream().filter(it ->
+                        it.getBrandName().equals(orderBookDetail.getBrandName()) &&
+                                it.getYearName().equals(orderBookDetail.getYearName()) &&
+                                it.getSeasonName().equals(orderBookDetail.getSeasonName())
+                ).collect(Collectors.toList()));
             });
         }
         return orderBookDetailVos;
