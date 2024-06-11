@@ -151,6 +151,9 @@
             <if test="dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
                 AND  DATE_FORMAT(ht.translate_confirm_date,'%Y-%m-%d')  = #{dto.translateConfirmDate}
             </if>
+            <if test="dto.placeOrderDate != null and dto.placeOrderDate != ''">
+                AND DATE_FORMAT(ht.place_order_date,'%Y-%m-%d') = #{dto.placeOrderDate}
+            </if>
             <if test="dto.styleNo != null and dto.styleNo != ''">
                 <choose>
                     <when test='dto.likeQueryFlag == "1"'>
