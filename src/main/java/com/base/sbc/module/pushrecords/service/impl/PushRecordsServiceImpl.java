@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.base.sbc.config.common.BaseLambdaQueryWrapper;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.business.PushRespStatus;
@@ -195,6 +196,19 @@ public class PushRecordsServiceImpl extends BaseServiceImpl<PushRecordsMapper, P
         }
         this.saveBatch(pushRecordsList);
         return count;
+    }
+
+    @Override
+    public void closeStatus(List<String> ids) throws Exception {
+        List<PushRecords> pushRecords = listByIds(ids);
+        long count = pushRecords.stream().filter(o -> !PushRespStatus.FAILURE.equals(o.getPushStatus())).count();
+        if(count > 0){
+            throw new Exception("只能关闭失败的数据");
+        }
+        LambdaUpdateWrapper<PushRecords> updateWrapper = new LambdaUpdateWrapper<PushRecords>()
+                .set(PushRecords::getPushStatus, PushRespStatus.CLOSE)
+                .in(PushRecords::getId, ids);
+        this.update(updateWrapper);
     }
 
 

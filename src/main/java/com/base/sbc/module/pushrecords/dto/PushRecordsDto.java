@@ -33,5 +33,7 @@ public class PushRecordsDto extends BaseDto {
     private String businessCode;
     @JsonIgnore
     private String type;
+    @JsonIgnore
+    private String createId;
 
 }

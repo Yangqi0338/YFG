@@ -45,6 +45,7 @@ public class PushRecordsController extends BaseController {
         queryWrapper.notEmptyIn("related_id",pushRecordsDto.getRelatedId());
         queryWrapper.notEmptyIn("related_name",pushRecordsDto.getRelatedName());
         queryWrapper.notEmptyLike("create_name",pushRecordsDto.getCreateName());
+        queryWrapper.notEmptyLike("create_id",pushRecordsDto.getCreateId());
         queryWrapper.notEmptyLike("business_code",pushRecordsDto.getBusinessCode());
         if(StrUtil.isNotEmpty(pushRecordsDto.getType())){
             queryWrapper.isNotNullStr("business_code");
@@ -55,6 +56,12 @@ public class PushRecordsController extends BaseController {
         PageHelper.startPage(pushRecordsDto);
         List<PushRecords> list = pushRecordsService.list(queryWrapper);
         return selectSuccess(new PageInfo<>(list));
+    }
+
+    @PostMapping("/closeStatus")
+    public ApiResult closeStatus(@RequestBody List<String> ids) throws Exception {
+        pushRecordsService.closeStatus(ids);
+        return ApiResult.success("操作成功");
     }
 
 
