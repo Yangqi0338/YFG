@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.customFile.service;
 import com.base.sbc.module.common.service.BaseService;
+import com.base.sbc.module.customFile.dto.FileTreeDto;
 import com.base.sbc.module.customFile.entity.FileTree;
 
 /** 
@@ -17,6 +18,7 @@ import com.base.sbc.module.customFile.entity.FileTree;
  * @version 1.0  
  */
 public interface FileTreeService extends BaseService<FileTree>{
+    String add(FileTreeDto fileTreeDto);
 
 // 自定义方法区 不替换的区域【other_start】
 
