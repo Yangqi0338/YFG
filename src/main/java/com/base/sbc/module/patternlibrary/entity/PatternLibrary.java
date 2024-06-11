@@ -52,6 +52,13 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     private String styleId;
 
     /**
+     * 大货款号
+     */
+    @ApiModelProperty("大货款号")
+    @TableField(exist = false)
+    private String styleNo;
+
+    /**
      * 大类 code
      */
     @ApiModelProperty("大类 code")
@@ -289,5 +296,12 @@ public class PatternLibrary extends BaseDataEntity<String> implements Serializab
     @ApiModelProperty("部件库-子表部件数据")
     @TableField(exist = false)
     private String patternLibraryItemParts;
+
+    /**
+     * 产品季名称
+     */
+    @ApiModelProperty("产品季名称")
+    @TableField(exist = false)
+    private String planningSeasonName;
 
 }

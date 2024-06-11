@@ -73,7 +73,7 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      */
     List<UseStyleVO> listUseStyle(UseStyleDTO useStyleDTO);
 
- /**
+    /**
      * 根据款 id 查询款的使用款记录列表
      *
      * @param useStyleDTO 查询条件
@@ -150,6 +150,13 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      * @return 相关数据
      */
     List<FieldVal> listStyleToPatternLibrarySilhouette();
+
+    /**
+     * 查询已开款的设计款号数据信息（转版型库数据）-品类
+     *
+     * @return 相关数据
+     */
+    List<Style> listStyleToPatternLibraryProdCategory();
 
     /**
      * 判断大类的类型

@@ -200,6 +200,13 @@ public class PatternLibraryController {
         return ApiResult.success("操作成功", fieldValList);
     }
 
+    @ApiOperation(value = "查询已开款的设计款号数据信息（转版型库数据）-品类")
+    @GetMapping("/listStyleToPatternLibraryProdCategory")
+    public ApiResult<List<Style>> listStyleToPatternLibraryProdCategory() {
+        List<Style> styleList = patternLibraryService.listStyleToPatternLibraryProdCategory();
+        return ApiResult.success("操作成功", styleList);
+    }
+
     @ApiOperation(value = "获取大类的类型")
     @GetMapping("/getCategoriesType")
     public ApiResult<CategoriesTypeVO> getCategoriesType() {

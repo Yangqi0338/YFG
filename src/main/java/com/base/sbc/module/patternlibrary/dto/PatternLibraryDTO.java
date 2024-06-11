@@ -30,6 +30,12 @@ public class PatternLibraryDTO extends Page implements Serializable {
     private String id;
 
     /**
+     * 产品季
+     */
+    @ApiModelProperty("产品季")
+    private String planningSeasonId;
+
+    /**
      * 序号
      */
     @ApiModelProperty("序号")
@@ -202,4 +208,10 @@ public class PatternLibraryDTO extends Page implements Serializable {
      */
     @ApiModelProperty("部件库-子表数据类型（1-围度信息 2-长度信息 3-部位尺寸 4-涉及部件）")
     private Integer patternLibraryItemType;
+
+    /**
+     * 大货编号
+     */
+    @ApiModelProperty("大货编号")
+    private String styleNo;
 }

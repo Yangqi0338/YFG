@@ -953,6 +953,18 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         );
         return fieldValList;
     }
+    @Override
+    public List<Style> listStyleToPatternLibraryProdCategory() {
+        List<Style> styleList = styleService.list(new LambdaQueryWrapper<Style>()
+                .select(Style::getProdCategoryName, Style::getProdCategory)
+                .in(Style::getStatus, 1, 2)
+                .eq(Style::getEnableStatus, BaseGlobal.NO)
+                .isNotNull(Style::getProdCategory)
+                .ne(Style::getProdCategory, "")
+                .groupBy(Style::getProdCategory)
+        );
+        return styleList;
+    }
 
     @Override
     public PageInfo<PatternLibrary> listStyleToPatternLibrary(PatternLibraryDTO patternLibraryDTO) {
@@ -963,8 +975,11 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory()), "s.prod_category", patternLibraryDTO.getProdCategory())
                 .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory2nd()), "s.prod_category2nd", patternLibraryDTO.getProdCategory2nd())
                 .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory3rd()), "s.prod_category3rd", patternLibraryDTO.getProdCategory3rd())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getProdCategory3rd()), "s.prod_category3rd", patternLibraryDTO.getProdCategory3rd())
+                .eq(ObjectUtil.isNotEmpty(patternLibraryDTO.getPlanningSeasonId()), "s.planning_season_id", patternLibraryDTO.getPlanningSeasonId())
                 .in("s.status", "1", "2")
                 .like(ObjectUtil.isNotEmpty(patternLibraryDTO.getDesignNo()), "s.design_no", patternLibraryDTO.getDesignNo())
+                .like(ObjectUtil.isNotEmpty(patternLibraryDTO.getStyleNo()), "tsc.style_no", patternLibraryDTO.getStyleNo())
                 .orderByDesc("s.create_date")
                 .groupBy("s.id");
         // 获取还没有生成版型库的数据
@@ -993,6 +1008,8 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
                 patternLibrary.setPatternLibraryUtilization(style.getPatternLibraryUtilization());
                 patternLibrary.setSilhouetteName(style.getSilhouetteName());
                 patternLibrary.setPatternLibraryItemParts(style.getPatternParts());
+                patternLibrary.setPlanningSeasonName(style.getPlanningSeasonName());
+                patternLibrary.setStyleNo(style.getStyleNo());
                 patternLibrary.setAllProdCategoryNames(
                         (ObjectUtil.isNotEmpty(prodCategory1stName) ? prodCategory1stName : "无") + "/"
                                 + (ObjectUtil.isNotEmpty(prodCategoryName) ? prodCategoryName : "无") + "/"
