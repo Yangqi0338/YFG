@@ -109,13 +109,13 @@ public class HangTagSearchDTO extends QueryFieldDto {
      * 工艺师
      */
     @ApiModelProperty(value = "工艺师")
-    private String technologistId;
+    private String technologistName;
 
     /**
      * 下单员
      */
     @ApiModelProperty(value = "下单员")
-    private String placeOrderStaffId;
+    private String placeOrderStaffName;
 
     /**
      * 下单时间

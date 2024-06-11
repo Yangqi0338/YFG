@@ -287,8 +287,8 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		if(StrUtil.isNotBlank(hangTagDTO.getBandName())){
 			hangTagDTO.setBandNames(hangTagDTO.getBandName().split(","));
 		}
-		qw.notEmptyEq("ht.technologist_id", hangTagDTO.getTechnologistId());
-		qw.notEmptyEq("ht.place_order_staff_id", hangTagDTO.getPlaceOrderStaffId());
+		qw.notEmptyLike("ht.technologist_name", hangTagDTO.getTechnologistName());
+		qw.notEmptyLike("ht.place_order_staff_name", hangTagDTO.getPlaceOrderStaffName());
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
