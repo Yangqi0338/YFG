@@ -572,6 +572,37 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
     }
 
     @Override
+    public List<UseStyleVO> listUseStyleByStyle(UseStyleDTO useStyleDTO) {
+        Style style = styleService.getById(useStyleDTO.getStyleId());
+        if (ObjectUtil.isEmpty(style)) {
+            throw new OtherException("款式数据不存在，请刷新后重试！");
+        }
+        // 列表分页
+        QueryWrapper<UseStyleVO> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ts.serial_style_id", useStyleDTO.getStyleId());
+        queryWrapper.orderByDesc("ts.create_date");
+        List<UseStyleVO> useStyleVOList = baseMapper.listUseStyleByStyle(queryWrapper);
+
+        /* ----------------------------获取多数据源的销售数据---------------------------- */
+
+        SaleProductIntoDto saleProductIntoDto = new SaleProductIntoDto();
+        saleProductIntoDto.setBulkStyleNoList(useStyleVOList.stream().map(UseStyleVO::getStyleNo).collect(Collectors.toList()));
+        // 只要销售
+        saleProductIntoDto.setResultTypeList(Arrays.stream(StyleSaleIntoResultType.values()).filter(it -> it.getCode().contains("sale")).collect(Collectors.toList()));
+        // 根据款号和年限分组
+        smpService.querySaleIntoPage(saleProductIntoDto).stream().collect(Collectors.groupingBy(it -> it.getBulkStyleNo() + COMMA + it.getYear()))
+                .forEach((key, sameKeyList) -> {
+                    String[] keyArray = key.split(COMMA);
+                    int saleSum = sameKeyList.stream().flatMapToInt(it -> it.getSizeMap().values().stream().mapToInt(Double::intValue)).sum();
+                    useStyleVOList.stream().filter(it -> it.getStyleNo().equals(ArrayUtil.get(keyArray, 0))).findFirst().ifPresent(useStyleVO -> {
+                        useStyleVO.setYearSaleNum(ArrayUtil.get(keyArray, 1), saleSum);
+                        useStyleVO.setHistorySaleNum(useStyleVO.getHistorySaleNum() + saleSum);
+                    });
+                });
+        return useStyleVOList;
+    }
+
+    @Override
     @DuplicationCheck
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeDetail(String patternLibraryId) {

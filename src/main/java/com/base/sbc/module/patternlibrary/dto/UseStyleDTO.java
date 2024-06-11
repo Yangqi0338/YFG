@@ -25,4 +25,10 @@ public class UseStyleDTO extends Page implements Serializable {
     @ApiModelProperty("版型库 id")
     private String patternLibraryId;
 
+    /**
+     * 款 id
+     */
+    @ApiModelProperty("款 id")
+    private String styleId;
+
 }

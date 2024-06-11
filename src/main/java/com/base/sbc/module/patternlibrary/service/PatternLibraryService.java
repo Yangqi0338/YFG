@@ -73,6 +73,14 @@ public interface PatternLibraryService extends IService<PatternLibrary> {
      */
     List<UseStyleVO> listUseStyle(UseStyleDTO useStyleDTO);
 
+ /**
+     * 根据款 id 查询款的使用款记录列表
+     *
+     * @param useStyleDTO 查询条件
+     * @return 款的使用款记录列表
+     */
+    List<UseStyleVO> listUseStyleByStyle(UseStyleDTO useStyleDTO);
+
     /**
      * 版型库删除
      *

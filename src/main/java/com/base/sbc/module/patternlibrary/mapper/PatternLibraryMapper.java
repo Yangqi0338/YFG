@@ -45,6 +45,15 @@ public interface PatternLibraryMapper extends BaseMapper<PatternLibrary> {
             @Param(Constants.WRAPPER) QueryWrapper<UseStyleVO> queryWrapper);
 
     /**
+     * 根据款 id 查询款的使用款记录列表
+     *
+     * @param queryWrapper 查询条件
+     * @return 款的使用款记录列表
+     */
+    List<UseStyleVO> listUseStyleByStyle(
+            @Param(Constants.WRAPPER) QueryWrapper<UseStyleVO> queryWrapper);
+
+    /**
      * 版型库筛选条件查询
      *
      * @param queryWrapper 筛选条件

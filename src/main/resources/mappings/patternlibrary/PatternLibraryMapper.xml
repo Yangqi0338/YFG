@@ -140,6 +140,19 @@
         </if>
     </select>
 
+    <select id="listUseStyleByStyle" resultType="com.base.sbc.module.patternlibrary.vo.UseStyleVO">
+        SELECT
+        tsc.style_color_pic stylePic,ts.design_no, tsc.style_no, tsc.band_code, tsc.band_name
+        FROM
+        t_style ts
+        join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
+        WHERE
+        ts.del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
+
     <!-- 筛选条件类型（1-版型编码 2-品牌 3-所属品类 4-廓形 5-所属版型库 6-涉及部件 7-审核状态 8-是否启用）-->
     <select id="getAllFilterCriteria" resultType="com.base.sbc.module.patternlibrary.vo.FilterCriteriaVO">
         SELECT

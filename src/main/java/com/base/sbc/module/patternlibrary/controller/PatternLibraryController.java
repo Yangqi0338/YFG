@@ -185,6 +185,14 @@ public class PatternLibraryController {
         return ApiResult.success("操作成功", patternLibraryPageInfo);
     }
 
+    @ApiOperation(value = "款的使用款记录")
+    @GetMapping("/listUseStyleByStyle")
+    public ApiResult<PageInfo<UseStyleVO>> listUseStyleByStyle(UseStyleDTO useStyleDTO) {
+        PageHelper.startPage(useStyleDTO.getPageNum(), useStyleDTO.getPageSize());
+        List<UseStyleVO> useStyleVOList = patternLibraryService.listUseStyleByStyle(useStyleDTO);
+        return ApiResult.success(ResultConstant.OPERATION_SUCCESS, new PageInfo<>(useStyleVOList));
+    }
+
     @ApiOperation(value = "查询已开款的设计款号数据信息（转版型库数据）-廓形及代码")
     @GetMapping("/listStyleToPatternLibrarySilhouette")
     public ApiResult<List<FieldVal>> listStyleToPatternLibrarySilhouette() {
