@@ -249,6 +249,26 @@
         and tsc.scm_send_flag &lt;&gt; '1'
     </select>
 
+    <select id="getStyleMainAccessoriesNoSendFlag" resultType="com.base.sbc.module.style.entity.StyleColor">
+        SELECT distinct tsc.*
+        from t_style_color tsc
+        LEFT JOIN t_style_main_accessories tsma on (tsc.style_no = tsma.style_no
+        and tsma.del_flag='0')
+        WHERE tsma.style_color_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+
+        UNION ALL
+
+        SELECT *
+        from t_style_color tsc
+        WHERE tsc.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
     <select id="markingCheckPage" resultType="com.base.sbc.module.style.vo.StyleMarkingCheckVo">
         SELECT ts.year_name,
                ts.season_name,

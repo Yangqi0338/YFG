@@ -1086,6 +1086,8 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
             if (CollectionUtils.isEmpty(styleColorList)) {
                 throw new OtherException("存在已下发数据");
             }
+        }else{
+            styleColorList = baseMapper.getStyleMainAccessoriesNoSendFlag(StringUtils.convertList(ids));
         }
 
         List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getId).collect(Collectors.toList());
