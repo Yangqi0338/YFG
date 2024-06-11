@@ -1,6 +1,5 @@
 package com.base.sbc.module.hangtag.dto;
 
-import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -105,4 +104,22 @@ public class HangTagSearchDTO extends QueryFieldDto {
     private String  year;
 
     private String produceTypeName;
+
+    /**
+     * 工艺师
+     */
+    @ApiModelProperty(value = "工艺师")
+    private String technologistId;
+
+    /**
+     * 下单员
+     */
+    @ApiModelProperty(value = "下单员")
+    private String placeOrderStaffId;
+
+    /**
+     * 下单时间
+     */
+    @ApiModelProperty(value = "下单时间")
+    private String placeOrderDate;
 }
