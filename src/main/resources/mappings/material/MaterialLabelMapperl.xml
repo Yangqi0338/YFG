@@ -11,7 +11,7 @@
         and label_name like  concat('%',#{search},'%')
         <if test="materialCategoryIds != null and materialCategoryIds.size > 0">
             and material_id in
-            (select id from t_material tm where tm.del_flag = '0' and tm.material_category_id in
+            (select id from t_material tm where status = '2' and tm.del_flag = '0' and tm.material_category_id in
             <foreach collection="materialCategoryIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>

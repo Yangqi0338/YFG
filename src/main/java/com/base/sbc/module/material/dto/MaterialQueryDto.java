@@ -96,4 +96,7 @@ public class MaterialQueryDto extends Page {
 
     @ApiModelProperty(value = "1启用，0停用")
     private String enableFlag;
+
+    @ApiModelProperty(value = "模糊搜索内容")
+    private String content;
 }

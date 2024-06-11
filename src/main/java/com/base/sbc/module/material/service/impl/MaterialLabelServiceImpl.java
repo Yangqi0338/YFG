@@ -51,4 +51,11 @@ public class MaterialLabelServiceImpl extends BaseServiceImpl<MaterialLabelMappe
         queryWrapper.in("label_name",labelNames);
         return materialLabelMapper.selectList(queryWrapper);
     }
+
+    @Override
+    public List<MaterialLabel> getLikeLabelNames(String labelName) {
+        QueryWrapper<MaterialLabel> queryWrapper =new QueryWrapper<>();
+        queryWrapper.like("label_name",labelName);
+        return materialLabelMapper.selectList(queryWrapper);
+    }
 }
