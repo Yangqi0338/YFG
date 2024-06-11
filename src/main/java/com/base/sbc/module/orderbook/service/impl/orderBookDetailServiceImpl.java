@@ -120,6 +120,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -130,6 +132,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -1313,10 +1316,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            production.decorateUserId(userCompanyList);
 //        });
 
-        asyncExecutor.execute(()-> handlePlaceAnProduction(
-                orderBookDetails1,
-                productionList.stream().map(production -> smpService.saveFacPrdOrder(production)).collect(Collectors.toList())
-        ));
+        //设置子线程共享
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        RequestContextHolder.setRequestAttributes(servletRequestAttributes,true);
+        productionList.forEach(production -> {
+            asyncExecutor.execute(()-> handlePlaceAnProduction(
+                    orderBookDetails1,
+                    Collections.singletonList(smpService.saveFacPrdOrder(production))
+            ));
+        });
 
         return productionList.stream().map(ScmProductionDto::getName).collect(Collectors.joining(","));
     }
