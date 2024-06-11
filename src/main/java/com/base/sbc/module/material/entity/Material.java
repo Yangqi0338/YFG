@@ -50,6 +50,12 @@ public class Material extends BaseDataEntity<String> {
     @ApiModelProperty(value = "成分")
     private String component;
 
+    @ApiModelProperty(value = "素材品牌")
+    private String materialBrand;
+
+    @ApiModelProperty(value = "素材品牌名称")
+    private String materialBrandName;
+
     @ApiModelProperty(value = "品牌")
     private String brand;
 
@@ -88,6 +94,9 @@ public class Material extends BaseDataEntity<String> {
 
     @ApiModelProperty(value = "来源部门")
     private String sourceDepartment;
+
+    @ApiModelProperty(value = "来源方式")
+    private String sourceWay;
 
     @ApiModelProperty(value = "采集时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")

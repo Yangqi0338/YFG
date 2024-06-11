@@ -24,4 +24,6 @@ public interface MaterialLabelService extends BaseService<MaterialLabel> {
     List<MaterialChildren> linkageQuery(String search,  List<String> materialCategoryIds);
 
     List<MaterialLabel> getByLabelNames(List<String> labelNames);
+
+    List<MaterialLabel> getLikeLabelNames(String labelName);
 }

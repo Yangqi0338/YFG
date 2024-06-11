@@ -108,6 +108,17 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             }
         }
 
+        //标签名称模糊筛选条件
+        if (StringUtils.isNotEmpty(materialQueryDto.getContent())) {
+            List<MaterialLabel> materialLabels = materialLabelService.getLikeLabelNames(materialQueryDto.getContent());
+            if (CollUtil.isNotEmpty(materialLabels)){
+                labelSet = new HashSet<>();
+                for (MaterialLabel materialLabel : materialLabels) {
+                    labelSet.add(materialLabel.getMaterialId());
+                }
+            }
+        }
+
         //尺码筛选条件
         if (!StringUtils.isEmpty(materialQueryDto.getSizeId())) {
             sizeSet = new HashSet<>();
