@@ -1891,6 +1891,7 @@ public class SmpService {
         qw.notEmptyIn("tobl.PROD_CODE", saleProductIntoDto.getBulkStyleNoList());
         qw.notEmptyIn("tobl.YEARS", saleProductIntoDto.getYear());
         qw.in("tobl.CHANNEL_TYPE", saleProductIntoDto.getChannelList());
+        qw.notEmptyIn("tobl.RESULTTYPE", saleProductIntoDto.getResultTypeList());
         dataPermissionsService.getDataPermissionsForNameQw(qw, DataPermissionsBusinessTypeEnum.style_order_book.getK(), "tobl.", new String[]{"brand"}, true);
         List<Map<String, Object>> detailMaps = this.querySaleIntoPage(qw, 0);
         // 封装数据并转化Bean

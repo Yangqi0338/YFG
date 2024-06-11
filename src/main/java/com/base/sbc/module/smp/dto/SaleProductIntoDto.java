@@ -2,6 +2,7 @@ package com.base.sbc.module.smp.dto;
 
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -36,6 +37,9 @@ public class SaleProductIntoDto extends Page implements Serializable {
 
     @ApiModelProperty(value = "参考款款号")
     private List<String> similarBulkStyleNos;
+
+    @ApiModelProperty(value = "结果列表")
+    private List<StyleSaleIntoResultType> resultTypeList;
 
     /**
      * 大货款号 in

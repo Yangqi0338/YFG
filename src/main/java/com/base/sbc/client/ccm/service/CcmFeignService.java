@@ -203,6 +203,32 @@ public class CcmFeignService {
     }
 
     /**
+     * ccm 查询字典
+     *
+     * @param types
+     * @return
+     */
+    public Map<String, Map<String, String>> getDictInfoToMapTurnOver(String types) {
+        Map<String, Map<String, String>> result = new LinkedHashMap<>(16);
+        String dictInfo = ccmService.getDictInfo(types, null);
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            List<BasicBaseDict> data = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+            if (CollUtil.isNotEmpty(data)) {
+                for (BasicBaseDict dict : data) {
+                    Map<String, String> dictMap = result.get(dict.getType());
+                    if (dictMap == null) {
+                        dictMap = new LinkedHashMap<>(16);
+                        result.put(dict.getType(), dictMap);
+                    }
+                    dictMap.put(dict.getName(), dict.getValue());
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * 查询 品类id
      */
     public String getIdsByNameAndLevel(String structureName, String names, String level) {
