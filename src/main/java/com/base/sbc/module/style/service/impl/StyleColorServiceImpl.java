@@ -295,6 +295,13 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         QueryGenerator.initQueryWrapperByMapNoDataPermission(queryWrapper,queryDto);
         Page<Object> objects = PageHelper.startPage(queryDto);
 
+        if(StrUtil.equals("colorBatch",queryDto.getBusinessType())){
+            //只查询已发送的
+            queryWrapper.ne("tsc.scm_send_flag","0");
+            //只查询已经有关联Bom的
+            queryWrapper.isNotNullStr("tsc.bom");
+        }
+
 
         /*获取配色数据*/
         List<StyleColorVo> sampleStyleColorList = new ArrayList<>();
@@ -1098,11 +1105,12 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
      * 核价里面总成本为0的不能下发
      * 吊牌价为0不能下发
      *
-     * @param ids
+     * @param queryStyleColorDto
      * @return
      */
     @Override
-    public ApiResult issueScm(String ids) {
+    public ApiResult issueScm(QueryStyleColorDto queryStyleColorDto) {
+        String ids = queryStyleColorDto.getIds();
         if (StringUtils.isBlank(ids)) {
             throw new OtherException("ids为空");
         }
@@ -1111,9 +1119,15 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
         queryWrapper.ne("scm_send_flag", BaseGlobal.YES);*/
         List<StyleColor> styleColorList = baseMapper.getStyleMainAccessories(StringUtils.convertList(ids));
         /*查询配色是否下发*/
-        if (CollectionUtils.isEmpty(styleColorList)) {
-            throw new OtherException("存在已下发数据");
+        if(StrUtil.isEmpty(queryStyleColorDto.getTargetBusinessSystem())){
+            //不是从下发界面推送时判断，是否解锁
+            if (CollectionUtils.isEmpty(styleColorList)) {
+                throw new OtherException("存在已下发数据");
+            }
+        }else{
+            styleColorList = baseMapper.getStyleMainAccessoriesNoSendFlag(StringUtils.convertList(ids));
         }
+
         List<String> stringList = styleColorList.stream().filter(s -> StringUtils.isNotBlank(s.getBom())).map(StyleColor::getId).collect(Collectors.toList());
 
         /*禁止下发未关联bom数据*/
@@ -1144,7 +1158,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
                 }
             }
         }
-        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","));
+        int i = smpService.goods(StringUtils.convertListToString(stringList).split(","),queryStyleColorDto.getTargetBusinessSystem(),queryStyleColorDto.getYshBusinessSystem());
         if (stringList.size() == i) {
             return ApiResult.success("下发：" + stringList.size() + "条，成功：" + i + "条");
         } else {

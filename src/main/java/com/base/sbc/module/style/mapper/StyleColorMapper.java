@@ -92,6 +92,8 @@ public interface StyleColorMapper extends BaseMapper<StyleColor> {
      */
     List<StyleColor> getStyleMainAccessories(@Param("ids") List<String> ids);
 
+    List<StyleColor> getStyleMainAccessoriesNoSendFlag(@Param("ids") List<String> ids);
+
     List<StyleMarkingCheckVo> markingCheckPage(@Param(Constants.WRAPPER) BaseQueryWrapper qw);
 
     /**

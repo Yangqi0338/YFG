@@ -4,6 +4,8 @@ import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
 /*查询款式配色*/
 public class QueryStyleColorDto extends QueryFieldDto {
@@ -260,4 +262,13 @@ public class QueryStyleColorDto extends QueryFieldDto {
 
     @ApiModelProperty(value = "数据权限类型")
     private String businessType;
+
+    @ApiModelProperty(value = "目标下游系统")
+    private String targetBusinessSystem;
+
+    private String yshBusinessSystem;
+
+    private String rePushFlag;
+
+    private Map<String,String> idsMap;
 }

@@ -119,12 +119,12 @@ public interface StyleColorService extends BaseService<StyleColor> {
          */
         Boolean updateColor(UpdateColorDto updateColorDto);
 
-        /**
-         * 方法描述 下发scm
-         * @param ids
-         * @return
-         */
-        ApiResult issueScm(String ids);
+    /**
+     * 方法描述 下发scm
+     * @param ids
+     * @return
+     */
+    ApiResult issueScm(QueryStyleColorDto ids);
 
         /**
          * 检查配饰款数据是否关联主款数据
