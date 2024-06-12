@@ -297,7 +297,6 @@
 			tbmp.quotation_price,
 			tbmp.supplier_material_code,
 			tbmc.supplier_color_code,
-
 			(SELECT GROUP_CONCAT(tbmw.NAME) FROM t_basicsdatum_material_width tbmw WHERE tbmw.del_flag = 0 and tbmw.material_code = tbm.material_code GROUP BY tbmw.material_code) as widthName,
 			temcic.remark as fabricEvaluation,
 			temcic.company_full_name as checkCompanyName,
@@ -309,8 +308,8 @@
 		</if>
 		FROM
 		t_basicsdatum_material tbm
-		LEFT JOIN t_basicsdatum_material_color tbmc on tbmc.material_code = tbm.material_code AND tbmc.company_code = tbm.company_code AND tbmc.del_flag='0'
-		LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code AND tbmp.company_code = tbm.material_code AND select_flag ='1' AND tbmp.del_flag='0'
+		LEFT JOIN t_basicsdatum_material_color tbmc on tbmc.material_code = tbm.material_code  AND tbmc.del_flag='0'
+		LEFT JOIN t_basicsdatum_material_price tbmp on tbmp.material_code = tbm.material_code  AND select_flag ='1' AND tbmp.del_flag='0'
 		LEFT JOIN t_escm_material_component_inspect_company temcic ON temcic.id = (
 		select id from t_escm_material_component_inspect_company  where materials_no = tbm.material_code ORDER BY YEAR DESC, validity_time DESC limit 1)
 		${ew.customSqlSegment}
