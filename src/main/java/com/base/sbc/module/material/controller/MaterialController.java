@@ -99,6 +99,24 @@ public class MaterialController extends BaseController {
         return insertSuccess(materialList.size());
     }
 
+    @PutMapping("/submitRelease")
+    @Transactional(rollbackFor = {Exception.class})
+    @ApiOperation(value = "提交发布", notes = "提交发布")
+    public ApiResult submitRelease(@RequestBody MaterialSaveDto materialSaveDto) {
+        Material material = materialService.getById(materialSaveDto.getId());
+        if (!"4".equals(materialSaveDto.getStatus())){
+            return ApiResult.error("未审核通过的素材，不允许提交发布",500);
+        }
+        materialSaveDto.setStatus("2");
+        CommonUtils.removeQuery(materialSaveDto, "picUrl");
+        //修改关联标签
+        QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
+        labelQueryWrapper.eq("material_id", materialSaveDto.getId());
+        materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
+        return updateSuccess(   materialService.updateById(materialSaveDto,"创意素材库"));
+
+    }
+
     /**
      * 单个修改
      */
@@ -135,7 +153,7 @@ public class MaterialController extends BaseController {
                 MaterialSaveDto materialSaveDto1=new MaterialSaveDto();
                 BeanUtil.copyProperties(materialSaveDto,materialSaveDto1);
                 BeanUtil.copyProperties(material,materialSaveDto1);
-                if ("2".equals(material.getStatus())) {
+                if ("4".equals(material.getStatus())) {
                     redisTemplate.opsForValue().set("MTUP:"+materialSaveDto.getId(),materialSaveDto1);
                 }
                 flowableService.start(FlowableService.MATERIAL + materialSaveDto.getMaterialCategoryName(), FlowableService.MATERIAL, materialSaveDto.getId(), "/pdm/api/saas/material/toExamine",

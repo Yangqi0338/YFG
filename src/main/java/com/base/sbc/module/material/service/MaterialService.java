@@ -50,4 +50,15 @@ public interface MaterialService extends BaseService<Material> {
     List<AssociationMaterialVo> getAssociationMaterial(List<String> ids);
 
     List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds);
+
+    /**
+     * 检查是否有关联的数据，true：有关联
+     * @param folderIds
+     * @return
+     */
+    boolean checkFolderRelation(List<String> folderIds);
+
+    long getFileCount(List<String> folderIds);
+
+    String getFileSize(List<String> byAllFileIds);
 }

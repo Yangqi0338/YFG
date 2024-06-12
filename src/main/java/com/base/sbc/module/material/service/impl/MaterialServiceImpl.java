@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.flowable.entity.AnswerDto;
 import com.base.sbc.config.constant.BaseConstant;
@@ -28,6 +29,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,6 +68,9 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
     private final PlanningCategoryItemMaterialService planningCategoryItemMaterialService;
 
     private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private DataPermissionsService dataPermissionsService;
 
 
     /**
@@ -170,8 +175,11 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         materialQueryDto.setCompanyCode(userUtils.getCompanyCode());
         materialQueryDto.setUserId(userUtils.getUserId());
         this.addQuery(materialQueryDto);
-
         PageHelper.startPage(materialQueryDto);
+
+        QueryWrapper queryWrapper = new QueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, "materialLibrary", "tm.");
+        materialQueryDto.setEw(queryWrapper);
         List<MaterialVo> materialAllDtolist = materialMapper.listQuery(materialQueryDto);
 
         if (materialAllDtolist == null || materialAllDtolist.size() == 0) {
@@ -261,7 +269,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
         if (BaseConstant.APPROVAL_PASS.equals(dto.getApprovalType())) {
 
             //审核通过
-            material.setStatus("2");
+            material.setStatus("4");
             String[] split = Pinyin4jUtil.converterToFirstSpell(material.getBrandName()).split(",");
             String time = String.valueOf(System.currentTimeMillis());
             String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
@@ -419,5 +427,31 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             list.add(materialLinkageVo);
         }
         return list;
+    }
+
+    @Override
+    public boolean checkFolderRelation(List<String> folderIds) {
+        QueryWrapper<Material> qw = new QueryWrapper<>();
+        qw.lambda().in(Material::getFolderId, folderIds);
+        return count(qw) > 0;
+    }
+
+    @Override
+    public long getFileCount(List<String> folderIds) {
+        QueryWrapper<Material> qw = new QueryWrapper<>();
+        qw.lambda().in(Material::getFolderId, folderIds);
+        return count(qw);
+    }
+
+    @Override
+    public String getFileSize(List<String> folderIds) {
+        Long fileSize = baseMapper.getFileSize(folderIds);
+        if (fileSize == null){
+            return "0";
+        }
+        if (fileSize > 1048576){
+            return Math.ceil((double) fileSize / 1048576) + "MB";
+        }
+        return Math.ceil((double) fileSize / 1024) + "KB";
     }
 }
