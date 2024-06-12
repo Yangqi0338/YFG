@@ -1,6 +1,7 @@
 package com.base.sbc.module.common.convert;
 
-import org.mapstruct.Mapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * {@code 描述：通用MapStruct计算转化}
@@ -8,13 +9,43 @@ import org.mapstruct.Mapper;
  * @since 2024/1/9
  * @CopyRight @ 广州尚捷科技有限公司
  */
+@Component
+public class ConvertContext {
 
-public interface ConvertContext {
+    public static HangTagConvert HANG_TAG_CV = HangTagConvert.INSTANCE;
+    public static BaseConvert BASE_CV = BaseConvert.INSTANCE;
+    public static MoreLanguageConvert MORE_LANGUAGE_CV = MoreLanguageConvert.INSTANCE;
+    public static OpenConvert OPEN_CV = OpenConvert.INSTANCE;
+    public static OrderBookConvert ORDER_BOOK_CV = OrderBookConvert.INSTANCE;
+    public static ReplayConvert REPLAY_CV = ReplayConvert.INSTANCE;
 
-    HangTagConvert HANG_TAG_CV = HangTagConvert.INSTANCE;
-    BaseConvert BASE_CV = BaseConvert.INSTANCE;
-    MoreLanguageConvert MORE_LANGUAGE_CV = MoreLanguageConvert.INSTANCE;
-    OpenConvert OPEN_CV = OpenConvert.INSTANCE;
-    OrderBookConvert ORDER_BOOK_CV = OrderBookConvert.INSTANCE;
+    @Autowired(required = false)
+    public void setHangTagCv(HangTagConvert hangTagCv) {
+        HANG_TAG_CV = hangTagCv;
+    }
 
+    @Autowired(required = false)
+    public void setBaseCv(BaseConvert baseCv) {
+        BASE_CV = baseCv;
+    }
+
+    @Autowired(required = false)
+    public void setMoreLanguageCv(MoreLanguageConvert moreLanguageCv) {
+        MORE_LANGUAGE_CV = moreLanguageCv;
+    }
+
+    @Autowired(required = false)
+    public void setOpenCv(OpenConvert openCv) {
+        OPEN_CV = openCv;
+    }
+
+    @Autowired(required = false)
+    public void setOrderBookCv(OrderBookConvert orderBookCv) {
+        ORDER_BOOK_CV = orderBookCv;
+    }
+
+    @Autowired(required = false)
+    public void setReplayCv(ReplayConvert replayCv) {
+        REPLAY_CV = replayCv;
+    }
 }

@@ -1,10 +1,11 @@
 package com.base.sbc.module.common.convert;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.common.base.BaseDataExtendEntity;
 import com.github.pagehelper.PageInfo;
-import org.apache.poi.ss.formula.functions.T;
+import org.mapstruct.BeforeMapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -16,12 +17,14 @@ import java.util.Map;
  * @since 2024/1/9
  * @CopyRight @ 广州尚捷科技有限公司
  */
-@Mapper
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface BaseConvert {
 
     BaseConvert INSTANCE = Mappers.getMapper(BaseConvert.class);
 
     List<Map<String, Object>> toListMap(List<?> source);
+
+    Map<String, Object> toMap(Map<String, Object> source);
 
     default Map<String, Object> toMap(Object source) {
         return BeanUtil.beanToMap(source);
@@ -34,4 +37,11 @@ public interface BaseConvert {
         pageInfo.setList(list);
         return pageInfo;
     };
+
+    BaseDataExtendEntity copy(BaseDataExtendEntity source);
+
+    @BeforeMapping
+    default void beforeBaseDataExtendEntity(BaseDataExtendEntity source) {
+        source.build();
+    }
 }
