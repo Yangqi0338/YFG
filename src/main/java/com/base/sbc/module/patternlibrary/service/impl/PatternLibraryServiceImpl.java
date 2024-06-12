@@ -152,9 +152,14 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         // 筛选条件
         QueryWrapper<PatternLibrary> queryWrapper = getPatternLibraryQueryWrapper(patternLibraryPageDTO);
         // 权限设置
-        dataPermissionsService.getDataPermissionsForQw(
-                queryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "tpl"
-        );
+        QueryWrapper<PatternLibraryBrand> brandQueryWrapper = new QueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(brandQueryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "tplb.");
+        String sqlSegment = brandQueryWrapper.getSqlSegment();
+        if (ObjectUtil.isNotEmpty(sqlSegment)) {
+            queryWrapper.exists("select id from t_pattern_library_brand tplb where tplb.pattern_library_id = tpl.id and del_flag='0' and " + sqlSegment);
+        } else {
+            queryWrapper.exists("select id from t_pattern_library_brand tplb where tplb.pattern_library_id = tpl.id and del_flag='0'");
+        }
         // 列表分页 不是用作导出时分页
         if (patternLibraryPageDTO.getIsExcel().equals(0)) {
             PageHelper.startPage(patternLibraryPageDTO.getPageNum(), patternLibraryPageDTO.getPageSize());
@@ -953,6 +958,7 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         );
         return fieldValList;
     }
+
     @Override
     public List<Style> listStyleToPatternLibraryProdCategory() {
         List<Style> styleList = styleService.list(new LambdaQueryWrapper<Style>()
@@ -1047,9 +1053,14 @@ public class PatternLibraryServiceImpl extends BaseServiceImpl<PatternLibraryMap
         QueryWrapper<PatternLibrary> queryWrapper = new QueryWrapper<>();
 
         // 权限设置
-        dataPermissionsService.getDataPermissionsForQw(
-                queryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "tpl"
-        );
+        QueryWrapper<PatternLibraryBrand> brandQueryWrapper = new QueryWrapper<>();
+        dataPermissionsService.getDataPermissionsForQw(brandQueryWrapper, DataPermissionsBusinessTypeEnum.PATTERN_LIBRARY.getK(), "tplb.");
+        String sqlSegment = brandQueryWrapper.getSqlSegment();
+        if (ObjectUtil.isNotEmpty(sqlSegment)) {
+            queryWrapper.exists("select id from t_pattern_library_brand tplb where tplb.pattern_library_id = tpl.id and del_flag='0' and " + sqlSegment);
+        } else {
+            queryWrapper.exists("select id from t_pattern_library_brand tplb where tplb.pattern_library_id = tpl.id and del_flag='0'");
+        }
         // 得到版型库主表数据集合
         return baseMapper.getAllFilterCriteria(queryWrapper, type);
     }
