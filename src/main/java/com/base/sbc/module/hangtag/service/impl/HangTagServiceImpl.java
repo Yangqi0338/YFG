@@ -125,7 +125,7 @@ import com.base.sbc.open.service.EscmMaterialCompnentInspectCompanyService;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -289,6 +289,10 @@ public class HangTagServiceImpl extends BaseServiceImpl<HangTagMapper, HangTag> 
 		}
 		qw.notEmptyLike("ht.technologist_name", hangTagDTO.getTechnologistName());
 		qw.notEmptyLike("ht.place_order_staff_name", hangTagDTO.getPlaceOrderStaffName());
+		qw.between("ht.place_order_date", hangTagDTO.getPlaceOrderDate());
+		qw.between("ht.translate_confirm_date", hangTagDTO.getTranslateConfirmDate());
+		qw.between("ht.confirm_date", hangTagDTO.getConfirmDate());
+
 		List<HangTagListVO> hangTagListVOS = hangTagMapper.queryList(hangTagDTO, qw);
 		if(StrUtil.equals(hangTagDTO.getImgFlag(),BaseGlobal.YES)){
 			if(hangTagListVOS.size() > 2000){
