@@ -15,7 +15,7 @@ import java.io.Serializable;
  */
 @Data
 @ApiModel(value = "CategoriesTypeVO对象", description = "上下装 VO")
-public class CategoriesTypeVO extends BaseDataEntity implements Serializable {
+public class CategoriesTypeVO implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
