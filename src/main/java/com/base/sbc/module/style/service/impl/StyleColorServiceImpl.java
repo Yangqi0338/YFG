@@ -1397,6 +1397,7 @@ public class StyleColorServiceImpl<pricingTemplateService> extends BaseServiceIm
 
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("tsc.style_no", styleColor.getStyleNo());
+        queryWrapper.eq("tsc.del_flag", 0);
         List<StyleColorVo> styleColorVoList = baseMapper.colorList(queryWrapper);
         if (CollectionUtils.isEmpty(styleColorVoList)) {
             throw new OtherException("大货款号查无数据");
