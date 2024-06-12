@@ -9,7 +9,6 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.client.ccm.entity.*;
-import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
 import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.module.basicsdatum.dto.BasicCategoryDot;
@@ -372,6 +371,22 @@ public class CcmFeignService {
     public List<BasicBaseDict> getDictInfoToList(String types) {
         List<BasicBaseDict> list = new ArrayList<>();
         String dictInfo = ccmService.getDictInfo(types, null);
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            list = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+        }
+        return list;
+    }
+
+    /**
+     * ccm 查询字典
+     *
+     * @param types
+     * @return
+     */
+    public List<BasicBaseDict> getDictInfoToListOpen(String com,String types) {
+        List<BasicBaseDict> list = new ArrayList<>();
+        String dictInfo = ccmService.getDictInfoOpen(com, types);
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             list = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
