@@ -74,6 +74,7 @@ public interface BasicsdatumMaterialService extends BaseService<BasicsdatumMater
 	Map<String, Object> getBasicsdatumMaterialPriceColorWidthSelect(String materialCode);
 
 	void exportBasicsdatumMaterial(HttpServletResponse response, BasicsdatumMaterialQueryDto dto) throws IOException;
+	void exportBasicsdatumNewMaterial(HttpServletResponse response, MaterialColumnHeadDto dto) throws IOException;
 
 	void exportBasicsdatumMaterialAndStyle(HttpServletResponse response, BasicsdatumMaterialPageAndStyleDto dto) throws IOException;
 
