@@ -102,11 +102,16 @@ public class OrderBookDetailVo extends OrderBookDetail {
     @ApiModelProperty(value = "品类编码")
     private String  categoryCode;
 
+    private String  devtTypeName;
+
     /**
      * 生产类型
      */
     @ApiModelProperty(value = "生产类型")
     public String getDevtTypeName(){
+        if (devtTypeName != null){
+            return devtTypeName;
+        }
         if (this.getDevtType() == null) return "";
         return this.getDevtType().getText();
     }
