@@ -345,6 +345,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
             labelQueryWrapper.eq("material_id", materialSaveDto.getId());
             materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
+            materialSaveDto.setPicUrl(CommonUtils.removeQuery(material.getPicUrl()));
             this.updateById(materialSaveDto);
         }
 
