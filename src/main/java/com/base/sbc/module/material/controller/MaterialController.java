@@ -125,7 +125,7 @@ public class MaterialController extends BaseController {
             //从公司素材管理提交审批，静默审批，不用走审批流
             if ("1".equals(materialSaveDto.getCompanyFlag()) && "1".equals(materialSaveDto.getStatus())){
                 materialSaveDto.setStatus("2");
-                String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getBrandName()).split(",");
+                String[] split = Pinyin4jUtil.converterToFirstSpell(materialSaveDto.getMaterialBrandName()).split(",");
                 String time = String.valueOf(System.currentTimeMillis());
                 String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
                 materialSaveDto.setMaterialCode(materialCode);

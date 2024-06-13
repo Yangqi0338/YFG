@@ -262,7 +262,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
 
             //审核通过
             material.setStatus("2");
-            String[] split = Pinyin4jUtil.converterToFirstSpell(material.getBrandName()).split(",");
+            String[] split = Pinyin4jUtil.converterToFirstSpell(material.getMaterialBrandName()).split(",");
             String time = String.valueOf(System.currentTimeMillis());
             String materialCode = split[0] + time.substring(time.length() - 6) + ThreadLocalRandom.current().nextInt(100000, 999999);
             material.setMaterialCode(materialCode);
@@ -345,6 +345,7 @@ public class MaterialServiceImpl extends BaseServiceImpl<MaterialMapper, Materia
             QueryWrapper<MaterialLabel> labelQueryWrapper = new QueryWrapper<>();
             labelQueryWrapper.eq("material_id", materialSaveDto.getId());
             materialLabelService.addAndUpdateAndDelList(materialSaveDto.getLabels(), labelQueryWrapper);
+            materialSaveDto.setPicUrl(CommonUtils.removeQuery(materialSaveDto.getPicUrl()));
             this.updateById(materialSaveDto);
         }
 
