@@ -27,18 +27,25 @@ import com.base.sbc.config.common.base.UserCompany;
 import com.base.sbc.config.constant.SmpProperties;
 import com.base.sbc.config.enums.BasicNumber;
 import com.base.sbc.config.enums.YesOrNoEnum;
-import com.base.sbc.config.enums.business.orderBook.*;
 import com.base.sbc.config.enums.business.PushRespStatus;
 import com.base.sbc.config.enums.business.PutInProductionType;
-import com.base.sbc.config.enums.business.orderBook.*;
+import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDepartmentEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailOrderStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
+import com.base.sbc.config.enums.business.orderBook.OrderBookStatusEnum;
 import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.config.redis.RedisUtils;
 import com.base.sbc.config.utils.BigDecimalUtil;
+import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
+import com.base.sbc.config.utils.QueryGenerator;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.config.utils.StylePicUtils;
-import com.base.sbc.config.redis.RedisUtils;
-import com.base.sbc.config.utils.*;
+import com.base.sbc.config.utils.ValidationUtil;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumSize;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService;
@@ -62,7 +69,16 @@ import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.mapper.OrderBookDetailMapper;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
 import com.base.sbc.module.orderbook.service.OrderBookService;
-import com.base.sbc.module.orderbook.vo.*;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailExportVo;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailForSeasonPlanningVO;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailPageConfigVo;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailPageVo;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleChannelVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleSizeMapVo;
+import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
+import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
+import com.base.sbc.module.orderbook.vo.UpdateResultVo;
 import com.base.sbc.module.pack.dto.MaterialSupplierInfo;
 import com.base.sbc.module.pack.entity.PackBom;
 import com.base.sbc.module.pack.entity.PackBomVersion;
@@ -83,6 +99,8 @@ import com.base.sbc.module.pushrecords.service.PushRecordsService;
 import com.base.sbc.module.smp.SmpService;
 import com.base.sbc.module.smp.dto.HttpResp;
 import com.base.sbc.module.smp.dto.SaleProductIntoDto;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetDto;
+import com.base.sbc.module.smp.dto.ScmProductionBudgetQueryDto;
 import com.base.sbc.module.smp.dto.ScmProductionDto;
 import com.base.sbc.module.style.dto.PublicStyleColorDto;
 import com.base.sbc.module.style.entity.Style;
@@ -102,6 +120,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -110,7 +130,19 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringJoiner;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -169,7 +201,7 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
         boolean isColumnHeard = QueryGenerator.initQueryWrapperByMap(queryWrapper, dto);
         Page<OrderBookDetailVo> page = dto.startPage();
-        this.querylist(queryWrapper,1, isColumnHeard ? 1 : 0, 1);
+        this.querylist(queryWrapper, 1, isColumnHeard ? 1 : 0, 1, 1, 1);
         OrderBookDetailPageVo pageVo = BeanUtil.copyProperties(page.toPageInfo(),OrderBookDetailPageVo.class);
         if (!isColumnHeard) {
             pageVo.setTotalMap(this.queryCount(dto));
@@ -412,6 +444,22 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 if (StringUtils.isNotBlank(item.getSimilarBulkStyleNo()) && !CollectionUtils.isEmpty(map.get(item.getSimilarBulkStyleNo()))){
                     item.setSimilarStyle(map.get(item.getSimilarBulkStyleNo()).get(0));
                 }
+            });
+        }
+
+        //预算号
+        if (CommonUtils.judge(judgeList, 4, 0)) {
+            ScmProductionBudgetQueryDto scmProductionBudgetQueryDto = new ScmProductionBudgetQueryDto();
+            scmProductionBudgetQueryDto.setBrandList(orderBookDetailVos.stream().map(OrderBookDetailVo::getBrandName).distinct().collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setYearList(orderBookDetailVos.stream().map(OrderBookDetailVo::getYearName).distinct().collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setSeasonList(orderBookDetailVos.stream().map(OrderBookDetailVo::getSeasonName).distinct().collect(Collectors.toList()));
+            List<ScmProductionBudgetDto> productionBudgetList = smpService.productionBudgetList(scmProductionBudgetQueryDto).getData();
+            orderBookDetailVos.forEach(orderBookDetail -> {
+                orderBookDetail.setProductionBudgetNoList(productionBudgetList.stream().filter(it ->
+                        it.getBrandName().equals(orderBookDetail.getBrandName()) &&
+                                it.getYearName().equals(orderBookDetail.getYearName()) &&
+                                it.getSeasonName().equals(orderBookDetail.getSeasonName())
+                ).collect(Collectors.toList()));
             });
         }
         return orderBookDetailVos;
@@ -1226,8 +1274,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
                 String fill = channelType.getFill();
                 Map<String, String> map = productionDto.getAllSizeMap().getOrDefault(channelType, new HashMap<>(8));
                 jsonObject.forEach((key,value)-> {
-                    if (key.endsWith(fill)) {
-                        map.put(StrUtil.replaceLast(key,fill,""), value.toString());
+                    String num = value.toString();
+                    if (key.endsWith(fill) && StrUtil.isNotBlank(num)) {
+                        map.put(StrUtil.replaceLast(key, fill, ""), num);
                     }
                 });
                 productionDto.getAllSizeMap().put(channelType, map);
@@ -1267,10 +1316,15 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
 //            production.decorateUserId(userCompanyList);
 //        });
 
-        asyncExecutor.execute(()-> handlePlaceAnProduction(
-                orderBookDetails1,
-                productionList.stream().map(production -> smpService.saveFacPrdOrder(production)).collect(Collectors.toList())
-        ));
+        //设置子线程共享
+        ServletRequestAttributes servletRequestAttributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        RequestContextHolder.setRequestAttributes(servletRequestAttributes,true);
+        productionList.forEach(production -> {
+            asyncExecutor.execute(()-> handlePlaceAnProduction(
+                    orderBookDetails1,
+                    Collections.singletonList(smpService.saveFacPrdOrder(production))
+            ));
+        });
 
         return productionList.stream().map(ScmProductionDto::getName).collect(Collectors.joining(","));
     }
