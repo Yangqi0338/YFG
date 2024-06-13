@@ -40,12 +40,12 @@ public class HangTagSearchDTO extends QueryFieldDto {
      * 确认时间
      */
     @ApiModelProperty(value = "确认时间")
-    private String confirmDate;
+    private String[] confirmDate;
     /**
      * 翻译确认时间
      */
     @ApiModelProperty(value = "翻译确认时间")
-    private String translateConfirmDate;
+    private String[] translateConfirmDate;
     /**
      * 款号
      */
@@ -121,5 +121,5 @@ public class HangTagSearchDTO extends QueryFieldDto {
      * 下单时间
      */
     @ApiModelProperty(value = "下单时间")
-    private String placeOrderDate;
+    private String[] placeOrderDate;
 }
