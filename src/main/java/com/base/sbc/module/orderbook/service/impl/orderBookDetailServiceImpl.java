@@ -450,9 +450,9 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
         //预算号
         if (CommonUtils.judge(judgeList, 4, 0)) {
             ScmProductionBudgetQueryDto scmProductionBudgetQueryDto = new ScmProductionBudgetQueryDto();
-            scmProductionBudgetQueryDto.setBrandList(orderBookDetailVos.stream().map(OrderBookDetailVo::getBrandName).collect(Collectors.toList()));
-            scmProductionBudgetQueryDto.setYearList(orderBookDetailVos.stream().map(OrderBookDetailVo::getYearName).collect(Collectors.toList()));
-            scmProductionBudgetQueryDto.setSeasonList(orderBookDetailVos.stream().map(OrderBookDetailVo::getSeasonName).collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setBrandList(orderBookDetailVos.stream().map(OrderBookDetailVo::getBrandName).distinct().collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setYearList(orderBookDetailVos.stream().map(OrderBookDetailVo::getYearName).distinct().collect(Collectors.toList()));
+            scmProductionBudgetQueryDto.setSeasonList(orderBookDetailVos.stream().map(OrderBookDetailVo::getSeasonName).distinct().collect(Collectors.toList()));
             List<ScmProductionBudgetDto> productionBudgetList = smpService.productionBudgetList(scmProductionBudgetQueryDto).getData();
             orderBookDetailVos.forEach(orderBookDetail -> {
                 orderBookDetail.setProductionBudgetNoList(productionBudgetList.stream().filter(it ->
