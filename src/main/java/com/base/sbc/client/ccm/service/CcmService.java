@@ -1,7 +1,6 @@
 package com.base.sbc.client.ccm.service;
 
 import com.base.sbc.client.ccm.entity.BasicBaseDict;
-import com.base.sbc.client.ccm.entity.BasicDictDependsQueryDto;
 import com.base.sbc.client.ccm.entity.BasicStructureSearchDto;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.constant.BaseConstant;
@@ -47,6 +46,15 @@ public interface CcmService {
      */
     @GetMapping("/ccm/api/saas/basicBaseDicts/selectDictByTypes")
     public String getDictInfo(@RequestParam("type") String type, @RequestParam("status") String status);
+
+    /**
+     * 获取字典信息
+     *
+     * @param type 类型
+     * @return
+     */
+    @GetMapping("/ccm/api/open/dict/selectDictByTypes")
+    public String getDictInfoOpen(@RequestParam("initCompany") String initCompany,@RequestParam("type") String type);
 
     /**
      * 开放接口获取字典信息
