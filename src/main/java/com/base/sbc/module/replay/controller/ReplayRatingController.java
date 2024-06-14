@@ -9,9 +9,10 @@ package com.base.sbc.module.replay.controller;
 import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
-import com.base.sbc.module.replay.dto.ReplayConfigDTO;
-import com.base.sbc.module.replay.dto.ReplayConfigQO;
-import com.base.sbc.module.replay.service.ReplayConfigService;
+import com.base.sbc.module.replay.dto.ReplayRatingDTO;
+import com.base.sbc.module.replay.dto.ReplayRatingQO;
+import com.base.sbc.module.replay.entity.ReplayRating;
+import com.base.sbc.module.replay.service.ReplayRatingService;
 import com.github.pagehelper.PageInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -25,42 +26,41 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * 类描述：基础资料-复盘管理 Controller类
+ * 类描述：基础资料-复盘评分 Controller类
  *
  * @author KC
  * @version 1.0
- * @address com.base.sbc.module.replay.web.ReplayConfigController
+ * @address com.base.sbc.module.replay.web.ReplayRatingController
  * @email kchange0915@gmail.com
- * @date 创建时间：2024-6-3 20:05:34
+ * @date 创建时间：2024-6-13 15:15:25
  */
 @RestController
-@Api(tags = "基础资料-复盘管理")
-@RequestMapping(value = BaseController.SAAS_URL + "/replayConfig")
+@Api(tags = "基础资料-复盘评分")
+@RequestMapping(value = BaseController.SAAS_URL + "/replayRating")
 @Validated
-public class ReplayConfigController extends BaseController {
+public class ReplayRatingController {
 
     @Autowired
-    private ReplayConfigService replayConfigService;
+    private ReplayRatingService replayRatingService;
 
     @ApiOperation(value = "分页查询")
     @GetMapping("queryPageInfo")
-    public ApiResult<PageInfo<ReplayConfigDTO>> queryPageInfo(ReplayConfigQO dto) {
-        // 查全部
-        dto.reset2QueryList();
-        return selectSuccess(replayConfigService.queryPageInfo(dto));
+    public PageInfo<ReplayRatingDTO> queryPageInfo(ReplayRatingQO dto) {
+        return replayRatingService.findPage(dto);
     }
 
     @ApiOperation(value = "明细-通过id查询")
     @GetMapping("/{id}")
-    public ApiResult<ReplayConfigDTO> getById(@PathVariable("id") String id) {
-        return selectSuccess(replayConfigService.getDetailById(id));
+    public ReplayRating getById(@PathVariable("id") String id) {
+        return replayRatingService.getById(id);
     }
 
     @ApiOperation(value = "保存")
     @PostMapping("save")
     @DuplicationCheck
-    public ApiResult<String> save(@RequestBody ReplayConfigDTO replayConfigDTO) {
-        return updateSuccess(replayConfigService.doSave(replayConfigDTO));
+    public ApiResult<String> save(@RequestBody ReplayRating replayRating) {
+        replayRatingService.save(replayRating);
+        return replayRating;
     }
 
 }

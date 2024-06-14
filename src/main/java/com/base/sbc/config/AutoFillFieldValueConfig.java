@@ -84,6 +84,27 @@ public class AutoFillFieldValueConfig implements MetaObjectHandler {
                             throw new RuntimeException(e);
                         }
                     });
+            // 枚举加入
+            Arrays.stream(declaredFields).filter(Field::isEnumConstant).forEach(field -> {
+                try {
+                    field.setAccessible(true);
+                    Enum<?> enumObj = (Enum<?>) field.get(originalObject);
+                    if (enumObj != null) {
+                        String value;
+                        if (typeHandler.equals(JacksonExtendHandler.class)) {
+                            value = JacksonExtendHandler.getObjectMapper().writeValueAsString(enumObj);
+                        } else if (typeHandler.equals(FastJson2ExtendHandler.class)) {
+                            value = JSON.toJSONString(enumObj, JSONWriter.Feature.WriteMapNullValue,
+                                    JSONWriter.Feature.WriteNullListAsEmpty, JSONWriter.Feature.WriteNullStringAsEmpty);
+                        } else {
+                            throw new UnsupportedOperationException();
+                        }
+                        map.put(field.getName() + "Name", value);
+                    }
+                } catch (IllegalAccessException | JsonProcessingException e) {
+                    throw new RuntimeException(e);
+                }
+            });
             this.setFieldValByName(extendFieldName, map, metaObject);
         }
     }

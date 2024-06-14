@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.base.sbc.module.replay.mapper.ReplayRatingMapper">
+    <!--
+        基础资料-复盘评分
+        创建人：KC
+        邮箱：kchange0915@gmail.com
+        创建时间：2024-6-13 15:15:25
+        版本号：1.0
+      -->
+
+    <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
+
+
+    <!-- ***********************自定义方法区 不替换的区域【other_end】******************************************** -->
+</mapper>
