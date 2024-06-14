@@ -15,6 +15,7 @@ import com.alibaba.fastjson2.JSONWriter;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.generator.utils.UtilFreemarker;
+import com.base.sbc.module.pack.dto.GenTechSpecPdfFileProperties;
 import com.base.sbc.module.pack.dto.PackTechAttachmentVo;
 import com.base.sbc.module.pack.entity.PackTechSpec;
 import com.base.sbc.module.pack.vo.PackSizeVo;
@@ -51,9 +52,12 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -235,49 +239,78 @@ public class GenTechSpecPdfFile {
         this.placeOrderDateStr = DateUtil.format(placeOrderDate, DatePattern.NORM_DATETIME_PATTERN);
         this.produceDateStr = DateUtil.format(produceDate, DatePattern.NORM_DATETIME_PATTERN);
 
-        List<String> sizeList = StrUtil.split(this.activeSizes, CharUtil.COMMA);
-        boolean washSkippingFlag = StrUtil.equals(this.getWashSkippingFlag(), BaseGlobal.YES);
+        // 找渲染的模板文件
         Configuration config = new Configuration();
         config.setDefaultEncoding("UTF-8");
         config.setTemplateLoader(new ClassTemplateLoader(UtilFreemarker.class, "/"));
         config.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-//        config.setDirectoryForTemplateLoading(new File("D:\\project\\sjs_yfg_pdm\\src\\main\\resources"));
-        Template template;
-        if (this.fob) {
-            template = config.getTemplate("ftl/process.html.fob.ftl");
-        } else {
-            template = config.getTemplate("ftl/process.html.ftl");
+
+        // 从nacos获取动态模板文件地址,因为静态文件打包上服务器是jar包,不好动态测试(不重启修改静态文件),这样做可以直接用jar包外的地址
+        // 可以做枚举
+        // directory 指的是jar包外部文件, 其他为jar包内部文件(规范为classes)
+        if ("directory".equals(GenTechSpecPdfFileProperties.templateLinkType)) {
+            // 设置基础base路径
+            config.setDirectoryForTemplateLoading(new File(GenTechSpecPdfFileProperties.templateDirectoryBaseUrl));
         }
 
+        Template template;
+        if (this.fob) {
+            template = config.getTemplate(GenTechSpecPdfFileProperties.processFobFtlUrl);
+        } else {
+            template = config.getTemplate(GenTechSpecPdfFileProperties.processFtlUrl);
+        }
+
+        // 将当前对象转成模板变量
         String str = JSON.toJSONString(this, JSONWriter.Feature.WriteNullStringAsEmpty);
         JSONObject dataModel = JSON.parseObject(str);
-        dataModel.put("sizeList", sizeList);
+
+        // 初始化自定义模板变量
+        boolean isFob = isFob();
+        dataModel.put("isFob", isFob);
+
+        /* ----------------------------尺码表---------------------------- */
+
+        // 计算合并单元格
         int sizeColspan = 1;
+        if (!isFob) {
+            sizeColspan++;
+        }
+
+        // 是否跳过水洗
+        boolean washSkippingFlag = StrUtil.equals(this.getWashSkippingFlag(), BaseGlobal.YES);
         if (washSkippingFlag) {
             sizeColspan++;
         }
-        if (!isFob()) {
-            sizeColspan++;
-        }
-        dataModel.put("sizeColspan", sizeColspan);
-        int sizeTitleColspan = sizeColspan * CollUtil.size(sizeList) + 4;
-        dataModel.put("sizeTitleColspan", sizeTitleColspan);
         dataModel.put("washSkippingFlag", washSkippingFlag);
-        //处理尺码数据
-        // 3个白色开始 2个灰色开始
-        List<Map<String, Object>> dataList = new ArrayList<>(16);
-        ArrayList<String> tdClassList = CollUtil.newArrayList("gb", "wb");
+
+        // 非fob+1, 水洗+1
+        dataModel.put("sizeColspan", sizeColspan);
+
+        // 获取基础尺码数
+        List<String> sizeList = StrUtil.split(this.activeSizes, CharUtil.COMMA);
+        dataModel.put("sizeList", sizeList);
+
+        // 计算表头合并单元格
+        int sizeTitleColspan = (sizeColspan * CollUtil.size(sizeList)) + 4;
+        dataModel.put("sizeTitleColspan", sizeTitleColspan);
+
         Map<Object, Object> sizeClass = new LinkedHashMap<>();
-        //计算尺寸表的背景颜色
-        //默认尺码下标
-        int defaultSizeIndex = CollUtil.indexOf(sizeList, (s) -> StrUtil.equals(s, defaultSize));
+//        Map<Object, Object> rdTitleWidthList = new LinkedHashMap<>();
+
         //部位、描述、列无背景
         int sizeTdIndex = 0;
         sizeClass.put(sizeTdIndex++, "");
         sizeClass.put(sizeTdIndex++, "");
-        String tdBg = "";
+
+        // 计算尺码表的背景颜色
+        // 默认尺码是dgb,从默认尺码开始算,奇数是wb,偶数是gb
+        // 默认尺码下标
+        int defaultSizeIndex = CollUtil.indexOf(sizeList, (s) -> StrUtil.equals(s, defaultSize));
+        String tdBg;
         int sizeResetFlg = defaultSizeIndex;
-        boolean isDefaultSize = false;
+        boolean isDefaultSize;
+        // 3个白色开始 2个灰色开始
+        ArrayList<String> tdClassList = CollUtil.newArrayList("gb", "wb");
         for (String s : sizeList) {
             isDefaultSize = StrUtil.equals(s, defaultSize);
             if (isDefaultSize) {
@@ -287,29 +320,35 @@ public class GenTechSpecPdfFile {
             }
             for (int j = 0; j < sizeColspan; j++) {
                 sizeClass.put(sizeTdIndex++, tdBg);
+//                // 构建新的尺码表头文本
+//                rdTitleWidthList.put(sizeTdIndex++, TechSpecPDFSizeClassLevel.buildCharSizeWidthStyle(classLevel.getRdWidth(),
+//                        Math.min(classLevel.getCharPx(), realRdTitleLength)));
             }
             if (isDefaultSize) {
                 sizeResetFlg = 1;
             } else {
                 sizeResetFlg++;
             }
-
         }
+
         // 公差-、公差+列无背景
         sizeClass.put(sizeTdIndex++, "");
         sizeClass.put(sizeTdIndex, "");
+        dataModel.put("sizeClass", sizeClass.values());
+//        dataModel.put("rdTitleWidthList", rdTitleWidthList.values());
+
+        // 尺码表数据
+        List<Map<String, Object>> dataList = new ArrayList<>();
         if (CollUtil.isNotEmpty(this.getSizeList())) {
-            for (int i = 0; i < this.getSizeList().size(); i++) {
-                PackSizeVo packSize = this.getSizeList().get(i);
-                SizeDataDetail rowData = new SizeDataDetail();
-                rowData.setRowType(packSize.getRowType());
-                rowData.setRemark(packSize.getRemark());
+            for (PackSizeVo packSizeVo : this.getSizeList()) {
                 List<Map<String, Object>> row = new ArrayList<>();
-                row.add(new TdDetail(Opt.ofNullable(packSize.getPartName()).orElse(""), "partNameClass").toMap());
-                row.add(new TdDetail(Opt.ofNullable(packSize.getMethod()).orElse(""), "td_lt methodClass").toMap());
-                JSONObject jsonObject = JSONObject.parseObject(packSize.getStandard());
+
+                String partName = Opt.ofNullable(packSizeVo.getPartName()).orElse("");
+                row.add(new TdDetail(partName, "partNameClass").toMap());
+                row.add(new TdDetail(Opt.ofNullable(packSizeVo.getMethod()).orElse(""), "td_lt methodClass").toMap());
+                JSONObject jsonObject = JSONObject.parseObject(packSizeVo.getStandard());
                 for (String size : sizeList) {
-                    if (!isFob()) {
+                    if (!isFob) {
                         row.add(new TdDetail(MapUtil.getStr(jsonObject, "template" + size, "-")).toMap());
                     }
                     row.add(new TdDetail(MapUtil.getStr(jsonObject, "garment" + size, "-")).toMap());
@@ -318,13 +357,17 @@ public class GenTechSpecPdfFile {
                     }
                 }
                 //公差-
-                row.add(new TdDetail(Opt.ofBlankAble(packSize.getMinus()).map(minus -> minus.contains("-") ? minus : ("-" + minus)).orElse("")).toMap());
+                row.add(new TdDetail(Opt.ofBlankAble(packSizeVo.getMinus()).map(minus -> minus.contains("-") ? minus : ("-" + minus)).orElse("")).toMap());
                 //公差+
-                row.add(new TdDetail(Opt.ofNullable(packSize.getPositive()).orElse("")).toMap());
-                rowData.setRowData(row);
-                dataList.add(rowData.toMap());
+                row.add(new TdDetail(Opt.ofNullable(packSizeVo.getPositive()).orElse("")).toMap());
+
+                dataList.add(new SizeDataDetail(packSizeVo.getRowType(), packSizeVo.getRemark(), row).toMap());
             }
         }
+        dataModel.put("sizeDataList", dataList);
+
+        /* ----------------------------工艺说明---------------------------- */
+
         Map<String, List<PackTechAttachmentVo>> picMap = new HashMap<>(16);
         if (CollUtil.isNotEmpty(this.getPicList())) {
             picMap = this.getPicList().stream().collect(Collectors.groupingBy(PackTechAttachmentVo::getSpecType));
@@ -336,9 +379,6 @@ public class GenTechSpecPdfFile {
                     .stream()
                     .collect(Collectors.groupingBy(PackTechSpecVo::getSpecType, LinkedHashMap::new, Collectors.toList()));
         }
-        dataModel.put("isFob", isFob());
-        dataModel.put("sizeDataList", dataList);
-        dataModel.put("sizeClass", sizeClass.values());
 
         for (String key : gyMap.keySet()) {
             List<PackTechSpecVo> packTechSpecVos = Optional.ofNullable(gyMap.get(key)).orElse(CollUtil.newArrayList());
@@ -411,18 +451,18 @@ public class GenTechSpecPdfFile {
         dataModel.put("zysxImgList", Optional.ofNullable(picMap.get("注意事项")).orElse(null));
 
         // 裁剪工艺是否显示
-        dataModel.put("cjgyShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("cjgyDataList")));
-        dataModel.put("cjgyImgShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("cjgyImgList")));
+        dataModel.put("cjgyShow", !isFob || ObjectUtil.isNotEmpty(dataModel.get("cjgyDataList")));
+        dataModel.put("cjgyImgShow", !isFob || ObjectUtil.isNotEmpty(dataModel.get("cjgyImgList")));
         // 小部件是否显示
-        dataModel.put("xbjShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("xbjDataList")));
+        dataModel.put("xbjShow", !isFob || ObjectUtil.isNotEmpty(dataModel.get("xbjDataList")));
         //注意事项是否显示
-        dataModel.put("zysxShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("zysxImgList")));
+        dataModel.put("zysxShow", !isFob || ObjectUtil.isNotEmpty(dataModel.get("zysxImgList")));
         //注意事项文本是否显示
-        dataModel.put("zysxTextShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("zysxDataList")));
+        dataModel.put("zysxTextShow", !isFob || ObjectUtil.isNotEmpty(dataModel.get("zysxDataList")));
         // 基础工艺是否显示
-        dataModel.put("jcgyShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("jcgyDataList")));
+        dataModel.put("jcgyShow", !isFob || ObjectUtil.isNotEmpty(dataModel.get("jcgyDataList")));
         // 整烫包装 是否显示
-        dataModel.put("ztbzShow", !isFob() || ObjectUtil.isNotEmpty(dataModel.get("ztbzDataList")));
+        dataModel.put("ztbzShow", !isFob || ObjectUtil.isNotEmpty(dataModel.get("ztbzDataList")));
         List<PackTechSpecVo> ztbzSpecVos = Optional.ofNullable(gyMap.get("整烫包装")).orElse(CollUtil.newArrayList());
         int ztbzTotalRows = CharUtils.getRows(ztbzSpecVos.stream().map(p -> (PackTechSpec)p).collect(Collectors.toList()));
         dataModel.put("ztbzRows", ztbzTotalRows);
@@ -571,6 +611,8 @@ public class GenTechSpecPdfFile {
 
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     class SizeDataDetail {
         private String rowType;
         private String remark;
