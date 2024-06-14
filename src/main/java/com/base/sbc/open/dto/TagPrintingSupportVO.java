@@ -108,6 +108,7 @@ public class TagPrintingSupportVO extends TagPrinting {
             MapUtil.entry("DP09", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
             MapUtil.entry("DP10", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
             MapUtil.entry("DP11", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
+            MapUtil.entry("DP12", new CodeMapping<>("FillingTitle-充绒量")),
             MapUtil.entry("DP13", new CodeMapping<>("CompositionTitle-成分信息", MoreLanguageTagPrinting::getComposition, MoreLanguageTagPrinting::setComposition)),
             MapUtil.entry("DP16", new CodeMapping<>("CompositionTitle-成分信息")),
 

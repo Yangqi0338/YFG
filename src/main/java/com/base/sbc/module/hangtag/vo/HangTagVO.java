@@ -9,6 +9,7 @@ package com.base.sbc.module.hangtag.vo;
 import java.util.Date;
 import java.util.List;
 
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.enums.business.HangTagStatusEnum;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.hangtag.entity.HangTag;
@@ -16,6 +17,7 @@ import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -364,6 +366,14 @@ public class HangTagVO extends HangTag {
     private String isTrim;
 
     private String produceTypeName;
+
+    /**
+     * 品牌
+     */
+    @JsonIgnore
+    private String brand;
+
+    private YesOrNoEnum ingredientDefaultWrap;
 
     public String getStylePic() {
         if (StrUtil.isNotBlank(styleColorPic)) {

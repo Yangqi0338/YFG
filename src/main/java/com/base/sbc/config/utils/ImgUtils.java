@@ -1,7 +1,6 @@
 package com.base.sbc.config.utils;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.net.ftp.FTP;

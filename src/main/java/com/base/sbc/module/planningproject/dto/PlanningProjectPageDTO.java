@@ -1,7 +1,7 @@
 package com.base.sbc.module.planningproject.dto;
 
-import io.swagger.annotations.ApiModel;
 import com.base.sbc.config.common.base.Page;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
@@ -10,6 +10,12 @@ import java.util.Date;
 @Data
 @ApiModel("企划看板规划筛选条件 PlanningBoardSearchDto")
 public class PlanningProjectPageDTO extends Page{
+
+    @ApiModelProperty(value = "企划规划看板id")
+    private String planningProjectId;
+
+    @ApiModelProperty(value = "企划需求看板id")
+    private String planningChannelId;
     @ApiModelProperty(value = "产品季id")
     private String seasonId;
     @ApiModelProperty(value = "年份")
@@ -61,4 +67,10 @@ public class PlanningProjectPageDTO extends Page{
 
     @ApiModelProperty(value = "修改时间")
     private Date updateDate;
+
+    /**
+     * 维度数据 id，多选逗号分隔
+     */
+    @ApiModelProperty(value = "维度数据 id，多选逗号分隔")
+    private String dimensionIds;
 }

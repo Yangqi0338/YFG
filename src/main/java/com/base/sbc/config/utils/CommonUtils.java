@@ -2,6 +2,7 @@ package com.base.sbc.config.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.text.StrJoiner;
@@ -11,6 +12,7 @@ import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.base.sbc.config.common.base.BaseDataEntity;
 import com.base.sbc.config.exception.OtherException;
+import com.base.sbc.open.entity.EscmMaterialCompnentInspectCompanyDto;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.poi.ss.formula.functions.T;
 
@@ -25,6 +27,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.handler;
 
 /**
  * @author 卞康
@@ -332,6 +336,17 @@ public class CommonUtils {
         }
     }
 
+    public static <T, U extends Comparable<U>> Comparator<T> nullFirstComparing(Function<? super T, ? extends U> keyExtractor) {
+        return comparing(keyExtractor, false);
+    }
+
+    public static <T, U extends Comparable<U>> Comparator<T> nullLastComparing(Function<? super T, ? extends U> keyExtractor) {
+        return comparing(keyExtractor, true);
+    }
+
+    public static <T, U extends Comparable<U>> Comparator<T> comparing(Function<? super T, ? extends U> keyExtractor, boolean nullLast) {
+        return Comparator.comparing(keyExtractor, nullLast ? Comparator.nullsLast(Comparable::compareTo): Comparator.nullsFirst(Comparable::compareTo));
+    }
 
     public static <T, K> Collector<T, ?, Map<K, List<T>>> groupingBy(Function<? super T, ? extends K> classifier) {
         return Collectors.groupingBy(classifier, LinkedHashMap::new, Collectors.toList());
@@ -370,6 +385,27 @@ public class CommonUtils {
 
     public static StrJoiner strJoin(CharSequence delimiter, CharSequence prefix, CharSequence suffix, StrJoiner.NullMode nullMode) {
         return StrJoiner.of(delimiter, prefix, suffix).setNullMode(nullMode);
+    }
+
+    public static <T> T listGet(Collection<T> collection, int index, T defaultValue) {
+        try {
+            return CollUtil.get(collection,index);
+        }catch (Exception ignored) {
+            return defaultValue;
+        }
+    }
+
+    public static boolean judge(Collection<Integer> judgeList, int index, int defaultValue) {
+        return judge(judgeList, index, defaultValue, (judge)-> NumberUtil.equals(judge, (Number) 1) );
+    }
+
+    public static boolean judge(Collection<Integer> judgeList, int index, int defaultValue, Function<Integer, Boolean> handler) {
+        try {
+            Integer result = CollUtil.get(judgeList, index);
+            return handler.apply(result);
+        }catch (Exception ignored) {
+            return handler.apply(defaultValue);
+        }
     }
 
 }

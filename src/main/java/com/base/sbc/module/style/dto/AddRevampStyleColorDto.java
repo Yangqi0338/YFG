@@ -6,6 +6,7 @@
  *****************************************************************************/
 package com.base.sbc.module.style.dto;
 
+import com.base.sbc.config.enums.business.ProductionType;
 import com.base.sbc.module.style.entity.StyleColor;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
@@ -91,7 +92,7 @@ public class AddRevampStyleColorDto extends StyleColor {
     private String bom;
     /** 生产类型 */
     @ApiModelProperty(value = "生产类型"  )
-    private String devtType;
+    private ProductionType devtType;
     /** 生产类型名称 */
     @ApiModelProperty(value = "生产类型名称"  )
     private String devtTypeName;

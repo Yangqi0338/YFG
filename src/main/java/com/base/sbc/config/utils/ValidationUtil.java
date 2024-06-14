@@ -1,6 +1,7 @@
 package com.base.sbc.config.utils;
 
 import cn.hutool.core.collection.CollectionUtil;
+import com.base.sbc.config.exception.OtherException;
 import lombok.SneakyThrows;
 
 import javax.validation.ConstraintViolation;
@@ -33,7 +34,7 @@ public class ValidationUtil {
             constraintViolations.forEach((constraintViolation)-> {
                 errorJoiner.add(constraintViolation.getMessage());
             });
-            throw new ValidationException(errorJoiner.toString());
+            throw new OtherException(errorJoiner.toString());
         }
     }
 

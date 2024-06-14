@@ -222,7 +222,8 @@
         <if test="ew.sqlSelect == null or ew.sqlSelect == ''">
             *
         </if>
-        from (SELECT season.brand_name brandName,
+        from (SELECT season.brand brand,
+        season.brand_name brandName,
         season.`year` yearName,
         season.season_name seasonName,
         CONCAT(season.`year`,' ',season.season_name) season,
@@ -233,9 +234,10 @@
         COUNT(ts.design_no) completeCount,
         (SUM(IFNULL(item.skc_count, 0)) - COUNT(ts.design_no)) residueCount,
         (COUNT(ts.design_no) / SUM(IFNULL(item.skc_count, 0))) completePercentage,
-        dm.designer designer
+        dm.designer designer,
+        ts.receive_dept_id
         FROM t_seasonal_planning_details item
-        LEFT JOIN t_seasonal_planning head on head.id = item.seasonal_planning_name
+        LEFT JOIN t_seasonal_planning head on head.id = item.seasonal_planning_id
         LEFT JOIN t_planning_season season on head.season_id = season.id
         LEFT JOIN t_principal_designer_manage dm
         on dm.brand_name = season.brand_name and dm.del_flag = '0'

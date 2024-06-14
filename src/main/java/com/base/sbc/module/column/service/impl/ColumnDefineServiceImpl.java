@@ -10,6 +10,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
+import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.column.entity.ColumnDefine;
 import com.base.sbc.module.column.mapper.ColumnDefineMapper;
 import com.base.sbc.module.column.service.ColumnDefineService;
@@ -106,5 +107,26 @@ public class ColumnDefineServiceImpl extends BaseServiceImpl<ColumnDefineMapper,
             removeBatchByIds(delIds);
         }
     }
+
+    @Override
+    public List<ColumnDefine> getByTableCode(String tableCode, String columnCode, boolean isSys) {
+        LambdaQueryWrapper<ColumnDefine> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ColumnDefine::getTableCode, tableCode);
+        queryWrapper.eq(ColumnDefine::getDelFlag, BaseGlobal.DEL_FLAG_NORMAL);
+        if (!isSys) {
+            queryWrapper.eq(ColumnDefine::getHidden, BaseGlobal.YES);
+        }
+        if (StringUtils.isNotBlank(columnCode)){
+            queryWrapper.eq(ColumnDefine::getColumnCode, columnCode);
+        }
+        queryWrapper.orderByAsc(ColumnDefine::getSortOrder);
+        List<ColumnDefine> list = list(queryWrapper);
+        if("styleMarking".equals(tableCode) || "styleMarkingOrder".equals(tableCode)){
+            //款式打标导出专用，动态添加表单字段管理中 维度系数的字段
+            styleMarkingColumnAdd(list);
+        }
+        return list;
+    }
+
 
 }

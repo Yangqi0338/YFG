@@ -6,8 +6,6 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
@@ -97,11 +95,13 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
         queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCreateName()),"tfii.create_name",queryFabricIngredientsInfoDto.getCreateName());
         queryWrapper.eq(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getCompletionStatus()),"tfii.completion_status",queryFabricIngredientsInfoDto.getCompletionStatus());
         queryWrapper.between("tfii.create_date",StringUtils.split(queryFabricIngredientsInfoDto.getCreateDate(),","));
+        queryWrapper.like(StringUtils.isNotBlank(queryFabricIngredientsInfoDto.getDevCondition()),"tfii.dev_Condition",queryFabricIngredientsInfoDto.getDevCondition());
+
         if (!StringUtils.isEmpty(queryFabricIngredientsInfoDto.getPracticalAtactiformDate())){
             queryWrapper.between("tfii.practical_atactiform_date",queryFabricIngredientsInfoDto.getPracticalAtactiformDate().split(","));
         }
         queryWrapper.groupBy("tfii.id");
-        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"tfii.",new String[]{"category_id"},true);
+        dataPermissionsService.getDataPermissionsForQw(queryWrapper, DataPermissionsBusinessTypeEnum.FabricInformation.getK(),"tfii.",new String[]{"category_id:category_id","create_dept_id:create_dept_id"},true);
         /*查询调样-辅料信息数据*/
         Page<FabricIngredientsInfoVo> objects = PageHelper.startPage(queryFabricIngredientsInfoDto);
         baseMapper.getSelectList(queryWrapper);
@@ -149,6 +149,7 @@ public class FabricIngredientsInfoServiceImpl extends BaseServiceImpl<FabricIngr
             fabricIngredientsInfo.setCompanyCode(baseController.getUserCompany());
             fabricIngredientsInfo.insertInit();
             CommonUtils.removeQuery(fabricIngredientsInfo,"imageUrl");
+            fabricIngredientsInfo.setCreateDeptId(getVirtualDeptIds());
             this.save(fabricIngredientsInfo);
             if(CollUtil.isNotEmpty(list)){
                 list.forEach(l -> {

@@ -6,25 +6,23 @@
  *****************************************************************************/
 package com.base.sbc.module.sample.service.impl;
 
-import cn.afterturn.easypoi.excel.entity.ExportParams;
-import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.base.sbc.client.amc.enums.DataPermissionsBusinessTypeEnum;
 import com.base.sbc.client.amc.service.AmcFeignService;
+import com.base.sbc.client.amc.service.AmcService;
 import com.base.sbc.client.amc.service.DataPermissionsService;
 import com.base.sbc.client.oauth.entity.GroupUser;
+import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.BaseQueryWrapper;
 import com.base.sbc.config.common.base.BaseEntity;
 import com.base.sbc.config.common.base.BaseGlobal;
@@ -32,6 +30,7 @@ import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
 import com.base.sbc.config.utils.*;
+import com.base.sbc.module.common.dto.VirtualDept;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.base.sbc.module.nodestatus.entity.NodeStatus;
 import com.base.sbc.module.nodestatus.service.NodeStatusConfigService;
@@ -78,9 +77,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 /**
@@ -120,6 +116,8 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
     @Lazy
     @Autowired
     private SmpService smpService;
+    @Autowired
+    private AmcService amcService;
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
@@ -417,6 +415,12 @@ public class PreProductionSampleTaskServiceImpl extends BaseServiceImpl<PreProdu
         String styleColorId = packInfo.getStyleColorId();
         StyleColor styleColor = styleColorService.getById(styleColorId);
         task.setTechReceiveTime(styleColor.getTechReceiveTime());
+
+        //保存创建人的虚拟部门
+        ApiResult<List<VirtualDept>> virtualDeptByUserId = amcService.getVirtualDeptByUserId(getUserId());
+        List<VirtualDept> data = virtualDeptByUserId.getData();
+        String ids = data.stream().map(VirtualDept::getId).collect(Collectors.joining());
+        task.setCreateDeptId(ids);
 
         return save(task, "产前样看板");
     }

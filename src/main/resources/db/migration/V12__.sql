@@ -1,0 +1,1 @@
+ALTER table t_order_book_detail add column sub_delivery_time varchar(64) DEFAULT NULL COMMENT '辅料货期';

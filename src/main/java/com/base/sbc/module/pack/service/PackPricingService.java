@@ -69,6 +69,9 @@ public interface PackPricingService extends PackBaseService<PackPricing> {
      */
    boolean createPackPricing( String styleId,String foreignId);
 
+
+    PackPricing getByForeignIdOne(String foreignId, String packType);
+
 // 自定义方法区 不替换的区域【other_end】
 
 

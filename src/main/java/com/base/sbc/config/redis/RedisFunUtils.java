@@ -2,7 +2,6 @@
 package com.base.sbc.config.redis;
 
 
-import com.base.sbc.config.utils.SpringContextHolder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.util.CollectionUtils;
@@ -188,6 +187,7 @@ public class RedisFunUtils {
 		try {
 			setRedisTemplateInit(redisFlag);
 			if(time>0){
+                redisTemplate.opsForValue();
 				redisTemplate.opsForValue().set(key, value, time, TimeUnit.SECONDS);
 			}else{
 				redisTemplate.opsForValue().set(key, value);
@@ -211,6 +211,22 @@ public class RedisFunUtils {
 		}
 		setRedisTemplateInit(redisFlag);
 		return redisTemplate.opsForValue().increment(key, delta);
+	}
+
+	/**
+	 * 递增
+	 * @param key 键
+	 * @param delta 要增加几(大于0)
+	 * @return
+	 */
+	public long incr(String key, long delta, long timeout, TimeUnit unit){
+		if(delta<0){
+			throw new RuntimeException("递增因子必须大于0");
+		}
+		setRedisTemplateInit(redisFlag);
+		Long increment = redisTemplate.opsForValue().increment(key, delta);
+		redisTemplate.expire(key,timeout,unit);
+		return increment;
 	}
 
 	/**
@@ -568,7 +584,6 @@ public class RedisFunUtils {
 	 * 将list放入缓存
 	 * @param key 键
 	 * @param value 值
-	 * @param time 时间(秒)
 	 * @return
 	 */
 	public boolean lSet(String key, List<Object> value) {
@@ -638,6 +653,28 @@ public class RedisFunUtils {
 			return 0;
 		}
 	}
+
+
+	/**
+	 * redis实现分布式锁
+	 * @param key
+	 * @return
+	 */
+	public boolean setNx(String key,int time) {
+		setRedisTemplateInit(redisFlag);
+		Boolean result = redisTemplate.opsForValue().setIfAbsent(key, "1");
+
+		//返回1,表示设置成功,拿到锁
+		if(result){
+			//设置过期时间
+			expire(key,time);
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+
 
 
 }

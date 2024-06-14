@@ -38,7 +38,7 @@ public class ColumnGroupDefineController {
     @ApiOperation("明细-通过tableCode查询")
     @GetMapping({"/{tableCode}/{userGroupId}"})
     public ApiResult getById(@PathVariable("tableCode") String tableCode, @PathVariable("userGroupId") String userGroupId) {
-        return ApiResult.success("查询成功", this.columnGroupDefineService.findDetail(tableCode, userGroupId));
+        return ApiResult.success("查询成功", this.columnGroupDefineService.findDetail(tableCode,"", userGroupId));
     }
 
     @ApiOperation("保存")

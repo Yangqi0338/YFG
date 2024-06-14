@@ -5,15 +5,20 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.SharedString;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.toolkit.support.SFunction;
 import com.base.sbc.config.common.base.BaseGlobal;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author 卞康
@@ -21,7 +26,22 @@ import java.util.List;
  * @mail 247967116@qq.com
  */
 @Data
+@NoArgsConstructor
 public class BaseQueryWrapper<T> extends QueryWrapper<T> {
+    public BaseQueryWrapper(T entity, Class<T> entityClass, AtomicInteger paramNameSeq,
+                         Map<String, Object> paramNameValuePairs, MergeSegments mergeSegments, SharedString paramAlias,
+                         SharedString lastSql, SharedString sqlComment, SharedString sqlFirst) {
+        super.setEntity(entity);
+        super.setEntityClass(entityClass);
+        this.paramNameSeq = paramNameSeq;
+        this.paramNameValuePairs = paramNameValuePairs;
+        this.expression = mergeSegments;
+        this.paramAlias = paramAlias;
+        this.lastSql = lastSql;
+        this.sqlComment = sqlComment;
+        this.sqlFirst = sqlFirst;
+    }
+
     public QueryWrapper<T> notEmptyEq(String column, Object val) {
         return this.eq(!StringUtils.isEmpty(val), column, val);
     }
