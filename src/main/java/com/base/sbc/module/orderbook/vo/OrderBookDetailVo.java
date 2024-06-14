@@ -1,6 +1,9 @@
 package com.base.sbc.module.orderbook.vo;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
+import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
@@ -350,4 +353,30 @@ public class OrderBookDetailVo extends OrderBookDetail {
 
     @ApiModelProperty(value = "线上投产占比")
     private Double onLinkSizeProportion;
+
+    //列头筛选导出补充数据
+    private JSONObject replenish;
+
+    public void setReplenishInfo(){
+        //线上，线下数据
+        JSONObject jsonObject = getCommissioningSizeTotalJsonObject();
+        //四倍价
+        jsonObject.put("multiplePrice",cost.multiply(BigDecimal.valueOf(4)));
+        if (this.similarStyle == null ){
+            this.replenish = jsonObject;
+            return;
+        }
+        JSONObject similarStyleJson = JSONObject.parseObject(JSON.toJSONString(similarStyle));
+
+        for (StyleSaleIntoCalculateResultType resultType : StyleSaleIntoCalculateResultType.values()) {
+            Object o = similarStyleJson.get(resultType.name());
+            if (null != o){
+                JSONObject value  = (JSONObject)o;
+                value.forEach((k,v) ->{
+                    jsonObject.put(resultType.getPrefix()+k,v);
+                });
+            }
+        }
+        this.replenish = jsonObject;
+    }
 }

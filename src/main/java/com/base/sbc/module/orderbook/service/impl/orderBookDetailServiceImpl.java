@@ -196,17 +196,20 @@ public class orderBookDetailServiceImpl extends BaseServiceImpl<OrderBookDetailM
     @Override
     public void importExcel(OrderBookDetailQueryDto dto, HttpServletResponse response, String tableCode) throws IOException {
         BaseQueryWrapper<OrderBookDetail> queryWrapper = this.buildQueryWrapper(dto);
-        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1);
+        List<OrderBookDetailVo> orderBookDetailVos = this.querylist(queryWrapper, 1,0,1);
         if (orderBookDetailVos.isEmpty()) {
             throw new RuntimeException("没有数据");
         }
-        List<OrderBookDetailExportVo> orderBookDetailExportVos = BeanUtil.copyToList(orderBookDetailVos, OrderBookDetailExportVo.class);
+//        List<OrderBookDetailExportVo> orderBookDetailExportVos = BeanUtil.copyToList(orderBookDetailVos, OrderBookDetailExportVo.class);
         //导出
         // ExcelUtils.executorExportExcel();
 //        ExportParams exportParams = new ExportParams("订货本详情", "订货本详情", ExcelType.HSSF);
 //        ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, OrderBookDetailExportVo.class,"订货本详情",exportParams,response,tableCode,dto.getImgFlag(),3000,"stylePic","styleColorPic");
+        dto.setImgFlag("1");
 
-        ExcelUtils.exportExcelByTableCode(orderBookDetailExportVos, "订货本详情", response, dto);
+        orderBookDetailVos.forEach(OrderBookDetailVo::setReplenishInfo);
+
+        ExcelUtils.exportExcelByTableCode(orderBookDetailVos, "订货本详情", response, dto);
     }
 
     @Value("${baseFrontEndAddress}")
