@@ -182,6 +182,12 @@ public class ColumnDefine extends BaseDataEntity<String> {
     @ApiModelProperty(value = "是否省略(1省略,0或空省略)")
     private String columnEllipsis;
 
+    /**
+     * 是否合并单元格(1合并,0或空不合并)
+     */
+    @ApiModelProperty(value = "是否合并单元格(1合并,0或空不合并)")
+    private String columnMerge;
+
     @TableField(exist = false)
     @ApiModelProperty(value = "分组")
     private List<ColumnDefine> children;

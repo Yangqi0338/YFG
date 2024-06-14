@@ -39,5 +39,13 @@ public interface AttachmentTypeConstant {
     /**
      * 调样管理图片
      */
-    String TRANSFER_MANAGE_IMAGE ="TRANSFER_MANAGE_IMAGE";
+    String TRANSFER_MANAGE_IMAGE = "TRANSFER_MANAGE_IMAGE";
+    /**
+     * 版型库图片
+     */
+    String PATTERN_LIBRARY_PIC = "PATTERN_LIBRARY_PIC";
+    /**
+     * 版型库文件
+     */
+    String PATTERN_LIBRARY_FILE = "PATTERN_LIBRARY_FILE";
 }

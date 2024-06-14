@@ -28,8 +28,9 @@ public class OrderBookSimilarStyleSizeMapVo {
             numSizeMap.forEach((size, num)-> {
                 percentageSizeMap.put(size, BigDecimalUtil.dividePercentage(num, sum));
             });
+            return percentageSizeMap;
         }
-        return percentageSizeMap;
+        return numSizeMap;
     };
 
 

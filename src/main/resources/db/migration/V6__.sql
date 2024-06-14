@@ -1,3 +1,6 @@
-alter table t_style_country_status modify column check_detail_json text comment '检查详情Json';
-alter table t_style_country_status add column type varchar(10) default 'tag' not null comment '标准类型';
-alter table t_style_country_status add column standard_column_code varchar(300) not null default '' comment '冗余一份标准列编码';
+alter table t_order_book_detail add column designer_distribute VARCHAR(1) default '0' comment '设计师分配';
+alter table t_order_book_detail add column offline_business_distribute VARCHAR(1) default '0' comment '线下商企分配';
+alter table t_order_book_detail add column online_business_distribute VARCHAR(1) default '0' comment '线上商企分配';
+
+update t_column_define set hidden = '1', column_width = '80',sort_order = '9', del_flag = '0' where id = 'orderBook42';
+update t_column_define set hidden = '1', column_width = '100',sort_order = '14', del_flag = '0' where id = '1742859895962791938';

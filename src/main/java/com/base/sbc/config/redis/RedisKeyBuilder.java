@@ -43,6 +43,10 @@ public class RedisKeyBuilder {
         }
     }
 
+	public static RedisKeyBuilder builder(){
+		return new RedisKeyBuilder();
+	}
+
 	private static String build(RedisKeyBuilder builder){
 		List<String> keys = builder.getKeys();
 		StringJoiner keyJoiner = builder.getKeyJoiner();
@@ -89,7 +93,8 @@ public class RedisKeyBuilder {
 		return this;
 	}
 
-	public String build() {
+	/* 异步导致会clear掉其他请求数据,待优化(TODO) */
+	public synchronized String build() {
 		String str = build(this);
 		clearJoiner(this.keyJoiner);
 		this.keys = new ArrayList<>(this.baseKeys);

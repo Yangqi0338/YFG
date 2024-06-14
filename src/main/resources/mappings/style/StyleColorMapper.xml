@@ -167,6 +167,18 @@
             left join t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
             ${ew.customSqlSegment}
         </select>
+
+    <select id="pageBySampleDesign" resultType="com.base.sbc.module.style.entity.Style">
+        select ts.*,GROUP_CONCAT(tsc.style_no) bulkyCargoNo from t_style ts
+        left join t_style_color tsc on ts.id = tsc.style_id and tsc.del_flag = '0'
+        <where>
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+            </if>
+        </where>
+    </select>
+
+
     <select id="colorList" resultType="com.base.sbc.module.style.vo.StyleColorVo">
         select
             tsc.*,
@@ -216,10 +228,10 @@
             concat(tsc.ware_code,tsc.color_code,tbs.sort) as defaultBarCode
             FROM
             t_style_color tsc
-            LEFT JOIN t_style ts ON ts.id = tsc.style_id
+            LEFT JOIN t_style ts ON ts.id = tsc.style_id and tsc.del_flag = 0
 <!--            LEFT JOIN t_pack_info tpi on tpi.style_no = tsc.style_no-->
-            LEFT JOIN t_pack_info tpi on tpi.style_color_id = tsc.id
-            LEFT JOIN t_style_pricing tsp on tsp.pack_id = tpi.id
+            LEFT JOIN t_pack_info tpi on tpi.style_color_id = tsc.id  and tpi.del_flag = 0
+            LEFT JOIN t_style_pricing tsp on tsp.pack_id = tpi.id and tsp.del_flag = 0
             left join 	(SELECT style_color_id ,GROUP_CONCAT(style_no) style_no  ,GROUP_CONCAT(color_name) color_name ,is_trim FROM t_style_main_accessories WHERE del_flag='0' GROUP BY style_color_id)  tsma on (tsma.style_color_id = tsc.id )
             left join t_basicsdatum_size tbs ON FIND_IN_SET(tbs.id,ts.size_ids) > 0 and tbs.hangtags = ts.default_size
             ${ew.customSqlSegment}
@@ -247,6 +259,26 @@
             #{id}
         </foreach>
         and tsc.scm_send_flag &lt;&gt; '1'
+    </select>
+
+    <select id="getStyleMainAccessoriesNoSendFlag" resultType="com.base.sbc.module.style.entity.StyleColor">
+        SELECT distinct tsc.*
+        from t_style_color tsc
+        LEFT JOIN t_style_main_accessories tsma on (tsc.style_no = tsma.style_no
+        and tsma.del_flag='0')
+        WHERE tsma.style_color_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+
+        UNION ALL
+
+        SELECT *
+        from t_style_color tsc
+        WHERE tsc.id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </select>
 
     <select id="markingCheckPage" resultType="com.base.sbc.module.style.vo.StyleMarkingCheckVo">

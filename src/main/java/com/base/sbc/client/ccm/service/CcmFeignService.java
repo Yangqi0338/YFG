@@ -202,6 +202,32 @@ public class CcmFeignService {
     }
 
     /**
+     * ccm 查询字典
+     *
+     * @param types
+     * @return
+     */
+    public Map<String, Map<String, String>> getDictInfoToMapTurnOver(String types) {
+        Map<String, Map<String, String>> result = new LinkedHashMap<>(16);
+        String dictInfo = ccmService.getDictInfo(types, null);
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            List<BasicBaseDict> data = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+            if (CollUtil.isNotEmpty(data)) {
+                for (BasicBaseDict dict : data) {
+                    Map<String, String> dictMap = result.get(dict.getType());
+                    if (dictMap == null) {
+                        dictMap = new LinkedHashMap<>(16);
+                        result.put(dict.getType(), dictMap);
+                    }
+                    dictMap.put(dict.getName(), dict.getValue());
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * 查询 品类id
      */
     public String getIdsByNameAndLevel(String structureName, String names, String level) {
@@ -301,6 +327,24 @@ public class CcmFeignService {
     }
 
     /**
+     * 通过编码获取开关是否开启或关闭
+     * @param code
+     * @return
+     */
+    public YesOrNoEnum inSettingOptions(String code, String... value) {
+        List<String> valueList = Arrays.stream(value).filter(StrUtil::isNotBlank).collect(Collectors.toList());
+        if (CollUtil.isEmpty(valueList)) return YesOrNoEnum.NO;
+        String resultStr = ccmService.getCompanySettingData(code);
+        JSONObject jsonObject = JSON.parseObject(resultStr);
+        JSONObject data = jsonObject.getJSONObject("data");
+        if (Objects.isNull(data) || !jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            return YesOrNoEnum.NO;
+        }
+        String settingValue = data.getString("value");
+        return YesOrNoEnum.findByValue(Arrays.stream(value).allMatch(settingValue::contains));
+    }
+
+    /**
      * 查询所有单位列表，可根据类型筛选
      * @param type 类型
      *
@@ -340,12 +384,42 @@ public class CcmFeignService {
      * @param types
      * @return
      */
+    public List<BasicBaseDict> getDictInfoToListOpen(String com,String types) {
+        List<BasicBaseDict> list = new ArrayList<>();
+        String dictInfo = ccmService.getDictInfoOpen(com, types);
+        JSONObject jsonObject = JSON.parseObject(dictInfo);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            list = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+        }
+        return list;
+    }
+
+    /**
+     * ccm 查询字典
+     *
+     * @param types
+     * @return
+     */
     public List<BasicBaseDict> getAllDictInfoToList(String types) {
         List<BasicBaseDict> list = new ArrayList<>();
         String dictInfo = ccmService.getDictInfo(types, "0,1");
         JSONObject jsonObject = JSON.parseObject(dictInfo);
         if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
             list = jsonObject.getJSONArray("data").toJavaList(BasicBaseDict.class);
+        }
+        return list;
+    }
+
+    /**
+     * ccm 查询字典依赖
+     *
+     */
+    public List<BasicDictDepend> getDictDependsList( BasicDictDependsQueryDto basicDictDependsQueryDto) {
+        List<BasicDictDepend> list = new ArrayList<>();
+        String dictDependsList = ccmService.getDictDependsList(basicDictDependsQueryDto.getDictTypeName(), basicDictDependsQueryDto.getPageNum(), basicDictDependsQueryDto.getPageSize());
+        JSONObject jsonObject = JSON.parseObject(dictDependsList);
+        if (jsonObject.getBoolean(BaseConstant.SUCCESS)) {
+            list = jsonObject.getJSONObject("data").getJSONArray("list").toJavaList(BasicDictDepend.class);
         }
         return list;
     }

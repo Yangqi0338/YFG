@@ -391,6 +391,19 @@ public class AmcFeignService {
         return userList;
     }
 
+    public List<UserCompany> getUserByUserIds(String userId) {
+        List<UserCompany> userList = null;
+        try {
+            String result = amcService.getUserByUserIds(userId);
+            JSONObject jsonObject = JSON.parseObject(result);
+            JSONArray data = jsonObject.getJSONArray(BaseConstant.DATA);
+            userList = data.toJavaList(UserCompany.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return userList;
+    }
+
     /**
      * 获取当官的 如样衣组长2 部门主管 1
      *

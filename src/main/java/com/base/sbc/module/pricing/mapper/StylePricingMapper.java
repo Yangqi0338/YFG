@@ -13,7 +13,6 @@ import com.base.sbc.module.pricing.dto.StylePricingSearchDTO;
 import com.base.sbc.module.pricing.entity.StylePricing;
 import com.base.sbc.module.pricing.vo.StylePricingVO;
 import com.base.sbc.module.style.dto.StyleColorsDto;
-import com.base.sbc.module.style.entity.StyleColor;
 import com.base.sbc.module.style.vo.StyleColorVo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -42,7 +41,7 @@ public interface StylePricingMapper extends BaseMapper<StylePricing> {
     List<StylePricingVO> getStylePricingList(@Param("dto") StylePricingSearchDTO dto,
                                              @Param(Constants.WRAPPER) QueryWrapper qw);
 
-    List<StyleColorVo> getByStyleList(@Param(Constants.WRAPPER) QueryWrapper qw);
+    List<StyleColorVo> getByStyleList(@Param(Constants.WRAPPER) QueryWrapper qw, @Param("dto") StyleColorsDto dto);
 
 // 自定义方法区 不替换的区域【other_end】
 

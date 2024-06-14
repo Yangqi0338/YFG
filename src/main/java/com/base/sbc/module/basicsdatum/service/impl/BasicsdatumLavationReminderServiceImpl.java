@@ -10,7 +10,6 @@ import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -25,9 +24,9 @@ import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.common.base.BaseGlobal;
 import com.base.sbc.config.constant.MoreLanguageProperties;
 import com.base.sbc.config.enums.BaseErrorEnum;
+import com.base.sbc.config.enums.YesOrNoEnum;
 import com.base.sbc.config.exception.OtherException;
 import com.base.sbc.config.ureport.minio.MinioUtils;
-import com.base.sbc.config.utils.CommonUtils;
 import com.base.sbc.config.utils.ExcelUtils;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.dto.AddRevampBasicsdatumLavationReminderDto;
@@ -40,13 +39,13 @@ import com.base.sbc.module.basicsdatum.mapper.BasicsdatumLavationReminderMapper;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumLavationReminderService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumWashIconService;
 import com.base.sbc.module.basicsdatum.vo.BasicsdatumLavationReminderVo;
-import com.base.sbc.module.common.service.UploadFileService;
 import com.base.sbc.module.common.service.impl.BaseServiceImpl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,7 +53,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -111,6 +109,7 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCode()), "lr.code", queryDto.getCode());
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getCareLabel()),"lr.care_label",queryDto.getCareLabel());
             queryWrapper.like(StringUtils.isNotEmpty(queryDto.getDescription()),"lr.description",queryDto.getDescription());
+            queryWrapper.like(StringUtils.isNotEmpty(queryDto.getWashType()),"lr.wash_type",queryDto.getWashType());
 
             /*查询基础资料-洗涤图标与温馨提示数据*/
             List<BasicsdatumLavationReminderVo> basicsdatumLavationReminderList = baseMapper.getLavationReminderList(queryWrapper);
@@ -284,6 +283,21 @@ public class BasicsdatumLavationReminderServiceImpl extends BaseServiceImpl<Basi
              return baseMapper.update(null, updateWrapper) > 0;
           }
 
-      /** 自定义方法区 不替换的区域【other_end】 **/
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Boolean copyById(String id) {
+        BasicsdatumLavationReminder lavationReminder = getById(id);
+        if (lavationReminder == null) throw new OtherException("无效的复制来源");
+        // 获取最大code
+        String code = findOneField(new QueryWrapper<BasicsdatumLavationReminder>().orderByDesc("CONVERT(REPLACE(code,\"XB\",\"\"), SIGNED INTEGER)").lambda(), BasicsdatumLavationReminder::getCode);
+        int newCode = NumberUtil.parseInt(StrUtil.replace(code, "XB", "")) + 1;
+        lavationReminder.setCode("XB" + newCode);
+        lavationReminder.setId(null);
+        lavationReminder.setStatus(YesOrNoEnum.NO.getValueStr());
+        addRevampBasicsdatumLavationReminder(BeanUtil.copyProperties(lavationReminder, AddRevampBasicsdatumLavationReminderDto.class));
+        return true;
+    }
+
+    /** 自定义方法区 不替换的区域【other_end】 **/
 
 }

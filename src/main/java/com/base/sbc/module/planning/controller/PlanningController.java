@@ -11,6 +11,7 @@ import com.base.sbc.client.ccm.entity.BasicBaseDict;
 import com.base.sbc.client.ccm.entity.BasicStructureTreeVo;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.client.ccm.service.CcmService;
+import com.base.sbc.config.annotation.DuplicationCheck;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.IdGen;
 import com.base.sbc.config.common.base.BaseController;
@@ -132,6 +133,7 @@ public class PlanningController extends BaseController {
 
     @ApiOperation(value = "新增渠道")
     @PostMapping("/channel")
+    @DuplicationCheck
     public PlanningChannelVo save(@Valid @RequestBody PlanningChannelDto dto) {
         return planningChannelService.saveByDto(dto);
     }

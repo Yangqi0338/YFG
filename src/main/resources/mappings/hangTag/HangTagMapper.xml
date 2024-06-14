@@ -25,6 +25,8 @@
         tsd.id as styleId,
         tpi.id as packInfoId,
         tsd.devt_type AS produceType,
+        tsd.devt_type AS devtType,
+        tsd.receive_dept_id AS receiveDeptId,
         tsd.style_type AS styleType,
         tsd.devt_type_name AS produceTypeName,
         tsd.style_type_name AS styleTypeName,
@@ -143,12 +145,6 @@
                     </otherwise>
                 </choose>
             </if>
-            <if test="dto.confirmDate != null and dto.confirmDate != ''">
-                AND  DATE_FORMAT(ht.confirm_date,'%Y-%m-%d')  = #{dto.confirmDate}
-            </if>
-            <if test="dto.translateConfirmDate != null and dto.translateConfirmDate != ''">
-                AND  DATE_FORMAT(ht.translate_confirm_date,'%Y-%m-%d')  = #{dto.translateConfirmDate}
-            </if>
             <if test="dto.styleNo != null and dto.styleNo != ''">
                 <choose>
                     <when test='dto.likeQueryFlag == "1"'>
@@ -177,8 +173,8 @@
                     tsd.design_no like concat('%',#{designNo},'%')
                 </foreach>
             </if>
-            <if test="authSql != null and authSql != ''">
-                and (${authSql})
+            <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+                ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
             </if>
             <choose>
                 <when test="dto.selectType != null and dto.selectType != '' and dto.selectType =='packBigGoods'">
@@ -236,8 +232,7 @@
     <select id="getDetailsByBulkStyleNo" resultType="com.base.sbc.module.hangtag.vo.HangTagVO">
         SELECT
         tsd.design_no AS style,
-        tsd.devt_type AS produceType,
-        tsd.style_type AS styleType,
+        tsd.brand AS brand,
         tsd.size_range AS modelType,
         tsd.size_range_name AS modelTypeName,
         tsd.designer as designer,

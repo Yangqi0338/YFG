@@ -3,9 +3,12 @@ package com.base.sbc.module.basicsdatum.service.impl;
 import cn.afterturn.easypoi.excel.ExcelImportUtil;
 import cn.afterturn.easypoi.excel.entity.ExportParams;
 import cn.afterturn.easypoi.excel.entity.ImportParams;
+import cn.afterturn.easypoi.excel.entity.enmus.ExcelType;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.thread.ExecutorBuilder;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.base.sbc.client.ccm.service.CcmFeignService;
 import com.base.sbc.config.common.BaseQueryWrapper;
@@ -38,6 +41,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 /**
@@ -233,7 +239,39 @@ public class ProcessDatabaseServiceImpl extends BaseServiceImpl<ProcessDatabaseM
             case "7": {
                 /*模板部件*/
                 List<FormworkComponentExcelDto> list = BeanUtil.copyToList(baseMapper.selectList(queryWrapper), FormworkComponentExcelDto.class);
-                ExcelUtils.exportExcel(list, FormworkComponentExcelDto.class, "基础资料.xlsx", new ExportParams(), response);
+                minioUtils.setObjectUrlToList(list, "picture");
+
+                ExecutorService executor = ExecutorBuilder.create()
+                        .setCorePoolSize(8)
+                        .setMaxPoolSize(10)
+                        .setWorkQueue(new LinkedBlockingQueue<>(list.size()))
+                        .build();
+
+                try {
+                    /*导出图片*/
+                    CountDownLatch countDownLatch = new CountDownLatch(list.size());
+                    for (FormworkComponentExcelDto dto : list) {
+                        executor.submit(() -> {
+                            try {
+                                final String picture = dto.getPicture();
+                                dto.setPicture1(HttpUtil.downloadBytes(picture));
+                            } catch (Exception e) {
+                                log.error(e.getMessage());
+                            } finally {
+                                //每次减一
+                                countDownLatch.countDown();
+                            }
+                        });
+                    }
+                    countDownLatch.await();
+                    ExportParams exportParams = new ExportParams();
+                    exportParams.setType(ExcelType.HSSF);
+                    ExcelUtils.exportExcel(list, FormworkComponentExcelDto.class, "基础资料.xlsx",exportParams , response);
+                } catch (Exception e) {
+                    throw new OtherException(e.getMessage());
+                } finally {
+                    executor.shutdown();
+                }
                 break;
             }
             default: {

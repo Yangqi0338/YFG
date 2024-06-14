@@ -3,7 +3,16 @@
 <mapper namespace="com.base.sbc.module.planning.mapper.PlanningSeasonMapper">
 
     <!-- ***********************自定义方法区 不替换的区域【other_start】***************************************** -->
-
+    <select id="list" resultType="com.base.sbc.module.planning.entity.PlanningSeason">
+        select id,
+        name, brand, brand_name, status, year, year_name, season, season_name, remarks, create_id, create_name, create_date, update_id,
+        update_name, update_date, company_code
+        from t_planning_season
+        where del_flag = '0'
+        <if test="ew.customSqlSegment != null and ew.customSqlSegment != ''">
+            ${ ew.customSqlSegment.startsWith("WHERE")?ew.customSqlSegment.replace("WHERE","AND "):ew.customSqlSegment}
+        </if>
+    </select>
 
     <select id="getPlanningSeasonOptions" resultType="com.base.sbc.module.common.vo.SelectOptionsVo">
         select id as value,name as label

@@ -17,4 +17,7 @@ public class OrderBookVo extends OrderBook {
     @ApiModelProperty(value = "款数")
     private Integer count = 0;
 
+    @ApiModelProperty(value = "年份")
+    private String yearName;
+
 }

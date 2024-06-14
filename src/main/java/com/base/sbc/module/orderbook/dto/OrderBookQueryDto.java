@@ -2,10 +2,11 @@ package com.base.sbc.module.orderbook.dto;
 
 import com.base.sbc.config.common.base.Page;
 import com.base.sbc.config.enums.business.orderBook.OrderBookDetailAuditStatusEnum;
-import com.base.sbc.config.enums.business.orderBook.OrderBookDetailStatusEnum;
 import com.base.sbc.config.enums.business.orderBook.OrderBookOrderStatusEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.util.List;
 
 /**
  * @author 卞康
@@ -19,6 +20,7 @@ public class OrderBookQueryDto extends Page {
      */
     @ApiModelProperty(value = "产品季id")
     private String  seasonId;
+    private List<String> seasonIds;
     private String name;
     private OrderBookOrderStatusEnum orderStatus;
     private OrderBookDetailAuditStatusEnum detailStatus;

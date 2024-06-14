@@ -9,6 +9,8 @@ package com.base.sbc.module.basicsdatum.service;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialColor;
 import com.base.sbc.module.common.service.BaseService;
 
+import java.util.List;
+
 /** 
  * 类描述：基础资料-物料档案-物料颜色 service类
  * @address com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialColorService
@@ -34,6 +36,8 @@ public interface BasicsdatumMaterialColorService extends BaseService<Basicsdatum
      * @param newMaterialCode
      */
     void updateMaterialCode(String oldMaterialCode, String newMaterialCode);
+
+    List<BasicsdatumMaterialColor> getBasicsdatumMaterialColorCodeList(String materialCode, String colorCode);
 
 // 自定义方法区 不替换的区域【other_end】
 

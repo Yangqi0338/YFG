@@ -22,4 +22,6 @@ public class PatternUserSearchVo {
     private String finishFlag;
     @ApiModelProperty(value = "企业编码")
     private String companyCode;
+
+    private String businessType;
 }

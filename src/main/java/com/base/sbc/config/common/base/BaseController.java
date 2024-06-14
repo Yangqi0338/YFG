@@ -1,5 +1,6 @@
 package com.base.sbc.config.common.base;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.base.sbc.client.oauth.entity.GroupUser;
 import com.base.sbc.config.common.ApiResult;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
+import java.util.function.Function;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -164,6 +166,13 @@ public class BaseController {
 
 
 	/****************************************修改 ************************************************/
+	/**修改成功:单个String，实体，分页对象*/
+	protected <T> ApiResult<T> update(T object) {
+		return update(object, (it)-> ObjectUtil.isEmpty(object));
+	}
+	protected <T> ApiResult<T> update(T object, Function<T,Boolean> judgeFunc) {
+		return judgeFunc.apply(object) ? updateSuccess(object) : ApiResult.error(object.toString(),0);
+	}
 	/**修改成功:单个String，实体，分页对象*/
 	protected <T> ApiResult<T> updateSuccess(T object) {
 		return success(BaseErrorEnum.SUCCESS_UPDATE.getErrorMessage(),object);

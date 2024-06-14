@@ -4,10 +4,12 @@ import com.base.sbc.module.smp.base.SmpBaseDto;
 import com.base.sbc.module.smp.entity.SmpColor;
 import com.base.sbc.module.smp.entity.SmpModuleSize;
 import com.base.sbc.module.smp.entity.SmpQuot;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,10 +29,14 @@ public class  SmpMaterialDto extends SmpBaseDto {
     private String stockUnit;
     /** 三级分类 */
     private String thirdLevelCategory;
+    /** 三级分类名称 */
+    private String thirdLevelCategoryName;
     /** 物料来源 */
     private String materialSource;
     /** 二级分类 */
     private String secondLevelCategory;
+    /** 二级分类名称 */
+    private String secondLevelCategoryName;
     /** 开发年份 */
     private String seasonYear;
     /** 开发季节 */
@@ -39,6 +45,14 @@ public class  SmpMaterialDto extends SmpBaseDto {
     private String seasonQuarterId;
     /** 开发品牌 */
     private String seasonBrand;
+    /** 材料类型 */
+    private String materialCategory;
+    /** 材料类型名称 */
+    private String materialCategoryName;
+    /** 门幅/规格组 */
+    private String widthGroup;
+    /** 门幅/规格组名称 */
+    private String widthGroupName;
     /** 开发品牌ID */
     private String seasonBrandId;
     /** 公斤米数 */
@@ -102,6 +116,9 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 补单生产周期 */
     @ApiModelProperty(value = "补单生产周期")
     private BigDecimal replenishmentProductionCycle;
+    /** 纱支规格 */
+    @ApiModelProperty(value = "纱支规格")
+    private String specification;
     /** 密度 */
     @ApiModelProperty(value = "密度")
     private String density;
@@ -132,4 +149,60 @@ public class  SmpMaterialDto extends SmpBaseDto {
     /** 辅料材质 */
     @ApiModelProperty(value = "辅料材质")
     private String auxiliaryMaterial;
+
+    /** 总库存 */
+    @ApiModelProperty(value = "总库存")
+    private BigDecimal totalInventory;
+    /** 自由库存 */
+    @ApiModelProperty(value = "自由库存")
+    private BigDecimal inventoryAvailability;
+    /** 面料难度名称 */
+    @ApiModelProperty(value = "面料难度名称")
+    private String fabricDifficultyName;
+    /** 备注 */
+    @ApiModelProperty(value = "备注")
+    private String remarks;
+
+    @ApiModelProperty(value = "送检单号")
+    private String checkBillCode;
+    /** 送检单位 */
+    @ApiModelProperty(value = "送检单位")
+    private String checkCompany;
+    /** 送检单位名称 */
+    @ApiModelProperty(value = "送检单位名称")
+    private String checkCompanyName;
+    /** 质检结果 */
+    @ApiModelProperty(value = "质检结果")
+    private String checkResult;
+    /** 质检日期 */
+    @ApiModelProperty(value = "质检日期")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
+    private Date checkDate;
+    /** 有效期 */
+    @ApiModelProperty(value = "有效期")
+    private Integer checkValidDate;
+    /** 质检项目 */
+    @ApiModelProperty(value = "质检项目")
+    private String checkItems;
+    /** 质检制单人ID */
+    @ApiModelProperty(value = "质检制单人ID")
+    private String checkOrderUserId;
+    /** 质检制单人 */
+    @ApiModelProperty(value = "质检制单人")
+    private String checkOrderUserName;
+    /** 质检文件路径 */
+    @ApiModelProperty(value = "质检文件路径")
+    private String checkFileUrl;
+    /** 面料难度评分 */
+    @ApiModelProperty(value = "面料难度评分")
+    private String fabricDifficultyScore;
+    /** 面料难度评分名称 */
+    @ApiModelProperty(value = "面料难度评分名称")
+    private String fabricDifficultyScoreName;
+    /** 面料评价 */
+    @ApiModelProperty(value = "面料评价")
+    private String fabricEvaluation;
+    /** 风险评估 */
+    @ApiModelProperty(value = "风险评估")
+    private String riskDescription;
 }

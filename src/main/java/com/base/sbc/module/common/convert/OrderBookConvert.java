@@ -3,14 +3,16 @@ package com.base.sbc.module.common.convert;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.base.sbc.config.enums.business.StylePutIntoType;
+import com.base.sbc.config.enums.smp.StylePutIntoType;
 import com.base.sbc.config.enums.business.orderBook.OrderBookChannelType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoCalculateResultType;
 import com.base.sbc.module.orderbook.entity.StyleSaleIntoResultType;
+import com.base.sbc.module.orderbook.vo.OrderBookDetailVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleChannelVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleSizeMapVo;
 import com.base.sbc.module.orderbook.vo.OrderBookSimilarStyleVo;
 import com.base.sbc.module.orderbook.vo.StyleSaleIntoDto;
+import com.base.sbc.module.smp.dto.ScmProductionDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -34,13 +36,14 @@ public interface OrderBookConvert {
     OrderBookConvert INSTANCE = Mappers.getMapper(OrderBookConvert.class);
 
     @Mappings({
-            @Mapping(target = "bulkStyleNo", source = "PROD_CODE"),
-            @Mapping(target = "correctValue", source = "SALE_TYPE"),
-            @Mapping(target = "type", source = "ORDER_TYPE"),
-            @Mapping(target = "channel", source = "CHANNEL_TYPE"),
-            @Mapping(target = "brand", source = "BRAND_NAME"),
-            @Mapping(target = "sum", source = "SUM"),
-            @Mapping(target = "resultType", source = "RESULTTYPE"),
+            @Mapping(target = "bulkStyleNo", source = "PROD_CODE", qualifiedByName = "obj2Str"),
+            @Mapping(target = "correctValue", source = "SALE_TYPE", qualifiedByName = "obj2Str"),
+            @Mapping(target = "type", source = "ORDER_TYPE", qualifiedByName = "obj2Str"),
+            @Mapping(target = "channel", source = "CHANNEL_TYPE", qualifiedByName = "obj2Str"),
+            @Mapping(target = "brand", source = "BRAND_NAME", qualifiedByName = "obj2Str"),
+            @Mapping(target = "sum", source = "SUM", qualifiedByName = "obj2Str"),
+            @Mapping(target = "resultType", source = "RESULTTYPE", qualifiedByName = "obj2Str"),
+            @Mapping(target = "year", source = "YEARS", qualifiedByName = "obj2Str"),
     })
     StyleSaleIntoDto copy2StyleSaleInto(Map<String, Object> map);
     List<StyleSaleIntoDto> copyList2StyleSaleInto(List<Map<String, Object>> source);
@@ -52,7 +55,24 @@ public interface OrderBookConvert {
     OrderBookSimilarStyleChannelVo copyMyself(OrderBookSimilarStyleChannelVo source);
     Map<OrderBookChannelType, OrderBookSimilarStyleSizeMapVo> copyChannelMyself(Map<OrderBookChannelType, OrderBookSimilarStyleSizeMapVo> source);
     OrderBookSimilarStyleSizeMapVo copyMyself(OrderBookSimilarStyleSizeMapVo source);
-    Map<String,Double> copyMyself(Map<String,Double> source);
+    @Mappings({
+            @Mapping(target = "orderBookDetailId", source = "id"),
+            @Mapping(target = "emergencyDegree", source = "productionUrgencyName"),
+            @Mapping(target = "materielSupplierName", source = "fobClothingFactoryName"),
+            @Mapping(target = "year", source = "yearName"),
+            @Mapping(target = "season", source = "seasonName"),
+            @Mapping(target = "styleNo", source = "bulkStyleNo"),
+            @Mapping(target = "color", source = "colorCode"),
+            @Mapping(target = "remark", ignore = true),
+            @Mapping(target = "placeOrderAt",source = "orderDate"),
+            @Mapping(target = "preparedByName", source = "orderPerson"),
+            @Mapping(target = "reviewerName", source = "updateId"),
+            @Mapping(target = "reviewerAt", source = "updateDate"),
+            @Mapping(target = "placeOrderTypeCode", source = "placeOrderType"),
+            @Mapping(target = "brand", source = "brandName"),
+            @Mapping(target = "saleTypeId", source = "saleType"),
+    })
+    ScmProductionDto copy2ProductionDto(OrderBookDetailVo source);
 
     default Boolean saleTypeToBool(String saleType) {
         if (StrUtil.isBlank(saleType)) return null;
@@ -83,10 +103,9 @@ public interface OrderBookConvert {
         return map;
     }
 
+    @Named("obj2Str")
     default String obj2Str(Object obj) {
         return (String) obj;
     }
-
-
 
 }

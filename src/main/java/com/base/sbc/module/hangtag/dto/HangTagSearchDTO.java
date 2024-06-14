@@ -1,6 +1,6 @@
 package com.base.sbc.module.hangtag.dto;
 
-import com.base.sbc.config.common.base.Page;
+import com.base.sbc.config.dto.QueryFieldDto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Data
 @ApiModel(value = "吊牌列表查询")
-public class HangTagSearchDTO extends Page {
+public class HangTagSearchDTO extends QueryFieldDto {
 
     /**
      * 款式
@@ -40,12 +40,12 @@ public class HangTagSearchDTO extends Page {
      * 确认时间
      */
     @ApiModelProperty(value = "确认时间")
-    private String confirmDate;
+    private String[] confirmDate;
     /**
      * 翻译确认时间
      */
     @ApiModelProperty(value = "翻译确认时间")
-    private String translateConfirmDate;
+    private String[] translateConfirmDate;
     /**
      * 款号
      */
@@ -104,4 +104,22 @@ public class HangTagSearchDTO extends Page {
     private String  year;
 
     private String produceTypeName;
+
+    /**
+     * 工艺师
+     */
+    @ApiModelProperty(value = "工艺师")
+    private String technologistName;
+
+    /**
+     * 下单员
+     */
+    @ApiModelProperty(value = "下单员")
+    private String placeOrderStaffName;
+
+    /**
+     * 下单时间
+     */
+    @ApiModelProperty(value = "下单时间")
+    private String[] placeOrderDate;
 }

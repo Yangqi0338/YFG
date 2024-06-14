@@ -5,6 +5,7 @@ import com.base.sbc.module.material.dto.MaterialQueryDto;
 import com.base.sbc.module.material.dto.MaterialSaveDto;
 import com.base.sbc.module.material.entity.Material;
 import com.base.sbc.module.material.vo.AssociationMaterialVo;
+import com.base.sbc.module.material.vo.MaterialLinkageVo;
 import com.base.sbc.module.material.vo.MaterialVo;
 import com.github.pagehelper.PageInfo;
 
@@ -47,4 +48,6 @@ public interface MaterialService extends BaseService<Material> {
      * @return
      */
     List<AssociationMaterialVo> getAssociationMaterial(List<String> ids);
+
+    List<MaterialLinkageVo> linkageQuery(String search, String materialCategoryIds);
 }

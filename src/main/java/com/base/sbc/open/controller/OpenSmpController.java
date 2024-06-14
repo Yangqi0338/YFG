@@ -11,8 +11,9 @@ import com.base.sbc.client.ccm.service.CcmService;
 import com.base.sbc.config.common.ApiResult;
 import com.base.sbc.config.common.base.BaseController;
 import com.base.sbc.config.constant.BaseConstant;
+import com.base.sbc.config.enums.YesOrNoEnum;
+import com.base.sbc.config.enums.business.CountryLanguageType;
 import com.base.sbc.config.exception.OtherException;
-import com.base.sbc.config.utils.CopyUtil;
 import com.base.sbc.config.utils.StringUtils;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterial;
 import com.base.sbc.module.basicsdatum.entity.BasicsdatumMaterialIngredient;
@@ -21,6 +22,8 @@ import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialIngredientServ
 import com.base.sbc.module.basicsdatum.service.BasicsdatumMaterialService;
 import com.base.sbc.module.basicsdatum.service.BasicsdatumSupplierService;
 import com.base.sbc.module.hangtag.service.HangTagService;
+import com.base.sbc.module.moreLanguage.dto.MoreLanguageQueryDto;
+import com.base.sbc.module.moreLanguage.service.MoreLanguageService;
 import com.base.sbc.module.orderbook.entity.OrderBook;
 import com.base.sbc.module.orderbook.entity.OrderBookDetail;
 import com.base.sbc.module.orderbook.service.OrderBookDetailService;
@@ -43,7 +46,6 @@ import com.base.sbc.open.vo.OrderBookDetailDataVo;
 import com.base.sbc.open.vo.OrderBookNameVo;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +53,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -84,12 +87,13 @@ public class OpenSmpController extends BaseController {
 
     private final CcmService ccmService;
 
+    private final BasicsdatumGarmentInspectionService garmentInspectionService;
     private final OrderBookService orderBookService;
 
     private final OrderBookDetailService orderBookDetailService;
     private final PlanningSeasonService planningSeasonService;
+    private final MoreLanguageService moreLanguageService;
 
-    private final BasicsdatumGarmentInspectionService garmentInspectionService;
 
     /**
      * bp供应商
@@ -136,7 +140,12 @@ public class OpenSmpController extends BaseController {
         smpDept.preInsert();
         smpDept.setCreateName("smp请求");
         smpDept.setUpdateName("smp请求");
-        amcService.hrDeptSave(smpDept);
+        if (smpDept != null) {
+            String depGroup = smpDept.getDepGroup();
+            if (!"终端办公室".equals(depGroup) && !"终端店铺".equals(depGroup) && !"终端管理".equals(depGroup) && !"托管店铺".equals(depGroup) ) {
+                amcService.hrDeptSave(smpDept);
+            }
+        }
         return insertSuccess(null);
     }
 
@@ -349,7 +358,7 @@ public class OpenSmpController extends BaseController {
         orderBookDetailQueryWrapper.eq("order_book_id", orderBookId);
         OrderBook orderBook = orderBookService.getById(orderBookId);
         if (orderBook != null) {
-            List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(orderBookDetailQueryWrapper, 1);
+            List<OrderBookDetailVo> querylist = orderBookDetailService.querylist(orderBookDetailQueryWrapper, 0, 1);
             List<OrderBookDetailDataVo> orderBookDetailDataVos = BeanUtil.copyToList(querylist, OrderBookDetailDataVo.class);
             PlanningSeason planningSeason = planningSeasonService.getById(orderBook.getSeasonId());
             if (planningSeason != null) {
@@ -362,5 +371,22 @@ public class OpenSmpController extends BaseController {
             return selectSuccess(orderBookDetailDataVos);
         }
         return selectSuccess(null);
+    }
+
+    /**
+     * 查询列表
+     */
+    @ApiOperation(value = "条件查询列表", notes = "条件查询列表")
+    @GetMapping("/listQuery")
+    public ApiResult listQuery(String standardColumnCode) {
+        MoreLanguageQueryDto moreLanguageQueryDto = new MoreLanguageQueryDto();
+        moreLanguageQueryDto.setPageNum(1);
+        moreLanguageQueryDto.setPageSize(Integer.MAX_VALUE);
+        moreLanguageQueryDto.setType(CountryLanguageType.TAG);
+        moreLanguageQueryDto.setSingleLanguageFlag(YesOrNoEnum.YES);
+        moreLanguageQueryDto.setCache(YesOrNoEnum.NO.getValueStr());
+        moreLanguageQueryDto.setStandardColumnCode(standardColumnCode);
+        List<Map<String, Object>> list = moreLanguageService.listQuery(moreLanguageQueryDto).getList();
+        return selectSuccess(list);
     }
 }

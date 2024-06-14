@@ -21,7 +21,12 @@ import java.util.function.Function;
 @Data
 public class MoreLanguageTagPrinting extends TagPrintingSupportVO {
     /**
-     * 大货款号标题
+     * 语言编码
+     */
+    @JsonIgnore
+    private String languageCode;
+    /**
+     * 语言名称
      */
     private String languageName;
 
