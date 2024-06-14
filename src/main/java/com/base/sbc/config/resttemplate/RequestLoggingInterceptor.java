@@ -23,7 +23,6 @@ import java.util.List;
 
 import static com.base.sbc.config.adviceadapter.ResponseControllerAdvice.companyUserInfo;
 
-@Component
 public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestLoggingInterceptor.class);
 

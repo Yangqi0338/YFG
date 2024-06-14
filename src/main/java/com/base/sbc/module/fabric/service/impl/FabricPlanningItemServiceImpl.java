@@ -23,7 +23,7 @@ import com.base.sbc.module.fabric.service.FabricPlanningItemService;
 import com.base.sbc.module.fabric.vo.BasicFabricLibraryListVO;
 import com.base.sbc.module.fabric.vo.FabricPlanningItemVO;
 import com.beust.jcommander.internal.Lists;
-import org.apache.commons.collections.CollectionUtils;
+import cn.hutool.core.collection.CollUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class FabricPlanningItemServiceImpl extends BaseServiceImpl<FabricPlannin
 
     @Override
     public void saveItem(List<FabricPlanningItemSaveDTO> dto, String fabricPlanningId) {
-        if (CollectionUtils.isEmpty(dto)) {
+        if (CollUtil.isEmpty(dto)) {
             LambdaQueryWrapper<FabricPlanningItem> queryWrapper = new QueryWrapper<FabricPlanningItem>()
                     .lambda()
                     .eq(FabricPlanningItem::getFabricPlanningId, fabricPlanningId)
@@ -86,7 +86,7 @@ public class FabricPlanningItemServiceImpl extends BaseServiceImpl<FabricPlannin
                 }).collect(Collectors.toList());
 
         super.saveOrUpdateBatch(fabricPlanningItems);
-        if (CollectionUtils.isNotEmpty(ids)) {
+        if (CollUtil.isNotEmpty(ids)) {
             super.getBaseMapper().deleteBatchIds(ids);
         }
     }
@@ -102,7 +102,7 @@ public class FabricPlanningItemServiceImpl extends BaseServiceImpl<FabricPlannin
         params.setNeedSave(false);
         try {
             List<FabricPlanningItemImportDTO> list = ExcelImportUtil.importExcel(file.getInputStream(), FabricPlanningItemImportDTO.class, params);
-            if (CollectionUtils.isEmpty(list) || list.size() > 200) {
+            if (CollUtil.isEmpty(list) || list.size() > 200) {
                 return "导入失败，数据为空或超出最大限制（200条）";
             }
             List<String> materialCodes = list.stream()
@@ -133,7 +133,7 @@ public class FabricPlanningItemServiceImpl extends BaseServiceImpl<FabricPlannin
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(fabricPlanningItems)) {
+            if (CollUtil.isNotEmpty(fabricPlanningItems)) {
                 super.saveBatch(fabricPlanningItems);
             }
             return String.join(",", errorMsg);
@@ -156,7 +156,7 @@ public class FabricPlanningItemServiceImpl extends BaseServiceImpl<FabricPlannin
                 .eq(FabricPlanningItem::getDelFlag, "0")
                 .select(FabricPlanningItem::getId);
         List<FabricPlanningItem> list = super.list(qw);
-        return CollectionUtils.isEmpty(list) ? Lists.newArrayList() : list.stream()
+        return CollUtil.isEmpty(list) ? Lists.newArrayList() : list.stream()
                 .map(FabricPlanningItem::getId)
                 .collect(Collectors.toList());
     }
